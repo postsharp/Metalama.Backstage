@@ -1,6 +1,8 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. This file is not open source. It is released under a commercial
 // source-available license. Please see the LICENSE.md file in the repository root for details.
 
+using PostSharp.Backstage.Extensibility;
+using PostSharp.Backstage.Settings;
 using System;
 using System.Globalization;
 using System.IO;
@@ -8,17 +10,24 @@ using System.Net;
 
 namespace PostSharp.Backstage.Licensing.Helpers
 {
-    public static class LicenseServerClient
+    public sealed class LicenseServerClient
     {
+        private readonly IWebClientService _webClientService;
+
+        public LicenseServerClient( IWebClientService webClientService )
+        {
+            this._webClientService = webClientService;
+        }
+
         /// <exclude/>
-        internal static bool IsLicenseServerUrl( string licenseString )
+        internal bool IsLicenseServerUrl( string licenseString )
         {
             string message;
             return IsLicenseServerUrl( licenseString, out message );
         }
 
         /// <exclude/>
-        internal static bool IsLicenseServerUrl( string licenseString, out string errorMessage )
+        internal bool IsLicenseServerUrl( string licenseString, out string errorMessage )
         {
             if ( !Uri.IsWellFormedUriString( licenseString, UriKind.Absolute ) )
             {
@@ -45,7 +54,7 @@ namespace PostSharp.Backstage.Licensing.Helpers
             return true;
         }
 
-        internal static LicenseLease TryDownloadLease( IMessageSink messageSink, string url,
+        internal LicenseLease TryDownloadLease( IDiagnosticsSink diagnosticsSink, string url,
                                                        IRegistryKey registryKey, bool renewal = false )
         {
             LicenseLease lease = null;
@@ -66,11 +75,9 @@ namespace PostSharp.Backstage.Licensing.Helpers
             }
             catch ( Exception e )
             {
-                if ( messageSink != null )
+                if ( diagnosticsSink != null )
                 {
-                    messageSink.Write(
-                        LicensingMessageSource.Instance.CreateMessage( MessageLocation.Unknown, renewal ? SeverityType.Error : SeverityType.Warning,
-                                                                       "PS0148", null, new object[] {e.Message} ) );
+                    diagnosticsSink.ReportError( $"Cannot get a lease from the license server: {e.Message}." ); // PS0148
                 }
 
                 // Return null to use the last-known good lease.
@@ -79,7 +86,7 @@ namespace PostSharp.Backstage.Licensing.Helpers
             return lease;
         }
 
-        private static LicenseLease DownloadLease( string url )
+        private LicenseLease DownloadLease( string url )
         {
             if ( !url.Contains( "?" ) )
             {
@@ -100,7 +107,7 @@ namespace PostSharp.Backstage.Licensing.Helpers
 
             try
             {
-                leaseString = SystemServiceLocator.GetService<IWebClientService>().DownloadString( url );
+                leaseString = this._webClientService.DownloadString( url );
             }
             catch ( WebException e )
             {
@@ -122,7 +129,7 @@ namespace PostSharp.Backstage.Licensing.Helpers
         }
 
         /// <exclude/>
-        internal static bool TestLicenseServer( string url, out string errorMessage, out License license )
+        internal bool TestLicenseServer( string url, out string errorMessage, out License license )
         {
             try
             {
@@ -154,7 +161,7 @@ namespace PostSharp.Backstage.Licensing.Helpers
 
         // This method is exposed because it is used to test the license server.
 #pragma warning disable CA1054 // Uri parameters should not be strings
-        public static LicenseLease TryGetLease( string url, IRegistryKey registryKey, DateTime now, IMessageSink messageSink)
+        public LicenseLease TryGetLease( string url, IRegistryKey registryKey, DateTime now, IDiagnosticsSink diagnosticsSink)
 #pragma warning restore CA1054 // Uri parameters should not be strings
         {
             foreach ( string name in registryKey.GetValueNames() )
@@ -187,7 +194,7 @@ namespace PostSharp.Backstage.Licensing.Helpers
                     }
                     else if ( lease.RenewTime < now )
                     {
-                        LicenseLease renewedLease = TryDownloadLease( messageSink, url, registryKey, true );
+                        LicenseLease renewedLease = TryDownloadLease( diagnosticsSink, url, registryKey, true );
                         if ( renewedLease != null )
                         {
                             lease = renewedLease;

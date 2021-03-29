@@ -120,11 +120,7 @@ namespace PostSharp.Backstage.Utilities
         /// </summary>
         [SuppressMessage("Microsoft.Design", "CA1065:DoNotRaiseExceptionsInUnexpectedLocations", Justification = "Matching .NET behavior by throwing here.")]
         [SuppressMessage("Microsoft.Usage", "CA2201:DoNotRaiseReservedExceptionTypes", Justification = "Matching .NET behavior by throwing NullReferenceException.")]
-        public
-#if HASH_ALGORITHM_HASH
-            override
-#endif
-            byte[] Hash
+        public override byte[] Hash
         {
             get
             {

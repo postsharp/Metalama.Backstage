@@ -1,7 +1,9 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. This file is not open source. It is released under a commercial
 // source-available license. Please see the LICENSE.md file in the repository root for details.
 
+using PostSharp.Backstage.Extensibility;
 using PostSharp.Backstage.Settings;
+using PostSharp.Backstage.Utilities;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -168,7 +170,7 @@ namespace PostSharp.Backstage.Licensing
             }
         }
 
-        public bool Verify( byte[] publicKeyToken, IMessageSink messageSink, List<string> errors = null )
+        public bool Verify( byte[] publicKeyToken, IDiagnosticsSink diagnosticsSink, List<string> errors = null )
         {
             if ( UserSettings.GetCurrentDateTime().Subtract( this.lastVerificationTime ).TotalHours <= 2 && (new Random()).NextDouble() >= 0.01 )
             {
@@ -187,11 +189,9 @@ namespace PostSharp.Backstage.Licensing
                     {
                         valid = false;
 
-                        if ( messageSink != null )
+                        if ( diagnosticsSink != null )
                         {
-                            messageSink.Write(
-                                LicensingMessageSource.Instance.CreateMessage( MessageLocation.Unknown, SeverityType.Error, "PS0146", null,
-                                                                               new object[] {license.LicenseUniqueId, this.path, errorDescription} ) );
+                            diagnosticsSink.ReportError( $"License error. The license {license.LicenseUniqueId} in file '{this.path}' is invalid: {errorDescription}" ); // PS0146
                         }
 
                         if ( errors != null )

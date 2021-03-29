@@ -785,6 +785,9 @@ namespace PostSharp.Backstage.Settings
         public static Version Version { get { return SystemServiceLocator.GetService<IApplicationInfoService>().Version; } }
 
         // TODO #28390
+        public static Version VersionString { get { return SystemServiceLocator.GetService<IApplicationInfoService>().VersionString; } }
+
+        // TODO #28390
         public static DateTime BuildDate { get { return SystemServiceLocator.GetService<IApplicationInfoService>().BuildDate; } }
 
         /// <exclude />

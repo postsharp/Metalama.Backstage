@@ -5,15 +5,13 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using PostSharp.Extensibility;
-using PostSharp.Sdk.User;
-using PostSharp.Sdk.Utilities;
 using System.Collections.ObjectModel;
 using System.Threading;
-using PostSharp.Platform;
-using PostSharp.Platform.Utilities;
-using namespace PostSharp.Backstage.Licensing.Helpers;
 using System.Globalization;
+using PostSharp.Backstage.Utilities;
+using PostSharp.Backstage.Extensibility;
+using PostSharp.Backstage.Settings;
+using PostSharp.Backstage.Licensing.Helpers;
 
 namespace PostSharp.Backstage.Licensing
 {
@@ -50,21 +48,23 @@ namespace PostSharp.Backstage.Licensing
 
         private void AddUnattendedLicense()
         {
-            LicensingTrace.Licensing?.WriteLine( "Checking for unattended build." );
+            throw new NotImplementedException();
 
-            if ( !ProcessUtilities.IsCurrentProcessUnattended )
-            {
-                LicensingTrace.Licensing?.WriteLine( "The build is not unattended." );
-            }
-            else
-            {
-                LicensingTrace.Licensing?.WriteLine( "The build is unattended. Adding license for unattended build." );
-                License license = LicenseRegistrationHelper.CreateUnattendedLicense();
-                this.AddUnusedLicenseConfiguration(
-                    new LicenseConfiguration( LicenseRegistrationHelper.UnattendedLicenseString, license, LicenseSource.Internal, "Unattended Build" ) );
-            }
+            //LicensingTrace.Licensing?.WriteLine( "Checking for unattended build." );
 
-            this.addUnattendedLicenseCalled = true;
+            //if ( !ProcessUtilities.IsCurrentProcessUnattended )
+            //{
+            //    LicensingTrace.Licensing?.WriteLine( "The build is not unattended." );
+            //}
+            //else
+            //{
+            //    LicensingTrace.Licensing?.WriteLine( "The build is unattended. Adding license for unattended build." );
+            //    License license = LicenseRegistrationHelper.CreateUnattendedLicense();
+            //    this.AddUnusedLicenseConfiguration(
+            //        new LicenseConfiguration( LicenseRegistrationHelper.UnattendedLicenseString, license, LicenseSource.Internal, "Unattended Build" ) );
+            //}
+
+            //this.addUnattendedLicenseCalled = true;
         }
         
 
@@ -82,7 +82,7 @@ namespace PostSharp.Backstage.Licensing
         }
 
         internal bool TrySatisfyRequirement( 
-            IMessageSink messageSink, 
+            IDiagnosticsSink diagnosticsSink, 
             LicensedPackages requirement, 
             string ns, 
             bool perUsage,
@@ -135,7 +135,7 @@ namespace PostSharp.Backstage.Licensing
                         this.AddUnattendedLicense();
                         continue;
                     }
-                    else if ( this.TryLoadNextCachedOrInternalLicenseKey( ns, messageSink, perUsage ) )
+                    else if ( this.TryLoadNextCachedOrInternalLicenseKey( ns, diagnosticsSink, perUsage ) )
                     {
                         continue;
                     }
@@ -143,11 +143,11 @@ namespace PostSharp.Backstage.Licensing
                     {
                         break;
                     }
-                    else if ( this.TryLoadLowestUncachedLicenseKey( ns, messageSink, perUsage ) )
+                    else if ( this.TryLoadLowestUncachedLicenseKey( ns, diagnosticsSink, perUsage ) )
                     {
                         continue;
                     }
-                    else if ( this.TryGetLease( messageSink ) )
+                    else if ( this.TryGetLease( diagnosticsSink ) )
                     {
                         continue;
                     }
@@ -202,14 +202,14 @@ namespace PostSharp.Backstage.Licensing
             return false;
         }
 
-        private bool TryGetLease( IMessageSink messageSink, bool cachedOnly = false )
+        private bool TryGetLease( IDiagnosticsSink diagnosticsSink, bool cachedOnly = false )
         {
             while ( true )
             {
                 if ( this.unusedLicenseServers.Count > 0 )
                 {
                     LicenseConfiguration licenseConfiguration = this.unusedLicenseServers.PopFirst();
-                    if ( this.TryGetLease( messageSink, licenseConfiguration, true ) )
+                    if ( this.TryGetLease( diagnosticsSink, licenseConfiguration, true ) )
                     {
                         return true;
                     }
@@ -217,7 +217,7 @@ namespace PostSharp.Backstage.Licensing
                 else if ( !cachedOnly && this.unusedUncachedLicenseServers.Count > 0 )
                 {
                     LicenseConfiguration licenseConfiguration = this.unusedUncachedLicenseServers.PopFirst();
-                    if ( this.TryGetLease( messageSink, licenseConfiguration, false ) )
+                    if ( this.TryGetLease( diagnosticsSink, licenseConfiguration, false ) )
                     {
                         return true;
                     }
@@ -231,7 +231,7 @@ namespace PostSharp.Backstage.Licensing
 
 
 
-        public bool TryGetLease( IMessageSink messageSink, LicenseConfiguration licenseConfiguration, bool cached )
+        public bool TryGetLease( IDiagnosticsSink diagnosticsSink, LicenseConfiguration licenseConfiguration, bool cached )
         {
             using ( IRegistryKey registryKey = LicensingRegistryHelper.GetLeasedLicenseRegistryKey( licenseConfiguration ) )
             {
@@ -241,12 +241,12 @@ namespace PostSharp.Backstage.Licensing
                     if ( cached )
                     {
                         LicensingTrace.Licensing?.WriteLine( "Trying to get a cached license lease from \"{0}\".", licenseConfiguration );
-                        lease = this.TryGetCachedLease( messageSink, licenseConfiguration, registryKey, UserSettings.GetCurrentDateTime() );
+                        lease = this.TryGetCachedLease( diagnosticsSink, licenseConfiguration, registryKey, UserSettings.GetCurrentDateTime() );
                     }
                     else
                     {
                         LicensingTrace.Licensing?.WriteLine( "Trying to download a license lease from \"{0}\".", licenseConfiguration );
-                        lease = LicenseServerClient.TryDownloadLease( messageSink, licenseConfiguration.LicenseString, registryKey );
+                        lease = LicenseServerClient.TryDownloadLease( diagnosticsSink, licenseConfiguration.LicenseString, registryKey );
                     }
 
                     if ( lease == null )
@@ -268,16 +268,14 @@ namespace PostSharp.Backstage.Licensing
 
                     if ( !license.IsLicenseServerEligible() )
                     {
-                        LicensingTrace.Licensing?.WriteLine( "A {0} license lease of license id ({1}) obtained from \"{2}\" is not license server elligible.",
+                        LicensingTrace.Licensing?.WriteLine( "A {0} license lease of license id ({1}) obtained from \"{2}\" is not license server eligible.",
                                                             cached ? "cached" : "non-cached",
                                                             license.LicenseId,
                                                             licenseConfiguration );
 
-                        if ( messageSink != null )
+                        if ( diagnosticsSink != null )
                         {
-                            messageSink.Write(
-                                LicensingMessageSource.Instance.CreateMessage( MessageLocation.Unknown, SeverityType.Warning, "PS0149", null,
-                                                                               new object[] {license.LicenseString} ) );
+                            diagnosticsSink.ReportWarning( $"Cannot use the license {license.LicenseString} from a license server: invalid license type." ); // PS0149
                         }
 
                         return false;
@@ -302,10 +300,9 @@ namespace PostSharp.Backstage.Licensing
                                                         licenseConfiguration,
                                                         e );
 
-                    if ( messageSink != null )
+                    if ( diagnosticsSink != null )
                     {
-                        messageSink.Write( LicensingMessageSource.Instance.CreateMessage( MessageLocation.Unknown, SeverityType.Error,
-                                                                                          "PS0148", null, new object[] {"Error accessing the registry."} ) );
+                        diagnosticsSink.ReportError( "Cannot get a lease from the license server: Error accessing the registry." ); // PS0148
                     }
 
                     return false;
@@ -313,9 +310,9 @@ namespace PostSharp.Backstage.Licensing
             }
         }
 
-        private LicenseLease TryGetCachedLease( IMessageSink messageSink, LicenseConfiguration licenseConfiguration, IRegistryKey registryKey, DateTime now )
+        private LicenseLease TryGetCachedLease( IDiagnosticsSink diagnosticsSink, LicenseConfiguration licenseConfiguration, IRegistryKey registryKey, DateTime now )
         {
-            LicenseLease lease = LicenseServerClient.TryGetLease( licenseConfiguration.LicenseString, registryKey, now, messageSink );
+            LicenseLease lease = LicenseServerClient.TryGetLease( licenseConfiguration.LicenseString, registryKey, now, diagnosticsSink );
 
             if ( lease == null )
             {
@@ -332,11 +329,11 @@ namespace PostSharp.Backstage.Licensing
             this.LoadUserLicenses( null, LicenseSource.Programmatic, null );
         }
 
-        public void LoadUserLicenses( string[] licenseStrings, LicenseSource source, string sourceDescription, IMessageSink messageSink = null )
+        public void LoadUserLicenses( string[] licenseStrings, LicenseSource source, string sourceDescription, IDiagnosticsSink diagnosticsSink = null )
         {
-            messageSink = messageSink ?? MessageSource.MessageSink ?? NullMessageSink.Instance;
+            diagnosticsSink = diagnosticsSink ?? NullDiagnosticsSink.Instance;
 
-            // Note that tracing is always done for the current Messenger irrespective of 'messageSink'.
+            // Note that tracing is always done for the current Messenger irrespective of 'diagnosticsSink'.
             lock ( this.Sync )
             {
                 bool loadFromRegistry = true;
@@ -380,9 +377,7 @@ namespace PostSharp.Backstage.Licensing
                                 if ( licenseConfiguration == null )
                                 {
                                     LicensingTrace.Licensing?.WriteLine( "Failed to parse license string \"{0}\" from {1} ({2}).", rawLicenseString, sourceDescription, source );
-                                    messageSink.Write(
-                                        LicensingMessageSource.Instance.CreateMessage(
-                                            MessageLocation.Unknown, SeverityType.Warning, "PS0301", null, rawLicenseString ) );
+                                    diagnosticsSink.ReportWarning( $"Cannot parse license key string '{rawLicenseString}'." ); // PS0301
                                     continue;
                                 }
 
@@ -422,13 +417,13 @@ namespace PostSharp.Backstage.Licensing
             this.userLicenses.Add( licenseConfiguration );
         }
 
-        private bool TryLoadNextCachedOrInternalLicenseKey( string ns, IMessageSink messageSink, bool perUsage )
+        private bool TryLoadNextCachedOrInternalLicenseKey( string ns, IDiagnosticsSink diagnosticsSink, bool perUsage )
         {
             HashSet<LicenseConfiguration> unusedKeys = perUsage ? this.unusedPerUsageLicenseKeys : this.unusedLicenseKeys;
             while ( unusedKeys.Count > 0 )
             {
                 LicenseConfiguration licenseConfiguration = unusedKeys.PopFirst();
-                if ( this.TryLoadLicenseKey( messageSink, licenseConfiguration, ns, true ) )
+                if ( this.TryLoadLicenseKey( diagnosticsSink, licenseConfiguration, ns, true ) )
                 {
                     return true;
                 }
@@ -437,7 +432,7 @@ namespace PostSharp.Backstage.Licensing
             return false;
         }
 
-        private bool TryLoadLowestUncachedLicenseKey( string ns, IMessageSink messageSink, bool perUsage )
+        private bool TryLoadLowestUncachedLicenseKey( string ns, IDiagnosticsSink diagnosticsSink, bool perUsage )
         {
             HashSet<LicenseConfiguration> unusedUncachedKeys = perUsage ? this.unusedUncachedPerUsageLicenseKeys : this.unusedUncachedLicenseKeys;
 
@@ -457,7 +452,7 @@ namespace PostSharp.Backstage.Licensing
 
                 unusedUncachedKeys.Remove( lowestUncachedLicenseKey );
 
-                if ( this.TryLoadLicenseKey( messageSink, lowestUncachedLicenseKey, ns, false ) )
+                if ( this.TryLoadLicenseKey( diagnosticsSink, lowestUncachedLicenseKey, ns, false ) )
                 {
                     return true;
                 }
@@ -466,7 +461,7 @@ namespace PostSharp.Backstage.Licensing
             return false;
         }
 
-        private bool TryLoadLicenseKey( IMessageSink messageSink, LicenseConfiguration licenseConfiguration, string ns, bool cached )
+        private bool TryLoadLicenseKey( IDiagnosticsSink diagnosticsSink, LicenseConfiguration licenseConfiguration, string ns, bool cached )
         {
             LicensingTrace.Licensing?.WriteLine( "Trying to load {0} license \"{1}\".", cached ? "cached" : "non-cached", licenseConfiguration );
 
@@ -474,14 +469,12 @@ namespace PostSharp.Backstage.Licensing
 
             if ( license == null )
             {
-                throw new AssertionFailedException( string.Format(CultureInfo.InvariantCulture, "License not set for \"{0}\".", licenseConfiguration ) );
+                throw new InvalidOperationException( string.Format( CultureInfo.InvariantCulture, "License not set for \"{0}\".", licenseConfiguration ) );
             }
 
             if ( license.LicenseType == LicenseType.PerUsage && licenseConfiguration.Source != LicenseSource.Configuration )
             {
-                messageSink.Write(
-                    LicensingMessageSource.Instance.CreateMessage(
-                        MessageLocation.Unknown, SeverityType.Error, "PS0303", null, license.LicenseId ) );
+                diagnosticsSink.ReportError( $"Per-usage licenses can only be used in configuration files. License '{license.LicenseId}' not loaded." ); // PS0303
                 return false;
             }
 
@@ -544,15 +537,12 @@ namespace PostSharp.Backstage.Licensing
 
             if ( (licenseConfiguration.License.GetAllowedLicenseSources() & licenseConfiguration.Source) != licenseConfiguration.Source )
             {
-                if ( messageSink != null )
+                if ( diagnosticsSink != null )
                 {
-                    messageSink.Write(
-                        LicensingMessageSource.Instance.CreateMessage(
-                            MessageLocation.Unknown, SeverityType.Error, "PS0260", null, license.LicenseUniqueId,
-                            licenseConfiguration.SourceDescription ) );
+                    diagnosticsSink.ReportError( $"License error. The license {license.LicenseUniqueId} is not allowed to be loaded from {licenseConfiguration.SourceDescription}." ); // PS0260
                 }
 
-                LicensingTrace.Licensing?.WriteLine( "The license key {0} is not valid vecause the source is not valid: expected {0}, but got {1}.", licenseConfiguration,
+                LicensingTrace.Licensing?.WriteLine( "The license key {0} is not valid because the source is not valid: expected {0}, but got {1}.", licenseConfiguration,
                                                     licenseConfiguration.License.GetAllowedLicenseSources(), licenseConfiguration.Source );
 
                 this.userLicenses.Remove( licenseConfiguration );
@@ -766,11 +756,13 @@ namespace PostSharp.Backstage.Licensing
         internal void EmitLicenseMessage( LicenseMessage licenseMessage )
         {
 
-            if ( licenseMessage == null || licenseMessage.Severity == SeverityType.None )
+            if ( licenseMessage == null )
+            {
                 return;
+            }
 
             LicensingTrace.Licensing?.WriteLine( "Emitting message. Severity {0}; Frequency: {1}; Kind: {2} Message: {3}",
-                                                licenseMessage.Severity,
+                                                licenseMessage.IsError ? "Error" : "Warning",
                                                 licenseMessage.Frequency,
                                                 licenseMessage.Kind,
                                                 licenseMessage.Text );
@@ -803,22 +795,6 @@ namespace PostSharp.Backstage.Licensing
         public void Dispose()
         {
             this.Dispose(true);
-        }
-    }
-
-    
-
-    [Serializable]
-    internal sealed class NullMessageSink : IMessageSink
-    {
-        public static readonly NullMessageSink Instance = new NullMessageSink();
-        private NullMessageSink()
-        {
-            
-        }
-
-        void IMessageSink.Write(Message message)
-        {
         }
     }
 }
