@@ -1,6 +1,7 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. This file is not open source. It is released under a commercial
 // source-available license. Please see the LICENSE.md file in the repository root for details.
 
+using PostSharp.Backstage.Extensibility;
 using PostSharp.Backstage.Settings;
 using PostSharp.Backstage.Telemetry;
 using System;
@@ -12,7 +13,7 @@ using System.Text.RegularExpressions;
 
 namespace PostSharp.Backstage.Licensing.Helpers
 {
-    public static class LicenseRegistrationHelper
+    public class LicenseRegistrationHelper
     {
         internal const string UnattendedLicenseString = "(Unattended)";
         internal const string UnmodifiedLicenseString = "(Unmodified)";
@@ -26,7 +27,16 @@ namespace PostSharp.Backstage.Licensing.Helpers
         private static readonly TimeSpan prereleaseEvaluationPeriodDuration = TimeSpan.FromDays( 30 );
         private static readonly TimeSpan evaluationWaitingPeriodDuration = TimeSpan.FromDays( 120 );
         
-        public static DateTime PrereleaseEvaluationEndDate => UserSettings.BuildDate + prereleaseEvaluationPeriodDuration;
+        private readonly UserSettings _userSettings;
+        private readonly IApplicationInfoService _applicationInfoService;
+
+        public DateTime PrereleaseEvaluationEndDate => this._applicationInfoService.BuildDate + prereleaseEvaluationPeriodDuration;
+
+        public LicenseRegistrationHelper( UserSettings userSettings, IApplicationInfoService applicationInfoService )
+        {
+            this._userSettings = userSettings;
+            this._applicationInfoService = applicationInfoService;
+        }
 
         internal static bool TryParseWellKnownLicenseString( string licenseString, out License license, out string sourceDescription )
         {
@@ -477,7 +487,7 @@ namespace PostSharp.Backstage.Licensing.Helpers
             LicensingRegistryHelper.DeleteProcessedTypesCountersKey();
         }
 
-        public static bool NotifyLicenseRegistration( License license, bool dry, out string message, out bool isError )
+        public bool NotifyLicenseRegistration( License license, bool dry, out string message, out bool isError )
         {
             try
             {
@@ -489,7 +499,7 @@ namespace PostSharp.Backstage.Licensing.Helpers
                                    CryptoUtilities.ComputeStringHash64( license.Serialize() ),
                                    GetCurrentUserHash(),
                                    GetCurrentMachineHash(),
-                                   UserSettings.Version,
+                                   this._applicationInfoService.Version,
                                    reportedLicense.LicensedProduct,
                                    reportedLicense.LicenseType );
                 if ( dry )
@@ -527,7 +537,7 @@ namespace PostSharp.Backstage.Licensing.Helpers
             return true;
         }
         
-        internal static EvaluationPeriodStatus GetEvaluationPeriodStatus()
+        internal EvaluationPeriodStatus GetEvaluationPeriodStatus()
         {
             IRegistryKey userRegistryKey = UserSettings.OpenRegistryKey();
 
@@ -541,17 +551,17 @@ namespace PostSharp.Backstage.Licensing.Helpers
                 if ( evaluationStartDate == null )
                     return EvaluationPeriodStatus.New;
 
-                if ( evaluationStartDate < UserSettings.GetCurrentDateTime().Date.Subtract( evaluationWaitingPeriodDuration ) )
+                if ( evaluationStartDate < this._userSettings.GetCurrentDateTime().Date.Subtract( evaluationWaitingPeriodDuration ) )
                     return EvaluationPeriodStatus.New;
 
-                if ( evaluationStartDate > UserSettings.GetCurrentDateTime().Date.Subtract( evaluationPeriodDuration ) || UserSettings.IsPrerelease )
+                if ( evaluationStartDate > this._userSettings.GetCurrentDateTime().Date.Subtract( evaluationPeriodDuration ) || this._applicationInfoService.IsPrerelease )
                     return EvaluationPeriodStatus.Continue;
             }
 
             return EvaluationPeriodStatus.Forbidden;
         }
 
-        internal static CoreLicense CreateEvaluationLicense( )
+        internal CoreLicense CreateEvaluationLicense( )
         {
             using ( IRegistryKey userRegistryKey = UserSettings.OpenRegistryKey( writable: true ) )
             {
@@ -563,7 +573,7 @@ namespace PostSharp.Backstage.Licensing.Helpers
                 }
 
                 DateTime evaluationStartDate = evaluationStartDateFromRegistry.Value;
-                DateTime evaluationEndDate = UserSettings.IsPrerelease ? PrereleaseEvaluationEndDate : evaluationStartDate + evaluationPeriodDuration;
+                DateTime evaluationEndDate = this._applicationInfoService.IsPrerelease ? PrereleaseEvaluationEndDate : evaluationStartDate + evaluationPeriodDuration;
 
                 CoreLicense license = new CoreLicense(LicensedProduct.Ultimate)
                                       {

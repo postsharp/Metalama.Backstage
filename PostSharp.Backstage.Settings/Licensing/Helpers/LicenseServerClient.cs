@@ -13,10 +13,12 @@ namespace PostSharp.Backstage.Licensing.Helpers
     public sealed class LicenseServerClient
     {
         private readonly IWebClientService _webClientService;
+        private readonly IApplicationInfoService _applicationInfoService;
 
-        public LicenseServerClient( IWebClientService webClientService )
+        public LicenseServerClient( IWebClientService webClientService, IApplicationInfoService applicationInfoService )
         {
             this._webClientService = webClientService;
+            this._applicationInfoService = applicationInfoService;
         }
 
         /// <exclude/>
@@ -96,8 +98,8 @@ namespace PostSharp.Backstage.Licensing.Helpers
                 url += string.Format(CultureInfo.InvariantCulture, "/Lease.ashx?user={0}&machine={1}-{2:x}&version={3}&buildDate={4:o}",
                                       Environment.UserName, Environment.MachineName,
                                       LicenseRegistrationHelper.GetCurrentMachineHash(),
-                                      UserSettings.VersionString,
-                                      UserSettings.BuildDate );
+                                      this._applicationInfoService.VersionString,
+                                      this._applicationInfoService.BuildDate );
             }
 
             LicensingTrace.Licensing?.WriteLine( "Leasing a license from the server: {0}.", url );

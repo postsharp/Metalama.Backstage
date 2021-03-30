@@ -11,6 +11,7 @@ using PostSharp.Backstage.Licensing.Helpers;
 using System.Linq;
 using PostSharp.Backstage.Settings;
 using PostSharp.Backstage.Utilities;
+using PostSharp.Backstage.Extensibility;
 
 namespace PostSharp.Backstage.Licensing
 {
@@ -603,7 +604,7 @@ namespace PostSharp.Backstage.Licensing
         /// </summary>
         /// <param name="licenseString">A serialized license.</param>
         /// <returns>The <see cref="License"/> constructed from <paramref name="licenseString"/>.</returns>
-        public static License Deserialize( string licenseString )
+        public static License Deserialize( string licenseString, IApplicationInfoService applicationInfoService )
         {
             licenseString = CleanLicenseString( licenseString );
 
@@ -653,7 +654,7 @@ namespace PostSharp.Backstage.Licensing
                         case LicensedProduct.Ultimate:
                         case LicensedProduct.Framework:
                         case LicensedProduct.PostSharp30:
-                            license = new CoreLicense( licenseData );
+                            license = new CoreLicense( licenseData, applicationInfoService.Version, applicationInfoService.BuildDate );
                             break;
 #pragma warning restore 618
 

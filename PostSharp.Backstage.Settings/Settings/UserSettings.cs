@@ -1,6 +1,7 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. This file is not open source. It is released under a commercial
 // source-available license. Please see the LICENSE.md file in the repository root for details.
 
+using PostSharp.Backstage.Extensibility;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -11,19 +12,8 @@ using System.Security;
 
 namespace PostSharp.Backstage.Settings
 {
-    // TODO: This used to be internal.
-    public static class UserSettings
+    public class UserSettings
     {
-        internal const string ProductVersion = "3";
-
-        /// <exclude/>
-        public const string FeedbackDirectoryName = @"SharpCrafters\PostSharp " + ProductVersion + @"\Feedback";
-
-        private const string feedbackRegistryKeyName = "Software\\" + FeedbackDirectoryName;
-        private const string postSharpRegistryKeyName = "Software\\SharpCrafters\\PostSharp " + ProductVersion;
-        private const string reportedIssuesRegistryKeyName = postSharpRegistryKeyName + @"\ReportedIssues";
-
-
         private static ReportingAction errorReportingAction;
         private static ReportingAction newExceptionReportingAction;
         private static ReportingAction newPerformanceProblemReportingAction;
@@ -56,6 +46,8 @@ namespace PostSharp.Backstage.Settings
 
         private static DateTime lastPrepareToolTime = DateTime.MinValue;
 
+        private readonly IDateTimeProvider _dateTimeProvider;
+
         static UserSettings()
         {
             
@@ -76,10 +68,17 @@ namespace PostSharp.Backstage.Settings
             Refresh();
         }
 
-        public static DateTime GetCurrentDateTime()
+        protected UserSettings( IDateTimeProvider dateTimeProvider )
         {
-            return SystemServiceLocator.GetService<IDateTimeProvider>().GetCurrentDateTime();
+            this._dateTimeProvider = dateTimeProvider;
         }
+
+        public DateTime GetCurrentDateTime()
+        {
+            return this._dateTimeProvider.GetCurrentDateTime();
+        }
+
+        public abstract void Refresh();
 
         public static void Refresh()
         {
@@ -778,43 +777,6 @@ namespace PostSharp.Backstage.Settings
             return false;
         }
 
-        // TODO #28390
-        public static bool IsPrerelease { get { return SystemServiceLocator.GetService<IApplicationInfoService>().IsPrerelease; } }
-
-        // TODO #28390
-        public static Version Version { get { return SystemServiceLocator.GetService<IApplicationInfoService>().Version; } }
-
-        // TODO #28390
-        public static Version VersionString { get { return SystemServiceLocator.GetService<IApplicationInfoService>().VersionString; } }
-
-        // TODO #28390
-        public static DateTime BuildDate { get { return SystemServiceLocator.GetService<IApplicationInfoService>().BuildDate; } }
-
-        /// <exclude />
-        public static string LocalApplicationDataDirectory
-        {
-            get
-            {
-                // TODO: Remove (used from ContentDownloader).
-                return Path.Combine(
-                    Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-                    "SharpCrafters\\PostSharp " + ProductVersion);
-            }
-        }
-
-        /// <exclude />
-        public static string RoamingApplicationDataDirectory
-        {
-            get
-            {
-                // TODO: Remove (not used).
-                return Path.Combine(
-                    Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
-                    "SharpCrafters\\PostSharp " + ProductVersion);
-            }
-        }
-
-    
         /// <summary>
         /// Gets a device id that can be reset and does not persist from one device to another.
         /// </summary>

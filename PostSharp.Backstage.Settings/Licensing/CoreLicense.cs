@@ -1,29 +1,22 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. This file is not open source. It is released under a commercial
 // source-available license. Please see the LICENSE.md file in the repository root for details.
 
-using PostSharp.Backstage.Settings;
 using System;
 using System.Collections.Generic;
-using System.Globalization;
 
 namespace PostSharp.Backstage.Licensing
 {
     [Serializable]
-    public class CoreLicense : License
+    public class CoreLicense : ProductLicense
     {
-        [Obsolete("Use CoreLicense(LicensedProduct).")]
-        public CoreLicense()
-        {
-            this.Product = LicensedProduct.PostSharp30;
-        }
-
-        public CoreLicense( LicensedProduct licensedProduct )
+        public CoreLicense( LicensedProduct licensedProduct, Version productVersion, DateTime productBuildDate )
+            : base( productVersion, productBuildDate )
         {
             this.Product = licensedProduct;
         }
-        
-        internal CoreLicense(object licenseData)
-            : base(licenseData)
+
+        internal CoreLicense( object licenseData, Version productVersion, DateTime productBuildDate )
+            : base( licenseData, productVersion, productBuildDate )
         {
         }
 
@@ -59,10 +52,10 @@ namespace PostSharp.Backstage.Licensing
 #pragma warning restore 618
         }
 
-        public override bool Validate(byte[] publicKeyToken, out string errorDescription)
+        public override bool Validate( byte[] publicKeyToken, out string errorDescription )
         {
 #pragma warning disable 618
-            if (this.LicenseType == LicenseType.Anonymous)
+            if ( this.LicenseType == LicenseType.Anonymous )
             {
                 // Anonymous licenses are always valid but confer no right.
                 errorDescription = null;
@@ -70,13 +63,8 @@ namespace PostSharp.Backstage.Licensing
             }
 #pragma warning restore 618
 
-            if (!base.Validate(publicKeyToken, out errorDescription))
-                return false;
-
-            if (this.SubscriptionEndDate.HasValue && this.SubscriptionEndDate.Value < UserSettings.BuildDate)
+            if ( !base.Validate( publicKeyToken, out errorDescription ) )
             {
-                errorDescription = string.Format(CultureInfo.InvariantCulture, "PostSharp {0} has been released on {1:d}, but the license key {2} only allows you to use versions released before {3:d}.",
-                    UserSettings.Version, UserSettings.BuildDate, this.LicenseId, this.SubscriptionEndDate );
                 return false;
             }
 

@@ -8,15 +8,15 @@ using System.Globalization;
 
 namespace PostSharp.Backstage.Licensing
 {
-    [Serializable]
-    public class LibraryLicense : License
+    public class LibraryLicense : ProductLicense
     {
-        public LibraryLicense()
+        public LibraryLicense( Version productVersion, DateTime productBuildDate )
+            : base( productVersion, productBuildDate )
         {
         }
 
-        internal LibraryLicense( object licenseData )
-            : base( licenseData )
+        internal LibraryLicense( object licenseData, Version productVersion, DateTime productBuildDate )
+            : base( licenseData, productVersion, productBuildDate )
         {
         }
 
@@ -58,20 +58,6 @@ namespace PostSharp.Backstage.Licensing
         {
             yield return new KeyValuePair<LicensedProduct, long>( this.Product, 1 );
             yield return new KeyValuePair<LicensedProduct, long>( LicensedProduct.PostSharp30, (long) (LicensedFeatures.BasicFeatures) );
-        }
-
-        public override bool Validate( byte[] publicKeyToken, out string errorDescription )
-        {
-            if ( !base.Validate( publicKeyToken, out errorDescription ) )
-                return false;
-
-            if ( this.SubscriptionEndDate.HasValue && this.SubscriptionEndDate.Value < UserSettings.BuildDate )
-            {
-                errorDescription = "The build of PostSharp.Patterns you are using has been released after the end of the maintenance subscription.";
-                return false;
-            }
-
-            return true;
         }
 
         /// <inheritdoc cref="License"/>
