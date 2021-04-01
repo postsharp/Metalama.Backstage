@@ -373,7 +373,7 @@ namespace PostSharp.Backstage.Licensing
                                 continue;
                             default:
                                 // NOTE (bug 6239) we pass rawLicenseString for parsing in case the string contains the license server URL
-                                licenseConfiguration = LicenseRegistrationHelper.ParseLicenseString( rawLicenseString, source, sourceDescription );
+                                licenseConfiguration = LicenseRegistrar.ParseLicenseString( rawLicenseString, source, sourceDescription );
                                 if ( licenseConfiguration == null )
                                 {
                                     LicensingTrace.Licensing?.WriteLine( "Failed to parse license string \"{0}\" from {1} ({2}).", rawLicenseString, sourceDescription, source );

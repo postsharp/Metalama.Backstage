@@ -8,17 +8,19 @@ using System.Globalization;
 using System.IO;
 using System.Net;
 
-namespace PostSharp.Backstage.Licensing.Helpers
+namespace PostSharp.Backstage.Licensing
 {
     public sealed class LicenseServerClient
     {
         private readonly IWebClientService _webClientService;
         private readonly IApplicationInfoService _applicationInfoService;
+        private readonly ITrace _licensingTrace;
 
-        public LicenseServerClient( IWebClientService webClientService, IApplicationInfoService applicationInfoService )
+        public LicenseServerClient( IWebClientService webClientService, IApplicationInfoService applicationInfoService, ITrace licensingTrace )
         {
             this._webClientService = webClientService;
             this._applicationInfoService = applicationInfoService;
+            this._licensingTrace = licensingTrace;
         }
 
         /// <exclude/>
@@ -64,7 +66,7 @@ namespace PostSharp.Backstage.Licensing.Helpers
             {
                 lease = DownloadLease( url );
                 string serializedLease = lease.Serialize();
-                License license = License.Deserialize( lease.LicenseString );
+                License license = License.Deserialize( lease.LicenseString, this._applicationInfoService );
 
                 if ( license.RequiresVersionSpecificStore )
                 {
@@ -97,13 +99,12 @@ namespace PostSharp.Backstage.Licensing.Helpers
 
                 url += string.Format(CultureInfo.InvariantCulture, "/Lease.ashx?user={0}&machine={1}-{2:x}&version={3}&buildDate={4:o}",
                                       Environment.UserName, Environment.MachineName,
-                                      LicenseRegistrationHelper.GetCurrentMachineHash(),
+                                      LicenseRegistrar.GetCurrentMachineHash(),
                                       this._applicationInfoService.VersionString,
                                       this._applicationInfoService.BuildDate );
             }
 
-            LicensingTrace.Licensing?.WriteLine( "Leasing a license from the server: {0}.", url );
-
+            this._licensingTrace?.WriteLine( "Leasing a license from the server: {0}.", url );
 
             string leaseString;
 
@@ -135,8 +136,8 @@ namespace PostSharp.Backstage.Licensing.Helpers
         {
             try
             {
-                LicenseLease lease = DownloadLease( url );
-                license = License.Deserialize( lease.LicenseString );
+                LicenseLease lease = this.DownloadLease( url );
+                license = License.Deserialize( lease.LicenseString, this._applicationInfoService );
 
                 if ( license == null )
                 {

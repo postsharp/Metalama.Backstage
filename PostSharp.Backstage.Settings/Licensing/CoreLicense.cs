@@ -179,7 +179,8 @@ namespace PostSharp.Backstage.Licensing
     [Serializable]
     internal class CoreUnattendedLicense : CoreLicense
     {
-        public CoreUnattendedLicense() : base( LicensedProduct.Ultimate )
+        public CoreUnattendedLicense( Version productVersion, DateTime productBuildDate )
+            : base( LicensedProduct.Ultimate, productVersion, productBuildDate )
         {
             this.LicenseType = LicenseType.Unattended;
             this.UserNumber = 1;
@@ -198,7 +199,8 @@ namespace PostSharp.Backstage.Licensing
     [Serializable]
     internal class CoreUnmodifiedLicense : CoreLicense
     {
-        public CoreUnmodifiedLicense() : base( LicensedProduct.Ultimate )
+        public CoreUnmodifiedLicense( Version productVersion, DateTime productBuildDate )
+            : base( LicensedProduct.Ultimate, productVersion, productBuildDate )
         {
             this.LicenseType = LicenseType.Unmodified;
             this.UserNumber = 1;
@@ -218,7 +220,8 @@ namespace PostSharp.Backstage.Licensing
     {
         private readonly LicensedPackages packages;
 
-        public CorePerUsageCountingLicense( int id, LicensedProduct product, LicensedPackages packages ) : base( product )
+        public CorePerUsageCountingLicense( int id, LicensedProduct product, LicensedPackages packages, Version productVersion, DateTime productBuildDate )
+            : base( product, productVersion, productBuildDate )
         {
             this.LicenseId = id;
             this.packages = packages;

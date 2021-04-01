@@ -6,5 +6,7 @@ namespace PostSharp.Backstage.Extensibility
     public interface ITrace
     {
         public void WriteLine( string message );
+
+        public void WriteLine( string message, params string[] args );
     }
 }

@@ -50,7 +50,7 @@ namespace PostSharp.Backstage.Licensing.Helpers
                     // Open the location compatible with PostSharp 3.0.
                     string licenseString = (string) registryKey.GetValue( "LicenseKey", null );
 
-                    LicenseConfiguration licenseConfiguration = LicenseRegistrationHelper.ParseLicenseString( licenseString, source, sourceDescription );
+                    LicenseConfiguration licenseConfiguration = LicenseRegistrar.ParseLicenseString( licenseString, source, sourceDescription );
 
                     if ( licenseConfiguration == null )
                     {
@@ -123,7 +123,7 @@ namespace PostSharp.Backstage.Licensing.Helpers
             foreach ( string valueName in IRegistryKey.GetValueNames() )
             {
                 string licenseString = IRegistryKey.GetValue( valueName, null ) as string;
-                LicenseConfiguration licenseConfiguration = LicenseRegistrationHelper.ParseLicenseString( licenseString, source, sourceDescription );
+                LicenseConfiguration licenseConfiguration = LicenseRegistrar.ParseLicenseString( licenseString, source, sourceDescription );
 
                 if ( licenseConfiguration == null )
                 {

@@ -11,9 +11,9 @@ using System.Globalization;
 using System.Net;
 using System.Text.RegularExpressions;
 
-namespace PostSharp.Backstage.Licensing.Helpers
+namespace PostSharp.Backstage.Licensing
 {
-    public class LicenseRegistrationHelper
+    public class LicenseRegistrar
     {
         internal const string UnattendedLicenseString = "(Unattended)";
         internal const string UnmodifiedLicenseString = "(Unmodified)";
@@ -32,13 +32,13 @@ namespace PostSharp.Backstage.Licensing.Helpers
 
         public DateTime PrereleaseEvaluationEndDate => this._applicationInfoService.BuildDate + prereleaseEvaluationPeriodDuration;
 
-        public LicenseRegistrationHelper( UserSettings userSettings, IApplicationInfoService applicationInfoService )
+        public LicenseRegistrar( UserSettings userSettings, IApplicationInfoService applicationInfoService )
         {
             this._userSettings = userSettings;
             this._applicationInfoService = applicationInfoService;
         }
 
-        internal static bool TryParseWellKnownLicenseString( string licenseString, out License license, out string sourceDescription )
+        internal bool TryParseWellKnownLicenseString( string licenseString, out License license, out string sourceDescription )
         {
             if ( licenseString == expiredTestingEvaluationLicenseString )
             {
@@ -73,7 +73,7 @@ namespace PostSharp.Backstage.Licensing.Helpers
             return false;
         }
 
-        internal static CoreLicense CreateTestEvaluationLicense( bool isValid )
+        internal CoreLicense CreateTestEvaluationLicense( bool isValid )
         {
             DateTime evaluationStartDate;
             DateTime evaluationEndDate;
@@ -91,7 +91,7 @@ namespace PostSharp.Backstage.Licensing.Helpers
                 evaluationStartDate = evaluationEndDate - evaluationPeriodDuration;
             }
 
-            CoreLicense testEvaluationLicense = new CoreLicense( LicensedProduct.Ultimate )
+            CoreLicense testEvaluationLicense = new CoreLicense( LicensedProduct.Ultimate, this._applicationInfoService.Version, this._applicationInfoService.BuildDate )
                                                 {
                                                     LicenseGuid = Guid.NewGuid(),
                                                     LicenseType = LicenseType.Evaluation,
@@ -105,9 +105,9 @@ namespace PostSharp.Backstage.Licensing.Helpers
         }
 
         // Used only for testing now.
-        internal static bool TryOpenEvaluationMode( bool allUsers = false )
+        internal bool TryOpenEvaluationMode( bool allUsers = false )
         {
-            return RegisterLicense( CreateTestEvaluationLicense( true ).LicenseString, allUsers );
+            return RegisterLicense( this.CreateTestEvaluationLicense( true ).LicenseString, allUsers );
         }
         
         /// <summary>
@@ -118,11 +118,11 @@ namespace PostSharp.Backstage.Licensing.Helpers
         /// <param name="license">The created license.</param>
         /// <returns>True if the license was created and registered; false if the user's trial already expired and the
         /// user is forbidden from creating a new trial license.</returns>
-        public static bool TryOpenEvaluationMode( bool dry, out License license )
+        public bool TryOpenEvaluationMode( bool dry, out License license )
         {
             license = null;
 
-            EvaluationPeriodStatus evaluationPeriodStatus = GetEvaluationPeriodStatus();
+            EvaluationPeriodStatus evaluationPeriodStatus = this.GetEvaluationPeriodStatus();
             if ( evaluationPeriodStatus == EvaluationPeriodStatus.Forbidden )
                 return false;
 
