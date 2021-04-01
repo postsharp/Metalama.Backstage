@@ -14,7 +14,7 @@ namespace PostSharp.Backstage.Settings
 
         protected override void RefreshImpl( SettingsReader reader )
         {
-            this.Value = reader.GetDateTimeValue( this.Name, this.DefaultValue );
+            this.Value = reader.GetValue( this.Name, this.DefaultValue );
         }
 
         protected override void SetImpl( DateTime value, SettingsWriter writer )
@@ -22,5 +22,4 @@ namespace PostSharp.Backstage.Settings
             writer.SetValue( this.Name, value );
         }
     }
-}
 }

@@ -16,18 +16,22 @@ namespace PostSharp.Backstage.Licensing
     {
         private readonly License[] licenses;
         private readonly string hash;
-        private readonly string path;
+        private readonly string? path;
         public readonly DateTime LastWriteTime;
         private readonly DateTime lastVerificationTime;
         private readonly LicenseFeatureContainer combinedFeatures = new LicenseFeatureContainer();
 
-        public LicenseSetData( License[] licenses, string path, string hash )
-            : this( licenses, path, hash, DateTime.MinValue, DateTime.MinValue )
-        {
+        private readonly IDateTimeProvider _dateTimeProvider;
+        private readonly LicenseCache _cache;
+        private readonly IDiagnosticsSink? _diagnosticsSink;
+        private readonly ITrace? _licensingTrace;
 
+        public LicenseSetData( License[] licenses, string path, string hash, LicenseCache cache, IDateTimeProvider dateTimeProvider, IDiagnosticsSink? diagnosticsSink, ITrace? licensingTrace )
+            : this( licenses, path, hash, DateTime.MinValue, DateTime.MinValue, cache, dateTimeProvider, diagnosticsSink, licensingTrace )
+        {
         }
 
-        private LicenseSetData( License[] licenses, string path, string hash, DateTime lastWriteTime, DateTime lastVerificationTime )
+        private LicenseSetData( License[] licenses, string? path, string hash, DateTime lastWriteTime, DateTime lastVerificationTime, LicenseCache cache, IDateTimeProvider dateTimeProvider, IDiagnosticsSink? diagnosticsSink, ITrace? licensingTrace )
         {
             this.hash = hash;
             this.licenses = licenses;
@@ -35,151 +39,65 @@ namespace PostSharp.Backstage.Licensing
             this.path = path;
             this.LastWriteTime = lastWriteTime;
 
+            this._dateTimeProvider = dateTimeProvider;
+            this._cache = cache;
+            this._diagnosticsSink = diagnosticsSink;
+            this._licensingTrace = licensingTrace;
+
             foreach ( License license in licenses )
             {
                 this.combinedFeatures.Add( license );
             }
         }
 
-        public static LicenseSetData GetCachedLicenseSetDataFromHash( License[] licenses, string hash )
+        public static bool TryGetCachedLicenseSetDataFromHash( License[] licenses, string hash, LicenseCache cache, IDiagnosticsSink diagnosticsSink, ITrace licensingTrace, out LicenseSetData? licenseSetData )
         {
-            try
+            if ( cache.IsValidHash( hash, out var lastVerificationTime, out var dateTimeProvider ) )
             {
-                IRegistryKey registryKey = OpenCacheRegistryKey( hash, true );
-
-                if ( registryKey == null )
-                {
-                    return null;
-                }
-
-                using ( registryKey )
-                {
-                    LicensingTrace.Licensing?.WriteLine( "License with hash '{0}' found in signature cache.", hash );
-
-
-                    // Get the time when the signature was last verified.
-                    DateTime? lastVerificationTime = registryKey.GetValueDateTime( "LastVerificationTime" );
-                    if ( !lastVerificationTime.HasValue || lastVerificationTime.Value > UserSettings.GetCurrentDateTime() )
-                    {
-                        LicensingTrace.Licensing?.WriteLine( "Signature cache is invalid: last verification time ({0}) is invalid.", lastVerificationTime );
-                        return null;
-                    }
-
-                    return new LicenseSetData( licenses, null, hash, DateTime.MinValue, lastVerificationTime.Value );
-                }
-            }
-            catch ( SystemException e )
-            {
-                LicensingTrace.Licensing?.WriteLine( "Failed to work with license signature cache in registry: {0}", e );
-                return null;
-            }
-        }
-
-        public static LicenseSetData GetLicenseSetDataFromPath( License[] licenses, string path )
-        {
-            DateTime lastWriteTime = new FileInfo( path ).LastWriteTime;
-            string hash = GetHash( GetCanonicalPath( path ) );
-
-            try
-            {
-                IRegistryKey registryKey = OpenCacheRegistryKey( hash, true );
-
-                if ( registryKey == null )
-                    goto noCache;
-
-                using ( registryKey )
-                {
-                    LicensingTrace.Licensing?.WriteLine( "License of '{0}' found in signature cache.", path );
-
-                    // Check that the cache entry is for the same file.
-                    string cachedPath = registryKey.GetValue( "Path" ) as string;
-                    if ( cachedPath == null || !string.Equals( GetCanonicalPath( path ), GetCanonicalPath( cachedPath ), StringComparison.Ordinal ) )
-                    {
-                        LicensingTrace.Licensing?.WriteLine( "Signature cache is invalid: path does not match." );
-                        goto noCache;
-                    }
-
-                    // Check that the cache entry is still valid.
-                    DateTime? cachedLastWriteTime = registryKey.GetValueDateTime( "LastWriteTime" );
-                    if ( !cachedLastWriteTime.HasValue || cachedLastWriteTime.Value != lastWriteTime )
-                    {
-                        LicensingTrace.Licensing?.WriteLine( "Signature cache is invalid: last write time does not match (cached={0}; actual={1}).",
-                                                            cachedLastWriteTime,
-                                                            lastWriteTime );
-                        goto noCache;
-                    }
-
-                    // Get the time when the signature was last verified.
-                    DateTime? lastVerificationTime = registryKey.GetValueDateTime( "LastVerificationTime" );
-                    if ( !lastVerificationTime.HasValue || lastVerificationTime.Value > UserSettings.GetCurrentDateTime() )
-                    {
-                        LicensingTrace.Licensing?.WriteLine( "Signature cache is invalid: last verification time ({0}) is invalid.", lastVerificationTime );
-                        goto noCache;
-                    }
-
-                    return new LicenseSetData( licenses, path, hash, cachedLastWriteTime.Value,
-                                               lastVerificationTime.Value );
-                }
-            }
-            catch ( SystemException e )
-            {
-                LicensingTrace.Licensing?.WriteLine( "Failed to get license set data from \"{0}\": {1}", path, e );
-            }
-
-            noCache:
-            return new LicenseSetData( licenses, path, hash, lastWriteTime, DateTime.MinValue );
-        }
-
-        private void SetVerificationResult( bool valid )
-        {
-            try
-            {
-                IRegistryKey registryKey = OpenCacheRegistryKey( this.hash, true );
-
-                if ( valid )
-                {
-                    LicensingTrace.Licensing?.WriteLine( "Adding '{0}' to signature cache.", this.path ?? this.hash );
-
-                    if ( registryKey == null )
-                        return;
-
-                    using ( registryKey )
-                    {
-                        if ( this.path != null )
-                        {
-                            registryKey.SetValue( "Path", this.path );
-                            registryKey.SetValueDateTime( "LastWriteTime", this.LastWriteTime );
-                        }
-                        registryKey.SetValueDateTime( "LastVerificationTime", UserSettings.GetCurrentDateTime() );
-                    }
-                }
-                else
-                {
-                    if ( registryKey != null )
-                    {
-                        registryKey.Close();
-                        LicensingTrace.Licensing?.WriteLine( "Removing '{0}' from signature cache.", this.path );
-
-                        DeleteCacheRegistryKey( this.hash );
-                    }
-                }
-            }
-            catch ( SystemException e )
-            {
-                LicensingTrace.Licensing?.WriteLine( "Failed to set license verification result: {0}", e );
-            }
-        }
-
-        public bool Verify( byte[] publicKeyToken, IDiagnosticsSink diagnosticsSink, List<string> errors = null )
-        {
-            if ( UserSettings.GetCurrentDateTime().Subtract( this.lastVerificationTime ).TotalHours <= 2 && (new Random()).NextDouble() >= 0.01 )
-            {
-                LicensingTrace.Licensing?.WriteLine( "Skipping signature verification since it has been verified recently." );
+                licenseSetData = new( licenses, null, hash, DateTime.MinValue, lastVerificationTime, cache, dateTimeProvider, diagnosticsSink, licensingTrace );
                 return true;
             }
             else
             {
-                LicensingTrace.Licensing?.WriteLine( "Verifying license signature." );
+                licenseSetData = null;
+                return false;
+            }
+        }
+
+        public static LicenseSetData GetLicenseSetDataFromPath( License[] licenses, string path, LicenseCache cache, IDiagnosticsSink diagnosticsSink, ITrace licensingTrace )
+        {
+            if ( cache.IsValidPath( path, out var hash, out var lastWriteTime, out var lastVerificationTime, out var dateTimeProvider ) )
+            {
+                return new( licenses, path, hash, lastWriteTime, lastVerificationTime, cache, dateTimeProvider, diagnosticsSink, licensingTrace );
+            }
+            else
+            {
+                return new( licenses, path, hash, lastWriteTime, DateTime.MinValue, cache, dateTimeProvider, diagnosticsSink, licensingTrace );
+            }
+        }
+
+        private void SetVerificationResult( bool valid )
+        {
+            if ( this.path == null )
+            {
+                this._cache.SetVerificationResult( this.hash, valid );
+            }
+            else
+            {
+                this._cache.SetVerificationResult( this.hash, valid, this.path, this.LastWriteTime );
+            }
+        }
+
+        public bool Verify( byte[] publicKeyToken, List<string>? errors = null )
+        {
+            if ( this._dateTimeProvider.GetCurrentDateTime().Subtract( this.lastVerificationTime ).TotalHours <= 2 && new Random().NextDouble() >= 0.01 )
+            {
+                this._licensingTrace?.WriteLine( "Skipping signature verification since it has been verified recently." );
+                return true;
+            }
+            else
+            {
+                this._licensingTrace?.WriteLine( "Verifying license signature." );
                 bool valid = true;
 
                 foreach ( License license in this.licenses )
@@ -189,10 +107,7 @@ namespace PostSharp.Backstage.Licensing
                     {
                         valid = false;
 
-                        if ( diagnosticsSink != null )
-                        {
-                            diagnosticsSink.ReportError( $"License error. The license {license.LicenseUniqueId} in file '{this.path}' is invalid: {errorDescription}" ); // PS0146
-                        }
+                        this._diagnosticsSink?.ReportError( $"License error. The license {license.LicenseUniqueId} in file '{this.path}' is invalid: {errorDescription}" ); // PS0146
 
                         if ( errors != null )
                         {
@@ -204,25 +119,6 @@ namespace PostSharp.Backstage.Licensing
                 this.SetVerificationResult( valid );
                 return valid;
             }
-        }
-
-
-        private static IRegistryKey OpenCacheRegistryKey( string hash, bool writable )
-        {
-            return UserSettings.OpenRegistryKey( false, writable, string.Format(CultureInfo.InvariantCulture, "LicenseCache\\{0}", hash ) );
-        }
-
-        private static void DeleteCacheRegistryKey( string hash )
-        {
-            using ( IRegistryKey registryKey = UserSettings.OpenRegistryKey( false, true, "LicenseCache" ) )
-            {
-                registryKey.DeleteSubKey( hash, false );
-            }
-        }
-
-        public static string GetCanonicalPath( string path )
-        {
-            return Path.GetFullPath( path ).ToLowerInvariant();
         }
 
         public static string GetHash( string s )

@@ -23,6 +23,4 @@ namespace PostSharp.Backstage.Extensibility
         /// <param name = "message">A message.</param>
         void ReportError( string message );
     }
-
 }
-
