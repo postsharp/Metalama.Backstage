@@ -76,11 +76,11 @@ namespace PostSharp.Backstage.Licensing
         /// <param name="serializedLicenseLease">A serialized <see cref="LicenseLease"/>, produced by <see cref="Serialize"/>.</param>
         /// <returns>The <see cref="LicenseLease"/> built from <paramref name="serializedLicenseLease"/>, or <c>null</c> 
         /// if the string could not be deserialized.</returns>
-        public static LicenseLease Deserialize(string serializedLicenseLease, IDateTimeProvider dateTimeProvider)
+        public static bool TryDeserialize(string serializedLicenseLease, IDateTimeProvider dateTimeProvider, out LicenseLease? lease)
         {
             try
             {
-                LicenseLease lease = new LicenseLease();
+                lease = new LicenseLease();
                 string[] parts = serializedLicenseLease.Split( ';' );
                 DateTime? startTime = null, endTime = null, renewTime = null;
 
@@ -115,7 +115,10 @@ namespace PostSharp.Backstage.Licensing
 
 
                 if ( lease.LicenseString == null )
-                    return null;
+                {
+                    lease = null;
+                    return false;
+                }
 
                 if ( !startTime.HasValue )
                     startTime = dateTimeProvider.GetCurrentDateTime();
@@ -130,11 +133,12 @@ namespace PostSharp.Backstage.Licensing
                 lease.EndTime = endTime.Value;
                 lease.RenewTime = renewTime.Value;
 
-                return lease;
+                return true;
             }
-            catch ( FormatException  )
+            catch ( FormatException )
             {
-                return null;
+                lease = null;
+                return false;
             }
         }
     }

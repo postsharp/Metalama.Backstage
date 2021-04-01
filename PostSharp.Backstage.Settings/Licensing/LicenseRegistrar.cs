@@ -334,14 +334,6 @@ namespace PostSharp.Backstage.Licensing
             // TODO: Metrics
         }
 
-        /// <exclude/>
-        public abstract long GetCurrentMachineHash();
-
-        internal long GetCurrentUserHash()
-        {
-            return CryptoUtilities.ComputeStringHash64( Environment.UserName );
-        }
-
         public bool NotifyLicenseRegistration( License license, bool dry, out string message, out bool isError )
         {
             try
@@ -435,5 +427,7 @@ namespace PostSharp.Backstage.Licensing
                 return w;
             }
         }
+
+        public abstract bool TryGetLease( string url, DateTime now, out LicenseLease lease );
     }
 }

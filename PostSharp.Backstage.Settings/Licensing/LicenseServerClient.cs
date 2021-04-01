@@ -2,7 +2,6 @@
 // source-available license. Please see the LICENSE.md file in the repository root for details.
 
 using PostSharp.Backstage.Extensibility;
-using PostSharp.Backstage.Settings;
 using System;
 using System.Globalization;
 using System.IO;
@@ -10,15 +9,21 @@ using System.Net;
 
 namespace PostSharp.Backstage.Licensing
 {
-    public sealed class LicenseServerClient
+    internal sealed class LicenseServerClient
     {
+        private readonly LicenseLeaseCache _cache;
+        private readonly LicenseeIdentifier _licenseeIdentifier;
         private readonly IWebClientService _webClientService;
+        private readonly IDateTimeProvider _dateTimeProvider;
         private readonly IApplicationInfoService _applicationInfoService;
         private readonly ITrace _licensingTrace;
 
-        public LicenseServerClient( IWebClientService webClientService, IApplicationInfoService applicationInfoService, ITrace licensingTrace )
+        public LicenseServerClient( LicenseLeaseCache cache, LicenseeIdentifier licenseeIdentifier, IWebClientService webClientService, IDateTimeProvider dateTimeProvider, IApplicationInfoService applicationInfoService, ITrace licensingTrace )
         {
+            this._cache = cache;
+            this._licenseeIdentifier = licenseeIdentifier;
             this._webClientService = webClientService;
+            this._dateTimeProvider = dateTimeProvider;
             this._applicationInfoService = applicationInfoService;
             this._licensingTrace = licensingTrace;
         }
@@ -58,36 +63,28 @@ namespace PostSharp.Backstage.Licensing
             return true;
         }
 
-        internal LicenseLease TryDownloadLease( IDiagnosticsSink diagnosticsSink, string url,
-                                                       IRegistryKey registryKey, bool renewal = false )
+        internal bool TryDownloadLease( string url, out LicenseLease lease, IDiagnosticsSink diagnosticsSink, bool renewal = false )
         {
-            LicenseLease lease = null;
             try
             {
-                lease = DownloadLease( url );
-                string serializedLease = lease.Serialize();
-                License license = License.Deserialize( lease.LicenseString, this._applicationInfoService );
+                lease = this.DownloadLease( url );
 
-                if ( license.RequiresVersionSpecificStore )
+                if (!License.TryDeserialize(lease.LicenseString, this._applicationInfoService, out var license, this._licensingTrace))
                 {
-                    registryKey.SetValue( license.MinPostSharpVersion.ToString( 3 ), serializedLease );
+                    return false;
                 }
-                else
-                {
-                    registryKey.SetValue( null, serializedLease );
-                }
+
+                this._cache.Cache( lease );
+                return true;
             }
             catch ( Exception e )
             {
-                if ( diagnosticsSink != null )
-                {
-                    diagnosticsSink.ReportError( $"Cannot get a lease from the license server: {e.Message}." ); // PS0148
-                }
+                diagnosticsSink?.ReportError( $"Cannot get a lease from the license server: {e.Message}." ); // PS0148
 
                 // Return null to use the last-known good lease.
+                lease = null;
+                return false;
             }
-
-            return lease;
         }
 
         private LicenseLease DownloadLease( string url )
@@ -97,11 +94,14 @@ namespace PostSharp.Backstage.Licensing
                 url = url.TrimEnd( '/' );
 
 
-                url += string.Format(CultureInfo.InvariantCulture, "/Lease.ashx?user={0}&machine={1}-{2:x}&version={3}&buildDate={4:o}",
-                                      Environment.UserName, Environment.MachineName,
-                                      LicenseRegistrar.GetCurrentMachineHash(),
-                                      this._applicationInfoService.VersionString,
-                                      this._applicationInfoService.BuildDate );
+                url += string.Format(
+                    CultureInfo.InvariantCulture,
+                    "/Lease.ashx?user={0}&machine={1}-{2:x}&version={3}&buildDate={4:o}",
+                    Environment.UserName,
+                    Environment.MachineName,
+                    this._licenseeIdentifier.GetCurrentMachineHash(),
+                    this._applicationInfoService.VersionString,
+                    this._applicationInfoService.BuildDate );
             }
 
             this._licensingTrace?.WriteLine( "Leasing a license from the server: {0}.", url );
@@ -123,29 +123,28 @@ namespace PostSharp.Backstage.Licensing
                 throw;
             }
 
-            LicenseLease lease = LicenseLease.Deserialize( leaseString );
-
-            if ( lease == null )
+            if ( !LicenseLease.TryDeserialize( leaseString, this._dateTimeProvider, out var lease ) )
+            {
                 throw new InvalidLicenseException( "The license server returned an invalid response." );
+            }
 
-            return lease;
+            return lease!;
         }
 
         /// <exclude/>
-        internal bool TestLicenseServer( string url, out string errorMessage, out License license )
+        internal bool TestLicenseServer( string url, out string? errorMessage, out License? license )
         {
             try
             {
-                LicenseLease lease = this.DownloadLease( url );
-                license = License.Deserialize( lease.LicenseString, this._applicationInfoService );
+                var lease = this.DownloadLease( url );
 
-                if ( license == null )
+                if (!License.TryDeserialize(lease.LicenseString, this._applicationInfoService, out license, this._licensingTrace ))
                 {
                     errorMessage = "The downloaded lease is invalid.";
                     return false;
                 }
 
-                if ( !license.Validate( null, out errorMessage ) )
+                if ( !license!.Validate( null, out errorMessage ) )
                 {
                     return false;
                 }
@@ -159,59 +158,6 @@ namespace PostSharp.Backstage.Licensing
                 license = null;
                 return false;
             }
-        }
-
-
-        // This method is exposed because it is used to test the license server.
-#pragma warning disable CA1054 // Uri parameters should not be strings
-        public LicenseLease TryGetLease( string url, IRegistryKey registryKey, DateTime now, IDiagnosticsSink diagnosticsSink)
-#pragma warning restore CA1054 // Uri parameters should not be strings
-        {
-            foreach ( string name in registryKey.GetValueNames() )
-            {
-                // "" is the default value, which is the version agnostic one
-                if ( !string.IsNullOrEmpty( name ) )
-                {
-                    if ( !Version.TryParse( name, out _ ) )
-                    {
-                        continue;
-                    }
-
-                    // We don't check the minimal PostSharp version as in PostSharp 6.5.17+, 6.8.10+, 6.9.3+ and newer
-                    // and Caravela, all license keys are backward compatible.
-                    // - Licenses with unknown types and products fail validation and thus are not used.
-                    // - Unknown license fields are skipped.
-                }
-
-                string serializedLease = registryKey.GetValue( name ) as string;
-                LicenseLease lease = null;
-
-                if ( !string.IsNullOrEmpty( serializedLease ) )
-                {
-                    lease = LicenseLease.Deserialize( serializedLease );
-                    if ( lease == null || lease.EndTime < now )
-                    {
-                        LicensingTrace.Licensing?.WriteLine( "The cached leased license is invalid." );
-                        registryKey.SetValue( null, "" );
-                        lease = null;
-                    }
-                    else if ( lease.RenewTime < now )
-                    {
-                        LicenseLease renewedLease = TryDownloadLease( diagnosticsSink, url, registryKey, true );
-                        if ( renewedLease != null )
-                        {
-                            lease = renewedLease;
-                        }
-                    }
-                }
-
-                if ( lease != null )
-                {
-                    return lease;
-                }
-            }
-
-            return null;
         }
     }
 }
