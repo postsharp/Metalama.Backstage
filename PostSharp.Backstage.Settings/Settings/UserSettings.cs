@@ -59,11 +59,6 @@ namespace PostSharp.Backstage.Settings
             };
         }
 
-        public DateTime GetCurrentDateTime()
-        {
-            return this._dateTimeProvider.GetCurrentDateTime();
-        }
-
         public void Refresh()
         {
             static void Refresh(IEnumerable<Setting> settings, SettingsReader reader)

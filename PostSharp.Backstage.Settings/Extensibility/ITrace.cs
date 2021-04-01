@@ -7,6 +7,6 @@ namespace PostSharp.Backstage.Extensibility
     {
         public void WriteLine( string message );
 
-        public void WriteLine( string message, params string[] args );
+        public void WriteLine( string message, params object[] args );
     }
 }

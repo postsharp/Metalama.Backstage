@@ -750,7 +750,7 @@ namespace PostSharp.Backstage.Licensing
 
         private void OnUserLicenseLoaded( License license )
         {
-            this.EmitLicenseMessage( license.GetMessage() );
+            this.EmitLicenseMessage( this._LicenseMessageSource.GetMessage( license ) );
         }
 
         internal void EmitLicenseMessage( LicenseMessage licenseMessage )

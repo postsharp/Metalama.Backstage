@@ -33,6 +33,8 @@ namespace PostSharp.Backstage.Licensing
 
         private readonly LicenseData data;
 
+        private readonly IDateTimeProvider _dateTimeProvider;
+
         [Serializable]
         private class LicenseData
         {
@@ -73,10 +75,11 @@ namespace PostSharp.Backstage.Licensing
         /// <summary>
         /// Initializes a new empty <see cref="License"/>.
         /// </summary>
-        public License()
+        public License( IDateTimeProvider dateTimeProvider )
         {
             this.data = new LicenseData();
             this.Version = 2;
+            this._dateTimeProvider = dateTimeProvider;
         }
 
         internal License( object licenseData )
@@ -358,13 +361,13 @@ namespace PostSharp.Backstage.Licensing
                 return false;
             }
 
-            if ( this.ValidFrom.HasValue && this.ValidFrom > UserSettings.GetCurrentDateTime() )
+            if ( this.ValidFrom.HasValue && this.ValidFrom > this._dateTimeProvider.GetCurrentDateTime() )
             {
                 errorDescription = "The license is not yet valid.";
                 return false;
             }
 
-            if ( this.ValidTo.HasValue && this.ValidTo < UserSettings.GetCurrentDateTime() )
+            if ( this.ValidTo.HasValue && this.ValidTo < this._dateTimeProvider.GetCurrentDateTime() )
             {
                 errorDescription = "The license is not valid any more.";
                 return false;
@@ -604,14 +607,17 @@ namespace PostSharp.Backstage.Licensing
         /// </summary>
         /// <param name="licenseString">A serialized license.</param>
         /// <returns>The <see cref="License"/> constructed from <paramref name="licenseString"/>.</returns>
-        public static License Deserialize( string licenseString, IApplicationInfoService applicationInfoService )
+        public static bool TryDeserialize( string licenseString, IApplicationInfoService applicationInfoService, out License? license, ITrace? licensingTrace = null )
         {
             licenseString = CleanLicenseString( licenseString );
 
             if ( string.IsNullOrWhiteSpace( licenseString ) )
-                return null;
+            {
+                license = null;
+                return false;
+            }
 
-            LicensingTrace.Licensing?.WriteLine( "Deserializing license {{{0}}}.", licenseString );
+            licensingTrace?.WriteLine( "Deserializing license {{{0}}}.", licenseString );
             Guid? licenseGuid = null;
             try
             {
@@ -619,8 +625,9 @@ namespace PostSharp.Backstage.Licensing
                 int firstDash = licenseString.IndexOf( '-' );
                 if ( firstDash < 0 )
                 {
-                    LicensingTrace.Licensing?.WriteLine( "License header not found for license {{{0}}}.", licenseString );
-                    return null;
+                    licensingTrace?.WriteLine( "License header not found for license {{{0}}}.", licenseString );
+                    license = null;
+                    return false;
                 }
 
                 string prefix = licenseString.Substring( 0, firstDash );
@@ -647,7 +654,6 @@ namespace PostSharp.Backstage.Licensing
                     licenseData.LicenseGuid = licenseGuid;
                     licenseData.LicenseString = licenseString;
 
-                    License license;
                     switch ( licenseData.Product )
                     {
 #pragma warning disable 618
@@ -662,7 +668,7 @@ namespace PostSharp.Backstage.Licensing
                         case LicensedProduct.ModelLibrary:
                         case LicensedProduct.ThreadingLibrary:
                         case LicensedProduct.CachingLibrary:
-                            license = new LibraryLicense( licenseData );
+                            license = new LibraryLicense( licenseData, applicationInfoService.Version, applicationInfoService.BuildDate );
                             break;
 
                         default:
@@ -670,14 +676,15 @@ namespace PostSharp.Backstage.Licensing
                             break;
                     }
 
-                    LicensingTrace.Licensing?.WriteLine( "Deserialized license: {0}", license.ToString() );
-                    return license;
+                    licensingTrace?.WriteLine( "Deserialized license: {0}", license.ToString() );
+                    return true;
                 }
             }
             catch ( Exception e )
             {
-                LicensingTrace.Licensing?.WriteLine( "Cannot parse the license {{{0}}}: {1}", licenseString, e );
-                return null;
+                licensingTrace?.WriteLine( "Cannot parse the license {{{0}}}: {1}", licenseString, e );
+                license = null;
+                return false;
             }
         }
 
@@ -1194,73 +1201,6 @@ namespace PostSharp.Backstage.Licensing
         public virtual bool Upgrade()
         {
             return false;
-        }
-
-        internal virtual LicenseMessage GetMessage()
-        {
-            if ( this.ValidTo.HasValue )
-            {
-                // Trial license have expiration times.
-
-                int daysLeft = (int) this.ValidTo.Value.Subtract( UserSettings.GetCurrentDateTime() ).TotalDays;
-
-                TimeSpan frequency = TimeSpan.FromHours( daysLeft > 3 ? 4 : 0.25 );
-
-                string licenseName = this.LicenseType == LicenseType.Evaluation ? "trial" : "license";
-
-                if ( daysLeft <= 0 )
-                {
-                    // This branch is never reached because the message is not emitted from this method in case the method is invalid.
-                    return new LicenseMessage(
-                        LicenseMessageKind.Expired,
-                        string.Format( CultureInfo.InvariantCulture, "Your {0} of {1} has expired.", licenseName, this.GetProductName( true ) ),
-                        isError: true,
-                        frequency );
-                }
-                else
-                {
-                    return new LicenseMessage(
-                        LicenseMessageKind.Expiring,
-                        string.Format( CultureInfo.InvariantCulture, "Your {2} of {1} will expire in {0} day(s).", daysLeft, this.GetProductName( true ), licenseName ),
-                        isError: false,
-                        frequency );
-                }
-            }
-            else if ( UserSettings.WarnAboutSubscriptionExpiration && this.SubscriptionEndDate.HasValue )
-            {
-                int daysLeft = (int) this.SubscriptionEndDate.Value.Subtract( UserSettings.GetCurrentDateTime() ).TotalDays;
-                if (daysLeft >= 60)
-                {
-                    // License is not expiring soon.
-                    return null;
-                }
-                TimeSpan frequency = (daysLeft > 7 ? TimeSpan.FromDays( 7 ) : TimeSpan.FromDays( 1 ));
-                string expirationVerbPhrase;
-                if ( daysLeft > 1 )
-                {
-                    expirationVerbPhrase = "is set to expire in " + daysLeft + " days";
-                }
-                else if (daysLeft == 1)
-                {
-                    expirationVerbPhrase = "is set to expire in " + daysLeft + " day";
-                }
-                else if ( daysLeft == 0 )
-                {
-                    expirationVerbPhrase = "is set to expire in less than 1 day";
-                }
-                else // (daysLeft < 0)
-                {
-                    expirationVerbPhrase = "has expired";
-                }
-                string message = "PostSharp support and update license " + expirationVerbPhrase + ". Renew now to continue without a lapse in functionality.";
-                return new LicenseMessage(
-                       LicenseMessageKind.SubscriptionExpiring,
-                       message,
-                       isError: false,
-                       frequency );
-
-            }
-            return null;
         }
 
         /// <summary>
