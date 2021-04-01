@@ -1,6 +1,7 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. This file is not open source. It is released under a commercial
 // source-available license. Please see the LICENSE.md file in the repository root for details.
 
+using PostSharp.Backstage.Extensibility;
 using PostSharp.Backstage.Settings;
 using System;
 using System.Text;
@@ -75,7 +76,7 @@ namespace PostSharp.Backstage.Licensing
         /// <param name="serializedLicenseLease">A serialized <see cref="LicenseLease"/>, produced by <see cref="Serialize"/>.</param>
         /// <returns>The <see cref="LicenseLease"/> built from <paramref name="serializedLicenseLease"/>, or <c>null</c> 
         /// if the string could not be deserialized.</returns>
-        public static LicenseLease Deserialize(string serializedLicenseLease)
+        public static LicenseLease Deserialize(string serializedLicenseLease, IDateTimeProvider dateTimeProvider)
         {
             try
             {
@@ -117,7 +118,7 @@ namespace PostSharp.Backstage.Licensing
                     return null;
 
                 if ( !startTime.HasValue )
-                    startTime = UserSettings.GetCurrentDateTime();
+                    startTime = dateTimeProvider.GetCurrentDateTime();
 
                 if ( !endTime.HasValue )
                     endTime = startTime.Value.AddDays( 1 );

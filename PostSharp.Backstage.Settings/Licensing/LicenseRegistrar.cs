@@ -13,7 +13,7 @@ using System.Text.RegularExpressions;
 
 namespace PostSharp.Backstage.Licensing
 {
-    public class LicenseRegistrar
+    public abstract class LicenseRegistrar
     {
         internal const string UnattendedLicenseString = "(Unattended)";
         internal const string UnmodifiedLicenseString = "(Unmodified)";
@@ -29,16 +29,18 @@ namespace PostSharp.Backstage.Licensing
         
         private readonly UserSettings _userSettings;
         private readonly IApplicationInfoService _applicationInfoService;
+        private readonly ITrace _licensingTrace;
 
         public DateTime PrereleaseEvaluationEndDate => this._applicationInfoService.BuildDate + prereleaseEvaluationPeriodDuration;
 
-        public LicenseRegistrar( UserSettings userSettings, IApplicationInfoService applicationInfoService )
+        public LicenseRegistrar( UserSettings userSettings, IApplicationInfoService applicationInfoService, ITrace licensingTrace )
         {
             this._userSettings = userSettings;
             this._applicationInfoService = applicationInfoService;
+            this._licensingTrace = licensingTrace;
         }
 
-        internal bool TryParseWellKnownLicenseString( string licenseString, out License license, out string sourceDescription )
+        internal bool TryParseWellKnownLicenseString( string licenseString, out License? license, out string? sourceDescription )
         {
             if ( licenseString == expiredTestingEvaluationLicenseString )
             {
@@ -109,7 +111,7 @@ namespace PostSharp.Backstage.Licensing
         {
             return RegisterLicense( this.CreateTestEvaluationLicense( true ).LicenseString, allUsers );
         }
-        
+
         /// <summary>
         /// Creates a new license key for a 45-day evaluation license and registers it in the HKCU hive, unless another
         /// trial on this user recently expired.
@@ -118,50 +120,25 @@ namespace PostSharp.Backstage.Licensing
         /// <param name="license">The created license.</param>
         /// <returns>True if the license was created and registered; false if the user's trial already expired and the
         /// user is forbidden from creating a new trial license.</returns>
-        public bool TryOpenEvaluationMode( bool dry, out License license )
+        public abstract bool TryOpenEvaluationMode( bool dry, out License license );
+
+        internal CoreLicense CreateUnattendedLicense()
         {
-            license = null;
-
-            EvaluationPeriodStatus evaluationPeriodStatus = this.GetEvaluationPeriodStatus();
-            if ( evaluationPeriodStatus == EvaluationPeriodStatus.Forbidden )
-                return false;
-
-            using ( IRegistryKey userRegistryKey = UserSettings.OpenRegistryKey( writable: true ) )
-            {
-                if ( !dry )
-                {
-                    if ( evaluationPeriodStatus == EvaluationPeriodStatus.New )
-                    {
-                        DateTime evaluationStartDate = UserSettings.GetCurrentDateTime().Date;
-
-                        userRegistryKey.SetValueDateTime( evaluationStartDateValueName, evaluationStartDate );
-                    }
-
-                    license = CreateEvaluationLicense();
-                    RegisterLicense( license.Serialize(), false );
-                }
-
-                return true;
-            }
+            return new CoreUnattendedLicense( this._applicationInfoService.Version, this._applicationInfoService.BuildDate );
         }
 
-        internal static CoreLicense CreateUnattendedLicense()
+        internal CoreLicense CreateUnmodifiedLicense()
         {
-            return new CoreUnattendedLicense();
+            return new CoreUnmodifiedLicense( this._applicationInfoService.Version, this._applicationInfoService.BuildDate  );
         }
 
-        internal static CoreLicense CreateUnmodifiedLicense()
+        internal IEnumerable<License> CreatePerUsageCountingLicenses()
         {
-            return new CoreUnmodifiedLicense();
+            yield return new CorePerUsageCountingLicense( 10, LicensedProduct.Ultimate, LicensedPackages.All & ~LicensedPackages.Diagnostics, this._applicationInfoService.Version, this._applicationInfoService.BuildDate );
+            yield return new CorePerUsageCountingLicense( 11, LicensedProduct.DiagnosticsLibrary, LicensedPackages.Diagnostics, this._applicationInfoService.Version, this._applicationInfoService.BuildDate );
         }
 
-        internal static IEnumerable<License> CreatePerUsageCountingLicenses()
-        {
-            yield return new CorePerUsageCountingLicense( 10, LicensedProduct.Ultimate, LicensedPackages.All & ~LicensedPackages.Diagnostics );
-            yield return new CorePerUsageCountingLicense( 11, LicensedProduct.DiagnosticsLibrary, LicensedPackages.Diagnostics );
-        }
-
-        public static void CloseEvaluationMode()
+        public void CloseEvaluationMode()
         {
             using (SharedUserLicenseManager sharedUserLicenseManager = new SharedUserLicenseManager())
             {
@@ -180,14 +157,16 @@ namespace PostSharp.Backstage.Licensing
             }
         }
 
-        internal static void AddLicense(string licenseString, LicenseSource source)
+        internal void AddLicense(string licenseString, LicenseSource source)
         {
+            _ = License.TryDeserialize( licenseString, this._applicationInfoService, out var license, this._licensingTrace );
+
             LocalUserLicenseManager.Instance.CurrentSharedManager.AddUnusedLicenseConfiguration(
-                new LicenseConfiguration( licenseString, License.Deserialize( licenseString ), source, source.ToString() ) );
+                new LicenseConfiguration( licenseString, license, source, source.ToString() ) );
         }
 
         /// <exclude/>
-        internal static bool RegisterLicense( string newLicenseString, bool allUsers )
+        internal bool RegisterLicense( string newLicenseString, bool allUsers )
         {
             if ( LocalUserLicenseManager.IsInitialized )
             {
@@ -202,20 +181,17 @@ namespace PostSharp.Backstage.Licensing
             newLicenseString = newLicenseString.Trim();
 
             // Terminate the evaluation period before registering any license.
-            CloseEvaluationMode();
+            this.CloseEvaluationMode();
 
-            LicenseConfiguration newLicense = ParseLicenseString( newLicenseString, LicenseSource.Programmatic, "License Registration" );
-
-            // Don't register a license key that cannot be parsed.
-            if ( newLicense == null )
+            if ( !this.TryParseLicenseString( newLicenseString, LicenseSource.Programmatic, "License Registration", out var newLicense ) )
             {
                 return false;
             }
 
-            if ( !newLicense.IsLicenseServerUrl )
+            if ( !newLicense!.IsLicenseServerUrl )
             {
                 // Don't register a license key with an invalid signature.
-                if ( !newLicense.License.Validate( null, out string errorMessage ) )
+                if ( !newLicense.License!.Validate( null, out string errorMessage ) )
                 {
                     Trace.TraceInformation( $"License not registered: {errorMessage}" );
                     return false;
@@ -227,47 +203,17 @@ namespace PostSharp.Backstage.Licensing
                     return false;
                 }
             }
-            
-            if ( allUsers )
-            {
-                // If we register for all users, we should remove the key for the current user
-                // because it takes precedence.
-                UnregisterLicense( newLicenseString, false );
-            }
-            
-            Version minPostSharpVersion = null;
 
-            string licenseStringToStoreInStandardLocation = newLicenseString;
-            
-            if ( newLicense.License != null && newLicense.License.RequiresVersionSpecificStore &&
-                 licenseStringToStoreInStandardLocation == newLicenseString )
-            {
-                minPostSharpVersion = newLicense.License.MinPostSharpVersion;
-            }
+            this.RegisterLicenseImpl( newLicenseString, allUsers, newLicense );
 
-            IRegistryKey registryKey = LicensingRegistryHelper.GetLicenseRegistryKey( allUsers, true, minPostSharpVersion );
-
-            using ( registryKey )
-            {
-                // Find available name.
-                int registryValueName;
-                for ( registryValueName = 0;
-                      registryKey.GetValue( registryValueName.ToString( CultureInfo.InvariantCulture ) ) != null;
-                      registryValueName++ )
-                {
-                }
-
-                registryKey.SetValue( registryValueName.ToString( CultureInfo.InvariantCulture ), licenseStringToStoreInStandardLocation );
-            }
-
-            if ( UserSettings.UsageReportingAction == ReportingAction.Yes )
+            if ( this._userSettings.UsageReportingAction == ReportingAction.Yes )
             {
                 ReportedLicense reportedLicense = newLicense.GetReportedLicense();
 
                 ReportRegisteredLicense( reportedLicense );
             }
 
-      
+
 
             if ( LocalUserLicenseManager.IsInitialized )
             {
@@ -277,7 +223,9 @@ namespace PostSharp.Backstage.Licensing
             return true;
         }
 
-        internal static bool UnregisterLicense( string license, bool allUsers, bool standardLocationOnly = false )
+        protected abstract void RegisterLicenseImpl( string newLicenseString, bool allUsers, LicenseConfiguration? newLicense );
+
+        internal bool UnregisterLicense( string license, bool allUsers )
         {
             if ( LocalUserLicenseManager.IsInitialized )
             {
@@ -290,64 +238,8 @@ namespace PostSharp.Backstage.Licensing
             }
 
             license = license.Trim();
-            
-            bool hasChange = false;
-            
-            if ( !standardLocationOnly )
-            {
-                // Remove license key from the legacy (3.x) location.
-                IRegistryKey legacyRegistryKey = UserSettings.OpenRegistryKey( allUsers, true );
 
-                if ( legacyRegistryKey != null )
-                {
-                    using ( legacyRegistryKey )
-                    {
-                        if ( legacyRegistryKey.GetValue( "LicenseKey" ) is string value && value.Trim() == license )
-                        {
-                            hasChange = true;
-                            legacyRegistryKey.DeleteValue( "LicenseKey", false );
-                        }
-                    }
-                }
-            }
-
-            // Remove license key from standard (>=4.0) locations.
-            IRegistryKey registryKey = LicensingRegistryHelper.GetLicenseRegistryKey( allUsers );
-
-            if ( registryKey == null )
-            {
-                return hasChange;
-            }
-
-            using ( registryKey )
-            {
-                // Remove license key from PostSharp version agnostic location
-                if ( DeleteLicenseFromStandardLocation( license, registryKey ) )
-                {
-                    hasChange = true;
-                }
-
-                // Remove license key from PostSharp version dependent location
-                string[] versionDependentKeyNames = registryKey.GetSubKeyNames();
-
-                foreach ( string versionDependentKeyName in versionDependentKeyNames )
-                {
-                    IRegistryKey versionDependentKey = registryKey.OpenSubKey( versionDependentKeyName, true );
-
-                    if ( versionDependentKey == null )
-                    {
-                        continue;
-                    }
-
-                    using ( versionDependentKey )
-                    {
-                        if ( DeleteLicenseFromStandardLocation( license, versionDependentKey ) )
-                        {
-                            hasChange = true;
-                        }
-                    }
-                }
-            }
+            var hasChange = this.UnregisterLicenseImpl( license, allUsers );
 
             if ( hasChange )
             {
@@ -359,6 +251,8 @@ namespace PostSharp.Backstage.Licensing
 
             return hasChange;
         }
+
+        protected abstract bool UnregisterLicenseImpl( string license, bool allUsers );
 
         private static bool DeleteLicenseFromStandardLocation( string license, IRegistryKey registryKey )
         {
@@ -385,16 +279,18 @@ namespace PostSharp.Backstage.Licensing
             return hasChange;
         }
 
-        internal static LicenseConfiguration ParseLicenseString( string rawLicenseString, LicenseSource source, string sourceDescription )
+        internal bool TryParseLicenseString( string rawLicenseString, LicenseSource source, string sourceDescription, out LicenseConfiguration? licenseConfiguration )
         {
             if ( rawLicenseString == null )
             {
-                return null;
+                licenseConfiguration = null;
+                return false;
             }
 
             if ( LicenseServerClient.IsLicenseServerUrl( rawLicenseString ) )
             {
-                return new LicenseConfiguration( rawLicenseString, null, source, sourceDescription );
+                licenseConfiguration = new LicenseConfiguration( rawLicenseString, null, source, sourceDescription );
+                return true;
             }
 
             string licenseString;
@@ -411,80 +307,39 @@ namespace PostSharp.Backstage.Licensing
                 }
             }
 
-            if ( TryParseWellKnownLicenseString( rawLicenseString, out License license, out string internalSourceDescription ) )
+
+            if ( this.TryParseWellKnownLicenseString( rawLicenseString, out var license, out var internalSourceDescription ) )
             {
                 // Well-known license string.
                 licenseString = rawLicenseString;
                 source = LicenseSource.Internal;
-                sourceDescription = internalSourceDescription;
+                sourceDescription = internalSourceDescription!;
+            }
+            else if ( License.TryDeserialize( rawLicenseString, this._applicationInfoService, out license, this._licensingTrace ) )
+            {
+                licenseString = license!.LicenseString;
             }
             else
             {
-                license = License.Deserialize( rawLicenseString );
-                licenseString = license == null ? null : license.LicenseString;
+                licenseConfiguration = null;
+                return false;
             }
 
-            if ( license == null )
-            {
-                return null;
-            }
-
-            return new LicenseConfiguration( licenseString, license, source, sourceDescription );
+            licenseConfiguration = new( licenseString, license, source, sourceDescription );
+            return true;
         }
 
         internal static void ReportRegisteredLicense( ReportedLicense reportedLicense )
         {
-            if ( !Metrics.LicenseRegistration.Enabled )
-            {
-                Metrics.LicenseRegistration.Initialize();
-            }
-
-            Metrics.LicenseRegistration.ReportedLicensedProduct.Value = reportedLicense.LicensedProduct;
-            Metrics.LicenseRegistration.ReportedLicenseType.Value = reportedLicense.LicenseType;
-            Metrics.LicenseRegistration.Flush( true );
+            // TODO: Metrics
         }
 
         /// <exclude/>
-        public static long GetCurrentMachineHash()
-        {
-            return
-                CryptoUtilities.ComputeStringHash64(
-                    UserSettings.GetRegistryValue( true, @"SOFTWARE\Microsoft\Cryptography", "MachineGuid", null ) as string ?? Environment.MachineName );
-        }
+        public abstract long GetCurrentMachineHash();
 
-        internal static long GetCurrentUserHash()
+        internal long GetCurrentUserHash()
         {
             return CryptoUtilities.ComputeStringHash64( Environment.UserName );
-        }
-
-        /// <exclude/>
-        public static bool ClosePostSharpProcesses()
-        {
-            Process[] processes = Process.GetProcesses();
-            bool allProcessedClosed = true;
-            foreach ( Process process in processes )
-            {
-                if ( Regex.IsMatch( process.ProcessName, "^postsharp-.*-srv$", RegexOptions.IgnoreCase ) )
-                {
-                    try
-                    {
-                        if ( !process.CloseMainWindow() )
-                            process.Kill();
-                    }
-                    catch ( Exception )
-                    {
-                        allProcessedClosed = false;
-                    }
-                }
-            }
-
-
-            return allProcessedClosed;
-        }
-
-        internal static void ResetFreeTypesCounters()
-        {
-            LicensingRegistryHelper.DeleteProcessedTypesCountersKey();
         }
 
         public bool NotifyLicenseRegistration( License license, bool dry, out string message, out bool isError )
@@ -536,59 +391,33 @@ namespace PostSharp.Backstage.Licensing
             isError = false;
             return true;
         }
-        
-        internal EvaluationPeriodStatus GetEvaluationPeriodStatus()
+
+        internal abstract EvaluationPeriodStatus GetEvaluationPeriodStatus();
+
+        internal bool TryCreateEvaluationLicense( out CoreLicense? license )
         {
-            IRegistryKey userRegistryKey = UserSettings.OpenRegistryKey();
-
-            if ( userRegistryKey == null )
-                return EvaluationPeriodStatus.New;
-
-            using ( userRegistryKey )
+            if ( !this.TryGetEvaluationStartDate( out var evaluationStartDate ) )
             {
-                DateTime? evaluationStartDate = userRegistryKey.GetValueDateTime( evaluationStartDateValueName );
-
-                if ( evaluationStartDate == null )
-                    return EvaluationPeriodStatus.New;
-
-                if ( evaluationStartDate < this._userSettings.GetCurrentDateTime().Date.Subtract( evaluationWaitingPeriodDuration ) )
-                    return EvaluationPeriodStatus.New;
-
-                if ( evaluationStartDate > this._userSettings.GetCurrentDateTime().Date.Subtract( evaluationPeriodDuration ) || this._applicationInfoService.IsPrerelease )
-                    return EvaluationPeriodStatus.Continue;
+                license = null;
+                return false;
             }
 
-            return EvaluationPeriodStatus.Forbidden;
-        }
+            var evaluationEndDate = this._applicationInfoService.IsPrerelease ? this.PrereleaseEvaluationEndDate : evaluationStartDate!.Value + evaluationPeriodDuration;
 
-        internal CoreLicense CreateEvaluationLicense( )
-        {
-            using ( IRegistryKey userRegistryKey = UserSettings.OpenRegistryKey( writable: true ) )
+            license = new( LicensedProduct.Ultimate, this._applicationInfoService.Version, this._applicationInfoService.BuildDate )
             {
-                DateTime? evaluationStartDateFromRegistry = userRegistryKey.GetValueDateTime( evaluationStartDateValueName );
+                LicenseGuid = Guid.NewGuid(),
+                LicenseType = LicenseType.Evaluation,
+                ValidFrom = evaluationStartDate,
+                ValidTo = evaluationEndDate,
+                UserNumber = 1,
+            };
 
-                if ( !evaluationStartDateFromRegistry.HasValue )
-                {
-                    return null;
-                }
-
-                DateTime evaluationStartDate = evaluationStartDateFromRegistry.Value;
-                DateTime evaluationEndDate = this._applicationInfoService.IsPrerelease ? PrereleaseEvaluationEndDate : evaluationStartDate + evaluationPeriodDuration;
-
-                CoreLicense license = new CoreLicense(LicensedProduct.Ultimate)
-                                      {
-                                          LicenseGuid = Guid.NewGuid(),
-                                          LicenseType = LicenseType.Evaluation,
-                                          ValidFrom = evaluationStartDate,
-                                          ValidTo = evaluationEndDate,
-                                          UserNumber = 1
-                                      };
-
-                return license;
-
-            }
-
+            return true;
         }
+
+        protected abstract bool TryGetEvaluationStartDate( out DateTime? evaluationStartDate );
+
         private class CustomWebClient : WebClient
         {
             private readonly TimeSpan timeout;

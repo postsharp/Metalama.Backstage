@@ -24,14 +24,14 @@ namespace PostSharp.Backstage.Licensing
         }
 
         /// <exclude/>
-        internal bool IsLicenseServerUrl( string licenseString )
+        internal static bool IsLicenseServerUrl( string licenseString )
         {
             string message;
             return IsLicenseServerUrl( licenseString, out message );
         }
 
         /// <exclude/>
-        internal bool IsLicenseServerUrl( string licenseString, out string errorMessage )
+        internal static bool IsLicenseServerUrl( string licenseString, out string errorMessage )
         {
             if ( !Uri.IsWellFormedUriString( licenseString, UriKind.Absolute ) )
             {

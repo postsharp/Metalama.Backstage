@@ -353,7 +353,7 @@ namespace PostSharp.Backstage.Licensing
         }
 
 
-        public virtual bool Validate( byte[] publicKeyToken, out string errorDescription )
+        public virtual bool Validate( byte[]? publicKeyToken, out string errorDescription )
         {
             if ( !this.VerifySignature() )
             {
@@ -564,42 +564,6 @@ namespace PostSharp.Backstage.Licensing
             }
 
             return stringBuilder.ToString().ToUpperInvariant();
-        }
-
-        /// <summary>
-        /// Creates a new instance of the correct license class for the given product.
-        /// </summary>
-        /// <param name="product">The product for which a license will be created.</param>
-        /// <returns>The <see cref="License"/> with the <see cref="LicensedProduct"/> property set to the provided product.</returns>
-        public static License Create( LicensedProduct product )
-        {
-            // TODO: This is currently not used because it doesn't create licenses usable by pre-6.6 versions.
-            // TODO: It should either be moved out of here or fixed to match the logic in the licensing service.
-            // See SharpCrafters.Internal.Services.Licensing.LicensingService.GenerateLicense().
-            License license;
-
-            switch ( product )
-            {
-                case LicensedProduct.Ultimate:
-                    license = new CoreLicense( LicensedProduct.Ultimate );
-                    break;
-                case LicensedProduct.Framework:
-                    license = new CoreLicense( LicensedProduct.Framework );
-                    break;
-                case LicensedProduct.DiagnosticsLibrary:
-                case LicensedProduct.ModelLibrary:
-                case LicensedProduct.ThreadingLibrary:
-                case LicensedProduct.CachingLibrary:
-                    license = new LibraryLicense();
-                    break;
-
-                default:
-                    throw new ArgumentException($"Unsupported value {product}", nameof(product));
-            }
-
-            license.Product = product;
-
-            return license;
         }
 
         /// <summary>
@@ -1595,7 +1559,7 @@ namespace PostSharp.Backstage.Licensing
     [Serializable]
     public sealed class LicenseConfiguration
     {
-        internal LicenseConfiguration( string licenseString, License license, LicenseSource source, string sourceDescription )
+        internal LicenseConfiguration( string licenseString, License? license, LicenseSource source, string sourceDescription )
         {
             this.LicenseString = licenseString ?? throw new ArgumentNullException( nameof(licenseString) );
             this.License = license;
@@ -1610,7 +1574,7 @@ namespace PostSharp.Backstage.Licensing
 
         public LicenseLease LicenseLease { get; internal set; }
 
-        public License License { get; internal set; }
+        public License? License { get; internal set; }
 
         public LicenseSource Source { get; private set; }
 
