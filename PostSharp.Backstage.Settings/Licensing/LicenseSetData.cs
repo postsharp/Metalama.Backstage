@@ -103,7 +103,7 @@ namespace PostSharp.Backstage.Licensing
                 foreach ( License license in this.licenses )
                 {
                     string errorDescription;
-                    if ( !license.Validate( publicKeyToken, out errorDescription ) )
+                    if ( !license.Validate( publicKeyToken, this._dateTimeProvider, out errorDescription ) )
                     {
                         valid = false;
 

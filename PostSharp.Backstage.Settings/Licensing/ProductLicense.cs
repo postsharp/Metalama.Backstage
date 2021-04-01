@@ -1,6 +1,7 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. All rights reserved.
 // This project is not open source. Please see the LICENSE.md file in the repository root for details.
 
+using PostSharp.Backstage.Extensibility;
 using System;
 using System.Globalization;
 
@@ -13,6 +14,7 @@ namespace PostSharp.Backstage.Licensing
         public DateTime ProductBuildDate { get; }
 
         public ProductLicense( Version productVersion, DateTime productBuildDate )
+            : base()
         {
             this.ProductVersion = productVersion;
             this.ProductBuildDate = productBuildDate;
@@ -25,9 +27,9 @@ namespace PostSharp.Backstage.Licensing
             this.ProductBuildDate = productBuildDate;
         }
 
-        public override bool Validate( byte[] publicKeyToken, out string errorDescription )
+        public override bool Validate( byte[] publicKeyToken, IDateTimeProvider dateTimeProvider, out string errorDescription )
         {
-            if ( !base.Validate( publicKeyToken, out errorDescription ) )
+            if ( !base.Validate( publicKeyToken, dateTimeProvider, out errorDescription ) )
             {
                 return false;
             }

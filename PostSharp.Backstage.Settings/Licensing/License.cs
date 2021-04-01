@@ -33,8 +33,6 @@ namespace PostSharp.Backstage.Licensing
 
         private readonly LicenseData data;
 
-        private readonly IDateTimeProvider _dateTimeProvider;
-
         [Serializable]
         private class LicenseData
         {
@@ -75,11 +73,10 @@ namespace PostSharp.Backstage.Licensing
         /// <summary>
         /// Initializes a new empty <see cref="License"/>.
         /// </summary>
-        public License( IDateTimeProvider dateTimeProvider )
+        public License()
         {
             this.data = new LicenseData();
             this.Version = 2;
-            this._dateTimeProvider = dateTimeProvider;
         }
 
         internal License( object licenseData )
@@ -353,7 +350,7 @@ namespace PostSharp.Backstage.Licensing
         }
 
 
-        public virtual bool Validate( byte[]? publicKeyToken, out string errorDescription )
+        public virtual bool Validate( byte[]? publicKeyToken, IDateTimeProvider dateTimeProvider, out string errorDescription )
         {
             if ( !this.VerifySignature() )
             {
@@ -361,13 +358,13 @@ namespace PostSharp.Backstage.Licensing
                 return false;
             }
 
-            if ( this.ValidFrom.HasValue && this.ValidFrom > this._dateTimeProvider.GetCurrentDateTime() )
+            if ( this.ValidFrom.HasValue && this.ValidFrom > dateTimeProvider.GetCurrentDateTime() )
             {
                 errorDescription = "The license is not yet valid.";
                 return false;
             }
 
-            if ( this.ValidTo.HasValue && this.ValidTo < this._dateTimeProvider.GetCurrentDateTime() )
+            if ( this.ValidTo.HasValue && this.ValidTo < dateTimeProvider.GetCurrentDateTime() )
             {
                 errorDescription = "The license is not valid any more.";
                 return false;

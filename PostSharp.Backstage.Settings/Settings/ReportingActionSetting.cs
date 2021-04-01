@@ -12,7 +12,7 @@ namespace PostSharp.Backstage.Settings
 
         protected override void RefreshImpl( SettingsReader reader )
         {
-            this.Value = (ReportingAction) reader.GetInt32Value( this.Name, (int) this.DefaultValue );
+            this.Value = (ReportingAction) reader.GetValue( this.Name, (int) this.DefaultValue );
         }
 
         protected override void SetImpl( ReportingAction value, SettingsWriter writer )

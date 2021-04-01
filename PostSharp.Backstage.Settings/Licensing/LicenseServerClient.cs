@@ -144,7 +144,7 @@ namespace PostSharp.Backstage.Licensing
                     return false;
                 }
 
-                if ( !license!.Validate( null, out errorMessage ) )
+                if ( !license!.Validate( null, this._dateTimeProvider, out errorMessage ) )
                 {
                     return false;
                 }

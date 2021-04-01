@@ -1,6 +1,7 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. This file is not open source. It is released under a commercial
 // source-available license. Please see the LICENSE.md file in the repository root for details.
 
+using PostSharp.Backstage.Extensibility;
 using System;
 using System.Collections.Generic;
 
@@ -52,7 +53,7 @@ namespace PostSharp.Backstage.Licensing
 #pragma warning restore 618
         }
 
-        public override bool Validate( byte[] publicKeyToken, out string errorDescription )
+        public override bool Validate( byte[] publicKeyToken, IDateTimeProvider dateTimeProvider, out string errorDescription )
         {
 #pragma warning disable 618
             if ( this.LicenseType == LicenseType.Anonymous )
@@ -63,7 +64,7 @@ namespace PostSharp.Backstage.Licensing
             }
 #pragma warning restore 618
 
-            if ( !base.Validate( publicKeyToken, out errorDescription ) )
+            if ( !base.Validate( publicKeyToken, dateTimeProvider, out errorDescription ) )
             {
                 return false;
             }
