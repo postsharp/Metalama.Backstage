@@ -26,7 +26,7 @@ namespace PostSharp.Backstage.Licensing
         private readonly IDiagnosticsSink? _diagnosticsSink;
         private readonly ITrace? _licensingTrace;
 
-        public LicenseSetData( License[] licenses, string path, string hash, LicenseCache cache, IDateTimeProvider dateTimeProvider, IDiagnosticsSink? diagnosticsSink, ITrace? licensingTrace )
+        public LicenseSetData( License[] licenses, string? path, string hash, LicenseCache cache, IDateTimeProvider dateTimeProvider, IDiagnosticsSink? diagnosticsSink, ITrace? licensingTrace )
             : this( licenses, path, hash, DateTime.MinValue, DateTime.MinValue, cache, dateTimeProvider, diagnosticsSink, licensingTrace )
         {
         }
@@ -48,6 +48,11 @@ namespace PostSharp.Backstage.Licensing
             {
                 this.combinedFeatures.Add( license );
             }
+        }
+
+        public static string GetCanonicalPath( string path )
+        {
+            return Path.GetFullPath( path ).ToLowerInvariant();
         }
 
         public static bool TryGetCachedLicenseSetDataFromHash( License[] licenses, string hash, LicenseCache cache, IDiagnosticsSink diagnosticsSink, ITrace licensingTrace, out LicenseSetData? licenseSetData )
@@ -88,7 +93,7 @@ namespace PostSharp.Backstage.Licensing
             }
         }
 
-        public bool Verify( byte[] publicKeyToken, List<string>? errors = null )
+        public bool Verify( byte[]? publicKeyToken, List<string>? errors = null )
         {
             if ( this._dateTimeProvider.GetCurrentDateTime().Subtract( this.lastVerificationTime ).TotalHours <= 2 && new Random().NextDouble() >= 0.01 )
             {

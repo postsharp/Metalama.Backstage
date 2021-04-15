@@ -215,28 +215,4 @@ namespace PostSharp.Backstage.Licensing
 
         public override LicensedPackages GetLicensedPackages() => LicensedPackages.All;
     }
-
-    [Serializable]
-    internal class CorePerUsageCountingLicense : CoreLicense
-    {
-        private readonly LicensedPackages packages;
-
-        public CorePerUsageCountingLicense( int id, LicensedProduct product, LicensedPackages packages, Version productVersion, DateTime productBuildDate )
-            : base( product, productVersion, productBuildDate )
-        {
-            this.LicenseId = id;
-            this.packages = packages;
-            this.LicenseType = LicenseType.PerUsage;
-        }
-
-        public override bool RequiresWatermark() => true;
-
-        protected override bool RequiresSignature() => false;
-
-        public override bool IsAudited() => false;
-
-        public override LicenseSource GetAllowedLicenseSources() => LicenseSource.Internal;
-
-        public override LicensedPackages GetLicensedPackages() => this.packages;
-    }
 }

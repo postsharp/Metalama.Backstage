@@ -31,65 +31,50 @@ namespace PostSharp.Backstage.Licensing
     internal class LicenseFeatureContainer : IReadOnlyLicenseFeatureContainer
     {
         private readonly Dictionary<string, string> auditedLicenses = new Dictionary<string, string>();
-        private readonly ISet<License> usedPerUsageLicenses = new HashSet<License>();
 
         public bool IsEmpty => this.LicensedPackages == Licensing.LicensedPackages.None &&
                                this.LicensedPackagesWithInheritanceAllowed == Licensing.LicensedPackages.None &&
-                               this.LicensedPackagesPerUsage == Licensing.LicensedPackages.None &&
-                               this.LicensedPackagesPerUsageWithInheritanceAllowed == Licensing.LicensedPackages.None &&
-                               this.auditedLicenses.Count == 0 &&
-                               this.usedPerUsageLicenses.Count == 0;
+                               this.auditedLicenses.Count == 0;
 
         public LicensedPackages LicensedPackages { get; set; } = LicensedPackages.None;
+
         public LicensedPackages LicensedPackagesWithInheritanceAllowed { get; set; } = LicensedPackages.None;
-        public LicensedPackages LicensedPackagesPerUsage { get; set; } = LicensedPackages.None;
-        public LicensedPackages LicensedPackagesPerUsageWithInheritanceAllowed { get; set; } = LicensedPackages.None;
 
         public IReadOnlyDictionary<string, string> AuditedLicenses => this.auditedLicenses;
-        public ISet<License> UsedPerUsageLicenses => this.usedPerUsageLicenses;
 
-        public LicensedPackages GetLicensedPackages( bool perUsage, bool inherited )
+        public LicensedPackages GetLicensedPackages( bool inherited )
         {
-            if ( perUsage )
-                return inherited ? this.LicensedPackagesPerUsageWithInheritanceAllowed : this.LicensedPackagesPerUsage;
-            else
-                return inherited ? this.LicensedPackagesWithInheritanceAllowed : this.LicensedPackages;
+            return inherited ? this.LicensedPackagesWithInheritanceAllowed : this.LicensedPackages;
         }
 
-        public bool SatisfiesRequirement( LicensedPackages requirement, bool perUsage, bool inherited )
+        public bool SatisfiesRequirement( LicensedPackages requirement, bool inherited )
         {
-            return this.GetLicensedPackages( perUsage, inherited ).Includes( requirement );
+            return this.GetLicensedPackages( inherited ).Includes( requirement );
         }
 
         public void Clear()
         {
             this.LicensedPackages = LicensedPackages.None;
             this.LicensedPackagesWithInheritanceAllowed = LicensedPackages.None;
-            this.LicensedPackagesPerUsage = LicensedPackages.None;
-            this.LicensedPackagesPerUsageWithInheritanceAllowed = LicensedPackages.None;
             this.auditedLicenses.Clear();
             this.usedPerUsageLicenses.Clear();
         }
 
-        private void Add( LicensedPackages licensedPackage, bool perUsage = false, bool allowInheritance = false )
+        private void Add( LicensedPackages licensedPackage, bool allowInheritance = false )
         {
-            if ( perUsage )
-                this.LicensedPackagesPerUsage |= licensedPackage;
-            else
-                this.LicensedPackages |= licensedPackage;
+            this.LicensedPackages |= licensedPackage;
 
             if ( !allowInheritance )
+            {
                 return;
+            }
 
-            if ( perUsage )
-                this.LicensedPackagesPerUsageWithInheritanceAllowed |= licensedPackage;
-            else
-                this.LicensedPackagesWithInheritanceAllowed |= licensedPackage;
+            this.LicensedPackagesWithInheritanceAllowed |= licensedPackage;
         }
 
         public void Add( License license )
         {
-            this.Add( license.GetLicensedPackages(), license.LicenseType == LicenseType.PerUsage, license.AllowInheritance.GetValueOrDefault() );
+            this.Add( license.GetLicensedPackages(), license.AllowInheritance.GetValueOrDefault() );
 
             if ( license.IsAudited() )
                 this.auditedLicenses[license.LicenseUniqueId] = license.LicenseString;

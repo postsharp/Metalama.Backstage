@@ -18,7 +18,7 @@ namespace PostSharp.Backstage.Settings
         private readonly Setting[] _userSettings;
         private readonly Setting[] _machineSettings;
 
-        protected UserSettings(
+        public UserSettings(
             SettingsReader feedbackSettingsReader,
             SettingsWriter feedbackSettingsWriter,
             SettingsReader userSettingsReader,

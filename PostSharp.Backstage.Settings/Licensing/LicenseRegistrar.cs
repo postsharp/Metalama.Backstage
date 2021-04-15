@@ -1,15 +1,12 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. This file is not open source. It is released under a commercial
 // source-available license. Please see the LICENSE.md file in the repository root for details.
 
-using PostSharp.Backstage.Extensibility;
-using PostSharp.Backstage.Settings;
-using PostSharp.Backstage.Telemetry;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Globalization;
 using System.Net;
-using System.Text.RegularExpressions;
+using PostSharp.Backstage.Extensibility;
+using PostSharp.Backstage.Settings;
 
 namespace PostSharp.Backstage.Licensing
 {
@@ -130,12 +127,6 @@ namespace PostSharp.Backstage.Licensing
         internal CoreLicense CreateUnmodifiedLicense()
         {
             return new CoreUnmodifiedLicense( this._applicationInfoService.Version, this._applicationInfoService.BuildDate  );
-        }
-
-        internal IEnumerable<License> CreatePerUsageCountingLicenses()
-        {
-            yield return new CorePerUsageCountingLicense( 10, LicensedProduct.Ultimate, LicensedPackages.All & ~LicensedPackages.Diagnostics, this._applicationInfoService.Version, this._applicationInfoService.BuildDate );
-            yield return new CorePerUsageCountingLicense( 11, LicensedProduct.DiagnosticsLibrary, LicensedPackages.Diagnostics, this._applicationInfoService.Version, this._applicationInfoService.BuildDate );
         }
 
         public void CloseEvaluationMode()
@@ -428,6 +419,6 @@ namespace PostSharp.Backstage.Licensing
             }
         }
 
-        public abstract bool TryGetLease( string url, DateTime now, out LicenseLease lease );
+        public abstract bool TryGetLease( string url, DateTime now, out LicenseLease? lease );
     }
 }

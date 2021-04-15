@@ -1569,7 +1569,7 @@ namespace PostSharp.Backstage.Licensing
 
         public string LicenseString { get; private set; }
 
-        public LicenseLease LicenseLease { get; internal set; }
+        public LicenseLease? LicenseLease { get; internal set; }
 
         public License? License { get; internal set; }
 

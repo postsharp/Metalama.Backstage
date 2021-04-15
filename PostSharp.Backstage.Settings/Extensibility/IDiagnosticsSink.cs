@@ -9,7 +9,7 @@ namespace PostSharp.Backstage.Extensibility
     /// <remarks>
     ///   Use this interface instead of events for cross-domain communication.
     /// </remarks>
-    public interface IDiagnosticsSink
+    public interface IDiagnosticsSink : IService
     {
         /// <summary>
         /// Reports a warning.
