@@ -7,9 +7,7 @@ using System.Globalization;
 using System.IO;
 using System.Security.Cryptography;
 using System.Text;
-using PostSharp.Backstage.Licensing.Helpers;
 using System.Linq;
-using PostSharp.Backstage.Settings;
 using PostSharp.Backstage.Utilities;
 using PostSharp.Backstage.Extensibility;
 

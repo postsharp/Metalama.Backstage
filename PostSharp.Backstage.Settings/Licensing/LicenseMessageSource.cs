@@ -2,7 +2,6 @@
 // This project is not open source. Please see the LICENSE.md file in the repository root for details.
 
 using PostSharp.Backstage.Extensibility;
-using PostSharp.Backstage.Settings;
 using System;
 using System.Globalization;
 
@@ -10,7 +9,6 @@ namespace PostSharp.Backstage.Licensing
 {
     public class LicenseMessageSource
     {
-        private readonly UserSettings _userSettings;
         private readonly IDateTimeProvider _dateTimeProvider;
 
         internal LicenseMessage GetMessage(License license)
@@ -43,7 +41,8 @@ namespace PostSharp.Backstage.Licensing
                         frequency );
                 }
             }
-            else if ( this._userSettings.WarnAboutSubscriptionExpiration && license.SubscriptionEndDate.HasValue )
+            // TODO
+            /*else if ( this._userSettings.WarnAboutSubscriptionExpiration && license.SubscriptionEndDate.HasValue )
             {
                 int daysLeft = (int) license.SubscriptionEndDate.Value.Subtract( this._dateTimeProvider.GetCurrentDateTime() ).TotalDays;
                 if ( daysLeft >= 60 )
@@ -76,7 +75,7 @@ namespace PostSharp.Backstage.Licensing
                        isError: false,
                        frequency );
 
-            }
+            }*/
             return null;
         }
     }
