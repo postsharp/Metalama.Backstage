@@ -69,7 +69,7 @@ namespace PostSharp.Backstage.Licensing
             {
                 lease = this.DownloadLease( url );
 
-                if (!License.TryDeserialize(lease.LicenseString, this._applicationInfoService, out var license, this._licensingTrace))
+                if (!License.TryDeserialize(lease.LicenseString, this._applicationInfoService, out _, this._licensingTrace))
                 {
                     return false;
                 }
@@ -128,7 +128,7 @@ namespace PostSharp.Backstage.Licensing
                 throw new InvalidLicenseException( "The license server returned an invalid response." );
             }
 
-            return lease!;
+            return lease;
         }
 
         /// <exclude/>
@@ -144,7 +144,7 @@ namespace PostSharp.Backstage.Licensing
                     return false;
                 }
 
-                if ( !license!.Validate( null, this._dateTimeProvider, out errorMessage ) )
+                if ( !license.Validate( null, this._dateTimeProvider, out errorMessage ) )
                 {
                     return false;
                 }

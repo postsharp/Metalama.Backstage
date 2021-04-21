@@ -10,6 +10,7 @@ using System.Text;
 using System.Linq;
 using PostSharp.Backstage.Utilities;
 using PostSharp.Backstage.Extensibility;
+using System.Diagnostics.CodeAnalysis;
 
 namespace PostSharp.Backstage.Licensing
 {
@@ -566,7 +567,7 @@ namespace PostSharp.Backstage.Licensing
         /// </summary>
         /// <param name="licenseString">A serialized license.</param>
         /// <returns>The <see cref="License"/> constructed from <paramref name="licenseString"/>.</returns>
-        public static bool TryDeserialize( string licenseString, IApplicationInfoService applicationInfoService, out License? license, ITrace? licensingTrace = null )
+        public static bool TryDeserialize( string licenseString, IApplicationInfoService applicationInfoService, [MaybeNullWhen( returnValue: false )] out License license, ITrace? licensingTrace = null )
         {
             licenseString = CleanLicenseString( licenseString );
 

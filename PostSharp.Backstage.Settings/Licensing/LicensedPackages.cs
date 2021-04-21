@@ -24,7 +24,7 @@ namespace PostSharp.Backstage.Licensing
         Aggregatable = 1 << 6,
         Diagnostics = 1 << 7,
         Caching = 1 << 8,
-       
+
         // ProductUltimate without Logging, which is handled in the Logging weaver.
         All = Community | Common | Framework | Aggregatable | Threading | Caching | Model | Xaml | Diagnostics
     }

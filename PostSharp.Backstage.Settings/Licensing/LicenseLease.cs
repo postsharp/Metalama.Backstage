@@ -3,6 +3,7 @@
 
 using PostSharp.Backstage.Extensibility;
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Text;
 using System.Xml;
 
@@ -75,7 +76,7 @@ namespace PostSharp.Backstage.Licensing
         /// <param name="serializedLicenseLease">A serialized <see cref="LicenseLease"/>, produced by <see cref="Serialize"/>.</param>
         /// <returns>The <see cref="LicenseLease"/> built from <paramref name="serializedLicenseLease"/>, or <c>null</c> 
         /// if the string could not be deserialized.</returns>
-        public static bool TryDeserialize(string serializedLicenseLease, IDateTimeProvider dateTimeProvider, out LicenseLease? lease)
+        public static bool TryDeserialize(string serializedLicenseLease, IDateTimeProvider dateTimeProvider, [MaybeNullWhen( returnValue: false )] out LicenseLease lease)
         {
             try
             {
