@@ -7,6 +7,6 @@ namespace PostSharp.Backstage.Extensibility
 {
     public interface IDateTimeProvider : IService
     {
-        DateTime GetCurrentDateTime();
+        DateTime Now { get; }
     }
 }

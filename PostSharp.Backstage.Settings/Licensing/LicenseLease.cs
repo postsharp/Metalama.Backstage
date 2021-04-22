@@ -121,7 +121,7 @@ namespace PostSharp.Backstage.Licensing
                 }
 
                 if ( !startTime.HasValue )
-                    startTime = dateTimeProvider.GetCurrentDateTime();
+                    startTime = dateTimeProvider.Now;
 
                 if ( !endTime.HasValue )
                     endTime = startTime.Value.AddDays( 1 );

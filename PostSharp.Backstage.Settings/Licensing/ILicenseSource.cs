@@ -1,14 +1,14 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. All rights reserved.
 // This project is not open source. Please see the LICENSE.md file in the repository root for details.
 
-using PostSharp.Backstage.Extensibility;
+using System.Collections.Generic;
 
 namespace PostSharp.Backstage.Licensing
 {
-    public interface ILicenseManager : IService
+    public interface ILicenseSource
     {
-        public bool IsRequirementSatisfied( LicensedPackages packages );
+        public string Id { get; }
 
-        public void Require( LicensedPackages packages );
+        IEnumerable<string> LicenseKeys { get; }
     }
 }

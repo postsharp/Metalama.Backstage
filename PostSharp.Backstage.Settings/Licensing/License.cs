@@ -357,13 +357,13 @@ namespace PostSharp.Backstage.Licensing
                 return false;
             }
 
-            if ( this.ValidFrom.HasValue && this.ValidFrom > dateTimeProvider.GetCurrentDateTime() )
+            if ( this.ValidFrom.HasValue && this.ValidFrom > dateTimeProvider.Now )
             {
                 errorDescription = "The license is not yet valid.";
                 return false;
             }
 
-            if ( this.ValidTo.HasValue && this.ValidTo < dateTimeProvider.GetCurrentDateTime() )
+            if ( this.ValidTo.HasValue && this.ValidTo < dateTimeProvider.Now )
             {
                 errorDescription = "The license is not valid any more.";
                 return false;

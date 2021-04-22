@@ -14,89 +14,100 @@ namespace PostSharp.Backstage.Licensing
         private readonly IDateTimeProvider _dateTimeProvider;
         private readonly ITrace _trace;
 
+        private readonly Dictionary<string, ILicenseSource> _unusedLicenseSources = new Dictionary<string, ILicenseSource>();
+
         private readonly HashSet<string> _unusedLicenseKeys = new();
         private readonly HashSet<string> _usedLicenseKeys = new();
 
-        private readonly Dictionary<LicensedProduct, LicensedPackages> _availableRequirements = new();
+        private LicensedPackages _licensedPackages;
 
-        private bool _userLicensesLoaded;
+        public LicenseManager( IServiceLocator services, ITrace trace, params ILicenseSource[] licenseSources )
+            : this( services, trace, (IEnumerable<ILicenseSource>) licenseSources )
+        {
+        }
 
-        public LicenseManager(IEnumerable<string> licenseKeys, IServiceLocator services, ITrace trace )
+        public LicenseManager( IServiceLocator services, ITrace trace, IEnumerable<ILicenseSource> licenseSources )
         {
             this._trace = trace;
             this._applicationInfoService = services.GetService<IApplicationInfoService>();
             this._dateTimeProvider = services.GetService<IDateTimeProvider>();
 
-            foreach ( var licenseKey in licenseKeys )
+            foreach ( var licenseSource in licenseSources )
             {
-                this._unusedLicenseKeys.Add( licenseKey );
+                this._unusedLicenseSources.Add( licenseSource.Id, licenseSource );
             }
         }
 
-        public bool IsRequirementSatisfied( LicensedProduct product, LicensedPackages package )
+        public bool IsRequirementSatisfied( LicensedPackages packages )
         {
             do
             {
-                if ( this._availableRequirements.TryGetValue( product, out var elligiblePackages ) )
+                do
                 {
-                    if (elligiblePackages.HasFlag(package))
+                    if ( this._licensedPackages.HasFlag( packages ) )
                     {
                         return true;
                     }
-                }
-
-                while (this._unusedLicenseKeys.Count > 0)
-                {
-                    if (this.TryLoadNextLicenseKey())
-                    {
-                        break;
-                    }
-                }
-            } while ( this._unusedLicenseKeys.Count > 0 );
-
-            if ( !this._userLicensesLoaded )
-            {
-                this.LoadUserLicenseKeys();
-                return this.IsRequirementSatisfied( product, package );
-            }
+                } while ( this.TryLoadNextLicenseKey() );
+            } while ( this.TryLoadNextLicenseSource() );
 
             return false;
         }
 
-        public void Require( LicensedProduct product, LicensedPackages package )
+        public void Require( LicensedPackages packages )
         {
-            throw new NotImplementedException();
+            if ( !this.IsRequirementSatisfied( packages ) )
+            {
+                // TODO
+                throw new NotImplementedException();
+            }
         }
 
-        private void LoadUserLicenseKeys()
+        private bool TryLoadNextLicenseSource()
         {
-            this._userLicensesLoaded = true;
-            throw new NotImplementedException();
+            if ( this._unusedLicenseSources.Count == 0 )
+            {
+                return false;
+            }
+
+            var licenseSource = this._unusedLicenseSources.Values.First();
+            this._unusedLicenseSources.Remove( licenseSource.Id );
+
+            foreach ( var licenseKey in licenseSource.LicenseKeys )
+            {
+                this._unusedLicenseKeys.Add( licenseKey );
+            }
+
+            return true;
         }
 
         private bool TryLoadNextLicenseKey()
         {
-            var licenseKey = this._unusedLicenseKeys.First();
-            this._unusedLicenseKeys.Remove( licenseKey );
-            this._usedLicenseKeys.Add( licenseKey );
-
-            if ( !License.TryDeserialize( licenseKey, this._applicationInfoService, out var license, this._trace ) )
+            while ( this._unusedLicenseKeys.Count > 0 )
             {
-                return false;
+                var licenseKey = this._unusedLicenseKeys.First();
+                this._unusedLicenseKeys.Remove( licenseKey );
+                this._usedLicenseKeys.Add( licenseKey );
+
+                if ( !License.TryDeserialize( licenseKey, this._applicationInfoService, out var license, this._trace ) )
+                {
+                    return false;
+                }
+
+                if ( !license.Validate( null, this._dateTimeProvider, out var _errorDescription ) )
+                {
+                    // TODO: trace invalid licenses
+                    return false;
+                }
+
+                // TODO: trace
+                // TODO: license audit
+                this._licensedPackages |= license.GetLicensedPackages();
+
+                return true;
             }
 
-            if (!license.Validate(null, this._dateTimeProvider, out var _errorDescription))
-            {
-                // TODO: trace invalid licenses
-                return false;
-            }
-
-            // TODO: trace
-            LicensedPackages availablePackages = this._availableRequirements[license.Product];
-            availablePackages |= license.GetLicensedPackages();
-            this._availableRequirements[license.Product] = availablePackages;
-
-            return true;
+            return false;
         }
     }
 }

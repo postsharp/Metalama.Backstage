@@ -17,7 +17,7 @@ namespace PostSharp.Backstage.Licensing
             {
                 // Trial license have expiration times.
 
-                int daysLeft = (int) license.ValidTo.Value.Subtract( this._dateTimeProvider.GetCurrentDateTime() ).TotalDays;
+                int daysLeft = (int) license.ValidTo.Value.Subtract( this._dateTimeProvider.Now ).TotalDays;
 
                 TimeSpan frequency = TimeSpan.FromHours( daysLeft > 3 ? 4 : 0.25 );
 

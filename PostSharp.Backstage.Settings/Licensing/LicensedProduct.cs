@@ -40,6 +40,11 @@ namespace PostSharp.Backstage.Licensing
         Framework = 4,
 
         /// <summary>
+        /// Caravela
+        /// </summary>
+        Caravela = 5,
+
+        /// <summary>
         /// Logging Library
         /// </summary>
         DiagnosticsLibrary = 12,
