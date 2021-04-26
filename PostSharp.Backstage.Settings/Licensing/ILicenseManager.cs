@@ -7,8 +7,8 @@ namespace PostSharp.Backstage.Licensing
 {
     public interface ILicenseManager : IService
     {
-        public bool IsRequirementSatisfied( LicensedPackages packages );
+        public bool CanUseFeature( LicensedFeatures features );
 
-        public void Require( LicensedPackages packages );
+        public void UseFeature( LicensedFeatures features );
     }
 }

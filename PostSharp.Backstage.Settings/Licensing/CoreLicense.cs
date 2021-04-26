@@ -75,85 +75,17 @@ namespace PostSharp.Backstage.Licensing
         /// <inheritdoc cref="License"/>
         public override int GetGraceDaysOrDefault() => 30;
 
-        protected KeyValuePair<LicensedProduct, long> CreateCoreLicensedFeatures( LicensedFeatures coreFeatures ) => new KeyValuePair<LicensedProduct, long>( this.Product, (long) coreFeatures );
-
-        protected KeyValuePair<LicensedProduct, long> CreatePatternsLicensedFeatures( LicensedProduct patternsProduct ) => new KeyValuePair<LicensedProduct, long>( patternsProduct, (long) LicensedFeatures.BasicFeatures );
-
-        public override LicensedPackages GetLicensedPackages()
+        public override LicensedFeatures GetLicensedFeatures()
         {
             switch ( this.Product )
             {
                 case LicensedProduct.Ultimate when this.LicenseType != LicenseType.Community:
-                    return LicensedProductPackages.Ultimate;
+                    return LicensedProductFeatures.Ultimate;
                 case LicensedProduct.Framework:
-                    return LicensedProductPackages.Framework;
+                    return LicensedProductFeatures.Framework;
                 default:
                     // Community Edition.
-                    return base.GetLicensedPackages();
-            }
-        }
-
-        [Obsolete("Use GetLicensedPackages() instead")]
-        public override IEnumerable<KeyValuePair<LicensedProduct, long>> GetLicensedFeatures()
-        {
-            if ( this.Features.HasValue )
-            {
-                LicensedFeatures features = (LicensedFeatures) this.Features.Value;
-
-                if ( (features & LicensedFeatures.Hosting) != 0 )
-                    features |= LicensedFeatures.Sdk;
-
-                yield return this.CreateCoreLicensedFeatures( features );
-            }
-            else
-            {
-                switch ( this.LicenseType )
-                {
-                    case LicenseType.Global:
-                    case LicenseType.Enterprise:
-                    case LicenseType.Site:
-                    case LicenseType.Academic:
-                    case LicenseType.Evaluation:
-                    case LicenseType.CommercialRedistribution:
-                    case LicenseType.OpenSourceRedistribution:
-                        yield return this.CreateCoreLicensedFeatures( LicensedFeatures.All );
-                        yield return this.CreatePatternsLicensedFeatures( LicensedProduct.DiagnosticsLibrary );
-                        yield return this.CreatePatternsLicensedFeatures( LicensedProduct.ModelLibrary );
-                        yield return this.CreatePatternsLicensedFeatures( LicensedProduct.ThreadingLibrary );
-                        yield return this.CreatePatternsLicensedFeatures( LicensedProduct.CachingLibrary );
-                        break;
-
-                    case LicenseType.PerUser:
-                        yield return this.CreateCoreLicensedFeatures( LicensedFeatures.All & ~LicensedFeatures.EnterpriseFeatures );
-                        yield return this.CreatePatternsLicensedFeatures( LicensedProduct.DiagnosticsLibrary );
-                        yield return this.CreatePatternsLicensedFeatures( LicensedProduct.ModelLibrary );
-                        yield return this.CreatePatternsLicensedFeatures( LicensedProduct.ThreadingLibrary );
-                        yield return this.CreatePatternsLicensedFeatures( LicensedProduct.CachingLibrary );
-                        break;
-
-                    case LicenseType.Professional:
-                        yield return this.CreateCoreLicensedFeatures(
-                            LicensedFeatures.All & ~LicensedFeatures.EnterpriseFeatures & ~LicensedFeatures.UltimateFeatures );
-                        break;
-
-                    case LicenseType.Community:
-                        // The Community license (former Essentials, Express or Starter) is handled by the free enhanced classes
-                        // logic in the LocalLicenseManager.
-                        yield return this.CreateCoreLicensedFeatures( LicensedFeatures.None );
-                        break;
-
-                    case LicenseType.Unattended:
-                    case LicenseType.Unmodified:
-                        yield return this.CreateCoreLicensedFeatures(LicensedFeatures.All);
-                        yield return this.CreatePatternsLicensedFeatures(LicensedProduct.ModelLibrary);
-                        yield return this.CreatePatternsLicensedFeatures(LicensedProduct.ThreadingLibrary);
-                        yield return this.CreatePatternsLicensedFeatures(LicensedProduct.CachingLibrary);
-                        break;
-
-                    default:
-                        yield return this.CreateCoreLicensedFeatures( LicensedFeatures.None );
-                        break;
-                }
+                    return base.GetLicensedFeatures();
             }
         }
 
@@ -193,7 +125,7 @@ namespace PostSharp.Backstage.Licensing
 
         public override LicenseSource GetAllowedLicenseSources() => LicenseSource.Internal;
 
-        public override LicensedPackages GetLicensedPackages() => LicensedProductPackages.Unattended;
+        public override LicensedFeatures GetLicensedFeatures() => LicensedProductFeatures.Unattended;
 
     }
 
@@ -213,6 +145,6 @@ namespace PostSharp.Backstage.Licensing
 
         public override LicenseSource GetAllowedLicenseSources() => LicenseSource.Internal;
 
-        public override LicensedPackages GetLicensedPackages() => LicensedPackages.All;
+        public override LicensedFeatures GetLicensedFeatures() => LicensedFeatures.All;
     }
 }

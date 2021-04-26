@@ -18,7 +18,7 @@ namespace PostSharp.Backstage.Licensing
         private readonly HashSet<string> _unusedLicenseStrings = new();
         private readonly HashSet<string> _usedLicenseStrings = new();
 
-        private LicensedPackages _licensedPackages;
+        private LicensedFeatures _licensedFeatures;
 
         public LicenseManager( IServiceLocator services, ITrace trace, params ILicenseSource[] licenseSources )
             : this( services, trace, (IEnumerable<ILicenseSource>) licenseSources )
@@ -35,13 +35,13 @@ namespace PostSharp.Backstage.Licensing
             this._unusedLicenseSources.AddRange( licenseSources );
         }
 
-        public bool IsRequirementSatisfied( LicensedPackages packages )
+        public bool IsRequirementSatisfied( LicensedFeatures features )
         {
             do
             {
                 do
                 {
-                    if ( this._licensedPackages.HasFlag( packages ) )
+                    if ( this._licensedFeatures.HasFlag( features ) )
                     {
                         return true;
                     }
@@ -51,9 +51,9 @@ namespace PostSharp.Backstage.Licensing
             return false;
         }
 
-        public void Require( LicensedPackages packages )
+        public void Require( LicensedFeatures features )
         {
-            if ( !this.IsRequirementSatisfied( packages ) )
+            if ( !this.IsRequirementSatisfied( features ) )
             {
                 // TODO
                 throw new NotImplementedException();
@@ -115,7 +115,7 @@ namespace PostSharp.Backstage.Licensing
 
             // TODO: trace
             // TODO: license audit
-            this._licensedPackages |= license.GetLicensedPackages();
+            this._licensedFeatures |= license.GetLicensedFeatures();
 
             return true;
         }

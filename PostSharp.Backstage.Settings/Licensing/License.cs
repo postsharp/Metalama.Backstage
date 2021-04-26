@@ -140,7 +140,9 @@ namespace PostSharp.Backstage.Licensing
                         break;
 
                     case LicenseFieldIndex.LicenseeHash:
+#pragma warning disable CS0618 // Type or member is obsolete
                     case LicenseFieldIndex.Features:
+#pragma warning restore CS0618 // Type or member is obsolete
                         licenseField = new LicenseFieldInt64();
                         break;
 
@@ -301,37 +303,31 @@ namespace PostSharp.Backstage.Licensing
         }
 
         /// <summary>
-        /// Gets the licensed packages provided by this license.
+        /// Gets the licensed features provided by this license.
         /// </summary>
-        /// <returns>The LicensedPackages provided by this license.</returns>
-        public virtual LicensedPackages GetLicensedPackages()
+        /// <returns>The LicensedFeatures provided by this license.</returns>
+        public virtual LicensedFeatures GetLicensedFeatures()
         {
-            return LicensedProductPackages.Community;
+            return LicensedProductFeatures.Community;
         }
-        
+
         /// <summary>
-        /// Calculates the rank of the license. The rank is the count of licensed packages that the license
+        /// Calculates the rank of the license. The rank is the count of licensed features that the license
         /// provides.
         /// </summary>
         /// <returns>The rank of the license.</returns>
-        internal int LicensedPackagesRank()
+        internal int LicensedFeaturesRank()
         {
-            int licensedPackages = (int) this.GetLicensedPackages();
+            int licensedFeatures = (int) this.GetLicensedFeatures();
             
             int result = 0;
-            while (licensedPackages > 0)
+            while (licensedFeatures > 0)
             {
-                result += licensedPackages & 1;
-                licensedPackages >>= 1;
+                result += licensedFeatures & 1;
+                licensedFeatures >>= 1;
             }
 
             return result;
-        }
-
-        [Obsolete("Use GetLicensedPackages() instead")]
-        public virtual IEnumerable<KeyValuePair<LicensedProduct, long>> GetLicensedFeatures()
-        {
-            yield return new KeyValuePair<LicensedProduct, long>( this.Product, this.Features.GetValueOrDefault() );
         }
 
         public virtual LicenseSource GetAllowedLicenseSources()
@@ -752,16 +748,6 @@ namespace PostSharp.Backstage.Licensing
             }
         }
 
-        /// <summary>
-        /// Gets or sets the set of features explicitly set in this license.
-        /// </summary>
-        [Obsolete("Use GetLicensedPackages instead.")]
-        public long? Features
-        {
-            get => (long?) this.GetFieldValue( LicenseFieldIndex.Features );
-            set => this.SetFieldValue<LicenseFieldInt64>( LicenseFieldIndex.Features, value );
-        }
-
         public Guid? LicenseGuid
         {
             get => this.data.LicenseGuid;
@@ -1168,6 +1154,7 @@ namespace PostSharp.Backstage.Licensing
         /// </summary>
         private enum LicenseFieldIndex : byte
         {
+            [Obsolete("This field is no longer used. It has been replaced by former LicensedProducts enum, which has been renamed to LicensedFeatures.")]
             Features = 1,
             ValidFrom = 2,
             ValidTo = 3,

@@ -35,28 +35,21 @@ namespace PostSharp.Backstage.Licensing
         }
 
 
-        public override LicensedPackages GetLicensedPackages()
+        public override LicensedFeatures GetLicensedFeatures()
         {
             switch ( this.Product )
             {
                 case LicensedProduct.ModelLibrary:
-                    return LicensedProductPackages.Mvvm;
+                    return LicensedProductFeatures.Mvvm;
                 case LicensedProduct.ThreadingLibrary:
-                    return LicensedProductPackages.Threading;
+                    return LicensedProductFeatures.Threading;
                 case LicensedProduct.DiagnosticsLibrary:
-                    return LicensedProductPackages.Logging;
+                    return LicensedProductFeatures.Logging;
                 case LicensedProduct.CachingLibrary:
-                    return LicensedProductPackages.Caching;
+                    return LicensedProductFeatures.Caching;
                 default:
-                    return base.GetLicensedPackages();
+                    return base.GetLicensedFeatures();
             }
-        }
-
-        [Obsolete( "Use GetLicensedPackages() instead" )]
-        public override IEnumerable<KeyValuePair<LicensedProduct, long>> GetLicensedFeatures()
-        {
-            yield return new KeyValuePair<LicensedProduct, long>( this.Product, 1 );
-            yield return new KeyValuePair<LicensedProduct, long>( LicensedProduct.PostSharp30, (long) (LicensedFeatures.BasicFeatures) );
         }
 
         /// <inheritdoc cref="License"/>

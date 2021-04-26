@@ -21,14 +21,14 @@ namespace PostSharp.Backstage.Licensing.Tests
         public void TestUltimate()
         {
             var licenseManager = CreateLicenseManager( TestLicenseKeys.Ultimate );
-            Assert.True( licenseManager.IsRequirementSatisfied( LicensedPackages.Caravela ) );
+            Assert.True( licenseManager.IsRequirementSatisfied( LicensedFeatures.Caravela ) );
         }
 
         [Fact]
         public void TestDiagnostics()
         {
             var licenseManager = CreateLicenseManager( TestLicenseKeys.Diagnostics );
-            Assert.False( licenseManager.IsRequirementSatisfied( LicensedPackages.Caravela ) );
+            Assert.False( licenseManager.IsRequirementSatisfied( LicensedFeatures.Caravela ) );
         }
     }
 }
