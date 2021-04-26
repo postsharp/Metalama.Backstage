@@ -37,9 +37,10 @@ namespace PostSharp.Backstage.Licensing
         public const LicensedFeatures Threading = LicensedFeatures.Community | LicensedFeatures.Common | LicensedFeatures.Threading | LicensedFeatures.Aggregatable;
         public const LicensedFeatures Logging = LicensedFeatures.Community | LicensedFeatures.Common | LicensedFeatures.Diagnostics;
         public const LicensedFeatures Caching = LicensedFeatures.Community | LicensedFeatures.Common | LicensedFeatures.Caching;
-        public const LicensedFeatures Framework = LicensedFeatures.Community | LicensedFeatures.Common | LicensedFeatures.Framework;
+        public const LicensedFeatures Framework = LicensedFeatures.Community | LicensedFeatures.Common | LicensedFeatures.Framework | LicensedFeatures.Caravela;
         public const LicensedFeatures Ultimate = LicensedFeatures.All;
         public const LicensedFeatures Unattended = LicensedFeatures.All & ~LicensedFeatures.Diagnostics;
+        public const LicensedFeatures Caravela = LicensedFeatures.Caravela;
     }
     
     

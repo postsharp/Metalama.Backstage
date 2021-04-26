@@ -39,14 +39,7 @@ namespace PostSharp.Backstage.Licensing
         {
             switch ( this.Product )
             {
-                case LicensedProduct.ModelLibrary:
-                    return LicensedProductFeatures.Mvvm;
-                case LicensedProduct.ThreadingLibrary:
-                    return LicensedProductFeatures.Threading;
-                case LicensedProduct.DiagnosticsLibrary:
-                    return LicensedProductFeatures.Logging;
-                case LicensedProduct.CachingLibrary:
-                    return LicensedProductFeatures.Caching;
+                
                 default:
                     return base.GetLicensedFeatures();
             }

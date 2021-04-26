@@ -9,7 +9,7 @@ namespace PostSharp.Backstage.Licensing.Tests
 {
     public class SingleLicenseKeyTests
     {
-        private static LicenseManager CreateLicenseManager( string licenseString )
+        private static LicenseConsumptionManager CreateLicenseManager( string licenseString )
         {
             var services = new TestServices();
             var trace = new NullTrace();

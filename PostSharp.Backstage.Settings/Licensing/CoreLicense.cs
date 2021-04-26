@@ -21,16 +21,6 @@ namespace PostSharp.Backstage.Licensing
         {
         }
 
-        protected override bool RequiresSignature()
-        {
-#pragma warning disable 618
-            return this.LicenseType != LicenseType.Anonymous &&
-                   !(this.LicenseId == 0 && (this.LicenseType == LicenseType.Community || this.LicenseType == LicenseType.Evaluation));
-#pragma warning restore 618
-        }
-
-        public override bool RequiresRevocationCheck() => this.LicenseType == LicenseType.OpenSourceRedistribution;
-
         public override bool RequiresWatermark() => this.LicenseType == LicenseType.Evaluation || this.LicenseType == LicenseType.Academic;
 
         public override bool IsAudited()
@@ -75,20 +65,6 @@ namespace PostSharp.Backstage.Licensing
         /// <inheritdoc cref="License"/>
         public override int GetGraceDaysOrDefault() => 30;
 
-        public override LicensedFeatures GetLicensedFeatures()
-        {
-            switch ( this.Product )
-            {
-                case LicensedProduct.Ultimate when this.LicenseType != LicenseType.Community:
-                    return LicensedProductFeatures.Ultimate;
-                case LicensedProduct.Framework:
-                    return LicensedProductFeatures.Framework;
-                default:
-                    // Community Edition.
-                    return base.GetLicensedFeatures();
-            }
-        }
-
         public override string GetProductName(bool detailed = false)
         {
             switch ( this.Product )
@@ -105,46 +81,5 @@ namespace PostSharp.Backstage.Licensing
         public override bool IsEvaluationLicense() => this.LicenseType == LicenseType.Evaluation;
 
         public override bool IsUserLicense() => this.LicenseType.IsUserLicense();
-    }
-
-  
-
-    [Serializable]
-    internal class CoreUnattendedLicense : CoreLicense
-    {
-        public CoreUnattendedLicense( Version productVersion, DateTime productBuildDate )
-            : base( LicensedProduct.Ultimate, productVersion, productBuildDate )
-        {
-            this.LicenseType = LicenseType.Unattended;
-            this.UserNumber = 1;
-        }
-
-        protected override bool RequiresSignature() => false;
-
-        public override bool IsAudited() => false;
-
-        public override LicenseSource GetAllowedLicenseSources() => LicenseSource.Internal;
-
-        public override LicensedFeatures GetLicensedFeatures() => LicensedProductFeatures.Unattended;
-
-    }
-
-    [Serializable]
-    internal class CoreUnmodifiedLicense : CoreLicense
-    {
-        public CoreUnmodifiedLicense( Version productVersion, DateTime productBuildDate )
-            : base( LicensedProduct.Ultimate, productVersion, productBuildDate )
-        {
-            this.LicenseType = LicenseType.Unmodified;
-            this.UserNumber = 1;
-        }
-
-        protected override bool RequiresSignature() => false;
-
-        public override bool IsAudited() => false;
-
-        public override LicenseSource GetAllowedLicenseSources() => LicenseSource.Internal;
-
-        public override LicensedFeatures GetLicensedFeatures() => LicensedFeatures.All;
     }
 }
