@@ -3,7 +3,7 @@
 
 namespace PostSharp.Backstage.Extensibility
 {
-    public interface ICurrentProjectService : IService
+    public interface ICurrentProjectService
     {
         string GetTargetAssemblyName();
     }

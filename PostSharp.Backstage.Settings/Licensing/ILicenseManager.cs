@@ -5,7 +5,7 @@ using PostSharp.Backstage.Extensibility;
 
 namespace PostSharp.Backstage.Licensing
 {
-    public interface ILicenseManager : IService
+    public interface ILicenseManager
     {
         public bool CanUseFeature( LicensedFeatures features );
 

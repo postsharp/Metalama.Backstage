@@ -3,14 +3,13 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using PostSharp.Backstage.Extensibility;
 
 namespace PostSharp.Backstage.Licensing.Tests.Services
 {
-    internal class TestServices : IServiceLocator
+    internal class TestServices : IServiceProvider
     {
-        private readonly Dictionary<Type, IService> _services = new();
+        private readonly Dictionary<Type, object> _services = new();
 
         public TestServices()
         {
@@ -18,32 +17,10 @@ namespace PostSharp.Backstage.Licensing.Tests.Services
             this._services.Add( typeof( IDateTimeProvider ), new CurrentDateTimeProvider() );
         }
 
-        public bool TryGetService<T>( [MaybeNullWhen( returnValue: false )] out T service )
-            where T : class, IService
+        public object? GetService( Type serviceType )
         {
-            if ( this._services.TryGetValue( typeof( T ), out var s ) )
-            {
-                service = (T) s;
-                return true;
-            }
-            else
-            {
-                service = null;
-                return false;
-            }
-        }
-
-        public T GetService<T>()
-            where T : class, IService
-        {
-            if ( this.TryGetService<T>( out var service ) )
-            {
-                return service;
-            }
-            else
-            {
-                throw new ServiceUnavailableException<T>();
-            }
+            _ = this._services.TryGetValue( serviceType, out var service );
+            return service;
         }
     }
 }

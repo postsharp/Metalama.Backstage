@@ -5,7 +5,7 @@ using System;
 
 namespace PostSharp.Backstage.Extensibility
 {
-    public interface IDateTimeProvider : IService
+    public interface IDateTimeProvider
     {
         DateTime Now { get; }
     }

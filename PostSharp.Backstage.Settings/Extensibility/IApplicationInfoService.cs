@@ -6,7 +6,7 @@ using System;
 namespace PostSharp.Backstage.Extensibility
 {
     // Adding a replaceable layer of abstraction for testing purposes.
-    public interface IApplicationInfoService : IService
+    public interface IApplicationInfoService
     {
         bool IsPrerelease { get; }
 

@@ -3,7 +3,7 @@
 
 namespace PostSharp.Backstage.Extensibility
 {
-    public interface IWebClientService : IService
+    public interface IWebClientService
     {
         string DownloadString( string address );
     }

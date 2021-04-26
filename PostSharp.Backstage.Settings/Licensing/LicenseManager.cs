@@ -8,7 +8,7 @@ using PostSharp.Backstage.Extensibility;
 
 namespace PostSharp.Backstage.Licensing
 {
-    public sealed class LicenseManager : ILicenseManager
+    public sealed class LicenseManager
     {
         private readonly IApplicationInfoService _applicationInfoService;
         private readonly IDateTimeProvider _dateTimeProvider;
@@ -20,12 +20,12 @@ namespace PostSharp.Backstage.Licensing
 
         private LicensedFeatures _licensedFeatures;
 
-        public LicenseManager( IServiceLocator services, ITrace trace, params ILicenseSource[] licenseSources )
+        public LicenseManager( IServiceProvider services, ITrace trace, params ILicenseSource[] licenseSources )
             : this( services, trace, (IEnumerable<ILicenseSource>) licenseSources )
         {
         }
 
-        public LicenseManager( IServiceLocator services, ITrace trace, IEnumerable<ILicenseSource> licenseSources )
+        public LicenseManager( IServiceProvider services, ITrace trace, IEnumerable<ILicenseSource> licenseSources )
         {
             this._trace = trace;
             
