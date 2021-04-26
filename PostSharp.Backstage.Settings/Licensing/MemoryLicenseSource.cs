@@ -7,16 +7,16 @@ namespace PostSharp.Backstage.Licensing
 {
     public class MemoryLicenseSource : ILicenseSource
     {
-        private readonly string[] _licenseKeys;
+        private readonly string[] _licenseStrings;
 
         public string Id { get; }
 
-        public MemoryLicenseSource( string id, params string[] licenseKeys )
+        public MemoryLicenseSource( string id, params string[] licenseStrings )
         {
             this.Id = id;
-            this._licenseKeys = licenseKeys;
+            this._licenseStrings = licenseStrings;
         }
 
-        public IEnumerable<string> LicenseKeys => this._licenseKeys;
+        public IEnumerable<string> LicenseStrings => this._licenseStrings;
     }
 }

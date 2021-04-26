@@ -7,8 +7,12 @@ namespace PostSharp.Backstage.Licensing
 {
     public interface ILicenseSource
     {
-        public string Id { get; }
-
-        IEnumerable<string> LicenseKeys { get; }
+        /// <summary>
+        /// Gets license strings.
+        /// </summary>
+        /// <remarks>
+        /// Each license string can represent either a license key or a license server URL.
+        /// </remarks>
+        IEnumerable<string> LicenseStrings { get; }
     }
 }

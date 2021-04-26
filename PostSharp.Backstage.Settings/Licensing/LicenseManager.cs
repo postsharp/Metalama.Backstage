@@ -14,10 +14,9 @@ namespace PostSharp.Backstage.Licensing
         private readonly IDateTimeProvider _dateTimeProvider;
         private readonly ITrace _trace;
 
-        private readonly Dictionary<string, ILicenseSource> _unusedLicenseSources = new Dictionary<string, ILicenseSource>();
-
-        private readonly HashSet<string> _unusedLicenseKeys = new();
-        private readonly HashSet<string> _usedLicenseKeys = new();
+        private readonly List<ILicenseSource> _unusedLicenseSources = new();
+        private readonly HashSet<string> _unusedLicenseStrings = new();
+        private readonly HashSet<string> _usedLicenseStrings = new();
 
         private LicensedPackages _licensedPackages;
 
@@ -29,13 +28,11 @@ namespace PostSharp.Backstage.Licensing
         public LicenseManager( IServiceLocator services, ITrace trace, IEnumerable<ILicenseSource> licenseSources )
         {
             this._trace = trace;
+            
             this._applicationInfoService = services.GetService<IApplicationInfoService>();
             this._dateTimeProvider = services.GetService<IDateTimeProvider>();
 
-            foreach ( var licenseSource in licenseSources )
-            {
-                this._unusedLicenseSources.Add( licenseSource.Id, licenseSource );
-            }
+            this._unusedLicenseSources.AddRange( licenseSources );
         }
 
         public bool IsRequirementSatisfied( LicensedPackages packages )
@@ -48,7 +45,7 @@ namespace PostSharp.Backstage.Licensing
                     {
                         return true;
                     }
-                } while ( this.TryLoadNextLicenseKey() );
+                } while ( this.TryLoadNextLicenseString() );
             } while ( this.TryLoadNextLicenseSource() );
 
             return false;
@@ -70,44 +67,57 @@ namespace PostSharp.Backstage.Licensing
                 return false;
             }
 
-            var licenseSource = this._unusedLicenseSources.Values.First();
-            this._unusedLicenseSources.Remove( licenseSource.Id );
+            var licenseSource = this._unusedLicenseSources.First();
+            this._unusedLicenseSources.Remove( licenseSource );
 
-            foreach ( var licenseKey in licenseSource.LicenseKeys )
+            foreach ( var licenseString in licenseSource.LicenseStrings )
             {
-                this._unusedLicenseKeys.Add( licenseKey );
+                this._unusedLicenseStrings.Add( licenseString );
             }
 
             return true;
         }
 
-        private bool TryLoadNextLicenseKey()
+        private bool TryLoadNextLicenseString()
         {
-            while ( this._unusedLicenseKeys.Count > 0 )
+            while ( this._unusedLicenseStrings.Count > 0 )
             {
-                var licenseKey = this._unusedLicenseKeys.First();
-                this._unusedLicenseKeys.Remove( licenseKey );
-                this._usedLicenseKeys.Add( licenseKey );
+                var licenseString = this._unusedLicenseStrings.First();
+                this._unusedLicenseStrings.Remove( licenseString );
+                this._usedLicenseStrings.Add( licenseString );
 
-                if ( !License.TryDeserialize( licenseKey, this._applicationInfoService, out var license, this._trace ) )
+                if ( LicenseServerClient.IsLicenseServerUrl( licenseString ) )
                 {
-                    return false;
+                    // TODO
+                    throw new NotImplementedException();
                 }
-
-                if ( !license.Validate( null, this._dateTimeProvider, out var _errorDescription ) )
+                else
                 {
-                    // TODO: trace invalid licenses
-                    return false;
+                    return this.TryLoadLicenseKey( licenseString );
                 }
-
-                // TODO: trace
-                // TODO: license audit
-                this._licensedPackages |= license.GetLicensedPackages();
-
-                return true;
             }
 
             return false;
+        }
+
+        private bool TryLoadLicenseKey( string licenseKey )
+        {
+            if ( !License.TryDeserialize( licenseKey, this._applicationInfoService, out var license, this._trace ) )
+            {
+                return false;
+            }
+
+            if ( !license.Validate( null, this._dateTimeProvider, out var _errorDescription ) )
+            {
+                // TODO: trace invalid licenses
+                return false;
+            }
+
+            // TODO: trace
+            // TODO: license audit
+            this._licensedPackages |= license.GetLicensedPackages();
+
+            return true;
         }
     }
 }
