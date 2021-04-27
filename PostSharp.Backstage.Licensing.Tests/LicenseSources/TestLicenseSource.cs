@@ -2,22 +2,23 @@
 // This project is not open source. Please see the LICENSE.md file in the repository root for details.
 
 using System.Collections.Generic;
+using PostSharp.Backstage.Licensing.Licenses;
 using PostSharp.Backstage.Licensing.Sources;
 
 namespace PostSharp.Backstage.Licensing.Tests
 {
     public class TestLicenseSource : ILicenseSource
     {
-        private readonly string[] _licenseStrings;
+        private readonly ILicense[] _licenses;
 
         public string Id { get; }
 
-        public TestLicenseSource( string id, params string[] licenseStrings )
+        public TestLicenseSource( string id, params ILicense[] licenses )
         {
             this.Id = id;
-            this._licenseStrings = licenseStrings;
+            this._licenses = licenses;
         }
 
-        public IEnumerable<string> LicenseStrings => this._licenseStrings;
+        public IEnumerable<ILicense> Licenses => this._licenses;
     }
 }

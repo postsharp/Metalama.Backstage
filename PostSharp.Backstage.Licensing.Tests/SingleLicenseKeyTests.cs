@@ -2,33 +2,52 @@
 // This project is not open source. Please see the LICENSE.md file in the repository root for details.
 
 using PostSharp.Backstage.Extensibility;
+using PostSharp.Backstage.Licensing.Consumption;
+using PostSharp.Backstage.Licensing.Licenses;
+using PostSharp.Backstage.Licensing.Tests.Consumption;
 using PostSharp.Backstage.Licensing.Tests.Services;
+using System;
 using Xunit;
 
 namespace PostSharp.Backstage.Licensing.Tests
 {
     public class SingleLicenseKeyTests
     {
-        private static LicenseConsumptionManager CreateLicenseManager( string licenseString )
+        private static ILicenseConsumptionManager CreateConsumptionManager( IServiceProvider services, string licenseString )
+        {
+            var trace = new NullTrace();
+            var licenseFactory = new LicenseFactory( services, trace );
+            Assert.True( licenseFactory.TryCreate( licenseString, out var license ) );
+            var licenseSource = new TestLicenseSource( "test", license );
+            return new LicenseConsumptionManager( services, trace, licenseSource );
+        }
+
+        private static ILicenseConsumer CreateConsumer()
+        {
+            return new TestLicenseConsumer( "Foo", "Bar", null );
+        }
+
+        private void TestOneLicense( string licenseKey, LicensedFeatures requiredFeatures, bool expectedCanConsume )
         {
             var services = new TestServices();
-            var trace = new NullTrace();
-            var licenseSource = new TestLicenseSource( "test", licenseString );
-            return new( services, trace, licenseSource );
+            var consumer = CreateConsumer();
+            var manager = CreateConsumptionManager( services, licenseKey );
+            var actualCanConsume = manager.CanConsumeFeature( consumer, requiredFeatures );
+            services.Diagnostics.AssertClean();
+            consumer.Diagnostics.AssertClean();
+            Assert.Equal( expectedCanConsume, actualCanConsume );
         }
 
         [Fact]
         public void TestUltimate()
         {
-            var licenseManager = CreateLicenseManager( TestLicenseKeys.Ultimate );
-            Assert.True( licenseManager.IsRequirementSatisfied( LicensedFeatures.Caravela ) );
+            this.TestOneLicense( TestLicenseKeys.Ultimate, LicensedFeatures.Caravela, true );
         }
 
         [Fact]
-        public void TestDiagnostics()
+        public void TestLogging()
         {
-            var licenseManager = CreateLicenseManager( TestLicenseKeys.Diagnostics );
-            Assert.False( licenseManager.IsRequirementSatisfied( LicensedFeatures.Caravela ) );
+            this.TestOneLicense( TestLicenseKeys.Logging, LicensedFeatures.Caravela, false );
         }
     }
 }

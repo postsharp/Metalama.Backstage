@@ -6,7 +6,9 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
+using PostSharp.Backstage.Licensing.Cryptography;
 using PostSharp.Backstage.Licensing.Licenses.LicenseFields;
+using PostSharp.Backstage.Utilities;
 
 namespace PostSharp.Backstage.Licensing.Licenses
 {
@@ -218,7 +220,7 @@ namespace PostSharp.Backstage.Licensing.Licenses
         {
             this.SignatureKeyId = signatureKeyId;
             byte[] signedBuffer = this.GetSignedBuffer();
-            this.Signature = CryptoUtilities.Sign( signedBuffer, privateKey );
+            this.Signature = LicenseCryptography.Sign( signedBuffer, privateKey );
         }
 
         /// <summary>
@@ -238,7 +240,7 @@ namespace PostSharp.Backstage.Licensing.Licenses
             if ( signature == null )
                 return false;
 
-            return CryptoUtilities.VerifySignature( this.GetSignedBuffer(), publicKey, signature );
+            return LicenseCryptography.VerifySignature( this.GetSignedBuffer(), publicKey, signature );
         }
     }
 }

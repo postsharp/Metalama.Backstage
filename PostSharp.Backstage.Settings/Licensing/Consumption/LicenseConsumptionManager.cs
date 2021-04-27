@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using PostSharp.Backstage.Extensibility;
+using PostSharp.Backstage.Licensing.Licenses;
 using PostSharp.Backstage.Licensing.Sources;
 
 namespace PostSharp.Backstage.Licensing.Consumption
@@ -16,10 +17,11 @@ namespace PostSharp.Backstage.Licensing.Consumption
         private readonly ITrace _trace;
 
         private readonly List<ILicenseSource> _unusedLicenseSources = new();
-        private readonly HashSet<string> _unusedLicenseStrings = new();
-        private readonly HashSet<string> _usedLicenseStrings = new();
+        private readonly HashSet<ILicense> _unusedLicenses = new();
+        private readonly HashSet<ILicense> _usedLicenses = new();
 
         private LicensedFeatures _licensedFeatures;
+        private readonly Dictionary<string, NamespaceLimitedLicenseFeatures> _namespaceLimitedLicensedFeatures = new();
 
         public LicenseConsumptionManager( IServiceProvider services, ITrace trace, params ILicenseSource[] licenseSources )
             : this( services, trace, (IEnumerable<ILicenseSource>) licenseSources )
@@ -36,31 +38,6 @@ namespace PostSharp.Backstage.Licensing.Consumption
             this._unusedLicenseSources.AddRange( licenseSources );
         }
 
-        public bool IsRequirementSatisfied( LicensedFeatures features )
-        {
-            do
-            {
-                do
-                {
-                    if ( this._licensedFeatures.HasFlag( features ) )
-                    {
-                        return true;
-                    }
-                } while ( this.TryLoadNextLicenseString() );
-            } while ( this.TryLoadNextLicenseSource() );
-
-            return false;
-        }
-
-        public void Require( LicensedFeatures features )
-        {
-            if ( !this.IsRequirementSatisfied( features ) )
-            {
-                // TODO
-                throw new NotImplementedException();
-            }
-        }
-
         private bool TryLoadNextLicenseSource()
         {
             if ( this._unusedLicenseSources.Count == 0 )
@@ -71,54 +48,77 @@ namespace PostSharp.Backstage.Licensing.Consumption
             var licenseSource = this._unusedLicenseSources.First();
             this._unusedLicenseSources.Remove( licenseSource );
 
-            foreach ( var licenseString in licenseSource.LicenseStrings )
+            foreach ( var license in licenseSource.Licenses )
             {
-                this._unusedLicenseStrings.Add( licenseString );
+                this._unusedLicenses.Add( license );
             }
 
             return true;
         }
 
-        private bool TryLoadNextLicenseString()
+        private bool TryLoadNextLicense()
         {
-            while ( this._unusedLicenseStrings.Count > 0 )
+            if ( this._unusedLicenses.Count == 0 )
             {
-                var licenseString = this._unusedLicenseStrings.First();
-                this._unusedLicenseStrings.Remove( licenseString );
-                this._usedLicenseStrings.Add( licenseString );
+                return false;
+            }
 
-                if ( LicenseServerClient.IsLicenseServerUrl( licenseString ) )
+            var license = this._unusedLicenses.First();
+            this._unusedLicenses.Remove( license );
+            this._usedLicenses.Add( license );
+
+            // TODO: trace
+            // TODO: license audit
+
+            if ( !license.TryGetLicenseData( out var licenseData ) )
+            {
+                return false;
+            }
+
+            if (licenseData.LicensedNamespace == null)
+            {
+                this._licensedFeatures |= licenseData.LicensedFeatures;
+            }
+            else
+            {
+                if (!this._namespaceLimitedLicensedFeatures.TryGetValue(licenseData.LicensedNamespace, out var namespaceFeatures))
                 {
-                    // TODO
-                    throw new NotImplementedException();
+                    this._namespaceLimitedLicensedFeatures[licenseData.LicensedNamespace] = new( licenseData.LicensedNamespace, licenseData.LicensedFeatures );
                 }
                 else
                 {
-                    return this.TryLoadLicenseKey( licenseString );
+                    namespaceFeatures.Features |= licenseData.LicensedFeatures;
                 }
             }
+
+            return true;
+        }
+
+        public bool CanConsumeFeature( ILicenseConsumer consumer, LicensedFeatures requiredFeatures )
+        {
+            do
+            {
+                do
+                {
+                    if ( this._licensedFeatures.HasFlag( requiredFeatures ) )
+                    {
+                        return true;
+                    }
+                }
+                while ( this.TryLoadNextLicense() );
+            }
+            while ( this.TryLoadNextLicenseSource() );
 
             return false;
         }
 
-        private bool TryLoadLicenseKey( string licenseKey )
+        public void ConsumeFeature( ILicenseConsumer consumer, LicensedFeatures requiredFeatures )
         {
-            if ( !License.TryDeserialize( licenseKey, this._applicationInfoService, out var license, this._trace ) )
+            if ( !this.CanConsumeFeature( consumer, requiredFeatures ) )
             {
-                return false;
+                // TODO
+                throw new NotImplementedException();
             }
-
-            if ( !license.Validate( null, this._dateTimeProvider, out var _errorDescription ) )
-            {
-                // TODO: trace invalid licenses
-                return false;
-            }
-
-            // TODO: trace
-            // TODO: license audit
-            this._licensedFeatures |= license.GetLicensedFeatures();
-
-            return true;
         }
     }
 }

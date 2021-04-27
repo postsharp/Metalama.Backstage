@@ -13,6 +13,6 @@ namespace PostSharp.Backstage.Licensing.Consumption
 
         public IDiagnosticsSink Diagnostics { get; }
 
-        public IDiagnosticsLocation DiagnosticsLocation { get; set; }
+        public IDiagnosticsLocation DiagnosticsLocation { get; }
     }
 }

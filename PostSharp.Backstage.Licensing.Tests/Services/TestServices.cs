@@ -11,8 +11,11 @@ namespace PostSharp.Backstage.Licensing.Tests.Services
     {
         private readonly Dictionary<Type, object> _services = new();
 
+        public TestDiagnosticsSink Diagnostics { get; } = new();
+
         public TestServices()
         {
+            this._services.Add( typeof( IDiagnosticsSink ), this.Diagnostics );
             this._services.Add( typeof( IApplicationInfoService ), new ApplicationInfoService( false, new( 0, 1, 0 ), new( 2021, 1, 1 ) ) );
             this._services.Add( typeof( IDateTimeProvider ), new CurrentDateTimeProvider() );
         }

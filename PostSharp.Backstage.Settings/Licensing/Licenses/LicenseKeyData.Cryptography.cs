@@ -1,6 +1,7 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. All rights reserved.
 // This project is not open source. Please see the LICENSE.md file in the repository root for details.
 
+using PostSharp.Backstage.Licensing.Cryptography;
 using System;
 using System.Collections.Generic;
 using System.Security.Cryptography;
@@ -19,7 +20,7 @@ namespace PostSharp.Backstage.Licensing.Licenses
             if ( !this.SignatureKeyId.HasValue )
                 return false;
 
-            DSA publicKey = CryptoUtilities.GetPublicKey( this.SignatureKeyId.GetValueOrDefault() );
+            DSA publicKey = LicenseCryptography.GetPublicKey( this.SignatureKeyId.Value );
             if ( publicKey == null )
                 return false;
 

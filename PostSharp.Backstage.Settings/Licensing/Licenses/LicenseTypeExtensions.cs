@@ -1,20 +1,18 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. All rights reserved.
 // This project is not open source. Please see the LICENSE.md file in the repository root for details.
 
-using System.Diagnostics.CodeAnalysis;
-
 namespace PostSharp.Backstage.Licensing.Licenses
 {
     public static class LicenseTypeExtensions
     {
-        public static bool TryGetLicenseTypeName( LicenseType licenseType, [MaybeNullWhen(returnValue:false)] out string licenseTypeName )
+        public static string GetLicenseTypeName( this LicenseType licenseType )
         {
 #pragma warning disable 618
             switch ( licenseType )
             {
                 case LicenseType.Community:
                     // This case is handled in CoreLicense.GetProductName().
-                    return null;
+                    return "License";
                 case LicenseType.Enterprise:
                 case LicenseType.PerUser:
                     return "Per-Developer Subscription";
@@ -39,7 +37,7 @@ namespace PostSharp.Backstage.Licensing.Licenses
                     // We don't want to display the license type for other licenses, because there may be
                     // a mismatch between what we sell (i.e. what is represented in the CRM and in the license certificate)
                     // and what is serialized into the license key.
-                    return null;
+                    return "License";
             }
 #pragma warning restore 618
         }

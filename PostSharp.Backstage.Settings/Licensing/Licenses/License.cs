@@ -2,6 +2,7 @@
 // source-available license. Please see the LICENSE.md file in the repository root for details.
 
 using System;
+using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.IO;
@@ -84,7 +85,7 @@ namespace PostSharp.Backstage.Licensing.Licenses
                 licenseType: licenseKeyData.LicenseType,
                 licensedFeatures: licenseKeyData.LicensedFeatures,
                 licensedNamespace: licenseKeyData.Namespace,
-                displayName: $"{licenseKeyData.ProductName} license id {licenseKeyData.LicenseUniqueId}" );
+                displayName: $"{licenseKeyData.ProductName} {licenseKeyData.LicenseType.GetLicenseTypeName()} ID {licenseKeyData.LicenseUniqueId}" );
 
             return true;
         }
@@ -149,6 +150,17 @@ namespace PostSharp.Backstage.Licensing.Licenses
                 data = null;
                 return false;
             }
+        }
+
+        public override bool Equals( object? obj )
+        {
+            return obj is License license &&
+                   this._licenseKey == license._licenseKey;
+        }
+
+        public override int GetHashCode()
+        {
+            return 668981160 + EqualityComparer<string>.Default.GetHashCode( this._licenseKey );
         }
     }
 }
