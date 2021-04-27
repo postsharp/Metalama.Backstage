@@ -8,23 +8,30 @@ using PostSharp.Backstage.Licensing.Tests.Consumption;
 using PostSharp.Backstage.Licensing.Tests.Services;
 using System;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace PostSharp.Backstage.Licensing.Tests
 {
     public class SingleLicenseKeyTests
     {
-        private static ILicenseConsumptionManager CreateConsumptionManager( IServiceProvider services, string licenseString )
+        private readonly ITrace _trace;
+
+        public SingleLicenseKeyTests( ITestOutputHelper logger )
         {
-            var trace = new NullTrace();
-            var licenseFactory = new LicenseFactory( services, trace );
-            Assert.True( licenseFactory.TryCreate( licenseString, out var license ) );
-            var licenseSource = new TestLicenseSource( "test", license );
-            return new LicenseConsumptionManager( services, trace, licenseSource );
+            this._trace = new TestTrace( logger );
         }
 
         private static ILicenseConsumer CreateConsumer()
         {
             return new TestLicenseConsumer( "Foo", "Bar", null );
+        }
+
+        private ILicenseConsumptionManager CreateConsumptionManager( IServiceProvider services, string licenseString )
+        {
+            var licenseFactory = new LicenseFactory( services, this._trace );
+            Assert.True( licenseFactory.TryCreate( licenseString, out var license ) );
+            var licenseSource = new TestLicenseSource( "test", license! );
+            return new LicenseConsumptionManager( services, this._trace, licenseSource );
         }
 
         private void TestOneLicense( string licenseKey, LicensedFeatures requiredFeatures, bool expectedCanConsume )
