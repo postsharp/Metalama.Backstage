@@ -3,7 +3,7 @@
 
 using System.Collections.Generic;
 
-namespace PostSharp.Backstage.Licensing
+namespace PostSharp.Backstage.Licensing.Sources
 {
     public interface ILicenseSource
     {

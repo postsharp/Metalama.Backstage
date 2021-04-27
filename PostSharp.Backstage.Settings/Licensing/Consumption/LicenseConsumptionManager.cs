@@ -5,8 +5,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using PostSharp.Backstage.Extensibility;
+using PostSharp.Backstage.Licensing.Sources;
 
-namespace PostSharp.Backstage.Licensing
+namespace PostSharp.Backstage.Licensing.Consumption
 {
     public sealed class LicenseConsumptionManager : ILicenseConsumptionManager
     {

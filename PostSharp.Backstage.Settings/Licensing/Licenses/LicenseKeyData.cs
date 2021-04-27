@@ -77,11 +77,6 @@ namespace PostSharp.Backstage.Licensing.Licenses
             _ => string.Format( CultureInfo.InvariantCulture, "Unknown Product ({0})", this.Product )
         };
 
-        public ReportedLicense GetReportedLicense()
-        {
-            return new ReportedLicense( this.Product.ToString(), this.LicenseType.ToString() );
-        }
-
         /// <inheritdoc />
         public override string ToString()
         {

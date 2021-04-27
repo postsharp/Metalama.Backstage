@@ -6,6 +6,8 @@ using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.IO;
 using PostSharp.Backstage.Extensibility;
+using PostSharp.Backstage.Licensing.Consumption;
+using PostSharp.Backstage.Utilities;
 
 namespace PostSharp.Backstage.Licensing.Licenses
 {
@@ -78,9 +80,10 @@ namespace PostSharp.Backstage.Licensing.Licenses
             }
 
             licenseData = new(
+                licensedProduct: licenseKeyData.Product,
+                licenseType: licenseKeyData.LicenseType,
                 licensedFeatures: licenseKeyData.LicensedFeatures,
                 licensedNamespace: licenseKeyData.Namespace,
-                reportedLicense: licenseKeyData.GetReportedLicense(),
                 displayName: $"{licenseKeyData.ProductName} license id {licenseKeyData.LicenseUniqueId}" );
 
             return true;

@@ -4,7 +4,7 @@
 using System;
 using System.Runtime.Serialization;
 
-namespace PostSharp.Backstage.Licensing
+namespace PostSharp.Backstage.Licensing.Licenses
 {
     /// <summary>
     /// Exception thrown when an invalid license is provided.

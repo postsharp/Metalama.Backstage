@@ -7,7 +7,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Text;
 using System.Xml;
 
-namespace PostSharp.Backstage.Licensing
+namespace PostSharp.Backstage.Licensing.LicenseServer
 {
     /// <summary>
     /// Represents a lease of license by a specific user.

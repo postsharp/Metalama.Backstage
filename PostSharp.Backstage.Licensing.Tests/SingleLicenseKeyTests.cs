@@ -13,7 +13,7 @@ namespace PostSharp.Backstage.Licensing.Tests
         {
             var services = new TestServices();
             var trace = new NullTrace();
-            var licenseSource = new MemoryLicenseSource( "test", licenseString );
+            var licenseSource = new TestLicenseSource( "test", licenseString );
             return new( services, trace, licenseSource );
         }
 

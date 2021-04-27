@@ -2,7 +2,7 @@
 
 using System;
 
-namespace PostSharp.Backstage.Licensing
+namespace PostSharp.Backstage.Licensing.Audit
 {
     [Serializable]
     public struct ReportedLicense : IEquatable<ReportedLicense>

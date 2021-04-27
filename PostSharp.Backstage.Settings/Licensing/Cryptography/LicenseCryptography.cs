@@ -1,4 +1,4 @@
-// Copyright (c) SharpCrafters s.r.o. This file is not open source. It is released under a commercial
+﻿// Copyright (c) SharpCrafters s.r.o. This file is not open source. It is released under a commercial
 // source-available license. Please see the LICENSE.md file in the repository root for details.
 
 using PostSharp.Backstage.Utilities;
@@ -12,18 +12,18 @@ using System.Xml;
 #pragma warning disable CA5350, CA5350, CA5384, CA5351 // Do Not Use Weak Cryptographic Algorithms (TODO - but this means upgrading all license keys)
 
 
-namespace PostSharp.Backstage.Licensing
+namespace PostSharp.Backstage.Licensing.Cryptography
 {
     /// <exclude />
     /// <summary>
     /// Utility cryptographic methods for use with the PostSharp licensing system.
     /// </summary>
-    public static class CryptoUtilities
+    public static class LicenseCryptography
     {
         private static readonly DSA productionPublicKey0 = DSA.Create();
         private static readonly DSA productionPublicKey1 = DSA.Create();
 
-        static CryptoUtilities()
+        static LicenseCryptography()
         {
             // FromXmlString method is not supported by .NET Core
             productionPublicKey0.FromXmlString2(

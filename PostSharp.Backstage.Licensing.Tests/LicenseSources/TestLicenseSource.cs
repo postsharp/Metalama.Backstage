@@ -2,16 +2,17 @@
 // This project is not open source. Please see the LICENSE.md file in the repository root for details.
 
 using System.Collections.Generic;
+using PostSharp.Backstage.Licensing.Sources;
 
-namespace PostSharp.Backstage.Licensing
+namespace PostSharp.Backstage.Licensing.Tests
 {
-    public class MemoryLicenseSource : ILicenseSource
+    public class TestLicenseSource : ILicenseSource
     {
         private readonly string[] _licenseStrings;
 
         public string Id { get; }
 
-        public MemoryLicenseSource( string id, params string[] licenseStrings )
+        public TestLicenseSource( string id, params string[] licenseStrings )
         {
             this.Id = id;
             this._licenseStrings = licenseStrings;

@@ -3,7 +3,7 @@
 
 using PostSharp.Backstage.Extensibility;
 
-namespace PostSharp.Backstage.Licensing
+namespace PostSharp.Backstage.Licensing.Consumption
 {
     public interface ILicenseConsumer
     {

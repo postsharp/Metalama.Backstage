@@ -1,7 +1,9 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. All rights reserved.
 // This project is not open source. Please see the LICENSE.md file in the repository root for details.
 
-namespace PostSharp.Backstage.Licensing
+using PostSharp.Backstage.Licensing.Licenses;
+
+namespace PostSharp.Backstage.Licensing.Consumption
 {
     public class LicenseData
     {
@@ -9,15 +11,23 @@ namespace PostSharp.Backstage.Licensing
 
         public string? LicensedNamespace { get; }
 
-        public ReportedLicense ReportedLicense { get; }
+        public LicensedProduct LicensedProduct { get; }
+
+        public LicenseType LicenseType { get; }
 
         public string DisplayName { get; }
 
-        public LicenseData( LicensedFeatures licensedFeatures, string? licensedNamespace, ReportedLicense reportedLicense, string displayName )
+        public LicenseData( 
+            LicensedProduct licensedProduct,
+            LicenseType licenseType,
+            LicensedFeatures licensedFeatures,
+            string? licensedNamespace,
+            string displayName )
         {
+            this.LicensedProduct = licensedProduct;
+            this.LicenseType = licenseType;
             this.LicensedFeatures = licensedFeatures;
             this.LicensedNamespace = licensedNamespace;
-            this.ReportedLicense = reportedLicense;
             this.DisplayName = displayName;
         }
 

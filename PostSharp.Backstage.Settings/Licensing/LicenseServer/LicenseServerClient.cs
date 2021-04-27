@@ -9,7 +9,7 @@
 //using System.IO;
 //using System.Net;
 
-//namespace PostSharp.Backstage.Licensing
+//namespace PostSharp.Backstage.Licensing.LicenseServer
 //{
 //    internal sealed class LicenseServerClient
 //    {
