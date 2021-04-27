@@ -1,9 +1,8 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. All rights reserved.
 // This project is not open source. Please see the LICENSE.md file in the repository root for details.
 
-using PostSharp.Backstage.Licensing.Licenses.LicenseFields;
 using System;
-using System.Collections.Generic;
+using System.Globalization;
 using System.Text;
 
 namespace PostSharp.Backstage.Licensing.Licenses
@@ -40,44 +39,68 @@ namespace PostSharp.Backstage.Licensing.Licenses
 
         public bool RequiresRevocationCheck => this.LicenseType == LicenseType.OpenSourceRedistribution;
 
+        public string LicenseUniqueId =>
+            this.LicenseGuid.HasValue ? this.LicenseGuid.Value.ToString() : this.LicenseId.ToString( CultureInfo.InvariantCulture );
+
         // TODO in Caravela
         public bool RequiresWatermark => this.LicenseType == LicenseType.Evaluation || this.LicenseType == LicenseType.Academic;
 
         /// <summary>
         /// Gets the licensed features provided by this license.
         /// </summary>
-        public LicensedFeatures LicensedFeatures
+        public LicensedFeatures LicensedFeatures => this.Product switch
         {
-            get
-            {
-                switch ( this.Product )
-                {
-                    case LicensedProduct.Ultimate when this.LicenseType != LicenseType.Community:
-                        return LicensedProductFeatures.Ultimate;
-                    case LicensedProduct.Framework:
-                        return LicensedProductFeatures.Framework;
-
-                    case LicensedProduct.ModelLibrary:
-                        return LicensedProductFeatures.Mvvm;
-                    case LicensedProduct.ThreadingLibrary:
-                        return LicensedProductFeatures.Threading;
-                    case LicensedProduct.DiagnosticsLibrary:
-                        return LicensedProductFeatures.Logging;
-                    case LicensedProduct.CachingLibrary:
-                        return LicensedProductFeatures.Caching;
-
-                    case LicensedProduct.Caravela:
-                        return LicensedProductFeatures.Caravela;
-
-                    default:
-                        return LicensedProductFeatures.Community;
-                }
-            }
-        }
+            LicensedProduct.Ultimate when this.LicenseType != LicenseType.Community => LicensedProductFeatures.Ultimate,
+            LicensedProduct.Framework => LicensedProductFeatures.Framework,
+            LicensedProduct.ModelLibrary => LicensedProductFeatures.Mvvm,
+            LicensedProduct.ThreadingLibrary => LicensedProductFeatures.Threading,
+            LicensedProduct.DiagnosticsLibrary => LicensedProductFeatures.Logging,
+            LicensedProduct.CachingLibrary => LicensedProductFeatures.Caching,
+            LicensedProduct.Caravela => LicensedProductFeatures.Caravela,
+            _ => LicensedProductFeatures.Community,
+        };
 
         /// <summary>
-        /// Gets <c>true</c> when the <see cref="Namespace"/> property is set, otherwise <c>false</c>.
+        /// Gets a value indicating whether the license is limited by a namespace.
         /// </summary>
         public bool IsLimitedByNamespace => !string.IsNullOrEmpty( this.Namespace );
+
+        public string ProductName => this.Product switch
+        {
+            LicensedProduct.Framework => "PostSharp Framework",
+            LicensedProduct.Ultimate => this.LicenseType == LicenseType.Community ? "PostSharp Community" : "PostSharp Ultimate",
+            LicensedProduct.DiagnosticsLibrary => "PostSharp Logging",
+            LicensedProduct.ModelLibrary => "PostSharp MVVM",
+            LicensedProduct.ThreadingLibrary => "PostSharp Threading",
+            LicensedProduct.CachingLibrary => "PostSharp Caching",
+            LicensedProduct.Caravela => "PostSharp Caravela",
+            _ => string.Format( CultureInfo.InvariantCulture, "Unknown Product ({0})", this.Product )
+        };
+
+        public ReportedLicense GetReportedLicense()
+        {
+            return new ReportedLicense( this.Product.ToString(), this.LicenseType.ToString() );
+        }
+
+        /// <inheritdoc />
+        public override string ToString()
+        {
+            StringBuilder stringBuilder = new();
+
+            stringBuilder.AppendFormat(
+                CultureInfo.InvariantCulture,
+                "Version={0}, LicenseId={1}, LicenseType={2}, Product={3}",
+                this.Version,
+                this.LicenseId,
+                this.LicenseType,
+                this.Product );
+
+            foreach ( var licenseField in this._fields )
+            {
+                stringBuilder.AppendFormat( CultureInfo.InvariantCulture, ", {0}={1}", licenseField.Key, licenseField.Value );
+            }
+
+            return stringBuilder.ToString();
+        }
     }
 }

@@ -1,8 +1,8 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. All rights reserved.
 // This project is not open source. Please see the LICENSE.md file in the repository root for details.
 
-using PostSharp.Backstage.Licensing.Licenses.LicenseFields;
 using System;
+using PostSharp.Backstage.Licensing.Licenses.LicenseFields;
 
 namespace PostSharp.Backstage.Licensing.Licenses
 {
@@ -74,9 +74,15 @@ namespace PostSharp.Backstage.Licensing.Licenses
             set => this.SetFieldValue<LicenseFieldString>( LicenseFieldIndex.Namespace, value );
         }
 
-        public bool? Auditable
+        public bool Auditable
         {
-            get => (bool?) this.GetFieldValue( LicenseFieldIndex.Auditable );
+            get => this.LicenseType switch
+            {
+                LicenseType.Site or LicenseType.Global or LicenseType.Anonymous => false,
+                LicenseType.Evaluation => true, // We want to audit evaluation licenses so we know how people are using the product during evaluation.
+                _ => (bool?) this.GetFieldValue( LicenseFieldIndex.Auditable ) ?? true,
+            };
+
             set => this.SetFieldValue<LicenseFieldBool>( LicenseFieldIndex.Auditable, value );
         }
 
@@ -110,11 +116,63 @@ namespace PostSharp.Backstage.Licensing.Licenses
         }
 
         /// <summary>
+        /// Gets or sets the allowed number of users.
+        /// </summary>
+        public short? UserNumber
+        {
+            get => (short?) this.GetFieldValue( LicenseFieldIndex.UserNumber );
+            set => this.SetFieldValue<LicenseFieldInt16>( LicenseFieldIndex.UserNumber, value );
+        }
+
+        /// <summary>
+        /// Gets or sets the date from which the license is valid.
+        /// </summary>
+        public DateTime? ValidFrom
+        {
+            get => (DateTime?) this.GetFieldValue( LicenseFieldIndex.ValidFrom );
+            set => this.SetFieldValue<LicenseFieldDate>( LicenseFieldIndex.ValidFrom, value );
+        }
+
+        /// <summary>
+        /// Gets or sets the date to which the license is valid.
+        /// </summary>
+        public DateTime? ValidTo
+        {
+            get => (DateTime?) this.GetFieldValue( LicenseFieldIndex.ValidTo );
+            set => this.SetFieldValue<LicenseFieldDate>( LicenseFieldIndex.ValidTo, value );
+        }
+
+
+        public DateTime? SubscriptionEndDate
+        {
+            get => (DateTime?) this.GetFieldValue( LicenseFieldIndex.SubscriptionEndDate );
+            set => this.SetFieldValue<LicenseFieldDate>( LicenseFieldIndex.SubscriptionEndDate, value );
+        }
+
+        /// <summary>
+        /// Gets or sets the full name of the licensee.
+        /// </summary>
+        public string? Licensee
+        {
+            get => (string?) this.GetFieldValue( LicenseFieldIndex.Licensee );
+            set => this.SetFieldValue<LicenseFieldString>( LicenseFieldIndex.Licensee, value );
+        }
+
+        /// <summary>
+        /// Gets or sets the hash of the licensee name.
+        /// </summary>
+        public int? LicenseeHash
+        {
+            get => (int?) this.GetFieldValue( LicenseFieldIndex.LicenseeHash );
+            set => this.SetFieldValue<LicenseFieldInt32>( LicenseFieldIndex.LicenseeHash, value );
+        }
+
+        /// <summary>
         /// Gets or sets the number of days in the grace period.
         /// </summary>
-        public byte? GraceDays
+        public byte GraceDays
         {
-            get => (byte?) this.GetFieldValue( LicenseFieldIndex.GraceDays );
+            get => (byte?) this.GetFieldValue( LicenseFieldIndex.GraceDays ) ?? 30;
             set => this.SetFieldValue<LicenseFieldByte>( LicenseFieldIndex.GraceDays, value );
         }
 
@@ -174,7 +232,7 @@ namespace PostSharp.Backstage.Licensing.Licenses
             set => this.SetFieldValue<LicenseFieldBool>( LicenseFieldIndex.LicenseServerEligible, this._isLicenseServerEligible = value );
         }
 
-        private Version _minPostSharpVersion;
+        private Version? _minPostSharpVersion;
 
         // The getter of this property needs to be updated along with any
         // breaking change of the License class.

@@ -19,7 +19,7 @@ namespace PostSharp.Backstage.Licensing.Licenses.LicenseFields
         /// to be followed by its length (1 byte).
         /// If such field is unknown, the given number of bytes is ignored.
         /// </remarks>
-        public static bool IsMustUnderstandField( LicenseFieldIndex index )
+        public static bool IsMustUnderstand( this LicenseFieldIndex index )
         {
             byte i = (byte) index;
 
@@ -30,29 +30,29 @@ namespace PostSharp.Backstage.Licensing.Licenses.LicenseFields
 
             return i <= 128 || i >= 254;
         }
-    }
 
-    /// <summary>
-    /// Returns <c>true</c> if a license field data contain its length.
-    /// </summary>
-    /// <param name="index"></param>
-    /// <returns></returns>
-    /// <remarks>
-    /// Till PostSharp 6.5.16/6.8.9/6.9.2, all license fields had to be known.
-    /// Adding a field used to cause backward incompatibility.
-    /// In the next versions and in Caravela, we require each new filed index
-    /// to be followed by its length (1 byte).
-    /// If such field is unknown, the given number of bytes is ignored.
-    /// </remarks>
-    public static bool IsFieldPrefixedByLength( LicenseFieldIndex index )
-    {
-        byte i = (byte) index;
-
-        if ( i < 1 || i > 255 )
+        /// <summary>
+        /// Returns <c>true</c> if a license field data contain its length.
+        /// </summary>
+        /// <param name="index"></param>
+        /// <returns></returns>
+        /// <remarks>
+        /// Till PostSharp 6.5.16/6.8.9/6.9.2, all license fields had to be known.
+        /// Adding a field used to cause backward incompatibility.
+        /// In the next versions and in Caravela, we require each new filed index
+        /// to be followed by its length (1 byte).
+        /// If such field is unknown, the given number of bytes is ignored.
+        /// </remarks>
+        public static bool IsPrefixedByLength( this LicenseFieldIndex index )
         {
-            throw new ArgumentOutOfRangeException( nameof( index ) );
-        }
+            byte i = (byte) index;
 
-        return i > 21 && i < 254;
+            if ( i < 1 || i > 255 )
+            {
+                throw new ArgumentOutOfRangeException( nameof( index ) );
+            }
+
+            return i > 21 && i < 254;
+        }
     }
 }
