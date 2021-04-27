@@ -168,8 +168,8 @@ namespace PostSharp.Backstage.Licensing.Licenses
         {
             writer.Write( this.Version );
             writer.Write( this.LicenseId );
-            writer.Write( (byte) this.LicenseType );
-            writer.Write( (byte) this.Product );
+            writer.Write( (byte) this._licenseType );
+            writer.Write( (byte) this._product );
 
 
             foreach ( var pair in this._fields )
