@@ -7,17 +7,11 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="Monikers.imagemanifest" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <content Include="Monikers.imagemanifest">
-      <IncludeInVSIX>true</IncludeInVSIX>
-    </content>
-  </ItemGroup>
-
-  <ItemGroup>
     <PackageReference Include="Microsoft.Win32.Registry" Version="5.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="PostSharp.Backstage.Licensing.Tests" />
   </ItemGroup>
 
 </Project>

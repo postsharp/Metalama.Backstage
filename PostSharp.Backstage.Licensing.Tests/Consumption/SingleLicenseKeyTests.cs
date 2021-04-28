@@ -1,16 +1,15 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. All rights reserved.
 // This project is not open source. Please see the LICENSE.md file in the repository root for details.
 
+using System;
 using PostSharp.Backstage.Extensibility;
 using PostSharp.Backstage.Licensing.Consumption;
 using PostSharp.Backstage.Licensing.Licenses;
-using PostSharp.Backstage.Licensing.Tests.Consumption;
 using PostSharp.Backstage.Licensing.Tests.Services;
-using System;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace PostSharp.Backstage.Licensing.Tests
+namespace PostSharp.Backstage.Licensing.Tests.Consumption
 {
     public class SingleLicenseKeyTests
     {
@@ -38,7 +37,7 @@ namespace PostSharp.Backstage.Licensing.Tests
         {
             var services = new TestServices();
             var consumer = CreateConsumer();
-            var manager = CreateConsumptionManager( services, licenseKey );
+            var manager = this.CreateConsumptionManager( services, licenseKey );
             var actualCanConsume = manager.CanConsumeFeature( consumer, requiredFeatures );
             services.Diagnostics.AssertClean();
             consumer.Diagnostics.AssertClean();
@@ -46,13 +45,13 @@ namespace PostSharp.Backstage.Licensing.Tests
         }
 
         [Fact]
-        public void TestUltimate()
+        public void UltimateLicenseAllowsCaravelaFeature()
         {
             this.TestOneLicense( TestLicenseKeys.Ultimate, LicensedFeatures.Caravela, true );
         }
 
         [Fact]
-        public void TestLogging()
+        public void LoggingLicenseForbidsCaravelaFeature()
         {
             this.TestOneLicense( TestLicenseKeys.Logging, LicensedFeatures.Caravela, false );
         }
