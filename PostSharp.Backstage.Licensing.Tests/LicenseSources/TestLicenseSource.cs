@@ -7,11 +7,13 @@ using PostSharp.Backstage.Licensing.Sources;
 
 namespace PostSharp.Backstage.Licensing.Tests
 {
-    public class TestLicenseSource : ILicenseSource
+    internal class TestLicenseSource : ILicenseSource, IUsable
     {
         private readonly ILicense[] _licenses;
 
         public string Id { get; }
+
+        public bool Used { get; set; }
 
         public TestLicenseSource( string id, params ILicense[] licenses )
         {
@@ -19,6 +21,13 @@ namespace PostSharp.Backstage.Licensing.Tests
             this._licenses = licenses;
         }
 
-        public IEnumerable<ILicense> Licenses => this._licenses;
+        public IEnumerable<ILicense> Licenses
+        {
+            get
+            {
+                this.Used = true;
+                return this._licenses;
+            }
+        }
     }
 }
