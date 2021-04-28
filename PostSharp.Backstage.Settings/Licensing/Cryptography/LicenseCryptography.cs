@@ -18,7 +18,7 @@ namespace PostSharp.Backstage.Licensing.Cryptography
     /// <summary>
     /// Utility cryptographic methods for use with the PostSharp licensing system.
     /// </summary>
-    public static class LicenseCryptography
+    internal static class LicenseCryptography
     {
         private static readonly DSA productionPublicKey0 = DSA.Create();
         private static readonly DSA productionPublicKey1 = DSA.Create();

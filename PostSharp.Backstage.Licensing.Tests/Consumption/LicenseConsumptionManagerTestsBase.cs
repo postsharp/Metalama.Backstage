@@ -1,8 +1,6 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. All rights reserved.
 // This project is not open source. Please see the LICENSE.md file in the repository root for details.
 
-using System;
-using PostSharp.Backstage.Extensibility;
 using PostSharp.Backstage.Licensing.Consumption;
 using PostSharp.Backstage.Licensing.Licenses;
 using PostSharp.Backstage.Licensing.Sources;
@@ -13,18 +11,14 @@ using Xunit.Abstractions;
 
 namespace PostSharp.Backstage.Licensing.Tests.Consumption
 {
-    public abstract class LicenseConsumptionManagerTestsBase
+    public abstract class LicenseConsumptionManagerTestsBase : LicensingTestsBase
     {
-        private readonly ITrace _trace;
-
         private readonly LicenseFactory _licenseFactory;
 
-        private protected TestServices Services { get; } = new();
-
         public LicenseConsumptionManagerTestsBase( ITestOutputHelper logger )
+            : base( logger )
         {
-            this._trace = new TestTrace( logger );
-            this._licenseFactory = new( this.Services, this._trace );
+            this._licenseFactory = new( this.Services, this.Trace );
         }
 
         protected static ILicenseConsumer CreateConsumer( string requiredNamespace = "Foo" )
@@ -48,7 +42,7 @@ namespace PostSharp.Backstage.Licensing.Tests.Consumption
 
         private protected ILicenseConsumptionManager CreateConsumptionManager( params ILicenseSource[] licenseSources )
         {
-            return new LicenseConsumptionManager( this.Services, this._trace, licenseSources );
+            return new LicenseConsumptionManager( this.Services, this.Trace, licenseSources );
         }
 
         private protected void TestConsumption( ILicenseConsumptionManager manager, LicensedFeatures requiredFeatures, bool expectedCanConsume )
