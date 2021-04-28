@@ -37,7 +37,7 @@ namespace PostSharp.Backstage.Licensing.Tests.Services
 
         public void AssertNoErrors()
         {
-            if ( this._warnings.Count != 0 )
+            if ( this._errors.Count != 0 )
             {
                 throw new InvalidOperationException( string.Join( Environment.NewLine, this._errors.Prepend( "Errors:" ) ) );
             }

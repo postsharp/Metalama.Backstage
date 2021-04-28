@@ -1,11 +1,9 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. All rights reserved.
 // This project is not open source. Please see the LICENSE.md file in the repository root for details.
 
-using PostSharp.Backstage.Extensibility;
 using System;
 using System.Diagnostics.CodeAnalysis;
-using System.Text;
-using System.Text.RegularExpressions;
+using PostSharp.Backstage.Extensibility;
 
 namespace PostSharp.Backstage.Licensing.Licenses
 {
@@ -14,32 +12,6 @@ namespace PostSharp.Backstage.Licensing.Licenses
         private readonly IServiceProvider _services;
         private readonly IDiagnosticsSink _diagnostics;
         private readonly ITrace _trace;
-
-        /// <summary>
-        /// Removes invalid characters from a license string.
-        /// </summary>
-        /// <param name="s">A license string.</param>
-        /// <returns>The license string in canonical format.</returns>
-        public static string? CleanLicenseString( string? s )
-        {
-            if ( s == null )
-            {
-                return null;
-            }
-
-            var stringBuilder = new StringBuilder( s.Length );
-
-            // Remove all spaces from the license.
-            foreach ( var c in s )
-            {
-                if ( char.IsLetterOrDigit( c ) || c == '-' )
-                {
-                    stringBuilder.Append( c );
-                }
-            }
-
-            return stringBuilder.ToString().ToUpperInvariant();
-        }
 
         public LicenseFactory( IServiceProvider services, ITrace trace )
         {
@@ -50,7 +22,7 @@ namespace PostSharp.Backstage.Licensing.Licenses
 
         public bool TryCreate( string? licenseString, [MaybeNullWhen( returnValue: false )] out ILicense license )
         {
-            licenseString = CleanLicenseString( licenseString );
+            licenseString = licenseString?.Trim();
 
             if ( licenseString == null || licenseString == "" )
             {

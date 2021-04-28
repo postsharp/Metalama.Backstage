@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.IO;
+using System.Text;
 using PostSharp.Backstage.Extensibility;
 using PostSharp.Backstage.Licensing.Consumption;
 using PostSharp.Backstage.Utilities;
@@ -27,9 +28,30 @@ namespace PostSharp.Backstage.Licensing.Licenses
         private readonly IDiagnosticsSink _diagnostics;
         private readonly ITrace _trace;
 
+        /// <summary>
+        /// Removes invalid characters from a license string.
+        /// </summary>
+        /// <param name="licenseKey">A license string.</param>
+        /// <returns>The license string in canonical format.</returns>
+        public static string CleanLicenseKey( string licenseKey )
+        {
+            var stringBuilder = new StringBuilder( licenseKey.Length );
+
+            // Remove all spaces from the license.
+            foreach ( var c in licenseKey )
+            {
+                if ( char.IsLetterOrDigit( c ) || c == '-' )
+                {
+                    stringBuilder.Append( c );
+                }
+            }
+
+            return stringBuilder.ToString().ToUpperInvariant();
+        }
+
         internal License( string licenseKey, IServiceProvider services, ITrace trace )
         {
-            this._licenseKey = licenseKey;
+            this._licenseKey = CleanLicenseKey( licenseKey );
             this._applicationInfoService = services.GetService<IApplicationInfoService>();
             this._dateTimeProvider = services.GetService<IDateTimeProvider>();
             this._diagnostics = services.GetService<IDiagnosticsSink>();
@@ -40,24 +62,28 @@ namespace PostSharp.Backstage.Licensing.Licenses
         {
             int firstDash = s.IndexOf( '-' );
 
-            string prefix = s.Substring( 0, firstDash );
-            if ( firstDash > 0 && int.TryParse( prefix, NumberStyles.Integer, CultureInfo.InvariantCulture, out id ) )
+            if ( firstDash > 0 )
             {
-                return true;
-            }
-            else
-            {
-                try
+                string prefix = s.Substring( 0, firstDash );
+
+                if ( int.TryParse( prefix, NumberStyles.Integer, CultureInfo.InvariantCulture, out id ) )
                 {
-                    byte[] guidBytes = Base32.FromBase32String( prefix );
-                    if ( guidBytes != null && guidBytes.Length == 16 )
-                    {
-                        id = 0;
-                        return false;
-                    }
+                    return true;
                 }
-                catch
+                else
                 {
+                    try
+                    {
+                        byte[] guidBytes = Base32.FromBase32String( prefix );
+                        if ( guidBytes != null && guidBytes.Length == 16 )
+                        {
+                            id = 0;
+                            return false;
+                        }
+                    }
+                    catch
+                    {
+                    }
                 }
             }
 
@@ -99,11 +125,10 @@ namespace PostSharp.Backstage.Licensing.Licenses
             {
                 // Parse the license key prefix.
                 int firstDash = this._licenseKey.IndexOf( '-' );
+
                 if ( firstDash < 0 )
                 {
-                    this._trace.WriteLine( "License header not found for license {{{0}}}.", this._licenseKey );
-                    data = null;
-                    return false;
+                    throw new InvalidLicenseException( $"License header not found for license {{{this._licenseKey}}}." );
                 }
 
                 string prefix = this._licenseKey.Substring( 0, firstDash );
@@ -122,10 +147,7 @@ namespace PostSharp.Backstage.Licensing.Licenses
 
                     if ( data.LicenseId != licenseId )
                     {
-                        throw new InvalidLicenseException(
-                            string.Format(CultureInfo.InvariantCulture, "The license id in the body ({0}) does not match the header for license {{{1}}}.",
-                                           licenseId,
-                                           this._licenseKey ) );
+                        throw new InvalidLicenseException( $"The license id in the body ({licenseId}) does not match the header for license {{{this._licenseKey}}}." );
                     }
 
                     data.LicenseGuid = licenseGuid;
