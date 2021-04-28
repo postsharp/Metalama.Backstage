@@ -28,6 +28,7 @@ namespace PostSharp.Backstage.Licensing.Licenses.LicenseFields
         Auditable = 19,
         AllowInheritance = 20,
         LicenseServerEligible = 21,
+
         // 128 is reserved as unknown must-understand field for testing purposes
         // 253 is reserved as unknown optional field for testing purposes
         MinPostSharpVersion = 254,

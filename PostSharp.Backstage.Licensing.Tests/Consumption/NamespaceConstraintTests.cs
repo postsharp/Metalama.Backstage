@@ -17,7 +17,7 @@ namespace PostSharp.Backstage.Licensing.Tests.Consumption
             Assert.Equal( expectedAllowed, _constraint.AllowsNamespace( requestedNamespace.ToUpperInvariant() ) );
         }
 
-        private static void AssertAllowed(string requestedNamespace) => AssertNamespaceConstraint( requestedNamespace, true );
+        private static void AssertAllowed( string requestedNamespace ) => AssertNamespaceConstraint( requestedNamespace, true );
 
         private static void AssertForbidden( string requestedNamespace ) => AssertNamespaceConstraint( requestedNamespace, false );
 

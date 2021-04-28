@@ -12,9 +12,11 @@ namespace PostSharp.Backstage.Licensing.Licenses.LicenseFields
     {
         public override void Write( BinaryWriter writer )
         {
-            byte[] bytes = (byte[]) this.Value;
+            var bytes = (byte[]) this.Value!;
             if ( bytes.Length > 255 )
+            {
                 throw new InvalidOperationException( "Cannot have buffers of more than 255 bytes." );
+            }
 
             writer.Write( (byte) bytes.Length );
             writer.Write( bytes );
@@ -35,7 +37,10 @@ namespace PostSharp.Backstage.Licensing.Licenses.LicenseFields
         public override string ToString()
         {
             if ( this.Value == null )
+            {
                 return "null";
+            }
+
             return HexHelper.FormatBytes( (byte[]) this.Value );
         }
     }

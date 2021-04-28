@@ -17,7 +17,7 @@ namespace PostSharp.Backstage.Licensing.Consumption
 
         public string DisplayName { get; }
 
-        public LicenseData( 
+        public LicenseData(
             LicensedProduct licensedProduct,
             LicenseType licenseType,
             LicensedFeatures licensedFeatures,

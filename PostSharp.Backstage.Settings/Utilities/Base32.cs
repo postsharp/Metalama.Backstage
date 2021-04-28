@@ -1,5 +1,5 @@
-// Copyright (c) SharpCrafters s.r.o. This file is not open source. It is released under a commercial
-// source-available license. Please see the LICENSE.md file in the repository root for details.
+// Copyright (c) SharpCrafters s.r.o. All rights reserved.
+// This project is not open source. Please see the LICENSE.md file in the repository root for details.
 
 using System.Text;
 
@@ -8,17 +8,17 @@ namespace PostSharp.Backstage.Utilities
     internal sealed class Base32
     {
         // the valid chars for the encoding
-        private const string validChars = "QAZ2WSX3" + "EDC4RFV5" + "TGB6YHN7" + "UJM8K9LP";
+        private const string _validChars = "QAZ2WSX3" + "EDC4RFV5" + "TGB6YHN7" + "UJM8K9LP";
 
         /// <summary>
         /// Converts an array of bytes to a Base32-k string.
         /// </summary>
         public static string ToBase32String( byte[] bytes, int groupSize )
         {
-            StringBuilder stringBuilder = new StringBuilder();
-            int hi = 5;
-            int currentByte = 0;
-            int c = 0;
+            var stringBuilder = new StringBuilder();
+            var hi = 5;
+            var currentByte = 0;
+            var c = 0;
             while ( currentByte < bytes.Length )
             {
                 // do we need to use the next byte?
@@ -50,16 +50,18 @@ namespace PostSharp.Backstage.Utilities
                 }
 
                 // Write dashes every 5th character.
-                if ( c > 0 && groupSize != 0 && c%groupSize == 0 )
+                if ( c > 0 && groupSize != 0 && c % groupSize == 0 )
+                {
                     stringBuilder.Append( '-' );
+                }
+
                 c++;
 
-                stringBuilder.Append( validChars[index] );
+                stringBuilder.Append( _validChars[index] );
             }
 
             return stringBuilder.ToString();
         }
-
 
         /// <summary>
         /// Converts a Base32-k string into an array of bytes.
@@ -70,29 +72,29 @@ namespace PostSharp.Backstage.Utilities
         public static byte[] FromBase32String( string str )
         {
             str = str.Replace( "-", "" );
-            int numBytes = str.Length*5/8;
-            byte[] bytes = new byte[numBytes];
+            var numBytes = str.Length * 5 / 8;
+            var bytes = new byte[numBytes];
 
             // all UPPERCASE chars
             str = str.ToUpperInvariant();
 
             if ( str.Length < 3 )
             {
-                bytes[0] = (byte) (validChars.IndexOf( str[0] ) | validChars.IndexOf( str[1] ) << 5);
+                bytes[0] = (byte) (_validChars.IndexOf( str[0] ) | (_validChars.IndexOf( str[1] ) << 5));
                 return bytes;
             }
 
-            int bitBuffer = (validChars.IndexOf( str[0] ) | validChars.IndexOf( str[1] ) << 5);
-            int bitsInBuffer = 10;
-            int currentCharIndex = 2;
-            for ( int i = 0; i < bytes.Length; i++ )
+            var bitBuffer = _validChars.IndexOf( str[0] ) | (_validChars.IndexOf( str[1] ) << 5);
+            var bitsInBuffer = 10;
+            var currentCharIndex = 2;
+            for ( var i = 0; i < bytes.Length; i++ )
             {
                 bytes[i] = (byte) bitBuffer;
                 bitBuffer >>= 8;
                 bitsInBuffer -= 8;
                 while ( bitsInBuffer < 8 && currentCharIndex < str.Length )
                 {
-                    bitBuffer |= validChars.IndexOf( str[currentCharIndex++] ) << bitsInBuffer;
+                    bitBuffer |= _validChars.IndexOf( str[currentCharIndex++] ) << bitsInBuffer;
                     bitsInBuffer += 5;
                 }
             }

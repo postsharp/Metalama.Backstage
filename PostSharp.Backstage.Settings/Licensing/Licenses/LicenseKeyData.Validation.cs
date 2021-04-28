@@ -1,18 +1,18 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. All rights reserved.
 // This project is not open source. Please see the LICENSE.md file in the repository root for details.
 
-using PostSharp.Backstage.Extensibility;
-using PostSharp.Backstage.Licensing.Licenses.LicenseFields;
 using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Linq;
+using PostSharp.Backstage.Extensibility;
+using PostSharp.Backstage.Licensing.Licenses.LicenseFields;
 
 namespace PostSharp.Backstage.Licensing.Licenses
 {
     internal partial class LicenseKeyData
     {
-        public bool Validate( byte[]? publicKeyToken, IDateTimeProvider dateTimeProvider, DateTime productBuildDate, Version productVersion, [MaybeNullWhen(returnValue: true)] out string errorDescription )
+        public bool Validate( byte[]? publicKeyToken, IDateTimeProvider dateTimeProvider, DateTime productBuildDate, Version productVersion, [MaybeNullWhen( returnValue: true )] out string errorDescription )
         {
 #pragma warning disable 618
             if ( this.LicenseType == LicenseType.Anonymous )

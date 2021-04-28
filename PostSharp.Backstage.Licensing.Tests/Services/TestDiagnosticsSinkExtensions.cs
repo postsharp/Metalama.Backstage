@@ -23,7 +23,7 @@ namespace PostSharp.Backstage.Licensing.Tests.Services
             return diagnostics.ToTestDiagnosticsSink().Errors;
         }
 
-        public static void AssertNoErrors(this IDiagnosticsSink diagnostics)
+        public static void AssertNoErrors( this IDiagnosticsSink diagnostics )
         {
             diagnostics.ToTestDiagnosticsSink().AssertNoErrors();
         }

@@ -2,10 +2,6 @@
 // This project is not open source. Please see the LICENSE.md file in the repository root for details.
 
 using PostSharp.Backstage.Licensing.Cryptography;
-using System;
-using System.Collections.Generic;
-using System.Security.Cryptography;
-using System.Text;
 
 namespace PostSharp.Backstage.Licensing.Licenses
 {
@@ -15,14 +11,20 @@ namespace PostSharp.Backstage.Licensing.Licenses
         public bool VerifySignature()
         {
             if ( !this.RequiresSignature )
+            {
                 return true;
+            }
 
             if ( !this.SignatureKeyId.HasValue )
+            {
                 return false;
+            }
 
-            DSA publicKey = LicenseCryptography.GetPublicKey( this.SignatureKeyId.Value );
+            var publicKey = LicenseCryptography.GetPublicKey( this.SignatureKeyId.Value );
             if ( publicKey == null )
+            {
                 return false;
+            }
 
             try
             {
@@ -37,14 +39,22 @@ namespace PostSharp.Backstage.Licensing.Licenses
         private static bool ComparePublicKeyToken( byte[] key1, byte[] key2 )
         {
             if ( key1 == null )
+            {
                 return key2 == null;
+            }
 
             if ( key2 == null )
+            {
                 return false;
+            }
 
-            for ( int i = 0; i < key1.Length; i++ )
+            for ( var i = 0; i < key1.Length; i++ )
+            {
                 if ( key1[i] != key2[i] )
+                {
                     return false;
+                }
+            }
 
             return true;
         }

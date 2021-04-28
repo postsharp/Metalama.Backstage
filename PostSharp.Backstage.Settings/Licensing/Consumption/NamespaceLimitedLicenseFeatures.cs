@@ -11,7 +11,7 @@ namespace PostSharp.Backstage.Licensing.Consumption
 
         public NamespaceLimitedLicenseFeatures( string @namespace, LicensedFeatures features = LicensedFeatures.None )
         {
-            this.Constraint = new(@namespace);
+            this.Constraint = new( @namespace );
             this.Features = features;
         }
     }

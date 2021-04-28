@@ -1,16 +1,16 @@
-﻿// Copyright (c) SharpCrafters s.r.o. This file is not open source. It is released under a commercial
-// source-available license. Please see the LICENSE.md file in the repository root for details.
+﻿// Copyright (c) SharpCrafters s.r.o. All rights reserved.
+// This project is not open source. Please see the LICENSE.md file in the repository root for details.
 
 // TODO
 
-//using PostSharp.Backstage.Extensibility;
-//using System;
-//using System.Globalization;
-//using System.IO;
-//using System.Net;
+// using PostSharp.Backstage.Extensibility;
+// using System;
+// using System.Globalization;
+// using System.IO;
+// using System.Net;
 
-//namespace PostSharp.Backstage.Licensing.LicenseServer
-//{
+// namespace PostSharp.Backstage.Licensing.LicenseServer
+// {
 //    internal sealed class LicenseServerClient
 //    {
 //        private readonly LicenseLeaseCache _cache;
@@ -20,7 +20,7 @@
 //        private readonly IApplicationInfoService _applicationInfoService;
 //        private readonly ITrace _licensingTrace;
 
-//        public LicenseServerClient( LicenseLeaseCache cache, LicenseeIdentifier licenseeIdentifier, IWebClientService webClientService, IDateTimeProvider dateTimeProvider, IApplicationInfoService applicationInfoService, ITrace licensingTrace )
+// public LicenseServerClient( LicenseLeaseCache cache, LicenseeIdentifier licenseeIdentifier, IWebClientService webClientService, IDateTimeProvider dateTimeProvider, IApplicationInfoService applicationInfoService, ITrace licensingTrace )
 //        {
 //            this._cache = cache;
 //            this._licenseeIdentifier = licenseeIdentifier;
@@ -30,14 +30,14 @@
 //            this._licensingTrace = licensingTrace;
 //        }
 
-//        /// <exclude/>
+// /// <exclude/>
 //        internal static bool IsLicenseServerUrl( string licenseString )
 //        {
 //            string message;
 //            return IsLicenseServerUrl( licenseString, out message );
 //        }
 
-//        /// <exclude/>
+// /// <exclude/>
 //        internal static bool IsLicenseServerUrl( string licenseString, out string errorMessage )
 //        {
 //            if ( !Uri.IsWellFormedUriString( licenseString, UriKind.Absolute ) )
@@ -46,57 +46,57 @@
 //                return false;
 //            }
 
-//            Uri uri = new Uri( licenseString, UriKind.Absolute );
+// Uri uri = new Uri( licenseString, UriKind.Absolute );
 
-//            if ( uri.Scheme != Uri.UriSchemeHttp &&
+// if ( uri.Scheme != Uri.UriSchemeHttp &&
 //                 uri.Scheme != Uri.UriSchemeHttps )
 //            {
 //                errorMessage = "Only HTTP and HTTPS are acceptable protocols.";
 //                return false;
 //            }
 
-//            if ( !string.IsNullOrEmpty( uri.Query ) )
+// if ( !string.IsNullOrEmpty( uri.Query ) )
 //            {
 //                errorMessage = "The URL cannot contain a query string.";
 //                return false;
 //            }
 
-//            errorMessage = null;
+// errorMessage = null;
 //            return true;
 //        }
 
-//        internal bool TryDownloadLease( string url, out LicenseLease lease, IDiagnosticsSink diagnosticsSink, bool renewal = false )
+// internal bool TryDownloadLease( string url, out LicenseLease lease, IDiagnosticsSink diagnosticsSink, bool renewal = false )
 //        {
 //            try
 //            {
 //                lease = this.DownloadLease( url );
 
-//                if (!License.TryDeserialize(lease.LicenseString, this._applicationInfoService, out _, this._licensingTrace))
+// if (!License.TryDeserialize(lease.LicenseString, this._applicationInfoService, out _, this._licensingTrace))
 //                {
 //                    return false;
 //                }
 
-//                this._cache.Cache( lease );
+// this._cache.Cache( lease );
 //                return true;
 //            }
 //            catch ( Exception e )
 //            {
 //                diagnosticsSink?.ReportError( $"Cannot get a lease from the license server: {e.Message}." ); // PS0148
 
-//                // Return null to use the last-known good lease.
+// // Return null to use the last-known good lease.
 //                lease = null;
 //                return false;
 //            }
 //        }
 
-//        private LicenseLease DownloadLease( string url )
+// private LicenseLease DownloadLease( string url )
 //        {
 //            if ( !url.Contains( "?" ) )
 //            {
 //                url = url.TrimEnd( '/' );
 
 
-//                url += string.Format(
+// url += string.Format(
 //                    CultureInfo.InvariantCulture,
 //                    "/Lease.ashx?user={0}&machine={1}-{2:x}&version={3}&buildDate={4:o}",
 //                    Environment.UserName,
@@ -106,11 +106,11 @@
 //                    this._applicationInfoService.BuildDate );
 //            }
 
-//            this._licensingTrace?.WriteLine( "Leasing a license from the server: {0}.", url );
+// this._licensingTrace?.WriteLine( "Leasing a license from the server: {0}.", url );
 
-//            string leaseString;
+// string leaseString;
 
-//            try
+// try
 //            {
 //                leaseString = this._webClientService.DownloadString( url );
 //            }
@@ -125,33 +125,33 @@
 //                throw;
 //            }
 
-//            if ( !LicenseLease.TryDeserialize( leaseString, this._dateTimeProvider, out var lease ) )
+// if ( !LicenseLease.TryDeserialize( leaseString, this._dateTimeProvider, out var lease ) )
 //            {
 //                throw new InvalidLicenseException( "The license server returned an invalid response." );
 //            }
 
-//            return lease;
+// return lease;
 //        }
 
-//        /// <exclude/>
+// /// <exclude/>
 //        internal bool TestLicenseServer( string url, out string? errorMessage, out License? license )
 //        {
 //            try
 //            {
 //                var lease = this.DownloadLease( url );
 
-//                if (!License.TryDeserialize(lease.LicenseString, this._applicationInfoService, out license, this._licensingTrace ))
+// if (!License.TryDeserialize(lease.LicenseString, this._applicationInfoService, out license, this._licensingTrace ))
 //                {
 //                    errorMessage = "The downloaded lease is invalid.";
 //                    return false;
 //                }
 
-//                if ( !license.Validate( null, this._dateTimeProvider, out errorMessage ) )
+// if ( !license.Validate( null, this._dateTimeProvider, out errorMessage ) )
 //                {
 //                    return false;
 //                }
 
-//                errorMessage = null;
+// errorMessage = null;
 //                return true;
 //            }
 //            catch ( Exception e )
@@ -162,4 +162,4 @@
 //            }
 //        }
 //    }
-//}
+// }

@@ -21,7 +21,7 @@ namespace PostSharp.Backstage.Licensing.Licenses.LicenseFields
         /// </remarks>
         public static bool IsMustUnderstand( this LicenseFieldIndex index )
         {
-            byte i = (byte) index;
+            var i = (byte) index;
 
             if ( i < 1 || i > 255 )
             {
@@ -45,7 +45,7 @@ namespace PostSharp.Backstage.Licensing.Licenses.LicenseFields
         /// </remarks>
         public static bool IsPrefixedByLength( this LicenseFieldIndex index )
         {
-            byte i = (byte) index;
+            var i = (byte) index;
 
             if ( i < 1 || i > 255 )
             {

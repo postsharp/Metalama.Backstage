@@ -9,29 +9,31 @@ namespace PostSharp.Backstage.Licensing.Licenses.LicenseFields
     [Serializable]
     internal sealed class LicenseFieldGuid : LicenseField
     {
-        private const byte sizeOfGuidByteArray = 16;
+        private const byte _sizeOfGuidByteArray = 16;
 
         public override void Write( BinaryWriter writer )
         {
-            Guid guid = (Guid) this.Value;
+            var guid = (Guid) this.Value!;
             writer.Write( guid.ToByteArray() );
         }
 
         protected override bool TryGetConstantLength( out byte length )
         {
-            length = sizeOfGuidByteArray;
+            length = _sizeOfGuidByteArray;
             return true;
         }
 
         public override void Read( BinaryReader reader )
         {
-            this.Value = new Guid( reader.ReadBytes( sizeOfGuidByteArray ) );
+            this.Value = new Guid( reader.ReadBytes( _sizeOfGuidByteArray ) );
         }
 
         public override string ToString()
         {
             if ( this.Value == null )
+            {
                 return "null";
+            }
 
             return ((Guid) this.Value).ToString();
         }

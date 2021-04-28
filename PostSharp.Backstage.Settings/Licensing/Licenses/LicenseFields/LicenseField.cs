@@ -9,7 +9,7 @@ namespace PostSharp.Backstage.Licensing.Licenses.LicenseFields
     [Serializable]
     internal abstract class LicenseField
     {
-        public object Value { get; set; }
+        public object? Value { get; set; }
 
         public abstract void Write( BinaryWriter writer );
 
@@ -25,7 +25,7 @@ namespace PostSharp.Backstage.Licensing.Licenses.LicenseFields
         /// <param name="writer"></param>
         public void WriteConstantLength( BinaryWriter writer )
         {
-            if ( !this.TryGetConstantLength( out byte length ) )
+            if ( !this.TryGetConstantLength( out var length ) )
             {
                 return;
             }

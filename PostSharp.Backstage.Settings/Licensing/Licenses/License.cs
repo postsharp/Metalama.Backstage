@@ -1,5 +1,5 @@
-// Copyright (c) SharpCrafters s.r.o. This file is not open source. It is released under a commercial
-// source-available license. Please see the LICENSE.md file in the repository root for details.
+// Copyright (c) SharpCrafters s.r.o. All rights reserved.
+// This project is not open source. Please see the LICENSE.md file in the repository root for details.
 
 using System;
 using System.Collections.Generic;
@@ -22,7 +22,7 @@ namespace PostSharp.Backstage.Licensing.Licenses
     public class License : ILicense
     {
         private readonly string _licenseKey;
-        
+
         private readonly IApplicationInfoService _applicationInfoService;
         private readonly IDateTimeProvider _dateTimeProvider;
         private readonly IDiagnosticsSink _diagnostics;
@@ -60,11 +60,11 @@ namespace PostSharp.Backstage.Licensing.Licenses
 
         public static bool TryGetLicenseId( string s, [MaybeNullWhen( returnValue: false )] out int id )
         {
-            int firstDash = s.IndexOf( '-' );
+            var firstDash = s.IndexOf( '-' );
 
             if ( firstDash > 0 )
             {
-                string prefix = s.Substring( 0, firstDash );
+                var prefix = s.Substring( 0, firstDash );
 
                 if ( int.TryParse( prefix, NumberStyles.Integer, CultureInfo.InvariantCulture, out id ) )
                 {
@@ -74,7 +74,7 @@ namespace PostSharp.Backstage.Licensing.Licenses
                 {
                     try
                     {
-                        byte[] guidBytes = Base32.FromBase32String( prefix );
+                        var guidBytes = Base32.FromBase32String( prefix );
                         if ( guidBytes != null && guidBytes.Length == 16 )
                         {
                             id = 0;
@@ -124,24 +124,24 @@ namespace PostSharp.Backstage.Licensing.Licenses
             try
             {
                 // Parse the license key prefix.
-                int firstDash = this._licenseKey.IndexOf( '-' );
+                var firstDash = this._licenseKey.IndexOf( '-' );
 
                 if ( firstDash < 0 )
                 {
                     throw new InvalidLicenseException( $"License header not found for license {{{this._licenseKey}}}." );
                 }
 
-                string prefix = this._licenseKey.Substring( 0, firstDash );
+                var prefix = this._licenseKey.Substring( 0, firstDash );
 
-                if ( !int.TryParse( prefix, NumberStyles.Integer, CultureInfo.InvariantCulture, out int licenseId ) )
+                if ( !int.TryParse( prefix, NumberStyles.Integer, CultureInfo.InvariantCulture, out var licenseId ) )
                 {
                     // If this is not an integer, this may be a GUID.
                     licenseGuid = new Guid( Base32.FromBase32String( prefix ) );
                 }
 
-                byte[] licenseBytes = Base32.FromBase32String( this._licenseKey.Substring( firstDash + 1 ) );
-                MemoryStream memoryStream = new MemoryStream( licenseBytes );
-                using ( BinaryReader reader = new BinaryReader( memoryStream ) )
+                var licenseBytes = Base32.FromBase32String( this._licenseKey.Substring( firstDash + 1 ) );
+                var memoryStream = new MemoryStream( licenseBytes );
+                using ( var reader = new BinaryReader( memoryStream ) )
                 {
                     data = LicenseKeyData.Deserialize( reader );
 

@@ -8,7 +8,7 @@ namespace PostSharp.Backstage.Licensing.Licenses
 {
     internal partial class LicenseKeyData
     {
-        public string LicenseString { get; set; }
+        public string? LicenseString { get; set; }
 
         /// <summary>
         /// Gets or sets the license version.
@@ -31,6 +31,7 @@ namespace PostSharp.Backstage.Licensing.Licenses
                 {
                     return Licenses.LicenseType.PerUser;
                 }
+
                 return this._licenseType;
             }
 
@@ -54,6 +55,7 @@ namespace PostSharp.Backstage.Licensing.Licenses
                 {
                     return this._licenseType == Licenses.LicenseType.Professional ? LicensedProduct.Framework : LicensedProduct.Ultimate;
                 }
+
                 return this._product;
             }
             set => this._product = value;
@@ -78,7 +80,9 @@ namespace PostSharp.Backstage.Licensing.Licenses
         {
             get => this.LicenseType switch
             {
+#pragma warning disable CS0618 // Type or member is obsolete
                 LicenseType.Site or LicenseType.Global or LicenseType.Anonymous => false,
+#pragma warning restore CS0618 // Type or member is obsolete
                 LicenseType.Evaluation => true, // We want to audit evaluation licenses so we know how people are using the product during evaluation.
                 _ => (bool?) this.GetFieldValue( LicenseFieldIndex.Auditable ) ?? true,
             };
@@ -107,7 +111,7 @@ namespace PostSharp.Backstage.Licensing.Licenses
 #pragma warning restore CA1819 // Properties should not return arrays (TODO)
 
         /// <summary>
-        /// Gets or sets the identifier of the signature.
+        /// Gets the identifier of the signature.
         /// </summary>
         public byte? SignatureKeyId
         {
@@ -141,7 +145,6 @@ namespace PostSharp.Backstage.Licensing.Licenses
             get => (DateTime?) this.GetFieldValue( LicenseFieldIndex.ValidTo );
             set => this.SetFieldValue<LicenseFieldDate>( LicenseFieldIndex.ValidTo, value );
         }
-
 
         public DateTime? SubscriptionEndDate
         {
@@ -206,7 +209,7 @@ namespace PostSharp.Backstage.Licensing.Licenses
         {
             get
             {
-                if (this._isLicenseServerEligible == null)
+                if ( this._isLicenseServerEligible == null )
                 {
                     const int lastLicenseIdBefore50Rtm = 100802;
 
@@ -242,7 +245,7 @@ namespace PostSharp.Backstage.Licensing.Licenses
             {
                 if ( this._minPostSharpVersion == null )
                 {
-                    string minPostSharpVersionString = (string) this.GetFieldValue( LicenseFieldIndex.MinPostSharpVersion );
+                    var minPostSharpVersionString = (string?) this.GetFieldValue( LicenseFieldIndex.MinPostSharpVersion );
 
                     if ( minPostSharpVersionString != null )
                     {
@@ -263,7 +266,7 @@ namespace PostSharp.Backstage.Licensing.Licenses
                         this._minPostSharpVersion = new Version( 5, 0, 22 );
                     }
 #pragma warning restore 618
-                    else if ( this.LicenseServerEligible != null )
+                    else if ( this._isLicenseServerEligible != null )
                     {
                         this._minPostSharpVersion = new Version( 5, 0, 22 );
                     }
@@ -300,14 +303,14 @@ namespace PostSharp.Backstage.Licensing.Licenses
         internal object? UnknownMustUnderstandField
         {
             get => null;
-            set => this.SetUnknownFieldValue( true, value );
+            set => this.SetUnknownFieldValue( true, value! );
         }
 
         // Used for testing
         internal object? UnknownOptionalField
         {
             get => null;
-            set => this.SetUnknownFieldValue( false, value );
+            set => this.SetUnknownFieldValue( false, value! );
         }
     }
 }

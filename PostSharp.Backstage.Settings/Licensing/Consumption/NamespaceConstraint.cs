@@ -34,6 +34,7 @@ namespace PostSharp.Backstage.Licensing.Consumption
             var delimiter = requiredNamespace[this.AllowedNamespace.Length];
 
             if (
+
                 // If there is not '.' after the namespace name,
                 // it means the namespace name is different
                 // and it only begins with the required name.

@@ -11,7 +11,7 @@ namespace PostSharp.Backstage.Licensing.Licenses.LicenseFields
     {
         public override void Write( BinaryWriter writer )
         {
-            writer.Write( (long) this.Value );
+            writer.Write( (long) this.Value! );
         }
 
         protected override bool TryGetConstantLength( out byte length )

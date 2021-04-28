@@ -1,5 +1,5 @@
-// Copyright (c) SharpCrafters s.r.o. This file is not open source. It is released under a commercial
-// source-available license. Please see the LICENSE.md file in the repository root for details.
+// Copyright (c) SharpCrafters s.r.o. All rights reserved.
+// This project is not open source. Please see the LICENSE.md file in the repository root for details.
 
 using System;
 
@@ -19,7 +19,6 @@ namespace PostSharp.Backstage.Licensing.Licenses
     /// and reported license types representing products and special cases should not be included here.
     /// </remarks>
     public enum LicenseType : byte
-
     {
         /// <summary>
         /// No license.
@@ -86,18 +85,18 @@ namespace PostSharp.Backstage.Licensing.Licenses
         Professional = 14,
 
         /// <summary>
-        /// Commercial license (Enterprise edition)
+        /// Commercial license (Enterprise edition).
         /// </summary>
         [Obsolete( "No longer supported." )]
         Enterprise = 15,
 
         /// <summary>
-        /// Internal license for build servers
+        /// Internal license for build servers.
         /// </summary>
         Unattended = 16,
 
         /// <summary>
-        /// Internal license for developers building unmodified source code
+        /// Internal license for developers building unmodified source code.
         /// </summary>
         Unmodified = 17,
 

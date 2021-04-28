@@ -20,8 +20,9 @@ namespace PostSharp.Backstage.Licensing.Consumption
         private readonly HashSet<ILicense> _unusedLicenses = new();
         private readonly HashSet<ILicense> _usedLicenses = new();
 
-        private LicensedFeatures _licensedFeatures;
         private readonly Dictionary<string, NamespaceLimitedLicenseFeatures> _namespaceLimitedLicensedFeatures = new();
+
+        private LicensedFeatures _licensedFeatures;
 
         public LicenseConsumptionManager( IServiceProvider services, ITrace trace, params ILicenseSource[] licenseSources )
             : this( services, trace, (IEnumerable<ILicenseSource>) licenseSources )
@@ -31,7 +32,7 @@ namespace PostSharp.Backstage.Licensing.Consumption
         public LicenseConsumptionManager( IServiceProvider services, ITrace trace, IEnumerable<ILicenseSource> licenseSources )
         {
             this._trace = trace;
-            
+
             this._applicationInfoService = services.GetService<IApplicationInfoService>();
             this._dateTimeProvider = services.GetService<IDateTimeProvider>();
 
@@ -75,13 +76,13 @@ namespace PostSharp.Backstage.Licensing.Consumption
                 return false;
             }
 
-            if (licenseData.LicensedNamespace == null)
+            if ( licenseData.LicensedNamespace == null )
             {
                 this._licensedFeatures |= licenseData.LicensedFeatures;
             }
             else
             {
-                if (!this._namespaceLimitedLicensedFeatures.TryGetValue(licenseData.LicensedNamespace, out var namespaceFeatures))
+                if ( !this._namespaceLimitedLicensedFeatures.TryGetValue( licenseData.LicensedNamespace, out var namespaceFeatures ) )
                 {
                     this._namespaceLimitedLicensedFeatures[licenseData.LicensedNamespace] = new( licenseData.LicensedNamespace, licenseData.LicensedFeatures );
                 }

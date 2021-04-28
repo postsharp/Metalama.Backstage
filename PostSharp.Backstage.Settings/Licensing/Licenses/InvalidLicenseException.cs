@@ -1,5 +1,5 @@
-// Copyright (c) SharpCrafters s.r.o. This file is not open source. It is released under a commercial
-// source-available license. Please see the LICENSE.md file in the repository root for details.
+// Copyright (c) SharpCrafters s.r.o. All rights reserved.
+// This project is not open source. Please see the LICENSE.md file in the repository root for details.
 
 using System;
 using System.Runtime.Serialization;
@@ -12,7 +12,6 @@ namespace PostSharp.Backstage.Licensing.Licenses
     [Serializable]
     public class InvalidLicenseException : Exception
     {
-        //
         // For guidelines regarding the creation of new exception types, see
         //    http://msdn.microsoft.com/library/default.asp?url=/library/en-us/cpgenref/html/cpconerrorraisinghandlingguidelines.asp
         // and
@@ -20,14 +19,14 @@ namespace PostSharp.Backstage.Licensing.Licenses
         //
 
         /// <summary>
-        /// Initializes a new <see cref="InvalidLicenseException"/>.
+        /// Initializes a new instance of the <see cref="InvalidLicenseException"/> class.
         /// </summary>
         public InvalidLicenseException()
         {
         }
 
         /// <summary>
-        /// Initializes a new <see cref="InvalidLicenseException"/> and sets the exception message.
+        /// Initializes a new instance of the <see cref="InvalidLicenseException"/> class.
         /// </summary>
         /// <param name="message">Exception message.</param>
         public InvalidLicenseException( string message ) : base( message )
@@ -35,7 +34,7 @@ namespace PostSharp.Backstage.Licensing.Licenses
         }
 
         /// <summary>
-        /// Initializes a new <see cref="InvalidLicenseException"/> and sets the exception message and the inner exception.
+        /// Initializes a new instance of the <see cref="InvalidLicenseException"/> class.
         /// </summary>
         /// <param name="message">Exception message.</param>
         /// <param name="inner">Inner exception.</param>
@@ -44,6 +43,7 @@ namespace PostSharp.Backstage.Licensing.Licenses
         }
 
         /// <summary>
+        /// Initializes a new instance of the <see cref="InvalidLicenseException"/> class.
         /// Deserialization constructor.
         /// </summary>
         /// <param name="info">Info.</param>

@@ -48,7 +48,7 @@ namespace PostSharp.Backstage.Licensing.Tests.Licenses
             Assert.True( license is License );
             Assert.False( license!.TryGetLicenseData( out _ ) );
             this.Services.Diagnostics.AssertNoErrors();
-            Assert.Equal( 
+            Assert.Equal(
                 "Cannot parse license key SOMEINVALIDLICENSESTRING: License header not found for license {SOMEINVALIDLICENSESTRING}.",
                 this.Services.Diagnostics.Warnings.Single() );
         }

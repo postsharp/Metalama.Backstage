@@ -105,12 +105,8 @@ namespace PostSharp.Backstage.Licensing.Licenses
         /// <returns>A string representing the current license key data.</returns>
         public string Serialize()
         {
-            /// <summary>
-            /// Returns <c>true</c> if the licensed product has been present prior to PostSharp 6.5.17/6.8.10/6.9.3.
-            /// </summary>
-            /// <param name="licenseProduct"></param>
-            /// <returns></returns>
-            bool IsLicensedProductValidInAllPostSharpVersions( LicensedProduct licenseProduct )
+            // Returns <c>true</c> if the licensed product has been present prior to PostSharp 6.5.17/6.8.10/6.9.3.
+            static bool IsLicensedProductValidInAllPostSharpVersions( LicensedProduct licenseProduct )
             {
                 switch ( licenseProduct )
                 {
@@ -143,8 +139,8 @@ namespace PostSharp.Backstage.Licensing.Licenses
                 }
             }
 
-            MemoryStream memoryStream = new MemoryStream();
-            using ( BinaryWriter binaryWriter = new BinaryWriter( memoryStream ) )
+            var memoryStream = new MemoryStream();
+            using ( var binaryWriter = new BinaryWriter( memoryStream ) )
             {
                 this.Write( binaryWriter, true );
                 binaryWriter.Write( (byte) LicenseFieldIndex.End );
@@ -170,7 +166,6 @@ namespace PostSharp.Backstage.Licensing.Licenses
             writer.Write( this.LicenseId );
             writer.Write( (byte) this._licenseType );
             writer.Write( (byte) this._product );
-
 
             foreach ( var pair in this._fields )
             {
@@ -201,13 +196,13 @@ namespace PostSharp.Backstage.Licensing.Licenses
         private byte[] GetSignedBuffer()
         {
             // Write the license to a buffer without the key.
-            MemoryStream memoryStream = new MemoryStream();
-            using ( BinaryWriter binaryWriter = new BinaryWriter( memoryStream ) )
+            var memoryStream = new MemoryStream();
+            using ( var binaryWriter = new BinaryWriter( memoryStream ) )
             {
                 this.Write( binaryWriter, false );
             }
 
-            byte[] signedBuffer = memoryStream.ToArray();
+            var signedBuffer = memoryStream.ToArray();
             return signedBuffer;
         }
 
@@ -219,7 +214,7 @@ namespace PostSharp.Backstage.Licensing.Licenses
         public void Sign( byte signatureKeyId, string privateKey )
         {
             this.SignatureKeyId = signatureKeyId;
-            byte[] signedBuffer = this.GetSignedBuffer();
+            var signedBuffer = this.GetSignedBuffer();
             this.Signature = LicenseCryptography.Sign( signedBuffer, privateKey );
         }
 
@@ -231,14 +226,20 @@ namespace PostSharp.Backstage.Licensing.Licenses
         public bool VerifySignature( DSA publicKey )
         {
             if ( !this.RequiresSignature )
+            {
                 return true;
+            }
 
             if ( publicKey == null )
+            {
                 throw new ArgumentNullException( nameof( publicKey ) );
+            }
 
-            byte[] signature = this.Signature;
+            var signature = this.Signature;
             if ( signature == null )
+            {
                 return false;
+            }
 
             return LicenseCryptography.VerifySignature( this.GetSignedBuffer(), publicKey, signature );
         }

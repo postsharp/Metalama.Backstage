@@ -9,11 +9,11 @@ namespace PostSharp.Backstage.Licensing.Licenses.LicenseFields
     [Serializable]
     internal class LicenseFieldDate : LicenseField
     {
-        private static readonly DateTime referenceDate = new DateTime( 2010, 1, 1 );
+        private static readonly DateTime _referenceDate = new DateTime( 2010, 1, 1 );
 
         public override void Write( BinaryWriter writer )
         {
-            ushort days = (ushort) ((DateTime) this.Value).Subtract( referenceDate ).TotalDays;
+            var days = (ushort) ((DateTime) this.Value!).Subtract( _referenceDate ).TotalDays;
             writer.Write( days );
         }
 
@@ -25,8 +25,8 @@ namespace PostSharp.Backstage.Licensing.Licenses.LicenseFields
 
         public override void Read( BinaryReader reader )
         {
-            ushort days = reader.ReadUInt16();
-            this.Value = referenceDate.AddDays( days );
+            var days = reader.ReadUInt16();
+            this.Value = _referenceDate.AddDays( days );
         }
     }
 }

@@ -9,20 +9,24 @@ namespace PostSharp.Backstage.Licensing.Licenses
 {
     internal partial class LicenseKeyData
     {
-        private SortedDictionary<LicenseFieldIndex, LicenseField> _fields = new SortedDictionary<LicenseFieldIndex, LicenseField>();
+        private readonly SortedDictionary<LicenseFieldIndex, LicenseField> _fields = new SortedDictionary<LicenseFieldIndex, LicenseField>();
 
         private object? GetFieldValue( LicenseFieldIndex index )
         {
-            if ( this._fields.TryGetValue( index, out LicenseField licenseField ) )
+            if ( this._fields.TryGetValue( index, out var licenseField ) )
+            {
                 return licenseField.Value;
+            }
             else
+            {
                 return null;
+            }
         }
 
         // Used for testing
-        private void SetUnknownFieldValue( bool mustUnderstand, object? value )
+        private void SetUnknownFieldValue( bool mustUnderstand, object value )
         {
-            LicenseFieldIndex index = (LicenseFieldIndex) (mustUnderstand ? 128 : 253);
+            var index = (LicenseFieldIndex) (mustUnderstand ? 128 : 253);
 
             switch ( value.GetType().Name )
             {

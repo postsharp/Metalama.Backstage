@@ -12,9 +12,12 @@ namespace PostSharp.Backstage.Licensing.Licenses.LicenseFields
     {
         public override void Write( BinaryWriter writer )
         {
-            byte[] bytes = Encoding.UTF8.GetBytes( ((string) this.Value).Normalize() );
+            var bytes = Encoding.UTF8.GetBytes( ((string) this.Value!).Normalize() );
             if ( bytes.Length > 255 )
+            {
                 throw new InvalidOperationException( "Cannot have strings of more than 255 characters." );
+            }
+
             writer.Write( (byte) bytes.Length );
             writer.Write( bytes );
         }
@@ -28,7 +31,7 @@ namespace PostSharp.Backstage.Licensing.Licenses.LicenseFields
 
         public override void Read( BinaryReader reader )
         {
-            byte[] bytes = reader.ReadBytes( reader.ReadByte() );
+            var bytes = reader.ReadBytes( reader.ReadByte() );
             this.Value = Encoding.UTF8.GetString( bytes );
         }
     }

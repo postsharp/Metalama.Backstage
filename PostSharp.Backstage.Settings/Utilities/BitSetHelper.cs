@@ -1,4 +1,5 @@
-// Copyright (c) SharpCrafters s.r.o. This file is not open source. It is released under a commercial source-available license. Please see the LICENSE.md file in the repository root for details.
+// Copyright (c) SharpCrafters s.r.o. All rights reserved.
+// This project is not open source. Please see the LICENSE.md file in the repository root for details.
 
 namespace PostSharp.Backstage.Utilities
 {
@@ -12,8 +13,8 @@ namespace PostSharp.Backstage.Utilities
         /// <returns></returns>
         public static int CountBits( int value )
         {
-            int count = 0;
-            for ( int i = 0; i < 32; i++ )
+            var count = 0;
+            for ( var i = 0; i < 32; i++ )
             {
                 if ( (value & (1 << i)) != 0 )
                 {

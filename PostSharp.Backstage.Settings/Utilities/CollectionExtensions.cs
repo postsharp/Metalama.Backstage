@@ -1,5 +1,5 @@
-﻿// Copyright (c) SharpCrafters s.r.o. This file is not open source. It is released under a commercial
-// source-available license. Please see the LICENSE.md file in the repository root for details.
+﻿// Copyright (c) SharpCrafters s.r.o. All rights reserved.
+// This project is not open source. Please see the LICENSE.md file in the repository root for details.
 
 using System.Collections.Generic;
 using System.Linq;
@@ -10,16 +10,18 @@ namespace PostSharp.Backstage.Utilities
     {
         internal static T PopFirst<T>( this ICollection<T> collection )
         {
-            T item = collection.First();
+            var item = collection.First();
             collection.Remove( item );
             return item;
         }
 
         internal static TValue GetOrAdd<TKey, TValue>( this IDictionary<TKey, TValue> dictionary, TKey key )
-            where TValue: new()
+            where TValue : new()
         {
-            if ( dictionary.TryGetValue( key, out TValue value ) )
+            if ( dictionary.TryGetValue( key, out var value ) )
+            {
                 return value;
+            }
 
             value = new TValue();
             dictionary[key] = value;
