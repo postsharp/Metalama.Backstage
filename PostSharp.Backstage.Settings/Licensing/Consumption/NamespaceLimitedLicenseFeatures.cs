@@ -5,13 +5,13 @@ namespace PostSharp.Backstage.Licensing.Consumption
 {
     internal class NamespaceLimitedLicenseFeatures
     {
-        public string Namespace { get; }
+        public NamespaceConstraint Constraint { get; }
 
         public LicensedFeatures Features { get; set; }
 
         public NamespaceLimitedLicenseFeatures( string @namespace, LicensedFeatures features = LicensedFeatures.None )
         {
-            this.Namespace = @namespace;
+            this.Constraint = new(@namespace);
             this.Features = features;
         }
     }

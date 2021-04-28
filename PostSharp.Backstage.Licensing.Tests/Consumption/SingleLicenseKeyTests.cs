@@ -20,9 +20,11 @@ namespace PostSharp.Backstage.Licensing.Tests.Consumption
             this._trace = new TestTrace( logger );
         }
 
-        private static ILicenseConsumer CreateConsumer()
+        private static ILicenseConsumer CreateConsumer( string requiredNamespace )
         {
-            return new TestLicenseConsumer( "Foo", "Bar", null );
+            // TODO: IDiagnosticsLocation
+
+            return new TestLicenseConsumer( requiredNamespace, targetTypeName: "Bar", diagnosticsLocation: null );
         }
 
         private ILicenseConsumptionManager CreateConsumptionManager( IServiceProvider services, string licenseString )
@@ -35,8 +37,13 @@ namespace PostSharp.Backstage.Licensing.Tests.Consumption
 
         private void TestOneLicense( string licenseKey, LicensedFeatures requiredFeatures, bool expectedCanConsume )
         {
+            this.TestOneLicense( licenseKey, requiredFeatures, reuqiredNamespace: "Foo", expectedCanConsume );
+        }
+
+        private void TestOneLicense( string licenseKey, LicensedFeatures requiredFeatures, string reuqiredNamespace, bool expectedCanConsume )
+        {
             var services = new TestServices();
-            var consumer = CreateConsumer();
+            var consumer = CreateConsumer( reuqiredNamespace );
             var manager = this.CreateConsumptionManager( services, licenseKey );
             var actualCanConsume = manager.CanConsumeFeature( consumer, requiredFeatures );
             services.Diagnostics.AssertClean();
@@ -54,6 +61,18 @@ namespace PostSharp.Backstage.Licensing.Tests.Consumption
         public void LoggingLicenseForbidsCaravelaFeature()
         {
             this.TestOneLicense( TestLicenseKeys.Logging, LicensedFeatures.Caravela, false );
+        }
+
+        [Fact]
+        public void OpenSourceAllowsCaravelaInSameNamespace()
+        {
+            this.TestOneLicense( TestLicenseKeys.OpenSource, LicensedFeatures.Caravela, TestLicenseKeys.OpenSourceNamespace, true );
+        }
+
+        [Fact]
+        public void OpenSourceForbidsCaravelaInDifferentNamespace()
+        {
+            this.TestOneLicense( TestLicenseKeys.OpenSource, LicensedFeatures.Caravela, "Foo", false );
         }
     }
 }
