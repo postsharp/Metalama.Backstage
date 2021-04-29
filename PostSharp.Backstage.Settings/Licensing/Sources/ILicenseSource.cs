@@ -9,11 +9,8 @@ namespace PostSharp.Backstage.Licensing.Sources
     public interface ILicenseSource
     {
         /// <summary>
-        /// Gets license strings.
+        /// Gets an enumerable of licenses.
         /// </summary>
-        /// <remarks>
-        /// Each license string can represent either a license key or a license server URL.
-        /// </remarks>
-        IEnumerable<ILicense> Licenses { get; }
+        IEnumerable<ILicense> GetLicenses();
     }
 }

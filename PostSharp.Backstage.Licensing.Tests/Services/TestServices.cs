@@ -25,5 +25,11 @@ namespace PostSharp.Backstage.Licensing.Tests.Services
             _ = this._services.TryGetValue( serviceType, out var service );
             return service;
         }
+
+        public void SetService<T>( T service )
+            where T : class
+        {
+            this._services.Add( typeof( T ), service );
+        }
     }
 }

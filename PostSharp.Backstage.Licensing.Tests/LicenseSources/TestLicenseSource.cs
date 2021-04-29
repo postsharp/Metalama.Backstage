@@ -21,13 +21,10 @@ namespace PostSharp.Backstage.Licensing.Tests
             this._licenses = licenses;
         }
 
-        public IEnumerable<ILicense> Licenses
+        public IEnumerable<ILicense> GetLicenses()
         {
-            get
-            {
-                this.Used = true;
-                return this._licenses;
-            }
+            this.Used = true;
+            return this._licenses;
         }
     }
 }

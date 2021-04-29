@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using PostSharp.Backstage.Extensibility;
 
@@ -22,9 +23,19 @@ namespace PostSharp.Backstage.Licensing.Tests.Services
             this._warnings.Add( message );
         }
 
+        public void ReportWarning( string format, params object[] args )
+        {
+            this.ReportWarning( string.Format( CultureInfo.InvariantCulture, format, args ) );
+        }
+
         public void ReportError( string message )
         {
             this._errors.Add( message );
+        }
+
+        public void ReportError( string format, params object[] args )
+        {
+            this.ReportError( string.Format( CultureInfo.InvariantCulture, format, args ) );
         }
 
         public void AssertNoWarnings()

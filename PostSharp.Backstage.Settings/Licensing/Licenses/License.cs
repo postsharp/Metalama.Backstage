@@ -184,5 +184,10 @@ namespace PostSharp.Backstage.Licensing.Licenses
         {
             return 668981160 + EqualityComparer<string>.Default.GetHashCode( this._licenseKey );
         }
+
+        public override string ToString()
+        {
+            return $"License '{this._licenseKey}'";
+        }
     }
 }

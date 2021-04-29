@@ -49,7 +49,7 @@ namespace PostSharp.Backstage.Licensing.Consumption
             var licenseSource = this._unusedLicenseSources.First();
             this._unusedLicenseSources.Remove( licenseSource );
 
-            foreach ( var license in licenseSource.Licenses )
+            foreach ( var license in licenseSource.GetLicenses() )
             {
                 this._unusedLicenses.Add( license );
             }
