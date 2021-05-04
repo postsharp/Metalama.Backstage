@@ -127,7 +127,9 @@ namespace PostSharp.Backstage.Licensing.Evaluation
                 {
                     // This may happen when concurrent processes try to register an evaluation license at the same time.
                     TraceFailure( "A valid evaluation license is registered already." );
-                    return false;
+
+                    // We failed to register the license, but there is a valid license already.
+                    return true;
                 }
 
                 userStorage.AddLicense( licenseKey, data );
@@ -150,7 +152,9 @@ namespace PostSharp.Backstage.Licensing.Evaluation
             {
                 // We don't want to disclose the evaluation license file path here.
                 TraceFailure( $"{e.GetType()}{Environment.NewLine}{e.StackTrace}" );
-                return false;
+                
+                // We failed to prevent repetitive evaluation license registration, but the license has been registered already.
+                return true;
             }
 
             return true;

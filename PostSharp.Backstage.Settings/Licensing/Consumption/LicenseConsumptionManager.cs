@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using PostSharp.Backstage.Extensibility;
+using PostSharp.Backstage.Licensing.Evaluation;
 using PostSharp.Backstage.Licensing.Licenses;
 using PostSharp.Backstage.Licensing.Sources;
 
@@ -12,6 +13,7 @@ namespace PostSharp.Backstage.Licensing.Consumption
 {
     public sealed class LicenseConsumptionManager : ILicenseConsumptionManager
     {
+        private readonly IServiceProvider _services;
         private readonly IApplicationInfoService _applicationInfoService;
         private readonly IDateTimeProvider _dateTimeProvider;
         private readonly ITrace _trace;
@@ -31,6 +33,7 @@ namespace PostSharp.Backstage.Licensing.Consumption
 
         public LicenseConsumptionManager( IServiceProvider services, ITrace trace, IEnumerable<ILicenseSource> licenseSources )
         {
+            this._services = services;
             this._trace = trace;
 
             this._applicationInfoService = services.GetService<IApplicationInfoService>();
@@ -71,7 +74,7 @@ namespace PostSharp.Backstage.Licensing.Consumption
             // TODO: trace
             // TODO: license audit
 
-            if ( !license.TryGetLicenseData( out var licenseData ) )
+            if ( !license.TryGetLicenseConsumptionData( out var licenseData ) )
             {
                 return false;
             }
@@ -92,6 +95,24 @@ namespace PostSharp.Backstage.Licensing.Consumption
                 }
             }
 
+            return true;
+        }
+
+        private bool TryAutoRegisterEvaluationLicense()
+        {
+            // TODO: trace
+
+            EvaluationLicenseManager evaluationLicenseManager = new( this._services, this._trace );
+
+            if ( !evaluationLicenseManager.TryRegisterEvaluationLicense() )
+            {
+                return false;
+            }
+
+            // At this point, we would not get the newly registered license since all license sources have been enumerated.
+            // Thus, we allow all features, which is what a valid evaluation license would do.
+            // In the next compilation, the registered evaluation license would be retrieved from a license source.
+            this._licensedFeatures |= LicensedFeatures.All;
             return true;
         }
 
@@ -117,6 +138,11 @@ namespace PostSharp.Backstage.Licensing.Consumption
                 while ( this.TryLoadNextLicense() );
             }
             while ( this.TryLoadNextLicenseSource() );
+
+            if ( this.TryAutoRegisterEvaluationLicense() )
+            {
+                return true;
+            }
 
             return false;
         }
