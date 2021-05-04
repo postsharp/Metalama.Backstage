@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using PostSharp.Backstage.Licensing.Consumption;
 using PostSharp.Backstage.Licensing.Licenses;
+using PostSharp.Backstage.Licensing.Registration;
 using Xunit;
 
 namespace PostSharp.Backstage.Licensing.Tests.Licenses
@@ -28,7 +29,14 @@ namespace PostSharp.Backstage.Licensing.Tests.Licenses
             Assert.False( this.Used );
 
             this.Used = true;
-            return this.License.TryGetLicenseData( out licenseData! );
+            return this.License.TryGetLicenseConsumptionData( out licenseData! );
+        }
+
+        // MaybeNullWhenAttribute cannot be used here since the PostSharp.Backstage.Settings assembly shares internals with this assembly.
+        // That causes CS0433 error. (Same type defined in two referenced assemblies.)
+        public bool TryGetLicenseRegistrationData( /* [MaybeNullWhenAttribute( false )] */ out LicenseRegistrationData licenseRegistrationData )
+        {
+            throw new NotImplementedException();
         }
 
         public override bool Equals( object? obj )

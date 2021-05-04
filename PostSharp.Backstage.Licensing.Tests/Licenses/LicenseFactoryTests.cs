@@ -46,7 +46,7 @@ namespace PostSharp.Backstage.Licensing.Tests.Licenses
         {
             Assert.True( this._licenseFactory.TryCreate( "SomeInvalidLicenseString", out var license ) );
             Assert.True( license is License );
-            Assert.False( license!.TryGetLicenseData( out _ ) );
+            Assert.False( license!.TryGetLicenseConsumptionData( out _ ) );
             this.Services.Diagnostics.AssertNoErrors();
             Assert.Equal(
                 "Cannot parse license key SOMEINVALIDLICENSESTRING: License header not found for license {SOMEINVALIDLICENSESTRING}.",
@@ -58,7 +58,7 @@ namespace PostSharp.Backstage.Licensing.Tests.Licenses
         {
             Assert.True( this._licenseFactory.TryCreate( TestLicenseKeys.Ultimate, out var license ) );
             Assert.True( license is License );
-            Assert.True( license!.TryGetLicenseData( out var licenseData ) );
+            Assert.True( license!.TryGetLicenseConsumptionData( out var licenseData ) );
             Assert.NotNull( licenseData );
             this.Services.Diagnostics.AssertClean();
         }

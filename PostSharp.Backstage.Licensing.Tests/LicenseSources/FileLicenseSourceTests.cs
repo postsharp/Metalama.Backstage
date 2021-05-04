@@ -1,16 +1,12 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. All rights reserved.
 // This project is not open source. Please see the LICENSE.md file in the repository root for details.
 
-using PostSharp.Backstage.Extensibility;
-using PostSharp.Backstage.Licensing.Licenses;
-using PostSharp.Backstage.Licensing.Sources;
-using PostSharp.Backstage.Licensing.Tests.Services;
 using System;
-using System.Collections.Generic;
 using System.IO.Abstractions.TestingHelpers;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using PostSharp.Backstage.Extensibility;
+using PostSharp.Backstage.Licensing.Sources;
+using PostSharp.Backstage.Licensing.Tests.Services;
 using Xunit;
 using Xunit.Abstractions;
 
