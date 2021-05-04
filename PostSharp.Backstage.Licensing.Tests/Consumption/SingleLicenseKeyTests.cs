@@ -26,6 +26,14 @@ namespace PostSharp.Backstage.Licensing.Tests.Consumption
         }
 
         [Fact]
+        public void NoLicenseAutoRegistersEvaluationLicense()
+        {
+            // TODO
+
+            throw new System.NotImplementedException();
+        }
+
+        [Fact]
         public void UltimateLicenseAllowsCaravelaFeature()
         {
             this.TestOneLicense( TestLicenseKeys.Ultimate, LicensedFeatures.Caravela, true );

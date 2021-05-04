@@ -22,7 +22,7 @@ namespace PostSharp.Backstage.Licensing.Tests.LicenseSources
         }
 
         [Fact]
-        public void NotExistingFileIsReported()
+        public void NonexistentFileIsReported()
         {
             MockFileSystem fileSystemMock = new();
             TestFileSystemService fileSystem = new( fileSystemMock );

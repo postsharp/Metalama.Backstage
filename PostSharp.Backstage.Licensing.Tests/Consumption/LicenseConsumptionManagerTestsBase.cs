@@ -13,12 +13,9 @@ namespace PostSharp.Backstage.Licensing.Tests.Consumption
 {
     public abstract class LicenseConsumptionManagerTestsBase : LicensingTestsBase
     {
-        private readonly LicenseFactory _licenseFactory;
-
         public LicenseConsumptionManagerTestsBase( ITestOutputHelper logger )
             : base( logger )
         {
-            this._licenseFactory = new( this.Services, this.Trace );
         }
 
         protected static ILicenseConsumer CreateConsumer( string requiredNamespace = "Foo" )
@@ -30,7 +27,7 @@ namespace PostSharp.Backstage.Licensing.Tests.Consumption
 
         private protected TestLicense CreateLicense( string licenseString )
         {
-            Assert.True( this._licenseFactory.TryCreate( licenseString, out var license ) );
+            Assert.True( this.LicenseFactory.TryCreate( licenseString, out var license ) );
             return new TestLicense( license! );
         }
 

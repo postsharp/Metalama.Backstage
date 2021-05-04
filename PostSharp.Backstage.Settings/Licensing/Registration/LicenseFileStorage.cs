@@ -28,12 +28,22 @@ namespace PostSharp.Backstage.Licensing.Registration
         {
             var storage = Create( path, services, trace );
 
+            if ( !storage._fileSystem.FileExists( path ) )
+            {
+                return storage;
+            }
+
             var licenseStrings = storage._fileSystem.ReadAllLines( path );
 
             var factory = new LicenseFactory( services, trace );
 
             foreach ( var licenseString in licenseStrings )
             {
+                if ( string.IsNullOrWhiteSpace( licenseString ) )
+                {
+                    continue;
+                }
+
                 LicenseRegistrationData? data = null;
 
                 if ( factory.TryCreate( licenseString, out var license ) )

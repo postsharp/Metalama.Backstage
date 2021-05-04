@@ -2,11 +2,12 @@
 // This project is not open source. Please see the LICENSE.md file in the repository root for details.
 
 using System;
+using System.Collections.Generic;
 using PostSharp.Backstage.Licensing.Licenses;
 
 namespace PostSharp.Backstage.Licensing.Registration
 {
-    public class LicenseRegistrationData
+    public class LicenseRegistrationData : IEquatable<LicenseRegistrationData>
     {
         public string UniqueId { get; }
 
@@ -38,6 +39,36 @@ namespace PostSharp.Backstage.Licensing.Registration
             this.ValidFrom = validFrom;
             this.ValidTo = validTo;
             this.SubscriptionEndDate = subscriptionEndDate;
+        }
+
+        public bool Equals( LicenseRegistrationData other )
+        {
+            return this.UniqueId == other.UniqueId &&
+                   this.Licensee == other.Licensee &&
+                   this.Description == other.Description &&
+                   this.LicenseType == other.LicenseType &&
+                   this.ValidFrom == other.ValidFrom &&
+                   this.ValidTo == other.ValidTo &&
+                   this.SubscriptionEndDate == other.SubscriptionEndDate;
+        }
+
+        public override bool Equals( object? obj )
+        {
+            return obj is LicenseRegistrationData data &&
+                   this.Equals( data );
+        }
+
+        public override int GetHashCode()
+        {
+            var hashCode = -1677246439;
+            hashCode = (hashCode * -1521134295) + EqualityComparer<string>.Default.GetHashCode( this.UniqueId );
+            hashCode = (hashCode * -1521134295) + EqualityComparer<string?>.Default.GetHashCode( this.Licensee );
+            hashCode = (hashCode * -1521134295) + EqualityComparer<string>.Default.GetHashCode( this.Description );
+            hashCode = (hashCode * -1521134295) + this.LicenseType.GetHashCode();
+            hashCode = (hashCode * -1521134295) + this.ValidFrom.GetHashCode();
+            hashCode = (hashCode * -1521134295) + this.ValidTo.GetHashCode();
+            hashCode = (hashCode * -1521134295) + this.SubscriptionEndDate.GetHashCode();
+            return hashCode;
         }
     }
 }
