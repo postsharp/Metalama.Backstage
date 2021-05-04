@@ -25,10 +25,20 @@ namespace PostSharp.Backstage.Extensibility
 
         Stream OpenRead( string path );
 
+        Stream OpenWrite( string path );
+
         byte[] ReadAllBytes( string path );
+
+        void WriteAllBytes( string path, byte[] bytes );
 
         string ReadAllText( string path );
 
+        void WriteAllText( string path, string content );
+
         string[] ReadAllLines( string path );
+
+        void WriteAllLines( string path, string[] content );
+
+        void WriteAllLines( string path, IEnumerable<string> content );
     }
 }

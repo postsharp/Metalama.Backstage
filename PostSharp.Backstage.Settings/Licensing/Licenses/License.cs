@@ -9,6 +9,7 @@ using System.IO;
 using System.Text;
 using PostSharp.Backstage.Extensibility;
 using PostSharp.Backstage.Licensing.Consumption;
+using PostSharp.Backstage.Licensing.Registration;
 using PostSharp.Backstage.Utilities;
 
 namespace PostSharp.Backstage.Licensing.Licenses
@@ -91,28 +92,34 @@ namespace PostSharp.Backstage.Licensing.Licenses
             return false;
         }
 
-        public bool TryGetLicenseData( [MaybeNullWhen( returnValue: false )] out LicenseData licenseData )
+        public bool TryGetLicenseConsumptionData( [MaybeNullWhen( returnValue: false )] out LicenseConsumptionData licenseConsumptionData )
         {
             if ( !this.TryGetLicenseKeyData( out var licenseKeyData ) )
             {
-                licenseData = null;
+                licenseConsumptionData = null;
                 return false;
             }
 
             if ( !licenseKeyData.Validate( null, this._dateTimeProvider, this._applicationInfoService.BuildDate, this._applicationInfoService.Version, out var errorDescription ) )
             {
                 this._diagnostics.ReportWarning( $"License key {licenseKeyData.LicenseUniqueId} is invalid: {errorDescription}" );
-                licenseData = null;
+                licenseConsumptionData = null;
                 return false;
             }
 
-            licenseData = new(
-                licensedProduct: licenseKeyData.Product,
-                licenseType: licenseKeyData.LicenseType,
-                licensedFeatures: licenseKeyData.LicensedFeatures,
-                licensedNamespace: licenseKeyData.Namespace,
-                displayName: $"{licenseKeyData.ProductName} {licenseKeyData.LicenseType.GetLicenseTypeName()} ID {licenseKeyData.LicenseUniqueId}" );
+            licenseConsumptionData = licenseKeyData.ToConsumptionData();
+            return true;
+        }
 
+        public bool TryGetLicenseRegistrationData( [MaybeNullWhen( returnValue: false )] out LicenseRegistrationData licenseRegistrationData )
+        {
+            if ( !this.TryGetLicenseKeyData( out var licenseKeyData ) )
+            {
+                licenseRegistrationData = null;
+                return false;
+            }
+
+            licenseRegistrationData = licenseKeyData.ToRegistrationData();
             return true;
         }
 

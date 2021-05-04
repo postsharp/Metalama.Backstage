@@ -3,11 +3,14 @@
 
 using System.Diagnostics.CodeAnalysis;
 using PostSharp.Backstage.Licensing.Consumption;
+using PostSharp.Backstage.Licensing.Registration;
 
 namespace PostSharp.Backstage.Licensing.Licenses
 {
     public interface ILicense
     {
-        bool TryGetLicenseData( [MaybeNullWhen( returnValue: false )] out LicenseData licenseData );
+        bool TryGetLicenseConsumptionData( [MaybeNullWhen( returnValue: false )] out LicenseConsumptionData licenseConsumptionData );
+
+        bool TryGetLicenseRegistrationData( [MaybeNullWhen( returnValue: false )] out LicenseRegistrationData licenseRegistrationData );
     }
 }

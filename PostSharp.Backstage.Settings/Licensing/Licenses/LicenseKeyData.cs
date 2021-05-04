@@ -77,6 +77,11 @@ namespace PostSharp.Backstage.Licensing.Licenses
             _ => string.Format( CultureInfo.InvariantCulture, "Unknown Product ({0})", this.Product )
         };
 
+        public LicenseKeyData()
+        {
+            this.Version = 2;
+        }
+
         /// <inheritdoc />
         public override string ToString()
         {

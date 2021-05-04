@@ -77,24 +77,22 @@ namespace PostSharp.Backstage.Extensibility
             }
         }
 
-        public Stream OpenRead( string path )
-        {
-            return File.OpenRead( path );
-        }
+        public Stream OpenRead( string path ) => File.OpenRead( path );
 
-        public byte[] ReadAllBytes( string path )
-        {
-            return File.ReadAllBytes( path );
-        }
+        public Stream OpenWrite( string path ) => File.OpenWrite( path );
 
-        public string ReadAllText( string path )
-        {
-            return File.ReadAllText( path );
-        }
+        public byte[] ReadAllBytes( string path ) => File.ReadAllBytes( path );
 
-        public string[] ReadAllLines( string path )
-        {
-            return File.ReadAllLines( path );
-        }
+        public void WriteAllBytes( string path, byte[] bytes ) => File.WriteAllBytes( path, bytes );
+
+        public string ReadAllText( string path ) => File.ReadAllText( path );
+
+        public void WriteAllText( string path, string content ) => File.WriteAllText( path, content );
+
+        public string[] ReadAllLines( string path ) => File.ReadAllLines( path );
+
+        public void WriteAllLines( string path, string[] content ) => File.WriteAllLines( path, content );
+
+        public void WriteAllLines( string path, IEnumerable<string> content ) => File.WriteAllLines( path, content );
     }
 }

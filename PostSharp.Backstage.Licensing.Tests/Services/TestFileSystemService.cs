@@ -96,24 +96,22 @@ namespace PostSharp.Backstage.Licensing.Tests.Services
             return directories;
         }
 
-        public Stream OpenRead( string path )
-        {
-            return this._fileSystemMock.File.OpenRead( path );
-        }
+        public Stream OpenRead( string path ) => this._fileSystemMock.File.OpenRead( path );
 
-        public byte[] ReadAllBytes( string path )
-        {
-            return this._fileSystemMock.File.ReadAllBytes( path );
-        }
+        public Stream OpenWrite( string path ) => this._fileSystemMock.File.OpenWrite( path );
 
-        public string ReadAllText( string path )
-        {
-            return this._fileSystemMock.File.ReadAllText( path );
-        }
+        public byte[] ReadAllBytes( string path ) => this._fileSystemMock.File.ReadAllBytes( path );
 
-        public string[] ReadAllLines( string path )
-        {
-            return this._fileSystemMock.File.ReadAllLines( path );
-        }
+        public void WriteAllBytes( string path, byte[] bytes ) => this._fileSystemMock.File.WriteAllBytes( path, bytes );
+
+        public string ReadAllText( string path ) => this._fileSystemMock.File.ReadAllText( path );
+
+        public void WriteAllText( string path, string content ) => this._fileSystemMock.File.WriteAllText( path, content );
+
+        public string[] ReadAllLines( string path ) => this._fileSystemMock.File.ReadAllLines( path );
+
+        public void WriteAllLines( string path, string[] content ) => this._fileSystemMock.File.WriteAllLines( path, content );
+
+        public void WriteAllLines( string path, IEnumerable<string> content ) => this._fileSystemMock.File.WriteAllLines( path, content );
     }
 }

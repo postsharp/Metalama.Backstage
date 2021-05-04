@@ -5,7 +5,7 @@ using PostSharp.Backstage.Licensing.Licenses;
 
 namespace PostSharp.Backstage.Licensing.Consumption
 {
-    public class LicenseData
+    public class LicenseConsumptionData
     {
         public LicensedFeatures LicensedFeatures { get; }
 
@@ -17,7 +17,7 @@ namespace PostSharp.Backstage.Licensing.Consumption
 
         public string DisplayName { get; }
 
-        public LicenseData(
+        public LicenseConsumptionData(
             LicensedProduct licensedProduct,
             LicenseType licenseType,
             LicensedFeatures licensedFeatures,

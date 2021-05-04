@@ -11,9 +11,9 @@ namespace PostSharp.Backstage.Licensing.Licenses
         public string? LicenseString { get; set; }
 
         /// <summary>
-        /// Gets or sets the license version.
+        /// Gets the license version.
         /// </summary>
-        public byte Version { get; set; }
+        public byte Version { get; private set; }
 
         public Guid? LicenseGuid { get; set; }
 
