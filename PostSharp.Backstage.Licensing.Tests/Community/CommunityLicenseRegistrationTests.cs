@@ -1,0 +1,50 @@
+﻿// Copyright (c) SharpCrafters s.r.o. All rights reserved.
+// This project is not open source. Please see the LICENSE.md file in the repository root for details.
+
+using System;
+using System.Linq;
+using PostSharp.Backstage.Licensing.Community;
+using PostSharp.Backstage.Licensing.Licenses;
+using PostSharp.Backstage.Licensing.Tests.Registration;
+using Xunit;
+using Xunit.Abstractions;
+
+namespace PostSharp.Backstage.Licensing.Tests.Community
+{
+    public class CommunityLicenseRegistrationTests : LicenseRegistrationTestsBase
+    {
+        private readonly CommunityLicenseManager _manager;
+
+        public CommunityLicenseRegistrationTests( ITestOutputHelper logger )
+            : base( logger )
+        {
+            this._manager = new( this.Services, this.Trace );
+        }
+
+        private void AssertSingleCommunityLicenseRegistered()
+        {
+            var registeredLicenseString = this.ReadStoredLicenseStrings().Single();
+            Assert.True( this.LicenseFactory.TryCreate( registeredLicenseString, out var registeredLicense ) );
+            Assert.True( registeredLicense!.TryGetLicenseRegistrationData( out var data ) );
+            Assert.True( Guid.TryParse( data!.UniqueId, out var id ) );
+            Assert.NotEqual( Guid.Empty, id );
+            Assert.Equal( LicenseType.Community, data.LicenseType );
+        }
+
+        [Fact]
+        public void CommunityLicenseRegistersInCleanEnvironment()
+        {
+            Assert.True( this._manager.TryRegisterLicense() );
+            this.AssertSingleCommunityLicenseRegistered();
+        }
+
+        [Fact]
+        public void RepeatedCommunityLicenseRegisterationKeepsSingleLicenseRegistered()
+        {
+            Assert.True( this._manager.TryRegisterLicense() );
+            Assert.True( this._manager.TryRegisterLicense() );
+            this.AssertSingleCommunityLicenseRegistered();
+            Assert.Contains( "Failed to register community license: A community license is registered already.", this.Trace.Messages );
+        }
+    }
+}
