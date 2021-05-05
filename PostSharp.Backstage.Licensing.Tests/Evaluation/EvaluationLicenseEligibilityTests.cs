@@ -90,25 +90,25 @@ namespace PostSharp.Backstage.Licensing.Tests.Evaluation
         [Fact]
         public void EvaluationLicenseRegistrationWithinRunningEvaluationFails()
         {
-            this.TestRepetitiveRegistration( EvaluationLicenseManager.EvaluationPeriod / 2, false );
+            this.TestRepetitiveRegistration( EvaluationLicenseRegistrar.EvaluationPeriod / 2, false );
         }
 
         [Fact]
         public void EvaluationLicenseRegistrationWithinNoEvaluationPeriodFails()
         {
-            this.TestRepetitiveRegistration( EvaluationLicenseManager.EvaluationPeriod + (EvaluationLicenseManager.NoEvaluationPeriod / 2), false );
+            this.TestRepetitiveRegistration( EvaluationLicenseRegistrar.EvaluationPeriod + (EvaluationLicenseRegistrar.NoEvaluationPeriod / 2), false );
         }
 
         [Fact]
         public void EvaluationLicenseRegistrationAtTheEndOfNoEvaluationPeriodFails()
         {
-            this.TestRepetitiveRegistration( EvaluationLicenseManager.EvaluationPeriod + EvaluationLicenseManager.NoEvaluationPeriod, false );
+            this.TestRepetitiveRegistration( EvaluationLicenseRegistrar.EvaluationPeriod + EvaluationLicenseRegistrar.NoEvaluationPeriod, false );
         }
 
         [Fact]
         public void EvaluationLicenseRegistrationAfterNoEvaluationPeriodSucceeds()
         {
-            this.TestRepetitiveRegistration( EvaluationLicenseManager.EvaluationPeriod + EvaluationLicenseManager.NoEvaluationPeriod + TimeSpan.FromDays( 1 ), true );
+            this.TestRepetitiveRegistration( EvaluationLicenseRegistrar.EvaluationPeriod + EvaluationLicenseRegistrar.NoEvaluationPeriod + TimeSpan.FromDays( 1 ), true );
         }
     }
 }

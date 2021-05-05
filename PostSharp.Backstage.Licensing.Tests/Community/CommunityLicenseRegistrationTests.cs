@@ -13,12 +13,12 @@ namespace PostSharp.Backstage.Licensing.Tests.Community
 {
     public class CommunityLicenseRegistrationTests : LicenseRegistrationTestsBase
     {
-        private readonly CommunityLicenseManager _manager;
+        private readonly CommunityLicenseRegistrar _registrar;
 
         public CommunityLicenseRegistrationTests( ITestOutputHelper logger )
             : base( logger )
         {
-            this._manager = new( this.Services, this.Trace );
+            this._registrar = new( this.Services, this.Trace );
         }
 
         private void AssertSingleCommunityLicenseRegistered()
@@ -34,15 +34,15 @@ namespace PostSharp.Backstage.Licensing.Tests.Community
         [Fact]
         public void CommunityLicenseRegistersInCleanEnvironment()
         {
-            Assert.True( this._manager.TryRegisterLicense() );
+            Assert.True( this._registrar.TryRegisterLicense() );
             this.AssertSingleCommunityLicenseRegistered();
         }
 
         [Fact]
         public void RepeatedCommunityLicenseRegisterationKeepsSingleLicenseRegistered()
         {
-            Assert.True( this._manager.TryRegisterLicense() );
-            Assert.True( this._manager.TryRegisterLicense() );
+            Assert.True( this._registrar.TryRegisterLicense() );
+            Assert.True( this._registrar.TryRegisterLicense() );
             this.AssertSingleCommunityLicenseRegistered();
             Assert.Contains( "Failed to register community license: A community license is registered already.", this.Trace.Messages );
         }

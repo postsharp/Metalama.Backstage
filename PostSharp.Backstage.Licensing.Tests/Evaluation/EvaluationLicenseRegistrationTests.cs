@@ -22,7 +22,7 @@ namespace PostSharp.Backstage.Licensing.Tests.Evaluation
             this.Services.Time.Set( TestStart );
             (var evaluationLicenseKey, _) = this.SelfSignedLicenseFactory.CreateEvaluationLicense();
             this.SetStoredLicenseStrings( evaluationLicenseKey );
-            Assert.True( this.Manager.TryRegisterLicense() );
+            Assert.True( this.Registrar.TryRegisterLicense() );
             Assert.Contains( "Failed to register evaluation license: A valid evaluation license is registered already.", this.Trace.Messages );
         }
 
@@ -33,7 +33,7 @@ namespace PostSharp.Backstage.Licensing.Tests.Evaluation
             this.SetStoredLicenseStrings( evaluationLicenseKey );
 
             var readEvent = this.Services.FileSystem.BlockRead( StandardLicenseFilesLocations.UserLicenseFile );
-            var registration = Task.Run( this.Manager.TryRegisterLicense );
+            var registration = Task.Run( this.Registrar.TryRegisterLicense );
             readEvent.Wait();
 
             this.Services.FileSystem.Unblock( StandardLicenseFilesLocations.UserLicenseFile );
@@ -48,7 +48,7 @@ namespace PostSharp.Backstage.Licensing.Tests.Evaluation
         public void ConcurrentStoredLicenseSavingPassesWhenWriteFails()
         {
             var writeEvent = this.Services.FileSystem.BlockWrite( StandardLicenseFilesLocations.UserLicenseFile );
-            var registration = Task.Run( this.Manager.TryRegisterLicense );
+            var registration = Task.Run( this.Registrar.TryRegisterLicense );
             writeEvent.Wait();
 
             (var evaluationLicenseKey, _) = this.SelfSignedLicenseFactory.CreateEvaluationLicense();
@@ -66,7 +66,7 @@ namespace PostSharp.Backstage.Licensing.Tests.Evaluation
         public void ConcurrentEvaluationLicenseFlagSavingPassesWhenWriteFails()
         {
             var writeEvent = this.Services.FileSystem.BlockWrite( StandardLicenseFilesLocations.EvaluationLicenseFile );
-            var registration = Task.Run( this.Manager.TryRegisterLicense );
+            var registration = Task.Run( this.Registrar.TryRegisterLicense );
             writeEvent.Wait();
 
             this.Services.FileSystem.Unblock( StandardLicenseFilesLocations.EvaluationLicenseFile );

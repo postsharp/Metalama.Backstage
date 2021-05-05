@@ -9,12 +9,12 @@ using PostSharp.Backstage.Licensing.Registration;
 
 namespace PostSharp.Backstage.Licensing.Community
 {
-    public class CommunityLicenseManager
+    public class CommunityLicenseRegistrar
     {
         private readonly IServiceProvider _services;
         private readonly ITrace _trace;
 
-        public CommunityLicenseManager( IServiceProvider services, ITrace trace )
+        public CommunityLicenseRegistrar( IServiceProvider services, ITrace trace )
         {
             this._services = services;
             this._trace = trace;

@@ -17,12 +17,12 @@ namespace PostSharp.Backstage.Licensing.Tests.Evaluation
     {
         protected static readonly DateTime TestStart = new( 2020, 1, 1 );
 
-        protected EvaluationLicenseManager Manager { get; }
+        protected EvaluationLicenseRegistrar Registrar { get; }
 
         public EvaluationLicenseRegistrationTestsBase( ITestOutputHelper logger ) :
             base( logger )
         {
-            this.Manager = new( this.Services, this.Trace );
+            this.Registrar = new( this.Services, this.Trace );
         }
 
         protected void SetFlag( params string[] flag )
@@ -32,7 +32,7 @@ namespace PostSharp.Backstage.Licensing.Tests.Evaluation
 
         protected void AssertEvaluationElligible( string reason )
         {
-            Assert.True( this.Manager.TryRegisterLicense() );
+            Assert.True( this.Registrar.TryRegisterLicense() );
 
             var registeredLicenses = this.Services.FileSystem.ReadAllLines( StandardLicenseFilesLocations.UserLicenseFile );
             var evaluationLicenseFlags = this.Services.FileSystem.ReadAllLines( StandardLicenseFilesLocations.EvaluationLicenseFile );
@@ -45,7 +45,7 @@ namespace PostSharp.Backstage.Licensing.Tests.Evaluation
             Assert.Equal( LicenseType.Evaluation, data!.LicenseType );
 
             var expectedStart = this.Services.Time.Now;
-            var expectedEnd = expectedStart + EvaluationLicenseManager.EvaluationPeriod;
+            var expectedEnd = expectedStart + EvaluationLicenseRegistrar.EvaluationPeriod;
 
             Assert.Equal( expectedStart, data.ValidFrom );
             Assert.Equal( expectedEnd, data.ValidTo );
@@ -56,7 +56,7 @@ namespace PostSharp.Backstage.Licensing.Tests.Evaluation
 
         protected void AssertEvaluationNotElligible( string reason )
         {
-            Assert.False( this.Manager.TryRegisterLicense() );
+            Assert.False( this.Registrar.TryRegisterLicense() );
 
             this.AssertEvaluationEligibilityReason( reason );
         }

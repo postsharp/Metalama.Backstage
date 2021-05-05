@@ -20,7 +20,7 @@ namespace PostSharp.Backstage.Licensing.Licenses
         public (string LicenseKey, LicenseRegistrationData Data) CreateEvaluationLicense()
         {
             var start = this._time.Now.Date;
-            var end = start + EvaluationLicenseManager.EvaluationPeriod;
+            var end = start + EvaluationLicenseRegistrar.EvaluationPeriod;
 
             var licenseKeyData = new LicenseKeyData
             {

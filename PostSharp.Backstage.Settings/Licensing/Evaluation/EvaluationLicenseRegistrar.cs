@@ -11,7 +11,7 @@ using PostSharp.Backstage.Licensing.Registration;
 
 namespace PostSharp.Backstage.Licensing.Evaluation
 {
-    public class EvaluationLicenseManager : ILicenseAutoRegistrar
+    public class EvaluationLicenseRegistrar : ILicenseAutoRegistrar
     {
         // TODO: Correct?
         internal static TimeSpan EvaluationPeriod { get; } = TimeSpan.FromDays( 45 );
@@ -23,7 +23,7 @@ namespace PostSharp.Backstage.Licensing.Evaluation
         private readonly IDateTimeProvider _time;
         private readonly ITrace _trace;
 
-        public EvaluationLicenseManager( IServiceProvider services, ITrace trace )
+        public EvaluationLicenseRegistrar( IServiceProvider services, ITrace trace )
         {
             this._services = services;
             this._time = services.GetService<IDateTimeProvider>();
