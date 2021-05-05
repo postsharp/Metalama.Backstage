@@ -23,6 +23,8 @@ namespace PostSharp.Backstage.Extensibility
 
         IEnumerable<string> EnumerateDirectories( string path, string? searchPattern = null, SearchOption? searchOption = null );
 
+        void CreateDirectory( string path );
+
         Stream OpenRead( string path );
 
         Stream OpenWrite( string path );

@@ -14,19 +14,16 @@ namespace PostSharp.Backstage.Licensing.Tests.Consumption
         {
         }
 
-        private static void NoneUsed( params IUsable[] usables )
-        {
-            Assert.Equal( 0, usables.Count( l => l.Used ) );
-        }
-
-        private static void AssertOneUsed( params IUsable[] usables )
+        private void AssertOneUsed( bool expectAutoRegitration, params IUsable[] usables )
         {
             Assert.Equal( 1, usables.Count( l => l.Used ) );
+            Assert.Equal( expectAutoRegitration, this.AutoRegistrar.RegistrationAttempted );
         }
 
-        private static void AssertAllUsed( params IUsable[] usables )
+        private void AssertAllUsed( params IUsable[] usables )
         {
             Assert.Equal( usables.Length, usables.Count( l => l.Used ) );
+            Assert.True( this.AutoRegistrar.RegistrationAttempted );
         }
 
         [Fact]
@@ -36,7 +33,7 @@ namespace PostSharp.Backstage.Licensing.Tests.Consumption
             var license2 = this.CreateLicense( TestLicenseKeys.Ultimate );
             var manager = this.CreateConsumptionManager( license1, license2 );
             this.TestConsumption( manager, LicensedFeatures.Caravela, true );
-            AssertOneUsed( license1, license2 );
+            this.AssertOneUsed( expectAutoRegitration: false, license1, license2 );
         }
 
         [Fact]
@@ -46,7 +43,7 @@ namespace PostSharp.Backstage.Licensing.Tests.Consumption
             var license2 = this.CreateLicense( TestLicenseKeys.Logging );
             var manager = this.CreateConsumptionManager( license1, license2 );
             this.TestConsumption( manager, LicensedFeatures.Caravela, false );
-            AssertOneUsed( license1, license2 );
+            this.AssertOneUsed( expectAutoRegitration: true, license1, license2 );
         }
 
         [Fact]
@@ -56,7 +53,7 @@ namespace PostSharp.Backstage.Licensing.Tests.Consumption
             var license2 = this.CreateLicense( TestLicenseKeys.Caching );
             var manager = this.CreateConsumptionManager( license1, license2 );
             this.TestConsumption( manager, LicensedFeatures.Caravela, false );
-            AssertAllUsed( license1, license2 );
+            this.AssertAllUsed( license1, license2 );
         }
 
         [Fact]
@@ -70,8 +67,8 @@ namespace PostSharp.Backstage.Licensing.Tests.Consumption
 
             var manager = this.CreateConsumptionManager( source1, source2 );
             this.TestConsumption( manager, LicensedFeatures.Caravela, true );
-            AssertOneUsed( license1, license2 );
-            AssertOneUsed( source1, source2 );
+            this.AssertOneUsed( expectAutoRegitration: false, license1, license2 );
+            this.AssertOneUsed( expectAutoRegitration: false, source1, source2 );
         }
 
         [Fact]
@@ -85,8 +82,8 @@ namespace PostSharp.Backstage.Licensing.Tests.Consumption
 
             var manager = this.CreateConsumptionManager( source1, source2 );
             this.TestConsumption( manager, LicensedFeatures.Caravela, false );
-            AssertAllUsed( license1, license2 );
-            AssertAllUsed( source1, source2 );
+            this.AssertAllUsed( license1, license2 );
+            this.AssertAllUsed( source1, source2 );
         }
 
         [Fact]
@@ -107,7 +104,7 @@ namespace PostSharp.Backstage.Licensing.Tests.Consumption
             var license2 = this.CreateLicense( TestLicenseKeys.OpenSource );
             var manager = this.CreateConsumptionManager( license1, license2 );
             this.TestConsumption( manager, LicensedFeatures.Caravela, "Foo", false );
-            AssertAllUsed( license1, license2 );
+            this.AssertAllUsed( license1, license2 );
         }
     }
 }

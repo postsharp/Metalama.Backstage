@@ -135,7 +135,7 @@ namespace PostSharp.Backstage.Licensing.Licenses
                     throw new InvalidOperationException( $"The license contains products or fields introduced " +
                         $"after PostSharp {MinPostSharpVersionValidationRemovedPostSharpVersion}. " +
                         $"Set the {nameof( this.MinPostSharpVersion )} property " +
-                        $"to {nameof( License )}.{nameof( MinPostSharpVersionValidationRemovedPostSharpVersion )}." );
+                        $"to {this.GetType().Name}.{nameof( MinPostSharpVersionValidationRemovedPostSharpVersion )}." );
                 }
             }
 

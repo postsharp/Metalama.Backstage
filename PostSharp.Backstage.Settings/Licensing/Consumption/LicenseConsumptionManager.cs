@@ -7,6 +7,7 @@ using System.Linq;
 using PostSharp.Backstage.Extensibility;
 using PostSharp.Backstage.Licensing.Evaluation;
 using PostSharp.Backstage.Licensing.Licenses;
+using PostSharp.Backstage.Licensing.Registration;
 using PostSharp.Backstage.Licensing.Sources;
 
 namespace PostSharp.Backstage.Licensing.Consumption
@@ -14,8 +15,6 @@ namespace PostSharp.Backstage.Licensing.Consumption
     public sealed class LicenseConsumptionManager : ILicenseConsumptionManager
     {
         private readonly IServiceProvider _services;
-        private readonly IApplicationInfoService _applicationInfoService;
-        private readonly IDateTimeProvider _dateTimeProvider;
         private readonly ITrace _trace;
 
         private readonly List<ILicenseSource> _unusedLicenseSources = new();
@@ -35,9 +34,6 @@ namespace PostSharp.Backstage.Licensing.Consumption
         {
             this._services = services;
             this._trace = trace;
-
-            this._applicationInfoService = services.GetService<IApplicationInfoService>();
-            this._dateTimeProvider = services.GetService<IDateTimeProvider>();
 
             this._unusedLicenseSources.AddRange( licenseSources );
         }
@@ -98,13 +94,13 @@ namespace PostSharp.Backstage.Licensing.Consumption
             return true;
         }
 
-        private bool TryAutoRegisterEvaluationLicense()
+        private bool TryAutoRegisterLicense()
         {
             // TODO: trace
 
-            EvaluationLicenseManager evaluationLicenseManager = new( this._services, this._trace );
+            var registrar = this._services.GetService<ILicenseAutoRegistrar>();
 
-            if ( !evaluationLicenseManager.TryRegisterEvaluationLicense() )
+            if ( !registrar.TryRegisterLicense() )
             {
                 return false;
             }
@@ -139,7 +135,7 @@ namespace PostSharp.Backstage.Licensing.Consumption
             }
             while ( this.TryLoadNextLicenseSource() );
 
-            if ( this.TryAutoRegisterEvaluationLicense() )
+            if ( this.TryAutoRegisterLicense() )
             {
                 return true;
             }

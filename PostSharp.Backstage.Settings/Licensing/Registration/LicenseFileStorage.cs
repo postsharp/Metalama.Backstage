@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using PostSharp.Backstage.Extensibility;
 using PostSharp.Backstage.Licensing.Licenses;
 
@@ -75,6 +76,8 @@ namespace PostSharp.Backstage.Licensing.Registration
 
         public void Save()
         {
+            var directory = Path.GetDirectoryName( this._path );
+            this._fileSystem.CreateDirectory( directory );
             this._fileSystem.WriteAllLines( this._path, this._licenses.Keys );
         }
     }

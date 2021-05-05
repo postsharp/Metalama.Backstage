@@ -77,6 +77,8 @@ namespace PostSharp.Backstage.Extensibility
             }
         }
 
+        public void CreateDirectory( string path ) => Directory.CreateDirectory( path );
+
         public Stream OpenRead( string path ) => File.OpenRead( path );
 
         public Stream OpenWrite( string path ) => File.OpenWrite( path );

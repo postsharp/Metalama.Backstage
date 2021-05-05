@@ -26,6 +26,7 @@ namespace PostSharp.Backstage.Licensing.Licenses
 
             var licenseKeyData = new LicenseKeyData
             {
+                MinPostSharpVersion = LicenseKeyData.MinPostSharpVersionValidationRemovedPostSharpVersion,
                 LicenseGuid = Guid.NewGuid(),
                 Product = LicensedProduct.Caravela,
                 LicenseType = LicenseType.Evaluation,
@@ -46,6 +47,7 @@ namespace PostSharp.Backstage.Licensing.Licenses
 
             var licenseKeyData = new LicenseKeyData
             {
+                MinPostSharpVersion = LicenseKeyData.MinPostSharpVersionValidationRemovedPostSharpVersion,
                 LicenseGuid = Guid.NewGuid(),
                 Product = LicensedProduct.Caravela,
                 LicenseType = LicenseType.Community,

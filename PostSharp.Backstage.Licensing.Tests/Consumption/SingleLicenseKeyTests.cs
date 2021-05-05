@@ -1,6 +1,7 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. All rights reserved.
 // This project is not open source. Please see the LICENSE.md file in the repository root for details.
 
+using PostSharp.Backstage.Licensing.Consumption;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -23,14 +24,15 @@ namespace PostSharp.Backstage.Licensing.Tests.Consumption
             var license = this.CreateLicense( licenseKey );
             var manager = this.CreateConsumptionManager( license );
             this.TestConsumption( manager, requiredFeatures, reuqiredNamespace, expectedCanConsume );
+            Assert.NotEqual( expectedCanConsume, this.AutoRegistrar.RegistrationAttempted );
         }
 
         [Fact]
         public void NoLicenseAutoRegistersEvaluationLicense()
         {
-            // TODO
-
-            throw new System.NotImplementedException();
+            LicenseConsumptionManager manager = new( this.Services, this.Trace );
+            this.TestConsumption( manager, LicensedFeatures.Caravela, false );
+            Assert.True( this.AutoRegistrar.RegistrationAttempted );
         }
 
         [Fact]

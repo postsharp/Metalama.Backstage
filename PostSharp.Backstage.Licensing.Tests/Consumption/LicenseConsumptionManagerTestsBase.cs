@@ -2,9 +2,10 @@
 // This project is not open source. Please see the LICENSE.md file in the repository root for details.
 
 using PostSharp.Backstage.Licensing.Consumption;
-using PostSharp.Backstage.Licensing.Licenses;
+using PostSharp.Backstage.Licensing.Registration;
 using PostSharp.Backstage.Licensing.Sources;
 using PostSharp.Backstage.Licensing.Tests.Licenses;
+using PostSharp.Backstage.Licensing.Tests.Registration;
 using PostSharp.Backstage.Licensing.Tests.Services;
 using Xunit;
 using Xunit.Abstractions;
@@ -13,9 +14,12 @@ namespace PostSharp.Backstage.Licensing.Tests.Consumption
 {
     public abstract class LicenseConsumptionManagerTestsBase : LicensingTestsBase
     {
+        private protected TestLicenseAutoRegistrar AutoRegistrar { get; } = new();
+
         public LicenseConsumptionManagerTestsBase( ITestOutputHelper logger )
             : base( logger )
         {
+            this.Services.SetService<ILicenseAutoRegistrar>( this.AutoRegistrar );
         }
 
         protected static ILicenseConsumer CreateConsumer( string requiredNamespace = "Foo" )
@@ -51,6 +55,12 @@ namespace PostSharp.Backstage.Licensing.Tests.Consumption
         {
             var consumer = CreateConsumer( reuqiredNamespace );
             var actualCanConsume = manager.CanConsumeFeature( consumer, requiredFeatures );
+
+            if ( actualCanConsume && this.AutoRegistrar.RegistrationAttempted )
+            {
+                actualCanConsume = false;
+            }
+
             this.Services.Diagnostics.AssertClean();
             consumer.Diagnostics.AssertClean();
             Assert.Equal( expectedCanConsume, actualCanConsume );

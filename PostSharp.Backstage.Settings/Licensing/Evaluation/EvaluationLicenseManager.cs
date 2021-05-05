@@ -9,7 +9,7 @@ using PostSharp.Backstage.Licensing.Registration;
 
 namespace PostSharp.Backstage.Licensing.Evaluation
 {
-    public class EvaluationLicenseManager
+    public class EvaluationLicenseManager : ILicenseAutoRegistrar
     {
         private readonly IServiceProvider _services;
         private readonly IDateTimeProvider _time;
@@ -22,7 +22,7 @@ namespace PostSharp.Backstage.Licensing.Evaluation
             this._trace = trace;
         }
 
-        public bool TryRegisterEvaluationLicense()
+        public bool TryRegisterLicense()
         {
             if ( !this.IsEvaluationEligible() )
             {

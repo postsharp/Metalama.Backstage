@@ -13,11 +13,16 @@ namespace PostSharp.Backstage.Licensing.Tests.Services
 
         public TestDiagnosticsSink Diagnostics { get; } = new();
 
+        public TestDateTimeProvider Time { get; } = new();
+
+        public TestFileSystemService FileSystem { get; } = new();
+
         public TestServices()
         {
             this._services.Add( typeof( IDiagnosticsSink ), this.Diagnostics );
             this._services.Add( typeof( IApplicationInfoService ), new ApplicationInfoService( false, new( 0, 1, 0 ), new( 2021, 1, 1 ) ) );
-            this._services.Add( typeof( IDateTimeProvider ), new CurrentDateTimeProvider() );
+            this._services.Add( typeof( IDateTimeProvider ), this.Time );
+            this._services.Add( typeof( IFileSystemService ), this.FileSystem );
         }
 
         public object? GetService( Type serviceType )

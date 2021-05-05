@@ -4,33 +4,28 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.IO.Abstractions;
+using System.IO.Abstractions.TestingHelpers;
 using PostSharp.Backstage.Extensibility;
 
 namespace PostSharp.Backstage.Licensing.Tests.Services
 {
     internal class TestFileSystemService : IFileSystemService
     {
-        private readonly IFileSystem _fileSystemMock;
-
-        public TestFileSystemService( IFileSystem fileSystemMock )
-        {
-            this._fileSystemMock = fileSystemMock;
-        }
+        public MockFileSystem Mock { get; } = new();
 
         public DateTime GetLastWriteTime( string file )
         {
-            return this._fileSystemMock.File.GetLastWriteTime( file );
+            return this.Mock.File.GetLastWriteTime( file );
         }
 
         public bool FileExists( string path )
         {
-            return this._fileSystemMock.File.Exists( path );
+            return this.Mock.File.Exists( path );
         }
 
         public bool DirectoryExists( string path )
         {
-            return this._fileSystemMock.Directory.Exists( path );
+            return this.Mock.Directory.Exists( path );
         }
 
         public IEnumerable<string> EnumerateFiles( string path, string? searchPattern = null, SearchOption? searchOption = null )
@@ -47,15 +42,15 @@ namespace PostSharp.Backstage.Licensing.Tests.Services
                     throw new ArgumentNullException( "searchPattern" );
                 }
 
-                return this._fileSystemMock.Directory.GetFiles( path, searchPattern, searchOption.Value );
+                return this.Mock.Directory.GetFiles( path, searchPattern, searchOption.Value );
             }
             else if ( searchPattern != null )
             {
-                return this._fileSystemMock.Directory.GetFiles( path, searchPattern );
+                return this.Mock.Directory.GetFiles( path, searchPattern );
             }
             else
             {
-                return this._fileSystemMock.Directory.GetFiles( path );
+                return this.Mock.Directory.GetFiles( path );
             }
         }
 
@@ -75,15 +70,15 @@ namespace PostSharp.Backstage.Licensing.Tests.Services
                     throw new ArgumentNullException( "searchPattern" );
                 }
 
-                directories = this._fileSystemMock.Directory.GetDirectories( path, searchPattern, searchOption.Value );
+                directories = this.Mock.Directory.GetDirectories( path, searchPattern, searchOption.Value );
             }
             else if ( searchPattern != null )
             {
-                directories = this._fileSystemMock.Directory.GetDirectories( path, searchPattern );
+                directories = this.Mock.Directory.GetDirectories( path, searchPattern );
             }
             else
             {
-                directories = this._fileSystemMock.Directory.GetDirectories( path );
+                directories = this.Mock.Directory.GetDirectories( path );
             }
 
             // The mock returns trailing separator, but BCL does not.
@@ -96,22 +91,24 @@ namespace PostSharp.Backstage.Licensing.Tests.Services
             return directories;
         }
 
-        public Stream OpenRead( string path ) => this._fileSystemMock.File.OpenRead( path );
+        public void CreateDirectory( string path ) => this.Mock.Directory.CreateDirectory( path );
 
-        public Stream OpenWrite( string path ) => this._fileSystemMock.File.OpenWrite( path );
+        public Stream OpenRead( string path ) => this.Mock.File.OpenRead( path );
 
-        public byte[] ReadAllBytes( string path ) => this._fileSystemMock.File.ReadAllBytes( path );
+        public Stream OpenWrite( string path ) => this.Mock.File.OpenWrite( path );
 
-        public void WriteAllBytes( string path, byte[] bytes ) => this._fileSystemMock.File.WriteAllBytes( path, bytes );
+        public byte[] ReadAllBytes( string path ) => this.Mock.File.ReadAllBytes( path );
 
-        public string ReadAllText( string path ) => this._fileSystemMock.File.ReadAllText( path );
+        public void WriteAllBytes( string path, byte[] bytes ) => this.Mock.File.WriteAllBytes( path, bytes );
 
-        public void WriteAllText( string path, string content ) => this._fileSystemMock.File.WriteAllText( path, content );
+        public string ReadAllText( string path ) => this.Mock.File.ReadAllText( path );
 
-        public string[] ReadAllLines( string path ) => this._fileSystemMock.File.ReadAllLines( path );
+        public void WriteAllText( string path, string content ) => this.Mock.File.WriteAllText( path, content );
 
-        public void WriteAllLines( string path, string[] content ) => this._fileSystemMock.File.WriteAllLines( path, content );
+        public string[] ReadAllLines( string path ) => this.Mock.File.ReadAllLines( path );
 
-        public void WriteAllLines( string path, IEnumerable<string> content ) => this._fileSystemMock.File.WriteAllLines( path, content );
+        public void WriteAllLines( string path, string[] content ) => this.Mock.File.WriteAllLines( path, content );
+
+        public void WriteAllLines( string path, IEnumerable<string> content ) => this.Mock.File.WriteAllLines( path, content );
     }
 }
