@@ -5,6 +5,7 @@ using System;
 using System.IO.Abstractions.TestingHelpers;
 using System.Linq;
 using PostSharp.Backstage.Licensing.Sources;
+using PostSharp.Backstage.Licensing.Tests.Services;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -54,8 +55,7 @@ namespace PostSharp.Backstage.Licensing.Tests.LicenseSources
         [Fact]
         public void EmptyLinesSkipped()
         {
-            var nl = Environment.NewLine;
-            this.Services.FileSystem.Mock.AddFile( _licenseFilePath, new MockFileData( $"{nl}{TestLicenseKeys.Ultimate}{nl}{nl}{TestLicenseKeys.Logging}{nl}" ) );
+            this.Services.FileSystem.Mock.AddFile( _licenseFilePath, new MockFileDataEx( "", TestLicenseKeys.Ultimate, "", "", TestLicenseKeys.Logging, "" ) );
 
             FileLicenseSource source = new( _licenseFilePath, this.Services, this.Trace );
 

@@ -31,5 +31,7 @@ namespace PostSharp.Backstage.Licensing.Tests.Services
             this._messages.Add( string.Format( format, args ) );
             this._logger.WriteLine( format, args );
         }
+
+        public void Clear() => this._messages.Clear();
     }
 }

@@ -6,6 +6,7 @@ using System.IO;
 using System.IO.Abstractions.TestingHelpers;
 using PostSharp.Backstage.Extensibility;
 using PostSharp.Backstage.Licensing.Registration;
+using PostSharp.Backstage.Licensing.Tests.Services;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -138,7 +139,7 @@ namespace PostSharp.Backstage.Licensing.Tests.Registration
         [Fact]
         public void ValidLicenseKeyCanBeAppended()
         {
-            this.Services.FileSystem.Mock.AddFile( _path, new MockFileData( $"{TestLicenseKeys.Ultimate}{Environment.NewLine}{TestLicenseKeys.Logging}" ) );
+            this.Services.FileSystem.Mock.AddFile( _path, new MockFileDataEx( TestLicenseKeys.Ultimate, TestLicenseKeys.Logging ) );
 
             var storage = LicenseFileStorage.OpenOrCreate( _path, this.Services, this.Trace );
             this.Add( storage, TestLicenseKeys.Caching );
@@ -151,7 +152,8 @@ namespace PostSharp.Backstage.Licensing.Tests.Registration
         [Fact]
         public void NewLinesAreSkipped()
         {
-            this.Services.FileSystem.Mock.AddFile( _path, 
+            this.Services.FileSystem.Mock.AddFile( 
+                _path, 
                 new MockFileData( 
                     $"{Environment.NewLine}{TestLicenseKeys.Ultimate}{Environment.NewLine}{Environment.NewLine}{TestLicenseKeys.Logging}{Environment.NewLine}" ) );
 

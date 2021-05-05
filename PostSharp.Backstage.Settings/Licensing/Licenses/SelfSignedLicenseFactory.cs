@@ -3,26 +3,24 @@
 
 using System;
 using PostSharp.Backstage.Extensibility;
+using PostSharp.Backstage.Licensing.Evaluation;
 using PostSharp.Backstage.Licensing.Registration;
 
 namespace PostSharp.Backstage.Licensing.Licenses
 {
     internal class SelfSignedLicenseFactory
     {
-        // TODO: How many days?
-        private static readonly TimeSpan _evaluationPeriod = TimeSpan.FromDays( 45 );
-
         private readonly IDateTimeProvider _time;
 
-        public SelfSignedLicenseFactory(IDateTimeProvider time)
+        public SelfSignedLicenseFactory( IServiceProvider services )
         {
-            this._time = time;
+            this._time = services.GetService<IDateTimeProvider>();
         }
 
         public (string LicenseKey, LicenseRegistrationData Data) CreateEvaluationLicense()
         {
-            var start = this._time.Now;
-            var end = start + _evaluationPeriod;
+            var start = this._time.Now.Date;
+            var end = start + EvaluationLicenseManager.EvaluationPeriod;
 
             var licenseKeyData = new LicenseKeyData
             {

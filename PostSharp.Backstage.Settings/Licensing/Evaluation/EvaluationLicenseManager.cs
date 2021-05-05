@@ -11,6 +11,12 @@ namespace PostSharp.Backstage.Licensing.Evaluation
 {
     public class EvaluationLicenseManager : ILicenseAutoRegistrar
     {
+        // TODO: Correct?
+        internal static TimeSpan EvaluationPeriod { get; } = TimeSpan.FromDays( 45 );
+
+        // TODO: Correct?
+        internal static TimeSpan NoEvaluationPeriod { get; } = TimeSpan.FromDays( 180 );
+
         private readonly IServiceProvider _services;
         private readonly IDateTimeProvider _time;
         private readonly ITrace _trace;
@@ -84,16 +90,15 @@ namespace PostSharp.Backstage.Licensing.Evaluation
                     return false;
                 }
 
-                // TODO: How many days?
-                if ( data.ValidTo < this._time.Now + TimeSpan.FromDays( 180 ) )
-                {
-                    TraceFailure( "Evaluation requested recently." );
-                    return false;
-                }
-                else
+                if ( data.ValidTo + NoEvaluationPeriod < this._time.Now )
                 {
                     this._trace.WriteLine( "Evaluation license registration can be repeated." );
                     return true;
+                }
+                else
+                {
+                    this._trace.WriteLine( "Evaluation license requested recently." );
+                    return false;
                 }
             }
             catch ( Exception e )
@@ -118,7 +123,7 @@ namespace PostSharp.Backstage.Licensing.Evaluation
 
             try
             {
-                var factory = new SelfSignedLicenseFactory( this._time );
+                var factory = new SelfSignedLicenseFactory( this._services );
                 (licenseKey, data) = factory.CreateEvaluationLicense();
 
                 var userStorage = LicenseFileStorage.OpenOrCreate( StandardLicenseFilesLocations.UserLicenseFile, this._services, this._trace );
