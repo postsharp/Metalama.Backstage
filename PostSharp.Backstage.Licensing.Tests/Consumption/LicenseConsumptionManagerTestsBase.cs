@@ -22,11 +22,11 @@ namespace PostSharp.Backstage.Licensing.Tests.Consumption
             this.Services.SetService<ILicenseAutoRegistrar>( this.AutoRegistrar );
         }
 
-        protected static ILicenseConsumer CreateConsumer( string requiredNamespace = "Foo" )
+        private protected ILicenseConsumer CreateConsumer( string requiredNamespace = "Foo" )
         {
             // TODO: IDiagnosticsLocation
 
-            return new TestLicenseConsumer( requiredNamespace, targetTypeName: "Bar", diagnosticsLocation: null );
+            return new TestLicenseConsumer( requiredNamespace, targetTypeName: "Bar", diagnosticsLocation: null, this.Trace );
         }
 
         private protected TestLicense CreateLicense( string licenseString )

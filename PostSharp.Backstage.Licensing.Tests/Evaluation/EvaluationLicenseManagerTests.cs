@@ -27,7 +27,7 @@ namespace PostSharp.Backstage.Licensing.Tests.Evaluation
         {
         }
 
-        private void AsserEvaluationRegistered()
+        private void AsserEvaluationRegistered( string reason )
         {
             var registeredLicenses = this.Services.FileSystem.ReadAllLines( StandardLicenseFilesLocations.UserLicenseFile );
             var registeredLicense = registeredLicenses.Single();
@@ -43,6 +43,9 @@ namespace PostSharp.Backstage.Licensing.Tests.Evaluation
             Assert.Equal( _evaluationStart, data.ValidFrom );
             Assert.Equal( _evaluationEnd, data.ValidTo );
             Assert.Equal( _evaluationEnd, data.SubscriptionEndDate );
+
+            Assert.Equal( "Checking for trial license eligibility.", this.Trace.Messages[0] );
+            Assert.Equal( reason, this.Trace.Messages[1] );
         }
 
         [Fact]
@@ -52,7 +55,7 @@ namespace PostSharp.Backstage.Licensing.Tests.Evaluation
 
             this.Services.Time.Set( _evaluationStart );
             Assert.True( manager.TryRegisterLicense() );
-            this.AsserEvaluationRegistered();
+            this.AsserEvaluationRegistered( reason: "No trial license found." );
         }
     }
 }

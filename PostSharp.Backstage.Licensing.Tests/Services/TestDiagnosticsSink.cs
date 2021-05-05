@@ -5,31 +5,48 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using PostSharp.Backstage.Extensibility;
 
 namespace PostSharp.Backstage.Licensing.Tests.Services
 {
     internal class TestDiagnosticsSink : IDiagnosticsSink
     {
+        private readonly TestTrace _trace;
         private readonly List<string> _warnings = new();
         private readonly List<string> _errors = new();
+
+        public string Name { get; set; }
 
         public IReadOnlyList<string> Warnings => this._warnings;
 
         public IReadOnlyList<string> Errors => this._errors;
 
+        public TestDiagnosticsSink( TestTrace trace, [CallerMemberName] string name = "" )
+        {
+            this.Name = name;
+            this._trace = trace;
+        }
+
+        private void Trace( string verbosity, string message )
+        {
+            this._trace.WriteLine( "Diagnostic sink '{0}' reported '{1}': {2}", this.Name, verbosity, message );
+        }
+
         public void ReportWarning( string message )
         {
+            this.Trace( "warning", message );
             this._warnings.Add( message );
         }
 
         public void ReportWarning( string format, params object[] args )
-        {
+        {            
             this.ReportWarning( string.Format( CultureInfo.InvariantCulture, format, args ) );
         }
 
         public void ReportError( string message )
         {
+            this.Trace( "error", message );
             this._errors.Add( message );
         }
 

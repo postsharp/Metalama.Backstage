@@ -7,20 +7,21 @@ using PostSharp.Backstage.Licensing.Tests.Services;
 
 namespace PostSharp.Backstage.Licensing.Tests.Consumption
 {
-    public class TestLicenseConsumer : ILicenseConsumer
+    internal class TestLicenseConsumer : ILicenseConsumer
     {
         public string TargetTypeNamespace { get; }
 
         public string TargetTypeName { get; }
 
-        public IDiagnosticsSink Diagnostics { get; } = new TestDiagnosticsSink();
+        public IDiagnosticsSink Diagnostics { get; }
 
         public IDiagnosticsLocation DiagnosticsLocation { get; }
 
-        public TestLicenseConsumer( string targetTypeNamespace, string targetTypeName, IDiagnosticsLocation diagnosticsLocation )
+        public TestLicenseConsumer( string targetTypeNamespace, string targetTypeName, IDiagnosticsLocation diagnosticsLocation, TestTrace trace )
         {
             this.TargetTypeNamespace = targetTypeNamespace;
             this.TargetTypeName = targetTypeName;
+            this.Diagnostics = new TestDiagnosticsSink( trace );
             this.DiagnosticsLocation = diagnosticsLocation;
         }
     }
