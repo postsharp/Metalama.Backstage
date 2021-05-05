@@ -53,7 +53,7 @@ namespace PostSharp.Backstage.Licensing.Tests.Consumption
 
         private protected void TestConsumption( ILicenseConsumptionManager manager, LicensedFeatures requiredFeatures, string reuqiredNamespace, bool expectedCanConsume )
         {
-            var consumer = CreateConsumer( reuqiredNamespace );
+            var consumer = this.CreateConsumer( reuqiredNamespace );
             var actualCanConsume = manager.CanConsumeFeature( consumer, requiredFeatures );
 
             if ( actualCanConsume && this.AutoRegistrar.RegistrationAttempted )

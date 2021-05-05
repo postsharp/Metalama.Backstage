@@ -5,7 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using PostSharp.Backstage.Extensibility;
-using PostSharp.Backstage.Licensing.Evaluation;
 using PostSharp.Backstage.Licensing.Licenses;
 using PostSharp.Backstage.Licensing.Registration;
 using PostSharp.Backstage.Licensing.Sources;

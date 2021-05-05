@@ -1,7 +1,6 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. All rights reserved.
 // This project is not open source. Please see the LICENSE.md file in the repository root for details.
 
-using System;
 using System.IO.Abstractions.TestingHelpers;
 using System.Linq;
 using PostSharp.Backstage.Licensing.Sources;
