@@ -2,7 +2,9 @@
 // This project is not open source. Please see the LICENSE.md file in the repository root for details.
 
 using System;
+using System.IO;
 using System.Linq;
+using System.Threading;
 using PostSharp.Backstage.Extensibility;
 using PostSharp.Backstage.Licensing.Licenses;
 using PostSharp.Backstage.Licensing.Registration;
@@ -104,7 +106,7 @@ namespace PostSharp.Backstage.Licensing.Evaluation
             catch ( Exception e )
             {
                 // We don't want to disclose the evaluation license file path here.
-                TraceFailure( $"{e.GetType()}{Environment.NewLine}{e.StackTrace}" );
+                TraceFailure( $"{e.GetType()}" );
                 return false;
             }
         }
@@ -126,19 +128,41 @@ namespace PostSharp.Backstage.Licensing.Evaluation
                 var factory = new SelfSignedLicenseFactory( this._services );
                 (licenseKey, data) = factory.CreateEvaluationLicense();
 
-                var userStorage = LicenseFileStorage.OpenOrCreate( StandardLicenseFilesLocations.UserLicenseFile, this._services, this._trace );
+                var retryCount = 0;
 
-                if ( userStorage.Licenses.Values.Any( l => l != null && l.LicenseType == LicenseType.Evaluation && l.ValidTo >= data.ValidFrom ) )
+                while ( true )
                 {
-                    // This may happen when concurrent processes try to register an evaluation license at the same time.
-                    TraceFailure( "A valid evaluation license is registered already." );
+                    try
+                    {
+                        var userStorage = LicenseFileStorage.OpenOrCreate( StandardLicenseFilesLocations.UserLicenseFile, this._services, this._trace );
 
-                    // We failed to register the license, but there is a valid license already.
-                    return true;
+                        if ( userStorage.Licenses.Values.Any( l => l != null && l.LicenseType == LicenseType.Evaluation && l.ValidTo >= data.ValidFrom ) )
+                        {
+                            // This may happen when concurrent processes try to register an evaluation license at the same time.
+                            TraceFailure( "A valid evaluation license is registered already." );
+
+                            // We failed to register the license, but there is a valid license already.
+                            return true;
+                        }
+
+                        userStorage.AddLicense( licenseKey, data );
+                        userStorage.Save();
+
+                        break;
+                    }
+                    catch ( IOException e )
+                    {
+                        if ( ++retryCount < 10 )
+                        {
+                            TraceFailure( $"Attempt #1: {e.Message} Retrying." );
+                            Thread.Sleep( 500 );
+                        }
+                        else
+                        {
+                            throw;
+                        }
+                    }
                 }
-
-                userStorage.AddLicense( licenseKey, data );
-                userStorage.Save();
             }
             catch (Exception e)
             {
@@ -146,6 +170,7 @@ namespace PostSharp.Backstage.Licensing.Evaluation
                 return false;
             }
 
+            // Prevent repetitive evaluation license registration.
             try
             {
                 // We overwrite existing storage.
@@ -156,7 +181,7 @@ namespace PostSharp.Backstage.Licensing.Evaluation
             catch (Exception e)
             {
                 // We don't want to disclose the evaluation license file path here.
-                TraceFailure( $"{e.GetType()}{Environment.NewLine}{e.StackTrace}" );
+                this._trace.WriteLine( "Failed to store evaluation license information: {0}", e.GetType() );
                 
                 // We failed to prevent repetitive evaluation license registration, but the license has been registered already.
                 return true;

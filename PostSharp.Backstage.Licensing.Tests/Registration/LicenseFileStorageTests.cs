@@ -1,12 +1,8 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. All rights reserved.
 // This project is not open source. Please see the LICENSE.md file in the repository root for details.
 
-using System;
 using System.IO;
-using System.IO.Abstractions.TestingHelpers;
-using PostSharp.Backstage.Extensibility;
 using PostSharp.Backstage.Licensing.Registration;
-using PostSharp.Backstage.Licensing.Tests.Services;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -14,19 +10,14 @@ namespace PostSharp.Backstage.Licensing.Tests.Registration
 {
     public class LicenseFileStorageTests : LicenseRegistrationTestsBase
     {
-        private static readonly string _path = StandardLicenseFilesLocations.UserLicenseFile;
-
         public LicenseFileStorageTests( ITestOutputHelper logger )
             : base( logger )
         {
         }
 
-        private string[] ReadStoredLicenseStrings()
-        {
-            var fileSystem = this.Services.GetService<IFileSystemService>();
-            var content = fileSystem.ReadAllLines( _path );
-            return content;
-        }
+        private LicenseFileStorage CreateStorage() => LicenseFileStorage.Create( StandardLicenseFilesLocations.UserLicenseFile, this.Services, this.Trace );
+
+        private LicenseFileStorage OpenOrCreateStorage() => LicenseFileStorage.OpenOrCreate( StandardLicenseFilesLocations.UserLicenseFile, this.Services, this.Trace );
 
         private void AssertFileContains( params string[] expectedLicenseStrings ) => Assert.Equal( expectedLicenseStrings, this.ReadStoredLicenseStrings() );
 
@@ -69,15 +60,14 @@ namespace PostSharp.Backstage.Licensing.Tests.Registration
         [Fact]
         public void ExistingStorageSucceedsToRead()
         {
-            this.Services.FileSystem.Mock.AddFile( _path, new MockFileData( "dummy" ) );
-
+            this.SetStoredLicenseStrings( "dummy" );
             this.AssertFileContains( "dummy" );
         }
 
         [Fact]
         public void EmptyStorageCanBeCreated()
         {
-            var storage = LicenseFileStorage.OpenOrCreate( _path, this.Services, this.Trace );
+            var storage = this.OpenOrCreateStorage();
             storage.Save();
 
             this.AssertFileContains();
@@ -86,9 +76,9 @@ namespace PostSharp.Backstage.Licensing.Tests.Registration
         [Fact]
         public void ExistingStorageCanBeOverwritten()
         {
-            this.Services.FileSystem.Mock.AddFile( _path, new MockFileData( "dummy" ) );
-
-            var storage = LicenseFileStorage.Create( _path, this.Services, this.Trace );
+            this.SetStoredLicenseStrings( "dummy" );
+            
+            var storage = this.CreateStorage();
             storage.Save();
             
             this.AssertFileContains();
@@ -97,7 +87,7 @@ namespace PostSharp.Backstage.Licensing.Tests.Registration
         [Fact]
         public void NonEmptyStorageCanBeCreated()
         {
-            var storage = LicenseFileStorage.OpenOrCreate( _path, this.Services, this.Trace );
+            var storage = this.OpenOrCreateStorage();
             this.Add( storage, TestLicenseKeys.Ultimate );
             storage.Save();
 
@@ -107,9 +97,9 @@ namespace PostSharp.Backstage.Licensing.Tests.Registration
         [Fact]
         public void ValidLicenseKeyCanBeRetrieved()
         {
-            this.Services.FileSystem.Mock.AddFile( _path, new MockFileData( TestLicenseKeys.Ultimate ) );
+            this.SetStoredLicenseStrings( TestLicenseKeys.Ultimate );
 
-            var storage = LicenseFileStorage.OpenOrCreate( _path, this.Services, this.Trace );
+            var storage = this.OpenOrCreateStorage();
 
             this.AssertStorageContains( storage, TestLicenseKeys.Ultimate );
         }
@@ -117,9 +107,9 @@ namespace PostSharp.Backstage.Licensing.Tests.Registration
         [Fact]
         public void InvalidLicenseKeyCanBeRetrieved()
         {
-            this.Services.FileSystem.Mock.AddFile( _path, new MockFileData( "dummy" ) );
+            this.SetStoredLicenseStrings( "dummy" );
 
-            var storage = LicenseFileStorage.OpenOrCreate( _path, this.Services, this.Trace );
+            var storage = this.OpenOrCreateStorage();
 
             this.AssertStorageContains( storage, "dummy" );
         }
@@ -127,9 +117,9 @@ namespace PostSharp.Backstage.Licensing.Tests.Registration
         [Fact]
         public void InvalidLicenseKeyIsPreserved()
         {
-            this.Services.FileSystem.Mock.AddFile( _path, new MockFileData( "dummy" ) );
+            this.SetStoredLicenseStrings( "dummy" );
 
-            var storage = LicenseFileStorage.OpenOrCreate( _path, this.Services, this.Trace );
+            var storage = this.OpenOrCreateStorage();
             this.Add( storage, TestLicenseKeys.Ultimate );
             storage.Save();
 
@@ -139,9 +129,9 @@ namespace PostSharp.Backstage.Licensing.Tests.Registration
         [Fact]
         public void ValidLicenseKeyCanBeAppended()
         {
-            this.Services.FileSystem.Mock.AddFile( _path, new MockFileDataEx( TestLicenseKeys.Ultimate, TestLicenseKeys.Logging ) );
+            this.SetStoredLicenseStrings( TestLicenseKeys.Ultimate, TestLicenseKeys.Logging );
 
-            var storage = LicenseFileStorage.OpenOrCreate( _path, this.Services, this.Trace );
+            var storage = this.OpenOrCreateStorage();
             this.Add( storage, TestLicenseKeys.Caching );
             storage.Save();
 
@@ -152,12 +142,9 @@ namespace PostSharp.Backstage.Licensing.Tests.Registration
         [Fact]
         public void NewLinesAreSkipped()
         {
-            this.Services.FileSystem.Mock.AddFile( 
-                _path, 
-                new MockFileData( 
-                    $"{Environment.NewLine}{TestLicenseKeys.Ultimate}{Environment.NewLine}{Environment.NewLine}{TestLicenseKeys.Logging}{Environment.NewLine}" ) );
+            this.SetStoredLicenseStrings( "", TestLicenseKeys.Ultimate, "", TestLicenseKeys.Logging, "" );
 
-            var storage = LicenseFileStorage.OpenOrCreate( _path, this.Services, this.Trace );
+            var storage = this.OpenOrCreateStorage();
 
             this.AssertStorageContains( storage, TestLicenseKeys.Ultimate, TestLicenseKeys.Logging );
         }

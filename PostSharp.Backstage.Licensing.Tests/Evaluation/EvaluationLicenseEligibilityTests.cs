@@ -2,75 +2,24 @@
 // This project is not open source. Please see the LICENSE.md file in the repository root for details.
 
 using System;
-using System.Linq;
 using PostSharp.Backstage.Licensing.Evaluation;
 using PostSharp.Backstage.Licensing.Licenses;
-using PostSharp.Backstage.Licensing.Registration;
-using PostSharp.Backstage.Licensing.Tests.Services;
 using Xunit;
 using Xunit.Abstractions;
 
 namespace PostSharp.Backstage.Licensing.Tests.Evaluation
 {
-    public class EvaluationLicenseManagerTests : LicensingTestsBase
+    public class EvaluationLicenseEligibilityTests : EvaluationLicenseRegistrationTestsBase
     {
-        private static readonly DateTime _testStart = new( 2020, 1, 1 );
-
-        private readonly EvaluationLicenseManager _manager;
-
-        public EvaluationLicenseManagerTests( ITestOutputHelper logger ) :
-            base( logger )
+        public EvaluationLicenseEligibilityTests( ITestOutputHelper logger )
+            : base( logger )
         {
-            this._manager = new( this.Services, this.Trace );
-        }
-
-        private void SetFlag( params string[] flag )
-        {
-            this.Services.FileSystem.Mock.AddFile( StandardLicenseFilesLocations.EvaluationLicenseFile, new MockFileDataEx( flag ) );
-        }
-
-        private void AssertEvaluationElligible( string reason )
-        {
-            Assert.True( this._manager.TryRegisterLicense() );
-
-            var registeredLicenses = this.Services.FileSystem.ReadAllLines( StandardLicenseFilesLocations.UserLicenseFile );
-            var evaluationLicenseFlags = this.Services.FileSystem.ReadAllLines( StandardLicenseFilesLocations.EvaluationLicenseFile );
-            var registeredLicense = evaluationLicenseFlags.Single();
-
-            Assert.Contains( registeredLicense, registeredLicenses );
-
-            Assert.True( this.LicenseFactory.TryCreate( registeredLicense, out var license ) );
-            Assert.True( license!.TryGetLicenseRegistrationData( out var data ) );
-            Assert.Equal( LicenseType.Evaluation, data!.LicenseType );
-
-            var expectedStart = this.Services.Time.Now;
-            var expectedEnd = expectedStart + EvaluationLicenseManager.EvaluationPeriod;
-
-            Assert.Equal( expectedStart, data.ValidFrom );
-            Assert.Equal( expectedEnd, data.ValidTo );
-            Assert.Equal( expectedEnd, data.SubscriptionEndDate );
-
-            this.AssertEvaluationEligibilityReason( reason );
-        }
-
-        private void AssertEvaluationNotElligible( string reason )
-        {
-            Assert.False( this._manager.TryRegisterLicense() );
-
-            this.AssertEvaluationEligibilityReason( reason );
-        }
-
-        private void AssertEvaluationEligibilityReason(string reason)
-        {
-            Assert.Contains( "Checking for trial license eligibility.", this.Trace.Messages );
-            Assert.Contains( reason, this.Trace.Messages );
-            this.Trace.Clear();
         }
 
         [Fact]
         public void EvaluationLicenseRegistersInCleanEnvironment()
         {
-            this.Services.Time.Set( _testStart );
+            this.Services.Time.Set( TestStart );
             this.AssertEvaluationElligible( reason: "No trial license found." );
         }
 
@@ -117,7 +66,7 @@ namespace PostSharp.Backstage.Licensing.Tests.Evaluation
 
         private void TestRepetitiveRegistration( TimeSpan retryAfter, bool expectedElligibility )
         {
-            this.Services.Time.Set( _testStart );
+            this.Services.Time.Set( TestStart );
             this.AssertEvaluationElligible( "No trial license found." );
 
             this.Services.Time.Set( this.Services.Time.Now + retryAfter );
