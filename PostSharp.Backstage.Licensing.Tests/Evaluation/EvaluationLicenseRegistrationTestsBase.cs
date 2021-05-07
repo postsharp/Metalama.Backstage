@@ -7,7 +7,7 @@ using PostSharp.Backstage.Licensing.Evaluation;
 using PostSharp.Backstage.Licensing.Licenses;
 using PostSharp.Backstage.Licensing.Registration;
 using PostSharp.Backstage.Licensing.Tests.Registration;
-using PostSharp.Backstage.Licensing.Tests.Services;
+using PostSharp.Backstage.Testing.Services;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -27,7 +27,7 @@ namespace PostSharp.Backstage.Licensing.Tests.Evaluation
 
         protected void SetFlag( params string[] flag )
         {
-            this.Services.FileSystem.Mock.AddFile( StandardLicenseFilesLocations.EvaluationLicenseFile, new MockFileDataEx( flag ) );
+            this.Services.FileSystem.Mock.AddFile( StandardEvaluationLicenseFilesLocations.EvaluationLicenseFile, new MockFileDataEx( flag ) );
         }
 
         protected void AssertEvaluationElligible( string reason )
@@ -35,7 +35,7 @@ namespace PostSharp.Backstage.Licensing.Tests.Evaluation
             Assert.True( this.Registrar.TryRegisterLicense() );
 
             var registeredLicenses = this.Services.FileSystem.ReadAllLines( StandardLicenseFilesLocations.UserLicenseFile );
-            var evaluationLicenseFlags = this.Services.FileSystem.ReadAllLines( StandardLicenseFilesLocations.EvaluationLicenseFile );
+            var evaluationLicenseFlags = this.Services.FileSystem.ReadAllLines( StandardEvaluationLicenseFilesLocations.EvaluationLicenseFile );
             var registeredLicense = evaluationLicenseFlags.Single();
 
             Assert.Contains( registeredLicense, registeredLicenses );

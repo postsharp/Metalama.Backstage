@@ -9,9 +9,9 @@ using System.Runtime.CompilerServices;
 using System.Threading;
 using PostSharp.Backstage.Extensibility;
 
-namespace PostSharp.Backstage.Licensing.Tests.Services
+namespace PostSharp.Backstage.Testing.Services
 {
-    internal class TestFileSystemService : IFileSystemService
+    public class TestFileSystemService : IFileSystemService
     {
         private readonly Dictionary<string, (ManualResetEventSlim Callee, ManualResetEventSlim Caller)> _blockedReads = new();
         private readonly Dictionary<string, (ManualResetEventSlim Callee, ManualResetEventSlim Caller)> _blockedWrites = new();
@@ -64,9 +64,9 @@ namespace PostSharp.Backstage.Licensing.Tests.Services
             }
         }
 
-        public DateTime GetLastWriteTime( string file )
+        public DateTime GetLastWriteTime( string path )
         {
-            return this.Mock.File.GetLastWriteTime( file );
+            return this.Mock.File.GetLastWriteTime( path );
         }
 
         public bool FileExists( string path )

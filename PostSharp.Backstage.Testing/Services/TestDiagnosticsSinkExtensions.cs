@@ -4,9 +4,9 @@
 using System.Collections.Generic;
 using PostSharp.Backstage.Extensibility;
 
-namespace PostSharp.Backstage.Licensing.Tests.Services
+namespace PostSharp.Backstage.Testing.Services
 {
-    internal static class TestDiagnosticsSinkExtensions
+    public static class TestDiagnosticsSinkExtensions
     {
         public static TestDiagnosticsSink ToTestDiagnosticsSink( this IDiagnosticsSink diagnostics )
         {

@@ -58,7 +58,7 @@ namespace PostSharp.Backstage.Licensing.Evaluation
 
             try
             {
-                var evaluationStorage = LicenseFileStorage.OpenOrCreate( StandardLicenseFilesLocations.EvaluationLicenseFile, this._services, this._trace );
+                var evaluationStorage = LicenseFileStorage.OpenOrCreate( StandardEvaluationLicenseFilesLocations.EvaluationLicenseFile, this._services, this._trace );
 
                 if ( evaluationStorage.Licenses.Count == 0 )
                 {
@@ -174,7 +174,7 @@ namespace PostSharp.Backstage.Licensing.Evaluation
             try
             {
                 // We overwrite existing storage.
-                var evaluationStorage = LicenseFileStorage.Create( StandardLicenseFilesLocations.EvaluationLicenseFile, this._services, this._trace );
+                var evaluationStorage = LicenseFileStorage.Create( StandardEvaluationLicenseFilesLocations.EvaluationLicenseFile, this._services, this._trace );
                 evaluationStorage.AddLicense( licenseKey, data );
                 evaluationStorage.Save();
             }

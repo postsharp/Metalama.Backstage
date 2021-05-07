@@ -1,0 +1,39 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <!-- This version number must be increased for each package upload even with just a trivial change. -->
+    <Version>1.0.1</Version>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <EnableNETAnalyzers>true</EnableNETAnalyzers>
+    <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
+    <GenerateDocumentationFile>false</GenerateDocumentationFile>
+    <WarningLevel>4</WarningLevel>
+    <PackAsTool>true</PackAsTool>
+    <PackageType>DotNetCliTool</PackageType>
+    <ToolCommandName>postsharp</ToolCommandName>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="System.CommandLine" Version="2.0.0-beta1.20574.7" />
+  </ItemGroup>
+
+
+  <ItemGroup>
+    <Folder Include="Commands\Compiler\" />
+    <Folder Include="Commands\Ceip\" />
+  </ItemGroup>
+
+
+  <ItemGroup>
+    <ProjectReference Include="..\PostSharp.Backstage.Settings\PostSharp.Backstage.Settings.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="PostSharp.Cli.Tests" />
+  </ItemGroup>
+
+</Project>

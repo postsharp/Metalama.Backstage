@@ -4,9 +4,9 @@
 using System;
 using PostSharp.Backstage.Extensibility;
 
-namespace PostSharp.Backstage.Licensing.Tests.Services
+namespace PostSharp.Backstage.Testing.Services
 {
-    internal class TestDateTimeProvider : IDateTimeProvider
+    public class TestDateTimeProvider : IDateTimeProvider
     {
         private DateTime? _now;
 

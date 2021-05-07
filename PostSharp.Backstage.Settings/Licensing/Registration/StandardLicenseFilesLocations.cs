@@ -6,9 +6,8 @@ using PostSharp.Backstage.Settings;
 
 namespace PostSharp.Backstage.Licensing.Registration
 {
-    internal static class StandardLicenseFilesLocations
+    public static class StandardLicenseFilesLocations
     {
         public static readonly string UserLicenseFile = Path.Combine( StandardSettingsFileLocation.Path, "postsharp.lic" );
-        public static readonly string EvaluationLicenseFile = Path.Combine( StandardSettingsFileLocation.Path, "licenseregistration.cnf" );
     }
 }

@@ -4,9 +4,9 @@
 using System;
 using PostSharp.Backstage.Extensibility;
 
-namespace PostSharp.Backstage.Licensing.Tests.Services
+namespace PostSharp.Backstage.Testing.Services
 {
-    internal class ApplicationInfoService : IApplicationInfoService
+    public class ApplicationInfoService : IApplicationInfoService
     {
         public ApplicationInfoService( bool isPrerelease, Version version, DateTime buildDate )
         {

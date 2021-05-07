@@ -1,14 +1,10 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
 
     <IsPackable>false</IsPackable>
   </PropertyGroup>
-
-  <ItemGroup>
-    <Content Remove="C:\src\Caravela\PostSharp.Backstage.Settings\\stylecop.json" />
-  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.7.1" />
@@ -26,6 +22,7 @@
   <ItemGroup>
     <ProjectReference Include="..\PostSharp.Backstage.Settings\PostSharp.Backstage.Settings.csproj" />
     <ProjectReference Include="..\PostSharp.Backstage.Testing\PostSharp.Backstage.Testing.csproj" />
+    <ProjectReference Include="..\PostSharp.Cli\PostSharp.Cli.csproj" />
   </ItemGroup>
 
 </Project>

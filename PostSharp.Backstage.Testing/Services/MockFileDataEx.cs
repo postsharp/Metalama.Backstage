@@ -5,7 +5,7 @@ using System;
 using System.IO.Abstractions.TestingHelpers;
 using System.Text;
 
-namespace PostSharp.Backstage.Licensing.Tests.Services
+namespace PostSharp.Backstage.Testing.Services
 {
     public class MockFileDataEx : MockFileData
     {

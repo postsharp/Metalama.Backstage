@@ -5,9 +5,9 @@ using System.Collections.Generic;
 using PostSharp.Backstage.Extensibility;
 using Xunit.Abstractions;
 
-namespace PostSharp.Backstage.Licensing.Tests.Services
+namespace PostSharp.Backstage.Testing.Services
 {
-    internal class TestTrace : ITrace
+    public class TestTrace : ITrace
     {
         private readonly List<string> _messages = new();
 

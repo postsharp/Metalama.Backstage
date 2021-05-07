@@ -6,7 +6,7 @@ using PostSharp.Backstage.Licensing.Registration;
 using PostSharp.Backstage.Licensing.Sources;
 using PostSharp.Backstage.Licensing.Tests.Licenses;
 using PostSharp.Backstage.Licensing.Tests.Registration;
-using PostSharp.Backstage.Licensing.Tests.Services;
+using PostSharp.Backstage.Testing.Services;
 using Xunit;
 using Xunit.Abstractions;
 

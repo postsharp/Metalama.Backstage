@@ -2,6 +2,7 @@
 // This project is not open source. Please see the LICENSE.md file in the repository root for details.
 
 using System.Threading.Tasks;
+using PostSharp.Backstage.Licensing.Evaluation;
 using PostSharp.Backstage.Licensing.Registration;
 using Xunit;
 using Xunit.Abstractions;
@@ -64,17 +65,17 @@ namespace PostSharp.Backstage.Licensing.Tests.Evaluation
         [Fact]
         public void ConcurrentEvaluationLicenseFlagSavingPassesWhenWriteFails()
         {
-            var writeEvent = this.Services.FileSystem.BlockWrite( StandardLicenseFilesLocations.EvaluationLicenseFile );
+            var writeEvent = this.Services.FileSystem.BlockWrite( StandardEvaluationLicenseFilesLocations.EvaluationLicenseFile );
             var registration = Task.Run( this.Registrar.TryRegisterLicense );
             writeEvent.Wait();
 
-            this.Services.FileSystem.Unblock( StandardLicenseFilesLocations.EvaluationLicenseFile );
+            this.Services.FileSystem.Unblock( StandardEvaluationLicenseFilesLocations.EvaluationLicenseFile );
             Assert.True( registration.GetAwaiter().GetResult() );
             Assert.Contains( $"Failed to store evaluation license information: System.IO.IOException", this.Trace.Messages );
-            Assert.Contains( $"WriteAllLines({StandardLicenseFilesLocations.EvaluationLicenseFile})", this.Services.FileSystem.FailedFileAccesses );
+            Assert.Contains( $"WriteAllLines({StandardEvaluationLicenseFilesLocations.EvaluationLicenseFile})", this.Services.FileSystem.FailedFileAccesses );
 
             // In a real concurrent case, the flag would be written by another instance.
-            Assert.False( this.Services.FileSystem.FileExists( StandardLicenseFilesLocations.EvaluationLicenseFile ) );
+            Assert.False( this.Services.FileSystem.FileExists( StandardEvaluationLicenseFilesLocations.EvaluationLicenseFile ) );
         }
     }
 }

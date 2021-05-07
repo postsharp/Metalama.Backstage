@@ -4,7 +4,7 @@
 using System.IO.Abstractions.TestingHelpers;
 using System.Linq;
 using PostSharp.Backstage.Licensing.Sources;
-using PostSharp.Backstage.Licensing.Tests.Services;
+using PostSharp.Backstage.Testing.Services;
 using Xunit;
 using Xunit.Abstractions;
 

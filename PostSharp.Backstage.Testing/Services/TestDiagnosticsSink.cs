@@ -8,9 +8,9 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using PostSharp.Backstage.Extensibility;
 
-namespace PostSharp.Backstage.Licensing.Tests.Services
+namespace PostSharp.Backstage.Testing.Services
 {
-    internal class TestDiagnosticsSink : IDiagnosticsSink
+    public class TestDiagnosticsSink : IDiagnosticsSink
     {
         private readonly TestTrace _trace;
         private readonly List<string> _warnings = new();

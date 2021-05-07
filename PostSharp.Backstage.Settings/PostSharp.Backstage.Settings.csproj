@@ -14,8 +14,4 @@
     <InternalsVisibleTo Include="PostSharp.Backstage.Licensing.Tests" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Licensing\Community\" />
-  </ItemGroup>
-
 </Project>

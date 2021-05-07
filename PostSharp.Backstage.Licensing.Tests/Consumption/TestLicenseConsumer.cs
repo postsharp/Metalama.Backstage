@@ -3,7 +3,7 @@
 
 using PostSharp.Backstage.Extensibility;
 using PostSharp.Backstage.Licensing.Consumption;
-using PostSharp.Backstage.Licensing.Tests.Services;
+using PostSharp.Backstage.Testing.Services;
 
 namespace PostSharp.Backstage.Licensing.Tests.Consumption
 {

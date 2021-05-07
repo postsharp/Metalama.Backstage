@@ -5,15 +5,17 @@ using System;
 using System.Collections.Generic;
 using PostSharp.Backstage.Extensibility;
 
-namespace PostSharp.Backstage.Licensing.Tests.Services
+namespace PostSharp.Backstage.Testing.Services
 {
-    internal class TestServices : IServiceProvider
+    public class TestServices : IServiceProvider
     {
         private readonly Dictionary<Type, object> _services = new();
 
         public TestDiagnosticsSink Diagnostics { get; }
 
         public TestDateTimeProvider Time { get; } = new();
+
+        public TestEnvironment Environment { get; } = new();
 
         public TestFileSystemService FileSystem { get; } = new();
 
@@ -23,6 +25,7 @@ namespace PostSharp.Backstage.Licensing.Tests.Services
             this._services.Add( typeof( IDiagnosticsSink ), this.Diagnostics );
             this._services.Add( typeof( IApplicationInfoService ), new ApplicationInfoService( false, new( 0, 1, 0 ), new( 2021, 1, 1 ) ) );
             this._services.Add( typeof( IDateTimeProvider ), this.Time );
+            this._services.Add( typeof( IEnvironment ), this.Environment );
             this._services.Add( typeof( IFileSystemService ), this.FileSystem );
         }
 

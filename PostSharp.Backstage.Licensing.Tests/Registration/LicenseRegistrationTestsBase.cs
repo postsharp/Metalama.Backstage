@@ -2,7 +2,7 @@
 // This project is not open source. Please see the LICENSE.md file in the repository root for details.
 
 using PostSharp.Backstage.Licensing.Registration;
-using PostSharp.Backstage.Licensing.Tests.Services;
+using PostSharp.Backstage.Testing.Services;
 using Xunit;
 using Xunit.Abstractions;
 
