@@ -8,7 +8,7 @@ using PostSharp.Backstage.Extensibility;
 
 namespace PostSharp.Cli.Session
 {
-    public class OrdinalDictionary : Dictionary<int, string>
+    internal class OrdinalDictionary : Dictionary<int, string>
     {
         private const char _separator = '|';
 

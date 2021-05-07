@@ -3,7 +3,9 @@
 
 using System;
 using System.CommandLine;
+using System.CommandLine.Invocation;
 using PostSharp.Backstage.Extensibility;
+using PostSharp.Cli.Console;
 
 namespace PostSharp.Cli.Commands
 {
@@ -11,13 +13,14 @@ namespace PostSharp.Cli.Commands
     {
         protected IServiceProvider Services { get; }
 
-        protected ITrace Trace { get; }
-
-        public CommandBase( IServiceProvider services, ITrace trace, string name, string? description = null )
+        public CommandBase( IServiceProvider services, string name, string? description = null )
             : base( name, description )
         {
             this.Services = services;
-            this.Trace = trace;
         }
+
+        // TODO add verbosity parameter
+
+        protected static ITrace CreateTrace( InvocationContext context ) => new ConsoleTrace( context.Console );
     }
 }

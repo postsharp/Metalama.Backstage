@@ -2,16 +2,15 @@
 // This project is not open source. Please see the LICENSE.md file in the repository root for details.
 
 using System;
+using PostSharp.Cli.Session;
 
 namespace PostSharp.Cli.Commands.Licensing
 {
-    internal class LicenseCommand : CommandBase
+    internal class LicenseStringsOrdinalDictionary : OrdinalDictionary
     {
-        // TODO: Description?
-        public LicenseCommand( IServiceProvider services )
-            : base( services, "license" )
+        public LicenseStringsOrdinalDictionary( IServiceProvider services ) :
+            base( "LICENSE", services )
         {
-            this.Add( new ListCommand( services ) );
         }
     }
 }

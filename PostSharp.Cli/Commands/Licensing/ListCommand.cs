@@ -3,8 +3,7 @@
 
 using System;
 using System.CommandLine.Invocation;
-using System.Text;
-using PostSharp.Backstage.Extensibility;
+using System.CommandLine.IO;
 using PostSharp.Backstage.Licensing.Registration;
 
 namespace PostSharp.Cli.Commands.Licensing
@@ -12,22 +11,27 @@ namespace PostSharp.Cli.Commands.Licensing
     internal class ListCommand : CommandBase
     {
         // TODO: Description?
-        public ListCommand( IServiceProvider services, ITrace trace )
-            : base( services, trace, "license" )
+        public ListCommand( IServiceProvider services )
+            : base( services, "list" )
         {
-            this.Handler = CommandHandler.Create( Execute );
+            this.Handler = CommandHandler.Create<InvocationContext>( this.Execute );
         }
 
-        private int Execute()
+        private int Execute( InvocationContext context )
         {
-            var storage = LicenseFileStorage.OpenOrCreate( StandardLicenseFilesLocations.UserLicenseFile, this.Services, this.Trace );
+            var storage = LicenseFileStorage.OpenOrCreate( StandardLicenseFilesLocations.UserLicenseFile, this.Services, CreateTrace( context ) );
 
-            int ordinal = 1;
+            var ordinal = 1;
+            LicenseStringsOrdinalDictionary ordinals = new( this.Services );
 
             foreach ( var license in storage.Licenses )
             {
-
+                ordinals.Add( ordinal, license.Key );
+                context.Console.Out.WriteLine( $"({ordinal}) {license.Value?.Description ?? license.Key}" );
+                ordinal++;
             }
+
+            ordinals.Save();
 
             return 0;
         }
