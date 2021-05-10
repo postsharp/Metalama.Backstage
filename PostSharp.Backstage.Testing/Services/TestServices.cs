@@ -1,44 +1,34 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. All rights reserved.
 // This project is not open source. Please see the LICENSE.md file in the repository root for details.
 
-using System;
-using System.Collections.Generic;
 using PostSharp.Backstage.Extensibility;
 
 namespace PostSharp.Backstage.Testing.Services
 {
-    public class TestServices : IServiceProvider
+    public class TestServices : ServiceProvider
     {
-        private readonly Dictionary<Type, object> _services = new();
-
         public TestDiagnosticsSink Diagnostics { get; }
 
         public TestDateTimeProvider Time { get; } = new();
 
         public TestEnvironment Environment { get; } = new();
 
-        public TestFileSystemService FileSystem { get; } = new();
+        public TestFileSystem FileSystem { get; } = new();
 
         public TestServices( TestTrace trace )
         {
             this.Diagnostics = new( trace );
-            this._services.Add( typeof( IDiagnosticsSink ), this.Diagnostics );
-            this._services.Add( typeof( IApplicationInfoService ), new ApplicationInfoService( false, new( 0, 1, 0 ), new( 2021, 1, 1 ) ) );
-            this._services.Add( typeof( IDateTimeProvider ), this.Time );
-            this._services.Add( typeof( IEnvironment ), this.Environment );
-            this._services.Add( typeof( IFileSystemService ), this.FileSystem );
+            this.SetService<IDiagnosticsSink>( this.Diagnostics );
+            this.SetService<IApplicationInfoService>( new ApplicationInfoService( false, new( 0, 1, 0 ), new( 2021, 1, 1 ) ) );
+            this.SetService<IDateTimeProvider>( this.Time );
+            this.SetService<IEnvironment>( this.Environment );
+            this.SetService<IFileSystem>( this.FileSystem );
         }
 
-        public object? GetService( Type serviceType )
+        public new void SetService<T>( T service )
+            where T : notnull
         {
-            _ = this._services.TryGetValue( serviceType, out var service );
-            return service;
-        }
-
-        public void SetService<T>( T service )
-            where T : class
-        {
-            this._services.Add( typeof( T ), service );
+            base.SetService<T>( service );
         }
     }
 }

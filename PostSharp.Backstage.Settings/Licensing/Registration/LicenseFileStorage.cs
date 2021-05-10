@@ -14,13 +14,13 @@ namespace PostSharp.Backstage.Licensing.Registration
         private readonly string _path;
         private readonly Dictionary<string, LicenseRegistrationData?> _licenses = new();
 
-        private readonly IFileSystemService _fileSystem;
+        private readonly IFileSystem _fileSystem;
 
         public IReadOnlyDictionary<string, LicenseRegistrationData?> Licenses => this._licenses;
 
         public static LicenseFileStorage Create( string path, IServiceProvider services, ITrace trace )
         {
-            var fileSystem = services.GetService<IFileSystemService>();
+            var fileSystem = services.GetService<IFileSystem>();
             var storage = new LicenseFileStorage( path, fileSystem );
             return storage;
         }
@@ -58,7 +58,7 @@ namespace PostSharp.Backstage.Licensing.Registration
             return storage;
         }
 
-        private LicenseFileStorage(string path, IFileSystemService fileSystem)
+        private LicenseFileStorage(string path, IFileSystem fileSystem)
         {
             this._path = path;
             this._fileSystem = fileSystem;

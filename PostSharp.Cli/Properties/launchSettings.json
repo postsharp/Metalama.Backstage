@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "PostSharp.Cli": {
+      "commandName": "Project",
+      "commandLineArgs": "license register bla -v"
+    }
+  }
+}

@@ -7,7 +7,7 @@ using System.IO;
 
 namespace PostSharp.Backstage.Extensibility
 {
-    public interface IFileSystemService
+    public interface IFileSystem
     {
         DateTime GetLastWriteTime( string path );
 

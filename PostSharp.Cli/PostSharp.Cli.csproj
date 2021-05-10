@@ -5,6 +5,7 @@
     <Version>1.0.1</Version>
     <OutputType>Exe</OutputType>
     <TargetFramework>netcoreapp3.1</TargetFramework>
+    <AssemblyName>postsharp</AssemblyName>
   </PropertyGroup>
 
   <PropertyGroup>
@@ -18,15 +19,13 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="System.CommandLine" Version="2.0.0-beta1.20574.7" />
+    <PackageReference Include="System.CommandLine" Version="2.0.0-beta1.21216.1" />
   </ItemGroup>
-
 
   <ItemGroup>
     <Folder Include="Commands\Compiler\" />
     <Folder Include="Commands\Ceip\" />
   </ItemGroup>
-
 
   <ItemGroup>
     <ProjectReference Include="..\PostSharp.Backstage.Settings\PostSharp.Backstage.Settings.csproj" />

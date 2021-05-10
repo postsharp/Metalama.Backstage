@@ -24,7 +24,7 @@ namespace PostSharp.Backstage.Licensing.Licenses
     {
         private readonly string _licenseKey;
 
-        private readonly IApplicationInfoService _applicationInfoService;
+        private readonly IServiceProvider _services;
         private readonly IDateTimeProvider _dateTimeProvider;
         private readonly IDiagnosticsSink _diagnostics;
         private readonly ITrace _trace;
@@ -53,7 +53,7 @@ namespace PostSharp.Backstage.Licensing.Licenses
         internal License( string licenseKey, IServiceProvider services, ITrace trace )
         {
             this._licenseKey = CleanLicenseKey( licenseKey );
-            this._applicationInfoService = services.GetService<IApplicationInfoService>();
+            this._services = services;
             this._dateTimeProvider = services.GetService<IDateTimeProvider>();
             this._diagnostics = services.GetService<IDiagnosticsSink>();
             this._trace = trace;
@@ -100,7 +100,9 @@ namespace PostSharp.Backstage.Licensing.Licenses
                 return false;
             }
 
-            if ( !licenseKeyData.Validate( null, this._dateTimeProvider, this._applicationInfoService.BuildDate, this._applicationInfoService.Version, out var errorDescription ) )
+            var applicationInfoService = this._services.GetService<IApplicationInfoService>();
+
+            if ( !licenseKeyData.Validate( null, this._dateTimeProvider, applicationInfoService.BuildDate, applicationInfoService.Version, out var errorDescription ) )
             {
                 this._diagnostics.ReportWarning( $"License key {licenseKeyData.LicenseUniqueId} is invalid: {errorDescription}" );
                 licenseConsumptionData = null;

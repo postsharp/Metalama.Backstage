@@ -3,6 +3,7 @@
 
 using PostSharp.Backstage.Testing;
 using PostSharp.Cli.Session;
+using System.Diagnostics;
 using Xunit;
 using Xunit.Abstractions;
 

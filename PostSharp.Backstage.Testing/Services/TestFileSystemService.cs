@@ -11,7 +11,7 @@ using PostSharp.Backstage.Extensibility;
 
 namespace PostSharp.Backstage.Testing.Services
 {
-    public class TestFileSystemService : IFileSystemService
+    public class TestFileSystem : IFileSystem
     {
         private readonly Dictionary<string, (ManualResetEventSlim Callee, ManualResetEventSlim Caller)> _blockedReads = new();
         private readonly Dictionary<string, (ManualResetEventSlim Callee, ManualResetEventSlim Caller)> _blockedWrites = new();

@@ -1,7 +1,7 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. All rights reserved.
 // This project is not open source. Please see the LICENSE.md file in the repository root for details.
 
-using System;
+using System.CommandLine;
 using System.CommandLine.Invocation;
 using System.CommandLine.IO;
 using PostSharp.Backstage.Licensing.Registration;
@@ -11,23 +11,25 @@ namespace PostSharp.Cli.Commands.Licensing
     internal class ListCommand : CommandBase
     {
         // TODO: Description?
-        public ListCommand( IServiceProvider services )
-            : base( services, "list" )
+        public ListCommand()
+            : base( "list" )
         {
-            this.Handler = CommandHandler.Create<InvocationContext>( this.Execute );
+            this.Handler = CommandHandler.Create<bool, IConsole>( this.Execute );
         }
 
-        private int Execute( InvocationContext context )
+        private int Execute( bool verbose, IConsole console )
         {
-            var storage = LicenseFileStorage.OpenOrCreate( StandardLicenseFilesLocations.UserLicenseFile, this.Services, CreateTrace( context ) );
+            (var services, var trace) = this.CreateServices( console, verbose );
+
+            var storage = LicenseFileStorage.OpenOrCreate( StandardLicenseFilesLocations.UserLicenseFile, services, trace );
 
             var ordinal = 1;
-            LicenseStringsOrdinalDictionary ordinals = new( this.Services );
+            LicenseStringsOrdinalDictionary ordinals = new( services );
 
             foreach ( var license in storage.Licenses )
             {
                 ordinals.Add( ordinal, license.Key );
-                context.Console.Out.WriteLine( $"({ordinal}) {license.Value?.Description ?? license.Key}" );
+                console.Out.WriteLine( $"({ordinal}) {license.Value?.Description ?? license.Key}" );
                 ordinal++;
             }
 

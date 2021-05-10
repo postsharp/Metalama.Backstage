@@ -8,7 +8,7 @@ using System.Linq;
 
 namespace PostSharp.Backstage.Extensibility
 {
-    public class FileSystemService : IFileSystemService
+    public class FileSystem : IFileSystem
     {
         public DateTime GetLastWriteTime( string path )
         {

@@ -6,11 +6,11 @@ using System.Collections.Generic;
 
 namespace PostSharp.Backstage.Extensibility
 {
-    public class ServiceProvider : IServiceProvider
+    public abstract class ServiceProvider : IServiceProvider
     {
         private readonly Dictionary<Type, object> _services = new();
 
-        public void AddService<T>( T service )
+        protected void SetService<T>( T service )
             where T : notnull
             => this._services.Add( typeof( T ), service );
 

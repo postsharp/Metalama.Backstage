@@ -26,7 +26,7 @@ namespace PostSharp.Backstage.Licensing.Sources
             this._trace.WriteLine( "Loading licenses from '{0}'.", this._path );
 
             var diagnosticsSink = this._services.GetService<IDiagnosticsSink>();
-            var fileSystem = this._services.GetService<IFileSystemService>();
+            var fileSystem = this._services.GetService<IFileSystem>();
 
             string[] licenseStrings;
 
