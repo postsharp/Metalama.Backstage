@@ -1,6 +1,8 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. All rights reserved.
 // This project is not open source. Please see the LICENSE.md file in the repository root for details.
 
+using System;
+
 namespace PostSharp.Cli.Tests.Commands.Licensing
 {
     internal static class TestLicenses
@@ -31,5 +33,23 @@ Subscription End Date: Never (perpetual license)
 Maintenance Expiration: Friday, 01 April 2050
 
 ";
+
+        public const string EvaluationFormat = @"({0}) PostSharp Caravela (Evaluation License)
+Subscription End Date: Saturday, 15 February 2020
+Maintenance Expiration: Saturday, 15 February 2020
+
+";
+
+        public const string NextEvaluationFormat = @"({0}) PostSharp Caravela (Evaluation License)
+Subscription End Date: Monday, 15 February 2021
+Maintenance Expiration: Monday, 15 February 2021
+
+";
+
+        public static readonly DateTime EvaluationStart = new( 2020, 1, 1 );
+
+        public static readonly DateTime InvalidNextEvaluationStart = new( 2020, 1, 14 );
+
+        public static readonly DateTime ValidNextEvaluationStart = new( 2021, 1, 1 );
     }
 }

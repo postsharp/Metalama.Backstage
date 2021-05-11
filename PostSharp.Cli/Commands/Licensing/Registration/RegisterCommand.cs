@@ -15,26 +15,28 @@ namespace PostSharp.Cli.Commands.Licensing.Registration
         public RegisterCommand( IServicesFactory servicesFactory )
             : base( servicesFactory, "register" )
         {
-            this.AddArgument( new Argument<string>( "license", "license key or license server URL to register" ) );
+            this.AddArgument( new Argument<string>( "license-key", "license key" ) );
 
-            this.Handler = CommandHandler.Create<string, bool, IConsole> ( this.Execute );
+            this.AddCommand( new RegisterTrialCommand( servicesFactory ) );
+
+            this.Handler = CommandHandler.Create<string, bool, IConsole>( this.Execute );
         }
 
-        private int Execute( string license, bool verbose, IConsole console )
+        private int Execute( string licenseKey, bool verbose, IConsole console )
         {
             (var services, var trace) = this.ServicesFactory.Create( console, verbose );
 
             var factory = new LicenseFactory( services, trace );
 
-            if ( !factory.TryCreate( license, out var l )
-                || !l.TryGetLicenseRegistrationData( out var data ) )
+            if ( !factory.TryCreate( licenseKey, out var license )
+                || !license.TryGetLicenseRegistrationData( out var data ) )
             {
                 return -1;
             }
 
             var storage = LicenseFileStorage.OpenOrCreate( StandardLicenseFilesLocations.UserLicenseFile, services, trace );
 
-            storage.AddLicense( license, data );
+            storage.AddLicense( licenseKey, data );
             storage.Save();
 
             return 0;
