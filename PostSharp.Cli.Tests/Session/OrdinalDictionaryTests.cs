@@ -3,7 +3,6 @@
 
 using PostSharp.Backstage.Testing;
 using PostSharp.Cli.Session;
-using System.Diagnostics;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -11,7 +10,7 @@ namespace PostSharp.Cli.Tests.Session
 {
     public class OrdinalDictionaryTests : TestsBase
     {
-        private const string _name = "TEST";
+        private const string _name = "test";
 
         private OrdinalDictionary? _ordinals;
 
@@ -44,6 +43,15 @@ namespace PostSharp.Cli.Tests.Session
         [Fact]
         public void LoadsWithNoSession()
         {
+            this.Load();
+            this.AssertContains();
+        }
+
+        [Fact]
+        public void LoadsWithEmptySession()
+        {
+            this.Create();
+            this._ordinals!.Save();
             this.Load();
             this.AssertContains();
         }

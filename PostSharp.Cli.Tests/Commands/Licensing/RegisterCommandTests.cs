@@ -7,15 +7,15 @@ using Xunit.Abstractions;
 
 namespace PostSharp.Cli.Tests.Commands.Licensing
 {
-    public class RegistrationCommandsTests : CommandsTestsBase
+    public class RegisterCommandTests : CommandsTestsBase
     {
-        public RegistrationCommandsTests( ITestOutputHelper logger )
+        public RegisterCommandTests( ITestOutputHelper logger )
                     : base( logger )
         {
         }
 
         [Fact]
-        public async Task CleanEnvironmentShowsNoLicenses()
+        public async Task CleanEnvironmentListsNoLicenses()
         {
             await this.TestCommandAsync( "license list", "" );
         }

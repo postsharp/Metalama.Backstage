@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Text;
 using PostSharp.Backstage.Extensibility;
 
@@ -12,14 +13,17 @@ namespace PostSharp.Cli.Session
     {
         private const char _separator = '|';
 
-        private readonly string _environmentVariableName;
+        private readonly string _sessionDirectory = Path.Combine( Path.GetTempPath(), ".postsharp" );
+        private readonly string _filePath;
 
-        private readonly IEnvironment _environment;
+        private readonly IFileSystem _fileSystem;
+        private readonly IDateTimeProvider _time;
 
         public OrdinalDictionary( string name, IServiceProvider services )
         {
-            this._environmentVariableName = "POSTSHARP_CLI_SESSION_" + name;
-            this._environment = services.GetService<IEnvironment>();
+            this._filePath = Path.Combine( this._sessionDirectory, "cli-session-" + name + ".tmp" );
+            this._fileSystem = services.GetService<IFileSystem>();
+            this._time = services.GetService<IDateTimeProvider>();
         }
 
         public static OrdinalDictionary Load( string name, IServiceProvider services )
@@ -55,12 +59,23 @@ namespace PostSharp.Cli.Session
             }
 
             var dataString = data.ToString().TrimEnd( _separator );
-            this._environment.SetEnvironmentVariable( this._environmentVariableName, dataString );
+
+            this._fileSystem.CreateDirectory( this._sessionDirectory );
+            this._fileSystem.WriteAllText( this._filePath, dataString );
         }
 
         private void Load()
         {
-            if ( !this._environment.TryGetEnvironmentVariable( this._environmentVariableName, out var dataString ) )
+            if ( !this._fileSystem.FileExists( this._filePath ) )
+            {
+                return;
+            }
+
+            // TODO: Let the session expire here?
+
+            var dataString = this._fileSystem.ReadAllText( this._filePath );
+
+            if ( dataString == "" )
             {
                 return;
             }
