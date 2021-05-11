@@ -7,9 +7,9 @@ using Xunit.Abstractions;
 
 namespace PostSharp.Cli.Tests.Commands.Licensing
 {
-    public class ListCommandTests : CommandsTestsBase
+    public class RegistrationCommandsTests : CommandsTestsBase
     {
-        public ListCommandTests( ITestOutputHelper logger )
+        public RegistrationCommandsTests( ITestOutputHelper logger )
                     : base( logger )
         {
         }
