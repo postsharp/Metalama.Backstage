@@ -34,6 +34,11 @@ Maintenance Expiration: Friday, 01 April 2050
 
 ";
 
+        public const string CommunityFormat = @"({0}) PostSharp Caravela (Community License)
+Subscription End Date: Never (perpetual license)
+
+";
+
         public const string EvaluationFormat = @"({0}) PostSharp Caravela (Evaluation License)
 Subscription End Date: Saturday, 15 February 2020
 Maintenance Expiration: Saturday, 15 February 2020

@@ -11,8 +11,7 @@ namespace PostSharp.Backstage.Licensing.Licenses
             switch ( licenseType )
             {
                 case LicenseType.Community:
-                    // This case is handled in CoreLicense.GetProductName().
-                    return "License";
+                    return "Community License";
                 case LicenseType.Enterprise:
                 case LicenseType.PerUser:
                     return "Per-Developer Subscription";

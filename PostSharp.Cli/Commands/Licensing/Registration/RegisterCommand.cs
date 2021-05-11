@@ -18,6 +18,7 @@ namespace PostSharp.Cli.Commands.Licensing.Registration
             this.AddArgument( new Argument<string>( "license-key", "license key" ) );
 
             this.AddCommand( new RegisterTrialCommand( servicesFactory ) );
+            this.AddCommand( new RegisterCommunityCommand( servicesFactory ) );
 
             this.Handler = CommandHandler.Create<string, bool, IConsole>( this.Execute );
         }
