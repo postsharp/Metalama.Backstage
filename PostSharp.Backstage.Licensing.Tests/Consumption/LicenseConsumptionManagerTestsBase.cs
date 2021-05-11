@@ -61,7 +61,7 @@ namespace PostSharp.Backstage.Licensing.Tests.Consumption
                 actualCanConsume = false;
             }
 
-            this.Services.Diagnostics.AssertClean();
+            this.Diagnostics.AssertClean();
             consumer.Diagnostics.AssertClean();
             Assert.Equal( expectedCanConsume, actualCanConsume );
         }

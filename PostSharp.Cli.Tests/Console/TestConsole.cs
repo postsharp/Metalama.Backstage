@@ -6,7 +6,6 @@ using System.CommandLine;
 using System.CommandLine.IO;
 using System.Text;
 using PostSharp.Backstage.Extensibility;
-using Xunit;
 
 namespace PostSharp.Cli.Tests.Console
 {

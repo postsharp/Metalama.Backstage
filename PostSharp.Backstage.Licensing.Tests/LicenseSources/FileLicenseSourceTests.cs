@@ -25,8 +25,8 @@ namespace PostSharp.Backstage.Licensing.Tests.LicenseSources
             FileLicenseSource source = new( _licenseFilePath, this.Services, this.Trace );
 
             Assert.Empty( source.GetLicenses() );
-            this.Services.Diagnostics.AssertNoErrors();
-            Assert.Equal( "Failed to load licenses from 'postsharp.lic': Could not find file 'postsharp.lic'.", this.Services.Diagnostics.Warnings.Single() );
+            this.Diagnostics.AssertNoErrors();
+            Assert.Equal( "Failed to load licenses from 'postsharp.lic': Could not find file 'postsharp.lic'.", this.Diagnostics.Warnings.Single() );
         }
 
         [Fact]
@@ -37,7 +37,7 @@ namespace PostSharp.Backstage.Licensing.Tests.LicenseSources
             FileLicenseSource source = new( _licenseFilePath, this.Services, this.Trace );
 
             Assert.Empty( source.GetLicenses() );
-            this.Services.Diagnostics.AssertClean();
+            this.Diagnostics.AssertClean();
         }
 
         [Fact]
@@ -48,7 +48,7 @@ namespace PostSharp.Backstage.Licensing.Tests.LicenseSources
             FileLicenseSource source = new( _licenseFilePath, this.Services, this.Trace );
 
             Assert.Equal( $"License '{TestLicenseKeys.Ultimate}'", source.GetLicenses().Single().ToString() );
-            this.Services.Diagnostics.AssertClean();
+            this.Diagnostics.AssertClean();
         }
 
         [Fact]
@@ -63,7 +63,7 @@ namespace PostSharp.Backstage.Licensing.Tests.LicenseSources
             Assert.Equal( $"License '{TestLicenseKeys.Ultimate}'", licenses[0].ToString() );
             Assert.Equal( $"License '{TestLicenseKeys.Logging}'", licenses[1].ToString() );
 
-            this.Services.Diagnostics.AssertClean();
+            this.Diagnostics.AssertClean();
         }
     }
 }

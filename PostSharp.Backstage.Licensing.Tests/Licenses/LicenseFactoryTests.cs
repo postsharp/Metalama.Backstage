@@ -19,24 +19,24 @@ namespace PostSharp.Backstage.Licensing.Tests.Licenses
         public void NullLicenseStringFails()
         {
             Assert.False( this.LicenseFactory.TryCreate( "", out _ ) );
-            this.Services.Diagnostics.AssertNoErrors();
-            Assert.Equal( "Empty license string provided.", this.Services.Diagnostics.Warnings.Single() );
+            this.Diagnostics.AssertNoErrors();
+            Assert.Equal( "Empty license string provided.", this.Diagnostics.Warnings.Single() );
         }
 
         [Fact]
         public void EmptyLicenseStringFails()
         {
             Assert.False( this.LicenseFactory.TryCreate( string.Empty, out _ ) );
-            this.Services.Diagnostics.AssertNoErrors();
-            Assert.Equal( "Empty license string provided.", this.Services.Diagnostics.Warnings.Single() );
+            this.Diagnostics.AssertNoErrors();
+            Assert.Equal( "Empty license string provided.", this.Diagnostics.Warnings.Single() );
         }
 
         [Fact]
         public void WhitespaceLicenseStringFails()
         {
             Assert.False( this.LicenseFactory.TryCreate( " ", out _ ) );
-            this.Services.Diagnostics.AssertNoErrors();
-            Assert.Equal( "Empty license string provided.", this.Services.Diagnostics.Warnings.Single() );
+            this.Diagnostics.AssertNoErrors();
+            Assert.Equal( "Empty license string provided.", this.Diagnostics.Warnings.Single() );
         }
 
         [Fact]
@@ -45,10 +45,10 @@ namespace PostSharp.Backstage.Licensing.Tests.Licenses
             Assert.True( this.LicenseFactory.TryCreate( "SomeInvalidLicenseString", out var license ) );
             Assert.True( license is License );
             Assert.False( license!.TryGetLicenseConsumptionData( out _ ) );
-            this.Services.Diagnostics.AssertNoErrors();
+            this.Diagnostics.AssertNoErrors();
             Assert.Equal(
                 "Cannot parse license key SOMEINVALIDLICENSESTRING: License header not found for license {SOMEINVALIDLICENSESTRING}.",
-                this.Services.Diagnostics.Warnings.Single() );
+                this.Diagnostics.Warnings.Single() );
         }
 
         [Fact]
@@ -58,7 +58,7 @@ namespace PostSharp.Backstage.Licensing.Tests.Licenses
             Assert.True( license is License );
             Assert.True( license!.TryGetLicenseConsumptionData( out var licenseData ) );
             Assert.NotNull( licenseData );
-            this.Services.Diagnostics.AssertClean();
+            this.Diagnostics.AssertClean();
         }
 
         [Fact]
@@ -70,8 +70,8 @@ namespace PostSharp.Backstage.Licensing.Tests.Licenses
             // Assert.True( license is LicenseLease );
 
             Assert.False( this.LicenseFactory.TryCreate( "http://hello.world", out _ ) );
-            this.Services.Diagnostics.AssertNoErrors();
-            Assert.Equal( "License server is not yet supported.", this.Services.Diagnostics.Warnings.Single() );
+            this.Diagnostics.AssertNoErrors();
+            Assert.Equal( "License server is not yet supported.", this.Diagnostics.Warnings.Single() );
         }
     }
 }
