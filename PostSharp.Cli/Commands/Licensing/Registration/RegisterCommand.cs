@@ -3,10 +3,8 @@
 
 using System.CommandLine;
 using System.CommandLine.Invocation;
-using System.CommandLine.IO;
 using PostSharp.Backstage.Licensing.Licenses;
 using PostSharp.Backstage.Licensing.Registration;
-using PostSharp.Cli.Console;
 
 namespace PostSharp.Cli.Commands.Licensing.Registration
 {
@@ -14,8 +12,8 @@ namespace PostSharp.Cli.Commands.Licensing.Registration
     {
         // TODO Description?
 
-        public RegisterCommand()
-            : base( "register" )
+        public RegisterCommand( IServicesFactory servicesFactory )
+            : base( servicesFactory, "register" )
         {
             this.AddArgument( new Argument<string>( "license-string", "license key or license server URL" ) );
 
@@ -24,7 +22,7 @@ namespace PostSharp.Cli.Commands.Licensing.Registration
 
         private int Execute( string licenseString, bool verbose, IConsole console )
         {
-            (var services, var trace) = this.CreateServices( console, verbose );
+            (var services, var trace) = this.ServicesFactory.Create( console, verbose );
 
             var factory = new LicenseFactory( services, trace );
 

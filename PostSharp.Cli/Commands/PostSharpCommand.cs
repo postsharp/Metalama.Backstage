@@ -3,16 +3,15 @@
 
 using System.CommandLine;
 using PostSharp.Cli.Commands.Licensing;
-using PostSharp.Cli.Console;
 
 namespace PostSharp.Cli.Commands
 {
     internal class PostSharpCommand : RootCommand
     {
         // TODO: Description?
-        public PostSharpCommand()
+        public PostSharpCommand( IServicesFactory servicesFactory )
         {
-            this.Add( new LicenseCommand() );
+            this.Add( new LicenseCommand( servicesFactory ) );
 
             var verboseOption = new Option<bool>( "--verbose", "Set detailed verbosity level." );
             verboseOption.AddAlias( "-v" );

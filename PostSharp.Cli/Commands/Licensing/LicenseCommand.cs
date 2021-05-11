@@ -1,7 +1,6 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. All rights reserved.
 // This project is not open source. Please see the LICENSE.md file in the repository root for details.
 
-using System;
 using PostSharp.Cli.Commands.Licensing.Registration;
 
 namespace PostSharp.Cli.Commands.Licensing
@@ -9,11 +8,11 @@ namespace PostSharp.Cli.Commands.Licensing
     internal class LicenseCommand : CommandBase
     {
         // TODO: Description?
-        public LicenseCommand()
-            : base( "license" )
+        public LicenseCommand( IServicesFactory servicesFactory )
+            : base( servicesFactory, "license" )
         {
-            this.Add( new ListCommand() );
-            this.Add( new RegisterCommand() );
+            this.Add( new ListCommand( servicesFactory ) );
+            this.Add( new RegisterCommand( servicesFactory ) );
         }
     }
 }

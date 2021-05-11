@@ -22,13 +22,16 @@ namespace PostSharp.Backstage.Licensing.Licenses
 
         public static LicenseRegistrationData ToRegistrationData( this LicenseKeyData licenseKeyData )
         {
+            var description = $"{licenseKeyData.ProductName} ({licenseKeyData.LicenseType.GetLicenseTypeName()})";
+
             LicenseRegistrationData data = new(
                 uniqueId: licenseKeyData.LicenseUniqueId,
                 licensee: licenseKeyData.Licensee,
-                description: licenseKeyData.ToString(), // TODO
+                description: description,
                 licenseType: licenseKeyData.LicenseType,
                 validFrom: licenseKeyData.ValidFrom,
                 validTo: licenseKeyData.ValidTo,
+                perpetual: !licenseKeyData.ValidTo.HasValue,
                 subscriptionEndDate: licenseKeyData.SubscriptionEndDate );
 
             return data;

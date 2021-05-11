@@ -1,23 +1,29 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. All rights reserved.
 // This project is not open source. Please see the LICENSE.md file in the repository root for details.
 
+using System;
 using System.CommandLine;
 using System.Threading.Tasks;
+using PostSharp.Backstage.Extensibility;
 using PostSharp.Backstage.Testing;
 using PostSharp.Cli.Commands;
+using PostSharp.Cli.Console;
 using PostSharp.Cli.Tests.Console;
 using Xunit;
 using Xunit.Abstractions;
 
 namespace PostSharp.Cli.Tests.Commands
 {
-    public abstract class CommandsTestsBase : TestsBase
+    public abstract class CommandsTestsBase : TestsBase, IServicesFactory
     {
-        private readonly PostSharpCommand _rootCommand = new();
+        private readonly PostSharpCommand _rootCommand;
+
+        private bool _servicesCreated;
 
         protected CommandsTestsBase( ITestOutputHelper logger )
             : base( logger )
         {
+            this._rootCommand = new( this );
         }
 
         protected async Task TestCommandAsync( string commandLine, string expectedOutput, string expectedError = "", int expectedExitCode = 0 )
@@ -28,6 +34,17 @@ namespace PostSharp.Cli.Tests.Commands
             Assert.Equal( expectedOutput, testConsole.Out.ToString() );
             Assert.Equal( expectedError, testConsole.Error.ToString() );
             Assert.Equal( expectedExitCode, exitCode );
+        }
+
+        (IServiceProvider Services, ITrace Trace) IServicesFactory.Create( IConsole console, bool verbose )
+        {
+            if ( !this._servicesCreated )
+            {
+                this.Services.SetService<IDiagnosticsSink>( new ConsoleDiagnosticsSink( console ) );
+                this._servicesCreated = true;
+            }
+
+            return (this.Services, this.Trace);
         }
     }
 }

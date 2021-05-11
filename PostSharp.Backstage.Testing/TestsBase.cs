@@ -15,7 +15,7 @@ namespace PostSharp.Backstage.Testing
         public TestsBase( ITestOutputHelper logger )
         {
             this.Trace = new( logger );
-            this.Services = new TestServices( this.Trace );
+            this.Services = new();
         }
     }
 }

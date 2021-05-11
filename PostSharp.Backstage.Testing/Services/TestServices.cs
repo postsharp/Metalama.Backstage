@@ -7,19 +7,14 @@ namespace PostSharp.Backstage.Testing.Services
 {
     public class TestServices : ServiceProvider
     {
-        public TestDiagnosticsSink Diagnostics { get; }
-
         public TestDateTimeProvider Time { get; } = new();
 
         public TestEnvironment Environment { get; } = new();
 
         public TestFileSystem FileSystem { get; } = new();
 
-        public TestServices( TestTrace trace )
+        public TestServices()
         {
-            this.Diagnostics = new( trace );
-            this.SetService<IDiagnosticsSink>( this.Diagnostics );
-            this.SetService<IApplicationInfoService>( new ApplicationInfoService( false, new( 0, 1, 0 ), new( 2021, 1, 1 ) ) );
             this.SetService<IDateTimeProvider>( this.Time );
             this.SetService<IEnvironment>( this.Environment );
             this.SetService<IFileSystem>( this.FileSystem );

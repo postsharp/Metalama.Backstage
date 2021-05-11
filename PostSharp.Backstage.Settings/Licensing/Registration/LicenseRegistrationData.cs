@@ -11,6 +11,8 @@ namespace PostSharp.Backstage.Licensing.Registration
     {
         public string UniqueId { get; }
 
+        public string? LicenseId { get; }
+
         public string? Licensee { get; }
 
         public string Description { get; }
@@ -21,6 +23,8 @@ namespace PostSharp.Backstage.Licensing.Registration
 
         public DateTime? ValidTo { get; }
 
+        public bool? Perpetual { get; }
+
         public DateTime? SubscriptionEndDate { get; }
 
         public LicenseRegistrationData(
@@ -30,6 +34,7 @@ namespace PostSharp.Backstage.Licensing.Registration
             LicenseType licenseType,
             DateTime? validFrom,
             DateTime? validTo,
+            bool? perpetual,
             DateTime? subscriptionEndDate )
         {
             this.UniqueId = uniqueId;
@@ -38,6 +43,7 @@ namespace PostSharp.Backstage.Licensing.Registration
             this.LicenseType = licenseType;
             this.ValidFrom = validFrom;
             this.ValidTo = validTo;
+            this.Perpetual = perpetual;
             this.SubscriptionEndDate = subscriptionEndDate;
         }
 
@@ -49,6 +55,7 @@ namespace PostSharp.Backstage.Licensing.Registration
                    this.LicenseType == other.LicenseType &&
                    this.ValidFrom == other.ValidFrom &&
                    this.ValidTo == other.ValidTo &&
+                   this.Perpetual == other.Perpetual &&
                    this.SubscriptionEndDate == other.SubscriptionEndDate;
         }
 
@@ -67,6 +74,7 @@ namespace PostSharp.Backstage.Licensing.Registration
             hashCode = (hashCode * -1521134295) + this.LicenseType.GetHashCode();
             hashCode = (hashCode * -1521134295) + this.ValidFrom.GetHashCode();
             hashCode = (hashCode * -1521134295) + this.ValidTo.GetHashCode();
+            hashCode = (hashCode * -1521134295) + this.Perpetual.GetHashCode();
             hashCode = (hashCode * -1521134295) + this.SubscriptionEndDate.GetHashCode();
             return hashCode;
         }
