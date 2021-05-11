@@ -12,7 +12,9 @@ namespace PostSharp.Cli.Commands.Licensing
             : base( servicesFactory, "license" )
         {
             this.Add( new ListCommand( servicesFactory ) );
+            this.Add( new ShowCommand( servicesFactory ) );
             this.Add( new RegisterCommand( servicesFactory ) );
+            this.Add( new UnregisterCommand( servicesFactory ) );
         }
     }
 }

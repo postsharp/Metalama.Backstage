@@ -8,9 +8,16 @@ namespace PostSharp.Cli.Commands.Licensing
 {
     internal class LicenseStringsOrdinalDictionary : OrdinalDictionary
     {
+        private const string _name = "LICENSE";
+
         public LicenseStringsOrdinalDictionary( IServiceProvider services ) :
-            base( "LICENSE", services )
+            base( _name, services )
         {
+        }
+
+        public static OrdinalDictionary Load( IServiceProvider services )
+        {
+            return Load( _name, services );
         }
     }
 }

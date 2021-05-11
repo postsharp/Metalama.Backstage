@@ -29,7 +29,7 @@ namespace PostSharp.Cli.Tests.Commands
         protected async Task TestCommandAsync( string commandLine, string expectedOutput, string expectedError = "", int expectedExitCode = 0 )
         {
             TestConsole testConsole = new( this.Trace );
-            this.Trace.WriteLine( commandLine );
+            this.Trace.WriteLine( $" < {commandLine}" );
             var exitCode = await this._rootCommand.InvokeAsync( commandLine, testConsole );
             Assert.Equal( expectedOutput, testConsole.Out.ToString() );
             Assert.Equal( expectedError, testConsole.Error.ToString() );

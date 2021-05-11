@@ -28,12 +28,12 @@ namespace PostSharp.Cli.Console
 
         public void ReportWarning( string message )
         {
-            this._console.Out.WriteLine( message );
+            this.ReportError( message );
         }
 
         public void ReportWarning( string format, params object[] args )
         {
-            this.ReportWarning( string.Format( format, args ) );
+            this.ReportError( format, args );
         }
     }
 }

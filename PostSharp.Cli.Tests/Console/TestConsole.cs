@@ -26,29 +26,40 @@ namespace PostSharp.Cli.Tests.Console
 
         bool IStandardError.IsErrorRedirected => false;
 
-        public TestConsole(ITrace trace)
+        public TestConsole( ITrace trace )
         {
-            this.Out = new TestStreamWriter( trace );
-            this.Error = new TestStreamWriter( trace );
+            this.Out = new TestStreamWriter( trace, "o>" );
+            this.Error = new TestStreamWriter( trace, "e>" );
         }
 
         internal class TestStreamWriter : IStandardStreamWriter
         {
-            private readonly StringBuilder _stringBuilder = new StringBuilder();
+            private readonly StringBuilder _line = new StringBuilder();
+            private readonly StringBuilder _output = new StringBuilder();
             private readonly ITrace _trace;
+            private readonly string _tracePrefix;
 
-            public TestStreamWriter( ITrace trace )
+            public TestStreamWriter( ITrace trace, string tracePrefix )
             {
                 this._trace = trace;
+                this._tracePrefix = tracePrefix;
             }
 
             public void Write( string value )
             {
-                this._stringBuilder.Append( value );
-                this._trace.WriteLine( value );
+                this._output.Append( value );
+                this._line.Append( value );
+
+                if ( value.EndsWith( Environment.NewLine ) )
+                {
+                    var traceMessage = this._line.ToString();
+                    this._line.Clear();
+                    traceMessage = traceMessage.Substring( 0, traceMessage.Length - Environment.NewLine.Length );
+                    this._trace.WriteLine( $"{this._tracePrefix} {traceMessage}" );
+                }
             }
 
-            public override string ToString() => this._stringBuilder.ToString();
+            public override string ToString() => this._output.ToString();
         }
     }
 }
