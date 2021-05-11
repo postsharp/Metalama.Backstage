@@ -38,7 +38,6 @@ namespace PostSharp.Backstage.Licensing.Licenses
                     // and what is serialized into the license key.
                     return "License";
             }
-#pragma warning restore 618
         }
     }
 }

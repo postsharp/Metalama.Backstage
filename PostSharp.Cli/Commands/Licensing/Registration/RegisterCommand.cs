@@ -10,6 +10,8 @@ namespace PostSharp.Cli.Commands.Licensing.Registration
 {
     internal class RegisterCommand : CommandBase
     {
+        // TODO Reporting of license registration.
+
         // TODO Description?
 
         public RegisterCommand( IServicesFactory servicesFactory )

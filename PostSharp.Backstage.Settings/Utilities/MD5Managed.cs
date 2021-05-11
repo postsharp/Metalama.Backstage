@@ -52,7 +52,6 @@ namespace PostSharp.Backstage.Utilities
     /// These notices must be retained in any copies of any part of this
     /// documentation and/or software.
     /// </remarks>
-    // TODO: This used to be internal.
     public sealed class MD5Managed : HashAlgorithm
     {
         // Current context
@@ -130,7 +129,6 @@ namespace PostSharp.Backstage.Utilities
         /// <summary>
         /// Gets the hash as an array of bytes.
         /// </summary>
-        [SuppressMessage( "Microsoft.Design", "CA1065:DoNotRaiseExceptionsInUnexpectedLocations", Justification = "Matching .NET behavior by throwing here." )]
         [SuppressMessage( "Microsoft.Usage", "CA2201:DoNotRaiseReservedExceptionTypes", Justification = "Matching .NET behavior by throwing NullReferenceException." )]
         public override byte[] Hash
         {
@@ -200,7 +198,6 @@ namespace PostSharp.Backstage.Utilities
 
         private static readonly byte[] PADDING;
 
-        [SuppressMessage( "Microsoft.Performance", "CA1810:InitializeReferenceTypeStaticFieldsInline", Justification = "More compact this way" )]
         static MD5Managed()
         {
             PADDING = new byte[64];

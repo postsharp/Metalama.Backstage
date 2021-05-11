@@ -146,7 +146,7 @@ namespace PostSharp.Backstage.Licensing.Consumption
         {
             if ( !this.CanConsumeFeature( consumer, requiredFeatures ) )
             {
-                // TODO
+                // TODO Behavior?
                 throw new NotImplementedException();
             }
         }

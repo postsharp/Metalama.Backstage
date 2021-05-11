@@ -13,11 +13,12 @@ namespace PostSharp.Backstage.Licensing.Evaluation
 {
     public class EvaluationLicenseRegistrar : ILicenseAutoRegistrar
     {
-        // TODO: Correct?
         internal static TimeSpan EvaluationPeriod { get; } = TimeSpan.FromDays( 45 );
 
-        // TODO: Correct?
-        internal static TimeSpan NoEvaluationPeriod { get; } = TimeSpan.FromDays( 180 );
+        // TODO (Do not register a license - allow prerelease to build without a license for 30 days?)
+        internal static TimeSpan PrereleaseEvaluationPeriod { get; } = TimeSpan.FromDays( 30 );
+
+        internal static TimeSpan NoEvaluationPeriod { get; } = TimeSpan.FromDays( 120 );
 
         private readonly IServiceProvider _services;
         private readonly IDateTimeProvider _time;

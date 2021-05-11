@@ -2,8 +2,6 @@
 // This project is not open source. Please see the LICENSE.md file in the repository root for details.
 
 using System;
-using System.Collections.Generic;
-using PostSharp.Backstage.Utilities;
 
 namespace PostSharp.Backstage.Licensing
 {
@@ -47,84 +45,5 @@ namespace PostSharp.Backstage.Licensing
         public const LicensedFeatures Ultimate = LicensedFeatures.All;
         public const LicensedFeatures Unattended = LicensedFeatures.All & ~LicensedFeatures.Diagnostics;
         public const LicensedFeatures Caravela = LicensedFeatures.Caravela;
-    }
-
-    internal static class LicensedFeaturesExtensionsInternal
-    {
-        private const LicensedFeatures _embeddedLicenseEnabled = LicensedFeatures.Framework;
-
-        public static bool CanUseEmbeddedLicense( this LicensedFeatures licensedFeatures )
-            => (_embeddedLicenseEnabled & licensedFeatures) == licensedFeatures;
-
-        public static int GetRank( this LicensedFeatures licensedFeatures )
-            => BitSetHelper.CountBits( (int) licensedFeatures );
-    }
-
-    public static class LicensedFeaturesExtensions
-    {
-        public static bool Includes( this LicensedFeatures licensedFeatures, LicensedFeatures requirements )
-        {
-            return (licensedFeatures & requirements) == requirements;
-        }
-
-        public static LicensedFeatures RemoveRequirements( this LicensedFeatures licensedFeatures, LicensedFeatures requirements )
-        {
-            return licensedFeatures & ~requirements;
-        }
-    }
-
-    public static class LicensedFeaturesHelper
-    {
-        private static readonly Dictionary<string, LicensedFeatures> _requiredLicensedFeaturesForLibraries = new Dictionary<string, LicensedFeatures>( StringComparer.OrdinalIgnoreCase )
-                                                                                                           {
-                                                                                                               { "PostSharp.Patterns.Common", LicensedFeatures.Common },
-                                                                                                               { "PostSharp.Patterns.Aggregation", LicensedFeatures.Aggregatable },
-                                                                                                               { "PostSharp.Patterns.Caching", LicensedFeatures.Caching },
-                                                                                                               { "PostSharp.Patterns.Diagnostics", LicensedFeatures.Diagnostics },
-                                                                                                               { "PostSharp.Patterns.Model", LicensedFeatures.Model },
-                                                                                                               { "PostSharp.Patterns.Xaml", LicensedFeatures.Xaml },
-                                                                                                               { "PostSharp.Patterns.Threading", LicensedFeatures.Threading }
-                                                                                                           };
-
-        /// <summary>
-        /// Return required licensed features for the given assembly name.
-        /// </summary>
-        /// <param name="assemblyName">Name of the assembly.</param>
-        /// <returns>Required licensed features if assemblyName has licensing requirements, otherwise LicensedFeatures.None.</returns>
-        public static LicensedFeatures GetRequiredLicensedFeaturesForAssembly( string assemblyName )
-        {
-            if ( _requiredLicensedFeaturesForLibraries.TryGetValue( assemblyName, out var requiredFeatures ) )
-            {
-                return requiredFeatures;
-            }
-
-            return LicensedFeatures.None;
-        }
-
-        public static IEnumerable<LicensedFeatures> GetPresentFlags( this LicensedFeatures licensedFeatures )
-        {
-            var cursor = 1;
-            while ( cursor <= (int) licensedFeatures )
-            {
-                if ( ((LicensedFeatures) cursor & licensedFeatures) != 0 )
-                {
-                    yield return (LicensedFeatures) cursor;
-                }
-
-                cursor <<= 1;
-            }
-        }
-
-        internal static LicensedFeatures DowngradeFrameworkToCommunity( this LicensedFeatures licensedFeatures, bool downgrade )
-        {
-            if ( licensedFeatures == LicensedFeatures.Framework && downgrade )
-            {
-                return LicensedFeatures.Community;
-            }
-            else
-            {
-                return licensedFeatures;
-            }
-        }
     }
 }

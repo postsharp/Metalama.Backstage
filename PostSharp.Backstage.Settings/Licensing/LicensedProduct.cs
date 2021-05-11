@@ -5,7 +5,6 @@ using System;
 
 namespace PostSharp.Backstage.Licensing
 {
-#pragma warning disable CA1028 // Enum Storage should be Int32
     /// <exclude />
     /// <summary>
     /// Enumeration of licensed products.

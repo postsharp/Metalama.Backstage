@@ -5,8 +5,6 @@ using System;
 
 namespace PostSharp.Backstage.Licensing.Licenses
 {
-#pragma warning disable CA1027 // Mark enums with FlagsAttribute
-#pragma warning disable CA1028 // Enum Storage should be Int32
     /// <exclude />
     /// <summary>
     /// Types of licenses.

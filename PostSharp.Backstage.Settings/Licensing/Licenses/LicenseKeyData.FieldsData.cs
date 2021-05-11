@@ -93,7 +93,6 @@ namespace PostSharp.Backstage.Licensing.Licenses
         /// <summary>
         /// Gets or sets the licensed public key token.
         /// </summary>
-#pragma warning disable CA1819 // Properties should not return arrays (TODO)
         public byte[]? PublicKeyToken
         {
             get => (byte[]?) this.GetFieldValue( LicenseFieldIndex.PublicKeyToken );
@@ -108,7 +107,6 @@ namespace PostSharp.Backstage.Licensing.Licenses
             get => (byte[]?) this.GetFieldValue( LicenseFieldIndex.Signature );
             set => this.SetFieldValue<LicenseFieldBytes>( LicenseFieldIndex.Signature, value );
         }
-#pragma warning restore CA1819 // Properties should not return arrays (TODO)
 
         /// <summary>
         /// Gets the identifier of the signature.
