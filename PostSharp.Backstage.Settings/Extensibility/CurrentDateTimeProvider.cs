@@ -5,8 +5,14 @@ using System;
 
 namespace PostSharp.Backstage.Extensibility
 {
+    /// <summary>
+    /// Provides current date and time using <see cref="DateTime.Now" />.
+    /// </summary>
     public class CurrentDateTimeProvider : IDateTimeProvider
     {
+        /// <summary>
+        /// Gets current date and time using <see cref="DateTime.Now" />.
+        /// </summary>
         public DateTime Now => DateTime.Now;
     }
 }

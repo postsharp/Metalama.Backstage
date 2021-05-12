@@ -100,7 +100,7 @@ namespace PostSharp.Backstage.Licensing.Licenses
                 return false;
             }
 
-            var applicationInfoService = this._services.GetService<IApplicationInfoService>();
+            var applicationInfoService = this._services.GetService<IApplicationInfo>();
 
             if ( !licenseKeyData.Validate( null, this._dateTimeProvider, applicationInfoService.BuildDate, applicationInfoService.Version, out var errorDescription ) )
             {

@@ -5,8 +5,15 @@ using System;
 
 namespace PostSharp.Backstage.Extensibility
 {
+    /// <summary>
+    /// Thrown when a requested service object is not available.
+    /// </summary>
+    /// <typeparam name="T">Type of the requested service.</typeparam>
     public sealed class ServiceUnavailableException<T> : Exception
     {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ServiceUnavailableException{T}"/> class.
+        /// </summary>
         public ServiceUnavailableException()
             : base( $"Service '{typeof( T ).FullName}' is not available." )
         {

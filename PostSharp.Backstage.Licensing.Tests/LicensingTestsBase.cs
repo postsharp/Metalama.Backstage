@@ -22,7 +22,7 @@ namespace PostSharp.Backstage.Licensing.Tests
         {
             this.Diagnostics = new( this.Trace, "default" );
             this.Services.SetService<IDiagnosticsSink>( this.Diagnostics );
-            this.Services.SetService<IApplicationInfoService>( new ApplicationInfoService( false, new( 0, 1, 0 ), new( 2021, 1, 1 ) ) );
+            this.Services.SetService<IApplicationInfo>( new ApplicationInfo( false, new( 0, 1, 0 ), new( 2021, 1, 1 ) ) );
 
             this.LicenseFactory = new( this.Services, this.Trace );
             this.SelfSignedLicenseFactory = new( this.Services );
