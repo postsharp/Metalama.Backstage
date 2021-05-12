@@ -5,12 +5,11 @@ using System;
 
 namespace PostSharp.Backstage.Licensing.Licenses
 {
-    /// <exclude />
     /// <summary>
     /// Types of licenses.
     /// </summary>
     /// <remarks>
-    /// This should be in sync with PostSharp\Public\Core\PostSharp.Compiler.Settings\Extensibility\Licensing\ReportedLicenseType.cs
+    /// This should be in sync with PostSharp\Public\Core\PostSharp.Compiler.Settings\Extensibility\Licensing\ReportedLicenseType.cs (TODO)
     /// and BusinessSystems\common\SharpCrafters.Internal.Services.LicenseGenerator\ProductConfiguration.cs.
     /// 
     /// Obsolete license types do not need to be included here
@@ -24,20 +23,14 @@ namespace PostSharp.Backstage.Licensing.Licenses
         None = 0,
 
         /// <summary>
-        /// Community license (Essentials, Express or Starter).
+        /// Community license (former Essentials, Express or Starter).
         /// </summary>
         Community = 1,
-
-        [Obsolete( "Use Community" )]
-        Starter = Community,
 
         /// <summary>
         /// PerUser license.
         /// </summary>
         PerUser = 2,
-
-        [Obsolete( "Use PerUser" )]
-        Commercial = PerUser,
 
         /// <summary>
         /// Site license.
@@ -55,10 +48,9 @@ namespace PostSharp.Backstage.Licensing.Licenses
         Evaluation = 5,
 
         /// <summary>
-        /// Limited redistribution license.
+        /// Open source redistribution license.
         /// </summary>
         OpenSourceRedistribution = 6,
-        LimitedRedistribution = OpenSourceRedistribution,
 
         /// <summary>
         /// Academic license.
@@ -73,7 +65,7 @@ namespace PostSharp.Backstage.Licensing.Licenses
         /// <summary>
         /// Anonymous license.
         /// </summary>
-        [Obsolete( "No longer supported." )]
+        [Obsolete( "No longer issued." )]
         Anonymous = 13,
 
         /// <summary>
@@ -85,7 +77,7 @@ namespace PostSharp.Backstage.Licensing.Licenses
         /// <summary>
         /// Commercial license (Enterprise edition).
         /// </summary>
-        [Obsolete( "No longer supported." )]
+        [Obsolete( "No longer issued." )]
         Enterprise = 15,
 
         /// <summary>

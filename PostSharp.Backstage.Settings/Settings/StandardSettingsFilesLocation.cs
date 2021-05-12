@@ -5,7 +5,10 @@ using System;
 
 namespace PostSharp.Backstage.Settings
 {
-    public static class StandardSettingsFileLocation
+    /// <summary>
+    /// Standard location of settings files.
+    /// </summary>
+    public static class StandardSettingsFilesLocation
     {
         // https://enbravikov.wordpress.com/2018/09/15/special-folder-enum-values-on-windows-and-linux-ubuntu-16-04-in-net-core/
         public static readonly string Path = System.IO.Path.Combine( Environment.GetFolderPath( Environment.SpecialFolder.ApplicationData ), ".postsharp" );

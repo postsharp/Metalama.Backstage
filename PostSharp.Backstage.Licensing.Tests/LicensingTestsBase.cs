@@ -13,7 +13,7 @@ namespace PostSharp.Backstage.Licensing.Tests
     {
         private protected LicenseFactory LicenseFactory { get; }
 
-        private protected SelfSignedLicenseFactory SelfSignedLicenseFactory { get; }
+        private protected UnsignedLicenseFactory SelfSignedLicenseFactory { get; }
 
         private protected TestDiagnosticsSink Diagnostics { get; }
 

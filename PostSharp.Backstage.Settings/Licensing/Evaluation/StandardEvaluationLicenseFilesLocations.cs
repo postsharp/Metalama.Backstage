@@ -8,6 +8,6 @@ namespace PostSharp.Backstage.Licensing.Evaluation
 {
     internal static class StandardEvaluationLicenseFilesLocations
     {
-        public static readonly string EvaluationLicenseFile = Path.Combine( StandardSettingsFileLocation.Path, "licenseregistration.cnf" );
+        public static readonly string EvaluationLicenseFile = Path.Combine( StandardSettingsFilesLocation.Path, "licenseregistration.cnf" );
     }
 }

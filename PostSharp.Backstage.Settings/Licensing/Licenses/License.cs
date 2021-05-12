@@ -15,11 +15,9 @@ using PostSharp.Backstage.Utilities;
 namespace PostSharp.Backstage.Licensing.Licenses
 {
 
-    /// <exclude />
     /// <summary>
-    /// Encapsulates a PostSharp license.
+    /// Represents a license serialized in a license key.
     /// </summary>
-    [Serializable]
     public class License : ILicense
     {
         private readonly string _licenseKey;
@@ -29,12 +27,7 @@ namespace PostSharp.Backstage.Licensing.Licenses
         private readonly IDiagnosticsSink _diagnostics;
         private readonly ITrace _trace;
 
-        /// <summary>
-        /// Removes invalid characters from a license string.
-        /// </summary>
-        /// <param name="licenseKey">A license string.</param>
-        /// <returns>The license string in canonical format.</returns>
-        public static string CleanLicenseKey( string licenseKey )
+        private static string CleanLicenseKey( string licenseKey )
         {
             var stringBuilder = new StringBuilder( licenseKey.Length );
 
@@ -50,6 +43,12 @@ namespace PostSharp.Backstage.Licensing.Licenses
             return stringBuilder.ToString().ToUpperInvariant();
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="License"/> class.
+        /// </summary>
+        /// <param name="licenseKey">The license key.</param>
+        /// <param name="services">Services.</param>
+        /// <param name="trace">Trace.</param>
         internal License( string licenseKey, IServiceProvider services, ITrace trace )
         {
             this._licenseKey = CleanLicenseKey( licenseKey );
@@ -59,7 +58,7 @@ namespace PostSharp.Backstage.Licensing.Licenses
             this._trace = trace;
         }
 
-        public static bool TryGetLicenseId( string s, [MaybeNullWhen( returnValue: false )] out int id )
+        private static bool TryGetLicenseId( string s, [MaybeNullWhen( returnValue: false )] out int id )
         {
             var firstDash = s.IndexOf( '-' );
 
@@ -92,6 +91,7 @@ namespace PostSharp.Backstage.Licensing.Licenses
             return false;
         }
 
+        /// <inheritdoc />
         public bool TryGetLicenseConsumptionData( [MaybeNullWhen( returnValue: false )] out LicenseConsumptionData licenseConsumptionData )
         {
             if ( !this.TryGetLicenseKeyData( out var licenseKeyData ) )
@@ -113,6 +113,7 @@ namespace PostSharp.Backstage.Licensing.Licenses
             return true;
         }
 
+        /// <inheritdoc />
         public bool TryGetLicenseRegistrationData( [MaybeNullWhen( returnValue: false )] out LicenseRegistrationData licenseRegistrationData )
         {
             if ( !this.TryGetLicenseKeyData( out var licenseKeyData ) )
@@ -125,7 +126,7 @@ namespace PostSharp.Backstage.Licensing.Licenses
             return true;
         }
 
-        internal bool TryGetLicenseKeyData( [MaybeNullWhen( returnValue: false )] out LicenseKeyData data )
+        private bool TryGetLicenseKeyData( [MaybeNullWhen( returnValue: false )] out LicenseKeyData data )
         {
             this._trace.WriteLine( "Deserializing license {{{0}}}.", this._licenseKey );
             Guid? licenseGuid = null;
@@ -183,17 +184,20 @@ namespace PostSharp.Backstage.Licensing.Licenses
             }
         }
 
+        /// <inheritdoc />
         public override bool Equals( object? obj )
         {
             return obj is License license &&
                    this._licenseKey == license._licenseKey;
         }
 
+        /// <inheritdoc />
         public override int GetHashCode()
         {
             return 668981160 + EqualityComparer<string>.Default.GetHashCode( this._licenseKey );
         }
 
+        /// <inheritdoc />
         public override string ToString()
         {
             return $"License '{this._licenseKey}'";

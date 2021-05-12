@@ -7,9 +7,8 @@ namespace PostSharp.Cli.Commands.Licensing
 {
     internal class LicenseCommand : CommandBase
     {
-        // TODO: Description?
         public LicenseCommand( IServicesFactory servicesFactory )
-            : base( servicesFactory, "license" )
+            : base( servicesFactory, "license", "Manages licenses" )
         {
             this.Add( new ListCommand( servicesFactory ) );
             this.Add( new ShowCommand( servicesFactory ) );

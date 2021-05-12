@@ -48,5 +48,22 @@ namespace PostSharp.Cli.Tests.Commands.Licensing
             await this.TestCommandAsync( "license show 3", TestLicenses.Key3 + Environment.NewLine );
             await this.TestCommandAsync( "license show 4", "", "Unknown ordinal." + Environment.NewLine, 1 );
         }
+
+        [Fact]
+        public async Task ShowFailsWithSelfRegisteredTrialLicense()
+        {
+            this.Services.Time.Set( TestLicenses.EvaluationStart );
+            await this.TestCommandAsync( "license register trial", "" );
+            await this.TestCommandAsync( "license list", string.Format( TestLicenses.EvaluationFormat, 1 ) );
+            await this.TestCommandAsync( "license show 1", "", "This license doesn't come with a license key." + Environment.NewLine, 3 );
+        }
+
+        [Fact]
+        public async Task ShowFailsWithSelfRegisteredCommunityLicense()
+        {
+            await this.TestCommandAsync( "license register community", "" );
+            await this.TestCommandAsync( "license list", string.Format( TestLicenses.CommunityFormat, 1 ) );
+            await this.TestCommandAsync( "license show 1", "", "This license doesn't come with a license key." + Environment.NewLine, 3 );
+        }
     }
 }

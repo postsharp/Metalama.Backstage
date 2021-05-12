@@ -9,14 +9,11 @@ namespace PostSharp.Backstage.Testing.Services
     {
         public TestDateTimeProvider Time { get; } = new();
 
-        public TestEnvironment Environment { get; } = new();
-
         public TestFileSystem FileSystem { get; } = new();
 
         public TestServices()
         {
             this.SetService<IDateTimeProvider>( this.Time );
-            this.SetService<IEnvironment>( this.Environment );
             this.SetService<IFileSystem>( this.FileSystem );
         }
 

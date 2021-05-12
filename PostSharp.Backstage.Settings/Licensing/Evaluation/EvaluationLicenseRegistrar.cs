@@ -11,19 +11,34 @@ using PostSharp.Backstage.Licensing.Registration;
 
 namespace PostSharp.Backstage.Licensing.Evaluation
 {
+    /// <summary>
+    /// Registers an evaluation (trial) license.
+    /// </summary>
     public class EvaluationLicenseRegistrar : ILicenseAutoRegistrar
     {
+        /// <summary>
+        /// Gets the time span of the evaluation license validity.
+        /// </summary>
         internal static TimeSpan EvaluationPeriod { get; } = TimeSpan.FromDays( 45 );
 
         // TODO (Do not register a license - allow prerelease to build without a license for 30 days?)
         internal static TimeSpan PrereleaseEvaluationPeriod { get; } = TimeSpan.FromDays( 30 );
 
+        /// <summary>
+        /// Gets the time span from the end of an evaluation license validity
+        /// in which a new evaluation license cannot be registered.
+        /// </summary>
         internal static TimeSpan NoEvaluationPeriod { get; } = TimeSpan.FromDays( 120 );
 
         private readonly IServiceProvider _services;
         private readonly IDateTimeProvider _time;
         private readonly ITrace _trace;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="EvaluationLicenseRegistrar"/> class.
+        /// </summary>
+        /// <param name="services">Services.</param>
+        /// <param name="trace">Trace.</param>
         public EvaluationLicenseRegistrar( IServiceProvider services, ITrace trace )
         {
             this._services = services;
@@ -31,6 +46,14 @@ namespace PostSharp.Backstage.Licensing.Evaluation
             this._trace = trace;
         }
 
+        /// <summary>
+        /// Attempts to register an evaluation license.
+        /// </summary>
+        /// <returns>
+        /// A value indicating whether the license has been registered.
+        /// Success is indicated when a new community license is registered
+        /// as well as when an existing community license is registered already.
+        /// </returns>
         public bool TryRegisterLicense()
         {
             if ( !this.IsEvaluationEligible() )
@@ -126,7 +149,7 @@ namespace PostSharp.Backstage.Licensing.Evaluation
 
             try
             {
-                var factory = new SelfSignedLicenseFactory( this._services );
+                var factory = new UnsignedLicenseFactory( this._services );
                 (licenseKey, data) = factory.CreateEvaluationLicense();
 
                 var retryCount = 0;

@@ -10,9 +10,8 @@ namespace PostSharp.Cli.Commands.Licensing.Registration
 {
     internal class RegisterCommunityCommand : CommandBase
     {
-        // TODO: Description?
         public RegisterCommunityCommand( IServicesFactory servicesFactory )
-            : base( servicesFactory, "community" )
+            : base( servicesFactory, "community", "Registers a community license" )
         {
             this.Handler = CommandHandler.Create<bool, IConsole>( this.Execute );
         }

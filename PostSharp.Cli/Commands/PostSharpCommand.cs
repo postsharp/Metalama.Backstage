@@ -8,12 +8,12 @@ namespace PostSharp.Cli.Commands
 {
     internal class PostSharpCommand : RootCommand
     {
-        // TODO: Description?
         public PostSharpCommand( IServicesFactory servicesFactory )
+            : base( "Management tool for PostSharp" )
         {
             this.Add( new LicenseCommand( servicesFactory ) );
 
-            var verboseOption = new Option<bool>( "--verbose", "Set detailed verbosity level." );
+            var verboseOption = new Option<bool>( "--verbose", "Set detailed verbosity level" );
             verboseOption.AddAlias( "-v" );
             this.AddGlobalOption( verboseOption );
         }

@@ -5,14 +5,29 @@ using PostSharp.Backstage.Extensibility;
 
 namespace PostSharp.Backstage.Licensing.Consumption
 {
+    /// <summary>
+    /// Provides information about a type consuming requiring a licensed feature.
+    /// </summary>
     public interface ILicenseConsumer
     {
+        /// <summary>
+        /// Gets the namespace of the type requiring a licensed feature.
+        /// </summary>
         public string TargetTypeNamespace { get; }
 
+        /// <summary>
+        /// Gets the name of the type requiring a licensed feature.
+        /// </summary>
         public string TargetTypeName { get; }
 
+        /// <summary>
+        /// Gets <see cref="IDiagnosticsSink" /> specific to the location of the licensed feature request.
+        /// </summary>
         public IDiagnosticsSink Diagnostics { get; }
 
+        /// <summary>
+        /// Gets <see cref="IDiagnosticsLocation" /> of the licensed feature request.
+        /// </summary>
         public IDiagnosticsLocation DiagnosticsLocation { get; }
     }
 }

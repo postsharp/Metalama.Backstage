@@ -2,8 +2,8 @@
 // This project is not open source. Please see the LICENSE.md file in the repository root for details.
 
 using PostSharp.Backstage.Licensing.Consumption;
+using PostSharp.Backstage.Licensing.Consumption.Sources;
 using PostSharp.Backstage.Licensing.Registration;
-using PostSharp.Backstage.Licensing.Sources;
 using PostSharp.Backstage.Licensing.Tests.Licenses;
 using PostSharp.Backstage.Licensing.Tests.Registration;
 using PostSharp.Backstage.Testing.Services;

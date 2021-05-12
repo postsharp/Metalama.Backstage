@@ -3,8 +3,15 @@
 
 namespace PostSharp.Backstage.Licensing.Registration
 {
+    /// <summary>
+    /// Registers a license without user interaction.
+    /// </summary>
     public interface ILicenseAutoRegistrar
     {
+        /// <summary>
+        /// Tries to register a license without user interaction.
+        /// </summary>
+        /// <returns>A value indicating whether a license has been registered.</returns>
         bool TryRegisterLicense();
     }
 }

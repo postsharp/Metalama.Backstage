@@ -3,6 +3,7 @@
 
 using System.CommandLine;
 using System.CommandLine.Invocation;
+using System.CommandLine.IO;
 using PostSharp.Backstage.Licensing.Licenses;
 using PostSharp.Backstage.Licensing.Registration;
 
@@ -12,12 +13,10 @@ namespace PostSharp.Cli.Commands.Licensing.Registration
     {
         // TODO Reporting of license registration.
 
-        // TODO Description?
-
         public RegisterCommand( IServicesFactory servicesFactory )
-            : base( servicesFactory, "register" )
+            : base( servicesFactory, "register", "Registers a license key, a trial license or a community license" )
         {
-            this.AddArgument( new Argument<string>( "license-key", "license key" ) );
+            this.AddArgument( new Argument<string>( "license-key", "The license key to be registered" ) );
 
             this.AddCommand( new RegisterTrialCommand( servicesFactory ) );
             this.AddCommand( new RegisterCommunityCommand( servicesFactory ) );
@@ -34,7 +33,8 @@ namespace PostSharp.Cli.Commands.Licensing.Registration
             if ( !factory.TryCreate( licenseKey, out var license )
                 || !license.TryGetLicenseRegistrationData( out var data ) )
             {
-                return -1;
+                console.Error.WriteLine( "Invalid license string." );
+                return 1;
             }
 
             var storage = LicenseFileStorage.OpenOrCreate( StandardLicenseFilesLocations.UserLicenseFile, services, trace );

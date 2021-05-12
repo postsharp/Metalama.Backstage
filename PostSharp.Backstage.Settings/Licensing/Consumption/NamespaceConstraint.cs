@@ -5,10 +5,20 @@ using System;
 
 namespace PostSharp.Backstage.Licensing.Consumption
 {
+    /// <summary>
+    /// License namespace constraint.
+    /// </summary>
     internal class NamespaceConstraint
     {
+        /// <summary>
+        /// Gets the namespace allowed by the license.
+        /// </summary>
         public string AllowedNamespace { get; }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="NamespaceConstraint"/> class.
+        /// </summary>
+        /// <param name="allowedNamespace">The namespace allowed by the license.</param>
         public NamespaceConstraint( string allowedNamespace )
         {
             if ( string.IsNullOrEmpty( allowedNamespace ) )
@@ -19,6 +29,11 @@ namespace PostSharp.Backstage.Licensing.Consumption
             this.AllowedNamespace = allowedNamespace;
         }
 
+        /// <summary>
+        /// Check if <paramref name="requiredNamespace"/> is allowed by the constraint.
+        /// </summary>
+        /// <param name="requiredNamespace">The namespace or assembly name required by a license consumer.</param>
+        /// <returns>A value indication if <paramref name="requiredNamespace"/> is allowed by the constraint.</returns>
         public bool AllowsNamespace( string requiredNamespace )
         {
             if ( !requiredNamespace.StartsWith( this.AllowedNamespace, StringComparison.OrdinalIgnoreCase ) )

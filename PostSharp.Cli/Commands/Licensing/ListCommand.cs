@@ -12,9 +12,8 @@ namespace PostSharp.Cli.Commands.Licensing
 {
     internal class ListCommand : CommandBase
     {
-        // TODO: Description?
         public ListCommand( IServicesFactory servicesFactory )
-            : base( servicesFactory, "list" )
+            : base( servicesFactory, "list", "Lists registered licenses" )
         {
             this.Handler = CommandHandler.Create<bool, IConsole>( this.Execute );
         }
@@ -70,7 +69,7 @@ namespace PostSharp.Cli.Commands.Licensing
             }
 
             @out.WriteLine( $" {data.Description}" );
-            TryWrite( "License ID", data.LicenseId );
+            TryWrite( "License ID", data.LicenseId?.ToString() );
             TryWrite( "Licensee", data.Licensee );
 
             string? expiration = null;

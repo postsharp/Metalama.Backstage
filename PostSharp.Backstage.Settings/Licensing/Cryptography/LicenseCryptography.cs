@@ -12,7 +12,6 @@ using PostSharp.Backstage.Utilities;
 
 namespace PostSharp.Backstage.Licensing.Cryptography
 {
-    /// <exclude />
     /// <summary>
     /// Utility cryptographic methods for use with the PostSharp licensing system.
     /// </summary>
@@ -21,6 +20,9 @@ namespace PostSharp.Backstage.Licensing.Cryptography
         private static readonly DSA _productionPublicKey0 = DSA.Create();
         private static readonly DSA _productionPublicKey1 = DSA.Create();
 
+        /// <summary>
+        /// Initializes static members of the <see cref="LicenseCryptography"/> class.
+        /// </summary>
         static LicenseCryptography()
         {
             // FromXmlString method is not supported by .NET Core
@@ -336,6 +338,11 @@ namespace PostSharp.Backstage.Licensing.Cryptography
             return VerifySignature( message, GetPublicKey( publicKeyIndex ), signature );
         }
 
+        /// <summary>
+        /// Gets public key for the given <paramref name="index"/>.
+        /// </summary>
+        /// <param name="index">The index of the requested public key.</param>
+        /// <returns>The public key for the given <paramref name="index"/>.</returns>
         internal static DSA GetPublicKey( byte index )
         {
             switch ( index )

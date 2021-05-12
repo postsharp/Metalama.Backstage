@@ -7,7 +7,7 @@ using PostSharp.Backstage.Extensibility;
 
 namespace PostSharp.Cli.Console
 {
-    public class ConsoleTrace : ITrace
+    internal class ConsoleTrace : ITrace
     {
         private readonly IConsole _console;
 

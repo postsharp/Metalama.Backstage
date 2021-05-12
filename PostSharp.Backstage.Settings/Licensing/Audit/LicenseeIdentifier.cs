@@ -6,6 +6,7 @@ using PostSharp.Backstage.Licensing.Cryptography;
 
 namespace PostSharp.Backstage.Licensing.Audit
 {
+    // TODO
     internal abstract class LicenseeIdentifier
     {
         /// <exclude/>

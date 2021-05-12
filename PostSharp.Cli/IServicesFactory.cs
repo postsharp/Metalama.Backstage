@@ -7,7 +7,7 @@ using PostSharp.Backstage.Extensibility;
 
 namespace PostSharp.Cli
 {
-    public interface IServicesFactory
+    internal interface IServicesFactory
     {
         (IServiceProvider Services, ITrace Trace) Create( IConsole console, bool verbose );
     }

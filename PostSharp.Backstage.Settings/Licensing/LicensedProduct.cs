@@ -5,7 +5,6 @@ using System;
 
 namespace PostSharp.Backstage.Licensing
 {
-    /// <exclude />
     /// <summary>
     /// Enumeration of licensed products.
     /// </summary>

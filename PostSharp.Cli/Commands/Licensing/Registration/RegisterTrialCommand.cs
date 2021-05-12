@@ -10,9 +10,8 @@ namespace PostSharp.Cli.Commands.Licensing.Registration
 {
     internal class RegisterTrialCommand : CommandBase
     {
-        // TODO: Description?
         public RegisterTrialCommand( IServicesFactory servicesFactory )
-            : base( servicesFactory, "trial" )
+            : base( servicesFactory, "trial", "Registers a trial license" )
         {
             this.Handler = CommandHandler.Create<bool, IConsole>( this.Execute );
         }

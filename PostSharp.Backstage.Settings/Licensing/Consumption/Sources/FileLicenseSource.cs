@@ -6,8 +6,11 @@ using System.Collections.Generic;
 using PostSharp.Backstage.Extensibility;
 using PostSharp.Backstage.Licensing.Licenses;
 
-namespace PostSharp.Backstage.Licensing.Sources
+namespace PostSharp.Backstage.Licensing.Consumption.Sources
 {
+    /// <summary>
+    /// License source providing licenses from a license file.
+    /// </summary>
     public class FileLicenseSource : ILicenseSource
     {
         private readonly string _path;
@@ -21,6 +24,7 @@ namespace PostSharp.Backstage.Licensing.Sources
             this._trace = trace;
         }
 
+        /// <inheritdoc />
         public IEnumerable<ILicense> GetLicenses()
         {
             this._trace.WriteLine( "Loading licenses from '{0}'.", this._path );

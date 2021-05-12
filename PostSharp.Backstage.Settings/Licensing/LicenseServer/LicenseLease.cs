@@ -9,6 +9,8 @@ using PostSharp.Backstage.Extensibility;
 
 namespace PostSharp.Backstage.Licensing.LicenseServer
 {
+    // TODO (this is just a copy from PostSharp.)
+    
     /// <summary>
     /// Represents a lease of license by a specific user.
     /// </summary>

@@ -9,17 +9,33 @@ using PostSharp.Backstage.Licensing.Registration;
 
 namespace PostSharp.Backstage.Licensing.Community
 {
+    /// <summary>
+    /// Registers a community license.
+    /// </summary>
     public class CommunityLicenseRegistrar
     {
         private readonly IServiceProvider _services;
         private readonly ITrace _trace;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="CommunityLicenseRegistrar"/> class.
+        /// </summary>
+        /// <param name="services">Service provider.</param>
+        /// <param name="trace">Trace.</param>
         public CommunityLicenseRegistrar( IServiceProvider services, ITrace trace )
         {
             this._services = services;
             this._trace = trace;
         }
 
+        /// <summary>
+        /// Attempts to register a community license.
+        /// </summary>
+        /// <returns>
+        /// A value indicating whether the license has been registered.
+        /// Success is indicated when a new community license is registered
+        /// as well as when an existing community license is registered already.
+        /// </returns>
         public bool TryRegisterLicense()
         {
             void TraceFailure( string message )
@@ -39,7 +55,7 @@ namespace PostSharp.Backstage.Licensing.Community
                     return true;
                 }
 
-                var factory = new SelfSignedLicenseFactory( this._services );
+                var factory = new UnsignedLicenseFactory( this._services );
                 (var licenseKey, var data) = factory.CreateCommunityLicense();
 
                 userStorage.AddLicense( licenseKey, data );

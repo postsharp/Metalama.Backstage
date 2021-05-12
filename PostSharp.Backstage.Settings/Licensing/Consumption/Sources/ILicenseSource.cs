@@ -4,13 +4,17 @@
 using System.Collections.Generic;
 using PostSharp.Backstage.Licensing.Licenses;
 
-namespace PostSharp.Backstage.Licensing.Sources
+namespace PostSharp.Backstage.Licensing.Consumption.Sources
 {
+    /// <summary>
+    /// Source of licenses for consumption.
+    /// </summary>
     public interface ILicenseSource
     {
         /// <summary>
         /// Gets an enumerable of licenses.
         /// </summary>
+        /// <returns>The enumerable of licenses.</returns>
         IEnumerable<ILicense> GetLicenses();
     }
 }

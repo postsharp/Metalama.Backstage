@@ -8,15 +8,26 @@ using PostSharp.Backstage.Licensing.Registration;
 
 namespace PostSharp.Backstage.Licensing.Licenses
 {
-    internal class SelfSignedLicenseFactory
+    /// <summary>
+    /// Creates unsigned licenses for self-registration.
+    /// </summary>
+    internal class UnsignedLicenseFactory
     {
         private readonly IDateTimeProvider _time;
 
-        public SelfSignedLicenseFactory( IServiceProvider services )
+        /// <summary>
+        /// Initializes a new instance of the <see cref="UnsignedLicenseFactory"/> class.
+        /// </summary>
+        /// <param name="services">Services.</param>
+        public UnsignedLicenseFactory( IServiceProvider services )
         {
             this._time = services.GetService<IDateTimeProvider>();
         }
 
+        /// <summary>
+        /// Creates an unsigned evaluation license.
+        /// </summary>
+        /// <returns>The unsigned evaluation license.</returns>
         public (string LicenseKey, LicenseRegistrationData Data) CreateEvaluationLicense()
         {
             var start = this._time.Now.Date;
@@ -39,6 +50,10 @@ namespace PostSharp.Backstage.Licensing.Licenses
             return (licenseKey, licenseRegistrationData);
         }
 
+        /// <summary>
+        /// Creates an unsigned community license.
+        /// </summary>
+        /// <returns>The unsigned community license.</returns>
         public (string LicenseKey, LicenseRegistrationData Data) CreateCommunityLicense()
         {
             var start = this._time.Now;

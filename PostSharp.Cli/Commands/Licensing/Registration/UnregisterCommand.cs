@@ -57,11 +57,10 @@ namespace PostSharp.Cli.Commands.Licensing.Registration
             }
         }
 
-        // TODO: Description?
         public UnregisterCommand( IServicesFactory servicesFactory )
-            : base( servicesFactory, "unregister" )
+            : base( servicesFactory, "unregister", "Unregisters a license" )
         {
-            this.AddArgument( new Argument<string>( "license", "the ordinal obtained by the 'postsharp license list' command or license key" ) );
+            this.AddArgument( new Argument<string>( "license", "The ordinal obtained by the 'postsharp license list' command or the license key to be unregistered" ) );
 
             this.Handler = CommandHandler.Create<string, bool, IConsole>( this.Execute );
         }

@@ -5,6 +5,7 @@ using System;
 
 namespace PostSharp.Backstage.Licensing.Audit
 {
+    // TODO
     [Serializable]
     public struct ReportedLicense : IEquatable<ReportedLicense>
     {

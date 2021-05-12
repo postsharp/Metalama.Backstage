@@ -5,13 +5,16 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using PostSharp.Backstage.Extensibility;
+using PostSharp.Backstage.Licensing.Consumption.Sources;
 using PostSharp.Backstage.Licensing.Licenses;
 using PostSharp.Backstage.Licensing.Registration;
-using PostSharp.Backstage.Licensing.Sources;
 
 namespace PostSharp.Backstage.Licensing.Consumption
 {
-    public sealed class LicenseConsumptionManager : ILicenseConsumptionManager
+    /// <summary>
+    /// Manages license consumption.
+    /// </summary>
+    public class LicenseConsumptionManager : ILicenseConsumptionManager
     {
         private readonly IServiceProvider _services;
         private readonly ITrace _trace;
@@ -24,11 +27,23 @@ namespace PostSharp.Backstage.Licensing.Consumption
 
         private LicensedFeatures _licensedFeatures;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="LicenseConsumptionManager"/> class.
+        /// </summary>
+        /// <param name="services">Services.</param>
+        /// <param name="trace">Traces.</param>
+        /// <param name="licenseSources">License sources.</param>
         public LicenseConsumptionManager( IServiceProvider services, ITrace trace, params ILicenseSource[] licenseSources )
             : this( services, trace, (IEnumerable<ILicenseSource>) licenseSources )
         {
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="LicenseConsumptionManager"/> class.
+        /// </summary>
+        /// <param name="services">Services.</param>
+        /// <param name="trace">Traces.</param>
+        /// <param name="licenseSources">License sources.</param>
         public LicenseConsumptionManager( IServiceProvider services, ITrace trace, IEnumerable<ILicenseSource> licenseSources )
         {
             this._services = services;
@@ -111,6 +126,7 @@ namespace PostSharp.Backstage.Licensing.Consumption
             return true;
         }
 
+        /// <inheritdoc />
         public bool CanConsumeFeature( ILicenseConsumer consumer, LicensedFeatures requiredFeatures )
         {
             do
@@ -142,6 +158,7 @@ namespace PostSharp.Backstage.Licensing.Consumption
             return false;
         }
 
+        /// <inheritdoc />
         public void ConsumeFeature( ILicenseConsumer consumer, LicensedFeatures requiredFeatures )
         {
             if ( !this.CanConsumeFeature( consumer, requiredFeatures ) )

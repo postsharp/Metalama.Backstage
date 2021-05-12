@@ -13,7 +13,6 @@ namespace PostSharp.Cli
         {
             this.SetService<IDiagnosticsSink>( new ConsoleDiagnosticsSink( console ) );
             this.SetService<IDateTimeProvider>( new CurrentDateTimeProvider() );
-            this.SetService<IEnvironment>( new SystemEnvironment() );
             this.SetService<IFileSystem>( new FileSystem() );
         }
     }

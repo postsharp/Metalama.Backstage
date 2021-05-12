@@ -7,7 +7,7 @@ using System.Text;
 
 namespace PostSharp.Backstage.Utilities
 {
-    public static class HexHelper
+    internal static class HexHelper
     {
         public static bool TryParseBytes( string str, int start, int count, [MaybeNullWhen( returnValue: false )] out byte[] bytes )
         {

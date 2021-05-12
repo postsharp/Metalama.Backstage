@@ -3,8 +3,16 @@
 
 namespace PostSharp.Backstage.Licensing.Licenses
 {
+    /// <summary>
+    /// Provides extensions to <see cref="LicenseType" />.
+    /// </summary>
     public static class LicenseTypeExtensions
     {
+        /// <summary>
+        /// Gets the name of the <paramref name="licenseType"/>.
+        /// </summary>
+        /// <param name="licenseType">The license type.</param>
+        /// <returns>The name of the <paramref name="licenseType"/>.</returns>
         public static string GetLicenseTypeName( this LicenseType licenseType )
         {
 #pragma warning disable 618
