@@ -14,9 +14,9 @@ namespace PostSharp.Cli.Commands.Licensing.Registration
         // TODO Reporting of license registration.
 
         public RegisterCommand( ICommandServiceProvider commandServiceProvider )
-            : base( commandServiceProvider, "register", "Registers a license key, a trial license or a community license" )
+            : base( commandServiceProvider, "register", "Registers a license key, starts the trial period, switch to the community edition" )
         {
-            this.AddArgument( new Argument<string>( "license-key", "The license key to be registered" ) );
+            this.AddArgument( new Argument<string>( "license-key-or-type", "The license key to be registered, or 'trial' or 'community'" ) );
 
             this.AddCommand( new RegisterTrialCommand( commandServiceProvider ) );
             this.AddCommand( new RegisterCommunityCommand( commandServiceProvider ) );

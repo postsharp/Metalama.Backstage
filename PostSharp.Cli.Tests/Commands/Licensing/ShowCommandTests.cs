@@ -18,9 +18,9 @@ namespace PostSharp.Cli.Tests.Commands.Licensing
         [Fact]
         public async Task ShowFailsWithZeroLicenses()
         {
-            await this.TestCommandAsync( "license show 0", "", "Unknown ordinal." + Environment.NewLine, 1 );
-            await this.TestCommandAsync( "license show 1", "", "Unknown ordinal." + Environment.NewLine, 1 );
-            await this.TestCommandAsync( "license show 2", "", "Unknown ordinal." + Environment.NewLine, 1 );
+            await this.TestCommandAsync( "license show 0", "", "Invalid ordinal." + Environment.NewLine, 1 );
+            await this.TestCommandAsync( "license show 1", "", "Invalid ordinal." + Environment.NewLine, 1 );
+            await this.TestCommandAsync( "license show 2", "", "Invalid ordinal." + Environment.NewLine, 1 );
         }
 
         [Fact]
@@ -28,9 +28,9 @@ namespace PostSharp.Cli.Tests.Commands.Licensing
         {
             await this.TestCommandAsync( $"license register {TestLicenses.Key1}", "" );
             await this.TestCommandAsync( "license list", string.Format( TestLicenses.Format1, 1 ) );
-            await this.TestCommandAsync( "license show 0", "", "Unknown ordinal." + Environment.NewLine, 1 );
+            await this.TestCommandAsync( "license show 0", "", "Invalid ordinal." + Environment.NewLine, 1 );
             await this.TestCommandAsync( "license show 1", TestLicenses.Key1 + Environment.NewLine );
-            await this.TestCommandAsync( "license show 2", "", "Unknown ordinal." + Environment.NewLine, 1 );
+            await this.TestCommandAsync( "license show 2", "", "Invalid ordinal." + Environment.NewLine, 1 );
         }
 
         [Fact]
@@ -42,11 +42,11 @@ namespace PostSharp.Cli.Tests.Commands.Licensing
             await this.TestCommandAsync(
                 "license list",
                 string.Format( TestLicenses.Format1, 1 ) + string.Format( TestLicenses.Format2, 2 ) + string.Format( TestLicenses.Format3, 3 ) );
-            await this.TestCommandAsync( "license show 0", "", "Unknown ordinal." + Environment.NewLine, 1 );
+            await this.TestCommandAsync( "license show 0", "", "Invalid ordinal." + Environment.NewLine, 1 );
             await this.TestCommandAsync( "license show 1", TestLicenses.Key1 + Environment.NewLine );
             await this.TestCommandAsync( "license show 2", TestLicenses.Key2 + Environment.NewLine );
             await this.TestCommandAsync( "license show 3", TestLicenses.Key3 + Environment.NewLine );
-            await this.TestCommandAsync( "license show 4", "", "Unknown ordinal." + Environment.NewLine, 1 );
+            await this.TestCommandAsync( "license show 4", "", "Invalid ordinal." + Environment.NewLine, 1 );
         }
 
         [Fact]
@@ -55,7 +55,7 @@ namespace PostSharp.Cli.Tests.Commands.Licensing
             this.Services.Time.Set( TestLicenses.EvaluationStart );
             await this.TestCommandAsync( "license register trial", "" );
             await this.TestCommandAsync( "license list", string.Format( TestLicenses.EvaluationFormat, 1 ) );
-            await this.TestCommandAsync( "license show 1", "", "This license doesn't come with a license key." + Environment.NewLine, 3 );
+            await this.TestCommandAsync( "license show 1", "", "This license does not have a license key." + Environment.NewLine, 3 );
         }
 
         [Fact]
@@ -63,7 +63,7 @@ namespace PostSharp.Cli.Tests.Commands.Licensing
         {
             await this.TestCommandAsync( "license register community", "" );
             await this.TestCommandAsync( "license list", string.Format( TestLicenses.CommunityFormat, 1 ) );
-            await this.TestCommandAsync( "license show 1", "", "This license doesn't come with a license key." + Environment.NewLine, 3 );
+            await this.TestCommandAsync( "license show 1", "", "This license does not have a license key." + Environment.NewLine, 3 );
         }
     }
 }

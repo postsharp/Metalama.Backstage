@@ -11,7 +11,7 @@ namespace PostSharp.Cli.Commands.Licensing.Registration
     internal class RegisterCommunityCommand : CommandBase
     {
         public RegisterCommunityCommand( ICommandServiceProvider commandServiceProvider )
-            : base( commandServiceProvider, "community", "Registers a community license" )
+            : base( commandServiceProvider, "community", "Switchs to the community edition" )
         {
             this.Handler = CommandHandler.Create<bool, IConsole>( this.Execute );
         }
@@ -28,7 +28,7 @@ namespace PostSharp.Cli.Commands.Licensing.Registration
             }
             else
             {
-                console.Error.WriteLine( "Cannot register community license. Use --verbose (-v) flag for details." );
+                console.Error.WriteLine( "Cannot switch to the community edition. Use --verbose (-v) flag for details." );
                 return 1;
             }
         }

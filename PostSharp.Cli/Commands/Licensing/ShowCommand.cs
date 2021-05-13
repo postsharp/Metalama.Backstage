@@ -26,7 +26,7 @@ namespace PostSharp.Cli.Commands.Licensing
 
             if ( !ordinals.TryGetValue( ordinal, out var licenseString ) )
             {
-                console.Error.WriteLine( "Unknown ordinal." );
+                console.Error.WriteLine( "Invalid ordinal." );
                 return 1;
             }
 
@@ -41,7 +41,7 @@ namespace PostSharp.Cli.Commands.Licensing
 
             if (data.LicenseId == null)
             {
-                console.Error.WriteLine( "This license doesn't come with a license key." );
+                console.Error.WriteLine( $"This license does not have a license key." );
                 return 3;
             }
 

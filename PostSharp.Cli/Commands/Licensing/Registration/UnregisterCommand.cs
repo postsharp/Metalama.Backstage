@@ -31,7 +31,7 @@ namespace PostSharp.Cli.Commands.Licensing.Registration
 
                 if ( !ordinals.TryGetValue( ordinal, out var license ) )
                 {
-                    this._console.Error.WriteLine( "Unknown ordinal." );
+                    this._console.Error.WriteLine( "Invalid ordinal." );
                     return 1;
                 }
 
@@ -60,24 +60,24 @@ namespace PostSharp.Cli.Commands.Licensing.Registration
         public UnregisterCommand( ICommandServiceProvider commandServiceProvider )
             : base( commandServiceProvider, "unregister", "Unregisters a license" )
         {
-            this.AddArgument( new Argument<string>( "license", "The ordinal obtained by the 'postsharp license list' command or the license key to be unregistered" ) );
+            this.AddArgument( new Argument<string>( "license-key-or-ordinal", "The ordinal obtained by the 'postsharp license list' command or the license key to be unregistered" ) );
 
             this.Handler = CommandHandler.Create<string, bool, IConsole>( this.Execute );
         }
 
-        private int Execute( string license, bool verbose, IConsole console )
+        private int Execute( string licenseKeyOrOrdinal, bool verbose, IConsole console )
         {
             var services = this.CommandServiceProvider.CreateServiceProvider( console, verbose );
 
             var unregisterer = new Unregisterer( services, console );
 
-            if (int.TryParse(license, out var ordinal))
+            if (int.TryParse(licenseKeyOrOrdinal, out var ordinal))
             {
                 return unregisterer.UnregisterOrdinal( ordinal );
             }
             else
             {
-                return unregisterer.UnregisterLicense( license );
+                return unregisterer.UnregisterLicense( licenseKeyOrOrdinal );
             }
         }
     }

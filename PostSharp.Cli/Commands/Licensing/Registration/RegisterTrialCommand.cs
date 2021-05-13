@@ -11,7 +11,7 @@ namespace PostSharp.Cli.Commands.Licensing.Registration
     internal class RegisterTrialCommand : CommandBase
     {
         public RegisterTrialCommand( ICommandServiceProvider commandServiceProvider )
-            : base( commandServiceProvider, "trial", "Registers a trial license" )
+            : base( commandServiceProvider, "trial", "Starts the trial period" )
         {
             this.Handler = CommandHandler.Create<bool, IConsole>( this.Execute );
         }
@@ -28,7 +28,7 @@ namespace PostSharp.Cli.Commands.Licensing.Registration
             }
             else
             {
-                console.Error.WriteLine( "Cannot register evaluation license. Use --verbose (-v) flag for details." );
+                console.Error.WriteLine( "Cannot start the trial period. Use --verbose (-v) flag for details." );
                 return 1;
             }
         }

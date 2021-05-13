@@ -30,17 +30,10 @@ namespace PostSharp.Cli.Commands.Licensing
             foreach ( var license in storage.Licenses )
             {
                 ordinals.Add( ordinal, license.Key );
-                console.Out.Write( $"({ordinal})" );
-                ordinal++;
-
-                if ( license.Value == null )
-                {
-                    console.Out.WriteLine( $" {license.Key}" );
-                    continue;
-                }
-
-                this.WriteLicense( console.Out, license.Value );
+                this.WriteLicense( console.Out, ordinal, license.Key, license.Value );
                 console.Out.WriteLine();
+               
+                ordinal++;
             }
 
             ordinals.Save();
@@ -48,9 +41,9 @@ namespace PostSharp.Cli.Commands.Licensing
             return 0;
         }
 
-        private void WriteLicense( IStandardStreamWriter @out, LicenseRegistrationData data )
+        private void WriteLicense( IStandardStreamWriter @out, int ordinal, string licenseKey, LicenseRegistrationData? data )
         {
-            string? TryFormat( DateTime? dateTime )
+            string? Format( DateTime? dateTime )
             {
                 if ( dateTime == null )
                 {
@@ -60,34 +53,46 @@ namespace PostSharp.Cli.Commands.Licensing
                 return dateTime.Value.ToString( "D", CultureInfo.InvariantCulture );
             }
 
-            void TryWrite( string description, string? value )
+            void Write( string description, string? value )
             {
                 if ( value != null )
                 {
-                    @out.WriteLine( $"{description}: {value}" );
+                    @out.WriteLine( $"{description,24}: {value}" );
                 }
             }
-
-            @out.WriteLine( $" {data.Description}" );
-            TryWrite( "License ID", data.LicenseId?.ToString() );
-            TryWrite( "Licensee", data.Licensee );
-
-            string? expiration = null;
-
-            if ( data.Perpetual != null )
+            
+            Write(  "Ordinal", ordinal.ToString());
+            
+            
+            
+            if ( data == null || data.LicenseId != null )
             {
-                if ( data.Perpetual.Value )
-                {
-                    expiration = "Never (perpetual license)";
-                }
-                else
-                {
-                    expiration = TryFormat( data.ValidTo );
-                }
+                Write( "License ID", data.LicenseId?.ToString() );
+                Write( "License Key", licenseKey );   
             }
+            
+            if ( data != null )
+            {
+                Write( "Description", data.Description );
+                Write( "Licensee", data.Licensee );
 
-            TryWrite( "Subscription End Date", expiration );
-            TryWrite( "Maintenance Expiration", TryFormat( data.SubscriptionEndDate ) );
+                string? expiration = null;
+
+                if ( data.Perpetual != null )
+                {
+                    if ( data.Perpetual.Value )
+                    {
+                        expiration = "Never (perpetual license)";
+                    }
+                    else
+                    {
+                        expiration = Format( data.ValidTo );
+                    }
+                }
+
+                Write( "Subscription End Date", expiration );
+                Write( "Maintenance Expiration", Format( data.SubscriptionEndDate ) );
+            }
         }
     }
 }
