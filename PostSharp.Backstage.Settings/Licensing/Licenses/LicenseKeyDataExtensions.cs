@@ -26,6 +26,7 @@ namespace PostSharp.Backstage.Licensing.Licenses
 
             LicenseRegistrationData data = new(
                 uniqueId: licenseKeyData.LicenseUniqueId,
+                isSelfCreated: licenseKeyData.LicenseGuid != null,
                 licenseId: licenseKeyData.LicenseGuid == null ? licenseKeyData.LicenseId : null,
                 licensee: licenseKeyData.Licensee,
                 description: description,

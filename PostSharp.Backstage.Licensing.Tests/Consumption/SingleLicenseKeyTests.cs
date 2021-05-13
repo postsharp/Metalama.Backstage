@@ -19,20 +19,19 @@ namespace PostSharp.Backstage.Licensing.Tests.Consumption
             this.TestOneLicense( licenseKey, requiredFeatures, reuqiredNamespace: "Foo", expectedCanConsume );
         }
 
-        private void TestOneLicense( string licenseKey, LicensedFeatures requiredFeatures, string reuqiredNamespace, bool expectedCanConsume )
+        private void TestOneLicense( string licenseKey, LicensedFeatures requiredFeatures, string reuqiredNamespace, bool expectedCanConsume, bool expectedLicenseAutoRegistrationAttempt = false )
         {
             var license = this.CreateLicense( licenseKey );
             var manager = this.CreateConsumptionManager( license );
             this.TestConsumption( manager, requiredFeatures, reuqiredNamespace, expectedCanConsume );
-            Assert.NotEqual( expectedCanConsume, this.AutoRegistrar.RegistrationAttempted );
+            Assert.Equal( expectedLicenseAutoRegistrationAttempt, this.AutoRegistrar.RegistrationAttempted );
         }
 
         [Fact]
         public void NoLicenseAutoRegistersEvaluationLicense()
         {
             LicenseConsumptionManager manager = new( this.Services );
-            this.TestConsumption( manager, LicensedFeatures.Caravela, false );
-            Assert.True( this.AutoRegistrar.RegistrationAttempted );
+            this.TestConsumption( manager, LicensedFeatures.Caravela, expectedCanConsume: false, expectedLicenseAutoRegistrationAttempt: true );
         }
 
         [Fact]

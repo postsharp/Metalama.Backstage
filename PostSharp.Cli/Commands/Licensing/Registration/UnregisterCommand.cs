@@ -38,20 +38,35 @@ namespace PostSharp.Cli.Commands.Licensing.Registration
                 return this.UnregisterLicense( license );
             }
 
-            public int UnregisterLicense( string license )
+            public int UnregisterLicense( string licenseString )
             {
                 var storage = LicenseFileStorage.OpenOrCreate( StandardLicenseFilesLocations.UserLicenseFile, this._services );
 
-                if ( !storage.Licenses.ContainsKey( license ) )
+                if ( !storage.Licenses.TryGetValue( licenseString, out var data ) )
                 {
-                    this._console.Error.WriteLine( $"'{license}' is not registered." );
+                    this._console.Error.WriteLine( "This license is not registered." );
                     return 2;
                 }
 
-                storage.RemoveLicense( license );
+                storage.RemoveLicense( licenseString );
                 storage.Save();
 
-                this._console.Out.WriteLine( $"'{license}' unregistered." );
+                string description;
+
+                if ( data == null )
+                {
+                    description = licenseString;
+                }
+                else if ( data.IsSelfCreated )
+                {
+                    description = data.Description;
+                }
+                else
+                {
+                    description = licenseString;
+                }
+
+                this._console.Out.WriteLine( $"{description} unregistered." );
 
                 return 0;
             }

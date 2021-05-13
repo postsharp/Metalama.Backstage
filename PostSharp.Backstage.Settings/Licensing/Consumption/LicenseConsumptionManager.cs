@@ -110,6 +110,11 @@ namespace PostSharp.Backstage.Licensing.Consumption
         {
             // TODO: trace
 
+            if ( this._usedLicenses.Count != 0 )
+            {
+                return false;
+            }
+
             var registrar = this._services.GetService<ILicenseAutoRegistrar>();
 
             if ( !registrar.TryRegisterLicense() )
@@ -161,8 +166,9 @@ namespace PostSharp.Backstage.Licensing.Consumption
         {
             if ( !this.CanConsumeFeature( consumer, requiredFeatures ) )
             {
-                // TODO Behavior?
-                throw new NotImplementedException();
+                consumer.Diagnostics.ReportError(
+                    $"No license available for feature(s) {requiredFeatures} required by '{consumer.TargetTypeName}' type.",
+                    consumer.DiagnosticsLocation );
             }
         }
     }

@@ -11,9 +11,8 @@ namespace PostSharp.Backstage.Licensing.Tests.Registration
 
         public bool TryRegisterLicense()
         {
-            var success = !this.RegistrationAttempted;
             this.RegistrationAttempted = true;
-            return success;
+            return false;
         }
     }
 }

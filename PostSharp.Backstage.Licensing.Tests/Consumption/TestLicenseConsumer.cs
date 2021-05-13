@@ -17,12 +17,12 @@ namespace PostSharp.Backstage.Licensing.Tests.Consumption
 
         public IDiagnosticsLocation DiagnosticsLocation { get; }
 
-        public TestLicenseConsumer( string targetTypeNamespace, string targetTypeName, IDiagnosticsLocation diagnosticsLocation, TestTrace trace )
+        public TestLicenseConsumer( string targetTypeNamespace, string targetTypeName, string diagnosticsLocationDescription, TestTrace trace )
         {
             this.TargetTypeNamespace = targetTypeNamespace;
             this.TargetTypeName = targetTypeName;
             this.Diagnostics = new TestDiagnosticsSink( trace );
-            this.DiagnosticsLocation = diagnosticsLocation;
+            this.DiagnosticsLocation = new TestDiagnosticsLocation( diagnosticsLocationDescription );
         }
     }
 }

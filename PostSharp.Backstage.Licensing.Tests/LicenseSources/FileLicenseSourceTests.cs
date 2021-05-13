@@ -26,7 +26,7 @@ namespace PostSharp.Backstage.Licensing.Tests.LicenseSources
 
             Assert.Empty( source.GetLicenses() );
             this.Diagnostics.AssertNoErrors();
-            Assert.Equal( "Failed to load licenses from 'postsharp.lic': Could not find file 'postsharp.lic'.", this.Diagnostics.Warnings.Single() );
+            this.Diagnostics.AssertSingleWarning( "Failed to load licenses from 'postsharp.lic': Could not find file 'postsharp.lic'." );
         }
 
         [Fact]

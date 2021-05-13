@@ -11,6 +11,7 @@ namespace PostSharp.Backstage.Testing.Services
         public TestDateTimeProvider Time { get; } = new();
 
         public TestFileSystem FileSystem { get; } = new();
+
         public TestTrace Trace { get; }
         
         public TestServices(ITestOutputHelper testOutput)

@@ -42,7 +42,7 @@ namespace PostSharp.Backstage.Licensing.Consumption.Sources
             {
                 const string messageFormat = "Failed to load licenses from '{0}': {1}";
                 this._trace?.WriteLine( messageFormat, this._path, e );
-                diagnosticsSink.ReportWarning( messageFormat, this._path, e.Message );
+                diagnosticsSink.ReportWarning( string.Format( messageFormat, this._path, e.Message ) );
                 yield break;
             }
 

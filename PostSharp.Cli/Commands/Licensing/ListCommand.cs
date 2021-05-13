@@ -60,14 +60,12 @@ namespace PostSharp.Cli.Commands.Licensing
                     @out.WriteLine( $"{description,24}: {value}" );
                 }
             }
-            
-            Write(  "Ordinal", ordinal.ToString());
-            
-            
-            
+
+            Write( "Ordinal", ordinal.ToString() );
+            Write( "License ID", data?.LicenseId?.ToString() );
+
             if ( data == null || data.LicenseId != null )
             {
-                Write( "License ID", data.LicenseId?.ToString() );
                 Write( "License Key", licenseKey );   
             }
             

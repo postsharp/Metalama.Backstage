@@ -29,7 +29,7 @@ namespace PostSharp.Cli.Tests.Commands.Licensing
             await this.TestCommandAsync( "license register trial", "" );
 
             this.Services.Time.Set( TestLicenses.InvalidNextEvaluationStart );
-            await this.TestCommandAsync( "license register trial", "", "Cannot register evaluation license. Use --verbose (-v) flag for details." + Environment.NewLine, 1 );
+            await this.TestCommandAsync( "license register trial", "", "Cannot start the trial period. Use --verbose (-v) flag for details." + Environment.NewLine, 1 );
             
             await this.TestCommandAsync( "license list", string.Format( TestLicenses.EvaluationFormat, 1 ) );
         }

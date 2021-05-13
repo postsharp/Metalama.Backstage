@@ -16,24 +16,14 @@ namespace PostSharp.Cli.Console
             this._console = console;
         }
 
-        public void ReportError( string message )
+        public void ReportError( string message, IDiagnosticsLocation? location = null )
         {
             this._console.Error.WriteLine( message );
         }
 
-        public void ReportError( string format, params object[] args )
-        {
-            this.ReportError( string.Format( format, args ) );
-        }
-
-        public void ReportWarning( string message )
+        public void ReportWarning( string message, IDiagnosticsLocation? location = null )
         {
             this.ReportError( message );
-        }
-
-        public void ReportWarning( string format, params object[] args )
-        {
-            this.ReportError( format, args );
         }
     }
 }

@@ -7,7 +7,7 @@ using PostSharp.Backstage.Extensibility;
 namespace PostSharp.Backstage.Testing.Services
 {
     /// <inheritdoc />
-    internal class TestApplicationInfo : IApplicationInfo
+    public class TestApplicationInfo : IApplicationInfo
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="TestApplicationInfo"/> class.

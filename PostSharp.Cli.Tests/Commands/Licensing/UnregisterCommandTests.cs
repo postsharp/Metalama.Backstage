@@ -18,13 +18,13 @@ namespace PostSharp.Cli.Tests.Commands.Licensing
         [Fact]
         public async Task UnknownOrdinalFailsToUnregisterInCleanEnvironment()
         {
-            await this.TestCommandAsync( $"license unregister 1", "", "Unknown ordinal." + Environment.NewLine, 1 );
+            await this.TestCommandAsync( $"license unregister 1", "", "Invalid ordinal." + Environment.NewLine, 1 );
         }
 
         [Fact]
         public async Task UnknownLicenseKeyFailsToUnregisterInCleanEnvironment()
         {
-            await this.TestCommandAsync( $"license unregister {TestLicenses.Key1}", "", $"'{TestLicenses.Key1}' is not registered." + Environment.NewLine, 2 );
+            await this.TestCommandAsync( $"license unregister {TestLicenses.Key1}", "", $"This license is not registered." + Environment.NewLine, 2 );
         }
 
         [Fact]
@@ -32,7 +32,7 @@ namespace PostSharp.Cli.Tests.Commands.Licensing
         {
             await this.TestCommandAsync( $"license register {TestLicenses.Key1}", "" );
             await this.TestCommandAsync( "license list", string.Format( TestLicenses.Format1, 1 ) );
-            await this.TestCommandAsync( $"license unregister 1", $"'{TestLicenses.Key1}' unregistered." + Environment.NewLine );
+            await this.TestCommandAsync( $"license unregister 1", $"{TestLicenses.Key1} unregistered." + Environment.NewLine );
             await this.TestCommandAsync( "license list", "" );
         }
 
@@ -40,7 +40,7 @@ namespace PostSharp.Cli.Tests.Commands.Licensing
         public async Task OneLicenseKeyUnregisters()
         {
             await this.TestCommandAsync( $"license register {TestLicenses.Key1}", "" );
-            await this.TestCommandAsync( $"license unregister {TestLicenses.Key1}", $"'{TestLicenses.Key1}' unregistered." + Environment.NewLine );
+            await this.TestCommandAsync( $"license unregister {TestLicenses.Key1}", $"{TestLicenses.Key1} unregistered." + Environment.NewLine );
             await this.TestCommandAsync( "license list", "" );
         }
 

@@ -22,11 +22,9 @@ namespace PostSharp.Backstage.Licensing.Tests.Consumption
             this.Services.SetService<ILicenseAutoRegistrar>( this.AutoRegistrar );
         }
 
-        private protected ILicenseConsumer CreateConsumer( string requiredNamespace = "Foo" )
+        private protected ILicenseConsumer CreateConsumer( string requiredNamespace = "Foo", string diagnosticsLocationDescription = "TestLocation" )
         {
-            // TODO: IDiagnosticsLocation
-
-            return new TestLicenseConsumer( requiredNamespace, targetTypeName: "Bar", diagnosticsLocation: null, this.Trace );
+            return new TestLicenseConsumer( requiredNamespace, targetTypeName: "Bar", diagnosticsLocationDescription, this.Trace );
         }
 
         private protected TestLicense CreateLicense( string licenseString )
@@ -46,24 +44,53 @@ namespace PostSharp.Backstage.Licensing.Tests.Consumption
             return new LicenseConsumptionManager( this.Services, licenseSources );
         }
 
-        private protected void TestConsumption( ILicenseConsumptionManager manager, LicensedFeatures requiredFeatures, bool expectedCanConsume )
+        private protected void TestConsumption(
+            ILicenseConsumptionManager manager,
+            LicensedFeatures requiredFeatures,
+            bool expectedCanConsume,
+            bool expectedLicenseAutoRegistrationAttempt = false )
         {
-            this.TestConsumption( manager, requiredFeatures, "Foo", expectedCanConsume );
+            this.TestConsumption( manager, requiredFeatures, "Foo", expectedCanConsume, expectedLicenseAutoRegistrationAttempt );
         }
 
-        private protected void TestConsumption( ILicenseConsumptionManager manager, LicensedFeatures requiredFeatures, string reuqiredNamespace, bool expectedCanConsume )
+        private protected void TestConsumption(
+            ILicenseConsumptionManager manager,
+            LicensedFeatures requiredFeatures,
+            string reuqiredNamespace,
+            bool expectedCanConsume,
+            bool expectedLicenseAutoRegistrationAttempt = false )
         {
             var consumer = this.CreateConsumer( reuqiredNamespace );
-            var actualCanConsume = manager.CanConsumeFeature( consumer, requiredFeatures );
 
-            if ( actualCanConsume && this.AutoRegistrar.RegistrationAttempted )
+            void TestCanConsume()
             {
-                actualCanConsume = false;
+                var actualCanConsume = manager.CanConsumeFeature( consumer, requiredFeatures );
+                this.Diagnostics.AssertClean();
+                consumer.Diagnostics.AssertClean();
+                Assert.Equal( expectedCanConsume, actualCanConsume );
             }
 
-            this.Diagnostics.AssertClean();
-            consumer.Diagnostics.AssertClean();
-            Assert.Equal( expectedCanConsume, actualCanConsume );
+            void TestConsume()
+            {
+                manager.ConsumeFeature( consumer, requiredFeatures );
+
+                this.Diagnostics.AssertClean();
+
+                if (expectedCanConsume)
+                {
+                    consumer.Diagnostics.AssertClean();
+                }
+                else
+                {
+                    consumer.Diagnostics.AssertNoWarnings();
+                    consumer.Diagnostics.AssertSingleError( "No license available for feature(s) Caravela required by 'Bar' type.", consumer.DiagnosticsLocation );
+                }
+            }
+
+            TestCanConsume();
+            TestConsume();
+
+            Assert.Equal( expectedLicenseAutoRegistrationAttempt, this.AutoRegistrar.RegistrationAttempted );
         }
     }
 }

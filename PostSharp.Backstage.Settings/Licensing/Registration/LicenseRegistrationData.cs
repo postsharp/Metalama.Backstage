@@ -2,7 +2,6 @@
 // This project is not open source. Please see the LICENSE.md file in the repository root for details.
 
 using System;
-using System.Collections.Generic;
 using PostSharp.Backstage.Licensing.Licenses;
 
 namespace PostSharp.Backstage.Licensing.Registration
@@ -21,7 +20,12 @@ namespace PostSharp.Backstage.Licensing.Registration
         public string UniqueId { get; }
 
         /// <summary>
-        /// Gets the license identifier of a non-self-signed license key.
+        /// Gets a value indicating whether the license is self-created.
+        /// </summary>
+        public bool IsSelfCreated { get; }
+
+        /// <summary>
+        /// Gets the license identifier of a not-self-created license key.
         /// </summary>
         public int? LicenseId { get; }
 
@@ -80,6 +84,7 @@ namespace PostSharp.Backstage.Licensing.Registration
         /// <param name="subscriptionEndDate">The expiration date of the maintenance subscription.</param>
         public LicenseRegistrationData(
             string uniqueId,
+            bool isSelfCreated,
             int? licenseId,
             string? licensee,
             string description,
@@ -90,6 +95,7 @@ namespace PostSharp.Backstage.Licensing.Registration
             DateTime? subscriptionEndDate )
         {
             this.UniqueId = uniqueId;
+            this.IsSelfCreated = isSelfCreated;
             this.LicenseId = licenseId;
             this.Licensee = licensee;
             this.Description = description;
@@ -104,6 +110,7 @@ namespace PostSharp.Backstage.Licensing.Registration
         public bool Equals( LicenseRegistrationData other )
         {
             return this.UniqueId == other.UniqueId &&
+                   this.IsSelfCreated == other.IsSelfCreated &&
                    this.LicenseId == other.LicenseId &&
                    this.Licensee == other.Licensee &&
                    this.Description == other.Description &&
@@ -124,17 +131,18 @@ namespace PostSharp.Backstage.Licensing.Registration
         /// <inheritdoc />
         public override int GetHashCode()
         {
-            var hashCode = -1677246439;
-            hashCode = (hashCode * -1521134295) + EqualityComparer<string>.Default.GetHashCode( this.UniqueId );
-            hashCode = (hashCode * -1521134295) + EqualityComparer<int?>.Default.GetHashCode( this.LicenseId );
-            hashCode = (hashCode * -1521134295) + EqualityComparer<string?>.Default.GetHashCode( this.Licensee );
-            hashCode = (hashCode * -1521134295) + EqualityComparer<string>.Default.GetHashCode( this.Description );
-            hashCode = (hashCode * -1521134295) + this.LicenseType.GetHashCode();
-            hashCode = (hashCode * -1521134295) + this.ValidFrom.GetHashCode();
-            hashCode = (hashCode * -1521134295) + this.ValidTo.GetHashCode();
-            hashCode = (hashCode * -1521134295) + this.Perpetual.GetHashCode();
-            hashCode = (hashCode * -1521134295) + this.SubscriptionEndDate.GetHashCode();
-            return hashCode;
+            HashCode hashCode = default;
+            hashCode.Add( this.UniqueId );
+            hashCode.Add( this.IsSelfCreated );
+            hashCode.Add( this.LicenseId );
+            hashCode.Add( this.Licensee );
+            hashCode.Add( this.Description );
+            hashCode.Add( this.LicenseType );
+            hashCode.Add( this.ValidFrom );
+            hashCode.Add( this.ValidTo );
+            hashCode.Add( this.Perpetual );
+            hashCode.Add( this.SubscriptionEndDate );
+            return hashCode.ToHashCode();
         }
     }
 }

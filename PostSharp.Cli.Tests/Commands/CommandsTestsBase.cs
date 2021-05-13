@@ -46,7 +46,5 @@ namespace PostSharp.Cli.Tests.Commands
 
             return this.Services;
         }
-
-        
     }
 }
