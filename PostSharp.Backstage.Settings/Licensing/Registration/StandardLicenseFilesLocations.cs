@@ -14,6 +14,6 @@ namespace PostSharp.Backstage.Licensing.Registration
         /// <summary>
         /// Path to the license file containing user-wise registered licenses.
         /// </summary>
-        public static readonly string UserLicenseFile = Path.Combine( StandardSettingsFilesLocation.Path, "postsharp.lic" );
+        public static readonly string UserLicenseFile = Path.Combine( StandardDirectories.ApplicationDataDirectory, "postsharp.lic" );
     }
 }

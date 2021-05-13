@@ -5,6 +5,6 @@ namespace PostSharp.Backstage.Licensing.Tests
 {
     internal interface IUsable
     {
-        public bool Used { get; }
+        public bool IsUsed { get; }
     }
 }

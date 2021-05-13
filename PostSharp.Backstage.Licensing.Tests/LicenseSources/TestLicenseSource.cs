@@ -13,7 +13,7 @@ namespace PostSharp.Backstage.Licensing.Tests
 
         public string Id { get; }
 
-        public bool Used { get; set; }
+        public bool IsUsed { get; set; }
 
         public TestLicenseSource( string id, params ILicense[] licenses )
         {
@@ -23,7 +23,7 @@ namespace PostSharp.Backstage.Licensing.Tests
 
         public IEnumerable<ILicense> GetLicenses()
         {
-            this.Used = true;
+            this.IsUsed = true;
             return this._licenses;
         }
     }

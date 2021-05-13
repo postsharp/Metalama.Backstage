@@ -16,13 +16,13 @@ namespace PostSharp.Backstage.Licensing.Tests.Consumption
 
         private void AssertOneUsed( bool expectAutoRegitration, params IUsable[] usables )
         {
-            Assert.Equal( 1, usables.Count( l => l.Used ) );
+            Assert.Equal( 1, usables.Count( l => l.IsUsed ) );
             Assert.Equal( expectAutoRegitration, this.AutoRegistrar.RegistrationAttempted );
         }
 
         private void AssertAllUsed( params IUsable[] usables )
         {
-            Assert.Equal( usables.Length, usables.Count( l => l.Used ) );
+            Assert.Equal( usables.Length, usables.Count( l => l.IsUsed ) );
             Assert.True( this.AutoRegistrar.RegistrationAttempted );
         }
 
@@ -93,8 +93,8 @@ namespace PostSharp.Backstage.Licensing.Tests.Consumption
             var license2 = this.CreateLicense( TestLicenseKeys.OpenSource );
             var manager = this.CreateConsumptionManager( license1, license2 );
             this.TestConsumption( manager, LicensedFeatures.Caravela, TestLicenseKeys.OpenSourceNamespace, true );
-            Assert.True( license1.Used );
-            Assert.False( license2.Used );
+            Assert.True( license1.IsUsed );
+            Assert.False( license2.IsUsed );
         }
 
         [Fact]

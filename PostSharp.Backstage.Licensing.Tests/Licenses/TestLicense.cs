@@ -14,7 +14,7 @@ namespace PostSharp.Backstage.Licensing.Tests.Licenses
     {
         public ILicense License { get; }
 
-        public bool Used { get; private set; }
+        public bool IsUsed { get; private set; }
 
         public TestLicense( ILicense license )
         {
@@ -26,9 +26,9 @@ namespace PostSharp.Backstage.Licensing.Tests.Licenses
         public bool TryGetLicenseConsumptionData( /* [MaybeNullWhenAttribute( false )] */ out LicenseConsumptionData licenseData )
         {
             // Each license should always be used only once.
-            Assert.False( this.Used );
+            Assert.False( this.IsUsed );
 
-            this.Used = true;
+            this.IsUsed = true;
             return this.License.TryGetLicenseConsumptionData( out licenseData! );
         }
 
