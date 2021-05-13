@@ -23,7 +23,7 @@ namespace PostSharp.Backstage.Licensing.Consumption
         private readonly HashSet<ILicense> _unusedLicenses = new();
         private readonly HashSet<ILicense> _usedLicenses = new();
 
-        private readonly Dictionary<string, NamespaceLimitedLicenseFeatures> _namespaceLimitedLicensedFeatures = new();
+        private readonly Dictionary<string, LicenseNamespaceConstraint> _namespaceLimitedLicensedFeatures = new();
 
         private LicensedFeatures _licensedFeatures;
 
@@ -99,7 +99,7 @@ namespace PostSharp.Backstage.Licensing.Consumption
                 }
                 else
                 {
-                    namespaceFeatures.Features |= licenseData.LicensedFeatures;
+                    namespaceFeatures.LicensedFeatures |= licenseData.LicensedFeatures;
                 }
             }
 
@@ -143,8 +143,8 @@ namespace PostSharp.Backstage.Licensing.Consumption
 
                     if ( this._namespaceLimitedLicensedFeatures.Count > 0
                         && this._namespaceLimitedLicensedFeatures.Values.Any(
-                            nsf => nsf.Constraint.AllowsNamespace( consumer.TargetTypeNamespace )
-                            && nsf.Features.HasFlag( requiredFeatures ) ) )
+                            nsf => nsf.AllowsNamespace( consumer.TargetTypeNamespace )
+                            && nsf.LicensedFeatures.HasFlag( requiredFeatures ) ) )
                     {
                         return true;
                     }

@@ -8,7 +8,7 @@ namespace PostSharp.Backstage.Licensing.Consumption
     /// <summary>
     /// License namespace constraint.
     /// </summary>
-    internal class NamespaceConstraint
+    internal class LicenseNamespaceConstraint
     {
         /// <summary>
         /// Gets the namespace allowed by the license.
@@ -16,10 +16,15 @@ namespace PostSharp.Backstage.Licensing.Consumption
         public string AllowedNamespace { get; }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="NamespaceConstraint"/> class.
+        /// Gets or sets the licensed features limited by the namespace constraint.
+        /// </summary>
+        public LicensedFeatures LicensedFeatures { get; set; }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="LicenseNamespaceConstraint"/> class.
         /// </summary>
         /// <param name="allowedNamespace">The namespace allowed by the license.</param>
-        public NamespaceConstraint( string allowedNamespace )
+        public LicenseNamespaceConstraint( string allowedNamespace, LicensedFeatures licensedFeatures = LicensedFeatures.None )
         {
             if ( string.IsNullOrEmpty( allowedNamespace ) )
             {
@@ -27,6 +32,7 @@ namespace PostSharp.Backstage.Licensing.Consumption
             }
 
             this.AllowedNamespace = allowedNamespace;
+            this.LicensedFeatures = licensedFeatures;
         }
 
         /// <summary>
