@@ -15,17 +15,16 @@ namespace PostSharp.Backstage.Licensing.Community
     public class CommunityLicenseRegistrar
     {
         private readonly IServiceProvider _services;
-        private readonly ITrace _trace;
+        private readonly ITrace? _trace;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="CommunityLicenseRegistrar"/> class.
         /// </summary>
         /// <param name="services">Service provider.</param>
-        /// <param name="trace">Trace.</param>
-        public CommunityLicenseRegistrar( IServiceProvider services, ITrace trace )
+        public CommunityLicenseRegistrar( IServiceProvider services )
         {
             this._services = services;
-            this._trace = trace;
+            this._trace = services.GetOptionalService<ITrace>();
         }
 
         /// <summary>
@@ -40,14 +39,14 @@ namespace PostSharp.Backstage.Licensing.Community
         {
             void TraceFailure( string message )
             {
-                this._trace.WriteLine( "Failed to register community license: {0}", message );
+                this._trace?.WriteLine( "Failed to register community license: {0}", message );
             }
 
-            this._trace.WriteLine( "Registering community license." );
+            this._trace?.WriteLine( "Registering community license." );
 
             try
             {
-                var userStorage = LicenseFileStorage.OpenOrCreate( StandardLicenseFilesLocations.UserLicenseFile, this._services, this._trace );
+                var userStorage = LicenseFileStorage.OpenOrCreate( StandardLicenseFilesLocations.UserLicenseFile, this._services );
 
                 if ( userStorage.Licenses.Values.Any( l => l != null && l.LicenseType == LicenseType.Community ) )
                 {

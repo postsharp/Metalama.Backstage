@@ -24,7 +24,7 @@ namespace PostSharp.Backstage.Licensing.Tests
             this.Services.SetService<IDiagnosticsSink>( this.Diagnostics );
             this.Services.SetService<IApplicationInfo>( new ApplicationInfo( false, new( 0, 1, 0 ), new( 2021, 1, 1 ) ) );
 
-            this.LicenseFactory = new( this.Services, this.Trace );
+            this.LicenseFactory = new( this.Services );
             this.SelfSignedLicenseFactory = new( this.Services );
         }
     }

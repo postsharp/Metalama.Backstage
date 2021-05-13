@@ -14,18 +14,17 @@ namespace PostSharp.Backstage.Licensing.Licenses
     {
         private readonly IServiceProvider _services;
         private readonly IDiagnosticsSink _diagnostics;
-        private readonly ITrace _trace;
+        private readonly ITrace? _trace;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="LicenseFactory"/> class.
         /// </summary>
         /// <param name="services">Services.</param>
-        /// <param name="trace">Trace.</param>
-        public LicenseFactory( IServiceProvider services, ITrace trace )
+        public LicenseFactory( IServiceProvider services )
         {
             this._services = services;
             this._diagnostics = services.GetService<IDiagnosticsSink>();
-            this._trace = trace;
+            this._trace = services.GetOptionalService<ITrace>();
         }
 
         /// <summary>
@@ -54,7 +53,7 @@ namespace PostSharp.Backstage.Licensing.Licenses
             }
             else
             {
-                license = new License( licenseString, this._services, this._trace );
+                license = new License( licenseString, this._services );
                 return true;
             }
         }

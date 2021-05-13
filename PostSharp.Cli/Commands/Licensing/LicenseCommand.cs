@@ -7,13 +7,13 @@ namespace PostSharp.Cli.Commands.Licensing
 {
     internal class LicenseCommand : CommandBase
     {
-        public LicenseCommand( IServicesFactory servicesFactory )
-            : base( servicesFactory, "license", "Manages licenses" )
+        public LicenseCommand( ICommandServiceProvider commandServiceProvider )
+            : base( commandServiceProvider, "license", "Manages licenses" )
         {
-            this.Add( new ListCommand( servicesFactory ) );
-            this.Add( new ShowCommand( servicesFactory ) );
-            this.Add( new RegisterCommand( servicesFactory ) );
-            this.Add( new UnregisterCommand( servicesFactory ) );
+            this.Add( new ListCommand( commandServiceProvider ) );
+            this.Add( new ShowCommand( commandServiceProvider ) );
+            this.Add( new RegisterCommand( commandServiceProvider ) );
+            this.Add( new UnregisterCommand( commandServiceProvider ) );
         }
     }
 }

@@ -18,7 +18,7 @@ namespace PostSharp.Backstage.Licensing.Tests.Community
         public CommunityLicenseRegistrationTests( ITestOutputHelper logger )
             : base( logger )
         {
-            this._registrar = new( this.Services, this.Trace );
+            this._registrar = new( this.Services );
         }
 
         private void AssertSingleCommunityLicenseRegistered()

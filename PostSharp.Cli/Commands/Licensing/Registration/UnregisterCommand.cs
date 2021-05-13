@@ -15,13 +15,13 @@ namespace PostSharp.Cli.Commands.Licensing.Registration
         private class Unregisterer
         {
             private readonly IServiceProvider _services;
-            private readonly ITrace _trace;
+            private readonly ITrace? _trace;
             private readonly IConsole _console;
 
-            public Unregisterer( IServiceProvider services, ITrace trace, IConsole console )
+            public Unregisterer( IServiceProvider services, IConsole console )
             {
                 this._services = services;
-                this._trace = trace;
+                this._trace = services.GetOptionalService<ITrace>();
                 this._console = console;
             }
 
@@ -40,7 +40,7 @@ namespace PostSharp.Cli.Commands.Licensing.Registration
 
             public int UnregisterLicense( string license )
             {
-                var storage = LicenseFileStorage.OpenOrCreate( StandardLicenseFilesLocations.UserLicenseFile, this._services, this._trace );
+                var storage = LicenseFileStorage.OpenOrCreate( StandardLicenseFilesLocations.UserLicenseFile, this._services );
 
                 if ( !storage.Licenses.ContainsKey( license ) )
                 {
@@ -57,8 +57,8 @@ namespace PostSharp.Cli.Commands.Licensing.Registration
             }
         }
 
-        public UnregisterCommand( IServicesFactory servicesFactory )
-            : base( servicesFactory, "unregister", "Unregisters a license" )
+        public UnregisterCommand( ICommandServiceProvider commandServiceProvider )
+            : base( commandServiceProvider, "unregister", "Unregisters a license" )
         {
             this.AddArgument( new Argument<string>( "license", "The ordinal obtained by the 'postsharp license list' command or the license key to be unregistered" ) );
 
@@ -67,9 +67,9 @@ namespace PostSharp.Cli.Commands.Licensing.Registration
 
         private int Execute( string license, bool verbose, IConsole console )
         {
-            (var services, var trace) = this.ServicesFactory.Create( console, verbose );
+            var services = this.CommandServiceProvider.CreateServiceProvider( console, verbose );
 
-            var unregisterer = new Unregisterer( services, trace, console );
+            var unregisterer = new Unregisterer( services, console );
 
             if (int.TryParse(license, out var ordinal))
             {

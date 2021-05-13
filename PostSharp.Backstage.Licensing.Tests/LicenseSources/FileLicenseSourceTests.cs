@@ -22,7 +22,7 @@ namespace PostSharp.Backstage.Licensing.Tests.LicenseSources
         [Fact]
         public void NonexistentFileIsReported()
         {
-            FileLicenseSource source = new( _licenseFilePath, this.Services, this.Trace );
+            FileLicenseSource source = new( _licenseFilePath, this.Services );
 
             Assert.Empty( source.GetLicenses() );
             this.Diagnostics.AssertNoErrors();
@@ -34,7 +34,7 @@ namespace PostSharp.Backstage.Licensing.Tests.LicenseSources
         {
             this.Services.FileSystem.Mock.AddFile( _licenseFilePath, new MockFileData( "" ) );
 
-            FileLicenseSource source = new( _licenseFilePath, this.Services, this.Trace );
+            FileLicenseSource source = new( _licenseFilePath, this.Services );
 
             Assert.Empty( source.GetLicenses() );
             this.Diagnostics.AssertClean();
@@ -45,7 +45,7 @@ namespace PostSharp.Backstage.Licensing.Tests.LicenseSources
         {
             this.Services.FileSystem.Mock.AddFile( _licenseFilePath, new MockFileData( TestLicenseKeys.Ultimate ) );
 
-            FileLicenseSource source = new( _licenseFilePath, this.Services, this.Trace );
+            FileLicenseSource source = new( _licenseFilePath, this.Services );
 
             Assert.Equal( $"License '{TestLicenseKeys.Ultimate}'", source.GetLicenses().Single().ToString() );
             this.Diagnostics.AssertClean();
@@ -56,7 +56,7 @@ namespace PostSharp.Backstage.Licensing.Tests.LicenseSources
         {
             this.Services.FileSystem.Mock.AddFile( _licenseFilePath, new MockFileDataEx( "", TestLicenseKeys.Ultimate, "", "", TestLicenseKeys.Logging, "" ) );
 
-            FileLicenseSource source = new( _licenseFilePath, this.Services, this.Trace );
+            FileLicenseSource source = new( _licenseFilePath, this.Services );
 
             var licenses = source.GetLicenses().ToArray();
             Assert.Equal( 2, licenses.Length );

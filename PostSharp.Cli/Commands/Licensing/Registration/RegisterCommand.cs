@@ -13,22 +13,22 @@ namespace PostSharp.Cli.Commands.Licensing.Registration
     {
         // TODO Reporting of license registration.
 
-        public RegisterCommand( IServicesFactory servicesFactory )
-            : base( servicesFactory, "register", "Registers a license key, a trial license or a community license" )
+        public RegisterCommand( ICommandServiceProvider commandServiceProvider )
+            : base( commandServiceProvider, "register", "Registers a license key, a trial license or a community license" )
         {
             this.AddArgument( new Argument<string>( "license-key", "The license key to be registered" ) );
 
-            this.AddCommand( new RegisterTrialCommand( servicesFactory ) );
-            this.AddCommand( new RegisterCommunityCommand( servicesFactory ) );
+            this.AddCommand( new RegisterTrialCommand( commandServiceProvider ) );
+            this.AddCommand( new RegisterCommunityCommand( commandServiceProvider ) );
 
             this.Handler = CommandHandler.Create<string, bool, IConsole>( this.Execute );
         }
 
         private int Execute( string licenseKey, bool verbose, IConsole console )
         {
-            (var services, var trace) = this.ServicesFactory.Create( console, verbose );
+            var services = this.CommandServiceProvider.CreateServiceProvider( console, verbose );
 
-            var factory = new LicenseFactory( services, trace );
+            var factory = new LicenseFactory( services );
 
             if ( !factory.TryCreate( licenseKey, out var license )
                 || !license.TryGetLicenseRegistrationData( out var data ) )
@@ -37,7 +37,7 @@ namespace PostSharp.Cli.Commands.Licensing.Registration
                 return 1;
             }
 
-            var storage = LicenseFileStorage.OpenOrCreate( StandardLicenseFilesLocations.UserLicenseFile, services, trace );
+            var storage = LicenseFileStorage.OpenOrCreate( StandardLicenseFilesLocations.UserLicenseFile, services );
 
             storage.AddLicense( licenseKey, data );
             storage.Save();

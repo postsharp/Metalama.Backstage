@@ -25,7 +25,7 @@ namespace PostSharp.Backstage.Licensing.Licenses
         private readonly IServiceProvider _services;
         private readonly IDateTimeProvider _dateTimeProvider;
         private readonly IDiagnosticsSink _diagnostics;
-        private readonly ITrace _trace;
+        private readonly ITrace? _trace;
 
         private static string CleanLicenseKey( string licenseKey )
         {
@@ -48,14 +48,13 @@ namespace PostSharp.Backstage.Licensing.Licenses
         /// </summary>
         /// <param name="licenseKey">The license key.</param>
         /// <param name="services">Services.</param>
-        /// <param name="trace">Trace.</param>
-        internal License( string licenseKey, IServiceProvider services, ITrace trace )
+        internal License( string licenseKey, IServiceProvider services )
         {
             this._licenseKey = CleanLicenseKey( licenseKey );
             this._services = services;
             this._dateTimeProvider = services.GetService<IDateTimeProvider>();
             this._diagnostics = services.GetService<IDiagnosticsSink>();
-            this._trace = trace;
+            this._trace = services.GetOptionalService<ITrace>();
         }
 
         private static bool TryGetLicenseId( string s, [MaybeNullWhen( returnValue: false )] out int id )
@@ -128,7 +127,7 @@ namespace PostSharp.Backstage.Licensing.Licenses
 
         private bool TryGetLicenseKeyData( [MaybeNullWhen( returnValue: false )] out LicenseKeyData data )
         {
-            this._trace.WriteLine( "Deserializing license {{{0}}}.", this._licenseKey );
+            this._trace?.WriteLine( "Deserializing license {{{0}}}.", this._licenseKey );
             Guid? licenseGuid = null;
 
             try
@@ -163,7 +162,7 @@ namespace PostSharp.Backstage.Licensing.Licenses
                     data.LicenseGuid = licenseGuid;
                     data.LicenseString = this._licenseKey;
 
-                    this._trace.WriteLine( "Deserialized license: {0}", data.ToString() );
+                    this._trace?.WriteLine( "Deserialized license: {0}", data.ToString() );
                     return true;
                 }
             }
@@ -178,7 +177,7 @@ namespace PostSharp.Backstage.Licensing.Licenses
                     this._diagnostics.ReportWarning( $"Cannot parse license key {this._licenseKey}: {e.Message}" );
                 }
 
-                this._trace.WriteLine( "Cannot parse the license {{{0}}}: {1}", this._licenseKey, e );
+                this._trace?.WriteLine( "Cannot parse the license {{{0}}}: {1}", this._licenseKey, e );
                 data = null;
                 return false;
             }

@@ -32,9 +32,8 @@ namespace PostSharp.Backstage.Licensing.Registration
         /// </summary>
         /// <param name="path">Path of the license file to be created or overwritten.</param>
         /// <param name="services">Services.</param>
-        /// <param name="trace">Trace.</param>
         /// <returns>The empty storage.</returns>
-        public static LicenseFileStorage Create( string path, IServiceProvider services, ITrace trace )
+        public static LicenseFileStorage Create( string path, IServiceProvider services )
         {
             var fileSystem = services.GetService<IFileSystem>();
             var storage = new LicenseFileStorage( path, fileSystem );
@@ -46,11 +45,10 @@ namespace PostSharp.Backstage.Licensing.Registration
         /// </summary>
         /// <param name="path">Path of the license file to be loaded or created.</param>
         /// <param name="services">Services.</param>
-        /// <param name="trace">Trace.</param>
         /// <returns></returns>
-        public static LicenseFileStorage OpenOrCreate( string path, IServiceProvider services, ITrace trace )
+        public static LicenseFileStorage OpenOrCreate( string path, IServiceProvider services )
         {
-            var storage = Create( path, services, trace );
+            var storage = Create( path, services );
 
             if ( !storage._fileSystem.FileExists( path ) )
             {
@@ -59,7 +57,7 @@ namespace PostSharp.Backstage.Licensing.Registration
 
             var licenseStrings = storage._fileSystem.ReadAllLines( path );
 
-            var factory = new LicenseFactory( services, trace );
+            var factory = new LicenseFactory( services );
 
             foreach ( var licenseString in licenseStrings )
             {

@@ -8,14 +8,13 @@ namespace PostSharp.Backstage.Testing
 {
     public abstract class TestsBase
     {
-        protected TestTrace Trace { get; }
+        protected TestTrace Trace => this.Services.Trace;
 
         protected TestServices Services { get; }
 
         public TestsBase( ITestOutputHelper logger )
         {
-            this.Trace = new( logger );
-            this.Services = new();
+            this.Services = new(logger);
         }
     }
 }

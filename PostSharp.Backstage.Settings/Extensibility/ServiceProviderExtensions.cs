@@ -32,5 +32,10 @@ namespace PostSharp.Backstage.Extensibility
 
             return service;
         }
+        
+        public static T? GetOptionalService<T>( this IServiceProvider serviceProvider )
+        {
+            return (T?) serviceProvider.GetService( typeof( T ) );
+        }
     }
 }

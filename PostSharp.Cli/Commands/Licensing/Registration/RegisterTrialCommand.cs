@@ -10,17 +10,17 @@ namespace PostSharp.Cli.Commands.Licensing.Registration
 {
     internal class RegisterTrialCommand : CommandBase
     {
-        public RegisterTrialCommand( IServicesFactory servicesFactory )
-            : base( servicesFactory, "trial", "Registers a trial license" )
+        public RegisterTrialCommand( ICommandServiceProvider commandServiceProvider )
+            : base( commandServiceProvider, "trial", "Registers a trial license" )
         {
             this.Handler = CommandHandler.Create<bool, IConsole>( this.Execute );
         }
 
         private int Execute( bool verbose, IConsole console )
         {
-            (var services, var trace) = this.ServicesFactory.Create( console, verbose );
+            var services = this.CommandServiceProvider.CreateServiceProvider( console, verbose );
 
-            var registrar = new EvaluationLicenseRegistrar( services, trace );
+            var registrar = new EvaluationLicenseRegistrar( services );
 
             if ( registrar.TryRegisterLicense() )
             {

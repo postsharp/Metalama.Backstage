@@ -43,7 +43,7 @@ namespace PostSharp.Backstage.Licensing.Tests.Consumption
 
         private protected ILicenseConsumptionManager CreateConsumptionManager( params ILicenseSource[] licenseSources )
         {
-            return new LicenseConsumptionManager( this.Services, this.Trace, licenseSources );
+            return new LicenseConsumptionManager( this.Services, licenseSources );
         }
 
         private protected void TestConsumption( ILicenseConsumptionManager manager, LicensedFeatures requiredFeatures, bool expectedCanConsume )

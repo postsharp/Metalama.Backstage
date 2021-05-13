@@ -12,17 +12,17 @@ namespace PostSharp.Cli.Commands.Licensing
 {
     internal class ListCommand : CommandBase
     {
-        public ListCommand( IServicesFactory servicesFactory )
-            : base( servicesFactory, "list", "Lists registered licenses" )
+        public ListCommand( ICommandServiceProvider commandServiceProvider )
+            : base( commandServiceProvider, "list", "Lists registered licenses" )
         {
             this.Handler = CommandHandler.Create<bool, IConsole>( this.Execute );
         }
 
         private int Execute( bool verbose, IConsole console )
         {
-            (var services, var trace) = this.ServicesFactory.Create( console, verbose );
+            var services = this.CommandServiceProvider.CreateServiceProvider( console, verbose );
 
-            var storage = LicenseFileStorage.OpenOrCreate( StandardLicenseFilesLocations.UserLicenseFile, services, trace );
+            var storage = LicenseFileStorage.OpenOrCreate( StandardLicenseFilesLocations.UserLicenseFile, services );
 
             var ordinal = 1;
             LicenseStringsOrdinalDictionary ordinals = new( services );

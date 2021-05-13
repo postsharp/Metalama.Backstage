@@ -17,7 +17,7 @@ namespace PostSharp.Backstage.Licensing.Consumption
     public class LicenseConsumptionManager : ILicenseConsumptionManager
     {
         private readonly IServiceProvider _services;
-        private readonly ITrace _trace;
+        private readonly ITrace? _trace;
 
         private readonly List<ILicenseSource> _unusedLicenseSources = new();
         private readonly HashSet<ILicense> _unusedLicenses = new();
@@ -31,10 +31,9 @@ namespace PostSharp.Backstage.Licensing.Consumption
         /// Initializes a new instance of the <see cref="LicenseConsumptionManager"/> class.
         /// </summary>
         /// <param name="services">Services.</param>
-        /// <param name="trace">Traces.</param>
         /// <param name="licenseSources">License sources.</param>
-        public LicenseConsumptionManager( IServiceProvider services, ITrace trace, params ILicenseSource[] licenseSources )
-            : this( services, trace, (IEnumerable<ILicenseSource>) licenseSources )
+        public LicenseConsumptionManager( IServiceProvider services, params ILicenseSource[] licenseSources )
+            : this( services, (IEnumerable<ILicenseSource>) licenseSources )
         {
         }
 
@@ -42,12 +41,11 @@ namespace PostSharp.Backstage.Licensing.Consumption
         /// Initializes a new instance of the <see cref="LicenseConsumptionManager"/> class.
         /// </summary>
         /// <param name="services">Services.</param>
-        /// <param name="trace">Traces.</param>
         /// <param name="licenseSources">License sources.</param>
-        public LicenseConsumptionManager( IServiceProvider services, ITrace trace, IEnumerable<ILicenseSource> licenseSources )
+        public LicenseConsumptionManager( IServiceProvider services, IEnumerable<ILicenseSource> licenseSources )
         {
             this._services = services;
-            this._trace = trace;
+            this._trace = services.GetOptionalService<ITrace>();
 
             this._unusedLicenseSources.AddRange( licenseSources );
         }

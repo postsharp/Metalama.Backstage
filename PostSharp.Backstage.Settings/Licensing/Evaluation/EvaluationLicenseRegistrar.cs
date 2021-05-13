@@ -32,18 +32,17 @@ namespace PostSharp.Backstage.Licensing.Evaluation
 
         private readonly IServiceProvider _services;
         private readonly IDateTimeProvider _time;
-        private readonly ITrace _trace;
+        private readonly ITrace? _trace;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="EvaluationLicenseRegistrar"/> class.
         /// </summary>
         /// <param name="services">Services.</param>
-        /// <param name="trace">Trace.</param>
-        public EvaluationLicenseRegistrar( IServiceProvider services, ITrace trace )
+        public EvaluationLicenseRegistrar( IServiceProvider services )
         {
             this._services = services;
             this._time = services.GetService<IDateTimeProvider>();
-            this._trace = trace;
+            this._trace = services.GetOptionalService<ITrace>();
         }
 
         /// <summary>
@@ -63,7 +62,7 @@ namespace PostSharp.Backstage.Licensing.Evaluation
 
             if ( !this.TryRegisterEvaluationLicenseImpl() )
             {
-                this._trace.WriteLine(
+                this._trace?.WriteLine(
                     "Evaluation license registration finished with errors which might be caused by concurrent evaluation license registration. " +
                     "If a concurrent evaluation license registration has succeeded, it will be used now." );
             }
@@ -75,18 +74,18 @@ namespace PostSharp.Backstage.Licensing.Evaluation
         {
             void TraceFailure( string message )
             {
-                this._trace.WriteLine( "Failed to find the latest trial license: {0}", message );
+                this._trace?.WriteLine( "Failed to find the latest trial license: {0}", message );
             }
 
-            this._trace.WriteLine( "Checking for trial license eligibility." );
+            this._trace?.WriteLine( "Checking for trial license eligibility." );
 
             try
             {
-                var evaluationStorage = LicenseFileStorage.OpenOrCreate( StandardEvaluationLicenseFilesLocations.EvaluationLicenseFile, this._services, this._trace );
+                var evaluationStorage = LicenseFileStorage.OpenOrCreate( StandardEvaluationLicenseFilesLocations.EvaluationLicenseFile, this._services );
 
                 if ( evaluationStorage.Licenses.Count == 0 )
                 {
-                    this._trace.WriteLine( "No trial license found." );
+                    this._trace?.WriteLine( "No trial license found." );
                     return true;
                 }
 
@@ -118,12 +117,12 @@ namespace PostSharp.Backstage.Licensing.Evaluation
 
                 if ( data.ValidTo + NoEvaluationPeriod < this._time.Now )
                 {
-                    this._trace.WriteLine( "Evaluation license registration can be repeated." );
+                    this._trace?.WriteLine( "Evaluation license registration can be repeated." );
                     return true;
                 }
                 else
                 {
-                    this._trace.WriteLine( "Evaluation license requested recently." );
+                    this._trace?.WriteLine( "Evaluation license requested recently." );
                     return false;
                 }
             }
@@ -139,10 +138,10 @@ namespace PostSharp.Backstage.Licensing.Evaluation
         {
             void TraceFailure( string message )
             {
-                this._trace.WriteLine( "Failed to register evaluation license: {0}", message );
+                this._trace?.WriteLine( "Failed to register evaluation license: {0}", message );
             }
 
-            this._trace.WriteLine( "Registering evaluation license." );
+            this._trace?.WriteLine( "Registering evaluation license." );
 
             string licenseKey;
             LicenseRegistrationData data;
@@ -158,7 +157,7 @@ namespace PostSharp.Backstage.Licensing.Evaluation
                 {
                     try
                     {
-                        var userStorage = LicenseFileStorage.OpenOrCreate( StandardLicenseFilesLocations.UserLicenseFile, this._services, this._trace );
+                        var userStorage = LicenseFileStorage.OpenOrCreate( StandardLicenseFilesLocations.UserLicenseFile, this._services );
 
                         if ( userStorage.Licenses.Values.Any( l => l != null && l.LicenseType == LicenseType.Evaluation && l.ValidTo >= data.ValidFrom ) )
                         {
@@ -198,14 +197,14 @@ namespace PostSharp.Backstage.Licensing.Evaluation
             try
             {
                 // We overwrite existing storage.
-                var evaluationStorage = LicenseFileStorage.Create( StandardEvaluationLicenseFilesLocations.EvaluationLicenseFile, this._services, this._trace );
+                var evaluationStorage = LicenseFileStorage.Create( StandardEvaluationLicenseFilesLocations.EvaluationLicenseFile, this._services );
                 evaluationStorage.AddLicense( licenseKey, data );
                 evaluationStorage.Save();
             }
             catch (Exception e)
             {
                 // We don't want to disclose the evaluation license file path here.
-                this._trace.WriteLine( "Failed to store evaluation license information: {0}", e.GetType() );
+                this._trace?.WriteLine( "Failed to store evaluation license information: {0}", e.GetType() );
                 
                 // We failed to prevent repetitive evaluation license registration, but the license has been registered already.
                 return true;

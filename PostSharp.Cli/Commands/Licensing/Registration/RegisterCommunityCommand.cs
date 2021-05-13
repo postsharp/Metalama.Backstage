@@ -10,17 +10,17 @@ namespace PostSharp.Cli.Commands.Licensing.Registration
 {
     internal class RegisterCommunityCommand : CommandBase
     {
-        public RegisterCommunityCommand( IServicesFactory servicesFactory )
-            : base( servicesFactory, "community", "Registers a community license" )
+        public RegisterCommunityCommand( ICommandServiceProvider commandServiceProvider )
+            : base( commandServiceProvider, "community", "Registers a community license" )
         {
             this.Handler = CommandHandler.Create<bool, IConsole>( this.Execute );
         }
 
         private int Execute( bool verbose, IConsole console )
         {
-            (var services, var trace) = this.ServicesFactory.Create( console, verbose );
+            var services = this.CommandServiceProvider.CreateServiceProvider( console, verbose );
 
-            var registrar = new CommunityLicenseRegistrar( services, trace );
+            var registrar = new CommunityLicenseRegistrar( services );
 
             if ( registrar.TryRegisterLicense() )
             {

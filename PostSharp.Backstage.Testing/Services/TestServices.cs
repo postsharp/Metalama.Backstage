@@ -2,6 +2,7 @@
 // This project is not open source. Please see the LICENSE.md file in the repository root for details.
 
 using PostSharp.Backstage.Extensibility;
+using Xunit.Abstractions;
 
 namespace PostSharp.Backstage.Testing.Services
 {
@@ -10,9 +11,13 @@ namespace PostSharp.Backstage.Testing.Services
         public TestDateTimeProvider Time { get; } = new();
 
         public TestFileSystem FileSystem { get; } = new();
-
-        public TestServices()
+        public TestTrace Trace { get; }
+        
+        public TestServices(ITestOutputHelper testOutput)
         {
+            this.Trace = new TestTrace( testOutput );
+            
+            this.SetService<ITrace>( this.Trace );
             this.SetService<IDateTimeProvider>( this.Time );
             this.SetService<IFileSystem>( this.FileSystem );
         }

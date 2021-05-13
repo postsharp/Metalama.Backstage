@@ -15,19 +15,19 @@ namespace PostSharp.Backstage.Licensing.Consumption.Sources
     {
         private readonly string _path;
         private readonly IServiceProvider _services;
-        private readonly ITrace _trace;
+        private readonly ITrace? _trace;
 
-        public FileLicenseSource( string path, IServiceProvider services, ITrace trace )
+        public FileLicenseSource( string path, IServiceProvider services )
         {
             this._path = path;
             this._services = services;
-            this._trace = trace;
+            this._trace = services.GetOptionalService<ITrace>();
         }
 
         /// <inheritdoc />
         public IEnumerable<ILicense> GetLicenses()
         {
-            this._trace.WriteLine( "Loading licenses from '{0}'.", this._path );
+            this._trace?.WriteLine( "Loading licenses from '{0}'.", this._path );
 
             var diagnosticsSink = this._services.GetService<IDiagnosticsSink>();
             var fileSystem = this._services.GetService<IFileSystem>();
@@ -41,12 +41,12 @@ namespace PostSharp.Backstage.Licensing.Consumption.Sources
             catch ( Exception e )
             {
                 const string messageFormat = "Failed to load licenses from '{0}': {1}";
-                this._trace.WriteLine( messageFormat, this._path, e );
+                this._trace?.WriteLine( messageFormat, this._path, e );
                 diagnosticsSink.ReportWarning( messageFormat, this._path, e.Message );
                 yield break;
             }
 
-            var licenseFactory = new LicenseFactory( this._services, this._trace );
+            var licenseFactory = new LicenseFactory( this._services );
 
             foreach ( var licenseString in licenseStrings )
             {
@@ -57,7 +57,7 @@ namespace PostSharp.Backstage.Licensing.Consumption.Sources
 
                 if ( licenseFactory.TryCreate( licenseString, out var license ) )
                 {
-                    this._trace.WriteLine( "{0} loaded from '{1}'.", license, this._path );
+                    this._trace?.WriteLine( "{0} loaded from '{1}'.", license, this._path );
                     yield return license;
                 }
             }

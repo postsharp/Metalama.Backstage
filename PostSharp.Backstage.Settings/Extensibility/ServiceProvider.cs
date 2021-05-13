@@ -9,7 +9,7 @@ namespace PostSharp.Backstage.Extensibility
     /// <summary>
     /// Retrieves service objects; that is, an object that provides custom support to other objects.
     /// </summary>
-    public abstract class ServiceProvider : IServiceProvider
+    public class ServiceProvider : IServiceProvider
     {
         private readonly Dictionary<Type, object> _services = new();
 
@@ -18,7 +18,7 @@ namespace PostSharp.Backstage.Extensibility
         /// </summary>
         /// <typeparam name="T">Type of service object to set.</typeparam>
         /// <param name="service">A service object of type <typeparamref name="T"/>.</param>
-        protected void SetService<T>( T service )
+        public void SetService<T>( T service )
             where T : notnull
             => this._services.Add( typeof( T ), service );
 

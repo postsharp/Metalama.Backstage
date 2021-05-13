@@ -14,7 +14,7 @@ using Xunit.Abstractions;
 
 namespace PostSharp.Cli.Tests.Commands
 {
-    public abstract class CommandsTestsBase : TestsBase, IServicesFactory
+    public abstract class CommandsTestsBase : TestsBase, ICommandServiceProvider
     {
         private readonly PostSharpCommand _rootCommand;
 
@@ -36,7 +36,7 @@ namespace PostSharp.Cli.Tests.Commands
             Assert.Equal( expectedExitCode, exitCode );
         }
 
-        (IServiceProvider Services, ITrace Trace) IServicesFactory.Create( IConsole console, bool verbose )
+        public IServiceProvider CreateServiceProvider( IConsole console, bool addTrace )
         {
             if ( !this._servicesCreated )
             {
@@ -44,7 +44,9 @@ namespace PostSharp.Cli.Tests.Commands
                 this._servicesCreated = true;
             }
 
-            return (this.Services, this.Trace);
+            return this.Services;
         }
+
+        
     }
 }

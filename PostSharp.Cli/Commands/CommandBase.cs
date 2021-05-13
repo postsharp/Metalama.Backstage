@@ -7,12 +7,12 @@ namespace PostSharp.Cli.Commands
 {
     internal class CommandBase : Command
     {
-        public IServicesFactory ServicesFactory { get; }
+        public ICommandServiceProvider CommandServiceProvider { get; }
 
-        public CommandBase( IServicesFactory servicesFactory, string name, string? description = null )
+        public CommandBase( ICommandServiceProvider commandServiceProvider, string name, string? description = null )
             : base( name, description )
         {
-            this.ServicesFactory = servicesFactory;
+            this.CommandServiceProvider = commandServiceProvider;
         }
     }
 }

@@ -10,8 +10,8 @@ namespace PostSharp.Cli.Commands.Licensing
 {
     internal class ShowCommand : CommandBase
     {
-        public ShowCommand( IServicesFactory servicesFactory )
-            : base( servicesFactory, "show", "Shows a license key" )
+        public ShowCommand( ICommandServiceProvider commandServiceProvider )
+            : base( commandServiceProvider, "show", "Shows a license key" )
         {
             this.AddArgument( new Argument<int>( "ordinal", "The ordinal obtained by the 'postsharp license list' command" ) );
 
@@ -20,7 +20,7 @@ namespace PostSharp.Cli.Commands.Licensing
 
         private int Execute( int ordinal, bool verbose, IConsole console )
         {
-            (var services, var trace) = this.ServicesFactory.Create( console, verbose );
+            var services = this.CommandServiceProvider.CreateServiceProvider( console, verbose );
 
             var ordinals = LicenseStringsOrdinalDictionary.Load( services );
 
@@ -30,7 +30,7 @@ namespace PostSharp.Cli.Commands.Licensing
                 return 1;
             }
 
-            var factory = new LicenseFactory( services, trace );
+            var factory = new LicenseFactory( services );
 
             if ( !factory.TryCreate( licenseString, out var license )
                 || !license.TryGetLicenseRegistrationData( out var data ) )

@@ -22,7 +22,7 @@ namespace PostSharp.Backstage.Licensing.Tests.Evaluation
         public EvaluationLicenseRegistrationTestsBase( ITestOutputHelper logger ) :
             base( logger )
         {
-            this.Registrar = new( this.Services, this.Trace );
+            this.Registrar = new( this.Services );
         }
 
         protected void SetFlag( params string[] flag )

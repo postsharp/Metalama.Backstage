@@ -30,7 +30,7 @@ namespace PostSharp.Backstage.Licensing.Tests.Consumption
         [Fact]
         public void NoLicenseAutoRegistersEvaluationLicense()
         {
-            LicenseConsumptionManager manager = new( this.Services, this.Trace );
+            LicenseConsumptionManager manager = new( this.Services );
             this.TestConsumption( manager, LicensedFeatures.Caravela, false );
             Assert.True( this.AutoRegistrar.RegistrationAttempted );
         }
