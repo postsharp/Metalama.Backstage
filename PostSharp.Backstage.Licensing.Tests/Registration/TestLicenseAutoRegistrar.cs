@@ -5,7 +5,7 @@ using PostSharp.Backstage.Licensing.Registration;
 
 namespace PostSharp.Backstage.Licensing.Tests.Registration
 {
-    internal class TestLicenseAutoRegistrar : ILicenseAutoRegistrar
+    internal class TestLicenseAutoRegistrar : IFirstRunLicenseActivator
     {
         public bool RegistrationAttempted { get; set; }
 

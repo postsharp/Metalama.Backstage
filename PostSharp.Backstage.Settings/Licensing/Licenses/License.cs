@@ -127,7 +127,7 @@ namespace PostSharp.Backstage.Licensing.Licenses
 
         private bool TryGetLicenseKeyData( [MaybeNullWhen( returnValue: false )] out LicenseKeyData data )
         {
-            this._trace?.WriteLine( "Deserializing license {{{0}}}.", this._licenseKey );
+            this._trace?.WriteLine( $"Deserializing license {{{this._licenseKey}}}." );
             Guid? licenseGuid = null;
 
             try
@@ -162,7 +162,7 @@ namespace PostSharp.Backstage.Licensing.Licenses
                     data.LicenseGuid = licenseGuid;
                     data.LicenseString = this._licenseKey;
 
-                    this._trace?.WriteLine( "Deserialized license: {0}", data.ToString() );
+                    this._trace?.WriteLine( $"Deserialized license: {data}" );
                     return true;
                 }
             }
@@ -177,7 +177,7 @@ namespace PostSharp.Backstage.Licensing.Licenses
                     this._diagnostics.ReportWarning( $"Cannot parse license key {this._licenseKey}: {e.Message}" );
                 }
 
-                this._trace?.WriteLine( "Cannot parse the license {{{0}}}: {1}", this._licenseKey, e );
+                this._trace?.WriteLine( $"Cannot parse the license {{{this._licenseKey}}}: {e}" );
                 data = null;
                 return false;
             }

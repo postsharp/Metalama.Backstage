@@ -39,7 +39,7 @@ namespace PostSharp.Backstage.Licensing.Community
         {
             void TraceFailure( string message )
             {
-                this._trace?.WriteLine( "Failed to register community license: {0}", message );
+                this._trace?.WriteLine( $"Failed to register community license: {message}" );
             }
 
             this._trace?.WriteLine( "Registering community license." );

@@ -25,6 +25,7 @@
   <ItemGroup>
     <Folder Include="Commands\Compiler\" />
     <Folder Include="Commands\Ceip\" />
+    <Folder Include="Session\" />
   </ItemGroup>
 
   <ItemGroup>

@@ -14,7 +14,7 @@ namespace PostSharp.Backstage.Licensing.Evaluation
     /// <summary>
     /// Registers an evaluation (trial) license.
     /// </summary>
-    public class EvaluationLicenseRegistrar : ILicenseAutoRegistrar
+    public class EvaluationLicenseRegistrar : IFirstRunLicenseActivator
     {
         /// <summary>
         /// Gets the time span of the evaluation license validity.
@@ -74,7 +74,7 @@ namespace PostSharp.Backstage.Licensing.Evaluation
         {
             void TraceFailure( string message )
             {
-                this._trace?.WriteLine( "Failed to find the latest trial license: {0}", message );
+                this._trace?.WriteLine( $"Failed to find the latest trial license: {message}" );
             }
 
             this._trace?.WriteLine( "Checking for trial license eligibility." );
@@ -138,7 +138,7 @@ namespace PostSharp.Backstage.Licensing.Evaluation
         {
             void TraceFailure( string message )
             {
-                this._trace?.WriteLine( "Failed to register evaluation license: {0}", message );
+                this._trace?.WriteLine( $"Failed to register evaluation license: {message}" );
             }
 
             this._trace?.WriteLine( "Registering evaluation license." );
@@ -204,7 +204,7 @@ namespace PostSharp.Backstage.Licensing.Evaluation
             catch (Exception e)
             {
                 // We don't want to disclose the evaluation license file path here.
-                this._trace?.WriteLine( "Failed to store evaluation license information: {0}", e.GetType() );
+                this._trace?.WriteLine( $"Failed to store evaluation license information: {e.GetType()}" );
                 
                 // We failed to prevent repetitive evaluation license registration, but the license has been registered already.
                 return true;

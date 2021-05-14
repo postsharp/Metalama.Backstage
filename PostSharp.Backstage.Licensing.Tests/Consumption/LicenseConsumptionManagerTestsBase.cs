@@ -19,7 +19,7 @@ namespace PostSharp.Backstage.Licensing.Tests.Consumption
         public LicenseConsumptionManagerTestsBase( ITestOutputHelper logger )
             : base( logger )
         {
-            this.Services.SetService<ILicenseAutoRegistrar>( this.AutoRegistrar );
+            this.Services.SetService<IFirstRunLicenseActivator>( this.AutoRegistrar );
         }
 
         private protected ILicenseConsumer CreateConsumer( string requiredNamespace = "Foo", string diagnosticsLocationDescription = "TestLocation" )

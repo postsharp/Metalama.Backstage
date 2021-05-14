@@ -25,7 +25,7 @@ namespace PostSharp.Cli.Commands.Licensing
             var storage = LicenseFileStorage.OpenOrCreate( StandardLicenseFilesLocations.UserLicenseFile, services );
 
             var ordinal = 1;
-            LicenseStringsOrdinalDictionary ordinals = new( services );
+            LicenseCommandSessionState ordinals = new( services );
 
             foreach ( var license in storage.Licenses )
             {

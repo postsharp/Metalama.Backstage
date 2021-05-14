@@ -29,7 +29,7 @@ namespace PostSharp.Backstage.Testing.Services
 
         private void Trace( string verbosity, string message, IDiagnosticsLocation? location )
         {
-            this._trace.WriteLine( "Diagnostic sink '{0}' reported '{1}' at '{2}': {3}", this.Name, verbosity, location?.ToString() ?? "unknown", message );
+            this._trace.WriteLine( $"Diagnostic sink '{this.Name}' reported '{verbosity}' at '{location?.ToString() ?? "unknown"}': {message}" );
         }
 
         public void ReportWarning( string message, IDiagnosticsLocation? location = null )

@@ -27,7 +27,7 @@ namespace PostSharp.Cli.Commands.Licensing.Registration
 
             public int UnregisterOrdinal( int ordinal )
             {
-                var ordinals = LicenseStringsOrdinalDictionary.Load( this._services );
+                var ordinals = new LicenseCommandSessionState( this._services ).Load();
 
                 if ( !ordinals.TryGetValue( ordinal, out var license ) )
                 {
@@ -35,7 +35,7 @@ namespace PostSharp.Cli.Commands.Licensing.Registration
                     return 1;
                 }
 
-                return this.UnregisterLicense( license );
+                return this.UnregisterLicense( license! );
             }
 
             public int UnregisterLicense( string licenseString )

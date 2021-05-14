@@ -13,12 +13,5 @@ namespace PostSharp.Backstage.Extensibility
         /// </summary>
         /// <param name="message">The message.</param>
         public void WriteLine( string message );
-
-        /// <summary>
-        /// Writes a trace message followed by a new line.
-        /// </summary>
-        /// <param name="format"></param>
-        /// <param name="args"></param>
-        public void WriteLine( string format, params object[] args );
     }
 }

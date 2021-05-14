@@ -16,7 +16,12 @@ namespace PostSharp.Backstage.Licensing.Consumption
         /// <returns>A value indicating if the <paramref name="requiredFeatures"/> is available to the <paramref name="consumer" />.</returns>
         public bool CanConsumeFeature( ILicenseConsumer consumer, LicensedFeatures requiredFeatures );
 
-        // TODO Behavior?
+        /// <summary>
+        /// If the <paramref name="requiredFeatures"/> cannot be consumed by the <paramref name="consumer"/>,
+        /// an error diagnostic is emitted in the <paramref name="consumer"/>'s diagnostics sink.
+        /// </summary>
+        /// <param name="consumer">License consumer requesting licensed features.</param>
+        /// <param name="requiredFeatures">The requested features.</param>
         public void ConsumeFeature( ILicenseConsumer consumer, LicensedFeatures requiredFeatures );
     }
 }

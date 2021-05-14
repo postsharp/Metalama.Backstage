@@ -12,7 +12,7 @@ namespace PostSharp.Cli.Tests.Session
     {
         private const string _name = "test";
 
-        private OrdinalDictionary? _ordinals;
+        private CliSessionState? _ordinals;
 
         public OrdinalDictionaryTests( ITestOutputHelper logger )
             : base( logger )
@@ -26,7 +26,7 @@ namespace PostSharp.Cli.Tests.Session
 
         private void Load()
         {
-            this._ordinals = OrdinalDictionary.Load( _name, this.Services );
+            this._ordinals = new CliSessionState( _name, this.Services ).Load();
         }
 
         private void AssertContains( params (int Ordinal, string Value)[] expectedData )

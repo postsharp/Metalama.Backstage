@@ -26,12 +26,6 @@ namespace PostSharp.Backstage.Testing.Services
             this._logger.WriteLine( message );
         }
 
-        public void WriteLine( string format, params object[] args )
-        {
-            this._messages.Add( string.Format( format, args ) );
-            this._logger.WriteLine( format, args );
-        }
-
         public void Clear() => this._messages.Clear();
     }
 }

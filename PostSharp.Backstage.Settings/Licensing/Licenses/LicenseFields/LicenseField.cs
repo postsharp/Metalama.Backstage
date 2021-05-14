@@ -1,12 +1,10 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. All rights reserved.
 // This project is not open source. Please see the LICENSE.md file in the repository root for details.
 
-using System;
 using System.IO;
 
 namespace PostSharp.Backstage.Licensing.Licenses.LicenseFields
 {
-    [Serializable]
     internal abstract class LicenseField
     {
         public object? Value { get; set; }

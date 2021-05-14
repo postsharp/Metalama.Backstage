@@ -4,9 +4,9 @@
 namespace PostSharp.Backstage.Licensing.Registration
 {
     /// <summary>
-    /// Registers a license without user interaction.
+    /// Registers a license without user interaction. This interface is used the first time PostSharp is launched when no license is present.
     /// </summary>
-    public interface ILicenseAutoRegistrar
+    public interface IFirstRunLicenseActivator
     {
         /// <summary>
         /// Tries to register a license without user interaction.

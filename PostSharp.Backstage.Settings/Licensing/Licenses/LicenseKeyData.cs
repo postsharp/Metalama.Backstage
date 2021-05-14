@@ -37,8 +37,6 @@ namespace PostSharp.Backstage.Licensing.Licenses
             }
         }
 
-        public bool RequiresRevocationCheck => this.LicenseType == LicenseType.OpenSourceRedistribution;
-
         public string LicenseUniqueId =>
             this.LicenseGuid.HasValue ? this.LicenseGuid.Value.ToString() : this.LicenseId.ToString( CultureInfo.InvariantCulture );
 

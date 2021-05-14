@@ -115,7 +115,7 @@ namespace PostSharp.Backstage.Licensing.Consumption
                 return false;
             }
 
-            var registrar = this._services.GetService<ILicenseAutoRegistrar>();
+            var registrar = this._services.GetService<IFirstRunLicenseActivator>();
 
             if ( !registrar.TryRegisterLicense() )
             {
