@@ -64,7 +64,7 @@ namespace PostSharp.Backstage.Licensing.Tests.Consumption
 
             void TestCanConsume()
             {
-                var actualCanConsume = manager.CanConsumeFeature( consumer, requiredFeatures );
+                var actualCanConsume = manager.CanConsumeFeatures( consumer, requiredFeatures );
                 this.Diagnostics.AssertClean();
                 consumer.Diagnostics.AssertClean();
                 Assert.Equal( expectedCanConsume, actualCanConsume );
@@ -72,7 +72,7 @@ namespace PostSharp.Backstage.Licensing.Tests.Consumption
 
             void TestConsume()
             {
-                manager.ConsumeFeature( consumer, requiredFeatures );
+                manager.ConsumeFeatures( consumer, requiredFeatures );
 
                 this.Diagnostics.AssertClean();
 

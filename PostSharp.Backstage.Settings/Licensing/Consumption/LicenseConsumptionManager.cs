@@ -130,7 +130,7 @@ namespace PostSharp.Backstage.Licensing.Consumption
         }
 
         /// <inheritdoc />
-        public bool CanConsumeFeature( ILicenseConsumer consumer, LicensedFeatures requiredFeatures )
+        public bool CanConsumeFeatures( ILicenseConsumer consumer, LicensedFeatures requiredFeatures )
         {
             do
             {
@@ -162,9 +162,9 @@ namespace PostSharp.Backstage.Licensing.Consumption
         }
 
         /// <inheritdoc />
-        public void ConsumeFeature( ILicenseConsumer consumer, LicensedFeatures requiredFeatures )
+        public void ConsumeFeatures( ILicenseConsumer consumer, LicensedFeatures requiredFeatures )
         {
-            if ( !this.CanConsumeFeature( consumer, requiredFeatures ) )
+            if ( !this.CanConsumeFeatures( consumer, requiredFeatures ) )
             {
                 consumer.Diagnostics.ReportError(
                     $"No license available for feature(s) {requiredFeatures} required by '{consumer.TargetTypeName}' type.",
