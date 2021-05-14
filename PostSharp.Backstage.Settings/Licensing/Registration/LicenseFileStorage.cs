@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using Microsoft.Extensions.DependencyInjection;
 using PostSharp.Backstage.Extensibility;
 using PostSharp.Backstage.Licensing.Licenses;
 
@@ -35,7 +36,7 @@ namespace PostSharp.Backstage.Licensing.Registration
         /// <returns>The empty storage.</returns>
         public static LicenseFileStorage Create( string path, IServiceProvider services )
         {
-            var fileSystem = services.GetService<IFileSystem>();
+            var fileSystem = services.GetRequiredService<IFileSystem>();
             var storage = new LicenseFileStorage( path, fileSystem );
             return storage;
         }
@@ -108,7 +109,7 @@ namespace PostSharp.Backstage.Licensing.Registration
         /// Writes the licenses to a file.
         /// </summary>
         /// <remarks>
-        /// If the file exists already, it is overwritten.
+        /// Overwrites existing file.
         /// </remarks>
         public void Save()
         {

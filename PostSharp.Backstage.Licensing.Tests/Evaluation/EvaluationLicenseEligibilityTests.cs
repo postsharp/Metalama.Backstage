@@ -19,7 +19,7 @@ namespace PostSharp.Backstage.Licensing.Tests.Evaluation
         [Fact]
         public void EvaluationLicenseRegistersInCleanEnvironment()
         {
-            this.Services.Time.Set( TestStart );
+            this.Time.Set( TestStart );
             this.AssertEvaluationElligible( reason: "No trial license found." );
         }
 
@@ -66,10 +66,10 @@ namespace PostSharp.Backstage.Licensing.Tests.Evaluation
 
         private void TestRepetitiveRegistration( TimeSpan retryAfter, bool expectedElligibility )
         {
-            this.Services.Time.Set( TestStart );
+            this.Time.Set( TestStart );
             this.AssertEvaluationElligible( "No trial license found." );
 
-            this.Services.Time.Set( this.Services.Time.Now + retryAfter );
+            this.Time.Set( this.Time.Now + retryAfter );
 
             if ( expectedElligibility )
             {

@@ -17,12 +17,12 @@ namespace PostSharp.Backstage.Licensing.Tests.Registration
 
         protected string[] ReadStoredLicenseStrings()
         {
-            return this.Services.FileSystem.ReadAllLines( StandardLicenseFilesLocations.UserLicenseFile );
+            return this.FileSystem.ReadAllLines( StandardLicenseFilesLocations.UserLicenseFile );
         }
 
         protected void SetStoredLicenseStrings( params string[] licenseStrings )
         {
-            this.Services.FileSystem.Mock.AddFile( StandardLicenseFilesLocations.UserLicenseFile, new MockFileDataEx( licenseStrings ) );
+            this.FileSystem.Mock.AddFile( StandardLicenseFilesLocations.UserLicenseFile, new MockFileDataEx( licenseStrings ) );
         }
 
         internal LicenseRegistrationData GetLicenseRegistrationData( string licenseString )

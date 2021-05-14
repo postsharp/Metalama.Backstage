@@ -3,7 +3,8 @@
 
 using System;
 using System.Linq;
-using PostSharp.Backstage.Extensibility;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using PostSharp.Backstage.Licensing.Licenses;
 using PostSharp.Backstage.Licensing.Registration;
 
@@ -15,7 +16,7 @@ namespace PostSharp.Backstage.Licensing.Community
     public class CommunityLicenseRegistrar
     {
         private readonly IServiceProvider _services;
-        private readonly ITrace? _trace;
+        private readonly ILogger _logger;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="CommunityLicenseRegistrar"/> class.
@@ -24,7 +25,7 @@ namespace PostSharp.Backstage.Licensing.Community
         public CommunityLicenseRegistrar( IServiceProvider services )
         {
             this._services = services;
-            this._trace = services.GetOptionalService<ITrace>();
+            this._logger = services.GetRequiredService<ILoggerFactory>().CreateLogger<CommunityLicenseRegistrar>();
         }
 
         /// <summary>
@@ -39,10 +40,10 @@ namespace PostSharp.Backstage.Licensing.Community
         {
             void TraceFailure( string message )
             {
-                this._trace?.WriteLine( $"Failed to register community license: {message}" );
+                this._logger.LogTrace( $"Failed to register community license: {message}" );
             }
 
-            this._trace?.WriteLine( "Registering community license." );
+            this._logger?.LogTrace( "Registering community license." );
 
             try
             {

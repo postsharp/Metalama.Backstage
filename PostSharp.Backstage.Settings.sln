@@ -7,11 +7,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PostSharp.Backstage.Setting
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PostSharp.Backstage.Licensing.Tests", "PostSharp.Backstage.Licensing.Tests\PostSharp.Backstage.Licensing.Tests.csproj", "{BFCF5B9E-7F97-4D8B-8905-5EC6E1205F35}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PostSharp.Cli", "PostSharp.Cli\PostSharp.Cli.csproj", "{6A7A96ED-555C-4DF4-9C36-7F15E5902D6F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PostSharp.Cli", "PostSharp.Cli\PostSharp.Cli.csproj", "{6A7A96ED-555C-4DF4-9C36-7F15E5902D6F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PostSharp.Backstage.Testing", "PostSharp.Backstage.Testing\PostSharp.Backstage.Testing.csproj", "{5739D794-BB03-44C9-A3F6-D76A87030653}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PostSharp.Backstage.Testing", "PostSharp.Backstage.Testing\PostSharp.Backstage.Testing.csproj", "{5739D794-BB03-44C9-A3F6-D76A87030653}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PostSharp.Cli.Tests", "PostSharp.Cli.Tests\PostSharp.Cli.Tests.csproj", "{090C166D-DD43-45DE-BC85-5BF68F15E818}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PostSharp.Cli.Tests", "PostSharp.Cli.Tests\PostSharp.Cli.Tests.csproj", "{090C166D-DD43-45DE-BC85-5BF68F15E818}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

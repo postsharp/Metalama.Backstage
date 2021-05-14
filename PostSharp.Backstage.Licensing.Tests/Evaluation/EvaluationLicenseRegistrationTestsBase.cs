@@ -27,15 +27,15 @@ namespace PostSharp.Backstage.Licensing.Tests.Evaluation
 
         protected void SetFlag( params string[] flag )
         {
-            this.Services.FileSystem.Mock.AddFile( StandardEvaluationLicenseFilesLocations.EvaluationLicenseFile, new MockFileDataEx( flag ) );
+            this.FileSystem.Mock.AddFile( StandardEvaluationLicenseFilesLocations.EvaluationLicenseFile, new MockFileDataEx( flag ) );
         }
 
         protected void AssertEvaluationElligible( string reason )
         {
             Assert.True( this.Registrar.TryRegisterLicense() );
 
-            var registeredLicenses = this.Services.FileSystem.ReadAllLines( StandardLicenseFilesLocations.UserLicenseFile );
-            var evaluationLicenseFlags = this.Services.FileSystem.ReadAllLines( StandardEvaluationLicenseFilesLocations.EvaluationLicenseFile );
+            var registeredLicenses = this.FileSystem.ReadAllLines( StandardLicenseFilesLocations.UserLicenseFile );
+            var evaluationLicenseFlags = this.FileSystem.ReadAllLines( StandardEvaluationLicenseFilesLocations.EvaluationLicenseFile );
             var registeredLicense = evaluationLicenseFlags.Single();
 
             Assert.Contains( registeredLicense, registeredLicenses );
@@ -44,7 +44,7 @@ namespace PostSharp.Backstage.Licensing.Tests.Evaluation
             Assert.True( license!.TryGetLicenseRegistrationData( out var data ) );
             Assert.Equal( LicenseType.Evaluation, data!.LicenseType );
 
-            var expectedStart = this.Services.Time.Now;
+            var expectedStart = this.Time.Now;
             var expectedEnd = expectedStart + EvaluationLicenseRegistrar.EvaluationPeriod;
 
             Assert.Equal( expectedStart, data.ValidFrom );
@@ -63,9 +63,9 @@ namespace PostSharp.Backstage.Licensing.Tests.Evaluation
 
         private void AssertEvaluationEligibilityReason(string reason)
         {
-            Assert.Contains( "Checking for trial license eligibility.", this.Trace.Messages );
-            Assert.Contains( reason, this.Trace.Messages );
-            this.Trace.Clear();
+            Assert.Single( this.Log.LogEntries, x => x.Message == "Checking for trial license eligibility." );
+            Assert.Single( this.Log.LogEntries, x => x.Message == reason );
+            this.Log.Clear();
         }
     }
 }

@@ -3,6 +3,8 @@
 
 using System;
 using System.Collections.Generic;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using PostSharp.Backstage.Extensibility;
 using PostSharp.Backstage.Licensing.Licenses;
 
@@ -15,22 +17,22 @@ namespace PostSharp.Backstage.Licensing.Consumption.Sources
     {
         private readonly string _path;
         private readonly IServiceProvider _services;
-        private readonly ITrace? _trace;
+        private readonly ILogger _logger;
 
         public FileLicenseSource( string path, IServiceProvider services )
         {
             this._path = path;
             this._services = services;
-            this._trace = services.GetOptionalService<ITrace>();
+            this._logger = services.GetRequiredService<ILoggerFactory>().CreateLogger<FileLicenseSource>();
         }
 
         /// <inheritdoc />
         public IEnumerable<ILicense> GetLicenses()
         {
-            this._trace?.WriteLine( $"Loading licenses from '{this._path}'." );
+            this._logger.LogTrace( $"Loading licenses from '{this._path}'." );
 
-            var diagnosticsSink = this._services.GetService<IDiagnosticsSink>();
-            var fileSystem = this._services.GetService<IFileSystem>();
+            var diagnosticsSink = this._services.GetRequiredService<IDiagnosticsSink>();
+            var fileSystem = this._services.GetRequiredService<IFileSystem>();
 
             string[] licenseStrings;
 
@@ -41,7 +43,7 @@ namespace PostSharp.Backstage.Licensing.Consumption.Sources
             catch ( Exception e )
             {
                 const string messageFormat = "Failed to load licenses from '{0}': {1}";
-                this._trace?.WriteLine( string.Format( messageFormat, this._path, e ) );
+                this._logger.LogTrace( string.Format( messageFormat, this._path, e ) );
                 diagnosticsSink.ReportWarning( string.Format( messageFormat, this._path, e.Message ) );
                 yield break;
             }
@@ -57,7 +59,7 @@ namespace PostSharp.Backstage.Licensing.Consumption.Sources
 
                 if ( licenseFactory.TryCreate( licenseString, out var license ) )
                 {
-                    this._trace?.WriteLine( $"{license} loaded from '{this._path}'." );
+                    this._logger.LogTrace( $"{license} loaded from '{this._path}'." );
                     yield return license;
                 }
             }

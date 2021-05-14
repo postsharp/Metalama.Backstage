@@ -3,6 +3,8 @@
 
 using System;
 using System.Diagnostics.CodeAnalysis;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using PostSharp.Backstage.Extensibility;
 
 namespace PostSharp.Backstage.Licensing.Licenses
@@ -14,7 +16,7 @@ namespace PostSharp.Backstage.Licensing.Licenses
     {
         private readonly IServiceProvider _services;
         private readonly IDiagnosticsSink _diagnostics;
-        private readonly ITrace? _trace;
+        private readonly ILogger _logger;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="LicenseFactory"/> class.
@@ -23,8 +25,8 @@ namespace PostSharp.Backstage.Licensing.Licenses
         public LicenseFactory( IServiceProvider services )
         {
             this._services = services;
-            this._diagnostics = services.GetService<IDiagnosticsSink>();
-            this._trace = services.GetOptionalService<ITrace>();
+            this._diagnostics = services.GetRequiredService<IDiagnosticsSink>();
+            this._logger = services.GetRequiredService<ILoggerFactory>().CreateLogger<LicenseFactory>();
         }
 
         /// <summary>

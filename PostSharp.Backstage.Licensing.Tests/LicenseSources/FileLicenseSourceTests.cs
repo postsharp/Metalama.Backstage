@@ -32,7 +32,7 @@ namespace PostSharp.Backstage.Licensing.Tests.LicenseSources
         [Fact]
         public void EmptyFilePasses()
         {
-            this.Services.FileSystem.Mock.AddFile( _licenseFilePath, new MockFileData( "" ) );
+            this.FileSystem.Mock.AddFile( _licenseFilePath, new MockFileData( "" ) );
 
             FileLicenseSource source = new( _licenseFilePath, this.Services );
 
@@ -43,7 +43,7 @@ namespace PostSharp.Backstage.Licensing.Tests.LicenseSources
         [Fact]
         public void OneLicenseStringPasses()
         {
-            this.Services.FileSystem.Mock.AddFile( _licenseFilePath, new MockFileData( TestLicenseKeys.Ultimate ) );
+            this.FileSystem.Mock.AddFile( _licenseFilePath, new MockFileData( TestLicenseKeys.Ultimate ) );
 
             FileLicenseSource source = new( _licenseFilePath, this.Services );
 
@@ -54,7 +54,7 @@ namespace PostSharp.Backstage.Licensing.Tests.LicenseSources
         [Fact]
         public void EmptyLinesSkipped()
         {
-            this.Services.FileSystem.Mock.AddFile( _licenseFilePath, new MockFileDataEx( "", TestLicenseKeys.Ultimate, "", "", TestLicenseKeys.Logging, "" ) );
+            this.FileSystem.Mock.AddFile( _licenseFilePath, new MockFileDataEx( "", TestLicenseKeys.Ultimate, "", "", TestLicenseKeys.Logging, "" ) );
 
             FileLicenseSource source = new( _licenseFilePath, this.Services );
 

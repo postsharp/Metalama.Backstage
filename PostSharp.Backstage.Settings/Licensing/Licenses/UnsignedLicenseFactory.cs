@@ -2,6 +2,7 @@
 // This project is not open source. Please see the LICENSE.md file in the repository root for details.
 
 using System;
+using Microsoft.Extensions.DependencyInjection;
 using PostSharp.Backstage.Extensibility;
 using PostSharp.Backstage.Licensing.Evaluation;
 using PostSharp.Backstage.Licensing.Registration;
@@ -21,7 +22,7 @@ namespace PostSharp.Backstage.Licensing.Licenses
         /// <param name="services">Services.</param>
         public UnsignedLicenseFactory( IServiceProvider services )
         {
-            this._time = services.GetService<IDateTimeProvider>();
+            this._time = services.GetRequiredService<IDateTimeProvider>();
         }
 
         /// <summary>

@@ -5,6 +5,7 @@ using System;
 using System.CommandLine;
 using System.CommandLine.Invocation;
 using System.CommandLine.IO;
+using Microsoft.Extensions.Logging;
 using PostSharp.Backstage.Extensibility;
 using PostSharp.Backstage.Licensing.Registration;
 
@@ -15,13 +16,13 @@ namespace PostSharp.Cli.Commands.Licensing.Registration
         private class Unregisterer
         {
             private readonly IServiceProvider _services;
-            private readonly ITrace? _trace;
+            private readonly ILogger _logger;
             private readonly IConsole _console;
 
             public Unregisterer( IServiceProvider services, IConsole console )
             {
                 this._services = services;
-                this._trace = services.GetOptionalService<ITrace>();
+                this._logger = services.GetService<ILoggerFactory>().CreateLogger<UnregisterCommand>();
                 this._console = console;
             }
 

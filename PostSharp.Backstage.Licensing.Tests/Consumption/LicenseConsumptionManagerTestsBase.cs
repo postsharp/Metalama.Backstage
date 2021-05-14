@@ -1,6 +1,7 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. All rights reserved.
 // This project is not open source. Please see the LICENSE.md file in the repository root for details.
 
+using Microsoft.Extensions.DependencyInjection;
 using PostSharp.Backstage.Licensing.Consumption;
 using PostSharp.Backstage.Licensing.Consumption.Sources;
 using PostSharp.Backstage.Licensing.Registration;
@@ -14,17 +15,22 @@ namespace PostSharp.Backstage.Licensing.Tests.Consumption
 {
     public abstract class LicenseConsumptionManagerTestsBase : LicensingTestsBase
     {
-        private protected TestLicenseAutoRegistrar AutoRegistrar { get; } = new();
+        private protected TestFirstRunLicenseActivator AutoRegistrar { get; } = new();
 
         public LicenseConsumptionManagerTestsBase( ITestOutputHelper logger )
             : base( logger )
         {
-            this.Services.SetService<IFirstRunLicenseActivator>( this.AutoRegistrar );
+        }
+
+        protected override IServiceCollection SetUpServices( IServiceCollection serviceCollection )
+        {
+            return base.SetUpServices( serviceCollection )
+                .AddSingleton<IFirstRunLicenseActivator>( this.AutoRegistrar );
         }
 
         private protected ILicenseConsumer CreateConsumer( string requiredNamespace = "Foo", string diagnosticsLocationDescription = "TestLocation" )
         {
-            return new TestLicenseConsumer( requiredNamespace, targetTypeName: "Bar", diagnosticsLocationDescription, this.Trace );
+            return new TestLicenseConsumer( requiredNamespace, targetTypeName: "Bar", diagnosticsLocationDescription, this.LoggerFactory );
         }
 
         private protected TestLicense CreateLicense( string licenseString )

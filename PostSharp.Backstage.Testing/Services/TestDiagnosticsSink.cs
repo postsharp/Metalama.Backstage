@@ -5,13 +5,15 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using PostSharp.Backstage.Extensibility;
 
 namespace PostSharp.Backstage.Testing.Services
 {
     public class TestDiagnosticsSink : IDiagnosticsSink
     {
-        private readonly TestTrace _trace;
+        private readonly ILogger _logger;
         private readonly List<(string, IDiagnosticsLocation?)> _warnings = new();
         private readonly List<(string, IDiagnosticsLocation?)> _errors = new();
 
@@ -21,15 +23,15 @@ namespace PostSharp.Backstage.Testing.Services
 
         public IReadOnlyList<(string Message, IDiagnosticsLocation? Location)> Errors => this._errors;
 
-        public TestDiagnosticsSink( TestTrace trace, [CallerMemberName] string name = "" )
+        public TestDiagnosticsSink( ILoggerFactory loggerFactory, [CallerMemberName] string name = "" )
         {
             this.Name = name;
-            this._trace = trace;
+            this._logger = loggerFactory.CreateLogger<TestDiagnosticsSink>();
         }
 
         private void Trace( string verbosity, string message, IDiagnosticsLocation? location )
         {
-            this._trace.WriteLine( $"Diagnostic sink '{this.Name}' reported '{verbosity}' at '{location?.ToString() ?? "unknown"}': {message}" );
+            this._logger.LogTrace( $"Diagnostic sink '{this.Name}' reported '{verbosity}' at '{location?.ToString() ?? "unknown"}': {message}" );
         }
 
         public void ReportWarning( string message, IDiagnosticsLocation? location = null )

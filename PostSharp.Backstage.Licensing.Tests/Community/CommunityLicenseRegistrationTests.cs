@@ -44,7 +44,7 @@ namespace PostSharp.Backstage.Licensing.Tests.Community
             Assert.True( this._registrar.TryRegisterLicense() );
             Assert.True( this._registrar.TryRegisterLicense() );
             this.AssertSingleCommunityLicenseRegistered();
-            Assert.Contains( "Failed to register community license: A community license is registered already.", this.Trace.Messages );
+            Assert.Single( this.Log.LogEntries, x => x.Message == "Failed to register community license: A community license is registered already." );
         }
     }
 }

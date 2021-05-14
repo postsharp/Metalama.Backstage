@@ -1,6 +1,7 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. All rights reserved.
 // This project is not open source. Please see the LICENSE.md file in the repository root for details.
 
+using System.Linq;
 using System.Threading.Tasks;
 using PostSharp.Backstage.Licensing.Evaluation;
 using PostSharp.Backstage.Licensing.Registration;
@@ -19,63 +20,72 @@ namespace PostSharp.Backstage.Licensing.Tests.Evaluation
         [Fact]
         public void MissingFlagOfRunningEvaluationPasses()
         {
-            this.Services.Time.Set( TestStart );
+            this.Time.Set( TestStart );
             (var evaluationLicenseKey, _) = this.SelfSignedLicenseFactory.CreateEvaluationLicense();
             this.SetStoredLicenseStrings( evaluationLicenseKey );
             Assert.True( this.Registrar.TryRegisterLicense() );
-            Assert.Contains( "Failed to register evaluation license: A valid evaluation license is registered already.", this.Trace.Messages );
+            Assert.Single( this.Log.LogEntries, x => x.Message == "Failed to register evaluation license: A valid evaluation license is registered already." );
         }
 
         [Fact]
-        public void ConcurrentStoredLicenseSavingPassesWhenReadFails()
+        public async Task ConcurrentStoredLicenseSavingPassesWhenReadFails()
         {
             (var evaluationLicenseKey, _) = this.SelfSignedLicenseFactory.CreateEvaluationLicense();
             this.SetStoredLicenseStrings( evaluationLicenseKey );
 
-            var readEvent = this.Services.FileSystem.BlockRead( StandardLicenseFilesLocations.UserLicenseFile );
+            var readEvent = this.FileSystem.BlockRead( StandardLicenseFilesLocations.UserLicenseFile );
             var registration = Task.Run( this.Registrar.TryRegisterLicense );
             readEvent.Wait();
 
-            this.Services.FileSystem.Unblock( StandardLicenseFilesLocations.UserLicenseFile );
+            this.FileSystem.Unblock( StandardLicenseFilesLocations.UserLicenseFile );
 
-            Assert.True( registration.GetAwaiter().GetResult() );
-            Assert.Contains( $"Failed to register evaluation license: Attempt #1: ReadAllLines failed. File '{StandardLicenseFilesLocations.UserLicenseFile}' in use. Retrying.", this.Trace.Messages );
-            Assert.Contains( "Failed to register evaluation license: A valid evaluation license is registered already.", this.Trace.Messages );
-            Assert.Contains( $"ReadAllLines({StandardLicenseFilesLocations.UserLicenseFile})", this.Services.FileSystem.FailedFileAccesses );
+            Assert.True( await registration );
+
+            var messages = this.Log.LogEntries.Select( e => e.Message ).ToArray();
+
+            Assert.Single( messages, $"Failed to register evaluation license: Attempt #1: ReadAllLines failed. File '{StandardLicenseFilesLocations.UserLicenseFile}' in use. Retrying." );
+            Assert.Single( messages, "Failed to register evaluation license: A valid evaluation license is registered already." );
+            Assert.Single( this.FileSystem.FailedFileAccesses, $"ReadAllLines({StandardLicenseFilesLocations.UserLicenseFile})" );
         }
 
         [Fact]
-        public void ConcurrentStoredLicenseSavingPassesWhenWriteFails()
+        public async Task ConcurrentStoredLicenseSavingPassesWhenWriteFails()
         {
-            var writeEvent = this.Services.FileSystem.BlockWrite( StandardLicenseFilesLocations.UserLicenseFile );
+            var writeEvent = this.FileSystem.BlockWrite( StandardLicenseFilesLocations.UserLicenseFile );
             var registration = Task.Run( this.Registrar.TryRegisterLicense );
             writeEvent.Wait();
 
             (var evaluationLicenseKey, _) = this.SelfSignedLicenseFactory.CreateEvaluationLicense();
             this.SetStoredLicenseStrings( evaluationLicenseKey );
 
-            this.Services.FileSystem.Unblock( StandardLicenseFilesLocations.UserLicenseFile );
+            this.FileSystem.Unblock( StandardLicenseFilesLocations.UserLicenseFile );
 
-            Assert.True( registration.GetAwaiter().GetResult() );
-            Assert.Contains( $"Failed to register evaluation license: Attempt #1: WriteAllLines failed. File '{StandardLicenseFilesLocations.UserLicenseFile}' in use. Retrying.", this.Trace.Messages );
-            Assert.Contains( "Failed to register evaluation license: A valid evaluation license is registered already.", this.Trace.Messages );
-            Assert.Contains( $"WriteAllLines({StandardLicenseFilesLocations.UserLicenseFile})", this.Services.FileSystem.FailedFileAccesses );
+            Assert.True( await registration );
+
+            var messages = this.Log.LogEntries.Select( e => e.Message ).ToArray();
+
+            Assert.Single( messages, $"Failed to register evaluation license: Attempt #1: WriteAllLines failed. File '{StandardLicenseFilesLocations.UserLicenseFile}' in use. Retrying." );
+            Assert.Single( messages, "Failed to register evaluation license: A valid evaluation license is registered already." );
+            Assert.Single( this.FileSystem.FailedFileAccesses, $"WriteAllLines({StandardLicenseFilesLocations.UserLicenseFile})" );
         }
 
         [Fact]
-        public void ConcurrentEvaluationLicenseFlagSavingPassesWhenWriteFails()
+        public async Task ConcurrentEvaluationLicenseFlagSavingPassesWhenWriteFails()
         {
-            var writeEvent = this.Services.FileSystem.BlockWrite( StandardEvaluationLicenseFilesLocations.EvaluationLicenseFile );
+            var writeEvent = this.FileSystem.BlockWrite( StandardEvaluationLicenseFilesLocations.EvaluationLicenseFile );
             var registration = Task.Run( this.Registrar.TryRegisterLicense );
             writeEvent.Wait();
 
-            this.Services.FileSystem.Unblock( StandardEvaluationLicenseFilesLocations.EvaluationLicenseFile );
-            Assert.True( registration.GetAwaiter().GetResult() );
-            Assert.Contains( $"Failed to store evaluation license information: System.IO.IOException", this.Trace.Messages );
-            Assert.Contains( $"WriteAllLines({StandardEvaluationLicenseFilesLocations.EvaluationLicenseFile})", this.Services.FileSystem.FailedFileAccesses );
+            this.FileSystem.Unblock( StandardEvaluationLicenseFilesLocations.EvaluationLicenseFile );
+            Assert.True( await registration );
+
+            var messages = this.Log.LogEntries.Select( e => e.Message ).ToArray();
+
+            Assert.Single( messages, $"Failed to store evaluation license information: System.IO.IOException" );
+            Assert.Single( this.FileSystem.FailedFileAccesses, $"WriteAllLines({StandardEvaluationLicenseFilesLocations.EvaluationLicenseFile})" );
 
             // In a real concurrent case, the flag would be written by another instance.
-            Assert.False( this.Services.FileSystem.FileExists( StandardEvaluationLicenseFilesLocations.EvaluationLicenseFile ) );
+            Assert.False( this.FileSystem.FileExists( StandardEvaluationLicenseFilesLocations.EvaluationLicenseFile ) );
         }
     }
 }
