@@ -7,6 +7,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Text.Json;
+using Microsoft.Extensions.DependencyInjection;
 using PostSharp.Backstage.Extensibility;
 using PostSharp.Backstage.Settings;
 
@@ -26,7 +27,7 @@ namespace PostSharp.Cli.Session
         public CliSessionState( string name, IServiceProvider services )
         {
             this._filePath = Path.Combine( this._sessionDirectory, "cli-session-" + name + ".tmp" );
-            this._fileSystem = services.GetService<IFileSystem>();
+            this._fileSystem = services.GetRequiredService<IFileSystem>();
         }
 
         public void Add( int ordinal, string value )
@@ -61,9 +62,12 @@ namespace PostSharp.Cli.Session
 
             var data = JsonSerializer.Deserialize<Dictionary<string, string>>( dataString );
 
-            foreach ( var item in data )
+            if ( data != null )
             {
-                this.Add( int.Parse( item.Key ), item.Value );
+                foreach ( var item in data )
+                {
+                    this.Add( int.Parse( item.Key ), item.Value );
+                }
             }
 
             return this;

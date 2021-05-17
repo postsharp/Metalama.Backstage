@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using PostSharp.Backstage.Extensibility;
 using PostSharp.Backstage.Licensing.Consumption.Sources;
 using PostSharp.Backstage.Licensing.Licenses;
 using PostSharp.Backstage.Licensing.Registration;
@@ -18,7 +19,7 @@ namespace PostSharp.Backstage.Licensing.Consumption
     public class LicenseConsumptionManager : ILicenseConsumptionManager
     {
         private readonly IServiceProvider _services;
-        private readonly ILogger _logger;
+        private readonly ILogger? _logger;
 
         private readonly List<ILicenseSource> _unusedLicenseSources = new();
         private readonly HashSet<ILicense> _unusedLicenses = new();
@@ -46,7 +47,7 @@ namespace PostSharp.Backstage.Licensing.Consumption
         public LicenseConsumptionManager( IServiceProvider services, IEnumerable<ILicenseSource> licenseSources )
         {
             this._services = services;
-            this._logger = services.GetRequiredService<ILoggerFactory>().CreateLogger<LicenseConsumptionManager>();
+            this._logger = services.GetOptionalTraceLogger<LicenseConsumptionManager>();
 
             this._unusedLicenseSources.AddRange( licenseSources );
         }

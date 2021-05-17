@@ -16,13 +16,13 @@ namespace PostSharp.Cli.Commands.Licensing.Registration
         private class Unregisterer
         {
             private readonly IServiceProvider _services;
-            private readonly ILogger _logger;
+            private readonly ILogger? _logger;
             private readonly IConsole _console;
 
             public Unregisterer( IServiceProvider services, IConsole console )
             {
                 this._services = services;
-                this._logger = services.GetService<ILoggerFactory>().CreateLogger<UnregisterCommand>();
+                this._logger = services.GetOptionalTraceLogger<UnregisterCommand>();
                 this._console = console;
             }
 

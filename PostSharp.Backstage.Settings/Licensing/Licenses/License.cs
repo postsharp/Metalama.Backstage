@@ -27,7 +27,7 @@ namespace PostSharp.Backstage.Licensing.Licenses
         private readonly IServiceProvider _services;
         private readonly IDateTimeProvider _dateTimeProvider;
         private readonly IDiagnosticsSink _diagnostics;
-        private readonly ILogger _logger;
+        private readonly ILogger? _logger;
 
         private static string CleanLicenseKey( string licenseKey )
         {
@@ -56,7 +56,7 @@ namespace PostSharp.Backstage.Licensing.Licenses
             this._services = services;
             this._dateTimeProvider = services.GetRequiredService<IDateTimeProvider>();
             this._diagnostics = services.GetRequiredService<IDiagnosticsSink>();
-            this._logger = services.GetRequiredService<ILoggerFactory>().CreateLogger<License>();
+            this._logger = services.GetOptionalTraceLogger<License>();
         }
 
         private static bool TryGetLicenseId( string s, [MaybeNullWhen( returnValue: false )] out int id )
@@ -129,7 +129,7 @@ namespace PostSharp.Backstage.Licensing.Licenses
 
         private bool TryGetLicenseKeyData( [MaybeNullWhen( returnValue: false )] out LicenseKeyData data )
         {
-            this._logger.LogTrace( $"Deserializing license {{{this._licenseKey}}}." );
+            this._logger?.LogTrace( $"Deserializing license {{{this._licenseKey}}}." );
             Guid? licenseGuid = null;
 
             try
@@ -164,7 +164,7 @@ namespace PostSharp.Backstage.Licensing.Licenses
                     data.LicenseGuid = licenseGuid;
                     data.LicenseString = this._licenseKey;
 
-                    this._logger.LogTrace( $"Deserialized license: {data}" );
+                    this._logger?.LogTrace( $"Deserialized license: {data}" );
                     return true;
                 }
             }
@@ -179,7 +179,7 @@ namespace PostSharp.Backstage.Licensing.Licenses
                     this._diagnostics.ReportWarning( $"Cannot parse license key {this._licenseKey}: {e.Message}" );
                 }
 
-                this._logger.LogTrace( $"Cannot parse the license {{{this._licenseKey}}}: {e}" );
+                this._logger?.LogTrace( $"Cannot parse the license {{{this._licenseKey}}}: {e}" );
                 data = null;
                 return false;
             }

@@ -17,19 +17,19 @@ namespace PostSharp.Backstage.Licensing.Consumption.Sources
     {
         private readonly string _path;
         private readonly IServiceProvider _services;
-        private readonly ILogger _logger;
+        private readonly ILogger? _logger;
 
         public FileLicenseSource( string path, IServiceProvider services )
         {
             this._path = path;
             this._services = services;
-            this._logger = services.GetRequiredService<ILoggerFactory>().CreateLogger<FileLicenseSource>();
+            this._logger = services.GetOptionalTraceLogger<FileLicenseSource>();
         }
 
         /// <inheritdoc />
         public IEnumerable<ILicense> GetLicenses()
         {
-            this._logger.LogTrace( $"Loading licenses from '{this._path}'." );
+            this._logger?.LogTrace( $"Loading licenses from '{this._path}'." );
 
             var diagnosticsSink = this._services.GetRequiredService<IDiagnosticsSink>();
             var fileSystem = this._services.GetRequiredService<IFileSystem>();
@@ -43,7 +43,7 @@ namespace PostSharp.Backstage.Licensing.Consumption.Sources
             catch ( Exception e )
             {
                 const string messageFormat = "Failed to load licenses from '{0}': {1}";
-                this._logger.LogTrace( string.Format( messageFormat, this._path, e ) );
+                this._logger?.LogTrace( string.Format( messageFormat, this._path, e ) );
                 diagnosticsSink.ReportWarning( string.Format( messageFormat, this._path, e.Message ) );
                 yield break;
             }
@@ -59,7 +59,7 @@ namespace PostSharp.Backstage.Licensing.Consumption.Sources
 
                 if ( licenseFactory.TryCreate( licenseString, out var license ) )
                 {
-                    this._logger.LogTrace( $"{license} loaded from '{this._path}'." );
+                    this._logger?.LogTrace( $"{license} loaded from '{this._path}'." );
                     yield return license;
                 }
             }

@@ -34,7 +34,7 @@ namespace PostSharp.Backstage.Licensing.Evaluation
 
         private readonly IServiceProvider _services;
         private readonly IDateTimeProvider _time;
-        private readonly ILogger _logger;
+        private readonly ILogger? _logger;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="EvaluationLicenseRegistrar"/> class.
@@ -44,7 +44,7 @@ namespace PostSharp.Backstage.Licensing.Evaluation
         {
             this._services = services;
             this._time = services.GetRequiredService<IDateTimeProvider>();
-            this._logger = services.GetRequiredService<ILoggerFactory>().CreateLogger<EvaluationLicenseRegistrar>();
+            this._logger = services.GetOptionalTraceLogger<EvaluationLicenseRegistrar>();
         }
 
         /// <summary>
@@ -64,7 +64,7 @@ namespace PostSharp.Backstage.Licensing.Evaluation
 
             if ( !this.TryRegisterEvaluationLicenseImpl() )
             {
-                this._logger.LogTrace(
+                this._logger?.LogTrace(
                     "Evaluation license registration finished with errors which might be caused by concurrent evaluation license registration. " +
                     "If a concurrent evaluation license registration has succeeded, it will be used now." );
             }
@@ -76,10 +76,10 @@ namespace PostSharp.Backstage.Licensing.Evaluation
         {
             void TraceFailure( string message )
             {
-                this._logger.LogTrace( $"Failed to find the latest trial license: {message}" );
+                this._logger?.LogTrace( $"Failed to find the latest trial license: {message}" );
             }
 
-            this._logger.LogTrace( "Checking for trial license eligibility." );
+            this._logger?.LogTrace( "Checking for trial license eligibility." );
 
             try
             {
@@ -87,7 +87,7 @@ namespace PostSharp.Backstage.Licensing.Evaluation
 
                 if ( evaluationStorage.Licenses.Count == 0 )
                 {
-                    this._logger.LogTrace( "No trial license found." );
+                    this._logger?.LogTrace( "No trial license found." );
                     return true;
                 }
 
@@ -119,12 +119,12 @@ namespace PostSharp.Backstage.Licensing.Evaluation
 
                 if ( data.ValidTo + NoEvaluationPeriod < this._time.Now )
                 {
-                    this._logger.LogTrace( "Evaluation license registration can be repeated." );
+                    this._logger?.LogTrace( "Evaluation license registration can be repeated." );
                     return true;
                 }
                 else
                 {
-                    this._logger.LogTrace( "Evaluation license requested recently." );
+                    this._logger?.LogTrace( "Evaluation license requested recently." );
                     return false;
                 }
             }
@@ -140,10 +140,10 @@ namespace PostSharp.Backstage.Licensing.Evaluation
         {
             void TraceFailure( string message )
             {
-                this._logger.LogTrace( $"Failed to register evaluation license: {message}" );
+                this._logger?.LogTrace( $"Failed to register evaluation license: {message}" );
             }
 
-            this._logger.LogTrace( "Registering evaluation license." );
+            this._logger?.LogTrace( "Registering evaluation license." );
 
             string licenseKey;
             LicenseRegistrationData data;
@@ -206,7 +206,7 @@ namespace PostSharp.Backstage.Licensing.Evaluation
             catch ( Exception e )
             {
                 // We don't want to disclose the evaluation license file path here.
-                this._logger.LogTrace( $"Failed to store evaluation license information: {e.GetType()}" );
+                this._logger?.LogTrace( $"Failed to store evaluation license information: {e.GetType()}" );
 
                 // We failed to prevent repetitive evaluation license registration, but the license has been registered already.
                 return true;
