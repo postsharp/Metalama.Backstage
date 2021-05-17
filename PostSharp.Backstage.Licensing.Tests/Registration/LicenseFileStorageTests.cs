@@ -15,9 +15,9 @@ namespace PostSharp.Backstage.Licensing.Tests.Registration
         {
         }
 
-        private LicenseFileStorage CreateStorage() => LicenseFileStorage.Create( StandardLicenseFilesLocations.UserLicenseFile, this.Services );
+        private LicenseFileStorage CreateStorage() => LicenseFileStorage.Create( this.LicenseFiles.UserLicenseFile, this.Services );
 
-        private LicenseFileStorage OpenOrCreateStorage() => LicenseFileStorage.OpenOrCreate( StandardLicenseFilesLocations.UserLicenseFile, this.Services );
+        private LicenseFileStorage OpenOrCreateStorage() => LicenseFileStorage.OpenOrCreate( this.LicenseFiles.UserLicenseFile, this.Services );
 
         private void AssertFileContains( params string[] expectedLicenseStrings ) => Assert.Equal( expectedLicenseStrings, this.ReadStoredLicenseStrings() );
 

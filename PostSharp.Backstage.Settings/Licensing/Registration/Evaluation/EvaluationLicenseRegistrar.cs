@@ -9,9 +9,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using PostSharp.Backstage.Extensibility;
 using PostSharp.Backstage.Licensing.Licenses;
-using PostSharp.Backstage.Licensing.Registration;
 
-namespace PostSharp.Backstage.Licensing.Evaluation
+namespace PostSharp.Backstage.Licensing.Registration.Evaluation
 {
     /// <summary>
     /// Registers an evaluation (trial) license.
@@ -34,6 +33,8 @@ namespace PostSharp.Backstage.Licensing.Evaluation
 
         private readonly IServiceProvider _services;
         private readonly IDateTimeProvider _time;
+        private readonly IStandardLicenseFileLocations _licenseFiles;
+        private readonly IEvaluationLicenseFilesLocations _evaluationLicenseFiles;
         private readonly ILogger? _logger;
 
         /// <summary>
@@ -44,6 +45,8 @@ namespace PostSharp.Backstage.Licensing.Evaluation
         {
             this._services = services;
             this._time = services.GetRequiredService<IDateTimeProvider>();
+            this._licenseFiles = services.GetRequiredService<IStandardLicenseFileLocations>();
+            this._evaluationLicenseFiles = services.GetRequiredService<IEvaluationLicenseFilesLocations>();
             this._logger = services.GetOptionalTraceLogger<EvaluationLicenseRegistrar>();
         }
 
@@ -83,7 +86,7 @@ namespace PostSharp.Backstage.Licensing.Evaluation
 
             try
             {
-                var evaluationStorage = LicenseFileStorage.OpenOrCreate( StandardEvaluationLicenseFilesLocations.EvaluationLicenseFile, this._services );
+                var evaluationStorage = LicenseFileStorage.OpenOrCreate( this._evaluationLicenseFiles.EvaluationLicenseFile, this._services );
 
                 if ( evaluationStorage.Licenses.Count == 0 )
                 {
@@ -159,7 +162,7 @@ namespace PostSharp.Backstage.Licensing.Evaluation
                 {
                     try
                     {
-                        var userStorage = LicenseFileStorage.OpenOrCreate( StandardLicenseFilesLocations.UserLicenseFile, this._services );
+                        var userStorage = LicenseFileStorage.OpenOrCreate( this._licenseFiles.UserLicenseFile, this._services );
 
                         if ( userStorage.Licenses.Values.Any( l => l != null && l.LicenseType == LicenseType.Evaluation && l.ValidTo >= data.ValidFrom ) )
                         {
@@ -199,7 +202,7 @@ namespace PostSharp.Backstage.Licensing.Evaluation
             try
             {
                 // We overwrite existing storage.
-                var evaluationStorage = LicenseFileStorage.Create( StandardEvaluationLicenseFilesLocations.EvaluationLicenseFile, this._services );
+                var evaluationStorage = LicenseFileStorage.Create( this._evaluationLicenseFiles.EvaluationLicenseFile, this._services );
                 evaluationStorage.AddLicense( licenseKey, data );
                 evaluationStorage.Save();
             }

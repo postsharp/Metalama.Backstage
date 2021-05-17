@@ -8,10 +8,10 @@ using Xunit.Abstractions;
 
 namespace PostSharp.Cli.Tests.Commands.Licensing
 {
-    public class UnregisterCommandTests : CommandsTestsBase
+    public class UnregisterCommandTests : LicensingCommandsTestsBase
     {
         public UnregisterCommandTests( ITestOutputHelper logger )
-                    : base( logger )
+            : base( logger )
         {
         }
 

@@ -11,7 +11,7 @@ namespace PostSharp.Backstage.Extensibility
     /// <summary>
     /// Provides access to file system using API in <see cref="System.IO" /> namespace.
     /// </summary>
-    public class FileSystem : IFileSystem
+    internal class FileSystem : IFileSystem
     {
         /// <inheritdoc />
         public DateTime GetLastWriteTime( string path )

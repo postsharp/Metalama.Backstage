@@ -6,6 +6,7 @@ using System.CommandLine;
 using System.CommandLine.IO;
 using System.Text;
 using Microsoft.Extensions.Logging;
+using PostSharp.Backstage.Extensibility;
 
 namespace PostSharp.Cli.Tests.Console
 {
@@ -25,8 +26,9 @@ namespace PostSharp.Cli.Tests.Console
 
         bool IStandardError.IsErrorRedirected => false;
 
-        public TestConsole( ILogger logger )
+        public TestConsole( IServiceProvider services )
         {
+            var logger = services.GetOptionalTraceLogger<TestConsole>()!;
             this.Out = new TestStreamWriter( logger, "o>" );
             this.Error = new TestStreamWriter( logger, "e>" );
         }

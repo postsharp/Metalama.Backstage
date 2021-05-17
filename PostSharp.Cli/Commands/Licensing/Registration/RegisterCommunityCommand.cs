@@ -4,7 +4,7 @@
 using System.CommandLine;
 using System.CommandLine.Invocation;
 using System.CommandLine.IO;
-using PostSharp.Backstage.Licensing.Community;
+using PostSharp.Backstage.Licensing.Registration.Community;
 
 namespace PostSharp.Cli.Commands.Licensing.Registration
 {

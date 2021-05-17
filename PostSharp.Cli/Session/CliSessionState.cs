@@ -9,13 +9,12 @@ using System.Linq;
 using System.Text.Json;
 using Microsoft.Extensions.DependencyInjection;
 using PostSharp.Backstage.Extensibility;
-using PostSharp.Backstage.Settings;
 
 namespace PostSharp.Cli.Session
 {
     internal class CliSessionState
     {
-        private readonly string _sessionDirectory = Path.Combine( StandardDirectories.TempDirectory, "CliSessions" );
+        private readonly string _sessionDirectory;
         private readonly string _filePath;
 
         private readonly SortedDictionary<int, string> _data = new();
@@ -26,6 +25,8 @@ namespace PostSharp.Cli.Session
 
         public CliSessionState( string name, IServiceProvider services )
         {
+            var standardDirectories = services.GetRequiredService<IStandardDirectories>();
+            this._sessionDirectory = Path.Combine( standardDirectories.TempDirectory, "CliSessions" );
             this._filePath = Path.Combine( this._sessionDirectory, "cli-session-" + name + ".tmp" );
             this._fileSystem = services.GetRequiredService<IFileSystem>();
         }

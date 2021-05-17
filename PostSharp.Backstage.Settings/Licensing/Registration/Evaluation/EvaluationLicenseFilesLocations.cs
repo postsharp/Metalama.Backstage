@@ -6,22 +6,22 @@ using System.IO;
 using Microsoft.Extensions.DependencyInjection;
 using PostSharp.Backstage.Extensibility;
 
-namespace PostSharp.Backstage.Licensing.Registration
+namespace PostSharp.Backstage.Licensing.Registration.Evaluation
 {
-    /// <inheritdoc />    
-    internal class StandardLicenseFilesLocations : IStandardLicenseFileLocations
+    /// <inheritdoc />
+    internal class EvaluationLicenseFilesLocations : IEvaluationLicenseFilesLocations
     {
         /// <inheritdoc />
-        public string UserLicenseFile { get; }
+        public string EvaluationLicenseFile { get; }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="StandardLicenseFilesLocations"/> class.
+        /// Initializes a new instance of the <see cref="EvaluationLicenseFilesLocations"/> class.
         /// </summary>
         /// <param name="standardDirectories">An object providing paths of standard directories.</param>
-        public StandardLicenseFilesLocations( IServiceProvider services )
+        public EvaluationLicenseFilesLocations( IServiceProvider services )
         {
             var standardDirectories = services.GetRequiredService<IStandardDirectories>();
-            this.UserLicenseFile = Path.Combine( standardDirectories.ApplicationDataDirectory, "postsharp.lic" );
+            this.EvaluationLicenseFile = Path.Combine( standardDirectories.ApplicationDataDirectory, "licenseregistration.cnf" );
         }
     }
 }

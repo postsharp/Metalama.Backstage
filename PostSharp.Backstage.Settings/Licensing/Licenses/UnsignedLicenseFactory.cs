@@ -4,8 +4,8 @@
 using System;
 using Microsoft.Extensions.DependencyInjection;
 using PostSharp.Backstage.Extensibility;
-using PostSharp.Backstage.Licensing.Evaluation;
 using PostSharp.Backstage.Licensing.Registration;
+using PostSharp.Backstage.Licensing.Registration.Evaluation;
 
 namespace PostSharp.Backstage.Licensing.Licenses
 {

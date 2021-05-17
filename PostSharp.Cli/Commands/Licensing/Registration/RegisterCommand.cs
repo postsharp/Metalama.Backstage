@@ -4,6 +4,7 @@
 using System.CommandLine;
 using System.CommandLine.Invocation;
 using System.CommandLine.IO;
+using Microsoft.Extensions.DependencyInjection;
 using PostSharp.Backstage.Licensing.Licenses;
 using PostSharp.Backstage.Licensing.Registration;
 
@@ -37,7 +38,8 @@ namespace PostSharp.Cli.Commands.Licensing.Registration
                 return 1;
             }
 
-            var storage = LicenseFileStorage.OpenOrCreate( StandardLicenseFilesLocations.UserLicenseFile, services );
+            var licenseFiles = services.GetRequiredService<IStandardLicenseFileLocations>();
+            var storage = LicenseFileStorage.OpenOrCreate( licenseFiles.UserLicenseFile, services );
 
             storage.AddLicense( licenseKey, data );
             storage.Save();

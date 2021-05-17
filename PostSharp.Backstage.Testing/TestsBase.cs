@@ -17,32 +17,27 @@ namespace PostSharp.Backstage.Testing
 
         public TestFileSystem FileSystem { get; } = new();
 
-        public ILoggerFactory LoggerFactory { get; }
-
         public ITestLoggerSink Log { get; }
 
         public IServiceProvider Services { get; }
 
-        public TestsBase( ITestOutputHelper logger )
+        public TestsBase( ITestOutputHelper logger, Action<IServiceCollection>? serviceBuilder = null )
         {
-            this.LoggerFactory = TestLoggerFactory
+            var loggerFactory = TestLoggerFactory
                 .Create()
                 .AddXUnit( logger );
 
-            this.Log = this.LoggerFactory.GetTestLoggerSink();
+            this.Log = loggerFactory.GetTestLoggerSink();
 
             var serviceCollection = new ServiceCollection()
-                .AddSingleton<ILoggerFactory>( this.LoggerFactory )
+                .AddSingleton<ILoggerFactory>( loggerFactory )
                 .AddSingleton<IDateTimeProvider>( this.Time )
-                .AddSingleton<IFileSystem>( this.FileSystem );
+                .AddSingleton<IFileSystem>( this.FileSystem )
+                .AddStandardDirectories();
 
-            this.SetUpServices( serviceCollection );
+            serviceBuilder?.Invoke( serviceCollection );
+
             this.Services = serviceCollection.BuildServiceProvider();
-        }
-
-        protected virtual IServiceCollection SetUpServices( IServiceCollection serviceCollection )
-        {
-            return serviceCollection;
         }
     }
 }

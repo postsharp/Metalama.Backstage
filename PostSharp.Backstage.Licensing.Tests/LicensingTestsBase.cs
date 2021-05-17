@@ -1,9 +1,11 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. All rights reserved.
 // This project is not open source. Please see the LICENSE.md file in the repository root for details.
 
+using System;
 using Microsoft.Extensions.DependencyInjection;
 using PostSharp.Backstage.Extensibility;
 using PostSharp.Backstage.Licensing.Licenses;
+using PostSharp.Backstage.Licensing.Registration;
 using PostSharp.Backstage.Testing;
 using PostSharp.Backstage.Testing.Services;
 using Xunit.Abstractions;
@@ -16,24 +18,26 @@ namespace PostSharp.Backstage.Licensing.Tests
 
         private protected UnsignedLicenseFactory SelfSignedLicenseFactory { get; }
 
-        private protected TestDiagnosticsSink Diagnostics { get; set; }
+        private protected TestDiagnosticsSink Diagnostics { get; }
 
-#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
-        public LicensingTestsBase( ITestOutputHelper logger )
-#pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
-            : base( logger )
+        private protected IStandardLicenseFileLocations LicenseFiles { get; }
+
+        public LicensingTestsBase( ITestOutputHelper logger, Action<IServiceCollection>? serviceBuilder = null )
+            : base(
+                  logger,
+                  serviceCollection =>
+                  {
+                      serviceCollection
+                          .AddSingleton<IDiagnosticsSink>( services => new TestDiagnosticsSink( services, "default" ) )
+                          .AddSingleton<IApplicationInfo>( new TestApplicationInfo( false, new( 0, 1, 0 ), new( 2021, 1, 1 ) ) )
+                          .AddStandardLicenseFilesLocations();
+                      serviceBuilder?.Invoke( serviceCollection );
+                  } )
         {
             this.LicenseFactory = new( this.Services );
             this.SelfSignedLicenseFactory = new( this.Services );
-        }
-
-        protected override IServiceCollection SetUpServices( IServiceCollection serviceCollection )
-        {
-            this.Diagnostics = new( this.LoggerFactory, "default" );
-
-            return base.SetUpServices( serviceCollection )
-                .AddSingleton<IDiagnosticsSink>( this.Diagnostics )
-                .AddSingleton<IApplicationInfo>( new TestApplicationInfo( false, new( 0, 1, 0 ), new( 2021, 1, 1 ) ) );
+            this.Diagnostics = (TestDiagnosticsSink) this.Services.GetRequiredService<IDiagnosticsSink>();
+            this.LicenseFiles = this.Services.GetRequiredService<IStandardLicenseFileLocations>();
         }
     }
 }

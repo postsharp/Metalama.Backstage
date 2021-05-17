@@ -1,8 +1,10 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. All rights reserved.
 // This project is not open source. Please see the LICENSE.md file in the repository root for details.
 
+using System;
 using System.CommandLine;
 using System.CommandLine.IO;
+using Microsoft.Extensions.DependencyInjection;
 using PostSharp.Backstage.Extensibility;
 
 namespace PostSharp.Cli.Console
@@ -11,9 +13,9 @@ namespace PostSharp.Cli.Console
     {
         private readonly IConsole _console;
 
-        public ConsoleDiagnosticsSink( IConsole console )
+        public ConsoleDiagnosticsSink( IServiceProvider services )
         {
-            this._console = console;
+            this._console = services.GetRequiredService<IConsole>();
         }
 
         public void ReportError( string message, IDiagnosticsLocation? location = null )

@@ -5,7 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using PostSharp.Backstage.Extensibility;
 
@@ -23,10 +22,10 @@ namespace PostSharp.Backstage.Testing.Services
 
         public IReadOnlyList<(string Message, IDiagnosticsLocation? Location)> Errors => this._errors;
 
-        public TestDiagnosticsSink( ILoggerFactory loggerFactory, [CallerMemberName] string name = "" )
+        public TestDiagnosticsSink( IServiceProvider services, [CallerMemberName] string name = "" )
         {
             this.Name = name;
-            this._logger = loggerFactory.CreateLogger<TestDiagnosticsSink>();
+            this._logger = services.GetOptionalTraceLogger<TestDiagnosticsSink>()!;
         }
 
         private void Trace( string verbosity, string message, IDiagnosticsLocation? location )

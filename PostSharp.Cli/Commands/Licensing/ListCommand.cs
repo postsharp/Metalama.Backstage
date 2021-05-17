@@ -6,6 +6,7 @@ using System.CommandLine;
 using System.CommandLine.Invocation;
 using System.CommandLine.IO;
 using System.Globalization;
+using Microsoft.Extensions.DependencyInjection;
 using PostSharp.Backstage.Licensing.Registration;
 
 namespace PostSharp.Cli.Commands.Licensing
@@ -21,8 +22,8 @@ namespace PostSharp.Cli.Commands.Licensing
         private int Execute( bool verbose, IConsole console )
         {
             var services = this.CommandServiceProvider.CreateServiceProvider( console, verbose );
-
-            var storage = LicenseFileStorage.OpenOrCreate( StandardLicenseFilesLocations.UserLicenseFile, services );
+            var licenseFiles = services.GetRequiredService<IStandardLicenseFileLocations>();
+            var storage = LicenseFileStorage.OpenOrCreate( licenseFiles.UserLicenseFile, services );
 
             var ordinal = 1;
             LicenseCommandSessionState ordinals = new( services );

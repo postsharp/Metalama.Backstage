@@ -5,6 +5,7 @@ using System;
 using System.CommandLine;
 using System.CommandLine.Invocation;
 using System.CommandLine.IO;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using PostSharp.Backstage.Extensibility;
 using PostSharp.Backstage.Licensing.Registration;
@@ -41,7 +42,8 @@ namespace PostSharp.Cli.Commands.Licensing.Registration
 
             public int UnregisterLicense( string licenseString )
             {
-                var storage = LicenseFileStorage.OpenOrCreate( StandardLicenseFilesLocations.UserLicenseFile, this._services );
+                var licenseFiles = this._services.GetRequiredService<IStandardLicenseFileLocations>();
+                var storage = LicenseFileStorage.OpenOrCreate( licenseFiles.UserLicenseFile, this._services );
 
                 if ( !storage.Licenses.TryGetValue( licenseString, out var data ) )
                 {

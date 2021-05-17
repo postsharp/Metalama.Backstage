@@ -3,8 +3,8 @@
 
 using System;
 using System.Linq;
-using PostSharp.Backstage.Licensing.Community;
 using PostSharp.Backstage.Licensing.Licenses;
+using PostSharp.Backstage.Licensing.Registration.Community;
 using PostSharp.Backstage.Licensing.Tests.Registration;
 using Xunit;
 using Xunit.Abstractions;

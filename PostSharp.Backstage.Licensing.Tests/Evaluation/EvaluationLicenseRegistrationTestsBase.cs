@@ -3,9 +3,9 @@
 
 using System;
 using System.Linq;
-using PostSharp.Backstage.Licensing.Evaluation;
+using Microsoft.Extensions.DependencyInjection;
 using PostSharp.Backstage.Licensing.Licenses;
-using PostSharp.Backstage.Licensing.Registration;
+using PostSharp.Backstage.Licensing.Registration.Evaluation;
 using PostSharp.Backstage.Licensing.Tests.Registration;
 using PostSharp.Backstage.Testing.Services;
 using Xunit;
@@ -17,25 +17,30 @@ namespace PostSharp.Backstage.Licensing.Tests.Evaluation
     {
         protected static readonly DateTime TestStart = new( 2020, 1, 1 );
 
-        protected EvaluationLicenseRegistrar Registrar { get; }
+        private protected EvaluationLicenseRegistrar Registrar { get; }
 
-        public EvaluationLicenseRegistrationTestsBase( ITestOutputHelper logger ) :
-            base( logger )
+        private protected IEvaluationLicenseFilesLocations EvaluationFiles { get; }
+
+        public EvaluationLicenseRegistrationTestsBase( ITestOutputHelper logger, Action<IServiceCollection>? serviceBuilder = null ) :
+            base(
+                logger,
+                serviceCollection => serviceBuilder?.Invoke( serviceCollection ) )
         {
             this.Registrar = new( this.Services );
+            this.EvaluationFiles = this.Services.GetRequiredService<IEvaluationLicenseFilesLocations>();
         }
 
         protected void SetFlag( params string[] flag )
         {
-            this.FileSystem.Mock.AddFile( StandardEvaluationLicenseFilesLocations.EvaluationLicenseFile, new MockFileDataEx( flag ) );
+            this.FileSystem.Mock.AddFile( this.EvaluationFiles.EvaluationLicenseFile, new MockFileDataEx( flag ) );
         }
 
         protected void AssertEvaluationElligible( string reason )
         {
             Assert.True( this.Registrar.TryRegisterLicense() );
 
-            var registeredLicenses = this.FileSystem.ReadAllLines( StandardLicenseFilesLocations.UserLicenseFile );
-            var evaluationLicenseFlags = this.FileSystem.ReadAllLines( StandardEvaluationLicenseFilesLocations.EvaluationLicenseFile );
+            var registeredLicenses = this.FileSystem.ReadAllLines( this.LicenseFiles.UserLicenseFile );
+            var evaluationLicenseFlags = this.FileSystem.ReadAllLines( this.EvaluationFiles.EvaluationLicenseFile );
             var registeredLicense = evaluationLicenseFlags.Single();
 
             Assert.Contains( registeredLicense, registeredLicenses );

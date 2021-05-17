@@ -13,10 +13,8 @@ using PostSharp.Backstage.Licensing.Registration;
 
 namespace PostSharp.Backstage.Licensing.Consumption
 {
-    /// <summary>
-    /// Manages license consumption.
-    /// </summary>
-    public class LicenseConsumptionManager : ILicenseConsumptionManager
+    /// <inheritdoc />
+    internal class LicenseConsumptionManager : ILicenseConsumptionManager
     {
         private readonly IServiceProvider _services;
         private readonly ILogger? _logger;

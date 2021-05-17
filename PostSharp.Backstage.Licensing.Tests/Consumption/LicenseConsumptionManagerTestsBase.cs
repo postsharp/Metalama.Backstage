@@ -1,6 +1,7 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. All rights reserved.
 // This project is not open source. Please see the LICENSE.md file in the repository root for details.
 
+using System;
 using Microsoft.Extensions.DependencyInjection;
 using PostSharp.Backstage.Licensing.Consumption;
 using PostSharp.Backstage.Licensing.Consumption.Sources;
@@ -15,22 +16,24 @@ namespace PostSharp.Backstage.Licensing.Tests.Consumption
 {
     public abstract class LicenseConsumptionManagerTestsBase : LicensingTestsBase
     {
-        private protected TestFirstRunLicenseActivator AutoRegistrar { get; } = new();
+        private protected TestFirstRunLicenseActivator AutoRegistrar { get; }
 
-        public LicenseConsumptionManagerTestsBase( ITestOutputHelper logger )
-            : base( logger )
+        public LicenseConsumptionManagerTestsBase( ITestOutputHelper logger, Action<IServiceCollection>? serviceBuilder = null )
+            : base(
+                  logger,
+                  serviceCollection =>
+                  {
+                      serviceCollection
+                          .AddSingleton<IFirstRunLicenseActivator>( new TestFirstRunLicenseActivator() );
+                      serviceBuilder?.Invoke( serviceCollection );
+                  } )
         {
-        }
-
-        protected override IServiceCollection SetUpServices( IServiceCollection serviceCollection )
-        {
-            return base.SetUpServices( serviceCollection )
-                .AddSingleton<IFirstRunLicenseActivator>( this.AutoRegistrar );
+            this.AutoRegistrar = (TestFirstRunLicenseActivator) this.Services.GetRequiredService<IFirstRunLicenseActivator>();
         }
 
         private protected ILicenseConsumer CreateConsumer( string requiredNamespace = "Foo", string diagnosticsLocationDescription = "TestLocation" )
         {
-            return new TestLicenseConsumer( requiredNamespace, targetTypeName: "Bar", diagnosticsLocationDescription, this.LoggerFactory );
+            return new TestLicenseConsumer( requiredNamespace, targetTypeName: "Bar", diagnosticsLocationDescription, this.Services );
         }
 
         private protected TestLicense CreateLicense( string licenseString )

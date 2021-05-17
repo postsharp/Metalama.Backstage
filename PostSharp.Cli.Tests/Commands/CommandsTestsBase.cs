@@ -19,23 +19,23 @@ namespace PostSharp.Cli.Tests.Commands
     public abstract class CommandsTestsBase : TestsBase, ICommandServiceProvider
     {
         private readonly PostSharpCommand _rootCommand;
-        private ILogger _logger;
-        private TestConsole _console;
+        private readonly ILogger _logger;
+        private readonly TestConsole _console;
 
-#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
-        protected CommandsTestsBase( ITestOutputHelper logger )
-#pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
-            : base( logger )
+        protected CommandsTestsBase( ITestOutputHelper logger, Action<IServiceCollection>? serviceBuilder = null )
+            : base(
+                  logger,
+                  serviceCollection =>
+                  {
+                      serviceCollection
+                          .AddSingleton<IConsole>( services => new TestConsole( services ) )
+                          .AddSingleton<IDiagnosticsSink>( services => new ConsoleDiagnosticsSink( services ) );
+                      serviceBuilder?.Invoke( serviceCollection );
+                  } )
         {
             this._rootCommand = new( this );
-        }
-
-        protected override IServiceCollection SetUpServices( IServiceCollection serviceCollection )
-        {
-            this._logger = this.LoggerFactory.CreateLogger( "test" );
-            this._console = new( this._logger );
-            serviceCollection.AddSingleton<IDiagnosticsSink>( new ConsoleDiagnosticsSink( this._console ) );
-            return base.SetUpServices( serviceCollection );
+            this._logger = this.Services.GetOptionalTraceLogger<CommandsTestsBase>()!;
+            this._console = (TestConsole) this.Services.GetRequiredService<IConsole>();
         }
 
         protected async Task TestCommandAsync( string commandLine, string expectedOutput, string expectedError = "", int expectedExitCode = 0 )

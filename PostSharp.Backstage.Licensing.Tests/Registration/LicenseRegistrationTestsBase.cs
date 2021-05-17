@@ -1,6 +1,8 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. All rights reserved.
 // This project is not open source. Please see the LICENSE.md file in the repository root for details.
 
+using System;
+using Microsoft.Extensions.DependencyInjection;
 using PostSharp.Backstage.Licensing.Registration;
 using PostSharp.Backstage.Testing.Services;
 using Xunit;
@@ -10,19 +12,21 @@ namespace PostSharp.Backstage.Licensing.Tests.Registration
 {
     public abstract class LicenseRegistrationTestsBase : LicensingTestsBase
     {
-        protected LicenseRegistrationTestsBase( ITestOutputHelper logger )
-            : base( logger )
+        protected LicenseRegistrationTestsBase( ITestOutputHelper logger, Action<IServiceCollection>? serviceBuilder = null )
+            : base(
+                  logger,
+                  serviceCollection => serviceBuilder?.Invoke( serviceCollection ) )
         {
         }
 
         protected string[] ReadStoredLicenseStrings()
         {
-            return this.FileSystem.ReadAllLines( StandardLicenseFilesLocations.UserLicenseFile );
+            return this.FileSystem.ReadAllLines( this.LicenseFiles.UserLicenseFile );
         }
 
         protected void SetStoredLicenseStrings( params string[] licenseStrings )
         {
-            this.FileSystem.Mock.AddFile( StandardLicenseFilesLocations.UserLicenseFile, new MockFileDataEx( licenseStrings ) );
+            this.FileSystem.Mock.AddFile( this.LicenseFiles.UserLicenseFile, new MockFileDataEx( licenseStrings ) );
         }
 
         internal LicenseRegistrationData GetLicenseRegistrationData( string licenseString )
