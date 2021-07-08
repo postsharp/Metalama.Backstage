@@ -22,7 +22,7 @@
         <Configuration>Release</Configuration>
     </PropertyGroup>
 
-    <Import Project="Directory.Build.props" />
-    <Import Project=".engineering\deploy\CopyToPublishDir.targets" />
+    <Import Project="..\Directory.Build.props" />
+    <Import Project="..\.engineering\deploy\CopyToPublishDir.targets" />
 
 </Project>
