@@ -3,7 +3,6 @@
 
 using System;
 using System.CommandLine;
-using PostSharp.Backstage.Extensibility;
 
 namespace PostSharp.Cli
 {
@@ -17,8 +16,7 @@ namespace PostSharp.Cli
         /// <see cref="IConsole"/>.
         /// </summary>
         /// <param name="console">The target <see cref="IConsole"/> for diagnostics and tracing.</param>
-        /// <param name="addTrace">Determines whether an instance of the <see cref="ITrace"/> service
-        /// must be registered. Should typically be <c>true</c> for high verbosity.</param>
+        /// <param name="addTrace">Determines whether logging should be configured. Should typically be <c>true</c> for high verbosity.</param>
         /// <returns></returns>
         IServiceProvider CreateServiceProvider( IConsole console, bool addTrace );
     }

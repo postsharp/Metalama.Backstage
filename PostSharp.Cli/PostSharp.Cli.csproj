@@ -10,7 +10,6 @@
   <PropertyGroup>
     <EnableNETAnalyzers>true</EnableNETAnalyzers>
     <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
-    <GenerateDocumentationFile>false</GenerateDocumentationFile>
     <WarningLevel>4</WarningLevel>
     <PackAsTool>true</PackAsTool>
     <PackageType>DotNetCliTool</PackageType>

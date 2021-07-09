@@ -1,20 +1,17 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. All rights reserved.
 // This project is not open source. Please see the LICENSE.md file in the repository root for details.
 
-using System;
-using PostSharp.Backstage.Licensing.Cryptography;
-
 namespace PostSharp.Backstage.Licensing.Audit
 {
     // TODO
     internal abstract class LicenseeIdentifier
     {
-        /// <exclude/>
-        public abstract long GetCurrentMachineHash();
+        // /// <exclude/>
+        // public abstract long GetCurrentMachineHash();
 
-        internal long GetCurrentUserHash()
-        {
-            return LicenseCryptography.ComputeStringHash64( Environment.UserName );
-        }
+        // internal long GetCurrentUserHash()
+        // {
+        //     return LicenseCryptography.ComputeStringHash64( Environment.UserName );
+        // }
     }
 }
