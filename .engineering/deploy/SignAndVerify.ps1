@@ -12,7 +12,9 @@ If ( -Not ( Test-Path -Path ".\.git" ) ) {
 & dotnet tool install --tool-path tools PostSharp.Engineering.BuildTools --version 1.0.1 --add-source $InternalNuGetUrl
 & dotnet tool install --tool-path tools SignClient --version 1.3.155
 
-& ./tools/SignClient Sign --baseDirectory .\publish\ --input *.nupkg --config .\.engineering\deploy\signclient-appsettings.json --name $ProjectName --user sign-caravela@postsharp.net --secret $Env:SIGNSERVER_SECRET
+$CurrentDir = $(get-location).Path
+
+& ./tools/SignClient Sign --baseDirectory $CurrentDir\publish\ --input *.nupkg --config .\.engineering\deploy\signclient-appsettings.json --name $ProjectName --user sign-caravela@postsharp.net --secret $Env:SIGNSERVER_SECRET
 
 if (!$?) {
 	throw "Signing failed."
