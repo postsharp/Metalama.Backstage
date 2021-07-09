@@ -8,7 +8,8 @@
   <Import Project=".engineering-local\Packaging.props" />
   
   <Import Project=".engineering\build\CompilerOptions.props" />
-  <Import Project=".engineering\style\CodeQuality.props" />
+  <!-- TODO: How to get the same warnings on dev as on TC? -->
+  <!-- <Import Project=".engineering\style\CodeQuality.props" /> -->
   <Import Project=".engineering\build\AssemblyMetadata.props" />
   <Import Project=".engineering\build\SourceLink.props" />
   
