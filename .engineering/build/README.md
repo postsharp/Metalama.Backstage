@@ -23,6 +23,7 @@ Make sure you have read and understood [PostSharp Engineering](../README.md) bef
       - [Package dependencies versions configuration](#package-dependencies-versions-configuration)
       - [Creating local development packages](#creating-local-development-packages)
   - [Continuous integration](#continuous-integration)
+    - [Instalation](#instalation)
 
 ## Executable scripts
 
@@ -127,4 +128,33 @@ The script generates a version suffix in `LocalBuildId.props` file and creates N
 
 ## Continuous integration
 
-TODO
+We use TeamCity as our CI/CD pipeplie at the moment. The folowing sections describe a common way to set up continous integration on TeamCity. See [PostSharp Engineering: Deployment Features](../deploy/README.md#continuous-deployment) for information about continuous deployment.
+
+### Instalation
+
+1. Create a new (sub)project using manual setup.
+   
+2. Set up versioned settings if necessary.
+
+3. Add a VCS root.
+
+4. Create build configurations. Set agent requirements, triggers and artifacts publishing for each.
+
+   1. Create "Debug Build and Test" build configuration using manual build steps configuration and the following steps:
+
+| # | Name | Type | Configuration |
+| - | ---- | ---- | ------------- |
+| 1 | Restore | .NET | Command: restore |
+| 2 | Build | .NET | Command: build; Projects: [projects]; Configuration: Debug; Version suffix: %build.number% |
+| 3 | Test | .NET | Command: test; Projects: [projects]; Options: Do not build the projects; Command line parameters: --no-restore |
+| 4 | Pack | .NET | Command: pack; Projects: [projects]; Version suffix: %build.number% |
+
+
+   2. Create "Release Build" build configuration using manual build steps configuration and the following steps:
+
+| # | Name | Type | Configuration |
+| - | ---- | ---- | ------------- |
+| 1 | Restore | .NET | Command: restore |
+| 2 | Build and Pack | .NET | Command: pack; Configuration: Release |
+| 3 | Copy to 'publish' directory | .NET | Command: msbuild; Projects: .engineering-local/CopyToPublishDir.proj; MSBuild version: Cross-platform MSBuild |
+| 4 | Sign and Verify | PowerShell | Format stderr output as: error; Script: File; Script file: .engineering/deploy/SignAndVerify.ps1; Script arguments: %env.TEAMCITY_PROJECT_NAME% |
