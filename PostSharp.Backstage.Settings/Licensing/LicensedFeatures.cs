@@ -27,6 +27,6 @@ namespace PostSharp.Backstage.Licensing
         Caching = 1 << 8,
         Caravela = 1 << 9,
 
-        All = int.MaxValue,
+        All = int.MaxValue
     }
 }

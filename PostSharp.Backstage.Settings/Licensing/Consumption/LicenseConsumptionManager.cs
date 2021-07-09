@@ -1,15 +1,15 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. All rights reserved.
 // This project is not open source. Please see the LICENSE.md file in the repository root for details.
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using PostSharp.Backstage.Extensibility;
 using PostSharp.Backstage.Licensing.Consumption.Sources;
 using PostSharp.Backstage.Licensing.Licenses;
 using PostSharp.Backstage.Licensing.Registration;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace PostSharp.Backstage.Licensing.Consumption
 {
@@ -33,9 +33,7 @@ namespace PostSharp.Backstage.Licensing.Consumption
         /// <param name="services">Services.</param>
         /// <param name="licenseSources">License sources.</param>
         public LicenseConsumptionManager( IServiceProvider services, params ILicenseSource[] licenseSources )
-            : this( services, (IEnumerable<ILicenseSource>) licenseSources )
-        {
-        }
+            : this( services, (IEnumerable<ILicenseSource>) licenseSources ) { }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="LicenseConsumptionManager"/> class.
@@ -95,7 +93,9 @@ namespace PostSharp.Backstage.Licensing.Consumption
             {
                 if ( !this._namespaceLimitedLicensedFeatures.TryGetValue( licenseData.LicensedNamespace, out var namespaceFeatures ) )
                 {
-                    this._namespaceLimitedLicensedFeatures[licenseData.LicensedNamespace] = new( licenseData.LicensedNamespace, licenseData.LicensedFeatures );
+                    this._namespaceLimitedLicensedFeatures[licenseData.LicensedNamespace] = new LicenseNamespaceConstraint(
+                        licenseData.LicensedNamespace,
+                        licenseData.LicensedFeatures );
                 }
                 else
                 {
@@ -126,6 +126,7 @@ namespace PostSharp.Backstage.Licensing.Consumption
             // Thus, we allow all features, which is what a valid evaluation license would do.
             // In the next compilation, the registered evaluation license would be retrieved from a license source.
             this._licensedFeatures |= LicensedFeatures.All;
+
             return true;
         }
 
@@ -142,9 +143,9 @@ namespace PostSharp.Backstage.Licensing.Consumption
                     }
 
                     if ( this._namespaceLimitedLicensedFeatures.Count > 0
-                        && this._namespaceLimitedLicensedFeatures.Values.Any(
-                            nsf => nsf.AllowsNamespace( consumer.TargetTypeNamespace )
-                            && nsf.LicensedFeatures.HasFlag( requiredFeatures ) ) )
+                         && this._namespaceLimitedLicensedFeatures.Values.Any(
+                             nsf => nsf.AllowsNamespace( consumer.TargetTypeNamespace )
+                                    && nsf.LicensedFeatures.HasFlag( requiredFeatures ) ) )
                     {
                         return true;
                     }

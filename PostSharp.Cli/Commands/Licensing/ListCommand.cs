@@ -1,13 +1,13 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. All rights reserved.
 // This project is not open source. Please see the LICENSE.md file in the repository root for details.
 
+using Microsoft.Extensions.DependencyInjection;
+using PostSharp.Backstage.Licensing.Registration;
 using System;
 using System.CommandLine;
 using System.CommandLine.Invocation;
 using System.CommandLine.IO;
 using System.Globalization;
-using Microsoft.Extensions.DependencyInjection;
-using PostSharp.Backstage.Licensing.Registration;
 
 namespace PostSharp.Cli.Commands.Licensing
 {
@@ -33,7 +33,7 @@ namespace PostSharp.Cli.Commands.Licensing
                 ordinals.Add( ordinal, license.Key );
                 this.WriteLicense( console.Out, ordinal, license.Key, license.Value );
                 console.Out.WriteLine();
-               
+
                 ordinal++;
             }
 
@@ -69,9 +69,9 @@ namespace PostSharp.Cli.Commands.Licensing
 
             if ( data == null || data.LicenseId != null )
             {
-                Write( "License Key", licenseKey );   
+                Write( "License Key", licenseKey );
             }
-            
+
             if ( data != null )
             {
                 Write( "Description", data.Description );

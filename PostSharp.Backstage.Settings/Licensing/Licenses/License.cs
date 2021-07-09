@@ -1,22 +1,21 @@
 // Copyright (c) SharpCrafters s.r.o. All rights reserved.
 // This project is not open source. Please see the LICENSE.md file in the repository root for details.
 
-using System;
-using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
-using System.Globalization;
-using System.IO;
-using System.Text;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using PostSharp.Backstage.Extensibility;
 using PostSharp.Backstage.Licensing.Consumption;
 using PostSharp.Backstage.Licensing.Registration;
 using PostSharp.Backstage.Utilities;
+using System;
+using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
+using System.Globalization;
+using System.IO;
+using System.Text;
 
 namespace PostSharp.Backstage.Licensing.Licenses
 {
-
     /// <summary>
     /// Represents a license serialized in a license key.
     /// </summary>
@@ -76,19 +75,20 @@ namespace PostSharp.Backstage.Licensing.Licenses
                     try
                     {
                         var guidBytes = Base32.FromBase32String( prefix );
+
                         if ( guidBytes != null && guidBytes.Length == 16 )
                         {
                             id = 0;
+
                             return false;
                         }
                     }
-                    catch
-                    {
-                    }
+                    catch { }
                 }
             }
 
             id = -1;
+
             return false;
         }
 
@@ -98,19 +98,27 @@ namespace PostSharp.Backstage.Licensing.Licenses
             if ( !this.TryGetLicenseKeyData( out var licenseKeyData ) )
             {
                 licenseConsumptionData = null;
+
                 return false;
             }
 
             var applicationInfoService = this._services.GetRequiredService<IApplicationInfo>();
 
-            if ( !licenseKeyData.Validate( null, this._dateTimeProvider, applicationInfoService.BuildDate, applicationInfoService.Version, out var errorDescription ) )
+            if ( !licenseKeyData.Validate(
+                null,
+                this._dateTimeProvider,
+                applicationInfoService.BuildDate,
+                applicationInfoService.Version,
+                out var errorDescription ) )
             {
                 this._diagnostics.ReportWarning( $"License key {licenseKeyData.LicenseUniqueId} is invalid: {errorDescription}" );
                 licenseConsumptionData = null;
+
                 return false;
             }
 
             licenseConsumptionData = licenseKeyData.ToConsumptionData();
+
             return true;
         }
 
@@ -120,10 +128,12 @@ namespace PostSharp.Backstage.Licensing.Licenses
             if ( !this.TryGetLicenseKeyData( out var licenseKeyData ) )
             {
                 licenseRegistrationData = null;
+
                 return false;
             }
 
             licenseRegistrationData = licenseKeyData.ToRegistrationData();
+
             return true;
         }
 
@@ -152,19 +162,22 @@ namespace PostSharp.Backstage.Licensing.Licenses
 
                 var licenseBytes = Base32.FromBase32String( this._licenseKey.Substring( firstDash + 1 ) );
                 var memoryStream = new MemoryStream( licenseBytes );
+
                 using ( var reader = new BinaryReader( memoryStream ) )
                 {
                     data = LicenseKeyData.Deserialize( reader );
 
                     if ( data.LicenseId != licenseId )
                     {
-                        throw new InvalidLicenseException( $"The license id in the body ({licenseId}) does not match the header for license {{{this._licenseKey}}}." );
+                        throw new InvalidLicenseException(
+                            $"The license id in the body ({licenseId}) does not match the header for license {{{this._licenseKey}}}." );
                     }
 
                     data.LicenseGuid = licenseGuid;
                     data.LicenseString = this._licenseKey;
 
                     this._logger?.LogTrace( $"Deserialized license: {data}" );
+
                     return true;
                 }
             }
@@ -181,6 +194,7 @@ namespace PostSharp.Backstage.Licensing.Licenses
 
                 this._logger?.LogTrace( $"Cannot parse the license {{{this._licenseKey}}}: {e}" );
                 data = null;
+
                 return false;
             }
         }

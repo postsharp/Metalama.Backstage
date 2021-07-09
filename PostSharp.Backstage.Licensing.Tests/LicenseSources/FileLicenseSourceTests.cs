@@ -1,10 +1,10 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. All rights reserved.
 // This project is not open source. Please see the LICENSE.md file in the repository root for details.
 
-using System.IO.Abstractions.TestingHelpers;
-using System.Linq;
 using PostSharp.Backstage.Licensing.Consumption.Sources;
 using PostSharp.Backstage.Testing.Services;
+using System.IO.Abstractions.TestingHelpers;
+using System.Linq;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -15,9 +15,7 @@ namespace PostSharp.Backstage.Licensing.Tests.LicenseSources
         private const string _licenseFilePath = "postsharp.lic";
 
         public FileLicenseSourceTests( ITestOutputHelper logger )
-            : base( logger )
-        {
-        }
+            : base( logger ) { }
 
         [Fact]
         public void NonexistentFileIsReported()

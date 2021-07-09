@@ -1,14 +1,14 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. All rights reserved.
 // This project is not open source. Please see the LICENSE.md file in the repository root for details.
 
+using PostSharp.Backstage.Licensing.Cryptography;
+using PostSharp.Backstage.Licensing.Licenses.LicenseFields;
+using PostSharp.Backstage.Utilities;
 using System;
 using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
-using PostSharp.Backstage.Licensing.Cryptography;
-using PostSharp.Backstage.Licensing.Licenses.LicenseFields;
-using PostSharp.Backstage.Utilities;
 
 namespace PostSharp.Backstage.Licensing.Licenses
 {
@@ -29,6 +29,7 @@ namespace PostSharp.Backstage.Licensing.Licenses
             while ( (index = (LicenseFieldIndex) reader.ReadByte()) != LicenseFieldIndex.End )
             {
                 LicenseField licenseField;
+
                 switch ( index )
                 {
                     case LicenseFieldIndex.SignatureKeyId:
@@ -36,33 +37,39 @@ namespace PostSharp.Backstage.Licensing.Licenses
                     case LicenseFieldIndex.GracePercent:
                     case LicenseFieldIndex.DevicesPerUser:
                         licenseField = new LicenseFieldByte();
+
                         break;
 
                     case LicenseFieldIndex.Auditable:
                     case LicenseFieldIndex.AllowInheritance:
                     case LicenseFieldIndex.LicenseServerEligible:
                         licenseField = new LicenseFieldBool();
+
                         break;
 
                     case LicenseFieldIndex.Licensee:
                     case LicenseFieldIndex.Namespace:
                     case LicenseFieldIndex.MinPostSharpVersion:
                         licenseField = new LicenseFieldString();
+
                         break;
 
                     case LicenseFieldIndex.UserNumber:
                         licenseField = new LicenseFieldInt16();
+
                         break;
 
                     case LicenseFieldIndex.PublicKeyToken:
                     case LicenseFieldIndex.Signature:
                         licenseField = new LicenseFieldBytes();
+
                         break;
 
                     case LicenseFieldIndex.ValidFrom:
                     case LicenseFieldIndex.ValidTo:
                     case LicenseFieldIndex.SubscriptionEndDate:
                         licenseField = new LicenseFieldDate();
+
                         break;
 
                     case LicenseFieldIndex.LicenseeHash:
@@ -70,6 +77,7 @@ namespace PostSharp.Backstage.Licensing.Licenses
                     case LicenseFieldIndex.Features:
 #pragma warning restore CS0618 // Type or member is obsolete
                         licenseField = new LicenseFieldInt64();
+
                         break;
 
                     default:
@@ -83,6 +91,7 @@ namespace PostSharp.Backstage.Licensing.Licenses
                         // - Validate that we do understand the must-understand fields.
                         // - Keep the license integrity, e.g. for cloning or signature verification.
                         licenseField = new LicenseFieldBytes();
+
                         break;
                 }
 
@@ -122,24 +131,27 @@ namespace PostSharp.Backstage.Licensing.Licenses
                     case LicensedProduct.ThreadingLibrary:
                     case LicensedProduct.CachingLibrary:
                         return true;
+
                     default:
                         return false;
                 }
             }
 
             if ( !IsLicensedProductValidInAllPostSharpVersions( this.Product )
-                || this._fields.Keys.Any( i => i.IsPrefixedByLength() ) )
+                 || this._fields.Keys.Any( i => i.IsPrefixedByLength() ) )
             {
                 if ( this.MinPostSharpVersion != MinPostSharpVersionValidationRemovedPostSharpVersion )
                 {
-                    throw new InvalidOperationException( $"The license contains products or fields introduced " +
+                    throw new InvalidOperationException(
+                        $"The license contains products or fields introduced " +
                         $"after PostSharp {MinPostSharpVersionValidationRemovedPostSharpVersion}. " +
-                        $"Set the {nameof( this.MinPostSharpVersion )} property " +
-                        $"to {this.GetType().Name}.{nameof( MinPostSharpVersionValidationRemovedPostSharpVersion )}." );
+                        $"Set the {nameof(this.MinPostSharpVersion)} property " +
+                        $"to {this.GetType().Name}.{nameof(MinPostSharpVersionValidationRemovedPostSharpVersion)}." );
                 }
             }
 
             var memoryStream = new MemoryStream();
+
             using ( var binaryWriter = new BinaryWriter( memoryStream ) )
             {
                 this.Write( binaryWriter, true );
@@ -147,6 +159,7 @@ namespace PostSharp.Backstage.Licensing.Licenses
             }
 
             string prefix;
+
             if ( this.LicenseGuid.HasValue )
             {
                 prefix = Base32.ToBase32String( this.LicenseGuid.Value.ToByteArray(), 0 );
@@ -157,6 +170,7 @@ namespace PostSharp.Backstage.Licensing.Licenses
             }
 
             this.LicenseString = prefix + "-" + Base32.ToBase32String( memoryStream.ToArray(), 0 );
+
             return this.LicenseString;
         }
 
@@ -188,6 +202,7 @@ namespace PostSharp.Backstage.Licensing.Licenses
                         }
 
                         pair.Value.Write( writer );
+
                         break;
                 }
             }
@@ -197,12 +212,14 @@ namespace PostSharp.Backstage.Licensing.Licenses
         {
             // Write the license to a buffer without the key.
             var memoryStream = new MemoryStream();
+
             using ( var binaryWriter = new BinaryWriter( memoryStream ) )
             {
                 this.Write( binaryWriter, false );
             }
 
             var signedBuffer = memoryStream.ToArray();
+
             return signedBuffer;
         }
 
@@ -232,10 +249,11 @@ namespace PostSharp.Backstage.Licensing.Licenses
 
             if ( publicKey == null )
             {
-                throw new ArgumentNullException( nameof( publicKey ) );
+                throw new ArgumentNullException( nameof(publicKey) );
             }
 
             var signature = this.Signature;
+
             if ( signature == null )
             {
                 return false;

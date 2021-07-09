@@ -1,9 +1,6 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. All rights reserved.
 // This project is not open source. Please see the LICENSE.md file in the repository root for details.
 
-using System;
-using System.CommandLine;
-using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using PostSharp.Backstage.Extensibility;
@@ -11,6 +8,9 @@ using PostSharp.Backstage.Testing;
 using PostSharp.Cli.Commands;
 using PostSharp.Cli.Console;
 using PostSharp.Cli.Tests.Console;
+using System;
+using System.CommandLine;
+using System.Threading.Tasks;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -24,16 +24,17 @@ namespace PostSharp.Cli.Tests.Commands
 
         protected CommandsTestsBase( ITestOutputHelper logger, Action<IServiceCollection>? serviceBuilder = null )
             : base(
-                  logger,
-                  serviceCollection =>
-                  {
-                      serviceCollection
-                          .AddSingleton<IConsole>( services => new TestConsole( services ) )
-                          .AddSingleton<IDiagnosticsSink>( services => new ConsoleDiagnosticsSink( services ) );
-                      serviceBuilder?.Invoke( serviceCollection );
-                  } )
+                logger,
+                serviceCollection =>
+                {
+                    serviceCollection
+                        .AddSingleton<IConsole>( services => new TestConsole( services ) )
+                        .AddSingleton<IDiagnosticsSink>( services => new ConsoleDiagnosticsSink( services ) );
+
+                    serviceBuilder?.Invoke( serviceCollection );
+                } )
         {
-            this._rootCommand = new( this );
+            this._rootCommand = new PostSharpCommand( this );
             this._logger = this.Services.GetOptionalTraceLogger<CommandsTestsBase>()!;
             this._console = (TestConsole) this.Services.GetRequiredService<IConsole>();
         }

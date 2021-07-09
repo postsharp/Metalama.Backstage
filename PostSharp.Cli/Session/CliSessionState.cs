@@ -1,14 +1,14 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. All rights reserved.
 // This project is not open source. Please see the LICENSE.md file in the repository root for details.
 
+using Microsoft.Extensions.DependencyInjection;
+using PostSharp.Backstage.Extensibility;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Text.Json;
-using Microsoft.Extensions.DependencyInjection;
-using PostSharp.Backstage.Extensibility;
 
 namespace PostSharp.Cli.Session
 {

@@ -1,12 +1,12 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. All rights reserved.
 // This project is not open source. Please see the LICENSE.md file in the repository root for details.
 
-using System;
-using System.Linq;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using PostSharp.Backstage.Extensibility;
 using PostSharp.Backstage.Licensing.Licenses;
+using System;
+using System.Linq;
 
 namespace PostSharp.Backstage.Licensing.Registration.Community
 {
@@ -54,11 +54,12 @@ namespace PostSharp.Backstage.Licensing.Registration.Community
                 if ( userStorage.Licenses.Values.Any( l => l != null && l.LicenseType == LicenseType.Community ) )
                 {
                     TraceFailure( "A community license is registered already." );
+
                     return true;
                 }
 
                 var factory = new UnsignedLicenseFactory( this._services );
-                (var licenseKey, var data) = factory.CreateCommunityLicense();
+                var (licenseKey, data) = factory.CreateCommunityLicense();
 
                 userStorage.AddLicense( licenseKey, data );
                 userStorage.Save();
@@ -66,6 +67,7 @@ namespace PostSharp.Backstage.Licensing.Registration.Community
             catch ( Exception e )
             {
                 TraceFailure( e.ToString() );
+
                 return false;
             }
 

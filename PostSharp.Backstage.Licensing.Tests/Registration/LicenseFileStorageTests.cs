@@ -1,8 +1,8 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. All rights reserved.
 // This project is not open source. Please see the LICENSE.md file in the repository root for details.
 
-using System.IO;
 using PostSharp.Backstage.Licensing.Registration;
+using System.IO;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -11,9 +11,7 @@ namespace PostSharp.Backstage.Licensing.Tests.Registration
     public class LicenseFileStorageTests : LicenseRegistrationTestsBase
     {
         public LicenseFileStorageTests( ITestOutputHelper logger )
-            : base( logger )
-        {
-        }
+            : base( logger ) { }
 
         private LicenseFileStorage CreateStorage() => LicenseFileStorage.Create( this.LicenseFiles.UserLicenseFile, this.Services );
 
@@ -32,12 +30,14 @@ namespace PostSharp.Backstage.Licensing.Tests.Registration
                 if ( !this.LicenseFactory.TryCreate( expectedLicenseString, out var expectedLicense ) )
                 {
                     Assert.Null( actualData );
+
                     continue;
                 }
 
                 if ( !expectedLicense.TryGetLicenseRegistrationData( out var expectedData ) )
                 {
                     Assert.Null( actualData );
+
                     continue;
                 }
 
@@ -77,10 +77,10 @@ namespace PostSharp.Backstage.Licensing.Tests.Registration
         public void ExistingStorageCanBeOverwritten()
         {
             this.SetStoredLicenseStrings( "dummy" );
-            
+
             var storage = this.CreateStorage();
             storage.Save();
-            
+
             this.AssertFileContains();
         }
 

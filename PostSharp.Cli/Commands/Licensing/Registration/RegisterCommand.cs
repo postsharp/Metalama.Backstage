@@ -1,12 +1,12 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. All rights reserved.
 // This project is not open source. Please see the LICENSE.md file in the repository root for details.
 
-using System.CommandLine;
-using System.CommandLine.Invocation;
-using System.CommandLine.IO;
 using Microsoft.Extensions.DependencyInjection;
 using PostSharp.Backstage.Licensing.Licenses;
 using PostSharp.Backstage.Licensing.Registration;
+using System.CommandLine;
+using System.CommandLine.Invocation;
+using System.CommandLine.IO;
 
 namespace PostSharp.Cli.Commands.Licensing.Registration
 {
@@ -32,9 +32,10 @@ namespace PostSharp.Cli.Commands.Licensing.Registration
             var factory = new LicenseFactory( services );
 
             if ( !factory.TryCreate( licenseKey, out var license )
-                || !license.TryGetLicenseRegistrationData( out var data ) )
+                 || !license.TryGetLicenseRegistrationData( out var data ) )
             {
                 console.Error.WriteLine( "Invalid license string." );
+
                 return 1;
             }
 

@@ -1,12 +1,12 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. All rights reserved.
 // This project is not open source. Please see the LICENSE.md file in the repository root for details.
 
+using Microsoft.Extensions.Logging;
+using PostSharp.Backstage.Extensibility;
 using System;
 using System.CommandLine;
 using System.CommandLine.IO;
 using System.Text;
-using Microsoft.Extensions.Logging;
-using PostSharp.Backstage.Extensibility;
 
 namespace PostSharp.Cli.Tests.Console
 {
@@ -41,8 +41,8 @@ namespace PostSharp.Cli.Tests.Console
 
         internal class TestStreamWriter : IStandardStreamWriter
         {
-            private readonly StringBuilder _line = new StringBuilder();
-            private readonly StringBuilder _output = new StringBuilder();
+            private readonly StringBuilder _line = new();
+            private readonly StringBuilder _output = new();
             private readonly ILogger _logger;
             private readonly string _tracePrefix;
 

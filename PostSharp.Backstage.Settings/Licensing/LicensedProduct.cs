@@ -60,7 +60,7 @@ namespace PostSharp.Backstage.Licensing
         /// <summary>
         /// Caching Library.
         /// </summary>
-        CachingLibrary = 15,
+        CachingLibrary = 15
 
         // 255 is reserved as unknown for testing purposes
     }

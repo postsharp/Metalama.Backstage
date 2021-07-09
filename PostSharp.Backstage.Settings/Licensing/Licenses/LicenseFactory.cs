@@ -1,11 +1,11 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. All rights reserved.
 // This project is not open source. Please see the LICENSE.md file in the repository root for details.
 
-using System;
-using System.Diagnostics.CodeAnalysis;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using PostSharp.Backstage.Extensibility;
+using System;
+using System.Diagnostics.CodeAnalysis;
 
 namespace PostSharp.Backstage.Licensing.Licenses
 {
@@ -43,6 +43,7 @@ namespace PostSharp.Backstage.Licensing.Licenses
             {
                 this._diagnostics.ReportWarning( "Empty license string provided." );
                 license = null;
+
                 return false;
             }
 
@@ -51,11 +52,13 @@ namespace PostSharp.Backstage.Licensing.Licenses
                 // TODO License Server Support
                 this._diagnostics.ReportWarning( "License server is not yet supported." );
                 license = null;
+
                 return false;
             }
             else
             {
                 license = new License( licenseString, this._services );
+
                 return true;
             }
         }

@@ -1,12 +1,12 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. All rights reserved.
 // This project is not open source. Please see the LICENSE.md file in the repository root for details.
 
-using System;
-using System.Collections.Generic;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using PostSharp.Backstage.Extensibility;
 using PostSharp.Backstage.Licensing.Licenses;
+using System;
+using System.Collections.Generic;
 
 namespace PostSharp.Backstage.Licensing.Consumption.Sources
 {
@@ -45,6 +45,7 @@ namespace PostSharp.Backstage.Licensing.Consumption.Sources
                 const string messageFormat = "Failed to load licenses from '{0}': {1}";
                 this._logger?.LogTrace( string.Format( messageFormat, this._path, e ) );
                 diagnosticsSink.ReportWarning( string.Format( messageFormat, this._path, e.Message ) );
+
                 yield break;
             }
 
@@ -60,6 +61,7 @@ namespace PostSharp.Backstage.Licensing.Consumption.Sources
                 if ( licenseFactory.TryCreate( licenseString, out var license ) )
                 {
                     this._logger?.LogTrace( $"{license} loaded from '{this._path}'." );
+
                     yield return license;
                 }
             }

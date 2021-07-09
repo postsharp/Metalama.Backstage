@@ -1,14 +1,14 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. All rights reserved.
 // This project is not open source. Please see the LICENSE.md file in the repository root for details.
 
-using System;
-using System.IO;
-using System.Linq;
-using System.Threading;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using PostSharp.Backstage.Extensibility;
 using PostSharp.Backstage.Licensing.Licenses;
+using System;
+using System.IO;
+using System.Linq;
+using System.Threading;
 
 namespace PostSharp.Backstage.Licensing.Registration.Evaluation
 {
@@ -91,12 +91,14 @@ namespace PostSharp.Backstage.Licensing.Registration.Evaluation
                 if ( evaluationStorage.Licenses.Count == 0 )
                 {
                     this._logger?.LogTrace( "No trial license found." );
+
                     return true;
                 }
 
                 if ( evaluationStorage.Licenses.Count > 1 )
                 {
                     TraceFailure( "Invalid count." );
+
                     return false;
                 }
 
@@ -105,29 +107,34 @@ namespace PostSharp.Backstage.Licensing.Registration.Evaluation
                 if ( data == null )
                 {
                     TraceFailure( "Invalid data." );
+
                     return false;
                 }
 
                 if ( data.LicenseType != LicenseType.Evaluation )
                 {
                     TraceFailure( "Invalid license type." );
+
                     return false;
                 }
 
                 if ( data.ValidTo == null )
                 {
                     TraceFailure( "Invalid validity." );
+
                     return false;
                 }
 
                 if ( data.ValidTo + NoEvaluationPeriod < this._time.Now )
                 {
                     this._logger?.LogTrace( "Evaluation license registration can be repeated." );
+
                     return true;
                 }
                 else
                 {
                     this._logger?.LogTrace( "Evaluation license requested recently." );
+
                     return false;
                 }
             }
@@ -135,6 +142,7 @@ namespace PostSharp.Backstage.Licensing.Registration.Evaluation
             {
                 // We don't want to disclose the evaluation license file path here.
                 TraceFailure( $"{e.GetType()}" );
+
                 return false;
             }
         }
@@ -195,6 +203,7 @@ namespace PostSharp.Backstage.Licensing.Registration.Evaluation
             catch ( Exception e )
             {
                 TraceFailure( e.ToString() );
+
                 return false;
             }
 

@@ -44,7 +44,7 @@ namespace PostSharp.Backstage.Extensibility
             {
                 if ( searchPattern == null )
                 {
-                    throw new ArgumentNullException( nameof( searchPattern ) );
+                    throw new ArgumentNullException( nameof(searchPattern) );
                 }
 
                 return Directory.EnumerateFiles( path, searchPattern, searchOption.Value );
@@ -72,7 +72,7 @@ namespace PostSharp.Backstage.Extensibility
             {
                 if ( searchPattern == null )
                 {
-                    throw new ArgumentNullException( nameof( searchPattern ) );
+                    throw new ArgumentNullException( nameof(searchPattern) );
                 }
 
                 return Directory.EnumerateDirectories( path, searchPattern, searchOption.Value );

@@ -9,7 +9,7 @@ namespace PostSharp.Backstage.Licensing.Licenses.LicenseFields
     [Serializable]
     internal class LicenseFieldDate : LicenseField
     {
-        private static readonly DateTime _referenceDate = new DateTime( 2010, 1, 1 );
+        private static readonly DateTime _referenceDate = new( 2010, 1, 1 );
 
         public override void Write( BinaryWriter writer )
         {
@@ -19,7 +19,8 @@ namespace PostSharp.Backstage.Licensing.Licenses.LicenseFields
 
         protected override bool TryGetConstantLength( out byte length )
         {
-            length = sizeof( ushort );
+            length = sizeof(ushort);
+
             return true;
         }
 

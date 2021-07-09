@@ -32,6 +32,6 @@ namespace PostSharp.Backstage.Licensing.Licenses.LicenseFields
         // 128 is reserved as unknown must-understand field for testing purposes
         // 253 is reserved as unknown optional field for testing purposes
         MinPostSharpVersion = 254,
-        End = 255,
+        End = 255
     }
 }

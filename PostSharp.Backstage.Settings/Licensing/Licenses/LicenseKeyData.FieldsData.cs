@@ -1,8 +1,8 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. All rights reserved.
 // This project is not open source. Please see the LICENSE.md file in the repository root for details.
 
-using System;
 using PostSharp.Backstage.Licensing.Licenses.LicenseFields;
+using System;
 
 namespace PostSharp.Backstage.Licensing.Licenses
 {
@@ -27,9 +27,9 @@ namespace PostSharp.Backstage.Licensing.Licenses
         {
             get
             {
-                if ( this.Product == LicensedProduct.PostSharp30 && this._licenseType == Licenses.LicenseType.Professional )
+                if ( this.Product == LicensedProduct.PostSharp30 && this._licenseType == LicenseType.Professional )
                 {
-                    return Licenses.LicenseType.PerUser;
+                    return LicenseType.PerUser;
                 }
 
                 return this._licenseType;
@@ -53,7 +53,7 @@ namespace PostSharp.Backstage.Licensing.Licenses
             {
                 if ( this._product == LicensedProduct.PostSharp30 )
                 {
-                    return this._licenseType == Licenses.LicenseType.Professional ? LicensedProduct.Framework : LicensedProduct.Ultimate;
+                    return this._licenseType == LicenseType.Professional ? LicensedProduct.Framework : LicensedProduct.Ultimate;
                 }
 
                 return this._product;
@@ -78,14 +78,15 @@ namespace PostSharp.Backstage.Licensing.Licenses
 
         public bool Auditable
         {
-            get => this.LicenseType switch
-            {
+            get
+                => this.LicenseType switch
+                {
 #pragma warning disable CS0618 // Type or member is obsolete
-                LicenseType.Site or LicenseType.Global or LicenseType.Anonymous => false,
-#pragma warning restore CS0618 // Type or member is obsolete
-                LicenseType.Evaluation => true, // We want to audit evaluation licenses so we know how people are using the product during evaluation.
-                _ => (bool?) this.GetFieldValue( LicenseFieldIndex.Auditable ) ?? true,
-            };
+                    LicenseType.Site or LicenseType.Global or LicenseType.Anonymous => false,
+#pragma warning restore CS0618                      // Type or member is obsolete
+                    LicenseType.Evaluation => true, // We want to audit evaluation licenses so we know how people are using the product during evaluation.
+                    _ => (bool?) this.GetFieldValue( LicenseFieldIndex.Auditable ) ?? true
+                };
 
             set => this.SetFieldValue<LicenseFieldBool>( LicenseFieldIndex.Auditable, value );
         }
@@ -287,7 +288,8 @@ namespace PostSharp.Backstage.Licensing.Licenses
                         throw new ArgumentOutOfRangeException(
                             $"Since PostSharp {MinPostSharpVersionValidationRemovedPostSharpVersion}, " +
                             $"all license keys are backward compatible and the minimal PostSharp version is only considered by previous versions. " +
-                            $"Set the {nameof( this.MinPostSharpVersion )} to \"{MinPostSharpVersionValidationRemovedPostSharpVersion}\" if the license is incompatible with versions prior to " +
+                            $"Set the {nameof(this.MinPostSharpVersion)} to \"{MinPostSharpVersionValidationRemovedPostSharpVersion}\" if the license is incompatible with versions prior to "
+                            +
                             $"6.5.17, 6.8.10 and 6.9.3 or keep null if it is compatible." );
                     }
                 }

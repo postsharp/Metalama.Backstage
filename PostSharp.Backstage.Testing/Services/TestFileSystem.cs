@@ -1,13 +1,13 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. All rights reserved.
 // This project is not open source. Please see the LICENSE.md file in the repository root for details.
 
+using PostSharp.Backstage.Extensibility;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Abstractions.TestingHelpers;
 using System.Runtime.CompilerServices;
 using System.Threading;
-using PostSharp.Backstage.Extensibility;
 
 namespace PostSharp.Backstage.Testing.Services
 {
@@ -25,14 +25,16 @@ namespace PostSharp.Backstage.Testing.Services
         public ManualResetEventSlim BlockRead( string path )
         {
             ManualResetEventSlim readEvent = new();
-            this._blockedReads.Add( path, (new(), readEvent) );
+            this._blockedReads.Add( path, (new ManualResetEventSlim(), readEvent) );
+
             return readEvent;
         }
 
         public ManualResetEventSlim BlockWrite( string path )
         {
             ManualResetEventSlim writeEvent = new();
-            this._blockedWrites.Add( path, (new(), writeEvent) );
+            this._blockedWrites.Add( path, (new ManualResetEventSlim(), writeEvent) );
+
             return writeEvent;
         }
 
@@ -60,6 +62,7 @@ namespace PostSharp.Backstage.Testing.Services
                 events.Caller.Set();
                 events.Callee.Wait();
                 this._failedAccesses.Add( $"{callerName}({path})" );
+
                 throw new IOException( $"{callerName} failed. File '{path}' in use." );
             }
         }
@@ -151,18 +154,21 @@ namespace PostSharp.Backstage.Testing.Services
         public Stream OpenRead( string path )
         {
             this.WaitAndThrowIfBlocked( path, false );
+
             return this.Mock.File.OpenRead( path );
         }
 
         public Stream OpenWrite( string path )
         {
             this.WaitAndThrowIfBlocked( path, true );
+
             return this.Mock.File.OpenWrite( path );
         }
 
         public byte[] ReadAllBytes( string path )
         {
             this.WaitAndThrowIfBlocked( path, false );
+
             return this.Mock.File.ReadAllBytes( path );
         }
 
@@ -175,6 +181,7 @@ namespace PostSharp.Backstage.Testing.Services
         public string ReadAllText( string path )
         {
             this.WaitAndThrowIfBlocked( path, false );
+
             return this.Mock.File.ReadAllText( path );
         }
 
@@ -187,6 +194,7 @@ namespace PostSharp.Backstage.Testing.Services
         public string[] ReadAllLines( string path )
         {
             this.WaitAndThrowIfBlocked( path, false );
+
             return this.Mock.File.ReadAllLines( path );
         }
 

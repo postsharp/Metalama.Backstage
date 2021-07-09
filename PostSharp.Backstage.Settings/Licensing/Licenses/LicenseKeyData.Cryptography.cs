@@ -21,6 +21,7 @@ namespace PostSharp.Backstage.Licensing.Licenses
             }
 
             var publicKey = LicenseCryptography.GetPublicKey( this.SignatureKeyId.Value );
+
             if ( publicKey == null )
             {
                 return false;

@@ -10,9 +10,7 @@ namespace PostSharp.Cli.Tests.Commands.Licensing
     public class RegisterCommandTests : LicensingCommandsTestsBase
     {
         public RegisterCommandTests( ITestOutputHelper logger )
-            : base( logger )
-        {
-        }
+            : base( logger ) { }
 
         [Fact]
         public async Task CleanEnvironmentListsNoLicenses()
@@ -33,8 +31,9 @@ namespace PostSharp.Cli.Tests.Commands.Licensing
             await this.TestCommandAsync( $"license register {TestLicenses.Key1}", "" );
             await this.TestCommandAsync( $"license register {TestLicenses.Key2}", "" );
             await this.TestCommandAsync( $"license register {TestLicenses.Key3}", "" );
-            await this.TestCommandAsync( 
-                "license list", 
+
+            await this.TestCommandAsync(
+                "license list",
                 string.Format( TestLicenses.Format1, 1 ) + string.Format( TestLicenses.Format2, 2 ) + string.Format( TestLicenses.Format3, 3 ) );
         }
     }

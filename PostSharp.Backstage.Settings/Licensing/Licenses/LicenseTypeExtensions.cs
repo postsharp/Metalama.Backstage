@@ -20,19 +20,26 @@ namespace PostSharp.Backstage.Licensing.Licenses
             {
                 case LicenseType.Community:
                     return "Community License";
+
                 case LicenseType.Enterprise:
                 case LicenseType.PerUser:
                     return "Per-Developer Subscription";
+
                 case LicenseType.Site:
                     return "Site License";
+
                 case LicenseType.Global:
                     return "Global License";
+
                 case LicenseType.Evaluation:
                     return "Evaluation License";
+
                 case LicenseType.Academic:
                     return "Academic License";
+
                 case LicenseType.CommercialRedistribution:
                     return "Commercial Redistribution License";
+
                 case LicenseType.PerUsage:
                     return "Per-Usage Subscription";
 #pragma warning disable 618

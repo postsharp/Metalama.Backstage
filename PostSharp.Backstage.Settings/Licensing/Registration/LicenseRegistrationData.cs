@@ -1,8 +1,8 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. All rights reserved.
 // This project is not open source. Please see the LICENSE.md file in the repository root for details.
 
-using System;
 using PostSharp.Backstage.Licensing.Licenses;
+using System;
 
 namespace PostSharp.Backstage.Licensing.Registration
 {
@@ -142,6 +142,7 @@ namespace PostSharp.Backstage.Licensing.Registration
             hashCode.Add( this.ValidTo );
             hashCode.Add( this.Perpetual );
             hashCode.Add( this.SubscriptionEndDate );
+
             return hashCode.ToHashCode();
         }
     }

@@ -25,7 +25,7 @@ namespace PostSharp.Backstage.Licensing.Licenses.LicenseFields
 
             if ( i < 1 || i > 255 )
             {
-                throw new ArgumentOutOfRangeException( nameof( index ) );
+                throw new ArgumentOutOfRangeException( nameof(index) );
             }
 
             return i <= 128 || i >= 254;
@@ -49,7 +49,7 @@ namespace PostSharp.Backstage.Licensing.Licenses.LicenseFields
 
             if ( i < 1 || i > 255 )
             {
-                throw new ArgumentOutOfRangeException( nameof( index ) );
+                throw new ArgumentOutOfRangeException( nameof(index) );
             }
 
             return i > 21 && i < 254;

@@ -10,9 +10,7 @@ namespace PostSharp.Backstage.Licensing.Tests.Consumption
     public class LicenseUsageTests : LicenseConsumptionManagerTestsBase
     {
         public LicenseUsageTests( ITestOutputHelper logger )
-            : base( logger )
-        {
-        }
+            : base( logger ) { }
 
         private void AssertOneUsed( bool expectAutoRegistration, params IUsable[] usables )
         {

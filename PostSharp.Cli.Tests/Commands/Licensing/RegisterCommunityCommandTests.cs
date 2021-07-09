@@ -10,9 +10,7 @@ namespace PostSharp.Cli.Tests.Commands.Licensing
     public class RegisterCommunityCommandTests : LicensingCommandsTestsBase
     {
         public RegisterCommunityCommandTests( ITestOutputHelper logger )
-            : base( logger )
-        {
-        }
+            : base( logger ) { }
 
         [Fact]
         public async Task CommunityRegistersInEmptyEnvironment()

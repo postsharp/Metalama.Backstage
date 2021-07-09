@@ -1,14 +1,14 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. All rights reserved.
 // This project is not open source. Please see the LICENSE.md file in the repository root for details.
 
-using System;
-using System.CommandLine;
-using System.CommandLine.Invocation;
-using System.CommandLine.IO;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using PostSharp.Backstage.Extensibility;
 using PostSharp.Backstage.Licensing.Registration;
+using System;
+using System.CommandLine;
+using System.CommandLine.Invocation;
+using System.CommandLine.IO;
 
 namespace PostSharp.Cli.Commands.Licensing.Registration
 {
@@ -34,6 +34,7 @@ namespace PostSharp.Cli.Commands.Licensing.Registration
                 if ( !ordinals.TryGetValue( ordinal, out var license ) )
                 {
                     this._console.Error.WriteLine( "Invalid ordinal." );
+
                     return 1;
                 }
 
@@ -48,6 +49,7 @@ namespace PostSharp.Cli.Commands.Licensing.Registration
                 if ( !storage.Licenses.TryGetValue( licenseString, out var data ) )
                 {
                     this._console.Error.WriteLine( "This license is not registered." );
+
                     return 2;
                 }
 
@@ -78,7 +80,10 @@ namespace PostSharp.Cli.Commands.Licensing.Registration
         public UnregisterCommand( ICommandServiceProvider commandServiceProvider )
             : base( commandServiceProvider, "unregister", "Unregisters a license" )
         {
-            this.AddArgument( new Argument<string>( "license-key-or-ordinal", "The ordinal obtained by the 'postsharp license list' command or the license key to be unregistered" ) );
+            this.AddArgument(
+                new Argument<string>(
+                    "license-key-or-ordinal",
+                    "The ordinal obtained by the 'postsharp license list' command or the license key to be unregistered" ) );
 
             this.Handler = CommandHandler.Create<string, bool, IConsole>( this.Execute );
         }
@@ -89,7 +94,7 @@ namespace PostSharp.Cli.Commands.Licensing.Registration
 
             var unregisterer = new Unregisterer( services, console );
 
-            if (int.TryParse(licenseKeyOrOrdinal, out var ordinal))
+            if ( int.TryParse( licenseKeyOrOrdinal, out var ordinal ) )
             {
                 return unregisterer.UnregisterOrdinal( ordinal );
             }

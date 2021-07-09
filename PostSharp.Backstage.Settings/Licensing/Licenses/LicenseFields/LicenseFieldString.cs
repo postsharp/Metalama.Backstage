@@ -13,6 +13,7 @@ namespace PostSharp.Backstage.Licensing.Licenses.LicenseFields
         public override void Write( BinaryWriter writer )
         {
             var bytes = Encoding.UTF8.GetBytes( ((string) this.Value!).Normalize() );
+
             if ( bytes.Length > 255 )
             {
                 throw new InvalidOperationException( "Cannot have strings of more than 255 characters." );
@@ -26,6 +27,7 @@ namespace PostSharp.Backstage.Licensing.Licenses.LicenseFields
         {
             // The length of this field is variable.
             length = 0;
+
             return false;
         }
 

@@ -95,7 +95,6 @@
 //            {
 //                url = url.TrimEnd( '/' );
 
-
 // url += string.Format(
 //                    CultureInfo.InvariantCulture,
 //                    "/Lease.ashx?user={0}&machine={1}-{2:x}&version={3}&buildDate={4:o}",
@@ -163,3 +162,4 @@
 //        }
 //    }
 // }
+
