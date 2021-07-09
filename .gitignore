@@ -361,3 +361,16 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+
+/artifacts/
+*/packages/
+.packages/
+/shipping/
+*.g.cs
+.packages
+.idea/**/workspace.xml
+.idea/**/tasks.xml
+.idea/**/shelf
+LocalBuildId.props
+/publish/
+**/inspectcode.xml
