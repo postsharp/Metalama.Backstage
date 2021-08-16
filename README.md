@@ -20,22 +20,27 @@ This repository contains common development, build and publishig scripts and con
 
 - GIT for Windows with symlink support enabled. This is set in the installation wizzard.
 > Version 2.32.0 fails to support GIT subtree.
+> 
+> Issue: https://github.com/git-for-windows/git/issues/3260
+> 
+> Version 2.31.0: https://github.com/git-for-windows/git/releases/download/v2.31.0.windows.1/Git-2.31.0-64-bit.exe
 - Windows Developer Mode enabled or elevated shell. (To create symlinks.)
-> New-Item CMD-let requires elevation to create symlinks even with Windows Developer Mode enabled.
+> New-Item CMD-let in PowerShell requires elevation to create symlinks even with Windows Developer Mode enabled.
 
 ## Installation
 
-- Enable symlinks in .git/config.
-- Add the `.engineering` subtree:
+1. Enable symlinks in .git/config.
+2. Add the `.engineering` subtree:
 
 `git subtree add --prefix .engineering https://postsharp@dev.azure.com/postsharp/Caravela/_git/Caravela.Engineering master --squash`
 
-- Check `README.md` in each directory in the `.engineering` subtree for futher installation steps.
+3. Check `README.md` in each directory in the `.engineering` subtree for futher installation steps.
 
 ## Updating
 
-- From the repository root containing the `.engineering` subtree, execute `& .engineering\PullEngineering.ps1`.
-- Follow the steps described in [the changelog](CHANGELOG.md).
+1. From the repository root containing the `.engineering` subtree, execute `& .engineering\PullEngineering.ps1`.
+2. Follow the steps described in [the changelog](CHANGELOG.md).
+3. Commit & push. (Even if there are no changes ouside the `.engineering` subtree.)
 
 ## Features
 
