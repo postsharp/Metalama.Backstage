@@ -16,4 +16,21 @@
         <Obfuscate Condition="'$(Obfuscate)'=='' AND '$(Configuration)'=='Release'">True</Obfuscate>
     </PropertyGroup>
 
+    <!-- TeamCity integration -->
+    <PropertyGroup Condition=" '$(IsUnderTeamCity)' == '' ">
+        <!-- Copied from TeamCity.VSTest.TestAdapter package. -->
+        <IsUnderTeamCity Condition=" '$(TEAMCITY_PROJECT_NAME)' != '' or '$(TEAMCITY_VERSION)' != '' ">True</IsUnderTeamCity>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="TeamCity.Dotnet.Integration" Version="1.0.18" Condition="'$(IsUnderTeamCity)' == 'True'">
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
+        </PackageReference>
+        <PackageReference Include="TeamCity.VSTest.TestAdapter" Version="1.0.26" Condition="'$(IsUnderTeamCity)' == 'True'">
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
+        </PackageReference>
+    </ItemGroup>
+
 </Project>

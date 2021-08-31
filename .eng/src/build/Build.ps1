@@ -113,30 +113,34 @@ function CreateVersionFile() {
 
 function Restore() {
     & dotnet restore -p:Configuration=$configuration 
-    if ($LASTEXITCODE -ne 0 ) { exit }
+    if ($LASTEXITCODE -ne 0 ) { throw "Restore failed." }
 }
 
 function Pack() {
     & dotnet pack -p:Configuration=$configuration --nologo --no-restore
-    if ($LASTEXITCODE -ne 0 ) { exit }
+    if ($LASTEXITCODE -ne 0 ) { throw "Build failed." }
 
     Write-Host "Build successful" -ForegroundColor Green
 }
 
 function CopyToPublishDir() {
     & dotnet build .eng\CopyToPublishDir.proj --nologo --no-restore
-    if ($LASTEXITCODE -ne 0 ) { exit }
+    if ($LASTEXITCODE -ne 0 ) { throw "Copying to publish directory failed." }
 
     Write-Host "Copying to publish directory successful" -ForegroundColor Green
 }
 
 function Sign() {
     & .eng\deploy\SignAndVerify.ps1 '$ProductName'
+
+    if ($LASTEXITCODE -ne 0 ) { throw "Package signing and verification failed." }
+
+    Write-Host "Package signing and verification successful" -ForegroundColor Green
 }
 
 function Test() {
     & dotnet test -p:Configuration=$configuration --nologo --no-restore
-    if ($LASTEXITCODE -ne 0 ) { exit }
+    if ($LASTEXITCODE -ne 0 ) { throw "Tests failed." }
 
     Write-Host "Tests successful" -ForegroundColor Green
 }
