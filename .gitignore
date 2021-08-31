@@ -375,3 +375,4 @@ LocalBuildId.props
 /publish/
 /tools/
 **/inspectcode.xml
+/.eng/BackstageVersion.props
