@@ -15,7 +15,7 @@ Make sure you have read and understood [PostSharp Engineering](../README.md) bef
     - [SourceLink.props](#sourcelinkprops)
   - [NuGet packages metadata](#nuget-packages-metadata)
     - [Installation and configuration](#installation-and-configuration)
-  - [Versioning](#versioning)
+  - [Versioning, building and packaging](#versioning-building-and-packaging)
     - [Installation and configuration](#installation-and-configuration-1)
     - [Usage](#usage)
       - [Product package version and package version suffix configuration](#product-package-version-and-package-version-suffix-configuration)
@@ -59,7 +59,7 @@ This section describes centralized NuGet packages metadata management.
 
 ### Installation and configuration
 
-1. Create `.engineering-local\Packaging.props` file. The content should look like this:
+1. Create `.eng\Packaging.props` file. The content should look like this:
 
 ```
 <Project>
@@ -89,34 +89,33 @@ This section describes centralized NuGet packages metadata management.
 3. Import the file from the first step in `Directory.Build.props`:
 
 ```
-  <Import Project=".engineering-local\Packaging.props" />
+  <Import Project=".eng\Packaging.props" />
 ```
 
-Now all the packages creted from the repository will contain the metadata configured in the `.engineering-local\Packaging.props` file.
+Now all the packages creted from the repository will contain the metadata configured in the `.eng\Packaging.props` file.
 
-## Versioning
+## Versioning, building and packaging
 
-This section describes centralized version management.
+This section describes centralized main version and dependencies version management, cross-repo dependencies, building and packaging.
 
 ### Installation and configuration
 
-In this how-to, we use the name `[Product]` as a placeholder for the name of the product contained in a specific repository containing the `.engineering` subtree.
+In this how-to, we use the name `[Product]` as a placeholder for the name of the product contained in a specific repository containing the `.eng\src` subtree.
 
-1. Add `.engineering-local\[Product]Version.props` to `.gitignore`.
+1. Add `.eng\[Product]Version.props` to `.gitignore`.
 
-2. Create `.engineering-local\MainVersion.props` file. The content should look like:
+2. Create `.eng\MainVersion.props` file. The content should look like:
 
 ```
 <Project>
     <PropertyGroup>
-        <ProductName>[Product]</ProductName>
         <MainVersion>0.3.6</MainVersion>
         <PackageVersionSuffix>-preview</PackageVersionSuffix>
     </PropertyGroup>
 </Project>
 ```
 
-3. Create `.engineering-local\Versions.props` file. The content should look like:
+3. Create `.eng\Versions.props` file. The content should look like:
 
 ```
 <Project>
@@ -150,18 +149,24 @@ In this how-to, we use the name `[Product]` as a placeholder for the name of the
 4. Add the following import to `Directory.Build.props`:
 
 ```
-  <Import Project=".engineering-local\Versions.props" />
+  <Import Project=".eng\Versions.props" />
+```
+
+5. Create `.eng\Build.ps1` file. The content should look like:
+
+```
+Invoke-Expression "& .eng/src/build/Build.ps1 [Product] $args"
 ```
 
 ### Usage
 
 #### Product package version and package version suffix configuration
 
-The product package version and package version suffix configuration is centralized in the `.engineering-local\MainVersion.props` script via the `MainVersion` and `PackageVersionSuffix` properties, respectively. For RTM products, leave the `PackageVersionSuffix` property value empty.
+The product package version and package version suffix configuration is centralized in the `.eng\MainVersion.props` script via the `MainVersion` and `PackageVersionSuffix` properties, respectively. For RTM products, leave the `PackageVersionSuffix` property value empty.
 
 #### Package dependencies versions configuration
 
-Package dependecies vesrions configuration is centralized in the `.engineering-local\Versions.props` script. Each dependency version is configured in a property named `<[DependencyName]Version>`, eg. `<SystemCollectionsImmutableVersion>`.
+Package dependecies vesrions configuration is centralized in the `.eng\Versions.props` script. Each dependency version is configured in a property named `<[DependencyName]Version>`, eg. `<SystemCollectionsImmutableVersion>`.
 
 This property value is then available in all MSBuild project files in the repository and can be used in the `PackageReference` items. For example:
 
@@ -173,11 +178,11 @@ This property value is then available in all MSBuild project files in the reposi
 
 #### Local build and testing
 
-See the initial comments in the `.engineering\build\Build.ps1` script for details.
+See the initial comments in the `.eng\src\build\Build.ps1` script for details. Use the `.eng\Build.ps1` instead and ommit the `$ProductName` parameter as this is provided by the facade.
 
 #### Local package referencing
 
-Local NuGet packages creating using the `.engineering\build\Build.ps1` script can be referenced in other repositories using the following steps:
+Local NuGet packages creating using the `.eng\src\build\Build.ps1` script can be referenced in other repositories using the following steps:
 
 1. Add the following import to `Directory.Build.props`.
 
@@ -185,19 +190,21 @@ Local NuGet packages creating using the `.engineering\build\Build.ps1` script ca
 <Import Project="[PathToReferencedRepo]\[ReferencedProduct]Version.props" Condition="Exists('.local')"/>
 ```
 
-> TODO: Should we generate the `.local` file?
-
 2. In the dependencies version, set the default version of the referenced package:
 
 ```
 <[ReferencedProduct]Version Condition="'$([ReferencedProduct]Version)'==''">0.3.6-preview</[ReferencedProduct]Version>
 ```
 
+This version will be used instead of the local build by default.
+
 3. Add a package reference to projects where required:
 
 ```
 <PackageReference Include="[ReferencedPackage]" Version="$([ReferencedProduct]Version)" />
 ```
+
+1. To use the local build instead of the published one, create an empty file `.local`.
 
 ## Continuous integration
 
