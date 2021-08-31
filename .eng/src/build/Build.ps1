@@ -73,7 +73,7 @@ function CreateVersionFile() {
         $assemblyVersion = "`$(MainVersion)$timestamp"
     } elseif ( $Numbered -ge 0 ) {
         # Build server build with a build number given by the build server
-        $packageVersion = "`$(MainVersion)-build-$Numbered-$configuration"
+        $packageVersion = "`$(MainVersion)-build-$configuration.$Numbered"
         $assemblyVersion = "`$(MainVersion).$Numbered"
     } elseif ( $Public ) {
         # Public build
@@ -120,6 +120,14 @@ function Pack() {
     Write-Host "Build successful" -ForegroundColor Green
 }
 
+function CopyToPublishDir()
+{
+    & dotnet build .\.eng\CopyToPublishDir.proj --nologo --no-restore
+    if ($LASTEXITCODE -ne 0 ) { exit }
+
+    Write-Host "Copying to publish directory successful" -ForegroundColor Green
+}
+
 function Test() {
     & dotnet test -p:Configuration=$configuration --nologo --no-restore
     if ($LASTEXITCODE -ne 0 ) { exit }
@@ -135,6 +143,10 @@ Restore
 
 if ( -not( $Prepare ) ) {
     Pack
+
+    if ( $Public -and $Release ) {
+        CopyToPublishDir
+    }
 }
 
 if ( $Test ) {
