@@ -1,5 +1,10 @@
 <Project>
 
+  <PropertyGroup>
+    <!-- TODO: The stylecop behaves differently on TeamCity for unknown reason. -->
+    <DisableCodeQuality>True</DisableCodeQuality>
+  </PropertyGroup>
+
   <Import Project=".eng\Versions.props" />
   <Import Project=".eng\Packaging.props" />
   

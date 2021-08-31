@@ -17,17 +17,17 @@
     </PropertyGroup>
 
     <!-- TeamCity integration -->
-    <PropertyGroup Condition=" '$(IsUnderTeamCity)' == '' ">
+    <PropertyGroup Condition=" '$(ContinuousIntegrationBuild)' == '' ">
         <!-- Copied from TeamCity.VSTest.TestAdapter package. -->
-        <IsUnderTeamCity Condition=" '$(TEAMCITY_PROJECT_NAME)' != '' or '$(TEAMCITY_VERSION)' != '' ">True</IsUnderTeamCity>
+        <ContinuousIntegrationBuild Condition=" '$(TEAMCITY_PROJECT_NAME)' != '' or '$(TEAMCITY_VERSION)' != '' ">True</ContinuousIntegrationBuild>
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="TeamCity.Dotnet.Integration" Version="1.0.18" Condition="'$(IsUnderTeamCity)' == 'True'">
+        <PackageReference Include="TeamCity.Dotnet.Integration" Version="1.0.18" Condition="'$(ContinuousIntegrationBuild)' == 'True'">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
         </PackageReference>
-        <PackageReference Include="TeamCity.VSTest.TestAdapter" Version="1.0.26" Condition="'$(IsUnderTeamCity)' == 'True' And '$(IsTestProject)' == 'True'">
+        <PackageReference Include="TeamCity.VSTest.TestAdapter" Version="1.0.26" Condition="'$(ContinuousIntegrationBuild)' == 'True' And '$(IsTestProject)' == 'True'">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
         </PackageReference>
