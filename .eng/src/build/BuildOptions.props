@@ -27,7 +27,7 @@
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
         </PackageReference>
-        <PackageReference Include="TeamCity.VSTest.TestAdapter" Version="1.0.26" Condition="'$(IsUnderTeamCity)' == 'True'">
+        <PackageReference Include="TeamCity.VSTest.TestAdapter" Version="1.0.26" Condition="'$(IsUnderTeamCity)' == 'True' And '$(IsTestProject)' == 'True'">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
         </PackageReference>
