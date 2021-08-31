@@ -39,6 +39,12 @@ param (
 
 $ErrorActionPreference = "Stop"
 
+trap
+{
+    Write-Error $PSItem.ToString()
+    exit 1
+}
+
 # Check that we are in the root of a GIT repository.
 If ( -Not ( Test-Path -Path ".\.git" ) ) {
     throw "This script has to run in a GIT repository root!"
