@@ -19,7 +19,7 @@
     <!-- TeamCity integration -->
     <PropertyGroup Condition=" '$(ContinuousIntegrationBuild)' == '' ">
         <!-- Copied from TeamCity.VSTest.TestAdapter package. -->
-        <ContinuousIntegrationBuild Condition=" '$(TEAMCITY_PROJECT_NAME)' != '' or '$(TEAMCITY_VERSION)' != '' ">True</ContinuousIntegrationBuild>
+        <ContinuousIntegrationBuild Condition=" '$(TEAMCITY_PROJECT_NAME)' != '' Or '$(TEAMCITY_VERSION)' != '' ">True</ContinuousIntegrationBuild>
     </PropertyGroup>
 
     <ItemGroup>
@@ -27,10 +27,7 @@
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
         </PackageReference>
-        <PackageReference Include="TeamCity.VSTest.TestAdapter" Version="1.0.26" Condition="'$(ContinuousIntegrationBuild)' == 'True' And '$(IsTestProject)' == 'True'">
-            <PrivateAssets>all</PrivateAssets>
-            <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
-        </PackageReference>
+        <PackageReference Include="TeamCity.VSTest.TestAdapter" Version="1.0.26" Condition="'$(ContinuousIntegrationBuild)' == 'True'" />
     </ItemGroup>
 
 </Project>

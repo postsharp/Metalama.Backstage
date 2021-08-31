@@ -137,7 +137,7 @@ function CopyToPublishDir() {
 }
 
 function Sign() {
-    & .eng\deploy\SignAndVerify.ps1 '$ProductName'
+    & .\.eng\src\deploy\SignAndVerify.ps1 '$ProductName'
 
     if ($LASTEXITCODE -ne 0 ) { throw "Package signing and verification failed." }
 
