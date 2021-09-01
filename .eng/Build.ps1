@@ -1,1 +1,1 @@
-Invoke-Expression "& .eng/src/build/Build.ps1 'Backstage' $args"
+Invoke-Expression "& .eng/src/build/Build.ps1 -ProductName 'Backstage' $args"
