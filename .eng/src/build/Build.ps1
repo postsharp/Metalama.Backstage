@@ -67,6 +67,11 @@ if ( $Release ) {
     $configuration = "debug"
 }
 
+function CheckPrerequisities() {
+    & .\.eng\src\style\LinkConfiguration.ps1 -Check
+
+    if ($LASTEXITCODE -ne 0 ) { throw "Symbolic links verification failed." }
+}
 
 function Clean() {
     if (Test-Path "artifacts\bin\Debug" -PathType Container ) {
@@ -156,8 +161,7 @@ function Test() {
     Write-Host "Tests successful" -ForegroundColor Green
 }
 
-
-
+CheckPrerequisities
 Clean
 CreateVersionFile
 Restore
