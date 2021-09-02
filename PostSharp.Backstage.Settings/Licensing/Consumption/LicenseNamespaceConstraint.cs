@@ -28,7 +28,7 @@ namespace PostSharp.Backstage.Licensing.Consumption
         {
             if ( string.IsNullOrEmpty( allowedNamespace ) )
             {
-                throw new ArgumentException( "Missing namespace.", nameof( allowedNamespace ) );
+                throw new ArgumentException( "Missing namespace.", nameof(allowedNamespace) );
             }
 
             this.AllowedNamespace = allowedNamespace;

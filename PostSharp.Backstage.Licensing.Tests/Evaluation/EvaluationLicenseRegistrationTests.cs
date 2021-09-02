@@ -11,15 +11,13 @@ namespace PostSharp.Backstage.Licensing.Tests.Evaluation
     public class EvaluationLicenseRegistrationTests : EvaluationLicenseRegistrationTestsBase
     {
         public EvaluationLicenseRegistrationTests( ITestOutputHelper logger )
-            : base( logger )
-        {
-        }
+            : base( logger ) { }
 
         [Fact]
         public void MissingFlagOfRunningEvaluationPasses()
         {
             this.Time.Set( TestStart );
-            (var evaluationLicenseKey, _) = this.SelfSignedLicenseFactory.CreateEvaluationLicense();
+            var (evaluationLicenseKey, _) = this.SelfSignedLicenseFactory.CreateEvaluationLicense();
             this.SetStoredLicenseStrings( evaluationLicenseKey );
             Assert.True( this.Registrar.TryRegisterLicense() );
             Assert.Single( this.Log.LogEntries, x => x.Message == "Failed to register evaluation license: A valid evaluation license is registered already." );
@@ -28,7 +26,7 @@ namespace PostSharp.Backstage.Licensing.Tests.Evaluation
         [Fact]
         public async Task ConcurrentStoredLicenseSavingPassesWhenReadFails()
         {
-            (var evaluationLicenseKey, _) = this.SelfSignedLicenseFactory.CreateEvaluationLicense();
+            var (evaluationLicenseKey, _) = this.SelfSignedLicenseFactory.CreateEvaluationLicense();
             this.SetStoredLicenseStrings( evaluationLicenseKey );
 
             var readEvent = this.FileSystem.BlockRead( this.LicenseFiles.UserLicenseFile );
@@ -41,7 +39,10 @@ namespace PostSharp.Backstage.Licensing.Tests.Evaluation
 
             var messages = this.Log.LogEntries.Select( e => e.Message ).ToArray();
 
-            Assert.Single( messages, $"Failed to register evaluation license: Attempt #1: ReadAllLines failed. File '{this.LicenseFiles.UserLicenseFile}' in use. Retrying." );
+            Assert.Single(
+                messages,
+                $"Failed to register evaluation license: Attempt #1: ReadAllLines failed. File '{this.LicenseFiles.UserLicenseFile}' in use. Retrying." );
+
             Assert.Single( messages, "Failed to register evaluation license: A valid evaluation license is registered already." );
             Assert.Single( this.FileSystem.FailedFileAccesses, $"ReadAllLines({this.LicenseFiles.UserLicenseFile})" );
         }
@@ -53,7 +54,7 @@ namespace PostSharp.Backstage.Licensing.Tests.Evaluation
             var registration = Task.Run( this.Registrar.TryRegisterLicense );
             writeEvent.Wait();
 
-            (var evaluationLicenseKey, _) = this.SelfSignedLicenseFactory.CreateEvaluationLicense();
+            var (evaluationLicenseKey, _) = this.SelfSignedLicenseFactory.CreateEvaluationLicense();
             this.SetStoredLicenseStrings( evaluationLicenseKey );
 
             this.FileSystem.Unblock( this.LicenseFiles.UserLicenseFile );
@@ -62,7 +63,10 @@ namespace PostSharp.Backstage.Licensing.Tests.Evaluation
 
             var messages = this.Log.LogEntries.Select( e => e.Message ).ToArray();
 
-            Assert.Single( messages, $"Failed to register evaluation license: Attempt #1: WriteAllLines failed. File '{this.LicenseFiles.UserLicenseFile}' in use. Retrying." );
+            Assert.Single(
+                messages,
+                $"Failed to register evaluation license: Attempt #1: WriteAllLines failed. File '{this.LicenseFiles.UserLicenseFile}' in use. Retrying." );
+
             Assert.Single( messages, "Failed to register evaluation license: A valid evaluation license is registered already." );
             Assert.Single( this.FileSystem.FailedFileAccesses, $"WriteAllLines({this.LicenseFiles.UserLicenseFile})" );
         }

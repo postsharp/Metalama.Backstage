@@ -1,12 +1,12 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. All rights reserved.
 // This project is not open source. Please see the LICENSE.md file in the repository root for details.
 
+using PostSharp.Backstage.Utilities;
 using System;
 using System.Collections.Generic;
 using System.Security.Cryptography;
 using System.Text;
 using System.Xml;
-using PostSharp.Backstage.Utilities;
 
 #pragma warning disable CA5350, CA5350, CA5384, CA5351 // Do Not Use Weak Cryptographic Algorithms (TODO - but this means upgrading all license keys)
 
@@ -25,11 +25,16 @@ namespace PostSharp.Backstage.Licensing.Cryptography
         /// </summary>
         static LicenseCryptography()
         {
+            // ReSharper disable StringLiteralTypo
+            
             // FromXmlString method is not supported by .NET Core
             _productionPublicKey0.FromXmlString2(
                 "<DSAKeyValue><P>9cMyBYBokidciAghqE1POnEbcxpBui3PfazddrQjndkDtPskGvBcjS8LIStB/jR0SICKmLMwl7WoocpdXgYTOopgKJ33E4NOIhc1vbQR6vCCidGWlN88hUKCQJ8cGzme/LDmUT5zfK3TfM6LkMU1fYTNARrefIZkSlg4GGIjZ38=</P><Q>m9h5p2kl1vlwuw12AOQbem3yDXU=</Q><G>pBkhekdI1vk084zMbubnu7qtDyTid6x01crQJiERfmk2HgFt13dXHwei/1kgrRJPWrtZVRKMmO8w+p4jfle82n2/BaFNBLouUoQ/fBYPPdDZBocd/tXqBduF5zq1S12tDv8TIIarMTRtj18F5e68cxBPbweVs4n8meqLEQL5AwA=</G><Y>e2otaOKaVFxnEoHI4g1f7BCcrOaAwd1/GTMkEXGaNw3CYucIuOJdvlZEWa/pa4DTUeK4McHOXRJsZMQdHaoh+dK17NdmMxTa2UMokyoIdayu9kw9TbWUy2zXovJ8CHJVP4RU8wlJk1RKjeMuSK3lYPgo2RTbV9UbU2qK1gmVwg4=</Y><J>AAAAAZOzu4FkAIr0MjlqqHtPNWrFTfjw4/qDWuFvHEf7ioaj8vqRao8mbqsLueqvYIYQ8g8w2WNWFAOG6e8waiQhX2O/DRSZNbc/JfdjQqlPli5be6FqNsGnjKXdEt2boONKU/fpGx/m69V+a/4jxg==</J><Seed>1B0yRR/A/kmE1zMUIFiEMmJ328M=</Seed><PgenCounter>Xg==</PgenCounter></DSAKeyValue>" );
+
             _productionPublicKey1.FromXmlString2(
                 "<DSAKeyValue><P>vAmBC+eZJaZa7HdlTDAgsfcT0QSjqN8d8fEeZ9E1kxfIAYGerlHFHW/A5muBYy8FyO7W8r4mqxpxcvFQEeEqVe89BUXecHjh6FkTEsT25r/nbV4jnZBxNz16qb7A6t8MCr0jzuzrIGFVP5VG/ad0s/1078WqpwQqJQXHmH/lXX0=</P><Q>+RdtGnwCJw4u2H/goSLtaAGr1U0=</Q><G>sxQQgHIuRgYOMtB+r7EGRO/OTRGXhUrFyZ1R9nVerGGC2juEVWSoydr2JquILOwIO7+1kIOwbkhCjNlZIAdvWRlN5COF7gHfPi1dSX7LzDcNbZDADvrOUmk1KG3hZ3Vf67XIbug2/nq8aij7gbEs4eA26EWWpObO0a+e2QmsQII=</G><Y>dP073SH4QG5KiV5BbZEDLiV3/D2eD18D9jsMVD1p+eMZsffU88/Pxfen1Pe5cyulw8gQkEvlAa3GEmGsaGaa7Qp245NPD8fbEOLFu3tdwMhw/ylRHpjTS7BDRjvGeyGwSS0WTWQCwCyI8LN6Rvg7p4RfhHIaAWWkTJNVAG7AN7g=</Y><J>wUCV+9KzxPW+J3/DIm3sIfVf29Z8u5zPXnEZbMTrkWwdgOTSPuXimtiQku8knyWD3iC+GqyhtoFqdgXqQS6WcadAABb2U5mMTL0V1o6Jy6c0cyPb9blmf5wdZxMKVlXe9lcAO8rP16XhQGVs</J><Seed>h7zytTPqA9Ue3F7c/j+9iXW4Ebw=</Seed><PgenCounter>Aag=</PgenCounter></DSAKeyValue>" );
+            
+            // ReSharper restore StringLiteralTypo
         }
 
         /// <summary>
@@ -44,6 +49,8 @@ namespace PostSharp.Backstage.Licensing.Cryptography
             {
                 // Input to this routine is always big endian
                 var dwOutput = 0;
+
+                // ReSharper disable once ForCanBeConvertedToForeach
                 for ( var i = 0; i < input.Length; i++ )
                 {
                     dwOutput *= 256;
@@ -53,28 +60,32 @@ namespace PostSharp.Backstage.Licensing.Cryptography
                 return dwOutput;
             }
 
-            var parameters = default( DSAParameters );
+            var parameters = default(DSAParameters);
 
             var xmlDoc = new XmlDocument();
             xmlDoc.LoadXml( xmlString );
 
+            // ReSharper disable StringLiteralTypo
+            
             // J is optional
             var missingNodes = new HashSet<string>
-                                           {
-                                               "P",
-                                               "Q",
-                                               "G",
-                                               "Y",
-                                               "Seed",
-                                               "PgenCounter"
-                                           };
+            {
+                "P",
+                "Q",
+                "G",
+                "Y",
+                "Seed",
+                "PgenCounter"
+            };
+            
+            // ReSharper restore StringLiteralTypo
 
             if ( expectPrivateParameters )
             {
                 missingNodes.Add( "X" );
             }
 
-            if ( xmlDoc.DocumentElement.Name.Equals( "DSAKeyValue", StringComparison.Ordinal ) )
+            if ( xmlDoc.DocumentElement!.Name.Equals( "DSAKeyValue", StringComparison.Ordinal ) )
             {
                 foreach ( XmlNode node in xmlDoc.DocumentElement.ChildNodes )
                 {
@@ -83,62 +94,71 @@ namespace PostSharp.Backstage.Licensing.Cryptography
                         case "P":
                             parameters.P = Convert.FromBase64String( node.InnerText );
                             missingNodes.Remove( node.Name );
+
                             break;
 
                         case "Q":
                             parameters.Q = Convert.FromBase64String( node.InnerText );
                             missingNodes.Remove( node.Name );
+
                             break;
 
                         case "G":
                             parameters.G = Convert.FromBase64String( node.InnerText );
                             missingNodes.Remove( node.Name );
+
                             break;
 
                         case "Y":
                             parameters.Y = Convert.FromBase64String( node.InnerText );
                             missingNodes.Remove( node.Name );
+
                             break;
 
                         case "J":
                             parameters.J = Convert.FromBase64String( node.InnerText );
                             missingNodes.Remove( node.Name );
+
                             break;
 
                         case "X":
                             if ( !expectPrivateParameters )
                             {
                                 // We check this so a private key is not accidentally disclosed.
-                                throw new ArgumentException( $"Invalid public key.", nameof( xmlString ) );
+                                throw new ArgumentException( $"Invalid public key.", nameof(xmlString) );
                             }
 
                             parameters.X = Convert.FromBase64String( node.InnerText );
                             missingNodes.Remove( node.Name );
+
                             break;
 
                         case "Seed":
                             parameters.Seed = Convert.FromBase64String( node.InnerText );
                             missingNodes.Remove( node.Name );
+
                             break;
 
+                        // ReSharper disable once StringLiteralTypo
                         case "PgenCounter":
                             parameters.Counter = ConvertByteArrayToInt( Convert.FromBase64String( node.InnerText ) );
                             missingNodes.Remove( node.Name );
+
                             break;
 
                         default:
-                            throw new ArgumentException( $"Invalid key. Unknown node: {node.Name}", nameof( xmlString ) );
+                            throw new ArgumentException( $"Invalid key. Unknown node: {node.Name}", nameof(xmlString) );
                     }
                 }
 
                 if ( missingNodes.Count != 0 )
                 {
-                    throw new ArgumentException( $"Invalid XML DSA key. Missing nodes: {string.Join( ", ", missingNodes )}", nameof( xmlString ) );
+                    throw new ArgumentException( $"Invalid XML DSA key. Missing nodes: {string.Join( ", ", missingNodes )}", nameof(xmlString) );
                 }
             }
             else
             {
-                throw new ArgumentException( "Invalid XML DSA key.", nameof( xmlString ) );
+                throw new ArgumentException( "Invalid XML DSA key.", nameof(xmlString) );
             }
 
             dsa.ImportParameters( parameters );
@@ -156,8 +176,8 @@ namespace PostSharp.Backstage.Licensing.Cryptography
             static byte[] ConvertIntToByteArray( int dwInput )
             {
                 var temp = new byte[8]; // int can never be greater than Int64
-                int t1;  // t1 is remaining value to account for
-                int t2;  // t2 is t1 % 256
+                int t1;                 // t1 is remaining value to account for
+                int t2;                 // t2 is t1 % 256
                 var i = 0;
 
                 if ( dwInput == 0 )
@@ -166,6 +186,7 @@ namespace PostSharp.Backstage.Licensing.Cryptography
                 }
 
                 t1 = dwInput;
+
                 while ( t1 > 0 )
                 {
                     if ( i >= 8 )
@@ -191,6 +212,8 @@ namespace PostSharp.Backstage.Licensing.Cryptography
                 return output;
             }
 
+            // ReSharper disable CommentTypo
+            
             // From the XMLDSIG spec, RFC 3075, Section 6.4.1, a DSAKeyValue looks like this:
             /* 
                <element name="DSAKeyValue"> 
@@ -211,6 +234,8 @@ namespace PostSharp.Backstage.Licensing.Cryptography
                  </complexType>
                </element>
             */
+            
+            // ReSharper restore CommentTypo
 
             // we extend appropriately for private component X
             var dsaParams = dsa.ExportParameters( includePrivateParameters );
@@ -230,9 +255,14 @@ namespace PostSharp.Backstage.Licensing.Cryptography
             }
 
             if ( dsaParams.Seed != null )
-            { // note we assume counter is correct if Seed is present
+            {
+                // ReSharper disable StringLiteralTypo
+                
+                // note we assume counter is correct if Seed is present
                 sb.Append( "<Seed>" + Convert.ToBase64String( dsaParams.Seed ) + "</Seed>" );
                 sb.Append( "<PgenCounter>" + Convert.ToBase64String( ConvertIntToByteArray( dsaParams.Counter ) ) + "</PgenCounter>" );
+                
+                // ReSharper restore StringLiteralTypo
             }
 
             if ( includePrivateParameters )
@@ -242,6 +272,7 @@ namespace PostSharp.Backstage.Licensing.Cryptography
             }
 
             sb.Append( "</DSAKeyValue>" );
+
             return sb.ToString();
         }
 
@@ -263,6 +294,7 @@ namespace PostSharp.Backstage.Licensing.Cryptography
             using ( var md5 = new MD5Managed() )
             {
                 var hash = md5.ComputeHash( bytes );
+
                 return hash[0] | (hash[1] << 8) | (hash[2] << 16) | (hash[3] << 24);
             }
         }
@@ -283,12 +315,14 @@ namespace PostSharp.Backstage.Licensing.Cryptography
             var bytes = Encoding.UTF8.GetBytes( s );
 
             byte[] hash;
+
             using ( var md5 = new MD5Managed() )
             {
                 hash = md5.ComputeHash( bytes );
             }
 
             long hash64;
+
             unsafe
             {
                 fixed ( byte* p = hash )
@@ -356,7 +390,7 @@ namespace PostSharp.Backstage.Licensing.Cryptography
                 // LicensingMessageSource.Instance.Write( MessageLocation.Unknown, SeverityType.Warning, "PS0128", new object[0] );
 
                 default:
-                    throw new ArgumentOutOfRangeException( nameof( index ) );
+                    throw new ArgumentOutOfRangeException( nameof(index) );
             }
         }
 
@@ -372,6 +406,7 @@ namespace PostSharp.Backstage.Licensing.Cryptography
             using ( var privateKey = DSA.Create() )
             {
                 privateKey.FromXmlString2( privateKeyXml, true );
+
                 return privateKey.CreateSignature( GetHash( message ) );
             }
         }

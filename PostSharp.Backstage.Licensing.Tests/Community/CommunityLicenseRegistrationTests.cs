@@ -1,11 +1,11 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. All rights reserved.
 // This project is not open source. Please see the LICENSE.md file in the repository root for details.
 
-using System;
-using System.Linq;
 using PostSharp.Backstage.Licensing.Licenses;
 using PostSharp.Backstage.Licensing.Registration.Community;
 using PostSharp.Backstage.Licensing.Tests.Registration;
+using System;
+using System.Linq;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -18,7 +18,7 @@ namespace PostSharp.Backstage.Licensing.Tests.Community
         public CommunityLicenseRegistrationTests( ITestOutputHelper logger )
             : base( logger )
         {
-            this._registrar = new( this.Services );
+            this._registrar = new CommunityLicenseRegistrar( this.Services );
         }
 
         private void AssertSingleCommunityLicenseRegistered()
@@ -39,7 +39,7 @@ namespace PostSharp.Backstage.Licensing.Tests.Community
         }
 
         [Fact]
-        public void RepeatedCommunityLicenseRegisterationKeepsSingleLicenseRegistered()
+        public void RepeatedCommunityLicenseRegistrationKeepsSingleLicenseRegistered()
         {
             Assert.True( this._registrar.TryRegisterLicense() );
             Assert.True( this._registrar.TryRegisterLicense() );

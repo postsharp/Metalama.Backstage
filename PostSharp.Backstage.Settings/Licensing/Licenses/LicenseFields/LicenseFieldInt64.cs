@@ -16,7 +16,8 @@ namespace PostSharp.Backstage.Licensing.Licenses.LicenseFields
 
         protected override bool TryGetConstantLength( out byte length )
         {
-            length = sizeof( long );
+            length = sizeof(long);
+
             return true;
         }
 

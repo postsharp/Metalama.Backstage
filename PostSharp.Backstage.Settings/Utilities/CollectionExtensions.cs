@@ -12,6 +12,7 @@ namespace PostSharp.Backstage.Utilities
         {
             var item = collection.First();
             collection.Remove( item );
+
             return item;
         }
 
@@ -25,6 +26,7 @@ namespace PostSharp.Backstage.Utilities
 
             value = new TValue();
             dictionary[key] = value;
+
             return value;
         }
     }

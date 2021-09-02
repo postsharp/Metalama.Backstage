@@ -1,15 +1,15 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. All rights reserved.
 // This project is not open source. Please see the LICENSE.md file in the repository root for details.
 
+using PostSharp.Backstage.Licensing.Licenses.LicenseFields;
 using System;
 using System.Collections.Generic;
-using PostSharp.Backstage.Licensing.Licenses.LicenseFields;
 
 namespace PostSharp.Backstage.Licensing.Licenses
 {
     internal partial class LicenseKeyData
     {
-        private readonly SortedDictionary<LicenseFieldIndex, LicenseField> _fields = new SortedDictionary<LicenseFieldIndex, LicenseField>();
+        private readonly SortedDictionary<LicenseFieldIndex, LicenseField> _fields = new();
 
         private object? GetFieldValue( LicenseFieldIndex index )
         {
@@ -30,41 +30,50 @@ namespace PostSharp.Backstage.Licensing.Licenses
 
             switch ( value.GetType().Name )
             {
-                case nameof( Boolean ):
+                case nameof(Boolean):
                     this.SetFieldValue<LicenseFieldBool>( index, value );
+
                     break;
 
-                case nameof( Byte ):
+                case nameof(Byte):
                     this.SetFieldValue<LicenseFieldByte>( index, value );
+
                     break;
 
-                case nameof( Int16 ):
+                case nameof(Int16):
                     this.SetFieldValue<LicenseFieldInt16>( index, value );
+
                     break;
 
-                case nameof( Int32 ):
+                case nameof(Int32):
                     this.SetFieldValue<LicenseFieldInt32>( index, value );
+
                     break;
 
-                case nameof( Int64 ):
+                case nameof(Int64):
                     this.SetFieldValue<LicenseFieldInt64>( index, value );
+
                     break;
 
-                case nameof( DateTime ):
+                case nameof(DateTime):
                     this.SetFieldValue<LicenseFieldDate>( index, ((DateTime) value).Date );
                     this.SetFieldValue<LicenseFieldDateTime>( index, value );
+
                     break;
 
-                case nameof( String ):
+                case nameof(String):
                     this.SetFieldValue<LicenseFieldString>( index, value );
+
                     break;
 
-                case nameof( Byte ) + "[]":
+                case nameof(Byte) + "[]":
                     this.SetFieldValue<LicenseFieldBytes>( index, value );
+
                     break;
 
-                case nameof( Guid ):
+                case nameof(Guid):
                     this.SetFieldValue<LicenseFieldGuid>( index, value );
+
                     break;
 
                 default:

@@ -93,7 +93,7 @@ namespace PostSharp.Backstage.Licensing.Licenses
         /// <summary>
         /// License limiting the number of enhanced types. This is used with Ultimate or with the aspect libraries.
         /// </summary>
-        PerUsage = 18,
+        PerUsage = 18
 
         // 255 is reserved as unknown for testing purposes
     }

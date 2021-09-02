@@ -1,9 +1,9 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. All rights reserved.
 // This project is not open source. Please see the LICENSE.md file in the repository root for details.
 
+using PostSharp.Backstage.Extensibility;
 using System.Collections.Generic;
 using System.Linq;
-using PostSharp.Backstage.Extensibility;
 using Xunit;
 
 namespace PostSharp.Backstage.Testing.Services
@@ -40,7 +40,7 @@ namespace PostSharp.Backstage.Testing.Services
             diagnostics.AsTestDiagnosticsSink().AssertClean();
         }
 
-        public static void AssertSingleWarning(this IDiagnosticsSink diagnostics, string expectedMessage, IDiagnosticsLocation? expectedLocation = null)
+        public static void AssertSingleWarning( this IDiagnosticsSink diagnostics, string expectedMessage, IDiagnosticsLocation? expectedLocation = null )
         {
             var warning = diagnostics.AsTestDiagnosticsSink().Warnings.Single();
             Assert.Equal( expectedMessage, warning.Message );

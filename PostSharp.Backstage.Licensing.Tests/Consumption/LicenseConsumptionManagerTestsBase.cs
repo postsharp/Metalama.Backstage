@@ -1,14 +1,15 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. All rights reserved.
 // This project is not open source. Please see the LICENSE.md file in the repository root for details.
 
-using System;
 using Microsoft.Extensions.DependencyInjection;
 using PostSharp.Backstage.Licensing.Consumption;
 using PostSharp.Backstage.Licensing.Consumption.Sources;
 using PostSharp.Backstage.Licensing.Registration;
 using PostSharp.Backstage.Licensing.Tests.Licenses;
+using PostSharp.Backstage.Licensing.Tests.LicenseSources;
 using PostSharp.Backstage.Licensing.Tests.Registration;
 using PostSharp.Backstage.Testing.Services;
+using System;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -20,13 +21,14 @@ namespace PostSharp.Backstage.Licensing.Tests.Consumption
 
         public LicenseConsumptionManagerTestsBase( ITestOutputHelper logger, Action<IServiceCollection>? serviceBuilder = null )
             : base(
-                  logger,
-                  serviceCollection =>
-                  {
-                      serviceCollection
-                          .AddSingleton<IFirstRunLicenseActivator>( new TestFirstRunLicenseActivator() );
-                      serviceBuilder?.Invoke( serviceCollection );
-                  } )
+                logger,
+                serviceCollection =>
+                {
+                    serviceCollection
+                        .AddSingleton<IFirstRunLicenseActivator>( new TestFirstRunLicenseActivator() );
+
+                    serviceBuilder?.Invoke( serviceCollection );
+                } )
         {
             this.AutoRegistrar = (TestFirstRunLicenseActivator) this.Services.GetRequiredService<IFirstRunLicenseActivator>();
         }
@@ -39,12 +41,15 @@ namespace PostSharp.Backstage.Licensing.Tests.Consumption
         private protected TestLicense CreateLicense( string licenseString )
         {
             Assert.True( this.LicenseFactory.TryCreate( licenseString, out var license ) );
+
             return new TestLicense( license! );
         }
 
         private protected ILicenseConsumptionManager CreateConsumptionManager( params TestLicense[] licenses )
         {
+            // ReSharper disable once CoVariantArrayConversion
             var licenseSource = new TestLicenseSource( "test", licenses );
+
             return this.CreateConsumptionManager( licenseSource );
         }
 
@@ -65,11 +70,11 @@ namespace PostSharp.Backstage.Licensing.Tests.Consumption
         private protected void TestConsumption(
             ILicenseConsumptionManager manager,
             LicensedFeatures requiredFeatures,
-            string reuqiredNamespace,
+            string requiredNamespace,
             bool expectedCanConsume,
             bool expectedLicenseAutoRegistrationAttempt = false )
         {
-            var consumer = this.CreateConsumer( reuqiredNamespace );
+            var consumer = this.CreateConsumer( requiredNamespace );
 
             void TestCanConsume()
             {
@@ -85,14 +90,17 @@ namespace PostSharp.Backstage.Licensing.Tests.Consumption
 
                 this.Diagnostics.AssertClean();
 
-                if (expectedCanConsume)
+                if ( expectedCanConsume )
                 {
                     consumer.Diagnostics.AssertClean();
                 }
                 else
                 {
                     consumer.Diagnostics.AssertNoWarnings();
-                    consumer.Diagnostics.AssertSingleError( "No license available for feature(s) Caravela required by 'Bar' type.", consumer.DiagnosticsLocation );
+
+                    consumer.Diagnostics.AssertSingleError(
+                        "No license available for feature(s) Caravela required by 'Bar' type.",
+                        consumer.DiagnosticsLocation );
                 }
             }
 

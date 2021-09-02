@@ -11,9 +11,7 @@ namespace PostSharp.Backstage.Licensing.Tests.Licenses
     public class LicenseFactoryTests : LicensingTestsBase
     {
         public LicenseFactoryTests( ITestOutputHelper logger )
-            : base( logger )
-        {
-        }
+            : base( logger ) { }
 
         [Fact]
         public void NullLicenseStringFails()
@@ -42,12 +40,14 @@ namespace PostSharp.Backstage.Licensing.Tests.Licenses
         [Fact]
         public void InvalidLicenseStringCreatesInvalidLicense()
         {
-            Assert.True( this.LicenseFactory.TryCreate( "SomeInvalidLicenseString", out var license ) );
+            const string invalidLicenseString = "SomeInvalidLicenseString";
+            Assert.True( this.LicenseFactory.TryCreate( invalidLicenseString, out var license ) );
             Assert.True( license is License );
             Assert.False( license!.TryGetLicenseConsumptionData( out _ ) );
             this.Diagnostics.AssertNoErrors();
+
             this.Diagnostics.AssertSingleWarning(
-                "Cannot parse license key SOMEINVALIDLICENSESTRING: License header not found for license {SOMEINVALIDLICENSESTRING}." );
+                $"Cannot parse license key {invalidLicenseString.ToUpperInvariant()}: License header not found for license {{{invalidLicenseString.ToUpperInvariant()}}}." );
         }
 
         [Fact]

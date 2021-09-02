@@ -1,12 +1,12 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. All rights reserved.
 // This project is not open source. Please see the LICENSE.md file in the repository root for details.
 
-using System;
-using System.Collections.Generic;
-using System.IO;
 using Microsoft.Extensions.DependencyInjection;
 using PostSharp.Backstage.Extensibility;
 using PostSharp.Backstage.Licensing.Licenses;
+using System;
+using System.Collections.Generic;
+using System.IO;
 
 namespace PostSharp.Backstage.Licensing.Registration
 {
@@ -38,6 +38,7 @@ namespace PostSharp.Backstage.Licensing.Registration
         {
             var fileSystem = services.GetRequiredService<IFileSystem>();
             var storage = new LicenseFileStorage( path, fileSystem );
+
             return storage;
         }
 
@@ -100,7 +101,7 @@ namespace PostSharp.Backstage.Licensing.Registration
         /// Removes a license.
         /// </summary>
         /// <param name="licenseString">String representing the license to be removed.</param>
-        public void RemoveLicense(string licenseString)
+        public void RemoveLicense( string licenseString )
         {
             this._licenses.Remove( licenseString );
         }
@@ -114,7 +115,7 @@ namespace PostSharp.Backstage.Licensing.Registration
         public void Save()
         {
             var directory = Path.GetDirectoryName( this._path );
-            this._fileSystem.CreateDirectory( directory );
+            this._fileSystem.CreateDirectory( directory! );
             this._fileSystem.WriteAllLines( this._path, this._licenses.Keys );
         }
     }

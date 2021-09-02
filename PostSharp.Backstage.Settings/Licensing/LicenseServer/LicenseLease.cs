@@ -1,16 +1,16 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. All rights reserved.
 // This project is not open source. Please see the LICENSE.md file in the repository root for details.
 
+using PostSharp.Backstage.Extensibility;
 using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Text;
 using System.Xml;
-using PostSharp.Backstage.Extensibility;
 
 namespace PostSharp.Backstage.Licensing.LicenseServer
 {
     // TODO (this is just a copy from PostSharp.)
-    
+
     /// <summary>
     /// Represents a lease of license by a specific user.
     /// </summary>
@@ -23,7 +23,10 @@ namespace PostSharp.Backstage.Licensing.LicenseServer
         /// <param name="serializedLicenseLease">A serialized <see cref="LicenseLease"/>, produced by <see cref="Serialize"/>.</param>
         /// <returns>The <see cref="LicenseLease"/> built from <paramref name="serializedLicenseLease"/>, or <c>null</c> 
         /// if the string could not be deserialized.</returns>
-        public static bool TryDeserialize( string serializedLicenseLease, IDateTimeProvider dateTimeProvider, [MaybeNullWhen( returnValue: false )] out LicenseLease lease )
+        public static bool TryDeserialize(
+            string serializedLicenseLease,
+            IDateTimeProvider dateTimeProvider,
+            [MaybeNullWhen( returnValue: false )] out LicenseLease lease )
         {
             try
             {
@@ -34,6 +37,7 @@ namespace PostSharp.Backstage.Licensing.LicenseServer
                 foreach ( var part in parts )
                 {
                     var pos = part.IndexOf( ':' );
+
                     if ( pos < 0 || pos == part.Length - 1 )
                     {
                         continue;
@@ -42,29 +46,38 @@ namespace PostSharp.Backstage.Licensing.LicenseServer
                     var key = part.Substring( 0, pos ).Trim();
                     var value = part.Substring( pos + 1, part.Length - pos - 1 ).Trim();
 
+                    // ReSharper disable StringLiteralTypo
+                    
                     switch ( key.ToLowerInvariant() )
                     {
                         case "license":
                             lease.LicenseString = value;
+
                             break;
 
                         case "starttime":
                             startTime = XmlConvert.ToDateTime( value, XmlDateTimeSerializationMode.Utc ).ToLocalTime();
+
                             break;
 
                         case "endtime":
                             endTime = XmlConvert.ToDateTime( value, XmlDateTimeSerializationMode.Utc ).ToLocalTime();
+
                             break;
 
                         case "renewtime":
                             renewTime = XmlConvert.ToDateTime( value, XmlDateTimeSerializationMode.Utc ).ToLocalTime();
+
                             break;
                     }
+                    
+                    // ReSharper restore StringLiteralTypo
                 }
 
                 if ( lease.LicenseString == null )
                 {
                     lease = null;
+
                     return false;
                 }
 
@@ -92,13 +105,12 @@ namespace PostSharp.Backstage.Licensing.LicenseServer
             catch ( FormatException )
             {
                 lease = null;
+
                 return false;
             }
         }
 
-        private LicenseLease()
-        {
-        }
+        private LicenseLease() { }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="LicenseLease"/> class.
@@ -109,7 +121,7 @@ namespace PostSharp.Backstage.Licensing.LicenseServer
         /// <param name="renewTime">Time when the lease should be renewed.</param>
         public LicenseLease( string licenseString, DateTime startTime, DateTime endTime, DateTime renewTime )
         {
-            this.LicenseString = licenseString ?? throw new ArgumentNullException( nameof( licenseString ) );
+            this.LicenseString = licenseString ?? throw new ArgumentNullException( nameof(licenseString) );
             this.StartTime = startTime;
             this.EndTime = endTime;
             this.RenewTime = renewTime;

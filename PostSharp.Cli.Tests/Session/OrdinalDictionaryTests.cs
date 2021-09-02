@@ -15,13 +15,11 @@ namespace PostSharp.Cli.Tests.Session
         private CliSessionState? _ordinals;
 
         public OrdinalDictionaryTests( ITestOutputHelper logger )
-            : base( logger )
-        {
-        }
+            : base( logger ) { }
 
         private void Create()
         {
-            this._ordinals = new( _name, this.Services );
+            this._ordinals = new CliSessionState( _name, this.Services );
         }
 
         private void Load()

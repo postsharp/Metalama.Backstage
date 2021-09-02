@@ -1,12 +1,12 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. All rights reserved.
 // This project is not open source. Please see the LICENSE.md file in the repository root for details.
 
-using System;
 using MELT;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using PostSharp.Backstage.Extensibility;
 using PostSharp.Backstage.Testing.Services;
+using System;
 using Xunit.Abstractions;
 
 namespace PostSharp.Backstage.Testing
@@ -29,11 +29,15 @@ namespace PostSharp.Backstage.Testing
 
             this.Log = loggerFactory.GetTestLoggerSink();
 
+            // ReSharper disable RedundantTypeArgumentsOfMethod
+            
             var serviceCollection = new ServiceCollection()
                 .AddSingleton<ILoggerFactory>( loggerFactory )
                 .AddSingleton<IDateTimeProvider>( this.Time )
                 .AddSingleton<IFileSystem>( this.FileSystem )
                 .AddStandardDirectories();
+            
+            // ReSharper restore RedundantTypeArgumentsOfMethod
 
             serviceBuilder?.Invoke( serviceCollection );
 

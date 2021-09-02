@@ -5,15 +5,20 @@ using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Security.Cryptography;
 
-#pragma warning disable CA1812 // Class not used in all importing projects.
+// ReSharper disable InconsistentNaming
+// ReSharper disable CommentTypo
+// ReSharper disable ArrangeRedundantParentheses
+// ReSharper disable RedundantCast
+
+#pragma warning disable CA1812  // Class not used in all importing projects.
 #pragma warning disable IDE1006 // Naming Styles
-#pragma warning disable SA1307 // Accessible fields should begin with upper-case letter
-#pragma warning disable SA1401 // Fields should be private
-#pragma warning disable SA1203 // Constants should appear before fields
-#pragma warning disable SA1502 // Element should not be on a single line
-#pragma warning disable SA1119 // Statement should not use unnecessary parenthesis
+#pragma warning disable SA1307  // Accessible fields should begin with upper-case letter
+#pragma warning disable SA1401  // Fields should be private
+#pragma warning disable SA1203  // Constants should appear before fields
+#pragma warning disable SA1502  // Element should not be on a single line
+#pragma warning disable SA1119  // Statement should not use unnecessary parenthesis
 #pragma warning disable IDE0004 // Remove Unnecessary Cast
-#pragma warning disable SA1116 // Split parameters should start on line after declaration
+#pragma warning disable SA1116  // Split parameters should start on line after declaration
 
 namespace PostSharp.Backstage.Utilities
 {
@@ -55,7 +60,7 @@ namespace PostSharp.Backstage.Utilities
     public sealed class MD5Managed : HashAlgorithm
     {
         // Current context
-        private readonly MD5_CTX _context = new MD5_CTX();
+        private readonly MD5_CTX _context = new();
 
         // Last hash result
         private readonly byte[] _digest = new byte[16];
@@ -102,7 +107,7 @@ namespace PostSharp.Backstage.Utilities
         {
             if ( array == null )
             {
-                throw new ArgumentNullException( nameof( array ) );
+                throw new ArgumentNullException( nameof(array) );
             }
 
             if ( this._hashFinalCalled )
@@ -123,13 +128,17 @@ namespace PostSharp.Backstage.Utilities
         {
             this._hashFinalCalled = true;
             MD5Final( this._digest, this._context );
+
             return this.Hash;
         }
 
         /// <summary>
         /// Gets the hash as an array of bytes.
         /// </summary>
-        [SuppressMessage( "Microsoft.Usage", "CA2201:DoNotRaiseReservedExceptionTypes", Justification = "Matching .NET behavior by throwing NullReferenceException." )]
+        [SuppressMessage(
+            "Microsoft.Usage",
+            "CA2201:DoNotRaiseReservedExceptionTypes",
+            Justification = "Matching .NET behavior by throwing NullReferenceException." )]
         public override byte[] Hash
         {
             get
@@ -159,9 +168,9 @@ namespace PostSharp.Backstage.Utilities
         /* MD5 context. */
         private class MD5_CTX
         {
-            public readonly uint[] state;   /* state (ABCD) */
-            public readonly uint[] count;   /* number of bits, modulo 2^64 (lsb first) */
-            public readonly byte[] buffer;  /* input buffer */
+            public readonly uint[] state;  /* state (ABCD) */
+            public readonly uint[] count;  /* number of bits, modulo 2^64 (lsb first) */
+            public readonly byte[] buffer; /* input buffer */
 
             public MD5_CTX()
             {
@@ -261,10 +270,11 @@ namespace PostSharp.Backstage.Utilities
         /* MD5 block update operation. Continues an MD5 message-digest
            operation, processing another message block, and updating the
            context. */
-        private static void MD5Update( MD5_CTX context,  /* context */
-                                      byte[] input,     /* input block */
-                                      uint inputIndex,  // Starting index for input block
-                                      uint inputLen ) /* length of input block */
+        private static void MD5Update(
+            MD5_CTX context, /* context */
+            byte[] input,    /* input block */
+            uint inputIndex, // Starting index for input block
+            uint inputLen ) /*  length of input block */
         {
             /* Compute number of bytes mod 64 */
             var index = (uint) ((context.count[0] >> 3) & 0x3F);
@@ -281,6 +291,7 @@ namespace PostSharp.Backstage.Utilities
 
             /* Transform as many times as possible. */
             uint i = 0;
+
             if ( inputLen >= partLen )
             {
                 Buffer.BlockCopy( input, (int) inputIndex, context.buffer, (int) index, (int) partLen );
@@ -300,8 +311,9 @@ namespace PostSharp.Backstage.Utilities
 
         /* MD5 finalization. Ends an MD5 message-digest operation, writing the
            the message digest and zeroizing the context. */
-        private static void MD5Final( byte[] digest,    /* message digest */
-                                     MD5_CTX context ) /* context */
+        private static void MD5Final(
+            byte[] digest,    /* message digest */
+            MD5_CTX context ) /* context */
         {
             var bits = new byte[8];
 
@@ -324,9 +336,10 @@ namespace PostSharp.Backstage.Utilities
         }
 
         /* MD5 basic transformation. Transforms state based on block. */
-        private static void MD5Transform( uint[] state,
-                                         byte[] block,
-                                         uint blockIndex )
+        private static void MD5Transform(
+            uint[] state,
+            byte[] block,
+            uint blockIndex )
         {
             uint a = state[0], b = state[1], c = state[2], d = state[3];
             var x = new uint[16];
@@ -334,16 +347,16 @@ namespace PostSharp.Backstage.Utilities
             Decode( x, block, blockIndex, 64 );
 
             /* Round 1 */
-            FF( ref a, b, c, d, x[0], S11, 0xd76aa478 ); /* 1 */
-            FF( ref d, a, b, c, x[1], S12, 0xe8c7b756 ); /* 2 */
-            FF( ref c, d, a, b, x[2], S13, 0x242070db ); /* 3 */
-            FF( ref b, c, d, a, x[3], S14, 0xc1bdceee ); /* 4 */
-            FF( ref a, b, c, d, x[4], S11, 0xf57c0faf ); /* 5 */
-            FF( ref d, a, b, c, x[5], S12, 0x4787c62a ); /* 6 */
-            FF( ref c, d, a, b, x[6], S13, 0xa8304613 ); /* 7 */
-            FF( ref b, c, d, a, x[7], S14, 0xfd469501 ); /* 8 */
-            FF( ref a, b, c, d, x[8], S11, 0x698098d8 ); /* 9 */
-            FF( ref d, a, b, c, x[9], S12, 0x8b44f7af ); /* 10 */
+            FF( ref a, b, c, d, x[0], S11, 0xd76aa478 );  /* 1 */
+            FF( ref d, a, b, c, x[1], S12, 0xe8c7b756 );  /* 2 */
+            FF( ref c, d, a, b, x[2], S13, 0x242070db );  /* 3 */
+            FF( ref b, c, d, a, x[3], S14, 0xc1bdceee );  /* 4 */
+            FF( ref a, b, c, d, x[4], S11, 0xf57c0faf );  /* 5 */
+            FF( ref d, a, b, c, x[5], S12, 0x4787c62a );  /* 6 */
+            FF( ref c, d, a, b, x[6], S13, 0xa8304613 );  /* 7 */
+            FF( ref b, c, d, a, x[7], S14, 0xfd469501 );  /* 8 */
+            FF( ref a, b, c, d, x[8], S11, 0x698098d8 );  /* 9 */
+            FF( ref d, a, b, c, x[9], S12, 0x8b44f7af );  /* 10 */
             FF( ref c, d, a, b, x[10], S13, 0xffff5bb1 ); /* 11 */
             FF( ref b, c, d, a, x[11], S14, 0x895cd7be ); /* 12 */
             FF( ref a, b, c, d, x[12], S11, 0x6b901122 ); /* 13 */
@@ -352,58 +365,58 @@ namespace PostSharp.Backstage.Utilities
             FF( ref b, c, d, a, x[15], S14, 0x49b40821 ); /* 16 */
 
             /* Round 2 */
-            GG( ref a, b, c, d, x[1], S21, 0xf61e2562 ); /* 17 */
-            GG( ref d, a, b, c, x[6], S22, 0xc040b340 ); /* 18 */
+            GG( ref a, b, c, d, x[1], S21, 0xf61e2562 );  /* 17 */
+            GG( ref d, a, b, c, x[6], S22, 0xc040b340 );  /* 18 */
             GG( ref c, d, a, b, x[11], S23, 0x265e5a51 ); /* 19 */
-            GG( ref b, c, d, a, x[0], S24, 0xe9b6c7aa ); /* 20 */
-            GG( ref a, b, c, d, x[5], S21, 0xd62f105d ); /* 21 */
+            GG( ref b, c, d, a, x[0], S24, 0xe9b6c7aa );  /* 20 */
+            GG( ref a, b, c, d, x[5], S21, 0xd62f105d );  /* 21 */
             GG( ref d, a, b, c, x[10], S22, 0x02441453 ); /* 22 */
             GG( ref c, d, a, b, x[15], S23, 0xd8a1e681 ); /* 23 */
-            GG( ref b, c, d, a, x[4], S24, 0xe7d3fbc8 ); /* 24 */
-            GG( ref a, b, c, d, x[9], S21, 0x21e1cde6 ); /* 25 */
+            GG( ref b, c, d, a, x[4], S24, 0xe7d3fbc8 );  /* 24 */
+            GG( ref a, b, c, d, x[9], S21, 0x21e1cde6 );  /* 25 */
             GG( ref d, a, b, c, x[14], S22, 0xc33707d6 ); /* 26 */
-            GG( ref c, d, a, b, x[3], S23, 0xf4d50d87 ); /* 27 */
-            GG( ref b, c, d, a, x[8], S24, 0x455a14ed ); /* 28 */
+            GG( ref c, d, a, b, x[3], S23, 0xf4d50d87 );  /* 27 */
+            GG( ref b, c, d, a, x[8], S24, 0x455a14ed );  /* 28 */
             GG( ref a, b, c, d, x[13], S21, 0xa9e3e905 ); /* 29 */
-            GG( ref d, a, b, c, x[2], S22, 0xfcefa3f8 ); /* 30 */
-            GG( ref c, d, a, b, x[7], S23, 0x676f02d9 ); /* 31 */
+            GG( ref d, a, b, c, x[2], S22, 0xfcefa3f8 );  /* 30 */
+            GG( ref c, d, a, b, x[7], S23, 0x676f02d9 );  /* 31 */
             GG( ref b, c, d, a, x[12], S24, 0x8d2a4c8a ); /* 32 */
 
             /* Round 3 */
-            HH( ref a, b, c, d, x[5], S31, 0xfffa3942 ); /* 33 */
-            HH( ref d, a, b, c, x[8], S32, 0x8771f681 ); /* 34 */
+            HH( ref a, b, c, d, x[5], S31, 0xfffa3942 );  /* 33 */
+            HH( ref d, a, b, c, x[8], S32, 0x8771f681 );  /* 34 */
             HH( ref c, d, a, b, x[11], S33, 0x6d9d6122 ); /* 35 */
             HH( ref b, c, d, a, x[14], S34, 0xfde5380c ); /* 36 */
-            HH( ref a, b, c, d, x[1], S31, 0xa4beea44 ); /* 37 */
-            HH( ref d, a, b, c, x[4], S32, 0x4bdecfa9 ); /* 38 */
-            HH( ref c, d, a, b, x[7], S33, 0xf6bb4b60 ); /* 39 */
+            HH( ref a, b, c, d, x[1], S31, 0xa4beea44 );  /* 37 */
+            HH( ref d, a, b, c, x[4], S32, 0x4bdecfa9 );  /* 38 */
+            HH( ref c, d, a, b, x[7], S33, 0xf6bb4b60 );  /* 39 */
             HH( ref b, c, d, a, x[10], S34, 0xbebfbc70 ); /* 40 */
             HH( ref a, b, c, d, x[13], S31, 0x289b7ec6 ); /* 41 */
-            HH( ref d, a, b, c, x[0], S32, 0xeaa127fa ); /* 42 */
-            HH( ref c, d, a, b, x[3], S33, 0xd4ef3085 ); /* 43 */
-            HH( ref b, c, d, a, x[6], S34, 0x04881d05 ); /* 44 */
-            HH( ref a, b, c, d, x[9], S31, 0xd9d4d039 ); /* 45 */
+            HH( ref d, a, b, c, x[0], S32, 0xeaa127fa );  /* 42 */
+            HH( ref c, d, a, b, x[3], S33, 0xd4ef3085 );  /* 43 */
+            HH( ref b, c, d, a, x[6], S34, 0x04881d05 );  /* 44 */
+            HH( ref a, b, c, d, x[9], S31, 0xd9d4d039 );  /* 45 */
             HH( ref d, a, b, c, x[12], S32, 0xe6db99e5 ); /* 46 */
             HH( ref c, d, a, b, x[15], S33, 0x1fa27cf8 ); /* 47 */
-            HH( ref b, c, d, a, x[2], S34, 0xc4ac5665 ); /* 48 */
+            HH( ref b, c, d, a, x[2], S34, 0xc4ac5665 );  /* 48 */
 
             /* Round 4 */
-            II( ref a, b, c, d, x[0], S41, 0xf4292244 ); /* 49 */
-            II( ref d, a, b, c, x[7], S42, 0x432aff97 ); /* 50 */
+            II( ref a, b, c, d, x[0], S41, 0xf4292244 );  /* 49 */
+            II( ref d, a, b, c, x[7], S42, 0x432aff97 );  /* 50 */
             II( ref c, d, a, b, x[14], S43, 0xab9423a7 ); /* 51 */
-            II( ref b, c, d, a, x[5], S44, 0xfc93a039 ); /* 52 */
+            II( ref b, c, d, a, x[5], S44, 0xfc93a039 );  /* 52 */
             II( ref a, b, c, d, x[12], S41, 0x655b59c3 ); /* 53 */
-            II( ref d, a, b, c, x[3], S42, 0x8f0ccc92 ); /* 54 */
+            II( ref d, a, b, c, x[3], S42, 0x8f0ccc92 );  /* 54 */
             II( ref c, d, a, b, x[10], S43, 0xffeff47d ); /* 55 */
-            II( ref b, c, d, a, x[1], S44, 0x85845dd1 ); /* 56 */
-            II( ref a, b, c, d, x[8], S41, 0x6fa87e4f ); /* 57 */
+            II( ref b, c, d, a, x[1], S44, 0x85845dd1 );  /* 56 */
+            II( ref a, b, c, d, x[8], S41, 0x6fa87e4f );  /* 57 */
             II( ref d, a, b, c, x[15], S42, 0xfe2ce6e0 ); /* 58 */
-            II( ref c, d, a, b, x[6], S43, 0xa3014314 ); /* 59 */
+            II( ref c, d, a, b, x[6], S43, 0xa3014314 );  /* 59 */
             II( ref b, c, d, a, x[13], S44, 0x4e0811a1 ); /* 60 */
-            II( ref a, b, c, d, x[4], S41, 0xf7537e82 ); /* 61 */
+            II( ref a, b, c, d, x[4], S41, 0xf7537e82 );  /* 61 */
             II( ref d, a, b, c, x[11], S42, 0xbd3af235 ); /* 62 */
-            II( ref c, d, a, b, x[2], S43, 0x2ad7d2bb ); /* 63 */
-            II( ref b, c, d, a, x[9], S44, 0xeb86d391 ); /* 64 */
+            II( ref c, d, a, b, x[2], S43, 0x2ad7d2bb );  /* 63 */
+            II( ref b, c, d, a, x[9], S44, 0xeb86d391 );  /* 64 */
 
             state[0] += a;
             state[1] += b;
@@ -416,9 +429,10 @@ namespace PostSharp.Backstage.Utilities
 
         /* Encodes input (UINT4) into output (unsigned char). Assumes len is
            a multiple of 4. */
-        private static void Encode( byte[] output,
-                                   uint[] input,
-                                   uint len )
+        private static void Encode(
+            byte[] output,
+            uint[] input,
+            uint len )
         {
             for ( uint i = 0, j = 0; j < len; i++, j += 4 )
             {
@@ -431,17 +445,18 @@ namespace PostSharp.Backstage.Utilities
 
         /* Decodes input (unsigned char) into output (UINT4). Assumes len is
            a multiple of 4. */
-        private static void Decode( uint[] output,
-                                   byte[] input,
-                                   uint inputIndex,
-                                   uint len )
+        private static void Decode(
+            uint[] output,
+            byte[] input,
+            uint inputIndex,
+            uint len )
         {
             for ( uint i = 0, j = 0; j < len; i++, j += 4 )
             {
                 output[i] = ((uint) input[inputIndex + j]) |
-                    (((uint) input[inputIndex + j + 1]) << 8) |
-                    (((uint) input[inputIndex + j + 2]) << 16) |
-                    (((uint) input[inputIndex + j + 3]) << 24);
+                            (((uint) input[inputIndex + j + 1]) << 8) |
+                            (((uint) input[inputIndex + j + 2]) << 16) |
+                            (((uint) input[inputIndex + j + 3]) << 24);
             }
         }
     }

@@ -1,9 +1,9 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. All rights reserved.
 // This project is not open source. Please see the LICENSE.md file in the repository root for details.
 
+using PostSharp.Backstage.Utilities;
 using System;
 using System.IO;
-using PostSharp.Backstage.Utilities;
 
 namespace PostSharp.Backstage.Licensing.Licenses.LicenseFields
 {
@@ -13,6 +13,7 @@ namespace PostSharp.Backstage.Licensing.Licenses.LicenseFields
         public override void Write( BinaryWriter writer )
         {
             var bytes = (byte[]) this.Value!;
+
             if ( bytes.Length > 255 )
             {
                 throw new InvalidOperationException( "Cannot have buffers of more than 255 bytes." );
@@ -26,6 +27,7 @@ namespace PostSharp.Backstage.Licensing.Licenses.LicenseFields
         {
             // The length of this field is variable.
             length = 0;
+
             return false;
         }
 

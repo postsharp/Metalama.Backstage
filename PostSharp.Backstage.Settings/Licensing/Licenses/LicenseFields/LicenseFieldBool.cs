@@ -30,7 +30,8 @@ namespace PostSharp.Backstage.Licensing.Licenses.LicenseFields
                 throw new InvalidOperationException( "Boolean license fields requiring the length to be serialized should no longer be buggy." );
             }
 
-            length = sizeof( byte );
+            length = sizeof(byte);
+
             return true;
         }
 
@@ -40,6 +41,7 @@ namespace PostSharp.Backstage.Licensing.Licenses.LicenseFields
 
             // Check if the field was emitted as a int as a result of a bug.
             this._isBuggy = false;
+
             if ( reader.BaseStream.Length > reader.BaseStream.Position )
             {
                 if ( reader.ReadByte() == 0 )

@@ -31,7 +31,7 @@ namespace PostSharp.Backstage.Licensing.Tests.Consumption
         public void OuterNamespaceOfSameBeginningIsForbidden() => AssertForbidden( "Ns11" );
 
         [Fact]
-        public void OuterFullassemblyNameOfSameBeginningIsForbidden() => AssertForbidden( "Ns11, Version..." );
+        public void OuterFullAssemblyNameOfSameBeginningIsForbidden() => AssertForbidden( "Ns11, Version..." );
 
         [Fact]
         public void SameNamespaceIsAllowed() => AssertAllowed( "Ns1.Ns2" );

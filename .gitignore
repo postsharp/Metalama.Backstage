@@ -361,3 +361,15 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+
+/artifacts/
+*/packages/
+.packages/
+*.g.cs
+.packages
+.idea/**/workspace.xml
+.idea/**/tasks.xml
+.idea/**/shelf
+/tools/
+**/inspectcode.xml
+/.eng/BackstageVersion.props

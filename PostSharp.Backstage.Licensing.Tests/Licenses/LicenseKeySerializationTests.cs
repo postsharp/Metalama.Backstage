@@ -15,11 +15,11 @@
 // using Xunit.Abstractions;
 // using Xunit;
 
-// namespace PostSharp.Backstage.Licensing.Tests.Serialization
-// {
-//    public class LicenseKeySerializationTests : LicensingTestsBase
-//    {
-//        private const LicenseType _unknownLicenseType = (LicenseType) 255;
+namespace PostSharp.Backstage.Licensing.Tests.Licenses
+{
+    public class LicenseKeySerializationTests // : LicensingTestsBase
+    {
+// private const LicenseType _unknownLicenseType = (LicenseType) 255;
 //        private const LicensedProduct _unknownLicensedProduct = (LicensedProduct) 255;
 
 // public LicenseKeySerializationTests( ITestOutputHelper logger )
@@ -166,8 +166,10 @@
 //            this.TestUnknownField( "\0\0\0\0\0\0\0" );
 //            this.TestUnknownField( " " );
 //            this.TestUnknownField( "              " );
+// ReSharper disable CommentTypo
 //            this.TestUnknownField( "příliš žluťoučký kůň úpěl ďábelské ódy / PŘÍLIŠ ŽLUŤOUČKÝ KŮŇ ÚPĚL ĎÁBELSKÉ ÓDY" );
 //            this.TestUnknownField( "слишком желтоватый конь вой дьявольская ода" );
+// ReSharper restore CommentTypo
 //            this.TestUnknownField( new string( 'x', byte.MaxValue / 2 ) );
 //            this.TestUnknownField( new string( 'x', byte.MaxValue ) );
 //        }
@@ -249,4 +251,5 @@
 // TestBackwardIncompatibleSerialization( license );
 //        }
 //    }
-// }
+    }
+}

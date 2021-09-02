@@ -9,11 +9,11 @@
 // using System.IO;
 // using System.Net;
 
-// namespace PostSharp.Backstage.Licensing.LicenseServer
-// {
-//    internal sealed class LicenseServerClient
-//    {
-//        private readonly LicenseLeaseCache _cache;
+namespace PostSharp.Backstage.Licensing.LicenseServer
+{
+    internal sealed class LicenseServerClient 
+    {
+// private readonly LicenseLeaseCache _cache;
 //        private readonly LicenseeIdentifier _licenseeIdentifier;
 //        private readonly IWebClientService _webClientService;
 //        private readonly IDateTimeProvider _dateTimeProvider;
@@ -95,7 +95,6 @@
 //            {
 //                url = url.TrimEnd( '/' );
 
-
 // url += string.Format(
 //                    CultureInfo.InvariantCulture,
 //                    "/Lease.ashx?user={0}&machine={1}-{2:x}&version={3}&buildDate={4:o}",
@@ -161,5 +160,5 @@
 //                return false;
 //            }
 //        }
-//    }
-// }
+    }
+}

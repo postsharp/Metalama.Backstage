@@ -1,11 +1,11 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. All rights reserved.
 // This project is not open source. Please see the LICENSE.md file in the repository root for details.
 
-using System;
 using Microsoft.Extensions.DependencyInjection;
 using PostSharp.Backstage.Extensibility;
 using PostSharp.Backstage.Licensing.Registration;
 using PostSharp.Backstage.Licensing.Registration.Evaluation;
+using System;
 
 namespace PostSharp.Backstage.Licensing.Licenses
 {
@@ -42,7 +42,7 @@ namespace PostSharp.Backstage.Licensing.Licenses
                 LicenseType = LicenseType.Evaluation,
                 ValidFrom = start,
                 ValidTo = end,
-                SubscriptionEndDate = end,
+                SubscriptionEndDate = end
             };
 
             var licenseKey = licenseKeyData.Serialize();
@@ -65,7 +65,7 @@ namespace PostSharp.Backstage.Licensing.Licenses
                 LicenseGuid = Guid.NewGuid(),
                 Product = LicensedProduct.Caravela,
                 LicenseType = LicenseType.Community,
-                ValidFrom = start,
+                ValidFrom = start
             };
 
             var licenseKey = licenseKeyData.Serialize();

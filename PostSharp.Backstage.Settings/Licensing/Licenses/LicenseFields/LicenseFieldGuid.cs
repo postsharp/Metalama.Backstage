@@ -20,6 +20,7 @@ namespace PostSharp.Backstage.Licensing.Licenses.LicenseFields
         protected override bool TryGetConstantLength( out byte length )
         {
             length = _sizeOfGuidByteArray;
+
             return true;
         }
 

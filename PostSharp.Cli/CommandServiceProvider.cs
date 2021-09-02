@@ -1,13 +1,13 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. All rights reserved.
 // This project is not open source. Please see the LICENSE.md file in the repository root for details.
 
-using System;
-using System.CommandLine;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using PostSharp.Backstage.Extensibility;
 using PostSharp.Backstage.Licensing.Registration;
 using PostSharp.Cli.Console;
+using System;
+using System.CommandLine;
 
 namespace PostSharp.Cli
 {
@@ -15,6 +15,8 @@ namespace PostSharp.Cli
     {
         public IServiceProvider CreateServiceProvider( IConsole console, bool addTrace )
         {
+            // ReSharper disable RedundantTypeArgumentsOfMethod
+            
             var serviceCollection = new ServiceCollection()
                 .AddSingleton<IConsole>( console )
                 .AddSingleton<IDiagnosticsSink>( services => new ConsoleDiagnosticsSink( services ) )
@@ -22,6 +24,8 @@ namespace PostSharp.Cli
                 .AddFileSystem()
                 .AddStandardDirectories()
                 .AddStandardLicenseFilesLocations();
+            
+            // ReSharper restore RedundantTypeArgumentsOfMethod
 
             if ( addTrace )
             {

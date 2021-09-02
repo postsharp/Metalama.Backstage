@@ -11,9 +11,10 @@ namespace PostSharp.Backstage.Utilities
     {
         public static bool TryParseBytes( string str, int start, int count, [MaybeNullWhen( returnValue: false )] out byte[] bytes )
         {
-            if ( (count % 2) != 0 )
+            if ( count % 2 != 0 )
             {
                 bytes = null;
+
                 return false;
             }
 
@@ -41,7 +42,6 @@ namespace PostSharp.Backstage.Utilities
         /// <param name="builder">The <see cref="StringBuilder"/> into which the string has to be written.</param>
         public static void FormatBytes( byte[] bytes, StringBuilder builder )
         {
-
             if ( bytes != null && bytes.Length > 0 )
             {
                 var finalSize = builder.Length + (bytes.Length * 2);
@@ -77,6 +77,7 @@ namespace PostSharp.Backstage.Utilities
 
             var builder = new StringBuilder( 20 );
             FormatBytes( bytes, builder );
+
             return builder.ToString();
         }
     }

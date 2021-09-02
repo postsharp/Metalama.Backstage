@@ -19,15 +19,18 @@ namespace PostSharp.Backstage.Utilities
             var hi = 5;
             var currentByte = 0;
             var c = 0;
+
             while ( currentByte < bytes.Length )
             {
                 // do we need to use the next byte?
                 byte index;
+
                 if ( hi > 8 )
                 {
                     // get the last piece from the current byte, shift it to the right
                     // and increment the byte counter
                     index = (byte) (bytes[currentByte++] >> (hi - 5));
+
                     if ( currentByte != bytes.Length )
                     {
                         // if we are not at the end, get the first piece from
@@ -81,17 +84,20 @@ namespace PostSharp.Backstage.Utilities
             if ( str.Length < 3 )
             {
                 bytes[0] = (byte) (_validChars.IndexOf( str[0] ) | (_validChars.IndexOf( str[1] ) << 5));
+
                 return bytes;
             }
 
             var bitBuffer = _validChars.IndexOf( str[0] ) | (_validChars.IndexOf( str[1] ) << 5);
             var bitsInBuffer = 10;
             var currentCharIndex = 2;
+
             for ( var i = 0; i < bytes.Length; i++ )
             {
                 bytes[i] = (byte) bitBuffer;
                 bitBuffer >>= 8;
                 bitsInBuffer -= 8;
+
                 while ( bitsInBuffer < 8 && currentCharIndex < str.Length )
                 {
                     bitBuffer |= _validChars.IndexOf( str[currentCharIndex++] ) << bitsInBuffer;

@@ -1,13 +1,13 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. All rights reserved.
 // This project is not open source. Please see the LICENSE.md file in the repository root for details.
 
-using System;
-using System.Linq;
 using Microsoft.Extensions.DependencyInjection;
 using PostSharp.Backstage.Licensing.Licenses;
 using PostSharp.Backstage.Licensing.Registration.Evaluation;
 using PostSharp.Backstage.Licensing.Tests.Registration;
 using PostSharp.Backstage.Testing.Services;
+using System;
+using System.Linq;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -26,7 +26,7 @@ namespace PostSharp.Backstage.Licensing.Tests.Evaluation
                 logger,
                 serviceCollection => serviceBuilder?.Invoke( serviceCollection ) )
         {
-            this.Registrar = new( this.Services );
+            this.Registrar = new EvaluationLicenseRegistrar( this.Services );
             this.EvaluationFiles = this.Services.GetRequiredService<IEvaluationLicenseFilesLocations>();
         }
 
@@ -35,7 +35,7 @@ namespace PostSharp.Backstage.Licensing.Tests.Evaluation
             this.FileSystem.Mock.AddFile( this.EvaluationFiles.EvaluationLicenseFile, new MockFileDataEx( flag ) );
         }
 
-        protected void AssertEvaluationElligible( string reason )
+        protected void AssertEvaluationEligible( string reason )
         {
             Assert.True( this.Registrar.TryRegisterLicense() );
 
@@ -59,14 +59,14 @@ namespace PostSharp.Backstage.Licensing.Tests.Evaluation
             this.AssertEvaluationEligibilityReason( reason );
         }
 
-        protected void AssertEvaluationNotElligible( string reason )
+        protected void AssertEvaluationNotEligible( string reason )
         {
             Assert.False( this.Registrar.TryRegisterLicense() );
 
             this.AssertEvaluationEligibilityReason( reason );
         }
 
-        private void AssertEvaluationEligibilityReason(string reason)
+        private void AssertEvaluationEligibilityReason( string reason )
         {
             Assert.Single( this.Log.LogEntries, x => x.Message == "Checking for trial license eligibility." );
             Assert.Single( this.Log.LogEntries, x => x.Message == reason );
