@@ -112,7 +112,7 @@ This section describes centralized main version and dependencies version managem
 
 ### Installation and configuration
 
-In this how-to, we use the name `[Product]` as a placeholder for the name of the product contained in a specific repository containing the `.eng\src` subtree.
+In this how-to, we use the name `[Product]` as a placeholder for the name of the product contained in a specific repository containing the `.eng\shared` subtree.
 
 1. Add `.eng\[Product]Version.props` to `.gitignore`.
 
@@ -162,20 +162,20 @@ In this how-to, we use the name `[Product]` as a placeholder for the name of the
 
 ```
   <Import Project=".eng\Versions.props" />
-  <Import Project=".eng\src\build\BuildOptions.props" />
+  <Import Project=".eng\shared\build\BuildOptions.props" />
 ```
 
 5. Add the following imports to `Directory.Build.targets`:
 
 ```
-  <Import Project=".eng\src\build\TeamCity.targets" />
+  <Import Project=".eng\shared\build\TeamCity.targets" />
 ```
 
 6. Create `.eng\Build.ps1` file. The content should look like:
 
 ```
-# .FORWARDHELPTARGETNAME .eng/src/build/Build.ps1
-Invoke-Expression "& .eng/src/build/Build.ps1 -ProductName [Product] $args"
+# .FORWARDHELPTARGETNAME .eng/shared/build/Build.ps1
+Invoke-Expression "& .eng/shared/build/Build.ps1 -ProductName [Product] $args"
 ```
 
 ### Usage
@@ -198,11 +198,11 @@ This property value is then available in all MSBuild project files in the reposi
 
 #### Local build and testing
 
-See the initial comments in the `.eng\src\build\Build.ps1` script for details. Use the `.eng\Build.ps1` instead and ommit the `ProductName` parameter as this is provided by the facade.
+See the initial comments in the `.eng\shared\build\Build.ps1` script for details. Use the `.eng\Build.ps1` instead and ommit the `ProductName` parameter as this is provided by the facade.
 
 #### Local package referencing
 
-Local NuGet packages creating using the `.eng\src\build\Build.ps1` script can be referenced in other repositories using the following steps:
+Local NuGet packages creating using the `.eng\shared\build\Build.ps1` script can be referenced in other repositories using the following steps:
 
 1. Add the following import to `Directory.Build.props`.
 

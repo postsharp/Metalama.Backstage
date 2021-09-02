@@ -1,1 +1,1 @@
-.eng/src/style/Cleanup.ps1 PostSharp.Backstage.Settings.sln
+.eng/shared/style/Cleanup.ps1 PostSharp.Backstage.Settings.sln
