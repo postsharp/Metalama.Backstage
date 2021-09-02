@@ -115,7 +115,7 @@ namespace PostSharp.Backstage.Licensing.Registration
         public void Save()
         {
             var directory = Path.GetDirectoryName( this._path );
-            this._fileSystem.CreateDirectory( directory );
+            this._fileSystem.CreateDirectory( directory! );
             this._fileSystem.WriteAllLines( this._path, this._licenses.Keys );
         }
     }

@@ -8,10 +8,10 @@ namespace PostSharp.Backstage.Licensing
         public const LicensedFeatures Community = LicensedFeatures.Community | LicensedFeatures.Common;
 
         public const LicensedFeatures Mvvm = LicensedFeatures.Community | LicensedFeatures.Common | LicensedFeatures.Model |
-                                             LicensedFeatures.Xaml | LicensedFeatures.Aggregatable;
+                                             LicensedFeatures.Xaml | LicensedFeatures.Aggregation;
 
         public const LicensedFeatures Threading = LicensedFeatures.Community | LicensedFeatures.Common | LicensedFeatures.Threading
-                                                  | LicensedFeatures.Aggregatable;
+                                                  | LicensedFeatures.Aggregation;
 
         public const LicensedFeatures Logging = LicensedFeatures.Community | LicensedFeatures.Common | LicensedFeatures.Diagnostics;
         public const LicensedFeatures Caching = LicensedFeatures.Community | LicensedFeatures.Common | LicensedFeatures.Caching;

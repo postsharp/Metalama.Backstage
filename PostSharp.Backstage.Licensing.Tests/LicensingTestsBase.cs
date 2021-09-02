@@ -27,6 +27,7 @@ namespace PostSharp.Backstage.Licensing.Tests
                 logger,
                 serviceCollection =>
                 {
+                    // ReSharper disable once ExplicitCallerInfoArgument
                     serviceCollection
                         .AddSingleton<IDiagnosticsSink>( services => new TestDiagnosticsSink( services, "default" ) )
                         .AddSingleton<IApplicationInfo>( new TestApplicationInfo( false, new Version( 0, 1, 0 ), new DateTime( 2021, 1, 1 ) ) )

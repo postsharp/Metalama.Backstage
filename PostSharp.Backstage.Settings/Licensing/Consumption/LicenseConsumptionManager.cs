@@ -50,6 +50,9 @@ namespace PostSharp.Backstage.Licensing.Consumption
 
         private bool TryLoadNextLicenseSource()
         {
+            // TODO: tracing
+            this._logger.LogInformation( "TODO: tracing" );
+            
             if ( this._unusedLicenseSources.Count == 0 )
             {
                 return false;

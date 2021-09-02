@@ -5,6 +5,11 @@ using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Security.Cryptography;
 
+// ReSharper disable InconsistentNaming
+// ReSharper disable CommentTypo
+// ReSharper disable ArrangeRedundantParentheses
+// ReSharper disable RedundantCast
+
 #pragma warning disable CA1812  // Class not used in all importing projects.
 #pragma warning disable IDE1006 // Naming Styles
 #pragma warning disable SA1307  // Accessible fields should begin with upper-case letter
@@ -269,7 +274,7 @@ namespace PostSharp.Backstage.Utilities
             MD5_CTX context, /* context */
             byte[] input,    /* input block */
             uint inputIndex, // Starting index for input block
-            uint inputLen )  /* length of input block */
+            uint inputLen ) /*  length of input block */
         {
             /* Compute number of bytes mod 64 */
             var index = (uint) ((context.count[0] >> 3) & 0x3F);

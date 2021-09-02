@@ -42,7 +42,7 @@ namespace PostSharp.Backstage.Licensing.Registration
         /// <summary>
         /// Gets the type of the license.
         /// </summary>
-        public LicenseType LicenseType { get; internal set; }
+        public LicenseType LicenseType { get; }
 
         /// <summary>
         /// Gets the beginning of the license validity.

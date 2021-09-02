@@ -11,7 +11,7 @@ namespace PostSharp.Backstage.Utilities
     {
         public static bool TryParseBytes( string str, int start, int count, [MaybeNullWhen( returnValue: false )] out byte[] bytes )
         {
-            if ( (count % 2) != 0 )
+            if ( count % 2 != 0 )
             {
                 bytes = null;
 

@@ -39,7 +39,7 @@ namespace PostSharp.Backstage.Licensing.Tests.Community
         }
 
         [Fact]
-        public void RepeatedCommunityLicenseRegisterationKeepsSingleLicenseRegistered()
+        public void RepeatedCommunityLicenseRegistrationKeepsSingleLicenseRegistered()
         {
             Assert.True( this._registrar.TryRegisterLicense() );
             Assert.True( this._registrar.TryRegisterLicense() );

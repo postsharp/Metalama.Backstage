@@ -7,6 +7,7 @@ using PostSharp.Backstage.Extensibility;
 using PostSharp.Backstage.Licensing.Licenses;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 
 namespace PostSharp.Backstage.Licensing.Consumption.Sources
 {
@@ -43,8 +44,8 @@ namespace PostSharp.Backstage.Licensing.Consumption.Sources
             catch ( Exception e )
             {
                 const string messageFormat = "Failed to load licenses from '{0}': {1}";
-                this._logger?.LogTrace( string.Format( messageFormat, this._path, e ) );
-                diagnosticsSink.ReportWarning( string.Format( messageFormat, this._path, e.Message ) );
+                this._logger?.LogTrace( string.Format( CultureInfo.InvariantCulture, messageFormat, this._path, e ) );
+                diagnosticsSink.ReportWarning( string.Format( CultureInfo.InvariantCulture, messageFormat, this._path, e.Message ) );
 
                 yield break;
             }

@@ -6,6 +6,7 @@ using PostSharp.Backstage.Licensing.Consumption;
 using PostSharp.Backstage.Licensing.Consumption.Sources;
 using PostSharp.Backstage.Licensing.Registration;
 using PostSharp.Backstage.Licensing.Tests.Licenses;
+using PostSharp.Backstage.Licensing.Tests.LicenseSources;
 using PostSharp.Backstage.Licensing.Tests.Registration;
 using PostSharp.Backstage.Testing.Services;
 using System;
@@ -46,6 +47,7 @@ namespace PostSharp.Backstage.Licensing.Tests.Consumption
 
         private protected ILicenseConsumptionManager CreateConsumptionManager( params TestLicense[] licenses )
         {
+            // ReSharper disable once CoVariantArrayConversion
             var licenseSource = new TestLicenseSource( "test", licenses );
 
             return this.CreateConsumptionManager( licenseSource );
@@ -68,11 +70,11 @@ namespace PostSharp.Backstage.Licensing.Tests.Consumption
         private protected void TestConsumption(
             ILicenseConsumptionManager manager,
             LicensedFeatures requiredFeatures,
-            string reuqiredNamespace,
+            string requiredNamespace,
             bool expectedCanConsume,
             bool expectedLicenseAutoRegistrationAttempt = false )
         {
-            var consumer = this.CreateConsumer( reuqiredNamespace );
+            var consumer = this.CreateConsumer( requiredNamespace );
 
             void TestCanConsume()
             {

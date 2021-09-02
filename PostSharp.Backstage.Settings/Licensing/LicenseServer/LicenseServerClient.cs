@@ -9,11 +9,11 @@
 // using System.IO;
 // using System.Net;
 
-// namespace PostSharp.Backstage.Licensing.LicenseServer
-// {
-//    internal sealed class LicenseServerClient
-//    {
-//        private readonly LicenseLeaseCache _cache;
+namespace PostSharp.Backstage.Licensing.LicenseServer
+{
+    internal sealed class LicenseServerClient 
+    {
+// private readonly LicenseLeaseCache _cache;
 //        private readonly LicenseeIdentifier _licenseeIdentifier;
 //        private readonly IWebClientService _webClientService;
 //        private readonly IDateTimeProvider _dateTimeProvider;
@@ -160,6 +160,5 @@
 //                return false;
 //            }
 //        }
-//    }
-// }
-
+    }
+}

@@ -14,13 +14,13 @@ namespace PostSharp.Cli.Commands.Licensing.Registration
 {
     internal class UnregisterCommand : CommandBase
     {
-        private class Unregisterer
+        private class UnregisterActions
         {
             private readonly IServiceProvider _services;
             private readonly ILogger? _logger;
             private readonly IConsole _console;
 
-            public Unregisterer( IServiceProvider services, IConsole console )
+            public UnregisterActions( IServiceProvider services, IConsole console )
             {
                 this._services = services;
                 this._logger = services.GetOptionalTraceLogger<UnregisterCommand>();
@@ -29,6 +29,9 @@ namespace PostSharp.Cli.Commands.Licensing.Registration
 
             public int UnregisterOrdinal( int ordinal )
             {
+                // TODO: tracing
+                this._logger.LogInformation( "TODO: tracing" );
+                
                 var ordinals = new LicenseCommandSessionState( this._services ).Load();
 
                 if ( !ordinals.TryGetValue( ordinal, out var license ) )
@@ -92,15 +95,15 @@ namespace PostSharp.Cli.Commands.Licensing.Registration
         {
             var services = this.CommandServiceProvider.CreateServiceProvider( console, verbose );
 
-            var unregisterer = new Unregisterer( services, console );
+            var actions = new UnregisterActions( services, console );
 
             if ( int.TryParse( licenseKeyOrOrdinal, out var ordinal ) )
             {
-                return unregisterer.UnregisterOrdinal( ordinal );
+                return actions.UnregisterOrdinal( ordinal );
             }
             else
             {
-                return unregisterer.UnregisterLicense( licenseKeyOrOrdinal );
+                return actions.UnregisterLicense( licenseKeyOrOrdinal );
             }
         }
     }

@@ -29,11 +29,15 @@ namespace PostSharp.Backstage.Testing
 
             this.Log = loggerFactory.GetTestLoggerSink();
 
+            // ReSharper disable RedundantTypeArgumentsOfMethod
+            
             var serviceCollection = new ServiceCollection()
                 .AddSingleton<ILoggerFactory>( loggerFactory )
                 .AddSingleton<IDateTimeProvider>( this.Time )
                 .AddSingleton<IFileSystem>( this.FileSystem )
                 .AddStandardDirectories();
+            
+            // ReSharper restore RedundantTypeArgumentsOfMethod
 
             serviceBuilder?.Invoke( serviceCollection );
 

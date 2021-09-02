@@ -35,7 +35,7 @@ namespace PostSharp.Backstage.Licensing.Tests.Evaluation
             this.FileSystem.Mock.AddFile( this.EvaluationFiles.EvaluationLicenseFile, new MockFileDataEx( flag ) );
         }
 
-        protected void AssertEvaluationElligible( string reason )
+        protected void AssertEvaluationEligible( string reason )
         {
             Assert.True( this.Registrar.TryRegisterLicense() );
 
@@ -59,7 +59,7 @@ namespace PostSharp.Backstage.Licensing.Tests.Evaluation
             this.AssertEvaluationEligibilityReason( reason );
         }
 
-        protected void AssertEvaluationNotElligible( string reason )
+        protected void AssertEvaluationNotEligible( string reason )
         {
             Assert.False( this.Registrar.TryRegisterLicense() );
 

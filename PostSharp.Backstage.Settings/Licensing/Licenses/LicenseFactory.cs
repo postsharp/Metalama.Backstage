@@ -37,6 +37,9 @@ namespace PostSharp.Backstage.Licensing.Licenses
         /// <returns>A value indicating if the <paramref name="licenseString"/> represents a license.</returns>
         public bool TryCreate( string? licenseString, [MaybeNullWhen( returnValue: false )] out ILicense license )
         {
+            // TODO: trace
+            this._logger.LogInformation( "TODO: trace" );
+            
             licenseString = licenseString?.Trim();
 
             if ( licenseString == null || licenseString == "" )

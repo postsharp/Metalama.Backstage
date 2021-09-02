@@ -64,8 +64,8 @@ namespace PostSharp.Cli.Commands.Licensing
                 }
             }
 
-            Write( "Ordinal", ordinal.ToString() );
-            Write( "License ID", data?.LicenseId?.ToString() );
+            Write( "Ordinal", ordinal.ToString( CultureInfo.InvariantCulture ) );
+            Write( "License ID", data?.LicenseId?.ToString( CultureInfo.InvariantCulture ) );
 
             if ( data == null || data.LicenseId != null )
             {

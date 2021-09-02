@@ -3,6 +3,8 @@
 
 using PostSharp.Backstage.Extensibility;
 
+// ReSharper disable RedundantToStringCall
+
 namespace PostSharp.Backstage.Testing.Services
 {
     public class TestDiagnosticsLocation : IDiagnosticsLocation

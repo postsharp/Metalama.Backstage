@@ -5,7 +5,7 @@ using PostSharp.Backstage.Licensing.Consumption.Sources;
 using PostSharp.Backstage.Licensing.Licenses;
 using System.Collections.Generic;
 
-namespace PostSharp.Backstage.Licensing.Tests
+namespace PostSharp.Backstage.Licensing.Tests.LicenseSources
 {
     internal class TestLicenseSource : ILicenseSource, IUsable
     {

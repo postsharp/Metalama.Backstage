@@ -40,7 +40,7 @@ namespace PostSharp.Backstage.Testing.Services
 
         public void Unblock( string path )
         {
-            void Unblock( Dictionary<string, (ManualResetEventSlim Callee, ManualResetEventSlim Caller)> blockingEvents )
+            void UnblockEvents( Dictionary<string, (ManualResetEventSlim Callee, ManualResetEventSlim Caller)> blockingEvents )
             {
                 if ( blockingEvents.TryGetValue( path, out var events ) )
                 {
@@ -49,8 +49,8 @@ namespace PostSharp.Backstage.Testing.Services
                 }
             }
 
-            Unblock( this._blockedReads );
-            Unblock( this._blockedWrites );
+            UnblockEvents( this._blockedReads );
+            UnblockEvents( this._blockedWrites );
         }
 
         private void WaitAndThrowIfBlocked( string path, bool write, [CallerMemberName] string callerName = "" )
@@ -93,7 +93,7 @@ namespace PostSharp.Backstage.Testing.Services
             {
                 if ( searchPattern == null )
                 {
-                    throw new ArgumentNullException( "searchPattern" );
+                    throw new ArgumentNullException( nameof(searchPattern) );
                 }
 
                 return this.Mock.Directory.GetFiles( path, searchPattern, searchOption.Value );
@@ -121,7 +121,7 @@ namespace PostSharp.Backstage.Testing.Services
             {
                 if ( searchPattern == null )
                 {
-                    throw new ArgumentNullException( "searchPattern" );
+                    throw new ArgumentNullException( nameof(searchPattern) );
                 }
 
                 directories = this.Mock.Directory.GetDirectories( path, searchPattern, searchOption.Value );

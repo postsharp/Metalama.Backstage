@@ -5,7 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 using PostSharp.Backstage.Extensibility;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text.Json;
@@ -36,7 +36,7 @@ namespace PostSharp.Cli.Session
             this._data.Add( ordinal, value );
         }
 
-        public bool TryGetValue( int ordinal, [MaybeNullWhen( returnValue: false )] out string? value )
+        public bool TryGetValue( int ordinal, out string? value )
         {
             return this._data.TryGetValue( ordinal, out value );
         }
@@ -44,7 +44,7 @@ namespace PostSharp.Cli.Session
         public void Save()
         {
             // System JSON serializer doesn't support Dictionary<int, string>
-            var dataString = JsonSerializer.Serialize( this._data.ToDictionary( d => d.Key.ToString(), d => d.Value ) );
+            var dataString = JsonSerializer.Serialize( this._data.ToDictionary( d => d.Key.ToString( CultureInfo.InvariantCulture ), d => d.Value ) );
 
             this._fileSystem.CreateDirectory( this._sessionDirectory );
             this._fileSystem.WriteAllText( this._filePath, dataString );
@@ -67,7 +67,7 @@ namespace PostSharp.Cli.Session
             {
                 foreach ( var item in data )
                 {
-                    this.Add( int.Parse( item.Key ), item.Value );
+                    this.Add( int.Parse( item.Key, CultureInfo.InvariantCulture ), item.Value );
                 }
             }
 

@@ -57,7 +57,7 @@ namespace PostSharp.Cli.Tests.Console
                 this._output.Append( value );
                 this._line.Append( value );
 
-                if ( value.EndsWith( Environment.NewLine ) )
+                if ( value.EndsWith( Environment.NewLine, StringComparison.Ordinal ) )
                 {
                     var traceMessage = this._line.ToString();
                     this._line.Clear();

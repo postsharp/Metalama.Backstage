@@ -58,7 +58,7 @@ namespace PostSharp.Backstage.Licensing.Licenses
             this._logger = services.GetOptionalTraceLogger<License>();
         }
 
-        private static bool TryGetLicenseId( string s, [MaybeNullWhen( returnValue: false )] out int id )
+        private static bool TryGetLicenseId( string s, out int id )
         {
             var firstDash = s.IndexOf( '-' );
 
@@ -83,6 +83,8 @@ namespace PostSharp.Backstage.Licensing.Licenses
                             return false;
                         }
                     }
+                    
+                    // ReSharper disable once EmptyGeneralCatchClause
                     catch { }
                 }
             }

@@ -1,6 +1,7 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. All rights reserved.
 // This project is not open source. Please see the LICENSE.md file in the repository root for details.
 
+using PostSharp.Backstage.Licensing.Tests.LicenseSources;
 using System.Linq;
 using Xunit;
 using Xunit.Abstractions;
@@ -12,15 +13,15 @@ namespace PostSharp.Backstage.Licensing.Tests.Consumption
         public LicenseUsageTests( ITestOutputHelper logger )
             : base( logger ) { }
 
-        private void AssertOneUsed( bool expectAutoRegistration, params IUsable[] usables )
+        private void AssertOneUsed( bool expectAutoRegistration, params IUsable[] usableObjects )
         {
-            Assert.Equal( 1, usables.Count( l => l.IsUsed ) );
+            Assert.Equal( 1, usableObjects.Count( l => l.IsUsed ) );
             Assert.Equal( expectAutoRegistration, this.AutoRegistrar.RegistrationAttempted );
         }
 
-        private void AssertAllUsed( bool expectAutoRegistration, params IUsable[] usables )
+        private void AssertAllUsed( bool expectAutoRegistration, params IUsable[] usableObjects )
         {
-            Assert.Equal( usables.Length, usables.Count( l => l.IsUsed ) );
+            Assert.Equal( usableObjects.Length, usableObjects.Count( l => l.IsUsed ) );
             Assert.Equal( expectAutoRegistration, this.AutoRegistrar.RegistrationAttempted );
         }
 
@@ -85,7 +86,7 @@ namespace PostSharp.Backstage.Licensing.Tests.Consumption
         }
 
         [Fact]
-        public void NamspaceLicenseNotPreferedForAllowedFeature()
+        public void NamespaceLicenseNotPreferredForAllowedFeature()
         {
             var license1 = this.CreateLicense( TestLicenseKeys.Ultimate );
             var license2 = this.CreateLicense( TestLicenseKeys.OpenSource );
