@@ -76,3 +76,5 @@ if ( $Create -or $Check ) {
         CreateOrCheckSymbolicLink -Source "$($_.FullName).DotSettings" -Target ".\$EngineeringDirectory\style\sln.DotSettings" -Check $Check -Create $Create
     }
 }
+
+exit 0

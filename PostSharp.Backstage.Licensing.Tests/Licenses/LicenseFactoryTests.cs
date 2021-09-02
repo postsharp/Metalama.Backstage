@@ -47,7 +47,7 @@ namespace PostSharp.Backstage.Licensing.Tests.Licenses
             this.Diagnostics.AssertNoErrors();
 
             this.Diagnostics.AssertSingleWarning(
-                $"Cannot parse license key {invalidLicenseString}: License header not found for license {invalidLicenseString}." );
+                $"Cannot parse license key {invalidLicenseString.ToUpperInvariant()}: License header not found for license {{{invalidLicenseString.ToUpperInvariant()}}}." );
         }
 
         [Fact]
