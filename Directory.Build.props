@@ -1,10 +1,10 @@
 <Project>
 
-  <Import Project=".eng\Versions.props" />
-  <Import Project=".eng\Packaging.props" />
+  <Import Project="eng\Versions.props" />
+  <Import Project="eng\Packaging.props" />
   
-  <Import Project=".eng\shared\build\BuildOptions.props" />
-  <Import Project=".eng\shared\style\CodeQuality.props" />
-  <Import Project=".eng\shared\build\SourceLink.props" />
+  <Import Project="eng\shared\build\BuildOptions.props" />
+  <Import Project="eng\shared\style\CodeQuality.props" />
+  <Import Project="eng\shared\build\SourceLink.props" />
   
 </Project>
