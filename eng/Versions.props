@@ -1,6 +1,6 @@
 <Project>
 
-    <!-- Normally you should call .eng\build.ps1 -local -prepare before opening the project in an IDE, and it creates BackstageVersion.props. -->
+    <!-- Normally you should call eng\build.ps1 -local -prepare before opening the project in an IDE, and it creates BackstageVersion.props. -->
     <Import Project="BackstageVersion.props" Condition="Exists('BackstageVersion.props')" />
 
     <!-- However, if you don't, default values are used. -->
