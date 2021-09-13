@@ -31,7 +31,7 @@ namespace PostSharp.Cli.Commands.Licensing.Registration
             {
                 // TODO: tracing
                 this._logger.LogInformation( "TODO: tracing" );
-                
+
                 var ordinals = new LicenseCommandSessionState( this._services ).Load();
 
                 if ( !ordinals.TryGetValue( ordinal, out var license ) )

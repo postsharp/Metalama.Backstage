@@ -10,7 +10,7 @@ namespace PostSharp.Backstage.Licensing
     /// The names and granularity correspond to the NuGet packages.
     /// </summary>
     [Flags]
-    
+
     // ReSharper disable once EnumUnderlyingTypeIsInt
     public enum LicensedFeatures : int
     {

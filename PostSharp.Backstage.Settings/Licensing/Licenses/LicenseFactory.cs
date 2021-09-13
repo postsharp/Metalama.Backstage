@@ -39,7 +39,7 @@ namespace PostSharp.Backstage.Licensing.Licenses
         {
             // TODO: trace
             this._logger.LogInformation( "TODO: trace" );
-            
+
             licenseString = licenseString?.Trim();
 
             if ( licenseString == null || licenseString == "" )

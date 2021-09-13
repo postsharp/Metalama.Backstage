@@ -47,7 +47,7 @@ namespace PostSharp.Backstage.Licensing.LicenseServer
                     var value = part.Substring( pos + 1, part.Length - pos - 1 ).Trim();
 
                     // ReSharper disable StringLiteralTypo
-                    
+
                     switch ( key.ToLowerInvariant() )
                     {
                         case "license":
@@ -70,7 +70,7 @@ namespace PostSharp.Backstage.Licensing.LicenseServer
 
                             break;
                     }
-                    
+
                     // ReSharper restore StringLiteralTypo
                 }
 

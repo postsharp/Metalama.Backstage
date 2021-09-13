@@ -11,7 +11,7 @@
 
 namespace PostSharp.Backstage.Licensing.LicenseServer
 {
-    internal sealed class LicenseServerClient 
+    internal sealed class LicenseServerClient
     {
 // private readonly LicenseLeaseCache _cache;
 //        private readonly LicenseeIdentifier _licenseeIdentifier;
