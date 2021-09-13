@@ -20,8 +20,8 @@
     <!-- This is the list of files that can be published to the public nuget.org -->
     <!-- To avoid unintended publishing of artefacts, all items must be explicitly specified without wildcard -->    
     <ItemGroup>
-        <ShippedFile Include="$(PackagesDir)\PostSharp.Backstage.Settings.$(Version).nupkg" />
-        <ShippedFile Include="$(PackagesDir)\PostSharp.Cli.$(Version).nupkg" />
+        <ShippedFile Include="$(PackageOutputPath)\PostSharp.Backstage.Settings.$(Version).nupkg" />
+        <ShippedFile Include="$(PackageOutputPath)\PostSharp.Cli.$(Version).nupkg" />
     </ItemGroup>
 
 </Project>
