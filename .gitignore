@@ -372,4 +372,4 @@ FodyWeavers.xsd
 .idea/**/shelf
 /tools/
 **/inspectcode.xml
-/.eng/BackstageVersion.props
+/eng/BackstageVersion.props

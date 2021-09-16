@@ -83,7 +83,7 @@ namespace PostSharp.Backstage.Licensing.Licenses
                             return false;
                         }
                     }
-                    
+
                     // ReSharper disable once EmptyGeneralCatchClause
                     catch { }
                 }

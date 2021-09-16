@@ -35,7 +35,11 @@ namespace PostSharp.Cli.Tests.Commands.Licensing
 
             await this.TestCommandAsync(
                 "license list",
-                string.Format( CultureInfo.InvariantCulture, TestLicenses.Format1, 1 ) + string.Format( CultureInfo.InvariantCulture, TestLicenses.Format2, 2 ) + string.Format( CultureInfo.InvariantCulture, TestLicenses.Format3, 3 ) );
+                string.Format( CultureInfo.InvariantCulture, TestLicenses.Format1, 1 ) + string.Format( CultureInfo.InvariantCulture, TestLicenses.Format2, 2 )
+                                                                                       + string.Format(
+                                                                                           CultureInfo.InvariantCulture,
+                                                                                           TestLicenses.Format3,
+                                                                                           3 ) );
         }
     }
 }

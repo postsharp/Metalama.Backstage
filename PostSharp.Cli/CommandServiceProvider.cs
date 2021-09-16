@@ -16,7 +16,7 @@ namespace PostSharp.Cli
         public IServiceProvider CreateServiceProvider( IConsole console, bool addTrace )
         {
             // ReSharper disable RedundantTypeArgumentsOfMethod
-            
+
             var serviceCollection = new ServiceCollection()
                 .AddSingleton<IConsole>( console )
                 .AddSingleton<IDiagnosticsSink>( services => new ConsoleDiagnosticsSink( services ) )
@@ -24,7 +24,7 @@ namespace PostSharp.Cli
                 .AddFileSystem()
                 .AddStandardDirectories()
                 .AddStandardLicenseFilesLocations();
-            
+
             // ReSharper restore RedundantTypeArgumentsOfMethod
 
             if ( addTrace )

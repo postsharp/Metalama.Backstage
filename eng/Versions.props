@@ -1,0 +1,23 @@
+<Project>
+
+    <!-- Normally you should call eng\build.ps1 -local -prepare before opening the project in an IDE, and it creates BackstageVersion.props. -->
+    <Import Project="BackstageVersion.props" Condition="Exists('BackstageVersion.props')" />
+
+    <!-- However, if you don't, default values are used. -->
+    <Import Project="MainVersion.props" Condition="!Exists('BackstageVersion.props')" />
+    
+    <PropertyGroup Condition="!Exists('BackstageVersion.props')">
+        <BackstageVersion>$(MainVersion)$(PackageVersionSuffix)</BackstageVersion>
+        <BackstageAssemblyVersion>$(MainVersion)</BackstageAssemblyVersion>
+    </PropertyGroup>
+
+    <PropertyGroup>
+        <AssemblyVersion>$(BackstageAssemblyVersion)</AssemblyVersion>
+        <Version>$(BackstageVersion)</Version>
+    </PropertyGroup>
+
+    <!-- Versions of dependencies -->
+    <PropertyGroup>
+    </PropertyGroup>
+
+</Project>
