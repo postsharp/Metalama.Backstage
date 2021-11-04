@@ -110,9 +110,14 @@ function CheckPrerequisities() {
 
 function Clean() {
 
+    Write-Host "------ Cleaning ---------------------------------" -ForegroundColor Cyan
+
     dir obj -Recurse | rd -Recurse -Force
     dir bin -Recurse | rd -Recurse -Force
-    rd artifacts -Recurse -Force
+
+    if ( Test-Path "artifacts" ) {
+        rd "artifacts" -Recurse -Force
+    }
 
     if ( Test-Path $PropsFilePath ) {
         Remove-Item $PropsFilePath
@@ -120,6 +125,9 @@ function Clean() {
 }
 
 function CreateVersionFile() {
+
+    Write-Host "------ Creating version file ---------------------------------" -ForegroundColor Cyan
+
     $timestamp = [System.DateTime]::Now.ToString('MMdd.HHmm')
         
     if ( $Local ) {
