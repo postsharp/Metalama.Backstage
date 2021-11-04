@@ -1,6 +1,7 @@
 <Project>
 
   <Import Project="eng\Versions.props" />
+  <Import Project="eng\StrongName.props" />
   <Import Project="eng\Packaging.props" />
   
   <Import Project="eng\shared\build\BuildOptions.props" />
