@@ -36,7 +36,7 @@ namespace PostSharp.Backstage.Testing
                 .AddMicrosoftLoggerFactory( loggerFactory )
                 .AddSingleton<IDateTimeProvider>( this.Time )
                 .AddSingleton<IFileSystem>( this.FileSystem )
-                .AddStandardService<IStandardDirectories>();
+                .AddDefaultService<IStandardDirectories>();
 
             // ReSharper restore RedundantTypeArgumentsOfMethod
 

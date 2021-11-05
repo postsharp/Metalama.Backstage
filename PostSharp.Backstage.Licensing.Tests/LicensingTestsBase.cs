@@ -33,8 +33,8 @@ namespace PostSharp.Backstage.Licensing.Tests
                     serviceCollection
                         .AddSingleton<IDiagnosticsSink>( services => new TestDiagnosticsSink( services, "default" ) )
                         .AddSingleton<IApplicationInfo>( new TestApplicationInfo( false, new Version( 0, 1, 0 ), new DateTime( 2021, 1, 1 ) ) )
-                        .AddStandardService<IStandardLicenseFileLocations>()
-                        .AddStandardService<IEvaluationLicenseFilesLocations>();
+                        .AddDefaultService<IStandardLicenseFileLocations>()
+                        .AddDefaultService<IEvaluationLicenseFilesLocations>();
 
                     serviceBuilder?.Invoke( serviceCollection );
                 } )

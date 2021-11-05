@@ -20,7 +20,7 @@ namespace PostSharp.Backstage.Extensibility
             where TService : IService
             => this._services[typeof(TService)] = service;
 
-        public IEnumerable<(Type ServiceType, IService Service)> EnumerateServices() 
+        public IEnumerable<(Type ServiceType, IService ServiceImplementation)> EnumerateServices() 
             => this._services.Select( kv => (kv.Key, kv.Value) );
     }
 }

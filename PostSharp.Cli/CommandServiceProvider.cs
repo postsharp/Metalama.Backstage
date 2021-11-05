@@ -3,11 +3,14 @@
 
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using PostSharp.Backstage.DependencyInjection.Logging;
 using PostSharp.Backstage.Extensibility;
 using PostSharp.Backstage.Licensing.Registration;
+using PostSharp.Backstage.Licensing.Registration.Evaluation;
 using PostSharp.Cli.Console;
 using System;
 using System.CommandLine;
+using LogLevel = Microsoft.Extensions.Logging.LogLevel;
 
 namespace PostSharp.Cli
 {
@@ -20,10 +23,11 @@ namespace PostSharp.Cli
             var serviceCollection = new ServiceCollection()
                 .AddSingleton<IConsole>( console )
                 .AddSingleton<IDiagnosticsSink>( services => new ConsoleDiagnosticsSink( services ) )
-                .AddCurrentDateTimeProvider()
-                .AddFileSystem()
-                .AddStandardDirectories()
-                .AddStandardLicenseFilesLocations();
+                .AddDefaultService<IDateTimeProvider>()
+                .AddDefaultService<IFileSystem>()
+                .AddDefaultService<IStandardDirectories>()
+                .AddDefaultService<IStandardLicenseFileLocations>()
+                .AddDefaultService<IEvaluationLicenseFilesLocations>();
 
             // ReSharper restore RedundantTypeArgumentsOfMethod
 

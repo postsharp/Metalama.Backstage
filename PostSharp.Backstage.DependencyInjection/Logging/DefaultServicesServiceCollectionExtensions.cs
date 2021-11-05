@@ -9,9 +9,9 @@ namespace PostSharp.Backstage.DependencyInjection.Logging
 {
     public static class DefaultServicesServiceCollectionExtensions
     {
-        private static readonly IServiceProvider _defaultServices = new DefaultServiceProvider();
+        private static readonly DefaultServiceProvider _defaultServices = new DefaultServiceProvider();
 
-        public static IServiceCollection AddStandardService<TService>( this IServiceCollection serviceCollection )
+        public static IServiceCollection AddDefaultService<TService>( this IServiceCollection serviceCollection )
             where TService : class
             => serviceCollection.AddSingleton<TService>( _defaultServices.GetRequiredService<TService>() );
     }
