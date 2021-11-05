@@ -108,8 +108,7 @@ namespace PostSharp.Backstage.Licensing.Licenses
             if ( !licenseKeyData.Validate(
                 null,
                 this._dateTimeProvider,
-                applicationInfoService.BuildDate,
-                applicationInfoService.Version,
+                applicationInfoService,
                 out var errorDescription ) )
             {
                 this._diagnostics.ReportWarning( $"License key {licenseKeyData.LicenseUniqueId} is invalid: {errorDescription}" );

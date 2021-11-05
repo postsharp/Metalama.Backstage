@@ -37,7 +37,7 @@ namespace PostSharp.Backstage.Licensing.Licenses
         public bool TryCreate( string? licenseString, [MaybeNullWhen( returnValue: false )] out ILicense license )
         {
             // TODO: trace
-            this._logger.LogInformation( "TODO: trace" );
+            this._logger?.LogInformation( "TODO: trace" );
 
             licenseString = licenseString?.Trim();
 

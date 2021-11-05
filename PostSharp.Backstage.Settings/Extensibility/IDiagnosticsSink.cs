@@ -6,7 +6,7 @@ namespace PostSharp.Backstage.Extensibility
     /// <summary>
     /// Reports warnings and errors within an application.
     /// </summary>
-    public interface IDiagnosticsSink
+    public interface IDiagnosticsSink : IService
     {
         /// <summary>
         /// Reports a warning.

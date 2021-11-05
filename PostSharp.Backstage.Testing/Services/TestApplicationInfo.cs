@@ -15,12 +15,15 @@ namespace PostSharp.Backstage.Testing.Services
         /// <param name="isPrerelease">A value indicating whether the application is a pre-release.</param>
         /// <param name="version">The version of the application.</param>
         /// <param name="buildDate">The date of build of the application.</param>
-        public TestApplicationInfo( bool isPrerelease, Version version, DateTime buildDate )
+        public TestApplicationInfo( string name, bool isPrerelease, Version version, DateTime buildDate )
         {
+            this.Name = name;
             this.IsPrerelease = isPrerelease;
             this.Version = version;
             this.BuildDate = buildDate;
         }
+        
+        public string Name { get; }
 
         /// <inheritdoc />
         public bool IsPrerelease { get; }

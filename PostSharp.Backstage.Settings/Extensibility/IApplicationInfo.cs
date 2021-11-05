@@ -8,17 +8,22 @@ namespace PostSharp.Backstage.Extensibility
     /// <summary>
     /// Provides version information about an application.
     /// </summary>
-    public interface IApplicationInfo
+    public interface IApplicationInfo : IService
     {
         /// <summary>
-        /// Gets a value indicating whether the application is a pre-release.
+        /// Gets the name of the application.
         /// </summary>
-        bool IsPrerelease { get; }
-
+        string Name { get; }
+        
         /// <summary>
         /// Gets a version of the application.
         /// </summary>
         Version Version { get; }
+        
+        /// <summary>
+        /// Gets a value indicating whether the application is a pre-release.
+        /// </summary>
+        bool IsPrerelease { get; }
 
         /// <summary>
         /// Gets a date of build of the application.

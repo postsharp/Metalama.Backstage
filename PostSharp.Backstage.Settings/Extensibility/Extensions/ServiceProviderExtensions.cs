@@ -8,11 +8,11 @@ namespace PostSharp.Backstage.Extensibility.Extensions
     public static class ServiceProviderExtensions
     {
         public static TService? GetService<TService>( this IServiceProvider serviceProvider )
-            where TService : class
+            where TService : class, IService
             => (TService?) serviceProvider.GetService( typeof(TService) );
 
         public static TService GetRequiredService<TService>( this IServiceProvider serviceProvider )
-            where TService : class
+            where TService : class, IService
         {
             var service = serviceProvider.GetService<TService>();
 

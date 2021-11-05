@@ -144,7 +144,8 @@ namespace PostSharp.Backstage.Licensing.Consumption
                         return true;
                     }
 
-                    if ( this._namespaceLimitedLicensedFeatures.Count > 0
+                    if ( consumer.TargetTypeNamespace != null 
+                         && this._namespaceLimitedLicensedFeatures.Count > 0
                          && this._namespaceLimitedLicensedFeatures.Values.Any(
                              nsf => nsf.AllowsNamespace( consumer.TargetTypeNamespace )
                                     && nsf.LicensedFeatures.HasFlag( requiredFeatures ) ) )
@@ -169,9 +170,16 @@ namespace PostSharp.Backstage.Licensing.Consumption
         {
             if ( !this.CanConsumeFeatures( consumer, requiredFeatures ) )
             {
-                consumer.Diagnostics.ReportError(
-                    $"No license available for feature(s) {requiredFeatures} required by '{consumer.TargetTypeName}' type.",
-                    consumer.DiagnosticsLocation );
+                if ( consumer.TargetTypeName == null )
+                {
+                    consumer.Diagnostics.ReportError( $"No license available for feature(s) {requiredFeatures}" );
+                }
+                else
+                {
+                    consumer.Diagnostics.ReportError(
+                        $"No license available for feature(s) {requiredFeatures} required by '{consumer.TargetTypeName}' type.",
+                        consumer.DiagnosticsLocation );
+                }
             }
         }
     }
