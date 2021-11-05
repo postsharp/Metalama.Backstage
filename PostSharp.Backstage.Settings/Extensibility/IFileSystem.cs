@@ -10,7 +10,7 @@ namespace PostSharp.Backstage.Extensibility
     /// <summary>
     /// Provides access to file system.
     /// </summary>
-    public interface IFileSystem
+    public interface IFileSystem : IService
     {
         /// <summary>
         /// Returns the date and time the specified file or directory was last written to.

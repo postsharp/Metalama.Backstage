@@ -6,7 +6,7 @@ namespace PostSharp.Backstage.Extensibility
     /// <summary>
     /// Provides paths of standard directories.
     /// </summary>
-    public interface IStandardDirectories
+    public interface IStandardDirectories : IService
     {
         /// <summary>
         /// Gets the directory that serves as a common repository for application-specific data for the current roaming user.

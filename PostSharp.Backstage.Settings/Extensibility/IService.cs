@@ -5,8 +5,8 @@ using System;
 
 namespace PostSharp.Backstage.Extensibility
 {
-    public interface IDateTimeProvider : IService
-    {
-        DateTime Now { get; }
-    }
+    /// <summary>
+    /// Base interface to be inherited by all types that want to be exposed to <see cref="IServiceProvider"/>.
+    /// </summary>
+    public interface IService { }
 }

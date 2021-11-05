@@ -13,6 +13,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PostSharp.Backstage.Testing
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PostSharp.Cli.Tests", "PostSharp.Cli.Tests\PostSharp.Cli.Tests.csproj", "{090C166D-DD43-45DE-BC85-5BF68F15E818}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PostSharp.Backstage.DependencyInjection", "PostSharp.Backstage.DependencyInjection\PostSharp.Backstage.DependencyInjection.csproj", "{FE57924C-1187-4DD2-98F1-2735B85180D1}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -39,6 +41,10 @@ Global
 		{090C166D-DD43-45DE-BC85-5BF68F15E818}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{090C166D-DD43-45DE-BC85-5BF68F15E818}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{090C166D-DD43-45DE-BC85-5BF68F15E818}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FE57924C-1187-4DD2-98F1-2735B85180D1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FE57924C-1187-4DD2-98F1-2735B85180D1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FE57924C-1187-4DD2-98F1-2735B85180D1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FE57924C-1187-4DD2-98F1-2735B85180D1}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
