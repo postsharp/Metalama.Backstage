@@ -7,7 +7,7 @@ using System.Linq;
 
 namespace PostSharp.Backstage.Extensibility
 {
-    public class DictionaryServiceProvider : IServiceProvider
+    public class DictionaryServiceProvider : IServiceProvider, IBackstageServiceCollection
     {
         private readonly Dictionary<Type, IService> _services = new Dictionary<Type, IService>();
 
@@ -15,11 +15,18 @@ namespace PostSharp.Backstage.Extensibility
 
         public IService? GetService( Type serviceType ) => this._services.TryGetValue( serviceType, out IService service ) ? service : null;
 
-        public void AddService<TService>( IService service )
-            where TService : IService
-            => this._services[typeof(TService)] = service;
+        public IBackstageServiceCollection AddSingleton<TService>( IService service )
+            where TService : class, IService
+        {
+            this._services[typeof(TService)] = service;
 
-        public IEnumerable<(Type ServiceType, IService ServiceImplementation)> EnumerateServices() 
-            => this._services.Select( kv => (kv.Key, kv.Value) );
+            return this;
+        }
+
+        public IBackstageServiceCollection AddSingleton<TService>( Func<IServiceProvider, TService> serviceFactory )
+            where TService : class, IService
+            => this.AddSingleton<TService>( serviceFactory( this ) );
+
+        public IEnumerable<(Type Type, IService Instance)> EnumerateServices() => this._services.Select( kv => (kv.Key, kv.Value) );
     }
 }

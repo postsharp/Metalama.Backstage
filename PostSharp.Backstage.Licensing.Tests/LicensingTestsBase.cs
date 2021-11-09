@@ -2,6 +2,7 @@
 // This project is not open source. Please see the LICENSE.md file in the repository root for details.
 
 using Microsoft.Extensions.DependencyInjection;
+using PostSharp.Backstage.DependencyInjection.Extensibility;
 using PostSharp.Backstage.DependencyInjection.Logging;
 using PostSharp.Backstage.Extensibility;
 using PostSharp.Backstage.Licensing.Licenses;
@@ -24,7 +25,7 @@ namespace PostSharp.Backstage.Licensing.Tests
 
         private protected IStandardLicenseFileLocations LicenseFiles { get; }
 
-        public LicensingTestsBase( ITestOutputHelper logger, Action<IServiceCollection>? serviceBuilder = null )
+        public LicensingTestsBase( ITestOutputHelper logger, Action<IServiceCollectionEx>? serviceBuilder = null )
             : base(
                 logger,
                 serviceCollection =>
@@ -32,9 +33,13 @@ namespace PostSharp.Backstage.Licensing.Tests
                     // ReSharper disable once ExplicitCallerInfoArgument
                     serviceCollection
                         .AddSingleton<IDiagnosticsSink>( services => new TestDiagnosticsSink( services, "default" ) )
-                        .AddSingleton<IApplicationInfo>( new TestApplicationInfo( "Licensing Test App", false, new Version( 0, 1, 0 ), new DateTime( 2021, 1, 1 ) ) )
-                        .AddDefaultService<IStandardLicenseFileLocations>()
-                        .AddDefaultService<IEvaluationLicenseFilesLocations>();
+                        .AddSingleton<IApplicationInfo>( 
+                            new TestApplicationInfo( 
+                                "Licensing Test App",
+                                false,
+                                new Version( 0, 1, 0 ),
+                                new DateTime( 2021, 1, 1 ) ) )
+                        .AddStandardLicenseFilesLocations();
 
                     serviceBuilder?.Invoke( serviceCollection );
                 } )

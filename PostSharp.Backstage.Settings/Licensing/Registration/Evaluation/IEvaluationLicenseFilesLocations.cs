@@ -8,7 +8,7 @@ namespace PostSharp.Backstage.Licensing.Registration.Evaluation
     /// <summary>
     /// Provides locations of evaluation-license-related files used internally to handle product evaluation eligibility.
     /// </summary>
-    public interface IEvaluationLicenseFilesLocations : IService
+    internal interface IEvaluationLicenseFilesLocations : IService
     {
         /// <summary>
         /// Gets the path of the file storing information about product evaluation eligibility.

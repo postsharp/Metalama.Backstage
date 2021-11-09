@@ -13,7 +13,7 @@ using System.Linq;
 namespace PostSharp.Backstage.Licensing.Consumption
 {
     /// <inheritdoc />
-    public class LicenseConsumptionManager : ILicenseConsumptionManager
+    internal class LicenseConsumptionManager : ILicenseConsumptionManager
     {
         private readonly IServiceProvider _services;
         private readonly ILogger? _logger;

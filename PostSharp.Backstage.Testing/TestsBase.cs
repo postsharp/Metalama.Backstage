@@ -4,6 +4,7 @@
 using MELT;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using PostSharp.Backstage.DependencyInjection.Extensibility;
 using PostSharp.Backstage.DependencyInjection.Logging;
 using PostSharp.Backstage.Extensibility;
 using PostSharp.Backstage.Testing.Services;
@@ -22,7 +23,7 @@ namespace PostSharp.Backstage.Testing
 
         public IServiceProvider Services { get; }
 
-        public TestsBase( ITestOutputHelper logger, Action<IServiceCollection>? serviceBuilder = null )
+        public TestsBase( ITestOutputHelper logger, Action<IServiceCollectionEx>? serviceBuilder = null )
         {
             var loggerFactory = TestLoggerFactory
                 .Create()
@@ -32,11 +33,15 @@ namespace PostSharp.Backstage.Testing
 
             // ReSharper disable RedundantTypeArgumentsOfMethod
 
-            var serviceCollection = new ServiceCollection()
+            var serviceCollection = new ServiceCollectionEx();
+                
+            serviceCollection
                 .AddMicrosoftLoggerFactory( loggerFactory )
                 .AddSingleton<IDateTimeProvider>( this.Time )
-                .AddSingleton<IFileSystem>( this.FileSystem )
-                .AddDefaultService<IStandardDirectories>();
+                .AddSingleton<IFileSystem>( this.FileSystem );
+                
+            serviceCollection
+                .AddStandardDirectories();
 
             // ReSharper restore RedundantTypeArgumentsOfMethod
 

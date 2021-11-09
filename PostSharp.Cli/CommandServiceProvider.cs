@@ -3,10 +3,9 @@
 
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using PostSharp.Backstage.DependencyInjection.Logging;
+using PostSharp.Backstage.DependencyInjection.Extensibility;
 using PostSharp.Backstage.Extensibility;
 using PostSharp.Backstage.Licensing.Registration;
-using PostSharp.Backstage.Licensing.Registration.Evaluation;
 using PostSharp.Cli.Console;
 using System;
 using System.CommandLine;
@@ -20,14 +19,17 @@ namespace PostSharp.Cli
         {
             // ReSharper disable RedundantTypeArgumentsOfMethod
 
-            var serviceCollection = new ServiceCollection()
+            var serviceCollection = new ServiceCollectionEx();
+                
+            serviceCollection
                 .AddSingleton<IConsole>( console )
-                .AddSingleton<IDiagnosticsSink>( services => new ConsoleDiagnosticsSink( services ) )
-                .AddDefaultService<IDateTimeProvider>()
-                .AddDefaultService<IFileSystem>()
-                .AddDefaultService<IStandardDirectories>()
-                .AddDefaultService<IStandardLicenseFileLocations>()
-                .AddDefaultService<IEvaluationLicenseFilesLocations>();
+                .AddSingleton<IDiagnosticsSink>( services => new ConsoleDiagnosticsSink( services ) );
+                
+            serviceCollection
+                .AddCurrentDateTimeProvider()
+                .AddFileSystem()
+                .AddStandardDirectories()
+                .AddStandardLicenseFilesLocations();
 
             // ReSharper restore RedundantTypeArgumentsOfMethod
 

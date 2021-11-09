@@ -2,6 +2,7 @@
 // This project is not open source. Please see the LICENSE.md file in the repository root for details.
 
 using Microsoft.Extensions.DependencyInjection;
+using PostSharp.Backstage.DependencyInjection.Extensibility;
 using PostSharp.Backstage.Extensibility;
 using PostSharp.Backstage.Testing;
 using PostSharp.Cli.Commands;
@@ -21,7 +22,7 @@ namespace PostSharp.Cli.Tests.Commands
         private readonly ILogger _logger;
         private readonly TestConsole _console;
 
-        protected CommandsTestsBase( ITestOutputHelper logger, Action<IServiceCollection>? serviceBuilder = null )
+        protected CommandsTestsBase( ITestOutputHelper logger, Action<IServiceCollectionEx>? serviceBuilder = null )
             : base(
                 logger,
                 serviceCollection =>
