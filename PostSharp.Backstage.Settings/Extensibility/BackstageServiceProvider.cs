@@ -7,7 +7,7 @@ using System.Linq;
 
 namespace PostSharp.Backstage.Extensibility
 {
-    public class DictionaryServiceProvider : IServiceProvider, IBackstageServiceCollection
+    public class BackstageServiceProvider : IServiceProvider, IBackstageServiceCollection
     {
         private readonly Dictionary<Type, IService> _services = new Dictionary<Type, IService>();
 

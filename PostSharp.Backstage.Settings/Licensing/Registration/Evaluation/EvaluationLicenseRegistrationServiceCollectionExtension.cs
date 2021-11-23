@@ -8,15 +8,19 @@ namespace PostSharp.Backstage.Licensing.Registration.Evaluation
     /// <summary>
     /// Extension methods for setting evaluation license files locations services in an <see cref="IBackstageServiceCollection" />.
     /// </summary>
-    internal static class EvaluationLicenseRegistrationServiceCollectionExtension
+    public static class EvaluationLicenseRegistrationServiceCollectionExtension
     {
         /// <summary>
         /// Adds evaluation license files locations service to the specified <see cref="IBackstageServiceCollection" />.
         /// </summary>
         /// <param name="serviceCollection">The <see cref="IBackstageServiceCollection" /> to add services to.</param>
         /// <returns>The <see cref="IBackstageServiceCollection" /> so that additional calls can be chained.</returns>
-        public static IBackstageServiceCollection AddStandardEvaluationLicenseFilesLocations( this IBackstageServiceCollection serviceCollection )
+        internal static IBackstageServiceCollection AddStandardEvaluationLicenseFilesLocations( this IBackstageServiceCollection serviceCollection )
             => serviceCollection
                 .AddSingleton<IEvaluationLicenseFilesLocations>( services => new EvaluationLicenseFilesLocations( services ) );
+
+        public static IBackstageServiceCollection AddFirstRunEvaluationLicenseActivator( this IBackstageServiceCollection serviceCollection )
+            => serviceCollection
+                .AddSingleton<IFirstRunLicenseActivator>( services => new EvaluationLicenseRegistrar( services ) );
     }
 }

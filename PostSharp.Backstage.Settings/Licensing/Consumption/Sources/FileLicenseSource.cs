@@ -4,6 +4,7 @@
 using PostSharp.Backstage.Extensibility;
 using PostSharp.Backstage.Extensibility.Extensions;
 using PostSharp.Backstage.Licensing.Licenses;
+using PostSharp.Backstage.Licensing.Registration;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -18,6 +19,13 @@ namespace PostSharp.Backstage.Licensing.Consumption.Sources
         private readonly string _path;
         private readonly IServiceProvider _services;
         private readonly ILogger? _logger;
+
+        public static FileLicenseSource CreateUserLicenseFileLicenseSource( IServiceProvider services )
+        {
+            var standardLicenseFileLocations = services.GetRequiredService<IStandardLicenseFileLocations>();
+
+            return new FileLicenseSource( standardLicenseFileLocations.UserLicenseFile, services );
+        }
 
         public FileLicenseSource( string path, IServiceProvider services )
         {
