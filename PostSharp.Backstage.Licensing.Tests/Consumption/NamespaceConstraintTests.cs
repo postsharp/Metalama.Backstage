@@ -10,17 +10,20 @@ namespace PostSharp.Backstage.Licensing.Tests.Consumption
     {
         private static readonly LicenseNamespaceConstraint _constraint = new( "Ns1.Ns2" );
 
-        private static void AssertNamespaceConstraint( string requestedNamespace, bool expectedAllowed )
+        private static void AssertNamespaceConstraint( string? requestedNamespace, bool expectedAllowed )
         {
             Assert.Equal( expectedAllowed, _constraint.AllowsNamespace( requestedNamespace ) );
-            Assert.Equal( expectedAllowed, _constraint.AllowsNamespace( requestedNamespace.ToLowerInvariant() ) );
-            Assert.Equal( expectedAllowed, _constraint.AllowsNamespace( requestedNamespace.ToUpperInvariant() ) );
+            Assert.Equal( expectedAllowed, _constraint.AllowsNamespace( requestedNamespace?.ToLowerInvariant() ) );
+            Assert.Equal( expectedAllowed, _constraint.AllowsNamespace( requestedNamespace?.ToUpperInvariant() ) );
         }
 
-        private static void AssertAllowed( string requestedNamespace ) => AssertNamespaceConstraint( requestedNamespace, true );
+        private static void AssertAllowed( string? requestedNamespace ) => AssertNamespaceConstraint( requestedNamespace, true );
 
-        private static void AssertForbidden( string requestedNamespace ) => AssertNamespaceConstraint( requestedNamespace, false );
+        private static void AssertForbidden( string? requestedNamespace ) => AssertNamespaceConstraint( requestedNamespace, false );
 
+        [Fact]
+        public void NoNamespaceIsAlwaysAllowed() => AssertAllowed( null );
+        
         [Fact]
         public void OuterNamespaceIsForbidden() => AssertForbidden( "Ns1" );
 

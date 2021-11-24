@@ -60,5 +60,29 @@ namespace PostSharp.Backstage.Licensing.Tests.Consumption
         {
             this.TestOneLicense( TestLicenseKeys.OpenSource, LicensedFeatures.Caravela, "Foo", false );
         }
+
+        [Fact]
+        public void CaravelaLicenseAllowsCaravelaFeature()
+        {
+            this.TestOneLicense( TestLicenseKeys.Caravela, LicensedFeatures.Caravela, true );
+        }
+        
+        [Fact]
+        public void CaravelaLicenseAllowsCommunityFeature()
+        {
+            this.TestOneLicense( TestLicenseKeys.Caravela, LicensedFeatures.Community, true );
+        }
+        
+        [Fact]
+        public void CommunityLicenseForbidsCaravelaFeature()
+        {
+            this.TestOneLicense( TestLicenseKeys.Community, LicensedFeatures.Caravela, false );
+        }
+        
+        [Fact]
+        public void CommunityLicenseAllowsCommunityFeature()
+        {
+            this.TestOneLicense( TestLicenseKeys.Community, LicensedFeatures.Community, true );
+        }
     }
 }

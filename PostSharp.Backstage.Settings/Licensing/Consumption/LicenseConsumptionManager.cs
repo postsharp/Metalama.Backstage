@@ -144,8 +144,7 @@ namespace PostSharp.Backstage.Licensing.Consumption
                         return true;
                     }
 
-                    if ( consumer.TargetTypeNamespace != null 
-                         && this._namespaceLimitedLicensedFeatures.Count > 0
+                    if ( this._namespaceLimitedLicensedFeatures.Count > 0
                          && this._namespaceLimitedLicensedFeatures.Values.Any(
                              nsf => nsf.AllowsNamespace( consumer.TargetTypeNamespace )
                                     && nsf.LicensedFeatures.HasFlag( requiredFeatures ) ) )

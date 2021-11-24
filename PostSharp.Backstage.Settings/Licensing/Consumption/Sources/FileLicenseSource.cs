@@ -3,7 +3,6 @@
 
 using PostSharp.Backstage.Extensibility;
 using PostSharp.Backstage.Extensibility.Extensions;
-using PostSharp.Backstage.Licensing.Licenses;
 using PostSharp.Backstage.Licensing.Registration;
 using System;
 using System.Collections.Generic;
@@ -14,7 +13,7 @@ namespace PostSharp.Backstage.Licensing.Consumption.Sources
     /// <summary>
     /// License source providing licenses from a license file.
     /// </summary>
-    public class FileLicenseSource : ILicenseSource
+    public class FileLicenseSource : LicenseStringsLicenseSourceBase
     {
         private readonly string _path;
         private readonly IServiceProvider _services;
@@ -28,14 +27,14 @@ namespace PostSharp.Backstage.Licensing.Consumption.Sources
         }
 
         public FileLicenseSource( string path, IServiceProvider services )
+            : base( services )
         {
             this._path = path;
             this._services = services;
             this._logger = services.GetOptionalTraceLogger<FileLicenseSource>();
         }
 
-        /// <inheritdoc />
-        public IEnumerable<ILicense> GetLicenses()
+        protected override IEnumerable<string> GetLicenseStrings()
         {
             this._logger?.LogTrace( $"Loading licenses from '{this._path}'." );
 
@@ -57,21 +56,9 @@ namespace PostSharp.Backstage.Licensing.Consumption.Sources
                 yield break;
             }
 
-            var licenseFactory = new LicenseFactory( this._services );
-
             foreach ( var licenseString in licenseStrings )
             {
-                if ( string.IsNullOrWhiteSpace( licenseString ) )
-                {
-                    continue;
-                }
-
-                if ( licenseFactory.TryCreate( licenseString, out var license ) )
-                {
-                    this._logger?.LogTrace( $"{license} loaded from '{this._path}'." );
-
-                    yield return license;
-                }
+                yield return licenseString;
             }
         }
     }
