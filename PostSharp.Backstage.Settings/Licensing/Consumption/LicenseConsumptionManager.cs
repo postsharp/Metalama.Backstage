@@ -117,9 +117,9 @@ namespace PostSharp.Backstage.Licensing.Consumption
                 return false;
             }
 
-            var registrar = this._services.GetRequiredService<IFirstRunLicenseActivator>();
+            var registrar = this._services.GetService<IFirstRunLicenseActivator>();
 
-            if ( !registrar.TryRegisterLicense() )
+            if ( registrar == null || !registrar.TryRegisterLicense() )
             {
                 return false;
             }
@@ -164,6 +164,7 @@ namespace PostSharp.Backstage.Licensing.Consumption
             return false;
         }
 
+        // TODO: Improve messages
         /// <inheritdoc />
         public void ConsumeFeatures( ILicenseConsumer consumer, LicensedFeatures requiredFeatures )
         {
