@@ -5,6 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using PostSharp.Backstage.Extensibility;
 using PostSharp.Backstage.Licensing.Registration;
+using PostSharp.Backstage.MicrosoftLogging;
 using PostSharp.Cli.Console;
 using System;
 using System.CommandLine;
@@ -19,6 +20,7 @@ namespace PostSharp.Cli
             // ReSharper disable RedundantTypeArgumentsOfMethod
 
             ServiceProvider? systemServiceProvider = null;
+            Microsoft.Extensions.Logging.ILoggerFactory? loggerFactory = null;
 
             if ( addTrace )
             {
@@ -33,6 +35,7 @@ namespace PostSharp.Cli
                     .Configure<LoggerFilterOptions>( options => options.MinLevel = LogLevel.Trace );
 
                 systemServiceProvider = systemServiceCollection.BuildServiceProvider();
+                loggerFactory = systemServiceProvider.GetService<Microsoft.Extensions.Logging.ILoggerFactory>();
             }
 
             var serviceCollection = new BackstageServiceCollection( systemServiceProvider );
@@ -44,6 +47,11 @@ namespace PostSharp.Cli
                 .AddFileSystem()
                 .AddStandardDirectories()
                 .AddStandardLicenseFilesLocations();
+
+            if ( loggerFactory != null )
+            {
+                serviceCollection.AddMicrosoftLoggerFactory( loggerFactory );
+            }
 
             // ReSharper restore RedundantTypeArgumentsOfMethod
 

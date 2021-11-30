@@ -8,7 +8,6 @@ using PostSharp.Backstage.MicrosoftLogging;
 using PostSharp.Backstage.Testing.Services;
 using System;
 using Xunit.Abstractions;
-using ILoggerFactory = PostSharp.Backstage.Extensibility.ILoggerFactory;
 
 namespace PostSharp.Backstage.Testing
 {
@@ -35,7 +34,7 @@ namespace PostSharp.Backstage.Testing
             var serviceCollection = new BackstageServiceCollection();
 
             serviceCollection
-                .AddSingleton<ILoggerFactory>( new LoggerFactoryAdapter( loggerFactory ) )
+                .AddMicrosoftLoggerFactory( loggerFactory )
                 .AddSingleton<IDateTimeProvider>( this.Time )
                 .AddSingleton<IFileSystem>( this.FileSystem );
 
