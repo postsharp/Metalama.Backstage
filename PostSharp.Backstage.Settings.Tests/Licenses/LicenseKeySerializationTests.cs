@@ -11,7 +11,7 @@
 // using System.Security.Cryptography;
 // using System.Text;
 // using System.Threading.Tasks;
-// using PostSharp.Backstage.Licensing.Tests.Services;
+// using PostSharp.Backstage.Settings.Tests.Services;
 // using Xunit.Abstractions;
 // using Xunit;
 

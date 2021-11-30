@@ -11,7 +11,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <InternalsVisibleTo Include="PostSharp.Backstage.Licensing.Tests" />
+        <InternalsVisibleTo Include="PostSharp.Backstage.Settings.Tests" />
     </ItemGroup>
 
 </Project>
