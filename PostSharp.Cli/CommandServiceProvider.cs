@@ -3,9 +3,9 @@
 
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using PostSharp.Backstage.DependencyInjection.Extensibility;
 using PostSharp.Backstage.Extensibility;
 using PostSharp.Backstage.Licensing.Registration;
+using PostSharp.Backstage.MicrosoftLogging;
 using PostSharp.Cli.Console;
 using System;
 using System.CommandLine;
@@ -19,32 +19,43 @@ namespace PostSharp.Cli
         {
             // ReSharper disable RedundantTypeArgumentsOfMethod
 
-            var serviceCollection = new ServiceCollectionEx();
-                
-            serviceCollection
-                .AddSingleton<IConsole>( console )
-                .AddSingleton<IDiagnosticsSink>( services => new ConsoleDiagnosticsSink( services ) );
-                
-            serviceCollection
-                .AddCurrentDateTimeProvider()
-                .AddFileSystem()
-                .AddStandardDirectories()
-                .AddStandardLicenseFilesLocations();
-
-            // ReSharper restore RedundantTypeArgumentsOfMethod
+            ServiceProvider? systemServiceProvider = null;
+            Microsoft.Extensions.Logging.ILoggerFactory? loggerFactory = null;
 
             if ( addTrace )
             {
-                serviceCollection
+                var systemServiceCollection = new ServiceCollection();
+
+                systemServiceCollection
 
                     // https://docs.microsoft.com/en-us/dotnet/core/extensions/console-log-formatter
                     .AddLogging( builder => builder.AddConsole() )
 
                     // https://www.blinkingcaret.com/2018/02/14/net-core-console-logging/
                     .Configure<LoggerFilterOptions>( options => options.MinLevel = LogLevel.Trace );
+
+                systemServiceProvider = systemServiceCollection.BuildServiceProvider();
+                loggerFactory = systemServiceProvider.GetService<Microsoft.Extensions.Logging.ILoggerFactory>();
             }
 
-            return serviceCollection.BuildServiceProvider();
+            var serviceCollection = new BackstageServiceCollection( systemServiceProvider );
+
+            serviceCollection
+                .AddSingleton<IConsole>( console )
+                .AddSingleton<IDiagnosticsSink>( services => new ConsoleDiagnosticsSink( services.ToServiceProvider() ) )
+                .AddCurrentDateTimeProvider()
+                .AddFileSystem()
+                .AddStandardDirectories()
+                .AddStandardLicenseFilesLocations();
+
+            if ( loggerFactory != null )
+            {
+                serviceCollection.AddMicrosoftLoggerFactory( loggerFactory );
+            }
+
+            // ReSharper restore RedundantTypeArgumentsOfMethod
+
+            return serviceCollection.ToServiceProvider();
         }
     }
 }

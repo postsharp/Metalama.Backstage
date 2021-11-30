@@ -11,6 +11,6 @@ namespace PostSharp.Backstage.Extensibility
         Warning,
         Error,
         Critical,
-        None,
+        None
     }
 }

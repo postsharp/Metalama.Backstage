@@ -16,7 +16,7 @@ namespace PostSharp.Backstage.Licensing.Licenses
             byte[]? publicKeyToken,
             IDateTimeProvider dateTimeProvider,
             IApplicationInfo applicationInfo,
-            [MaybeNullWhen( returnValue: true )] out string errorDescription )
+            [MaybeNullWhen( true )] out string errorDescription )
         {
 #pragma warning disable 618
             if ( this.LicenseType == LicenseType.Anonymous )

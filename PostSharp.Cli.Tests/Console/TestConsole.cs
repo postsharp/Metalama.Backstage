@@ -71,7 +71,10 @@ namespace PostSharp.Cli.Tests.Console
                 this._output.Clear();
             }
 
-            public override string ToString() => this._output.ToString();
+            public override string ToString()
+            {
+                return this._output.ToString();
+            }
         }
     }
 }

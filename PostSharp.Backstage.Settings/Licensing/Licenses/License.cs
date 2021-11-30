@@ -94,7 +94,7 @@ namespace PostSharp.Backstage.Licensing.Licenses
         }
 
         /// <inheritdoc />
-        public bool TryGetLicenseConsumptionData( [MaybeNullWhen( returnValue: false )] out LicenseConsumptionData licenseConsumptionData )
+        public bool TryGetLicenseConsumptionData( [MaybeNullWhen( false )] out LicenseConsumptionData licenseConsumptionData )
         {
             if ( !this.TryGetLicenseKeyData( out var licenseKeyData ) )
             {
@@ -123,7 +123,7 @@ namespace PostSharp.Backstage.Licensing.Licenses
         }
 
         /// <inheritdoc />
-        public bool TryGetLicenseRegistrationData( [MaybeNullWhen( returnValue: false )] out LicenseRegistrationData licenseRegistrationData )
+        public bool TryGetLicenseRegistrationData( [MaybeNullWhen( false )] out LicenseRegistrationData licenseRegistrationData )
         {
             if ( !this.TryGetLicenseKeyData( out var licenseKeyData ) )
             {
@@ -137,7 +137,7 @@ namespace PostSharp.Backstage.Licensing.Licenses
             return true;
         }
 
-        private bool TryGetLicenseKeyData( [MaybeNullWhen( returnValue: false )] out LicenseKeyData data )
+        private bool TryGetLicenseKeyData( [MaybeNullWhen( false )] out LicenseKeyData data )
         {
             this._logger?.LogTrace( $"Deserializing license {{{this._licenseKey}}}." );
             Guid? licenseGuid = null;

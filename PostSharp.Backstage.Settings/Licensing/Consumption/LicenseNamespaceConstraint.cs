@@ -47,7 +47,7 @@ namespace PostSharp.Backstage.Licensing.Consumption
             {
                 return true;
             }
-            
+
             if ( !requiredNamespace.StartsWith( this.AllowedNamespace, StringComparison.OrdinalIgnoreCase ) )
             {
                 return false;

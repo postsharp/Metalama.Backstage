@@ -9,7 +9,7 @@ namespace PostSharp.Backstage.Utilities
 {
     internal static class HexHelper
     {
-        public static bool TryParseBytes( string str, int start, int count, [MaybeNullWhen( returnValue: false )] out byte[] bytes )
+        public static bool TryParseBytes( string str, int start, int count, [MaybeNullWhen( false )] out byte[] bytes )
         {
             if ( count % 2 != 0 )
             {

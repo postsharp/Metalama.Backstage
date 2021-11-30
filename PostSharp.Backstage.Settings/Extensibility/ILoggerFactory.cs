@@ -3,7 +3,7 @@
 
 namespace PostSharp.Backstage.Extensibility
 {
-    public interface ILoggerFactory : IService
+    public interface ILoggerFactory
     {
         ILogger CreateLogger<T>();
     }

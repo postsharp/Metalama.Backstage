@@ -2,7 +2,6 @@
 // This project is not open source. Please see the LICENSE.md file in the repository root for details.
 
 using Microsoft.Extensions.DependencyInjection;
-using PostSharp.Backstage.DependencyInjection.Extensibility;
 using PostSharp.Backstage.Extensibility;
 using PostSharp.Backstage.Testing;
 using PostSharp.Cli.Commands;
@@ -22,14 +21,16 @@ namespace PostSharp.Cli.Tests.Commands
         private readonly ILogger _logger;
         private readonly TestConsole _console;
 
-        protected CommandsTestsBase( ITestOutputHelper logger, Action<IServiceCollectionEx>? serviceBuilder = null )
+        protected CommandsTestsBase( ITestOutputHelper logger, Action<BackstageServiceCollection>? serviceBuilder = null )
             : base(
                 logger,
                 serviceCollection =>
                 {
                     serviceCollection
-                        .AddSingleton<IConsole>( services => new TestConsole( services ) )
-                        .AddSingleton<IDiagnosticsSink>( services => new ConsoleDiagnosticsSink( services ) );
+                        .AddSingleton<IConsole>( services => new TestConsole( services.ToServiceProvider() ) )
+                        .AddSingleton<IDiagnosticsSink>(
+                            services =>
+                                new ConsoleDiagnosticsSink( services.ToServiceProvider() ) );
 
                     serviceBuilder?.Invoke( serviceCollection );
                 } )
@@ -39,7 +40,11 @@ namespace PostSharp.Cli.Tests.Commands
             this._console = (TestConsole) this.Services.GetRequiredService<IConsole>();
         }
 
-        protected async Task TestCommandAsync( string commandLine, string expectedOutput, string expectedError = "", int expectedExitCode = 0 )
+        protected async Task TestCommandAsync(
+            string commandLine,
+            string expectedOutput,
+            string expectedError = "",
+            int expectedExitCode = 0 )
         {
             this._logger.LogTrace( $" < {commandLine}" );
             var exitCode = await this._rootCommand.InvokeAsync( commandLine, this._console );
