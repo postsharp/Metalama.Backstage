@@ -34,22 +34,22 @@ namespace PostSharp.Backstage.Extensibility
         /// <inheritdoc />
         public string[] GetFiles( string path, string? searchPattern = null, SearchOption? searchOption = null )
         {
-            return EnumerateFiles( path, searchPattern, searchOption ).ToArray();
+            return this.EnumerateFiles( path, searchPattern, searchOption ).ToArray();
         }
 
         /// <inheritdoc />
         public IEnumerable<string> EnumerateFiles( string path, string? searchPattern = null, SearchOption? searchOption = null )
         {
-            if (searchOption.HasValue)
+            if ( searchOption.HasValue )
             {
-                if (searchPattern == null)
+                if ( searchPattern == null )
                 {
                     throw new ArgumentNullException( nameof(searchPattern) );
                 }
 
                 return Directory.EnumerateFiles( path, searchPattern, searchOption.Value );
             }
-            else if (searchPattern != null)
+            else if ( searchPattern != null )
             {
                 return Directory.EnumerateFiles( path, searchPattern );
             }
@@ -62,22 +62,22 @@ namespace PostSharp.Backstage.Extensibility
         /// <inheritdoc />
         public string[] GetDirectories( string path, string? searchPattern = null, SearchOption? searchOption = null )
         {
-            return EnumerateDirectories( path, searchPattern, searchOption ).ToArray();
+            return this.EnumerateDirectories( path, searchPattern, searchOption ).ToArray();
         }
 
         /// <inheritdoc />
         public IEnumerable<string> EnumerateDirectories( string path, string? searchPattern = null, SearchOption? searchOption = null )
         {
-            if (searchOption.HasValue)
+            if ( searchOption.HasValue )
             {
-                if (searchPattern == null)
+                if ( searchPattern == null )
                 {
                     throw new ArgumentNullException( nameof(searchPattern) );
                 }
 
                 return Directory.EnumerateDirectories( path, searchPattern, searchOption.Value );
             }
-            else if (searchPattern != null)
+            else if ( searchPattern != null )
             {
                 return Directory.EnumerateDirectories( path, searchPattern );
             }

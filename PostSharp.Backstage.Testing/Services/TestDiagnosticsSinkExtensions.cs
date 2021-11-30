@@ -12,7 +12,7 @@ namespace PostSharp.Backstage.Testing.Services
     {
         public static TestDiagnosticsSink AsTestDiagnosticsSink( this IDiagnosticsSink diagnostics )
         {
-            return (TestDiagnosticsSink)diagnostics;
+            return (TestDiagnosticsSink) diagnostics;
         }
 
         public static IReadOnlyList<(string Message, IDiagnosticsLocation? Location)> GetWarnings( this IDiagnosticsSink diagnostics )

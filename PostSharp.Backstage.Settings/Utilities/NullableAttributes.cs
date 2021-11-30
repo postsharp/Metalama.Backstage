@@ -59,7 +59,7 @@ namespace System.Diagnostics.CodeAnalysis
         /// </param>
         public MaybeNullWhenAttribute( bool returnValue )
         {
-            ReturnValue = returnValue;
+            this.ReturnValue = returnValue;
         }
 
         /// <summary>Gets the return value condition.</summary>
@@ -81,7 +81,7 @@ namespace System.Diagnostics.CodeAnalysis
         /// </param>
         public NotNullWhenAttribute( bool returnValue )
         {
-            ReturnValue = returnValue;
+            this.ReturnValue = returnValue;
         }
 
         /// <summary>Gets the return value condition.</summary>
@@ -103,7 +103,7 @@ namespace System.Diagnostics.CodeAnalysis
         /// </param>
         public NotNullIfNotNullAttribute( string parameterName )
         {
-            ParameterName = parameterName;
+            this.ParameterName = parameterName;
         }
 
         /// <summary>Gets the associated parameter name.</summary>
@@ -135,7 +135,7 @@ namespace System.Diagnostics.CodeAnalysis
         /// </param>
         public DoesNotReturnIfAttribute( bool parameterValue )
         {
-            ParameterValue = parameterValue;
+            this.ParameterValue = parameterValue;
         }
 
         /// <summary>Gets the condition parameter value.</summary>
@@ -157,7 +157,7 @@ namespace System.Diagnostics.CodeAnalysis
         /// </param>
         public MemberNotNullAttribute( string member )
         {
-            Members = new[] { member };
+            this.Members = new[] { member };
         }
 
         /// <summary>Initializes the attribute with the list of field and property members.</summary>
@@ -166,7 +166,7 @@ namespace System.Diagnostics.CodeAnalysis
         /// </param>
         public MemberNotNullAttribute( params string[] members )
         {
-            Members = members;
+            this.Members = members;
         }
 
         /// <summary>Gets field or property member names.</summary>
@@ -191,8 +191,8 @@ namespace System.Diagnostics.CodeAnalysis
         /// </param>
         public MemberNotNullWhenAttribute( bool returnValue, string member )
         {
-            ReturnValue = returnValue;
-            Members = new[] { member };
+            this.ReturnValue = returnValue;
+            this.Members = new[] { member };
         }
 
         /// <summary>Initializes the attribute with the specified return value condition and list of field and property members.</summary>
@@ -204,8 +204,8 @@ namespace System.Diagnostics.CodeAnalysis
         /// </param>
         public MemberNotNullWhenAttribute( bool returnValue, params string[] members )
         {
-            ReturnValue = returnValue;
-            Members = members;
+            this.ReturnValue = returnValue;
+            this.Members = members;
         }
 
         /// <summary>Gets the return value condition.</summary>

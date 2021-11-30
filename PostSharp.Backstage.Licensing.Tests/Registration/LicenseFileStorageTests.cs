@@ -15,35 +15,35 @@ namespace PostSharp.Backstage.Licensing.Tests.Registration
 
         private LicenseFileStorage CreateStorage()
         {
-            return LicenseFileStorage.Create( LicenseFiles.UserLicenseFile, Services );
+            return LicenseFileStorage.Create( this.LicenseFiles.UserLicenseFile, this.Services );
         }
 
         private LicenseFileStorage OpenOrCreateStorage()
         {
-            return LicenseFileStorage.OpenOrCreate( LicenseFiles.UserLicenseFile, Services );
+            return LicenseFileStorage.OpenOrCreate( this.LicenseFiles.UserLicenseFile, this.Services );
         }
 
         private void AssertFileContains( params string[] expectedLicenseStrings )
         {
-            Assert.Equal( expectedLicenseStrings, ReadStoredLicenseStrings() );
+            Assert.Equal( expectedLicenseStrings, this.ReadStoredLicenseStrings() );
         }
 
         private void AssertStorageContains( LicenseFileStorage storage, params string[] expectedLicenseStrings )
         {
             Assert.Equal( expectedLicenseStrings.Length, storage.Licenses.Count );
 
-            foreach (var expectedLicenseString in expectedLicenseStrings)
+            foreach ( var expectedLicenseString in expectedLicenseStrings )
             {
                 Assert.True( storage.Licenses.TryGetValue( expectedLicenseString, out var actualData ), $"License is missing: '{expectedLicenseString}'" );
 
-                if (!LicenseFactory.TryCreate( expectedLicenseString, out var expectedLicense ))
+                if ( !this.LicenseFactory.TryCreate( expectedLicenseString, out var expectedLicense ) )
                 {
                     Assert.Null( actualData );
 
                     continue;
                 }
 
-                if (!expectedLicense.TryGetLicenseRegistrationData( out var expectedData ))
+                if ( !expectedLicense.TryGetLicenseRegistrationData( out var expectedData ) )
                 {
                     Assert.Null( actualData );
 
@@ -56,106 +56,106 @@ namespace PostSharp.Backstage.Licensing.Tests.Registration
 
         private void Add( LicenseFileStorage storage, string licenseString )
         {
-            var data = GetLicenseRegistrationData( licenseString );
+            var data = this.GetLicenseRegistrationData( licenseString );
             storage.AddLicense( licenseString, data );
         }
 
         [Fact]
         public void NonexistentStorageFailsToRead()
         {
-            Assert.Throws<FileNotFoundException>( () => ReadStoredLicenseStrings() );
+            Assert.Throws<FileNotFoundException>( () => this.ReadStoredLicenseStrings() );
         }
 
         [Fact]
         public void ExistingStorageSucceedsToRead()
         {
-            SetStoredLicenseStrings( "dummy" );
-            AssertFileContains( "dummy" );
+            this.SetStoredLicenseStrings( "dummy" );
+            this.AssertFileContains( "dummy" );
         }
 
         [Fact]
         public void EmptyStorageCanBeCreated()
         {
-            var storage = OpenOrCreateStorage();
+            var storage = this.OpenOrCreateStorage();
             storage.Save();
 
-            AssertFileContains();
+            this.AssertFileContains();
         }
 
         [Fact]
         public void ExistingStorageCanBeOverwritten()
         {
-            SetStoredLicenseStrings( "dummy" );
+            this.SetStoredLicenseStrings( "dummy" );
 
-            var storage = CreateStorage();
+            var storage = this.CreateStorage();
             storage.Save();
 
-            AssertFileContains();
+            this.AssertFileContains();
         }
 
         [Fact]
         public void NonEmptyStorageCanBeCreated()
         {
-            var storage = OpenOrCreateStorage();
-            Add( storage, TestLicenseKeys.Ultimate );
+            var storage = this.OpenOrCreateStorage();
+            this.Add( storage, TestLicenseKeys.Ultimate );
             storage.Save();
 
-            AssertFileContains( TestLicenseKeys.Ultimate );
+            this.AssertFileContains( TestLicenseKeys.Ultimate );
         }
 
         [Fact]
         public void ValidLicenseKeyCanBeRetrieved()
         {
-            SetStoredLicenseStrings( TestLicenseKeys.Ultimate );
+            this.SetStoredLicenseStrings( TestLicenseKeys.Ultimate );
 
-            var storage = OpenOrCreateStorage();
+            var storage = this.OpenOrCreateStorage();
 
-            AssertStorageContains( storage, TestLicenseKeys.Ultimate );
+            this.AssertStorageContains( storage, TestLicenseKeys.Ultimate );
         }
 
         [Fact]
         public void InvalidLicenseKeyCanBeRetrieved()
         {
-            SetStoredLicenseStrings( "dummy" );
+            this.SetStoredLicenseStrings( "dummy" );
 
-            var storage = OpenOrCreateStorage();
+            var storage = this.OpenOrCreateStorage();
 
-            AssertStorageContains( storage, "dummy" );
+            this.AssertStorageContains( storage, "dummy" );
         }
 
         [Fact]
         public void InvalidLicenseKeyIsPreserved()
         {
-            SetStoredLicenseStrings( "dummy" );
+            this.SetStoredLicenseStrings( "dummy" );
 
-            var storage = OpenOrCreateStorage();
-            Add( storage, TestLicenseKeys.Ultimate );
+            var storage = this.OpenOrCreateStorage();
+            this.Add( storage, TestLicenseKeys.Ultimate );
             storage.Save();
 
-            AssertStorageContains( storage, "dummy", TestLicenseKeys.Ultimate );
+            this.AssertStorageContains( storage, "dummy", TestLicenseKeys.Ultimate );
         }
 
         [Fact]
         public void ValidLicenseKeyCanBeAppended()
         {
-            SetStoredLicenseStrings( TestLicenseKeys.Ultimate, TestLicenseKeys.Logging );
+            this.SetStoredLicenseStrings( TestLicenseKeys.Ultimate, TestLicenseKeys.Logging );
 
-            var storage = OpenOrCreateStorage();
-            Add( storage, TestLicenseKeys.Caching );
+            var storage = this.OpenOrCreateStorage();
+            this.Add( storage, TestLicenseKeys.Caching );
             storage.Save();
 
-            AssertStorageContains( storage, TestLicenseKeys.Ultimate, TestLicenseKeys.Logging, TestLicenseKeys.Caching );
-            AssertFileContains( TestLicenseKeys.Ultimate, TestLicenseKeys.Logging, TestLicenseKeys.Caching );
+            this.AssertStorageContains( storage, TestLicenseKeys.Ultimate, TestLicenseKeys.Logging, TestLicenseKeys.Caching );
+            this.AssertFileContains( TestLicenseKeys.Ultimate, TestLicenseKeys.Logging, TestLicenseKeys.Caching );
         }
 
         [Fact]
         public void NewLinesAreSkipped()
         {
-            SetStoredLicenseStrings( "", TestLicenseKeys.Ultimate, "", TestLicenseKeys.Logging, "" );
+            this.SetStoredLicenseStrings( "", TestLicenseKeys.Ultimate, "", TestLicenseKeys.Logging, "" );
 
-            var storage = OpenOrCreateStorage();
+            var storage = this.OpenOrCreateStorage();
 
-            AssertStorageContains( storage, TestLicenseKeys.Ultimate, TestLicenseKeys.Logging );
+            this.AssertStorageContains( storage, TestLicenseKeys.Ultimate, TestLicenseKeys.Logging );
         }
     }
 }

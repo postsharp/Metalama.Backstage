@@ -19,21 +19,21 @@ namespace PostSharp.Cli.Tests.Session
 
         private void Create()
         {
-            _ordinals = new CliSessionState( _name, Services );
+            this._ordinals = new CliSessionState( _name, this.Services );
         }
 
         private void Load()
         {
-            _ordinals = new CliSessionState( _name, Services ).Load();
+            this._ordinals = new CliSessionState( _name, this.Services ).Load();
         }
 
         private void AssertContains( params (int Ordinal, string Value)[] expectedData )
         {
-            Assert.Equal( expectedData.Length, _ordinals!.Count );
+            Assert.Equal( expectedData.Length, this._ordinals!.Count );
 
-            foreach (var expectedItem in expectedData)
+            foreach ( var expectedItem in expectedData )
             {
-                Assert.True( _ordinals!.TryGetValue( expectedItem.Ordinal, out var actualValue ) );
+                Assert.True( this._ordinals!.TryGetValue( expectedItem.Ordinal, out var actualValue ) );
                 Assert.Equal( expectedItem.Value, actualValue );
             }
         }
@@ -41,49 +41,49 @@ namespace PostSharp.Cli.Tests.Session
         [Fact]
         public void LoadsWithNoSession()
         {
-            Load();
-            AssertContains();
+            this.Load();
+            this.AssertContains();
         }
 
         [Fact]
         public void LoadsWithEmptySession()
         {
-            Create();
-            _ordinals!.Save();
-            Load();
-            AssertContains();
+            this.Create();
+            this._ordinals!.Save();
+            this.Load();
+            this.AssertContains();
         }
 
         [Fact]
         public void SavesWithNoSession()
         {
-            Create();
-            _ordinals!.Add( 1, "one" );
-            _ordinals!.Add( 2, "two" );
-            _ordinals!.Add( 3, "three" );
-            _ordinals.Save();
+            this.Create();
+            this._ordinals!.Add( 1, "one" );
+            this._ordinals!.Add( 2, "two" );
+            this._ordinals!.Add( 3, "three" );
+            this._ordinals.Save();
 
-            Load();
-            AssertContains( ( 1, "one" ), ( 2, "two" ), ( 3, "three" ) );
+            this.Load();
+            this.AssertContains( (1, "one"), (2, "two"), (3, "three") );
         }
 
         [Fact]
         public void OverwritesExistingSession()
         {
-            Create();
-            _ordinals!.Add( 1, "one" );
-            _ordinals!.Add( 2, "two" );
-            _ordinals!.Add( 3, "three" );
-            _ordinals.Save();
+            this.Create();
+            this._ordinals!.Add( 1, "one" );
+            this._ordinals!.Add( 2, "two" );
+            this._ordinals!.Add( 3, "three" );
+            this._ordinals.Save();
 
-            Create();
-            _ordinals!.Add( 4, "four" );
-            _ordinals!.Add( 5, "five" );
-            _ordinals!.Add( 6, "six" );
-            _ordinals.Save();
+            this.Create();
+            this._ordinals!.Add( 4, "four" );
+            this._ordinals!.Add( 5, "five" );
+            this._ordinals!.Add( 6, "six" );
+            this._ordinals.Save();
 
-            Load();
-            AssertContains( ( 4, "four" ), ( 5, "five" ), ( 6, "six" ) );
+            this.Load();
+            this.AssertContains( (4, "four"), (5, "five"), (6, "six") );
         }
     }
 }

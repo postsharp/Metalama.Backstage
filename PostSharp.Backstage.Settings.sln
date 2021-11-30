@@ -17,7 +17,9 @@ Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "PostSharp.Backstage.Microso
 EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
+		PostSharp.Backstage.MicrosoftLogging\PostSharp.Backstage.MicrosoftLogging.projitems*{5739d794-bb03-44c9-a3f6-d76a87030653}*SharedItemsImports = 5
 		PostSharp.Backstage.MicrosoftLogging\PostSharp.Backstage.MicrosoftLogging.projitems*{5d3dd7e9-74ca-4192-9e62-5f3044460b54}*SharedItemsImports = 13
+		PostSharp.Backstage.MicrosoftLogging\PostSharp.Backstage.MicrosoftLogging.projitems*{6a7a96ed-555c-4df4-9c36-7f15e5902d6f}*SharedItemsImports = 5
 	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU

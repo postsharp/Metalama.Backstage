@@ -19,7 +19,7 @@ namespace PostSharp.Backstage.Utilities
         internal static TValue GetOrAdd<TKey, TValue>( this IDictionary<TKey, TValue> dictionary, TKey key )
             where TValue : new()
         {
-            if (dictionary.TryGetValue( key, out var value ))
+            if ( dictionary.TryGetValue( key, out var value ) )
             {
                 return value;
             }

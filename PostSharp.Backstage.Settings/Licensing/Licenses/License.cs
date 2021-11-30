@@ -32,9 +32,9 @@ namespace PostSharp.Backstage.Licensing.Licenses
             var stringBuilder = new StringBuilder( licenseKey.Length );
 
             // Remove all spaces from the license.
-            foreach (var c in licenseKey)
+            foreach ( var c in licenseKey )
             {
-                if (char.IsLetterOrDigit( c ) || c == '-')
+                if ( char.IsLetterOrDigit( c ) || c == '-' )
                 {
                     stringBuilder.Append( c );
                 }
@@ -50,22 +50,22 @@ namespace PostSharp.Backstage.Licensing.Licenses
         /// <param name="services">Services.</param>
         internal License( string licenseKey, IServiceProvider services )
         {
-            _licenseKey = CleanLicenseKey( licenseKey );
-            _services = services;
-            _dateTimeProvider = services.GetRequiredService<IDateTimeProvider>();
-            _diagnostics = services.GetRequiredService<IDiagnosticsSink>();
-            _logger = services.GetOptionalTraceLogger<License>();
+            this._licenseKey = CleanLicenseKey( licenseKey );
+            this._services = services;
+            this._dateTimeProvider = services.GetRequiredService<IDateTimeProvider>();
+            this._diagnostics = services.GetRequiredService<IDiagnosticsSink>();
+            this._logger = services.GetOptionalTraceLogger<License>();
         }
 
         private static bool TryGetLicenseId( string s, out int id )
         {
             var firstDash = s.IndexOf( '-' );
 
-            if (firstDash > 0)
+            if ( firstDash > 0 )
             {
                 var prefix = s.Substring( 0, firstDash );
 
-                if (int.TryParse( prefix, NumberStyles.Integer, CultureInfo.InvariantCulture, out id ))
+                if ( int.TryParse( prefix, NumberStyles.Integer, CultureInfo.InvariantCulture, out id ) )
                 {
                     return true;
                 }
@@ -75,7 +75,7 @@ namespace PostSharp.Backstage.Licensing.Licenses
                     {
                         var guidBytes = Base32.FromBase32String( prefix );
 
-                        if (guidBytes != null && guidBytes.Length == 16)
+                        if ( guidBytes != null && guidBytes.Length == 16 )
                         {
                             id = 0;
 
@@ -96,22 +96,22 @@ namespace PostSharp.Backstage.Licensing.Licenses
         /// <inheritdoc />
         public bool TryGetLicenseConsumptionData( [MaybeNullWhen( false )] out LicenseConsumptionData licenseConsumptionData )
         {
-            if (!TryGetLicenseKeyData( out var licenseKeyData ))
+            if ( !this.TryGetLicenseKeyData( out var licenseKeyData ) )
             {
                 licenseConsumptionData = null;
 
                 return false;
             }
 
-            var applicationInfoService = _services.GetRequiredService<IApplicationInfo>();
+            var applicationInfoService = this._services.GetRequiredService<IApplicationInfo>();
 
-            if (!licenseKeyData.Validate(
+            if ( !licenseKeyData.Validate(
                 null,
-                _dateTimeProvider,
+                this._dateTimeProvider,
                 applicationInfoService,
-                out var errorDescription ))
+                out var errorDescription ) )
             {
-                _diagnostics.ReportWarning( $"License key {licenseKeyData.LicenseUniqueId} is invalid: {errorDescription}" );
+                this._diagnostics.ReportWarning( $"License key {licenseKeyData.LicenseUniqueId} is invalid: {errorDescription}" );
                 licenseConsumptionData = null;
 
                 return false;
@@ -125,7 +125,7 @@ namespace PostSharp.Backstage.Licensing.Licenses
         /// <inheritdoc />
         public bool TryGetLicenseRegistrationData( [MaybeNullWhen( false )] out LicenseRegistrationData licenseRegistrationData )
         {
-            if (!TryGetLicenseKeyData( out var licenseKeyData ))
+            if ( !this.TryGetLicenseKeyData( out var licenseKeyData ) )
             {
                 licenseRegistrationData = null;
 
@@ -139,60 +139,60 @@ namespace PostSharp.Backstage.Licensing.Licenses
 
         private bool TryGetLicenseKeyData( [MaybeNullWhen( false )] out LicenseKeyData data )
         {
-            _logger?.LogTrace( $"Deserializing license {{{_licenseKey}}}." );
+            this._logger?.LogTrace( $"Deserializing license {{{this._licenseKey}}}." );
             Guid? licenseGuid = null;
 
             try
             {
                 // Parse the license key prefix.
-                var firstDash = _licenseKey.IndexOf( '-' );
+                var firstDash = this._licenseKey.IndexOf( '-' );
 
-                if (firstDash < 0)
+                if ( firstDash < 0 )
                 {
-                    throw new InvalidLicenseException( $"License header not found for license {{{_licenseKey}}}." );
+                    throw new InvalidLicenseException( $"License header not found for license {{{this._licenseKey}}}." );
                 }
 
-                var prefix = _licenseKey.Substring( 0, firstDash );
+                var prefix = this._licenseKey.Substring( 0, firstDash );
 
-                if (!int.TryParse( prefix, NumberStyles.Integer, CultureInfo.InvariantCulture, out var licenseId ))
+                if ( !int.TryParse( prefix, NumberStyles.Integer, CultureInfo.InvariantCulture, out var licenseId ) )
                 {
                     // If this is not an integer, this may be a GUID.
                     licenseGuid = new Guid( Base32.FromBase32String( prefix ) );
                 }
 
-                var licenseBytes = Base32.FromBase32String( _licenseKey.Substring( firstDash + 1 ) );
+                var licenseBytes = Base32.FromBase32String( this._licenseKey.Substring( firstDash + 1 ) );
                 var memoryStream = new MemoryStream( licenseBytes );
 
-                using (var reader = new BinaryReader( memoryStream ))
+                using ( var reader = new BinaryReader( memoryStream ) )
                 {
                     data = LicenseKeyData.Deserialize( reader );
 
-                    if (data.LicenseId != licenseId)
+                    if ( data.LicenseId != licenseId )
                     {
                         throw new InvalidLicenseException(
-                            $"The license id in the body ({licenseId}) does not match the header for license {{{_licenseKey}}}." );
+                            $"The license id in the body ({licenseId}) does not match the header for license {{{this._licenseKey}}}." );
                     }
 
                     data.LicenseGuid = licenseGuid;
-                    data.LicenseString = _licenseKey;
+                    data.LicenseString = this._licenseKey;
 
-                    _logger?.LogTrace( $"Deserialized license: {data}" );
+                    this._logger?.LogTrace( $"Deserialized license: {data}" );
 
                     return true;
                 }
             }
-            catch (Exception e)
+            catch ( Exception e )
             {
-                if (TryGetLicenseId( _licenseKey, out var id ))
+                if ( TryGetLicenseId( this._licenseKey, out var id ) )
                 {
-                    _diagnostics.ReportWarning( $"Cannot parse license key ID {id}: {e.Message}" );
+                    this._diagnostics.ReportWarning( $"Cannot parse license key ID {id}: {e.Message}" );
                 }
                 else
                 {
-                    _diagnostics.ReportWarning( $"Cannot parse license key {_licenseKey}: {e.Message}" );
+                    this._diagnostics.ReportWarning( $"Cannot parse license key {this._licenseKey}: {e.Message}" );
                 }
 
-                _logger?.LogTrace( $"Cannot parse the license {{{_licenseKey}}}: {e}" );
+                this._logger?.LogTrace( $"Cannot parse the license {{{this._licenseKey}}}: {e}" );
                 data = null;
 
                 return false;
@@ -203,19 +203,19 @@ namespace PostSharp.Backstage.Licensing.Licenses
         public override bool Equals( object? obj )
         {
             return obj is License license &&
-                   _licenseKey == license._licenseKey;
+                   this._licenseKey == license._licenseKey;
         }
 
         /// <inheritdoc />
         public override int GetHashCode()
         {
-            return 668981160 + EqualityComparer<string>.Default.GetHashCode( _licenseKey );
+            return 668981160 + EqualityComparer<string>.Default.GetHashCode( this._licenseKey );
         }
 
         /// <inheritdoc />
         public override string ToString()
         {
-            return $"License '{_licenseKey}'";
+            return $"License '{this._licenseKey}'";
         }
     }
 }

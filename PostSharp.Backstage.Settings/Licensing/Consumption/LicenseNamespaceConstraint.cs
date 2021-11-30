@@ -26,13 +26,13 @@ namespace PostSharp.Backstage.Licensing.Consumption
         /// <param name="allowedNamespace">The namespace allowed by the license.</param>
         public LicenseNamespaceConstraint( string allowedNamespace, LicensedFeatures licensedFeatures = LicensedFeatures.None )
         {
-            if (string.IsNullOrEmpty( allowedNamespace ))
+            if ( string.IsNullOrEmpty( allowedNamespace ) )
             {
                 throw new ArgumentException( "Missing namespace.", nameof(allowedNamespace) );
             }
 
-            AllowedNamespace = allowedNamespace;
-            LicensedFeatures = licensedFeatures;
+            this.AllowedNamespace = allowedNamespace;
+            this.LicensedFeatures = licensedFeatures;
         }
 
         /// <summary>
@@ -43,22 +43,22 @@ namespace PostSharp.Backstage.Licensing.Consumption
         public bool AllowsNamespace( string? requiredNamespace )
         {
             // Requirements where namespace is not applicable are allowed regardless of license namespace constraints.
-            if (requiredNamespace == null)
+            if ( requiredNamespace == null )
             {
                 return true;
             }
 
-            if (!requiredNamespace.StartsWith( AllowedNamespace, StringComparison.OrdinalIgnoreCase ))
+            if ( !requiredNamespace.StartsWith( this.AllowedNamespace, StringComparison.OrdinalIgnoreCase ) )
             {
                 return false;
             }
 
-            if (requiredNamespace.Length == AllowedNamespace.Length)
+            if ( requiredNamespace.Length == this.AllowedNamespace.Length )
             {
                 return true;
             }
 
-            var delimiter = requiredNamespace[AllowedNamespace.Length];
+            var delimiter = requiredNamespace[this.AllowedNamespace.Length];
 
             if (
 
@@ -69,7 +69,7 @@ namespace PostSharp.Backstage.Licensing.Consumption
 
                 // When we get a assembly full name,
                 // there is a ',' after the short name.
-                || delimiter == ',')
+                || delimiter == ',' )
             {
                 return true;
             }

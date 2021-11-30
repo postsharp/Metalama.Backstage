@@ -29,34 +29,34 @@ namespace PostSharp.Backstage.Licensing.Consumption.Sources
         public FileLicenseSource( string path, IServiceProvider services )
             : base( services )
         {
-            _path = path;
-            _services = services;
-            _logger = services.GetOptionalTraceLogger<FileLicenseSource>();
+            this._path = path;
+            this._services = services;
+            this._logger = services.GetOptionalTraceLogger<FileLicenseSource>();
         }
 
         protected override IEnumerable<string> GetLicenseStrings()
         {
-            _logger?.LogTrace( $"Loading licenses from '{_path}'." );
+            this._logger?.LogTrace( $"Loading licenses from '{this._path}'." );
 
-            var diagnosticsSink = _services.GetRequiredService<IDiagnosticsSink>();
-            var fileSystem = _services.GetRequiredService<IFileSystem>();
+            var diagnosticsSink = this._services.GetRequiredService<IDiagnosticsSink>();
+            var fileSystem = this._services.GetRequiredService<IFileSystem>();
 
             string[] licenseStrings;
 
             try
             {
-                licenseStrings = fileSystem.ReadAllLines( _path );
+                licenseStrings = fileSystem.ReadAllLines( this._path );
             }
-            catch (Exception e)
+            catch ( Exception e )
             {
                 const string messageFormat = "Failed to load licenses from '{0}': {1}";
-                _logger?.LogTrace( string.Format( CultureInfo.InvariantCulture, messageFormat, _path, e ) );
-                diagnosticsSink.ReportWarning( string.Format( CultureInfo.InvariantCulture, messageFormat, _path, e.Message ) );
+                this._logger?.LogTrace( string.Format( CultureInfo.InvariantCulture, messageFormat, this._path, e ) );
+                diagnosticsSink.ReportWarning( string.Format( CultureInfo.InvariantCulture, messageFormat, this._path, e.Message ) );
 
                 yield break;
             }
 
-            foreach (var licenseString in licenseStrings)
+            foreach ( var licenseString in licenseStrings )
             {
                 yield return licenseString;
             }

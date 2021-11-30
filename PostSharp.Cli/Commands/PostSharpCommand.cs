@@ -11,11 +11,11 @@ namespace PostSharp.Cli.Commands
         public PostSharpCommand( ICommandServiceProvider commandServiceProvider )
             : base( "Management tool for PostSharp" )
         {
-            Add( new LicenseCommand( commandServiceProvider ) );
+            this.Add( new LicenseCommand( commandServiceProvider ) );
 
             var verboseOption = new Option<bool>( "--verbose", "Set detailed verbosity level" );
             verboseOption.AddAlias( "-v" );
-            AddGlobalOption( verboseOption );
+            this.AddGlobalOption( verboseOption );
         }
     }
 }

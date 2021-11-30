@@ -21,36 +21,36 @@ namespace PostSharp.Cli.Commands.Licensing.Registration
 
             public UnregisterActions( IServiceProvider services, IConsole console )
             {
-                _services = services;
-                _logger = services.GetOptionalTraceLogger<UnregisterCommand>();
-                _console = console;
+                this._services = services;
+                this._logger = services.GetOptionalTraceLogger<UnregisterCommand>();
+                this._console = console;
             }
 
             public int UnregisterOrdinal( int ordinal )
             {
                 // TODO: tracing
-                _logger?.LogInformation( "TODO: tracing" );
+                this._logger?.LogInformation( "TODO: tracing" );
 
-                var ordinals = new LicenseCommandSessionState( _services ).Load();
+                var ordinals = new LicenseCommandSessionState( this._services ).Load();
 
-                if (!ordinals.TryGetValue( ordinal, out var license ))
+                if ( !ordinals.TryGetValue( ordinal, out var license ) )
                 {
-                    _console.Error.WriteLine( "Invalid ordinal." );
+                    this._console.Error.WriteLine( "Invalid ordinal." );
 
                     return 1;
                 }
 
-                return UnregisterLicense( license! );
+                return this.UnregisterLicense( license! );
             }
 
             public int UnregisterLicense( string licenseString )
             {
-                var licenseFiles = _services.GetRequiredService<IStandardLicenseFileLocations>();
-                var storage = LicenseFileStorage.OpenOrCreate( licenseFiles.UserLicenseFile, _services );
+                var licenseFiles = this._services.GetRequiredService<IStandardLicenseFileLocations>();
+                var storage = LicenseFileStorage.OpenOrCreate( licenseFiles.UserLicenseFile, this._services );
 
-                if (!storage.Licenses.TryGetValue( licenseString, out var data ))
+                if ( !storage.Licenses.TryGetValue( licenseString, out var data ) )
                 {
-                    _console.Error.WriteLine( "This license is not registered." );
+                    this._console.Error.WriteLine( "This license is not registered." );
 
                     return 2;
                 }
@@ -60,11 +60,11 @@ namespace PostSharp.Cli.Commands.Licensing.Registration
 
                 string description;
 
-                if (data == null)
+                if ( data == null )
                 {
                     description = licenseString;
                 }
-                else if (data.IsSelfCreated)
+                else if ( data.IsSelfCreated )
                 {
                     description = data.Description;
                 }
@@ -73,7 +73,7 @@ namespace PostSharp.Cli.Commands.Licensing.Registration
                     description = licenseString;
                 }
 
-                _console.Out.WriteLine( $"{description} unregistered." );
+                this._console.Out.WriteLine( $"{description} unregistered." );
 
                 return 0;
             }
@@ -82,21 +82,21 @@ namespace PostSharp.Cli.Commands.Licensing.Registration
         public UnregisterCommand( ICommandServiceProvider commandServiceProvider )
             : base( commandServiceProvider, "unregister", "Unregisters a license" )
         {
-            AddArgument(
+            this.AddArgument(
                 new Argument<string>(
                     "license-key-or-ordinal",
                     "The ordinal obtained by the 'postsharp license list' command or the license key to be unregistered" ) );
 
-            Handler = CommandHandler.Create<string, bool, IConsole>( Execute );
+            this.Handler = CommandHandler.Create<string, bool, IConsole>( this.Execute );
         }
 
         private int Execute( string licenseKeyOrOrdinal, bool verbose, IConsole console )
         {
-            var services = CommandServiceProvider.CreateServiceProvider( console, verbose );
+            var services = this.CommandServiceProvider.CreateServiceProvider( console, verbose );
 
             var actions = new UnregisterActions( services, console );
 
-            if (int.TryParse( licenseKeyOrOrdinal, out var ordinal ))
+            if ( int.TryParse( licenseKeyOrOrdinal, out var ordinal ) )
             {
                 return actions.UnregisterOrdinal( ordinal );
             }

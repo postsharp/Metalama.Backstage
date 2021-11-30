@@ -13,7 +13,7 @@ namespace PostSharp.Backstage.Licensing.Licenses.LicenseFields
 
         public override void Write( BinaryWriter writer )
         {
-            var guid = (Guid)Value!;
+            var guid = (Guid) this.Value!;
             writer.Write( guid.ToByteArray() );
         }
 
@@ -26,17 +26,17 @@ namespace PostSharp.Backstage.Licensing.Licenses.LicenseFields
 
         public override void Read( BinaryReader reader )
         {
-            Value = new Guid( reader.ReadBytes( _sizeOfGuidByteArray ) );
+            this.Value = new Guid( reader.ReadBytes( _sizeOfGuidByteArray ) );
         }
 
         public override string ToString()
         {
-            if (Value == null)
+            if ( this.Value == null )
             {
                 return "null";
             }
 
-            return ( (Guid)Value ).ToString();
+            return ((Guid) this.Value).ToString();
         }
     }
 }

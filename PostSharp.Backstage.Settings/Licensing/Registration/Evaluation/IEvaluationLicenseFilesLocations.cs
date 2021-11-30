@@ -1,4 +1,7 @@
-﻿namespace PostSharp.Backstage.Licensing.Registration.Evaluation
+﻿// Copyright (c) SharpCrafters s.r.o. All rights reserved.
+// This project is not open source. Please see the LICENSE.md file in the repository root for details.
+
+namespace PostSharp.Backstage.Licensing.Registration.Evaluation
 {
     /// <summary>
     /// Provides locations of evaluation-license-related files used internally to handle product evaluation eligibility.

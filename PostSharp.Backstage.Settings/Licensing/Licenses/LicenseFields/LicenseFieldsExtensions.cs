@@ -21,9 +21,9 @@ namespace PostSharp.Backstage.Licensing.Licenses.LicenseFields
         /// </remarks>
         public static bool IsMustUnderstand( this LicenseFieldIndex index )
         {
-            var i = (byte)index;
+            var i = (byte) index;
 
-            if (i < 1 || i > 255)
+            if ( i < 1 || i > 255 )
             {
                 throw new ArgumentOutOfRangeException( nameof(index) );
             }
@@ -45,9 +45,9 @@ namespace PostSharp.Backstage.Licensing.Licenses.LicenseFields
         /// </remarks>
         public static bool IsPrefixedByLength( this LicenseFieldIndex index )
         {
-            var i = (byte)index;
+            var i = (byte) index;
 
-            if (i < 1 || i > 255)
+            if ( i < 1 || i > 255 )
             {
                 throw new ArgumentOutOfRangeException( nameof(index) );
             }

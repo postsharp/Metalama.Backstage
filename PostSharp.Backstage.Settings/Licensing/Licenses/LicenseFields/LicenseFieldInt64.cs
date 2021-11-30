@@ -11,7 +11,7 @@ namespace PostSharp.Backstage.Licensing.Licenses.LicenseFields
     {
         public override void Write( BinaryWriter writer )
         {
-            writer.Write( (long)Value! );
+            writer.Write( (long) this.Value! );
         }
 
         protected override bool TryGetConstantLength( out byte length )
@@ -23,7 +23,7 @@ namespace PostSharp.Backstage.Licensing.Licenses.LicenseFields
 
         public override void Read( BinaryReader reader )
         {
-            Value = reader.ReadInt64();
+            this.Value = reader.ReadInt64();
         }
     }
 }

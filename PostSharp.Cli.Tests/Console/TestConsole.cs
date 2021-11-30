@@ -15,9 +15,9 @@ namespace PostSharp.Cli.Tests.Console
 
         public TestStreamWriter Error { get; }
 
-        IStandardStreamWriter IStandardOut.Out => Out;
+        IStandardStreamWriter IStandardOut.Out => this.Out;
 
-        IStandardStreamWriter IStandardError.Error => Error;
+        IStandardStreamWriter IStandardError.Error => this.Error;
 
         bool IStandardIn.IsInputRedirected => false;
 
@@ -28,14 +28,14 @@ namespace PostSharp.Cli.Tests.Console
         public TestConsole( IServiceProvider services )
         {
             var logger = services.GetOptionalTraceLogger<TestConsole>()!;
-            Out = new TestStreamWriter( logger, "o>" );
-            Error = new TestStreamWriter( logger, "e>" );
+            this.Out = new TestStreamWriter( logger, "o>" );
+            this.Error = new TestStreamWriter( logger, "e>" );
         }
 
         public void Clear()
         {
-            Out.Clear();
-            Error.Clear();
+            this.Out.Clear();
+            this.Error.Clear();
         }
 
         internal class TestStreamWriter : IStandardStreamWriter
@@ -47,33 +47,33 @@ namespace PostSharp.Cli.Tests.Console
 
             public TestStreamWriter( ILogger logger, string tracePrefix )
             {
-                _logger = logger;
-                _tracePrefix = tracePrefix;
+                this._logger = logger;
+                this._tracePrefix = tracePrefix;
             }
 
             public void Write( string value )
             {
-                _output.Append( value );
-                _line.Append( value );
+                this._output.Append( value );
+                this._line.Append( value );
 
-                if (value.EndsWith( Environment.NewLine, StringComparison.Ordinal ))
+                if ( value.EndsWith( Environment.NewLine, StringComparison.Ordinal ) )
                 {
-                    var traceMessage = _line.ToString();
-                    _line.Clear();
+                    var traceMessage = this._line.ToString();
+                    this._line.Clear();
                     traceMessage = traceMessage.Substring( 0, traceMessage.Length - Environment.NewLine.Length );
-                    _logger.LogTrace( $"{_tracePrefix} {traceMessage}" );
+                    this._logger.LogTrace( $"{this._tracePrefix} {traceMessage}" );
                 }
             }
 
             public void Clear()
             {
-                _line.Clear();
-                _output.Clear();
+                this._line.Clear();
+                this._output.Clear();
             }
 
             public override string ToString()
             {
-                return _output.ToString();
+                return this._output.ToString();
             }
         }
     }

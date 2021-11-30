@@ -2,7 +2,6 @@
 // This project is not open source. Please see the LICENSE.md file in the repository root for details.
 
 using PostSharp.Backstage.Extensibility;
-using PostSharp.Backstage.Licensing.Licenses;
 using System;
 using System.Collections.Generic;
 
@@ -17,15 +16,15 @@ namespace PostSharp.Backstage.Licensing.Consumption.Sources
         public LicenseStringsLicenseSource( IEnumerable<string> licenseKeys, IServiceProvider services )
             : base( services )
         {
-            _licenseStrings = licenseKeys;
-            _services = services;
+            this._licenseStrings = licenseKeys;
+            this._services = services;
 
-            _logger = services.GetOptionalTraceLogger<LicenseStringsLicenseSource>();
+            this._logger = services.GetOptionalTraceLogger<LicenseStringsLicenseSource>();
         }
 
         protected override IEnumerable<string> GetLicenseStrings()
         {
-            return _licenseStrings;
+            return this._licenseStrings;
         }
     }
 }

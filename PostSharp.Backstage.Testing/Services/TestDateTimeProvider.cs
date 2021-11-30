@@ -10,16 +10,16 @@ namespace PostSharp.Backstage.Testing.Services
     {
         private DateTime? _now;
 
-        public DateTime Now => _now ?? DateTime.Now;
+        public DateTime Now => this._now ?? DateTime.Now;
 
         public void Set( DateTime now )
         {
-            _now = now;
+            this._now = now;
         }
 
         public void Reset()
         {
-            _now = null;
+            this._now = null;
         }
     }
 }

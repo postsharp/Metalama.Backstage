@@ -23,9 +23,9 @@ namespace PostSharp.Backstage.Licensing.Licenses
         /// <param name="services">Services.</param>
         public LicenseFactory( IServiceProvider services )
         {
-            _services = services;
-            _diagnostics = services.GetRequiredService<IDiagnosticsSink>();
-            _logger = services.GetOptionalTraceLogger<LicenseFactory>();
+            this._services = services;
+            this._diagnostics = services.GetRequiredService<IDiagnosticsSink>();
+            this._logger = services.GetOptionalTraceLogger<LicenseFactory>();
         }
 
         /// <summary>
@@ -37,29 +37,29 @@ namespace PostSharp.Backstage.Licensing.Licenses
         public bool TryCreate( string? licenseString, [MaybeNullWhen( false )] out ILicense license )
         {
             // TODO: trace
-            _logger?.LogInformation( "TODO: trace" );
+            this._logger?.LogInformation( "TODO: trace" );
 
             licenseString = licenseString?.Trim();
 
-            if (licenseString == null || licenseString == "")
+            if ( licenseString == null || licenseString == "" )
             {
-                _diagnostics.ReportWarning( "Empty license string provided." );
+                this._diagnostics.ReportWarning( "Empty license string provided." );
                 license = null;
 
                 return false;
             }
 
-            if (Uri.IsWellFormedUriString( licenseString, UriKind.Absolute ))
+            if ( Uri.IsWellFormedUriString( licenseString, UriKind.Absolute ) )
             {
                 // TODO License Server Support
-                _diagnostics.ReportWarning( "License server is not yet supported." );
+                this._diagnostics.ReportWarning( "License server is not yet supported." );
                 license = null;
 
                 return false;
             }
             else
             {
-                license = new License( licenseString, _services );
+                license = new License( licenseString, this._services );
 
                 return true;
             }

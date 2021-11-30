@@ -17,22 +17,22 @@ namespace PostSharp.Cli.Commands.Licensing.Registration
         public RegisterCommand( ICommandServiceProvider commandServiceProvider )
             : base( commandServiceProvider, "register", "Registers a license key, starts the trial period, switch to the community edition" )
         {
-            AddArgument( new Argument<string>( "license-key-or-type", "The license key to be registered, or 'trial' or 'community'" ) );
+            this.AddArgument( new Argument<string>( "license-key-or-type", "The license key to be registered, or 'trial' or 'community'" ) );
 
-            AddCommand( new RegisterTrialCommand( commandServiceProvider ) );
-            AddCommand( new RegisterCommunityCommand( commandServiceProvider ) );
+            this.AddCommand( new RegisterTrialCommand( commandServiceProvider ) );
+            this.AddCommand( new RegisterCommunityCommand( commandServiceProvider ) );
 
-            Handler = CommandHandler.Create<string, bool, IConsole>( Execute );
+            this.Handler = CommandHandler.Create<string, bool, IConsole>( this.Execute );
         }
 
         private int Execute( string licenseKey, bool verbose, IConsole console )
         {
-            var services = CommandServiceProvider.CreateServiceProvider( console, verbose );
+            var services = this.CommandServiceProvider.CreateServiceProvider( console, verbose );
 
             var factory = new LicenseFactory( services );
 
-            if (!factory.TryCreate( licenseKey, out var license )
-                || !license.TryGetLicenseRegistrationData( out var data ))
+            if ( !factory.TryCreate( licenseKey, out var license )
+                 || !license.TryGetLicenseRegistrationData( out var data ) )
             {
                 console.Error.WriteLine( "Invalid license string." );
 

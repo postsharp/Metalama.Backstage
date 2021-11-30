@@ -17,10 +17,10 @@ namespace PostSharp.Backstage.Testing.Services
         /// <param name="buildDate">The date of build of the application.</param>
         public TestApplicationInfo( string name, bool isPrerelease, Version version, DateTime buildDate )
         {
-            Name = name;
-            IsPrerelease = isPrerelease;
-            Version = version;
-            BuildDate = buildDate;
+            this.Name = name;
+            this.IsPrerelease = isPrerelease;
+            this.Version = version;
+            this.BuildDate = buildDate;
         }
 
         public string Name { get; }

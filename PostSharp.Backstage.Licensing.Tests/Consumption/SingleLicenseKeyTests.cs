@@ -14,7 +14,7 @@ namespace PostSharp.Backstage.Licensing.Tests.Consumption
 
         private void TestOneLicense( string licenseKey, LicensedFeatures requiredFeatures, bool expectedCanConsume )
         {
-            TestOneLicense( licenseKey, requiredFeatures, "Foo", expectedCanConsume );
+            this.TestOneLicense( licenseKey, requiredFeatures, "Foo", expectedCanConsume );
         }
 
         private void TestOneLicense(
@@ -24,65 +24,65 @@ namespace PostSharp.Backstage.Licensing.Tests.Consumption
             bool expectedCanConsume,
             bool expectedLicenseAutoRegistrationAttempt = false )
         {
-            var license = CreateLicense( licenseKey );
-            var manager = CreateConsumptionManager( license );
-            TestConsumption( manager, requiredFeatures, requiredNamespace, expectedCanConsume );
-            Assert.Equal( expectedLicenseAutoRegistrationAttempt, AutoRegistrar.RegistrationAttempted );
+            var license = this.CreateLicense( licenseKey );
+            var manager = this.CreateConsumptionManager( license );
+            this.TestConsumption( manager, requiredFeatures, requiredNamespace, expectedCanConsume );
+            Assert.Equal( expectedLicenseAutoRegistrationAttempt, this.AutoRegistrar.RegistrationAttempted );
         }
 
         [Fact]
         public void NoLicenseAutoRegistersEvaluationLicense()
         {
-            LicenseConsumptionManager manager = new( Services );
-            TestConsumption( manager, LicensedFeatures.Caravela, false, true );
+            LicenseConsumptionManager manager = new( this.Services );
+            this.TestConsumption( manager, LicensedFeatures.Caravela, false, true );
         }
 
         [Fact]
         public void UltimateLicenseAllowsCaravelaFeature()
         {
-            TestOneLicense( TestLicenseKeys.Ultimate, LicensedFeatures.Caravela, true );
+            this.TestOneLicense( TestLicenseKeys.Ultimate, LicensedFeatures.Caravela, true );
         }
 
         [Fact]
         public void LoggingLicenseForbidsCaravelaFeature()
         {
-            TestOneLicense( TestLicenseKeys.Logging, LicensedFeatures.Caravela, false );
+            this.TestOneLicense( TestLicenseKeys.Logging, LicensedFeatures.Caravela, false );
         }
 
         [Fact]
         public void OpenSourceAllowsCaravelaInSameNamespace()
         {
-            TestOneLicense( TestLicenseKeys.OpenSource, LicensedFeatures.Caravela, TestLicenseKeys.OpenSourceNamespace, true );
+            this.TestOneLicense( TestLicenseKeys.OpenSource, LicensedFeatures.Caravela, TestLicenseKeys.OpenSourceNamespace, true );
         }
 
         [Fact]
         public void OpenSourceForbidsCaravelaInDifferentNamespace()
         {
-            TestOneLicense( TestLicenseKeys.OpenSource, LicensedFeatures.Caravela, "Foo", false );
+            this.TestOneLicense( TestLicenseKeys.OpenSource, LicensedFeatures.Caravela, "Foo", false );
         }
 
         [Fact]
         public void CaravelaLicenseAllowsCaravelaFeature()
         {
-            TestOneLicense( TestLicenseKeys.Caravela, LicensedFeatures.Caravela, true );
+            this.TestOneLicense( TestLicenseKeys.Caravela, LicensedFeatures.Caravela, true );
         }
 
         [Fact]
         public void CaravelaLicenseAllowsCommunityFeature()
         {
-            TestOneLicense( TestLicenseKeys.Caravela, LicensedFeatures.Community, true );
+            this.TestOneLicense( TestLicenseKeys.Caravela, LicensedFeatures.Community, true );
         }
 
         [Fact]
         public void CommunityLicenseForbidsCaravelaFeature()
         {
-            TestOneLicense( TestLicenseKeys.Community, LicensedFeatures.Caravela, false );
+            this.TestOneLicense( TestLicenseKeys.Community, LicensedFeatures.Caravela, false );
         }
 
         [Fact]
         public void CommunityLicenseAllowsCommunityFeature()
         {
-            TestOneLicense( TestLicenseKeys.Community, LicensedFeatures.Community, true );
+            this.TestOneLicense( TestLicenseKeys.Community, LicensedFeatures.Community, true );
         }
     }
 }

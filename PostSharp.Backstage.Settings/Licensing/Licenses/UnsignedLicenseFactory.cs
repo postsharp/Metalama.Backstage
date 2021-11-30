@@ -22,7 +22,7 @@ namespace PostSharp.Backstage.Licensing.Licenses
         /// <param name="services">Services.</param>
         public UnsignedLicenseFactory( IServiceProvider services )
         {
-            _time = services.GetRequiredService<IDateTimeProvider>();
+            this._time = services.GetRequiredService<IDateTimeProvider>();
         }
 
         /// <summary>
@@ -31,7 +31,7 @@ namespace PostSharp.Backstage.Licensing.Licenses
         /// <returns>The unsigned evaluation license.</returns>
         public (string LicenseKey, LicenseRegistrationData Data) CreateEvaluationLicense()
         {
-            var start = _time.Now.Date;
+            var start = this._time.Now.Date;
             var end = start + EvaluationLicenseRegistrar.EvaluationPeriod;
 
             var licenseKeyData = new LicenseKeyData
@@ -48,7 +48,7 @@ namespace PostSharp.Backstage.Licensing.Licenses
             var licenseKey = licenseKeyData.Serialize();
             var licenseRegistrationData = licenseKeyData.ToRegistrationData();
 
-            return ( licenseKey, licenseRegistrationData );
+            return (licenseKey, licenseRegistrationData);
         }
 
         /// <summary>
@@ -57,7 +57,7 @@ namespace PostSharp.Backstage.Licensing.Licenses
         /// <returns>The unsigned community license.</returns>
         public (string LicenseKey, LicenseRegistrationData Data) CreateCommunityLicense()
         {
-            var start = _time.Now;
+            var start = this._time.Now;
 
             var licenseKeyData = new LicenseKeyData
             {
@@ -71,7 +71,7 @@ namespace PostSharp.Backstage.Licensing.Licenses
             var licenseKey = licenseKeyData.Serialize();
             var licenseRegistrationData = licenseKeyData.ToRegistrationData();
 
-            return ( licenseKey, licenseRegistrationData );
+            return (licenseKey, licenseRegistrationData);
         }
     }
 }

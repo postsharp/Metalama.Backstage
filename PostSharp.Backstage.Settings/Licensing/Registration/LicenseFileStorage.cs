@@ -26,7 +26,7 @@ namespace PostSharp.Backstage.Licensing.Registration
         /// <remarks>
         /// Includes both the licenses loaded from a license file and licenses pending to be stored.
         /// </remarks>
-        public IReadOnlyDictionary<string, LicenseRegistrationData?> Licenses => _licenses;
+        public IReadOnlyDictionary<string, LicenseRegistrationData?> Licenses => this._licenses;
 
         /// <summary>
         /// Creates an empty storage.
@@ -52,7 +52,7 @@ namespace PostSharp.Backstage.Licensing.Registration
         {
             var storage = Create( path, services );
 
-            if (!storage._fileSystem.FileExists( path ))
+            if ( !storage._fileSystem.FileExists( path ) )
             {
                 return storage;
             }
@@ -61,16 +61,16 @@ namespace PostSharp.Backstage.Licensing.Registration
 
             var factory = new LicenseFactory( services );
 
-            foreach (var licenseString in licenseStrings)
+            foreach ( var licenseString in licenseStrings )
             {
-                if (string.IsNullOrWhiteSpace( licenseString ))
+                if ( string.IsNullOrWhiteSpace( licenseString ) )
                 {
                     continue;
                 }
 
                 LicenseRegistrationData? data = null;
 
-                if (factory.TryCreate( licenseString, out var license ))
+                if ( factory.TryCreate( licenseString, out var license ) )
                 {
                     _ = license.TryGetLicenseRegistrationData( out data );
                 }
@@ -83,8 +83,8 @@ namespace PostSharp.Backstage.Licensing.Registration
 
         private LicenseFileStorage( string path, IFileSystem fileSystem )
         {
-            _path = path;
-            _fileSystem = fileSystem;
+            this._path = path;
+            this._fileSystem = fileSystem;
         }
 
         /// <summary>
@@ -94,7 +94,7 @@ namespace PostSharp.Backstage.Licensing.Registration
         /// <param name="data">Data represented by the <paramref name="licenseString"/>.</param>
         public void AddLicense( string licenseString, LicenseRegistrationData data )
         {
-            _licenses[licenseString] = data;
+            this._licenses[licenseString] = data;
         }
 
         /// <summary>
@@ -103,7 +103,7 @@ namespace PostSharp.Backstage.Licensing.Registration
         /// <param name="licenseString">String representing the license to be removed.</param>
         public void RemoveLicense( string licenseString )
         {
-            _licenses.Remove( licenseString );
+            this._licenses.Remove( licenseString );
         }
 
         /// <summary>
@@ -114,9 +114,9 @@ namespace PostSharp.Backstage.Licensing.Registration
         /// </remarks>
         public void Save()
         {
-            var directory = Path.GetDirectoryName( _path );
-            _fileSystem.CreateDirectory( directory! );
-            _fileSystem.WriteAllLines( _path, _licenses.Keys );
+            var directory = Path.GetDirectoryName( this._path );
+            this._fileSystem.CreateDirectory( directory! );
+            this._fileSystem.WriteAllLines( this._path, this._licenses.Keys );
         }
     }
 }

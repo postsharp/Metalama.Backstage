@@ -34,11 +34,11 @@ namespace PostSharp.Backstage.Licensing.LicenseServer
                 var parts = serializedLicenseLease.Split( ';' );
                 DateTime? startTime = null, endTime = null, renewTime = null;
 
-                foreach (var part in parts)
+                foreach ( var part in parts )
                 {
                     var pos = part.IndexOf( ':' );
 
-                    if (pos < 0 || pos == part.Length - 1)
+                    if ( pos < 0 || pos == part.Length - 1 )
                     {
                         continue;
                     }
@@ -48,7 +48,7 @@ namespace PostSharp.Backstage.Licensing.LicenseServer
 
                     // ReSharper disable StringLiteralTypo
 
-                    switch (key.ToLowerInvariant())
+                    switch ( key.ToLowerInvariant() )
                     {
                         case "license":
                             lease.LicenseString = value;
@@ -74,24 +74,24 @@ namespace PostSharp.Backstage.Licensing.LicenseServer
                     // ReSharper restore StringLiteralTypo
                 }
 
-                if (lease.LicenseString == null)
+                if ( lease.LicenseString == null )
                 {
                     lease = null;
 
                     return false;
                 }
 
-                if (!startTime.HasValue)
+                if ( !startTime.HasValue )
                 {
                     startTime = dateTimeProvider.Now;
                 }
 
-                if (!endTime.HasValue)
+                if ( !endTime.HasValue )
                 {
                     endTime = startTime.Value.AddDays( 1 );
                 }
 
-                if (!renewTime.HasValue)
+                if ( !renewTime.HasValue )
                 {
                     renewTime = endTime;
                 }
@@ -102,7 +102,7 @@ namespace PostSharp.Backstage.Licensing.LicenseServer
 
                 return true;
             }
-            catch (FormatException)
+            catch ( FormatException )
             {
                 lease = null;
 
@@ -121,10 +121,10 @@ namespace PostSharp.Backstage.Licensing.LicenseServer
         /// <param name="renewTime">Time when the lease should be renewed.</param>
         public LicenseLease( string licenseString, DateTime startTime, DateTime endTime, DateTime renewTime )
         {
-            LicenseString = licenseString ?? throw new ArgumentNullException( nameof(licenseString) );
-            StartTime = startTime;
-            EndTime = endTime;
-            RenewTime = renewTime;
+            this.LicenseString = licenseString ?? throw new ArgumentNullException( nameof(licenseString) );
+            this.StartTime = startTime;
+            this.EndTime = endTime;
+            this.RenewTime = renewTime;
         }
 
         /// <summary>
@@ -154,10 +154,10 @@ namespace PostSharp.Backstage.Licensing.LicenseServer
         public string Serialize()
         {
             var writer = new StringBuilder();
-            writer.Append( "License: " + LicenseString );
-            writer.Append( "; StartTime: " + XmlConvert.ToString( StartTime, XmlDateTimeSerializationMode.Utc ) );
-            writer.Append( "; EndTime: " + XmlConvert.ToString( EndTime, XmlDateTimeSerializationMode.Utc ) );
-            writer.Append( "; RenewTime: " + XmlConvert.ToString( RenewTime, XmlDateTimeSerializationMode.Utc ) );
+            writer.Append( "License: " + this.LicenseString );
+            writer.Append( "; StartTime: " + XmlConvert.ToString( this.StartTime, XmlDateTimeSerializationMode.Utc ) );
+            writer.Append( "; EndTime: " + XmlConvert.ToString( this.EndTime, XmlDateTimeSerializationMode.Utc ) );
+            writer.Append( "; RenewTime: " + XmlConvert.ToString( this.RenewTime, XmlDateTimeSerializationMode.Utc ) );
 
             return writer.ToString();
         }

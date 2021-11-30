@@ -23,7 +23,7 @@ namespace PostSharp.Backstage.Licensing.Licenses.LicenseFields
         /// <param name="writer"></param>
         public void WriteConstantLength( BinaryWriter writer )
         {
-            if (!TryGetConstantLength( out var length ))
+            if ( !this.TryGetConstantLength( out var length ) )
             {
                 return;
             }
@@ -35,12 +35,12 @@ namespace PostSharp.Backstage.Licensing.Licenses.LicenseFields
 
         public override string ToString()
         {
-            return Value == null ? "null" : Value.ToString();
+            return this.Value == null ? "null" : this.Value.ToString();
         }
 
         public LicenseField Clone()
         {
-            return (LicenseField)MemberwiseClone();
+            return (LicenseField) this.MemberwiseClone();
         }
     }
 }

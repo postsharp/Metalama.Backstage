@@ -19,7 +19,7 @@ namespace PostSharp.Backstage.Licensing.Licenses
             [MaybeNullWhen( true )] out string errorDescription )
         {
 #pragma warning disable 618
-            if (LicenseType == LicenseType.Anonymous)
+            if ( this.LicenseType == LicenseType.Anonymous )
             {
                 // Anonymous licenses are always valid but confer no right.
                 errorDescription = null;
@@ -28,37 +28,37 @@ namespace PostSharp.Backstage.Licensing.Licenses
             }
 #pragma warning restore 618
 
-            if (!VerifySignature())
+            if ( !this.VerifySignature() )
             {
                 errorDescription = "The license signature is invalid.";
 
                 return false;
             }
 
-            if (ValidFrom.HasValue && ValidFrom > dateTimeProvider.Now)
+            if ( this.ValidFrom.HasValue && this.ValidFrom > dateTimeProvider.Now )
             {
                 errorDescription = "The license is not yet valid.";
 
                 return false;
             }
 
-            if (ValidTo.HasValue && ValidTo < dateTimeProvider.Now)
+            if ( this.ValidTo.HasValue && this.ValidTo < dateTimeProvider.Now )
             {
                 errorDescription = "The license is not valid any more.";
 
                 return false;
             }
 
-            if (PublicKeyToken != null)
+            if ( this.PublicKeyToken != null )
             {
-                if (publicKeyToken == null)
+                if ( publicKeyToken == null )
                 {
                     errorDescription = "The assembly is missing a public key token.";
 
                     return false;
                 }
 
-                if (!ComparePublicKeyToken( publicKeyToken, PublicKeyToken ))
+                if ( !ComparePublicKeyToken( publicKeyToken, this.PublicKeyToken ) )
                 {
                     errorDescription = "The public key token of the assembly does not match the license.";
 
@@ -66,40 +66,40 @@ namespace PostSharp.Backstage.Licensing.Licenses
                 }
             }
 
-            if (!Enum.IsDefined( typeof(LicenseType), LicenseType ))
+            if ( !Enum.IsDefined( typeof(LicenseType), this.LicenseType ) )
             {
                 errorDescription = "The license type is not known.";
 
                 return false;
             }
 
-            if (!Enum.IsDefined( typeof(LicensedProduct), Product ))
+            if ( !Enum.IsDefined( typeof(LicensedProduct), this.Product ) )
             {
                 errorDescription = "The licensed product is not known.";
 
                 return false;
             }
 
-            if (_fields.Keys.Any(
+            if ( this._fields.Keys.Any(
                 i =>
                     i.IsMustUnderstand()
-                    && !Enum.IsDefined( typeof(LicenseFieldIndex), i ) ))
+                    && !Enum.IsDefined( typeof(LicenseFieldIndex), i ) ) )
             {
                 errorDescription = "The license contains unknown must-understand fields.";
 
                 return false;
             }
 
-            if (SubscriptionEndDate.HasValue && SubscriptionEndDate.Value < applicationInfo.BuildDate)
+            if ( this.SubscriptionEndDate.HasValue && this.SubscriptionEndDate.Value < applicationInfo.BuildDate )
             {
                 errorDescription = string.Format(
                     CultureInfo.InvariantCulture,
                     "{0} {1} has been released on {2:d}, but the license key {3} only allows you to use versions released before {4:d}.",
-                    ProductName,
+                    this.ProductName,
                     applicationInfo.Version,
                     applicationInfo.BuildDate,
-                    LicenseId,
-                    SubscriptionEndDate );
+                    this.LicenseId,
+                    this.SubscriptionEndDate );
 
                 return false;
             }

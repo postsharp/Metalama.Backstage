@@ -11,7 +11,7 @@ namespace PostSharp.Backstage.Utilities
     {
         public static bool TryParseBytes( string str, int start, int count, [MaybeNullWhen( false )] out byte[] bytes )
         {
-            if (count % 2 != 0)
+            if ( count % 2 != 0 )
             {
                 bytes = null;
 
@@ -20,9 +20,9 @@ namespace PostSharp.Backstage.Utilities
 
             bytes = new byte[count / 2];
 
-            for (var i = 0; i < count / 2; i++)
+            for ( var i = 0; i < count / 2; i++ )
             {
-                if (!byte.TryParse( str.Substring( start + 2 * i, 2 ), NumberStyles.HexNumber, CultureInfo.InvariantCulture, out var result ))
+                if ( !byte.TryParse( str.Substring( start + (2 * i), 2 ), NumberStyles.HexNumber, CultureInfo.InvariantCulture, out var result ) )
                 {
                     return false;
                 }
@@ -42,16 +42,16 @@ namespace PostSharp.Backstage.Utilities
         /// <param name="builder">The <see cref="StringBuilder"/> into which the string has to be written.</param>
         public static void FormatBytes( byte[] bytes, StringBuilder builder )
         {
-            if (bytes != null && bytes.Length > 0)
+            if ( bytes != null && bytes.Length > 0 )
             {
-                var finalSize = builder.Length + bytes.Length * 2;
+                var finalSize = builder.Length + (bytes.Length * 2);
 
-                if (builder.Capacity < finalSize)
+                if ( builder.Capacity < finalSize )
                 {
                     builder.Capacity = finalSize * 2;
                 }
 
-                foreach (var b in bytes)
+                foreach ( var b in bytes )
                 {
                     builder.Append( _hexChars[b >> 4] );
                     builder.Append( _hexChars[b & 0xf] );
@@ -70,7 +70,7 @@ namespace PostSharp.Backstage.Utilities
         /// <returns>The hexadecimal string corresponding to <paramref name="bytes"/>.</returns>
         public static string FormatBytes( byte[] bytes, string nullString = "null" )
         {
-            if (bytes == null || bytes.Length == 0)
+            if ( bytes == null || bytes.Length == 0 )
             {
                 return nullString;
             }

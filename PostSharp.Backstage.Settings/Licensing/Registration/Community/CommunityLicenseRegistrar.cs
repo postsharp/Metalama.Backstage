@@ -24,9 +24,9 @@ namespace PostSharp.Backstage.Licensing.Registration.Community
         /// <param name="services">Service provider.</param>
         public CommunityLicenseRegistrar( IServiceProvider services )
         {
-            _services = services;
-            _licenseFiles = services.GetRequiredService<IStandardLicenseFileLocations>();
-            _logger = services.GetOptionalTraceLogger<CommunityLicenseRegistrar>();
+            this._services = services;
+            this._licenseFiles = services.GetRequiredService<IStandardLicenseFileLocations>();
+            this._logger = services.GetOptionalTraceLogger<CommunityLicenseRegistrar>();
         }
 
         /// <summary>
@@ -41,29 +41,29 @@ namespace PostSharp.Backstage.Licensing.Registration.Community
         {
             void TraceFailure( string message )
             {
-                _logger?.LogTrace( $"Failed to register community license: {message}" );
+                this._logger?.LogTrace( $"Failed to register community license: {message}" );
             }
 
-            _logger?.LogTrace( "Registering community license." );
+            this._logger?.LogTrace( "Registering community license." );
 
             try
             {
-                var userStorage = LicenseFileStorage.OpenOrCreate( _licenseFiles.UserLicenseFile, _services );
+                var userStorage = LicenseFileStorage.OpenOrCreate( this._licenseFiles.UserLicenseFile, this._services );
 
-                if (userStorage.Licenses.Values.Any( l => l != null && l.LicenseType == LicenseType.Community ))
+                if ( userStorage.Licenses.Values.Any( l => l != null && l.LicenseType == LicenseType.Community ) )
                 {
                     TraceFailure( "A community license is registered already." );
 
                     return true;
                 }
 
-                var factory = new UnsignedLicenseFactory( _services );
+                var factory = new UnsignedLicenseFactory( this._services );
                 var (licenseKey, data) = factory.CreateCommunityLicense();
 
                 userStorage.AddLicense( licenseKey, data );
                 userStorage.Save();
             }
-            catch (Exception e)
+            catch ( Exception e )
             {
                 TraceFailure( e.ToString() );
 

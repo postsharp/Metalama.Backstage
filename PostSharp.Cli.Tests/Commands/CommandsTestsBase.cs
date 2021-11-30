@@ -1,12 +1,15 @@
-﻿using System;
-using System.CommandLine;
-using System.Threading.Tasks;
+﻿// Copyright (c) SharpCrafters s.r.o. All rights reserved.
+// This project is not open source. Please see the LICENSE.md file in the repository root for details.
+
 using Microsoft.Extensions.DependencyInjection;
 using PostSharp.Backstage.Extensibility;
 using PostSharp.Backstage.Testing;
 using PostSharp.Cli.Commands;
 using PostSharp.Cli.Console;
 using PostSharp.Cli.Tests.Console;
+using System;
+using System.CommandLine;
+using System.Threading.Tasks;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -32,9 +35,9 @@ namespace PostSharp.Cli.Tests.Commands
                     serviceBuilder?.Invoke( serviceCollection );
                 } )
         {
-            _rootCommand = new PostSharpCommand( this );
-            _logger = Services.GetOptionalTraceLogger<CommandsTestsBase>()!;
-            _console = (TestConsole)Services.GetRequiredService<IConsole>();
+            this._rootCommand = new PostSharpCommand( this );
+            this._logger = this.Services.GetOptionalTraceLogger<CommandsTestsBase>()!;
+            this._console = (TestConsole) this.Services.GetRequiredService<IConsole>();
         }
 
         protected async Task TestCommandAsync(
@@ -43,18 +46,18 @@ namespace PostSharp.Cli.Tests.Commands
             string expectedError = "",
             int expectedExitCode = 0 )
         {
-            _logger.LogTrace( $" < {commandLine}" );
-            var exitCode = await _rootCommand.InvokeAsync( commandLine, _console );
-            Assert.Equal( expectedOutput, _console.Out.ToString() );
-            Assert.Equal( expectedError, _console.Error.ToString() );
+            this._logger.LogTrace( $" < {commandLine}" );
+            var exitCode = await this._rootCommand.InvokeAsync( commandLine, this._console );
+            Assert.Equal( expectedOutput, this._console.Out.ToString() );
+            Assert.Equal( expectedError, this._console.Error.ToString() );
             Assert.Equal( expectedExitCode, exitCode );
-            _console.Clear();
-            Log.Clear();
+            this._console.Clear();
+            this.Log.Clear();
         }
 
         IServiceProvider ICommandServiceProvider.CreateServiceProvider( IConsole console, bool addTrace )
         {
-            return Services;
+            return this.Services;
         }
     }
 }

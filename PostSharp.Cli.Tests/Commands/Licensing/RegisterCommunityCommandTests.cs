@@ -16,16 +16,16 @@ namespace PostSharp.Cli.Tests.Commands.Licensing
         [Fact]
         public async Task CommunityRegistersInEmptyEnvironment()
         {
-            await TestCommandAsync( "license register community", "" );
-            await TestCommandAsync( "license list", string.Format( CultureInfo.InvariantCulture, TestLicenses.CommunityFormat, 1 ) );
+            await this.TestCommandAsync( "license register community", "" );
+            await this.TestCommandAsync( "license list", string.Format( CultureInfo.InvariantCulture, TestLicenses.CommunityFormat, 1 ) );
         }
 
         [Fact]
         public async Task RepetitiveCommunityRegistrationKeepsOneCommunityLicenseRegistered()
         {
-            await TestCommandAsync( "license register community", "" );
-            await TestCommandAsync( "license register community", "" );
-            await TestCommandAsync( "license list", string.Format( CultureInfo.InvariantCulture, TestLicenses.CommunityFormat, 1 ) );
+            await this.TestCommandAsync( "license register community", "" );
+            await this.TestCommandAsync( "license register community", "" );
+            await this.TestCommandAsync( "license list", string.Format( CultureInfo.InvariantCulture, TestLicenses.CommunityFormat, 1 ) );
         }
     }
 }

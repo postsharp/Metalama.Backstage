@@ -15,10 +15,8 @@ using System.Security.Cryptography;
 #pragma warning disable SA1307  // Accessible fields should begin with upper-case letter
 #pragma warning disable SA1401  // Fields should be private
 #pragma warning disable SA1203  // Constants should appear before fields
-#pragma warning disable SA1502  // Element should not be on a single line
 #pragma warning disable SA1119  // Statement should not use unnecessary parenthesis
 #pragma warning disable IDE0004 // Remove Unnecessary Cast
-#pragma warning disable SA1116  // Split parameters should start on line after declaration
 
 namespace PostSharp.Backstage.Utilities
 {
@@ -76,7 +74,7 @@ namespace PostSharp.Backstage.Utilities
         /// </summary>
         public MD5Managed()
         {
-            InitializeVariables();
+            this.InitializeVariables();
         }
 
         /// <summary>
@@ -84,7 +82,7 @@ namespace PostSharp.Backstage.Utilities
         /// </summary>
         public override void Initialize()
         {
-            InitializeVariables();
+            this.InitializeVariables();
         }
 
         /// <summary>
@@ -92,9 +90,9 @@ namespace PostSharp.Backstage.Utilities
         /// </summary>
         private void InitializeVariables()
         {
-            MD5Init( _context );
-            _hashCoreCalled = false;
-            _hashFinalCalled = false;
+            MD5Init( this._context );
+            this._hashCoreCalled = false;
+            this._hashFinalCalled = false;
         }
 
         /// <summary>
@@ -105,19 +103,19 @@ namespace PostSharp.Backstage.Utilities
         /// <param name="cbSize">Number of bytes.</param>
         protected override void HashCore( byte[] array, int ibStart, int cbSize )
         {
-            if (array == null)
+            if ( array == null )
             {
                 throw new ArgumentNullException( nameof(array) );
             }
 
-            if (_hashFinalCalled)
+            if ( this._hashFinalCalled )
             {
                 throw new CryptographicException( "Hash not valid for use in specified state." );
             }
 
-            _hashCoreCalled = true;
+            this._hashCoreCalled = true;
 
-            MD5Update( _context, array, (uint)ibStart, (uint)cbSize );
+            MD5Update( this._context, array, (uint) ibStart, (uint) cbSize );
         }
 
         /// <summary>
@@ -126,10 +124,10 @@ namespace PostSharp.Backstage.Utilities
         /// <returns></returns>
         protected override byte[] HashFinal()
         {
-            _hashFinalCalled = true;
-            MD5Final( _digest, _context );
+            this._hashFinalCalled = true;
+            MD5Final( this._digest, this._context );
 
-            return Hash;
+            return this.Hash;
         }
 
         /// <summary>
@@ -143,23 +141,23 @@ namespace PostSharp.Backstage.Utilities
         {
             get
             {
-                if (!_hashCoreCalled)
+                if ( !this._hashCoreCalled )
                 {
                     throw new NullReferenceException();
                 }
 
-                if (!_hashFinalCalled)
+                if ( !this._hashFinalCalled )
                 {
                     // Note: Not CryptographicUnexpectedOperationException because that can't be instantiated on Silverlight 4
                     throw new CryptographicException( "Hash must be finalized before the hash value is retrieved." );
                 }
 
-                return _digest;
+                return this._digest;
             }
         }
 
         // Return size of hash in bits.
-        public override int HashSize => _digest.Length * 8;
+        public override int HashSize => this._digest.Length * 8;
 
         ///////////////////////////////////////////////
         // MD5 reference implementation begins here. //
@@ -174,16 +172,16 @@ namespace PostSharp.Backstage.Utilities
 
             public MD5_CTX()
             {
-                state = new uint[4];
-                count = new uint[2];
-                buffer = new byte[64];
+                this.state = new uint[4];
+                this.count = new uint[2];
+                this.buffer = new byte[64];
             }
 
             public void Clear()
             {
-                Array.Clear( state, 0, state.Length );
-                Array.Clear( count, 0, count.Length );
-                Array.Clear( buffer, 0, buffer.Length );
+                Array.Clear( this.state, 0, this.state.Length );
+                Array.Clear( this.count, 0, this.count.Length );
+                Array.Clear( this.buffer, 0, this.buffer.Length );
             }
         }
 
@@ -216,56 +214,56 @@ namespace PostSharp.Backstage.Utilities
         /* F, G, H and I are basic MD5 functions. */
         private static uint F( uint x, uint y, uint z )
         {
-            return ( ( x ) & ( y ) ) | ( ( ~x ) & ( z ) );
+            return ((x) & (y)) | ((~x) & (z));
         }
 
         private static uint G( uint x, uint y, uint z )
         {
-            return ( ( x ) & ( z ) ) | ( ( y ) & ( ~z ) );
+            return ((x) & (z)) | ((y) & (~z));
         }
 
         private static uint H( uint x, uint y, uint z )
         {
-            return ( x ) ^ ( y ) ^ ( z );
+            return (x) ^ (y) ^ (z);
         }
 
         private static uint I( uint x, uint y, uint z )
         {
-            return ( y ) ^ ( ( x ) | ( ~z ) );
+            return (y) ^ ((x) | (~z));
         }
 
         /* ROTATE_LEFT rotates x left n bits. */
         private static uint ROTATE_LEFT( uint x, int n )
         {
-            return ( ( x ) << ( n ) ) | ( ( x ) >> ( 32 - n ) );
+            return ((x) << (n)) | ((x) >> (32 - n));
         }
 
         /* FF, GG, HH, and II transformations for rounds 1, 2, 3, and 4.
            Rotation is separate from addition to prevent recomputation. */
         private static void FF( ref uint a, uint b, uint c, uint d, uint x, int s, uint ac )
         {
-            a += F( b, c, d ) + x + (uint)ac;
+            a += F( b, c, d ) + x + (uint) ac;
             a = ROTATE_LEFT( a, s );
             a += b;
         }
 
         private static void GG( ref uint a, uint b, uint c, uint d, uint x, int s, uint ac )
         {
-            a += G( b, c, d ) + x + (uint)ac;
+            a += G( b, c, d ) + x + (uint) ac;
             a = ROTATE_LEFT( a, s );
             a += b;
         }
 
         private static void HH( ref uint a, uint b, uint c, uint d, uint x, int s, uint ac )
         {
-            a += H( b, c, d ) + x + (uint)ac;
+            a += H( b, c, d ) + x + (uint) ac;
             a = ROTATE_LEFT( a, s );
             a += b;
         }
 
         private static void II( ref uint a, uint b, uint c, uint d, uint x, int s, uint ac )
         {
-            a += I( b, c, d ) + x + (uint)ac;
+            a += I( b, c, d ) + x + (uint) ac;
             a = ROTATE_LEFT( a, s );
             a += b;
         }
@@ -289,30 +287,30 @@ namespace PostSharp.Backstage.Utilities
             MD5_CTX context, /* context */
             byte[] input,    /* input block */
             uint inputIndex, // Starting index for input block
-            uint inputLen )  /*  length of input block */
+            uint inputLen ) /*  length of input block */
         {
             /* Compute number of bytes mod 64 */
-            var index = (uint)( ( context.count[0] >> 3 ) & 0x3F );
+            var index = (uint) ((context.count[0] >> 3) & 0x3F);
 
             /* Update number of bits */
-            if (( context.count[0] += (uint)inputLen << 3 ) < ( (uint)inputLen << 3 ))
+            if ( (context.count[0] += (uint) inputLen << 3) < ((uint) inputLen << 3) )
             {
                 context.count[1]++;
             }
 
-            context.count[1] += (uint)inputLen >> 29;
+            context.count[1] += (uint) inputLen >> 29;
 
             var partLen = 64 - index;
 
             /* Transform as many times as possible. */
             uint i = 0;
 
-            if (inputLen >= partLen)
+            if ( inputLen >= partLen )
             {
-                Buffer.BlockCopy( input, (int)inputIndex, context.buffer, (int)index, (int)partLen );
+                Buffer.BlockCopy( input, (int) inputIndex, context.buffer, (int) index, (int) partLen );
                 MD5Transform( context.state, context.buffer, 0 );
 
-                for (i = partLen; i + 63 < inputLen; i += 64)
+                for ( i = partLen; i + 63 < inputLen; i += 64 )
                 {
                     MD5Transform( context.state, input, inputIndex + i );
                 }
@@ -321,7 +319,7 @@ namespace PostSharp.Backstage.Utilities
             }
 
             /* Buffer remaining input */
-            Buffer.BlockCopy( input, (int)( inputIndex + i ), context.buffer, (int)index, (int)( inputLen - i ) );
+            Buffer.BlockCopy( input, (int) (inputIndex + i), context.buffer, (int) index, (int) (inputLen - i) );
         }
 
         /* MD5 finalization. Ends an MD5 message-digest operation, writing the
@@ -336,8 +334,8 @@ namespace PostSharp.Backstage.Utilities
             Encode( bits, context.count, 8 );
 
             /* Pad out to 56 mod 64. */
-            var index = (uint)( ( context.count[0] >> 3 ) & 0x3f );
-            var padLen = ( index < 56 ) ? ( 56 - index ) : ( 120 - index );
+            var index = (uint) ((context.count[0] >> 3) & 0x3f);
+            var padLen = (index < 56) ? (56 - index) : (120 - index);
             MD5Update( context, PADDING, 0, padLen );
 
             /* Append length (before padding) */
@@ -449,12 +447,12 @@ namespace PostSharp.Backstage.Utilities
             uint[] input,
             uint len )
         {
-            for (uint i = 0, j = 0; j < len; i++, j += 4)
+            for ( uint i = 0, j = 0; j < len; i++, j += 4 )
             {
-                output[j] = (byte)( input[i] & 0xff );
-                output[j + 1] = (byte)( ( input[i] >> 8 ) & 0xff );
-                output[j + 2] = (byte)( ( input[i] >> 16 ) & 0xff );
-                output[j + 3] = (byte)( ( input[i] >> 24 ) & 0xff );
+                output[j] = (byte) (input[i] & 0xff);
+                output[j + 1] = (byte) ((input[i] >> 8) & 0xff);
+                output[j + 2] = (byte) ((input[i] >> 16) & 0xff);
+                output[j + 3] = (byte) ((input[i] >> 24) & 0xff);
             }
         }
 
@@ -466,12 +464,12 @@ namespace PostSharp.Backstage.Utilities
             uint inputIndex,
             uint len )
         {
-            for (uint i = 0, j = 0; j < len; i++, j += 4)
+            for ( uint i = 0, j = 0; j < len; i++, j += 4 )
             {
-                output[i] = ( (uint)input[inputIndex + j] ) |
-                            ( ( (uint)input[inputIndex + j + 1] ) << 8 ) |
-                            ( ( (uint)input[inputIndex + j + 2] ) << 16 ) |
-                            ( ( (uint)input[inputIndex + j + 3] ) << 24 );
+                output[i] = ((uint) input[inputIndex + j]) |
+                            (((uint) input[inputIndex + j + 1]) << 8) |
+                            (((uint) input[inputIndex + j + 2]) << 16) |
+                            (((uint) input[inputIndex + j + 3]) << 24);
             }
         }
     }

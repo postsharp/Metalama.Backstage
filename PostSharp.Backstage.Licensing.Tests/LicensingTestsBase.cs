@@ -1,10 +1,13 @@
-﻿using System;
+﻿// Copyright (c) SharpCrafters s.r.o. All rights reserved.
+// This project is not open source. Please see the LICENSE.md file in the repository root for details.
+
 using Microsoft.Extensions.DependencyInjection;
 using PostSharp.Backstage.Extensibility;
 using PostSharp.Backstage.Licensing.Licenses;
 using PostSharp.Backstage.Licensing.Registration;
 using PostSharp.Backstage.Testing;
 using PostSharp.Backstage.Testing.Services;
+using System;
 using Xunit.Abstractions;
 
 namespace PostSharp.Backstage.Licensing.Tests
@@ -43,10 +46,10 @@ namespace PostSharp.Backstage.Licensing.Tests
                     serviceBuilder?.Invoke( serviceCollection );
                 } )
         {
-            LicenseFactory = new LicenseFactory( Services );
-            SelfSignedLicenseFactory = new UnsignedLicenseFactory( Services );
-            Diagnostics = (TestDiagnosticsSink)Services.GetRequiredService<IDiagnosticsSink>();
-            LicenseFiles = Services.GetRequiredService<IStandardLicenseFileLocations>();
+            this.LicenseFactory = new LicenseFactory( this.Services );
+            this.SelfSignedLicenseFactory = new UnsignedLicenseFactory( this.Services );
+            this.Diagnostics = (TestDiagnosticsSink) this.Services.GetRequiredService<IDiagnosticsSink>();
+            this.LicenseFiles = this.Services.GetRequiredService<IStandardLicenseFileLocations>();
         }
     }
 }

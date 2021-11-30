@@ -17,15 +17,15 @@ namespace PostSharp.Backstage.Licensing.Tests.LicenseSources
 
         public TestLicenseSource( string id, params ILicense[] licenses )
         {
-            Id = id;
-            _licenses = licenses;
+            this.Id = id;
+            this._licenses = licenses;
         }
 
         public IEnumerable<ILicense> GetLicenses()
         {
-            IsUsed = true;
+            this.IsUsed = true;
 
-            return _licenses;
+            return this._licenses;
         }
     }
 }

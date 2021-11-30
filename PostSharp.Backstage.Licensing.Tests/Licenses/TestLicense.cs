@@ -18,7 +18,7 @@ namespace PostSharp.Backstage.Licensing.Tests.Licenses
 
         public TestLicense( ILicense license )
         {
-            License = license;
+            this.License = license;
         }
 
         // MaybeNullWhenAttribute cannot be used here since the PostSharp.Backstage.Settings assembly shares internals with this assembly.
@@ -26,11 +26,11 @@ namespace PostSharp.Backstage.Licensing.Tests.Licenses
         public bool TryGetLicenseConsumptionData( /* [MaybeNullWhenAttribute( false )] */ out LicenseConsumptionData licenseData )
         {
             // Each license should always be used only once.
-            Assert.False( IsUsed );
+            Assert.False( this.IsUsed );
 
-            IsUsed = true;
+            this.IsUsed = true;
 
-            return License.TryGetLicenseConsumptionData( out licenseData! );
+            return this.License.TryGetLicenseConsumptionData( out licenseData! );
         }
 
         // MaybeNullWhenAttribute cannot be used here since the PostSharp.Backstage.Settings assembly shares internals with this assembly.
@@ -43,12 +43,12 @@ namespace PostSharp.Backstage.Licensing.Tests.Licenses
         public override bool Equals( object? obj )
         {
             return obj is TestLicense license &&
-                   EqualityComparer<ILicense>.Default.Equals( License, license.License );
+                   EqualityComparer<ILicense>.Default.Equals( this.License, license.License );
         }
 
         public override int GetHashCode()
         {
-            return HashCode.Combine( License );
+            return HashCode.Combine( this.License );
         }
     }
 }

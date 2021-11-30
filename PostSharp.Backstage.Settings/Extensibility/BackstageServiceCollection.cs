@@ -1,4 +1,7 @@
-﻿using System;
+﻿// Copyright (c) SharpCrafters s.r.o. All rights reserved.
+// This project is not open source. Please see the LICENSE.md file in the repository root for details.
+
+using System;
 using System.Collections.Generic;
 
 namespace PostSharp.Backstage.Extensibility
@@ -6,23 +9,25 @@ namespace PostSharp.Backstage.Extensibility
     public class BackstageServiceCollection
     {
         private readonly Dictionary<Type, object> _services = new();
-        private IServiceProvider? _nextServiceProvider;
+        private readonly IServiceProvider? _nextServiceProvider;
 
         public BackstageServiceCollection( IServiceProvider? nextServiceProvider = null )
         {
-            _nextServiceProvider = nextServiceProvider;
+            this._nextServiceProvider = nextServiceProvider;
         }
 
         public BackstageServiceCollection AddSingleton<TService>( TService service )
+            where TService : notnull
         {
-            _services[typeof(TService)] = service;
+            this._services[typeof(TService)] = service;
 
             return this;
         }
 
         public BackstageServiceCollection AddSingleton<TService>( Func<BackstageServiceCollection, TService> serviceFactory )
+            where TService : notnull
         {
-            return AddSingleton<TService>( serviceFactory( this ) );
+            return this.AddSingleton( serviceFactory( this ) );
         }
 
         public IServiceProvider ToServiceProvider()
@@ -32,27 +37,27 @@ namespace PostSharp.Backstage.Extensibility
 
         private class ServiceProvider : IServiceProvider
         {
-            private BackstageServiceCollection _parent;
+            private readonly BackstageServiceCollection _parent;
 
             public ServiceProvider( BackstageServiceCollection parent )
             {
-                _parent = parent;
+                this._parent = parent;
             }
 
             object? IServiceProvider.GetService( Type serviceType )
             {
-                return GetService( serviceType );
+                return this.GetService( serviceType );
             }
 
             public object? GetService( Type serviceType )
             {
-                if (_parent._services.TryGetValue( serviceType, out var service ))
+                if ( this._parent._services.TryGetValue( serviceType, out var service ) )
                 {
                     return service;
                 }
                 else
                 {
-                    return _parent._nextServiceProvider?.GetService( serviceType );
+                    return this._parent._nextServiceProvider?.GetService( serviceType );
                 }
             }
         }

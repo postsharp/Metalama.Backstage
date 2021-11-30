@@ -14,12 +14,12 @@ namespace PostSharp.Backstage.MicrosoftLogging
 
         public LoggerFactoryAdapter( IMicrosoftLoggerFactory factory )
         {
-            _factory = factory;
+            this._factory = factory;
         }
 
         public IPostSharpLogger CreateLogger<T>()
         {
-            return new LoggerAdapter( _factory.CreateLogger<T>() );
+            return new LoggerAdapter( this._factory.CreateLogger<T>() );
         }
     }
 }

@@ -13,12 +13,12 @@ namespace PostSharp.Backstage.Testing.Services
 
         public TestDiagnosticsLocation( string description )
         {
-            _description = description;
+            this._description = description;
         }
 
         public override string ToString()
         {
-            return _description.ToString();
+            return this._description.ToString();
         }
     }
 }

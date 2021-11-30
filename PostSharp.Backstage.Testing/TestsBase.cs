@@ -1,9 +1,12 @@
-﻿using System;
+﻿// Copyright (c) SharpCrafters s.r.o. All rights reserved.
+// This project is not open source. Please see the LICENSE.md file in the repository root for details.
+
 using MELT;
 using Microsoft.Extensions.Logging;
 using PostSharp.Backstage.Extensibility;
 using PostSharp.Backstage.MicrosoftLogging;
 using PostSharp.Backstage.Testing.Services;
+using System;
 using Xunit.Abstractions;
 using ILoggerFactory = PostSharp.Backstage.Extensibility.ILoggerFactory;
 
@@ -11,8 +14,6 @@ namespace PostSharp.Backstage.Testing
 {
     public abstract class TestsBase
     {
-        private ITestOutputHelper _testOutputHelper;
-
         public TestDateTimeProvider Time { get; } = new();
 
         public TestFileSystem FileSystem { get; } = new();
@@ -27,7 +28,7 @@ namespace PostSharp.Backstage.Testing
                 .Create()
                 .AddXUnit( logger );
 
-            Log = loggerFactory.GetTestLoggerSink();
+            this.Log = loggerFactory.GetTestLoggerSink();
 
             // ReSharper disable RedundantTypeArgumentsOfMethod
 
@@ -35,8 +36,8 @@ namespace PostSharp.Backstage.Testing
 
             serviceCollection
                 .AddSingleton<ILoggerFactory>( new LoggerFactoryAdapter( loggerFactory ) )
-                .AddSingleton<IDateTimeProvider>( Time )
-                .AddSingleton<IFileSystem>( FileSystem );
+                .AddSingleton<IDateTimeProvider>( this.Time )
+                .AddSingleton<IFileSystem>( this.FileSystem );
 
             serviceCollection
                 .AddStandardDirectories();
@@ -45,7 +46,7 @@ namespace PostSharp.Backstage.Testing
 
             serviceBuilder?.Invoke( serviceCollection );
 
-            Services = serviceCollection.ToServiceProvider();
+            this.Services = serviceCollection.ToServiceProvider();
         }
     }
 }

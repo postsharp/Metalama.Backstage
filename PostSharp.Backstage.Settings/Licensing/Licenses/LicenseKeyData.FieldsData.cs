@@ -27,19 +27,19 @@ namespace PostSharp.Backstage.Licensing.Licenses
         {
             get
             {
-                if (Product == LicensedProduct.PostSharp30 && _licenseType == LicenseType.Professional)
+                if ( this.Product == LicensedProduct.PostSharp30 && this._licenseType == LicenseType.Professional )
                 {
                     return LicenseType.PerUser;
                 }
 
-                return _licenseType;
+                return this._licenseType;
             }
 
-            set => _licenseType = value;
+            set => this._licenseType = value;
         }
 #pragma warning restore 618
 
-        public string LicenseTypeString => LicenseType.ToString();
+        public string LicenseTypeString => this.LicenseType.ToString();
 
 #pragma warning disable 618
         private LicensedProduct _product;
@@ -51,14 +51,14 @@ namespace PostSharp.Backstage.Licensing.Licenses
         {
             get
             {
-                if (_product == LicensedProduct.PostSharp30)
+                if ( this._product == LicensedProduct.PostSharp30 )
                 {
-                    return _licenseType == LicenseType.Professional ? LicensedProduct.Framework : LicensedProduct.Ultimate;
+                    return this._licenseType == LicenseType.Professional ? LicensedProduct.Framework : LicensedProduct.Ultimate;
                 }
 
-                return _product;
+                return this._product;
             }
-            set => _product = value;
+            set => this._product = value;
         }
 #pragma warning restore 618
 
@@ -72,23 +72,23 @@ namespace PostSharp.Backstage.Licensing.Licenses
         /// </summary>
         public string? Namespace
         {
-            get => (string?)GetFieldValue( LicenseFieldIndex.Namespace );
-            set => SetFieldValue<LicenseFieldString>( LicenseFieldIndex.Namespace, value );
+            get => (string?) this.GetFieldValue( LicenseFieldIndex.Namespace );
+            set => this.SetFieldValue<LicenseFieldString>( LicenseFieldIndex.Namespace, value );
         }
 
         public bool Auditable
         {
             get
-                => LicenseType switch
+                => this.LicenseType switch
                 {
 #pragma warning disable CS0618 // Type or member is obsolete
                     LicenseType.Site or LicenseType.Global or LicenseType.Anonymous => false,
 #pragma warning restore CS0618                      // Type or member is obsolete
                     LicenseType.Evaluation => true, // We want to audit evaluation licenses so we know how people are using the product during evaluation.
-                    _ => (bool?)GetFieldValue( LicenseFieldIndex.Auditable ) ?? true
+                    _ => (bool?) this.GetFieldValue( LicenseFieldIndex.Auditable ) ?? true
                 };
 
-            set => SetFieldValue<LicenseFieldBool>( LicenseFieldIndex.Auditable, value );
+            set => this.SetFieldValue<LicenseFieldBool>( LicenseFieldIndex.Auditable, value );
         }
 
         /// <summary>
@@ -96,8 +96,8 @@ namespace PostSharp.Backstage.Licensing.Licenses
         /// </summary>
         public byte[]? PublicKeyToken
         {
-            get => (byte[]?)GetFieldValue( LicenseFieldIndex.PublicKeyToken );
-            set => SetFieldValue<LicenseFieldBytes>( LicenseFieldIndex.PublicKeyToken, value );
+            get => (byte[]?) this.GetFieldValue( LicenseFieldIndex.PublicKeyToken );
+            set => this.SetFieldValue<LicenseFieldBytes>( LicenseFieldIndex.PublicKeyToken, value );
         }
 
         /// <summary>
@@ -105,8 +105,8 @@ namespace PostSharp.Backstage.Licensing.Licenses
         /// </summary>
         public byte[]? Signature
         {
-            get => (byte[]?)GetFieldValue( LicenseFieldIndex.Signature );
-            set => SetFieldValue<LicenseFieldBytes>( LicenseFieldIndex.Signature, value );
+            get => (byte[]?) this.GetFieldValue( LicenseFieldIndex.Signature );
+            set => this.SetFieldValue<LicenseFieldBytes>( LicenseFieldIndex.Signature, value );
         }
 
         /// <summary>
@@ -114,8 +114,8 @@ namespace PostSharp.Backstage.Licensing.Licenses
         /// </summary>
         public byte? SignatureKeyId
         {
-            get => (byte?)GetFieldValue( LicenseFieldIndex.SignatureKeyId );
-            private set => SetFieldValue<LicenseFieldByte>( LicenseFieldIndex.SignatureKeyId, value );
+            get => (byte?) this.GetFieldValue( LicenseFieldIndex.SignatureKeyId );
+            private set => this.SetFieldValue<LicenseFieldByte>( LicenseFieldIndex.SignatureKeyId, value );
         }
 
         /// <summary>
@@ -123,8 +123,8 @@ namespace PostSharp.Backstage.Licensing.Licenses
         /// </summary>
         public short? UserNumber
         {
-            get => (short?)GetFieldValue( LicenseFieldIndex.UserNumber );
-            set => SetFieldValue<LicenseFieldInt16>( LicenseFieldIndex.UserNumber, value );
+            get => (short?) this.GetFieldValue( LicenseFieldIndex.UserNumber );
+            set => this.SetFieldValue<LicenseFieldInt16>( LicenseFieldIndex.UserNumber, value );
         }
 
         /// <summary>
@@ -132,8 +132,8 @@ namespace PostSharp.Backstage.Licensing.Licenses
         /// </summary>
         public DateTime? ValidFrom
         {
-            get => (DateTime?)GetFieldValue( LicenseFieldIndex.ValidFrom );
-            set => SetFieldValue<LicenseFieldDate>( LicenseFieldIndex.ValidFrom, value );
+            get => (DateTime?) this.GetFieldValue( LicenseFieldIndex.ValidFrom );
+            set => this.SetFieldValue<LicenseFieldDate>( LicenseFieldIndex.ValidFrom, value );
         }
 
         /// <summary>
@@ -141,14 +141,14 @@ namespace PostSharp.Backstage.Licensing.Licenses
         /// </summary>
         public DateTime? ValidTo
         {
-            get => (DateTime?)GetFieldValue( LicenseFieldIndex.ValidTo );
-            set => SetFieldValue<LicenseFieldDate>( LicenseFieldIndex.ValidTo, value );
+            get => (DateTime?) this.GetFieldValue( LicenseFieldIndex.ValidTo );
+            set => this.SetFieldValue<LicenseFieldDate>( LicenseFieldIndex.ValidTo, value );
         }
 
         public DateTime? SubscriptionEndDate
         {
-            get => (DateTime?)GetFieldValue( LicenseFieldIndex.SubscriptionEndDate );
-            set => SetFieldValue<LicenseFieldDate>( LicenseFieldIndex.SubscriptionEndDate, value );
+            get => (DateTime?) this.GetFieldValue( LicenseFieldIndex.SubscriptionEndDate );
+            set => this.SetFieldValue<LicenseFieldDate>( LicenseFieldIndex.SubscriptionEndDate, value );
         }
 
         /// <summary>
@@ -156,8 +156,8 @@ namespace PostSharp.Backstage.Licensing.Licenses
         /// </summary>
         public string? Licensee
         {
-            get => (string?)GetFieldValue( LicenseFieldIndex.Licensee );
-            set => SetFieldValue<LicenseFieldString>( LicenseFieldIndex.Licensee, value );
+            get => (string?) this.GetFieldValue( LicenseFieldIndex.Licensee );
+            set => this.SetFieldValue<LicenseFieldString>( LicenseFieldIndex.Licensee, value );
         }
 
         /// <summary>
@@ -165,8 +165,8 @@ namespace PostSharp.Backstage.Licensing.Licenses
         /// </summary>
         public int? LicenseeHash
         {
-            get => (int?)GetFieldValue( LicenseFieldIndex.LicenseeHash );
-            set => SetFieldValue<LicenseFieldInt32>( LicenseFieldIndex.LicenseeHash, value );
+            get => (int?) this.GetFieldValue( LicenseFieldIndex.LicenseeHash );
+            set => this.SetFieldValue<LicenseFieldInt32>( LicenseFieldIndex.LicenseeHash, value );
         }
 
         /// <summary>
@@ -174,8 +174,8 @@ namespace PostSharp.Backstage.Licensing.Licenses
         /// </summary>
         public byte GraceDays
         {
-            get => (byte?)GetFieldValue( LicenseFieldIndex.GraceDays ) ?? 30;
-            set => SetFieldValue<LicenseFieldByte>( LicenseFieldIndex.GraceDays, value );
+            get => (byte?) this.GetFieldValue( LicenseFieldIndex.GraceDays ) ?? 30;
+            set => this.SetFieldValue<LicenseFieldByte>( LicenseFieldIndex.GraceDays, value );
         }
 
         /// <summary>
@@ -183,8 +183,8 @@ namespace PostSharp.Backstage.Licensing.Licenses
         /// </summary>
         public byte? GracePercent
         {
-            get => (byte?)GetFieldValue( LicenseFieldIndex.GracePercent );
-            set => SetFieldValue<LicenseFieldByte>( LicenseFieldIndex.GracePercent, value );
+            get => (byte?) this.GetFieldValue( LicenseFieldIndex.GracePercent );
+            set => this.SetFieldValue<LicenseFieldByte>( LicenseFieldIndex.GracePercent, value );
         }
 
         /// <summary>
@@ -192,14 +192,14 @@ namespace PostSharp.Backstage.Licensing.Licenses
         /// </summary>
         public byte? DevicesPerUser
         {
-            get => (byte?)GetFieldValue( LicenseFieldIndex.DevicesPerUser );
-            set => SetFieldValue<LicenseFieldByte>( LicenseFieldIndex.DevicesPerUser, value );
+            get => (byte?) this.GetFieldValue( LicenseFieldIndex.DevicesPerUser );
+            set => this.SetFieldValue<LicenseFieldByte>( LicenseFieldIndex.DevicesPerUser, value );
         }
 
         public bool? AllowInheritance
         {
-            get => (bool?)GetFieldValue( LicenseFieldIndex.AllowInheritance );
-            set => SetFieldValue<LicenseFieldBool>( LicenseFieldIndex.AllowInheritance, value );
+            get => (bool?) this.GetFieldValue( LicenseFieldIndex.AllowInheritance );
+            set => this.SetFieldValue<LicenseFieldBool>( LicenseFieldIndex.AllowInheritance, value );
         }
 
         private bool? _isLicenseServerEligible;
@@ -208,30 +208,30 @@ namespace PostSharp.Backstage.Licensing.Licenses
         {
             get
             {
-                if (_isLicenseServerEligible == null)
+                if ( this._isLicenseServerEligible == null )
                 {
                     const int lastLicenseIdBefore50Rtm = 100802;
 
-                    var isExplicitlyLicenseServerEligible = (bool?)GetFieldValue( LicenseFieldIndex.LicenseServerEligible );
+                    var isExplicitlyLicenseServerEligible = (bool?) this.GetFieldValue( LicenseFieldIndex.LicenseServerEligible );
 
-                    if (isExplicitlyLicenseServerEligible != null)
+                    if ( isExplicitlyLicenseServerEligible != null )
                     {
-                        _isLicenseServerEligible = isExplicitlyLicenseServerEligible;
+                        this._isLicenseServerEligible = isExplicitlyLicenseServerEligible;
                     }
-                    else if (LicenseType == LicenseType.PerUsage)
+                    else if ( this.LicenseType == LicenseType.PerUsage )
                     {
-                        _isLicenseServerEligible = false;
+                        this._isLicenseServerEligible = false;
                     }
                     else
                     {
-                        _isLicenseServerEligible = LicenseId > 0 && LicenseId <= lastLicenseIdBefore50Rtm;
+                        this._isLicenseServerEligible = this.LicenseId > 0 && this.LicenseId <= lastLicenseIdBefore50Rtm;
                     }
                 }
 
-                return _isLicenseServerEligible.Value;
+                return this._isLicenseServerEligible.Value;
             }
 
-            set => SetFieldValue<LicenseFieldBool>( LicenseFieldIndex.LicenseServerEligible, _isLicenseServerEligible = value );
+            set => this.SetFieldValue<LicenseFieldBool>( LicenseFieldIndex.LicenseServerEligible, this._isLicenseServerEligible = value );
         }
 
         private Version? _minPostSharpVersion;
@@ -242,60 +242,60 @@ namespace PostSharp.Backstage.Licensing.Licenses
         {
             get
             {
-                if (_minPostSharpVersion == null)
+                if ( this._minPostSharpVersion == null )
                 {
-                    var minPostSharpVersionString = (string?)GetFieldValue( LicenseFieldIndex.MinPostSharpVersion );
+                    var minPostSharpVersionString = (string?) this.GetFieldValue( LicenseFieldIndex.MinPostSharpVersion );
 
-                    if (minPostSharpVersionString != null)
+                    if ( minPostSharpVersionString != null )
                     {
-                        _minPostSharpVersion = System.Version.Parse( minPostSharpVersionString );
+                        this._minPostSharpVersion = System.Version.Parse( minPostSharpVersionString );
                     }
-                    else if (LicenseType == LicenseType.PerUsage || Product == LicensedProduct.CachingLibrary)
+                    else if ( this.LicenseType == LicenseType.PerUsage || this.Product == LicensedProduct.CachingLibrary )
                     {
-                        _minPostSharpVersion = new Version( 6, 6, 0 );
+                        this._minPostSharpVersion = new Version( 6, 6, 0 );
                     }
 #pragma warning disable 618
-                    else if (Product == LicensedProduct.PostSharp20)
+                    else if ( this.Product == LicensedProduct.PostSharp20 )
                     {
-                        _minPostSharpVersion = new Version( 2, 0, 0 );
+                        this._minPostSharpVersion = new Version( 2, 0, 0 );
                     }
-                    else if (( Product == LicensedProduct.Ultimate || Product == LicensedProduct.Framework )
-                             && LicenseType == LicenseType.Enterprise)
+                    else if ( (this.Product == LicensedProduct.Ultimate || this.Product == LicensedProduct.Framework)
+                              && this.LicenseType == LicenseType.Enterprise )
                     {
-                        _minPostSharpVersion = new Version( 5, 0, 22 );
+                        this._minPostSharpVersion = new Version( 5, 0, 22 );
                     }
 #pragma warning restore 618
-                    else if (_isLicenseServerEligible != null)
+                    else if ( this._isLicenseServerEligible != null )
                     {
-                        _minPostSharpVersion = new Version( 5, 0, 22 );
+                        this._minPostSharpVersion = new Version( 5, 0, 22 );
                     }
                     else
                     {
-                        _minPostSharpVersion = new Version( 3, 0, 0 );
+                        this._minPostSharpVersion = new Version( 3, 0, 0 );
                     }
                 }
 
-                return _minPostSharpVersion;
+                return this._minPostSharpVersion;
             }
 
             // Used for testing and backward-compatible license creation.
             internal set
             {
-                if (_minPostSharpVersion != null)
+                if ( this._minPostSharpVersion != null )
                 {
-                    if (_minPostSharpVersion > MinPostSharpVersionValidationRemovedPostSharpVersion)
+                    if ( this._minPostSharpVersion > MinPostSharpVersionValidationRemovedPostSharpVersion )
                     {
                         throw new ArgumentOutOfRangeException(
                             $"Since PostSharp {MinPostSharpVersionValidationRemovedPostSharpVersion}, " +
                             $"all license keys are backward compatible and the minimal PostSharp version is only considered by previous versions. " +
-                            $"Set the {nameof(MinPostSharpVersion)} to \"{MinPostSharpVersionValidationRemovedPostSharpVersion}\" if the license is incompatible with versions prior to "
+                            $"Set the {nameof(this.MinPostSharpVersion)} to \"{MinPostSharpVersionValidationRemovedPostSharpVersion}\" if the license is incompatible with versions prior to "
                             +
                             $"6.5.17, 6.8.10 and 6.9.3 or keep null if it is compatible." );
                     }
                 }
 
-                _minPostSharpVersion = value;
-                SetFieldValue<LicenseFieldString>( LicenseFieldIndex.MinPostSharpVersion, value.ToString() );
+                this._minPostSharpVersion = value;
+                this.SetFieldValue<LicenseFieldString>( LicenseFieldIndex.MinPostSharpVersion, value.ToString() );
             }
         }
 
@@ -303,14 +303,14 @@ namespace PostSharp.Backstage.Licensing.Licenses
         internal object? UnknownMustUnderstandField
         {
             get => null;
-            set => SetUnknownFieldValue( true, value! );
+            set => this.SetUnknownFieldValue( true, value! );
         }
 
         // Used for testing
         internal object? UnknownOptionalField
         {
             get => null;
-            set => SetUnknownFieldValue( false, value! );
+            set => this.SetUnknownFieldValue( false, value! );
         }
     }
 }
