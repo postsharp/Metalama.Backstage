@@ -17,11 +17,15 @@ namespace PostSharp.Backstage.Licensing.Consumption
         /// <param name="licenseSources">License sources.</param>
         /// <returns>The <see cref="IBackstageServiceCollection" /> so that additional calls can be chained.</returns>
         public static BackstageServiceCollection AddLicenseConsumption(
-            this BackstageServiceCollection serviceCollection, IEnumerable<ILicenseSource> licenseSources)
-            => serviceCollection
+            this BackstageServiceCollection serviceCollection,
+            IEnumerable<ILicenseSource> licenseSources )
+        {
+            return serviceCollection
                 .AddStandardLicenseFilesLocations()
-                .AddSingleton<ILicenseConsumptionManager>(services =>
-                    new LicenseConsumptionManager(services.ToServiceProvider(), licenseSources));
+                .AddSingleton<ILicenseConsumptionManager>(
+                    services =>
+                        new LicenseConsumptionManager( services.ToServiceProvider(), licenseSources ) );
+        }
 
         /// <summary>
         /// Adds license file location and license consumption services to the specified <see cref="IBackstageServiceCollection" />.
@@ -30,10 +34,14 @@ namespace PostSharp.Backstage.Licensing.Consumption
         /// <param name="licenseSources">License sources.</param>
         /// <returns>The <see cref="IBackstageServiceCollection" /> so that additional calls can be chained.</returns>
         public static BackstageServiceCollection AddLicenseConsumption(
-            this BackstageServiceCollection serviceCollection, params ILicenseSource[] licenseSources)
-            => serviceCollection
+            this BackstageServiceCollection serviceCollection,
+            params ILicenseSource[] licenseSources )
+        {
+            return serviceCollection
                 .AddStandardLicenseFilesLocations()
-                .AddSingleton<ILicenseConsumptionManager>(services =>
-                    new LicenseConsumptionManager(services.ToServiceProvider(), licenseSources));
+                .AddSingleton<ILicenseConsumptionManager>(
+                    services =>
+                        new LicenseConsumptionManager( services.ToServiceProvider(), licenseSources ) );
+        }
     }
 }

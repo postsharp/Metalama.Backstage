@@ -51,11 +51,11 @@ namespace PostSharp.Backstage.Licensing.Consumption
             string? licensedNamespace,
             string displayName )
         {
-            this.LicensedProduct = licensedProduct;
-            this.LicenseType = licenseType;
-            this.LicensedFeatures = licensedFeatures;
-            this.LicensedNamespace = licensedNamespace;
-            this.DisplayName = displayName;
+            LicensedProduct = licensedProduct;
+            LicenseType = licenseType;
+            LicensedFeatures = licensedFeatures;
+            LicensedNamespace = licensedNamespace;
+            DisplayName = displayName;
         }
 
         /// <summary>
@@ -64,7 +64,7 @@ namespace PostSharp.Backstage.Licensing.Consumption
         /// <returns>The displayable name of the license.</returns>
         public override string ToString()
         {
-            return this.DisplayName;
+            return DisplayName;
         }
     }
 }

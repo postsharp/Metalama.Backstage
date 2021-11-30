@@ -18,13 +18,13 @@ namespace PostSharp.Backstage.Licensing.Tests.Community
         public CommunityLicenseRegistrationTests( ITestOutputHelper logger )
             : base( logger )
         {
-            this._registrar = new CommunityLicenseRegistrar( this.Services );
+            _registrar = new CommunityLicenseRegistrar( Services );
         }
 
         private void AssertSingleCommunityLicenseRegistered()
         {
-            var registeredLicenseString = this.ReadStoredLicenseStrings().Single();
-            Assert.True( this.LicenseFactory.TryCreate( registeredLicenseString, out var registeredLicense ) );
+            var registeredLicenseString = ReadStoredLicenseStrings().Single();
+            Assert.True( LicenseFactory.TryCreate( registeredLicenseString, out var registeredLicense ) );
             Assert.True( registeredLicense!.TryGetLicenseRegistrationData( out var data ) );
             Assert.True( Guid.TryParse( data!.UniqueId, out var id ) );
             Assert.NotEqual( Guid.Empty, id );
@@ -34,17 +34,17 @@ namespace PostSharp.Backstage.Licensing.Tests.Community
         [Fact]
         public void CommunityLicenseRegistersInCleanEnvironment()
         {
-            Assert.True( this._registrar.TryRegisterLicense() );
-            this.AssertSingleCommunityLicenseRegistered();
+            Assert.True( _registrar.TryRegisterLicense() );
+            AssertSingleCommunityLicenseRegistered();
         }
 
         [Fact]
         public void RepeatedCommunityLicenseRegistrationKeepsSingleLicenseRegistered()
         {
-            Assert.True( this._registrar.TryRegisterLicense() );
-            Assert.True( this._registrar.TryRegisterLicense() );
-            this.AssertSingleCommunityLicenseRegistered();
-            Assert.Single( this.Log.LogEntries, x => x.Message == "Failed to register community license: A community license is registered already." );
+            Assert.True( _registrar.TryRegisterLicense() );
+            Assert.True( _registrar.TryRegisterLicense() );
+            AssertSingleCommunityLicenseRegistered();
+            Assert.Single( Log.LogEntries, x => x.Message == "Failed to register community license: A community license is registered already." );
         }
     }
 }

@@ -12,6 +12,7 @@ namespace PostSharp.Backstage.Testing
     public abstract class TestsBase
     {
         private ITestOutputHelper _testOutputHelper;
+
         public TestDateTimeProvider Time { get; } = new();
 
         public TestFileSystem FileSystem { get; } = new();
@@ -20,11 +21,11 @@ namespace PostSharp.Backstage.Testing
 
         public IServiceProvider Services { get; }
 
-        public TestsBase(ITestOutputHelper logger, Action<BackstageServiceCollection>? serviceBuilder = null)
+        public TestsBase( ITestOutputHelper logger, Action<BackstageServiceCollection>? serviceBuilder = null )
         {
             var loggerFactory = TestLoggerFactory
                 .Create()
-                .AddXUnit(logger);
+                .AddXUnit( logger );
 
             Log = loggerFactory.GetTestLoggerSink();
 
@@ -33,16 +34,16 @@ namespace PostSharp.Backstage.Testing
             var serviceCollection = new BackstageServiceCollection();
 
             serviceCollection
-                .AddSingleton<ILoggerFactory>(new LoggerFactoryAdapter(loggerFactory))
-                .AddSingleton<IDateTimeProvider>(Time)
-                .AddSingleton<IFileSystem>(FileSystem);
+                .AddSingleton<ILoggerFactory>( new LoggerFactoryAdapter( loggerFactory ) )
+                .AddSingleton<IDateTimeProvider>( Time )
+                .AddSingleton<IFileSystem>( FileSystem );
 
             serviceCollection
                 .AddStandardDirectories();
 
             // ReSharper restore RedundantTypeArgumentsOfMethod
 
-            serviceBuilder?.Invoke(serviceCollection);
+            serviceBuilder?.Invoke( serviceCollection );
 
             Services = serviceCollection.ToServiceProvider();
         }

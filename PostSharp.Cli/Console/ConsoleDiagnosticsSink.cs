@@ -15,17 +15,17 @@ namespace PostSharp.Cli.Console
 
         public ConsoleDiagnosticsSink( IServiceProvider services )
         {
-            this._console = services.GetRequiredService<IConsole>();
+            _console = services.GetRequiredService<IConsole>();
         }
 
         public void ReportError( string message, IDiagnosticsLocation? location = null )
         {
-            this._console.Error.WriteLine( message );
+            _console.Error.WriteLine( message );
         }
 
         public void ReportWarning( string message, IDiagnosticsLocation? location = null )
         {
-            this.ReportError( message );
+            ReportError( message );
         }
     }
 }

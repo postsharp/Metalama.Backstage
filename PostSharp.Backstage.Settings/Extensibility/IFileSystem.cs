@@ -17,7 +17,7 @@ namespace PostSharp.Backstage.Extensibility
         /// A <see cref="DateTime" /> structure set to the date and time that the specified file
         /// or directory was last written to. This value is expressed in local time.
         /// </returns>
-        DateTime GetLastWriteTime(string path);
+        DateTime GetLastWriteTime( string path );
 
         /// <summary>
         /// Determines whether the specified file exists.
@@ -28,7 +28,7 @@ namespace PostSharp.Backstage.Extensibility
         /// <c>false</c> if the file does not exist
         /// or an error occurs when trying to determine if the specified file exists.
         /// </returns>
-        bool FileExists(string path);
+        bool FileExists( string path );
 
         /// <summary>
         /// Determines whether the given path refers to an existing directory on disk.
@@ -39,7 +39,7 @@ namespace PostSharp.Backstage.Extensibility
         /// <c>false</c> if the directory does not exist
         /// or an error occurs when trying to determine if the specified directory exists.
         /// </returns>
-        bool DirectoryExists(string path);
+        bool DirectoryExists( string path );
 
         /// <summary>
         /// Returns an array of file names that match a search pattern
@@ -66,7 +66,7 @@ namespace PostSharp.Backstage.Extensibility
         /// and that match the specified <paramref name="searchPattern"/>
         /// and <paramref name="searchOption"/>.
         /// </returns>
-        string[] GetFiles(string path, string? searchPattern = null, SearchOption? searchOption = null);
+        string[] GetFiles( string path, string? searchPattern = null, SearchOption? searchOption = null );
 
         /// <summary>
         /// Returns an enumerable collection of file names that match a search pattern
@@ -93,8 +93,10 @@ namespace PostSharp.Backstage.Extensibility
         /// and that match the specified <paramref name="searchPattern"/>
         /// and <paramref name="searchOption"/>.
         /// </returns>
-        IEnumerable<string> EnumerateFiles(string path, string? searchPattern = null,
-            SearchOption? searchOption = null);
+        IEnumerable<string> EnumerateFiles(
+            string path,
+            string? searchPattern = null,
+            SearchOption? searchOption = null );
 
         /// <summary>
         /// Returns an array of directory names that match a search pattern
@@ -121,7 +123,7 @@ namespace PostSharp.Backstage.Extensibility
         /// and that match the specified <paramref name="searchPattern"/>
         /// and <paramref name="searchOption"/>.
         /// </returns>
-        string[] GetDirectories(string path, string? searchPattern = null, SearchOption? searchOption = null);
+        string[] GetDirectories( string path, string? searchPattern = null, SearchOption? searchOption = null );
 
         /// <summary>
         /// Returns an enumerable collection of directory names that match a search pattern
@@ -148,35 +150,37 @@ namespace PostSharp.Backstage.Extensibility
         /// and that match the specified <paramref name="searchPattern"/>
         /// and <paramref name="searchOption"/>.
         /// </returns>
-        IEnumerable<string> EnumerateDirectories(string path, string? searchPattern = null,
-            SearchOption? searchOption = null);
+        IEnumerable<string> EnumerateDirectories(
+            string path,
+            string? searchPattern = null,
+            SearchOption? searchOption = null );
 
         /// <summary>
         /// Creates all directories and subdirectories in the specified path unless they already exist.
         /// </summary>
         /// <param name="path">The directory to create.</param>
-        void CreateDirectory(string path);
+        void CreateDirectory( string path );
 
         /// <summary>
         /// Opens an existing file for reading.
         /// </summary>
         /// <param name="path">The file to be opened for reading.</param>
         /// <returns>A read-only <see cref="Stream" /> on the specified path.</returns>
-        Stream OpenRead(string path);
+        Stream OpenRead( string path );
 
         /// <summary>
         /// Opens an existing file or creates a new file for writing.
         /// </summary>
         /// <param name="path">The file to be opened for writing.</param>
         /// <returns>An unshared writable <see cref="Stream" /> object on the specified path.</returns>
-        Stream OpenWrite(string path);
+        Stream OpenWrite( string path );
 
         /// <summary>
         /// Opens a binary file, reads the contents of the file into a byte array, and then closes the file.
         /// </summary>
         /// <param name="path">The file to read from.</param>
         /// <returns>A <see cref="byte" /> array containing the contents of the file.</returns>
-        byte[] ReadAllBytes(string path);
+        byte[] ReadAllBytes( string path );
 
         /// <summary>
         /// Creates a new file, writes the specified byte array to the file, and then closes the file.
@@ -184,14 +188,14 @@ namespace PostSharp.Backstage.Extensibility
         /// </summary>
         /// <param name="path">The file to write to.</param>
         /// <param name="bytes">The bytes to write to the file.</param>
-        void WriteAllBytes(string path, byte[] bytes);
+        void WriteAllBytes( string path, byte[] bytes );
 
         /// <summary>
         /// Opens a text file, reads all text of the file, and then closes the file.
         /// </summary>
         /// <param name="path">The file to read from.</param>
         /// <returns>A string containing all lines of the file.</returns>
-        string ReadAllText(string path);
+        string ReadAllText( string path );
 
         /// <summary>
         /// Creates a new file, writes the specified string to the file, and then closes the file.
@@ -199,14 +203,14 @@ namespace PostSharp.Backstage.Extensibility
         /// </summary>
         /// <param name="path">The file to write to.</param>
         /// <param name="content">The string to write to the file.</param>
-        void WriteAllText(string path, string content);
+        void WriteAllText( string path, string content );
 
         /// <summary>
         /// Opens a text file, reads all lines of the file, and then closes the file.
         /// </summary>
         /// <param name="path">The file to read from.</param>
         /// <returns>A <see cref="string" /> array containing all lines of the file.</returns>
-        string[] ReadAllLines(string path);
+        string[] ReadAllLines( string path );
 
         /// <summary>
         /// Creates a new file, writes the specified string to the file, and then closes the file.
@@ -214,7 +218,7 @@ namespace PostSharp.Backstage.Extensibility
         /// </summary>
         /// <param name="path">The file to write to.</param>
         /// <param name="content">The lines to write to the file.</param>
-        void WriteAllLines(string path, string[] content);
+        void WriteAllLines( string path, string[] content );
 
         /// <summary>
         /// Creates a new file, writes the specified string to the file, and then closes the file.
@@ -222,6 +226,6 @@ namespace PostSharp.Backstage.Extensibility
         /// </summary>
         /// <param name="path">The file to write to.</param>
         /// <param name="content">The lines to write to the file.</param>
-        void WriteAllLines(string path, IEnumerable<string> content);
+        void WriteAllLines( string path, IEnumerable<string> content );
     }
 }

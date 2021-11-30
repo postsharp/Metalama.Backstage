@@ -15,20 +15,20 @@ namespace PostSharp.Backstage.Licensing.Audit
 
         public ReportedLicense( string licensedProduct, string licenseType )
         {
-            this.LicensedProduct = licensedProduct;
-            this.LicenseType = licenseType;
+            LicensedProduct = licensedProduct;
+            LicenseType = licenseType;
         }
 
         public override string ToString()
         {
-            return $"{this.LicensedProduct}-{this.LicenseType}";
+            return $"{LicensedProduct}-{LicenseType}";
         }
 
         public override bool Equals( object obj )
         {
-            if ( obj is ReportedLicense other )
+            if (obj is ReportedLicense other)
             {
-                return this.Equals( other );
+                return Equals( other );
             }
 
             return false;
@@ -36,7 +36,7 @@ namespace PostSharp.Backstage.Licensing.Audit
 
         public override int GetHashCode()
         {
-            return (this.LicensedProduct.GetHashCode() * 17) + this.LicenseType.GetHashCode();
+            return LicensedProduct.GetHashCode() * 17 + LicenseType.GetHashCode();
         }
 
         public static bool operator ==( ReportedLicense left, ReportedLicense right )
@@ -46,13 +46,13 @@ namespace PostSharp.Backstage.Licensing.Audit
 
         public static bool operator !=( ReportedLicense left, ReportedLicense right )
         {
-            return !(left == right);
+            return !( left == right );
         }
 
         public bool Equals( ReportedLicense other )
         {
-            return this.LicensedProduct.Equals( other.LicensedProduct, StringComparison.Ordinal ) &&
-                   this.LicenseType.Equals( other.LicenseType, StringComparison.Ordinal );
+            return LicensedProduct.Equals( other.LicensedProduct, StringComparison.Ordinal ) &&
+                   LicenseType.Equals( other.LicenseType, StringComparison.Ordinal );
         }
     }
 }

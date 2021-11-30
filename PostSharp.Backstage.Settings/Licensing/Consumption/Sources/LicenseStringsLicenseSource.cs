@@ -17,12 +17,15 @@ namespace PostSharp.Backstage.Licensing.Consumption.Sources
         public LicenseStringsLicenseSource( IEnumerable<string> licenseKeys, IServiceProvider services )
             : base( services )
         {
-            this._licenseStrings = licenseKeys;
-            this._services = services;
+            _licenseStrings = licenseKeys;
+            _services = services;
 
-            this._logger = services.GetOptionalTraceLogger<LicenseStringsLicenseSource>();
+            _logger = services.GetOptionalTraceLogger<LicenseStringsLicenseSource>();
         }
 
-        protected override IEnumerable<string> GetLicenseStrings() => this._licenseStrings;
+        protected override IEnumerable<string> GetLicenseStrings()
+        {
+            return _licenseStrings;
+        }
     }
 }

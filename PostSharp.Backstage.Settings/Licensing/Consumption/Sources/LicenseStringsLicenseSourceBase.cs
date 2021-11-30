@@ -13,27 +13,27 @@ namespace PostSharp.Backstage.Licensing.Consumption.Sources
         private readonly IServiceProvider _services;
         private readonly ILogger? _logger;
 
-        protected LicenseStringsLicenseSourceBase( IServiceProvider services ) 
+        protected LicenseStringsLicenseSourceBase( IServiceProvider services )
         {
-            this._services = services;
-            
-            this._logger = services.GetOptionalTraceLogger<LicenseStringsLicenseSourceBase>();
+            _services = services;
+
+            _logger = services.GetOptionalTraceLogger<LicenseStringsLicenseSourceBase>();
         }
 
         protected abstract IEnumerable<string> GetLicenseStrings();
 
         public IEnumerable<ILicense> GetLicenses()
         {
-            var licenseFactory = new LicenseFactory( this._services );
+            var licenseFactory = new LicenseFactory( _services );
 
-            foreach ( var licenseString in this.GetLicenseStrings() )
+            foreach (var licenseString in GetLicenseStrings())
             {
-                if ( string.IsNullOrWhiteSpace( licenseString ) )
+                if (string.IsNullOrWhiteSpace( licenseString ))
                 {
                     continue;
                 }
 
-                if ( licenseFactory.TryCreate( licenseString, out var license ) )
+                if (licenseFactory.TryCreate( licenseString, out var license ))
                 {
                     yield return license;
                 }

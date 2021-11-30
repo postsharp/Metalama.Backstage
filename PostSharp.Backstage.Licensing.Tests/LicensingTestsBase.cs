@@ -19,28 +19,32 @@ namespace PostSharp.Backstage.Licensing.Tests
 
         private protected IStandardLicenseFileLocations LicenseFiles { get; }
 
-        private protected LicensingTestsBase(ITestOutputHelper logger,
-            Action<BackstageServiceCollection>? serviceBuilder = null)
+        private protected LicensingTestsBase(
+            ITestOutputHelper logger,
+            Action<BackstageServiceCollection>? serviceBuilder = null )
             : base(
                 logger,
                 serviceCollection =>
                 {
                     // ReSharper disable once ExplicitCallerInfoArgument
-                    serviceCollection.AddSingleton<IDiagnosticsSink>(services =>
-                        new TestDiagnosticsSink(services.ToServiceProvider(), "default"));
+                    serviceCollection.AddSingleton<IDiagnosticsSink>(
+                        services =>
+                            new TestDiagnosticsSink( services.ToServiceProvider(), "default" ) );
+
                     serviceCollection.AddSingleton<IApplicationInfo>(
                         new TestApplicationInfo(
                             "Licensing Test App",
                             false,
-                            new Version(0, 1, 0),
-                            new DateTime(2021, 1, 1)));
+                            new Version( 0, 1, 0 ),
+                            new DateTime( 2021, 1, 1 ) ) );
+
                     serviceCollection.AddStandardLicenseFilesLocations();
 
-                    serviceBuilder?.Invoke(serviceCollection);
-                })
+                    serviceBuilder?.Invoke( serviceCollection );
+                } )
         {
-            LicenseFactory = new LicenseFactory(Services);
-            SelfSignedLicenseFactory = new UnsignedLicenseFactory(Services);
+            LicenseFactory = new LicenseFactory( Services );
+            SelfSignedLicenseFactory = new UnsignedLicenseFactory( Services );
             Diagnostics = (TestDiagnosticsSink)Services.GetRequiredService<IDiagnosticsSink>();
             LicenseFiles = Services.GetRequiredService<IStandardLicenseFileLocations>();
         }

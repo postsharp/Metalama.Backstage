@@ -17,65 +17,67 @@ namespace PostSharp.Backstage.Testing.Services
 
         public string Name { get; set; }
 
-        public IReadOnlyList<(string Message, IDiagnosticsLocation? Location)> Warnings => this._warnings;
+        public IReadOnlyList<(string Message, IDiagnosticsLocation? Location)> Warnings => _warnings;
 
-        public IReadOnlyList<(string Message, IDiagnosticsLocation? Location)> Errors => this._errors;
+        public IReadOnlyList<(string Message, IDiagnosticsLocation? Location)> Errors => _errors;
 
         public TestDiagnosticsSink( IServiceProvider services, [CallerMemberName] string name = "" )
         {
-            this.Name = name;
-            this._logger = services.GetOptionalTraceLogger<TestDiagnosticsSink>()!;
+            Name = name;
+            _logger = services.GetOptionalTraceLogger<TestDiagnosticsSink>()!;
         }
 
         private void Trace( string verbosity, string message, IDiagnosticsLocation? location )
         {
-            this._logger.LogTrace( $"Diagnostic sink '{this.Name}' reported '{verbosity}' at '{location?.ToString() ?? "unknown"}': {message}" );
+            _logger.LogTrace( $"Diagnostic sink '{Name}' reported '{verbosity}' at '{location?.ToString() ?? "unknown"}': {message}" );
         }
 
         public void ReportWarning( string message, IDiagnosticsLocation? location = null )
         {
-            this.Trace( "warning", message, location );
-            this._warnings.Add( (message, location) );
+            Trace( "warning", message, location );
+            _warnings.Add( ( message, location ) );
         }
 
         public void ReportError( string message, IDiagnosticsLocation? location = null )
         {
-            this.Trace( "error", message, location );
-            this._errors.Add( (message, location) );
+            Trace( "error", message, location );
+            _errors.Add( ( message, location ) );
         }
 
         private static IEnumerable<string> DiagnosticsToString( IEnumerable<(string Message, IDiagnosticsLocation? Location)> diagnostics )
-            => diagnostics.Select( d => $"{d.Message} at {d.Location?.ToString() ?? "unknown"}" );
+        {
+            return diagnostics.Select( d => $"{d.Message} at {d.Location?.ToString() ?? "unknown"}" );
+        }
 
         public void AssertNoWarnings()
         {
-            if ( this._warnings.Count != 0 )
+            if (_warnings.Count != 0)
             {
-                throw new InvalidOperationException( string.Join( Environment.NewLine, DiagnosticsToString( this._warnings ).Prepend( "Warnings:" ) ) );
+                throw new InvalidOperationException( string.Join( Environment.NewLine, DiagnosticsToString( _warnings ).Prepend( "Warnings:" ) ) );
             }
         }
 
         public void AssertNoErrors()
         {
-            if ( this._errors.Count != 0 )
+            if (_errors.Count != 0)
             {
-                throw new InvalidOperationException( string.Join( Environment.NewLine, DiagnosticsToString( this._errors ).Prepend( "Errors:" ) ) );
+                throw new InvalidOperationException( string.Join( Environment.NewLine, DiagnosticsToString( _errors ).Prepend( "Errors:" ) ) );
             }
         }
 
         public void AssertClean()
         {
-            if ( this._warnings.Count != 0 && this._errors.Count != 0 )
+            if (_warnings.Count != 0 && _errors.Count != 0)
             {
                 throw new InvalidOperationException(
                     string.Join(
                         Environment.NewLine,
-                        DiagnosticsToString( this._warnings ).Prepend( "Warnings:" ).Union( DiagnosticsToString( this._errors ).Prepend( "Errors:" ) ) ) );
+                        DiagnosticsToString( _warnings ).Prepend( "Warnings:" ).Union( DiagnosticsToString( _errors ).Prepend( "Errors:" ) ) ) );
             }
             else
             {
-                this.AssertNoWarnings();
-                this.AssertNoErrors();
+                AssertNoWarnings();
+                AssertNoErrors();
             }
         }
     }

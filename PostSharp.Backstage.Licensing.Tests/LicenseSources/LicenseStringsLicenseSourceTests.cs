@@ -18,32 +18,32 @@ namespace PostSharp.Backstage.Licensing.Tests.LicenseSources
         [Fact]
         public void NoLicenseStringPasses()
         {
-            LicenseStringsLicenseSource source = new( Enumerable.Empty<string>(), this.Services );
+            LicenseStringsLicenseSource source = new( Enumerable.Empty<string>(), Services );
 
             Assert.Empty( source.GetLicenses() );
-            this.Diagnostics.AssertClean();
+            Diagnostics.AssertClean();
         }
 
         [Fact]
         public void OneLicenseStringPasses()
         {
-            LicenseStringsLicenseSource source = new( new[] { TestLicenseKeys.Ultimate }, this.Services );
+            LicenseStringsLicenseSource source = new( new[] { TestLicenseKeys.Ultimate }, Services );
 
             Assert.Equal( $"License '{TestLicenseKeys.Ultimate}'", source.GetLicenses().Single().ToString() );
-            this.Diagnostics.AssertClean();
+            Diagnostics.AssertClean();
         }
 
         [Fact]
         public void EmptyLicenseStringsSkipped()
         {
-            LicenseStringsLicenseSource source = new( new[] { "", TestLicenseKeys.Ultimate, "", "", TestLicenseKeys.Logging, "" }, this.Services );
+            LicenseStringsLicenseSource source = new( new[] { "", TestLicenseKeys.Ultimate, "", "", TestLicenseKeys.Logging, "" }, Services );
 
             var licenses = source.GetLicenses().ToArray();
             Assert.Equal( 2, licenses.Length );
             Assert.Equal( $"License '{TestLicenseKeys.Ultimate}'", licenses[0].ToString() );
             Assert.Equal( $"License '{TestLicenseKeys.Logging}'", licenses[1].ToString() );
 
-            this.Diagnostics.AssertClean();
+            Diagnostics.AssertClean();
         }
     }
 }

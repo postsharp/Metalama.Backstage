@@ -12,7 +12,7 @@ namespace PostSharp.Cli.Commands
         public CommandBase( ICommandServiceProvider commandServiceProvider, string name, string? description = null )
             : base( name, description )
         {
-            this.CommandServiceProvider = commandServiceProvider;
+            CommandServiceProvider = commandServiceProvider;
         }
     }
 }

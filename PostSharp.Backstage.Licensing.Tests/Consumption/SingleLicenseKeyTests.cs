@@ -14,7 +14,7 @@ namespace PostSharp.Backstage.Licensing.Tests.Consumption
 
         private void TestOneLicense( string licenseKey, LicensedFeatures requiredFeatures, bool expectedCanConsume )
         {
-            this.TestOneLicense( licenseKey, requiredFeatures, requiredNamespace: "Foo", expectedCanConsume );
+            TestOneLicense( licenseKey, requiredFeatures, "Foo", expectedCanConsume );
         }
 
         private void TestOneLicense(
@@ -24,65 +24,65 @@ namespace PostSharp.Backstage.Licensing.Tests.Consumption
             bool expectedCanConsume,
             bool expectedLicenseAutoRegistrationAttempt = false )
         {
-            var license = this.CreateLicense( licenseKey );
-            var manager = this.CreateConsumptionManager( license );
-            this.TestConsumption( manager, requiredFeatures, requiredNamespace, expectedCanConsume );
-            Assert.Equal( expectedLicenseAutoRegistrationAttempt, this.AutoRegistrar.RegistrationAttempted );
+            var license = CreateLicense( licenseKey );
+            var manager = CreateConsumptionManager( license );
+            TestConsumption( manager, requiredFeatures, requiredNamespace, expectedCanConsume );
+            Assert.Equal( expectedLicenseAutoRegistrationAttempt, AutoRegistrar.RegistrationAttempted );
         }
 
         [Fact]
         public void NoLicenseAutoRegistersEvaluationLicense()
         {
-            LicenseConsumptionManager manager = new( this.Services );
-            this.TestConsumption( manager, LicensedFeatures.Caravela, expectedCanConsume: false, expectedLicenseAutoRegistrationAttempt: true );
+            LicenseConsumptionManager manager = new( Services );
+            TestConsumption( manager, LicensedFeatures.Caravela, false, true );
         }
 
         [Fact]
         public void UltimateLicenseAllowsCaravelaFeature()
         {
-            this.TestOneLicense( TestLicenseKeys.Ultimate, LicensedFeatures.Caravela, true );
+            TestOneLicense( TestLicenseKeys.Ultimate, LicensedFeatures.Caravela, true );
         }
 
         [Fact]
         public void LoggingLicenseForbidsCaravelaFeature()
         {
-            this.TestOneLicense( TestLicenseKeys.Logging, LicensedFeatures.Caravela, false );
+            TestOneLicense( TestLicenseKeys.Logging, LicensedFeatures.Caravela, false );
         }
 
         [Fact]
         public void OpenSourceAllowsCaravelaInSameNamespace()
         {
-            this.TestOneLicense( TestLicenseKeys.OpenSource, LicensedFeatures.Caravela, TestLicenseKeys.OpenSourceNamespace, true );
+            TestOneLicense( TestLicenseKeys.OpenSource, LicensedFeatures.Caravela, TestLicenseKeys.OpenSourceNamespace, true );
         }
 
         [Fact]
         public void OpenSourceForbidsCaravelaInDifferentNamespace()
         {
-            this.TestOneLicense( TestLicenseKeys.OpenSource, LicensedFeatures.Caravela, "Foo", false );
+            TestOneLicense( TestLicenseKeys.OpenSource, LicensedFeatures.Caravela, "Foo", false );
         }
 
         [Fact]
         public void CaravelaLicenseAllowsCaravelaFeature()
         {
-            this.TestOneLicense( TestLicenseKeys.Caravela, LicensedFeatures.Caravela, true );
+            TestOneLicense( TestLicenseKeys.Caravela, LicensedFeatures.Caravela, true );
         }
-        
+
         [Fact]
         public void CaravelaLicenseAllowsCommunityFeature()
         {
-            this.TestOneLicense( TestLicenseKeys.Caravela, LicensedFeatures.Community, true );
+            TestOneLicense( TestLicenseKeys.Caravela, LicensedFeatures.Community, true );
         }
-        
+
         [Fact]
         public void CommunityLicenseForbidsCaravelaFeature()
         {
-            this.TestOneLicense( TestLicenseKeys.Community, LicensedFeatures.Caravela, false );
+            TestOneLicense( TestLicenseKeys.Community, LicensedFeatures.Caravela, false );
         }
-        
+
         [Fact]
         public void CommunityLicenseAllowsCommunityFeature()
         {
-            this.TestOneLicense( TestLicenseKeys.Community, LicensedFeatures.Community, true );
+            TestOneLicense( TestLicenseKeys.Community, LicensedFeatures.Community, true );
         }
     }
 }

@@ -94,54 +94,54 @@ namespace PostSharp.Backstage.Licensing.Registration
             bool? perpetual,
             DateTime? subscriptionEndDate )
         {
-            this.UniqueId = uniqueId;
-            this.IsSelfCreated = isSelfCreated;
-            this.LicenseId = licenseId;
-            this.Licensee = licensee;
-            this.Description = description;
-            this.LicenseType = licenseType;
-            this.ValidFrom = validFrom;
-            this.ValidTo = validTo;
-            this.Perpetual = perpetual;
-            this.SubscriptionEndDate = subscriptionEndDate;
+            UniqueId = uniqueId;
+            IsSelfCreated = isSelfCreated;
+            LicenseId = licenseId;
+            Licensee = licensee;
+            Description = description;
+            LicenseType = licenseType;
+            ValidFrom = validFrom;
+            ValidTo = validTo;
+            Perpetual = perpetual;
+            SubscriptionEndDate = subscriptionEndDate;
         }
 
         /// <inheritdoc />
         public bool Equals( LicenseRegistrationData other )
         {
-            return this.UniqueId == other.UniqueId &&
-                   this.IsSelfCreated == other.IsSelfCreated &&
-                   this.LicenseId == other.LicenseId &&
-                   this.Licensee == other.Licensee &&
-                   this.Description == other.Description &&
-                   this.LicenseType == other.LicenseType &&
-                   this.ValidFrom == other.ValidFrom &&
-                   this.ValidTo == other.ValidTo &&
-                   this.Perpetual == other.Perpetual &&
-                   this.SubscriptionEndDate == other.SubscriptionEndDate;
+            return UniqueId == other.UniqueId &&
+                   IsSelfCreated == other.IsSelfCreated &&
+                   LicenseId == other.LicenseId &&
+                   Licensee == other.Licensee &&
+                   Description == other.Description &&
+                   LicenseType == other.LicenseType &&
+                   ValidFrom == other.ValidFrom &&
+                   ValidTo == other.ValidTo &&
+                   Perpetual == other.Perpetual &&
+                   SubscriptionEndDate == other.SubscriptionEndDate;
         }
 
         /// <inheritdoc />
         public override bool Equals( object? obj )
         {
             return obj is LicenseRegistrationData data &&
-                   this.Equals( data );
+                   Equals( data );
         }
 
         /// <inheritdoc />
         public override int GetHashCode()
         {
             HashCode hashCode = default;
-            hashCode.Add( this.UniqueId );
-            hashCode.Add( this.IsSelfCreated );
-            hashCode.Add( this.LicenseId );
-            hashCode.Add( this.Licensee );
-            hashCode.Add( this.Description );
-            hashCode.Add( this.LicenseType );
-            hashCode.Add( this.ValidFrom );
-            hashCode.Add( this.ValidTo );
-            hashCode.Add( this.Perpetual );
-            hashCode.Add( this.SubscriptionEndDate );
+            hashCode.Add( UniqueId );
+            hashCode.Add( IsSelfCreated );
+            hashCode.Add( LicenseId );
+            hashCode.Add( Licensee );
+            hashCode.Add( Description );
+            hashCode.Add( LicenseType );
+            hashCode.Add( ValidFrom );
+            hashCode.Add( ValidTo );
+            hashCode.Add( Perpetual );
+            hashCode.Add( SubscriptionEndDate );
 
             return hashCode.ToHashCode();
         }

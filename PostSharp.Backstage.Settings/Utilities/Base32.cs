@@ -20,40 +20,40 @@ namespace PostSharp.Backstage.Utilities
             var currentByte = 0;
             var c = 0;
 
-            while ( currentByte < bytes.Length )
+            while (currentByte < bytes.Length)
             {
                 // do we need to use the next byte?
                 byte index;
 
-                if ( hi > 8 )
+                if (hi > 8)
                 {
                     // get the last piece from the current byte, shift it to the right
                     // and increment the byte counter
-                    index = (byte) (bytes[currentByte++] >> (hi - 5));
+                    index = (byte)( bytes[currentByte++] >> ( hi - 5 ) );
 
-                    if ( currentByte != bytes.Length )
+                    if (currentByte != bytes.Length)
                     {
                         // if we are not at the end, get the first piece from
                         // the next byte, clear it and shift it to the left
-                        index = (byte) (((byte) (bytes[currentByte] << (16 - hi)) >> 3) | index);
+                        index = (byte)( ( (byte)( bytes[currentByte] << ( 16 - hi ) ) >> 3 ) | index );
                     }
 
                     hi -= 3;
                 }
-                else if ( hi == 8 )
+                else if (hi == 8)
                 {
-                    index = (byte) (bytes[currentByte++] >> 3);
+                    index = (byte)( bytes[currentByte++] >> 3 );
                     hi -= 3;
                 }
                 else
                 {
                     // simply get the stuff from the current byte
-                    index = (byte) ((byte) (bytes[currentByte] << (8 - hi)) >> 3);
+                    index = (byte)( (byte)( bytes[currentByte] << ( 8 - hi ) ) >> 3 );
                     hi += 5;
                 }
 
                 // Write dashes every 5th character.
-                if ( c > 0 && groupSize != 0 && c % groupSize == 0 )
+                if (c > 0 && groupSize != 0 && c % groupSize == 0)
                 {
                     stringBuilder.Append( '-' );
                 }
@@ -81,24 +81,24 @@ namespace PostSharp.Backstage.Utilities
             // all UPPERCASE chars
             str = str.ToUpperInvariant();
 
-            if ( str.Length < 3 )
+            if (str.Length < 3)
             {
-                bytes[0] = (byte) (_validChars.IndexOf( str[0] ) | (_validChars.IndexOf( str[1] ) << 5));
+                bytes[0] = (byte)( _validChars.IndexOf( str[0] ) | ( _validChars.IndexOf( str[1] ) << 5 ) );
 
                 return bytes;
             }
 
-            var bitBuffer = _validChars.IndexOf( str[0] ) | (_validChars.IndexOf( str[1] ) << 5);
+            var bitBuffer = _validChars.IndexOf( str[0] ) | ( _validChars.IndexOf( str[1] ) << 5 );
             var bitsInBuffer = 10;
             var currentCharIndex = 2;
 
-            for ( var i = 0; i < bytes.Length; i++ )
+            for (var i = 0; i < bytes.Length; i++)
             {
-                bytes[i] = (byte) bitBuffer;
+                bytes[i] = (byte)bitBuffer;
                 bitBuffer >>= 8;
                 bitsInBuffer -= 8;
 
-                while ( bitsInBuffer < 8 && currentCharIndex < str.Length )
+                while (bitsInBuffer < 8 && currentCharIndex < str.Length)
                 {
                     bitBuffer |= _validChars.IndexOf( str[currentCharIndex++] ) << bitsInBuffer;
                     bitsInBuffer += 5;

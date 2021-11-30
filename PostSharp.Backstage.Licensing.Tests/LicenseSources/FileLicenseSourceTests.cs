@@ -20,48 +20,48 @@ namespace PostSharp.Backstage.Licensing.Tests.LicenseSources
         [Fact]
         public void NonexistentFileIsReported()
         {
-            FileLicenseSource source = new( _licenseFilePath, this.Services );
+            FileLicenseSource source = new( _licenseFilePath, Services );
 
             Assert.Empty( source.GetLicenses() );
-            this.Diagnostics.AssertNoErrors();
-            this.Diagnostics.AssertSingleWarning( "Failed to load licenses from 'postsharp.lic': Could not find file 'postsharp.lic'." );
+            Diagnostics.AssertNoErrors();
+            Diagnostics.AssertSingleWarning( "Failed to load licenses from 'postsharp.lic': Could not find file 'postsharp.lic'." );
         }
 
         [Fact]
         public void EmptyFilePasses()
         {
-            this.FileSystem.Mock.AddFile( _licenseFilePath, new MockFileData( "" ) );
+            FileSystem.Mock.AddFile( _licenseFilePath, new MockFileData( "" ) );
 
-            FileLicenseSource source = new( _licenseFilePath, this.Services );
+            FileLicenseSource source = new( _licenseFilePath, Services );
 
             Assert.Empty( source.GetLicenses() );
-            this.Diagnostics.AssertClean();
+            Diagnostics.AssertClean();
         }
 
         [Fact]
         public void OneLicenseStringPasses()
         {
-            this.FileSystem.Mock.AddFile( _licenseFilePath, new MockFileData( TestLicenseKeys.Ultimate ) );
+            FileSystem.Mock.AddFile( _licenseFilePath, new MockFileData( TestLicenseKeys.Ultimate ) );
 
-            FileLicenseSource source = new( _licenseFilePath, this.Services );
+            FileLicenseSource source = new( _licenseFilePath, Services );
 
             Assert.Equal( $"License '{TestLicenseKeys.Ultimate}'", source.GetLicenses().Single().ToString() );
-            this.Diagnostics.AssertClean();
+            Diagnostics.AssertClean();
         }
 
         [Fact]
         public void EmptyLinesSkipped()
         {
-            this.FileSystem.Mock.AddFile( _licenseFilePath, new MockFileDataEx( "", TestLicenseKeys.Ultimate, "", "", TestLicenseKeys.Logging, "" ) );
+            FileSystem.Mock.AddFile( _licenseFilePath, new MockFileDataEx( "", TestLicenseKeys.Ultimate, "", "", TestLicenseKeys.Logging, "" ) );
 
-            FileLicenseSource source = new( _licenseFilePath, this.Services );
+            FileLicenseSource source = new( _licenseFilePath, Services );
 
             var licenses = source.GetLicenses().ToArray();
             Assert.Equal( 2, licenses.Length );
             Assert.Equal( $"License '{TestLicenseKeys.Ultimate}'", licenses[0].ToString() );
             Assert.Equal( $"License '{TestLicenseKeys.Logging}'", licenses[1].ToString() );
 
-            this.Diagnostics.AssertClean();
+            Diagnostics.AssertClean();
         }
     }
 }

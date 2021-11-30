@@ -13,11 +13,13 @@ namespace PostSharp.Backstage.Licensing.Registration
         /// </summary>
         /// <param name="serviceCollection">The <see cref="IBackstageServiceCollection" /> to add services to.</param>
         /// <returns>The <see cref="IBackstageServiceCollection" /> so that additional calls can be chained.</returns>
-        public static BackstageServiceCollection AddStandardLicenseFilesLocations(
-            this BackstageServiceCollection serviceCollection)
-            => serviceCollection
-                .AddSingleton<IStandardLicenseFileLocations>(services =>
-                    new StandardLicenseFilesLocations(services.ToServiceProvider()))
+        public static BackstageServiceCollection AddStandardLicenseFilesLocations( this BackstageServiceCollection serviceCollection )
+        {
+            return serviceCollection
+                .AddSingleton<IStandardLicenseFileLocations>(
+                    services =>
+                        new StandardLicenseFilesLocations( services.ToServiceProvider() ) )
                 .AddStandardEvaluationLicenseFilesLocations();
+        }
     }
 }

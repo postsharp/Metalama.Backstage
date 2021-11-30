@@ -10,26 +10,26 @@ namespace PostSharp.Backstage.Licensing.Licenses
         /// <exclude/>
         public bool VerifySignature()
         {
-            if ( !this.RequiresSignature )
+            if (!RequiresSignature)
             {
                 return true;
             }
 
-            if ( !this.SignatureKeyId.HasValue )
+            if (!SignatureKeyId.HasValue)
             {
                 return false;
             }
 
-            var publicKey = LicenseCryptography.GetPublicKey( this.SignatureKeyId.Value );
+            var publicKey = LicenseCryptography.GetPublicKey( SignatureKeyId.Value );
 
-            if ( publicKey == null )
+            if (publicKey == null)
             {
                 return false;
             }
 
             try
             {
-                return this.VerifySignature( publicKey );
+                return VerifySignature( publicKey );
             }
             catch
             {
@@ -39,19 +39,19 @@ namespace PostSharp.Backstage.Licensing.Licenses
 
         private static bool ComparePublicKeyToken( byte[] key1, byte[] key2 )
         {
-            if ( key1 == null )
+            if (key1 == null)
             {
                 return key2 == null;
             }
 
-            if ( key2 == null )
+            if (key2 == null)
             {
                 return false;
             }
 
-            for ( var i = 0; i < key1.Length; i++ )
+            for (var i = 0; i < key1.Length; i++)
             {
-                if ( key1[i] != key2[i] )
+                if (key1[i] != key2[i])
                 {
                     return false;
                 }

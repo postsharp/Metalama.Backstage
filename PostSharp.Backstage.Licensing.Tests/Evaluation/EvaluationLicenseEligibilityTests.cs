@@ -17,32 +17,32 @@ namespace PostSharp.Backstage.Licensing.Tests.Evaluation
         [Fact]
         public void EvaluationLicenseRegistersInCleanEnvironment()
         {
-            this.Time.Set( TestStart );
-            this.AssertEvaluationEligible( reason: "No trial license found." );
+            Time.Set( TestStart );
+            AssertEvaluationEligible( "No trial license found." );
         }
 
         [Fact]
         public void MultipleEvaluationLicenseFlagsDisableEvaluationLicenseRegistration()
         {
             // Equal license keys would fail the test because the internal storage uses dictionary indexed by license string.
-            var (evaluationLicenseKey1, _) = this.SelfSignedLicenseFactory.CreateEvaluationLicense();
-            var (evaluationLicenseKey2, _) = this.SelfSignedLicenseFactory.CreateEvaluationLicense();
-            this.SetFlag( evaluationLicenseKey1, evaluationLicenseKey2 );
-            this.AssertEvaluationNotEligible( "Failed to find the latest trial license: Invalid count." );
+            var (evaluationLicenseKey1, _) = SelfSignedLicenseFactory.CreateEvaluationLicense();
+            var (evaluationLicenseKey2, _) = SelfSignedLicenseFactory.CreateEvaluationLicense();
+            SetFlag( evaluationLicenseKey1, evaluationLicenseKey2 );
+            AssertEvaluationNotEligible( "Failed to find the latest trial license: Invalid count." );
         }
 
         [Fact]
         public void InvalidEvaluationLicenseFlagDisablesEvaluationLicenseRegistration()
         {
-            this.SetFlag( "dummy" );
-            this.AssertEvaluationNotEligible( "Failed to find the latest trial license: Invalid data." );
+            SetFlag( "dummy" );
+            AssertEvaluationNotEligible( "Failed to find the latest trial license: Invalid data." );
         }
 
         [Fact]
         public void InvalidEvaluationLicenseFlagTypeDisablesEvaluationLicenseRegistration()
         {
-            this.SetFlag( TestLicenseKeys.Ultimate );
-            this.AssertEvaluationNotEligible( "Failed to find the latest trial license: Invalid license type." );
+            SetFlag( TestLicenseKeys.Ultimate );
+            AssertEvaluationNotEligible( "Failed to find the latest trial license: Invalid license type." );
         }
 
         [Fact]
@@ -58,55 +58,55 @@ namespace PostSharp.Backstage.Licensing.Tests.Evaluation
 
             var evaluationLicenseKeyWithMissingValidity = licenseKeyData.Serialize();
 
-            this.SetFlag( evaluationLicenseKeyWithMissingValidity );
-            this.AssertEvaluationNotEligible( "Failed to find the latest trial license: Invalid validity." );
+            SetFlag( evaluationLicenseKeyWithMissingValidity );
+            AssertEvaluationNotEligible( "Failed to find the latest trial license: Invalid validity." );
         }
 
         private void TestRepetitiveRegistration( TimeSpan retryAfter, bool expectedEligibility )
         {
-            this.Time.Set( TestStart );
-            this.AssertEvaluationEligible( "No trial license found." );
+            Time.Set( TestStart );
+            AssertEvaluationEligible( "No trial license found." );
 
-            this.Time.Set( this.Time.Now + retryAfter );
+            Time.Set( Time.Now + retryAfter );
 
-            if ( expectedEligibility )
+            if (expectedEligibility)
             {
-                this.AssertEvaluationEligible( "Evaluation license registration can be repeated." );
+                AssertEvaluationEligible( "Evaluation license registration can be repeated." );
             }
             else
             {
-                this.AssertEvaluationNotEligible( "Evaluation license requested recently." );
+                AssertEvaluationNotEligible( "Evaluation license requested recently." );
             }
         }
 
         [Fact]
         public void RepetitiveEvaluationLicenseRegistrationFails()
         {
-            this.TestRepetitiveRegistration( TimeSpan.Zero, false );
+            TestRepetitiveRegistration( TimeSpan.Zero, false );
         }
 
         [Fact]
         public void EvaluationLicenseRegistrationWithinRunningEvaluationFails()
         {
-            this.TestRepetitiveRegistration( EvaluationLicenseRegistrar.EvaluationPeriod / 2, false );
+            TestRepetitiveRegistration( EvaluationLicenseRegistrar.EvaluationPeriod / 2, false );
         }
 
         [Fact]
         public void EvaluationLicenseRegistrationWithinNoEvaluationPeriodFails()
         {
-            this.TestRepetitiveRegistration( EvaluationLicenseRegistrar.EvaluationPeriod + (EvaluationLicenseRegistrar.NoEvaluationPeriod / 2), false );
+            TestRepetitiveRegistration( EvaluationLicenseRegistrar.EvaluationPeriod + EvaluationLicenseRegistrar.NoEvaluationPeriod / 2, false );
         }
 
         [Fact]
         public void EvaluationLicenseRegistrationAtTheEndOfNoEvaluationPeriodFails()
         {
-            this.TestRepetitiveRegistration( EvaluationLicenseRegistrar.EvaluationPeriod + EvaluationLicenseRegistrar.NoEvaluationPeriod, false );
+            TestRepetitiveRegistration( EvaluationLicenseRegistrar.EvaluationPeriod + EvaluationLicenseRegistrar.NoEvaluationPeriod, false );
         }
 
         [Fact]
         public void EvaluationLicenseRegistrationAfterNoEvaluationPeriodSucceeds()
         {
-            this.TestRepetitiveRegistration(
+            TestRepetitiveRegistration(
                 EvaluationLicenseRegistrar.EvaluationPeriod + EvaluationLicenseRegistrar.NoEvaluationPeriod + TimeSpan.FromDays( 1 ),
                 true );
         }

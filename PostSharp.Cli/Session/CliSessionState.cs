@@ -21,53 +21,53 @@ namespace PostSharp.Cli.Session
 
         private readonly IFileSystem _fileSystem;
 
-        public int Count => this._data.Count;
+        public int Count => _data.Count;
 
         public CliSessionState( string name, IServiceProvider services )
         {
             var standardDirectories = services.GetRequiredService<IStandardDirectories>();
-            this._sessionDirectory = Path.Combine( standardDirectories.TempDirectory, "CliSessions" );
-            this._filePath = Path.Combine( this._sessionDirectory, "cli-session-" + name + ".tmp" );
-            this._fileSystem = services.GetRequiredService<IFileSystem>();
+            _sessionDirectory = Path.Combine( standardDirectories.TempDirectory, "CliSessions" );
+            _filePath = Path.Combine( _sessionDirectory, "cli-session-" + name + ".tmp" );
+            _fileSystem = services.GetRequiredService<IFileSystem>();
         }
 
         public void Add( int ordinal, string value )
         {
-            this._data.Add( ordinal, value );
+            _data.Add( ordinal, value );
         }
 
         public bool TryGetValue( int ordinal, out string? value )
         {
-            return this._data.TryGetValue( ordinal, out value );
+            return _data.TryGetValue( ordinal, out value );
         }
 
         public void Save()
         {
             // System JSON serializer doesn't support Dictionary<int, string>
-            var dataString = JsonSerializer.Serialize( this._data.ToDictionary( d => d.Key.ToString( CultureInfo.InvariantCulture ), d => d.Value ) );
+            var dataString = JsonSerializer.Serialize( _data.ToDictionary( d => d.Key.ToString( CultureInfo.InvariantCulture ), d => d.Value ) );
 
-            this._fileSystem.CreateDirectory( this._sessionDirectory );
-            this._fileSystem.WriteAllText( this._filePath, dataString );
+            _fileSystem.CreateDirectory( _sessionDirectory );
+            _fileSystem.WriteAllText( _filePath, dataString );
         }
 
         public CliSessionState Load()
         {
-            if ( !this._fileSystem.FileExists( this._filePath ) )
+            if (!_fileSystem.FileExists( _filePath ))
             {
                 return this;
             }
 
             // TODO: Let the session expire here?
 
-            var dataString = this._fileSystem.ReadAllText( this._filePath );
+            var dataString = _fileSystem.ReadAllText( _filePath );
 
             var data = JsonSerializer.Deserialize<Dictionary<string, string>>( dataString );
 
-            if ( data != null )
+            if (data != null)
             {
-                foreach ( var item in data )
+                foreach (var item in data)
                 {
-                    this.Add( int.Parse( item.Key, CultureInfo.InvariantCulture ), item.Value );
+                    Add( int.Parse( item.Key, CultureInfo.InvariantCulture ), item.Value );
                 }
             }
 

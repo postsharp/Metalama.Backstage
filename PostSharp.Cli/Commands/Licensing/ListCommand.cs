@@ -16,22 +16,22 @@ namespace PostSharp.Cli.Commands.Licensing
         public ListCommand( ICommandServiceProvider commandServiceProvider )
             : base( commandServiceProvider, "list", "Lists registered licenses" )
         {
-            this.Handler = CommandHandler.Create<bool, IConsole>( this.Execute );
+            Handler = CommandHandler.Create<bool, IConsole>( Execute );
         }
 
         private int Execute( bool verbose, IConsole console )
         {
-            var services = this.CommandServiceProvider.CreateServiceProvider( console, verbose );
+            var services = CommandServiceProvider.CreateServiceProvider( console, verbose );
             var licenseFiles = services.GetRequiredService<IStandardLicenseFileLocations>();
             var storage = LicenseFileStorage.OpenOrCreate( licenseFiles.UserLicenseFile, services );
 
             var ordinal = 1;
             LicenseCommandSessionState ordinals = new( services );
 
-            foreach ( var license in storage.Licenses )
+            foreach (var license in storage.Licenses)
             {
                 ordinals.Add( ordinal, license.Key );
-                this.WriteLicense( console.Out, ordinal, license.Key, license.Value );
+                WriteLicense( console.Out, ordinal, license.Key, license.Value );
                 console.Out.WriteLine();
 
                 ordinal++;
@@ -48,7 +48,7 @@ namespace PostSharp.Cli.Commands.Licensing
         {
             string? Format( DateTime? dateTime )
             {
-                if ( dateTime == null )
+                if (dateTime == null)
                 {
                     return null;
                 }
@@ -58,7 +58,7 @@ namespace PostSharp.Cli.Commands.Licensing
 
             void Write( string description, string? value )
             {
-                if ( value != null )
+                if (value != null)
                 {
                     @out.WriteLine( $"{description,24}: {value}" );
                 }
@@ -67,21 +67,21 @@ namespace PostSharp.Cli.Commands.Licensing
             Write( "Ordinal", ordinal.ToString( CultureInfo.InvariantCulture ) );
             Write( "License ID", data?.LicenseId?.ToString( CultureInfo.InvariantCulture ) );
 
-            if ( data == null || data.LicenseId != null )
+            if (data == null || data.LicenseId != null)
             {
                 Write( "License Key", licenseKey );
             }
 
-            if ( data != null )
+            if (data != null)
             {
                 Write( "Description", data.Description );
                 Write( "Licensee", data.Licensee );
 
                 string? expiration = null;
 
-                if ( data.Perpetual != null )
+                if (data.Perpetual != null)
                 {
-                    if ( data.Perpetual.Value )
+                    if (data.Perpetual.Value)
                     {
                         expiration = "Never (perpetual license)";
                     }

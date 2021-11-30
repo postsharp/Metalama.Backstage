@@ -16,7 +16,7 @@ namespace PostSharp.Backstage.Licensing.Licenses
         public static string GetLicenseTypeName( this LicenseType licenseType )
         {
 #pragma warning disable 618
-            switch ( licenseType )
+            switch (licenseType)
             {
                 case LicenseType.Community:
                     return "Community License";

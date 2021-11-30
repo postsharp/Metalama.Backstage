@@ -22,15 +22,15 @@ namespace PostSharp.Backstage.Licensing.Licenses
             {
                 Version = reader.ReadByte(),
                 LicenseId = reader.ReadInt32(),
-                LicenseType = (LicenseType) reader.ReadByte(),
-                Product = (LicensedProduct) reader.ReadByte()
+                LicenseType = (LicenseType)reader.ReadByte(),
+                Product = (LicensedProduct)reader.ReadByte()
             };
 
-            while ( (index = (LicenseFieldIndex) reader.ReadByte()) != LicenseFieldIndex.End )
+            while (( index = (LicenseFieldIndex)reader.ReadByte() ) != LicenseFieldIndex.End)
             {
                 LicenseField licenseField;
 
-                switch ( index )
+                switch (index)
                 {
                     case LicenseFieldIndex.SignatureKeyId:
                     case LicenseFieldIndex.GraceDays:
@@ -81,7 +81,7 @@ namespace PostSharp.Backstage.Licensing.Licenses
                         break;
 
                     default:
-                        if ( !index.IsPrefixedByLength() )
+                        if (!index.IsPrefixedByLength())
                         {
                             throw new InvalidLicenseException( "Unexpected license field." );
                         }
@@ -100,7 +100,7 @@ namespace PostSharp.Backstage.Licensing.Licenses
             }
 
             // this works only for base streams that implement Length and Position but since we always use MemoryStream it is ok.
-            if ( reader.BaseStream.Length > reader.BaseStream.Position )
+            if (reader.BaseStream.Length > reader.BaseStream.Position)
             {
                 throw new InvalidLicenseException( "License is too long." );
             }
@@ -117,7 +117,7 @@ namespace PostSharp.Backstage.Licensing.Licenses
             // Returns <c>true</c> if the licensed product has been present prior to PostSharp 6.5.17/6.8.10/6.9.3.
             static bool IsLicensedProductValidInAllPostSharpVersions( LicensedProduct licenseProduct )
             {
-                switch ( licenseProduct )
+                switch (licenseProduct)
                 {
                     case LicensedProduct.None:
 #pragma warning disable CS0618 // Type or member is obsolete
@@ -137,56 +137,56 @@ namespace PostSharp.Backstage.Licensing.Licenses
                 }
             }
 
-            if ( !IsLicensedProductValidInAllPostSharpVersions( this.Product )
-                 || this._fields.Keys.Any( i => i.IsPrefixedByLength() ) )
+            if (!IsLicensedProductValidInAllPostSharpVersions( Product )
+                || _fields.Keys.Any( i => i.IsPrefixedByLength() ))
             {
-                if ( this.MinPostSharpVersion != MinPostSharpVersionValidationRemovedPostSharpVersion )
+                if (MinPostSharpVersion != MinPostSharpVersionValidationRemovedPostSharpVersion)
                 {
                     throw new InvalidOperationException(
                         $"The license contains products or fields introduced " +
                         $"after PostSharp {MinPostSharpVersionValidationRemovedPostSharpVersion}. " +
-                        $"Set the {nameof(this.MinPostSharpVersion)} property " +
-                        $"to {this.GetType().Name}.{nameof(MinPostSharpVersionValidationRemovedPostSharpVersion)}." );
+                        $"Set the {nameof(MinPostSharpVersion)} property " +
+                        $"to {GetType().Name}.{nameof(MinPostSharpVersionValidationRemovedPostSharpVersion)}." );
                 }
             }
 
             var memoryStream = new MemoryStream();
 
-            using ( var binaryWriter = new BinaryWriter( memoryStream ) )
+            using (var binaryWriter = new BinaryWriter( memoryStream ))
             {
-                this.Write( binaryWriter, true );
-                binaryWriter.Write( (byte) LicenseFieldIndex.End );
+                Write( binaryWriter, true );
+                binaryWriter.Write( (byte)LicenseFieldIndex.End );
             }
 
             string prefix;
 
-            if ( this.LicenseGuid.HasValue )
+            if (LicenseGuid.HasValue)
             {
-                prefix = Base32.ToBase32String( this.LicenseGuid.Value.ToByteArray(), 0 );
+                prefix = Base32.ToBase32String( LicenseGuid.Value.ToByteArray(), 0 );
             }
             else
             {
-                prefix = this.LicenseId.ToString( CultureInfo.InvariantCulture );
+                prefix = LicenseId.ToString( CultureInfo.InvariantCulture );
             }
 
-            this.LicenseString = prefix + "-" + Base32.ToBase32String( memoryStream.ToArray(), 0 );
+            LicenseString = prefix + "-" + Base32.ToBase32String( memoryStream.ToArray(), 0 );
 
-            return this.LicenseString;
+            return LicenseString;
         }
 
         private void Write( BinaryWriter writer, bool includeAll )
         {
-            writer.Write( this.Version );
-            writer.Write( this.LicenseId );
-            writer.Write( (byte) this._licenseType );
-            writer.Write( (byte) this._product );
+            writer.Write( Version );
+            writer.Write( LicenseId );
+            writer.Write( (byte)_licenseType );
+            writer.Write( (byte)_product );
 
-            foreach ( var pair in this._fields )
+            foreach (var pair in _fields)
             {
-                switch ( pair.Key )
+                switch (pair.Key)
                 {
                     case LicenseFieldIndex.Signature:
-                        if ( includeAll )
+                        if (includeAll)
                         {
                             goto default;
                         }
@@ -194,9 +194,9 @@ namespace PostSharp.Backstage.Licensing.Licenses
                         continue;
 
                     default:
-                        writer.Write( (byte) pair.Key );
+                        writer.Write( (byte)pair.Key );
 
-                        if ( pair.Key.IsPrefixedByLength() )
+                        if (pair.Key.IsPrefixedByLength())
                         {
                             pair.Value.WriteConstantLength( writer );
                         }
@@ -213,9 +213,9 @@ namespace PostSharp.Backstage.Licensing.Licenses
             // Write the license to a buffer without the key.
             var memoryStream = new MemoryStream();
 
-            using ( var binaryWriter = new BinaryWriter( memoryStream ) )
+            using (var binaryWriter = new BinaryWriter( memoryStream ))
             {
-                this.Write( binaryWriter, false );
+                Write( binaryWriter, false );
             }
 
             var signedBuffer = memoryStream.ToArray();
@@ -230,9 +230,9 @@ namespace PostSharp.Backstage.Licensing.Licenses
         /// <param name="privateKey">XML representation of the private key.</param>
         public void Sign( byte signatureKeyId, string privateKey )
         {
-            this.SignatureKeyId = signatureKeyId;
-            var signedBuffer = this.GetSignedBuffer();
-            this.Signature = LicenseCryptography.Sign( signedBuffer, privateKey );
+            SignatureKeyId = signatureKeyId;
+            var signedBuffer = GetSignedBuffer();
+            Signature = LicenseCryptography.Sign( signedBuffer, privateKey );
         }
 
         /// <summary>
@@ -242,24 +242,24 @@ namespace PostSharp.Backstage.Licensing.Licenses
         /// <returns><c>true</c> if the signature is correct, otherwise <c>false</c>.</returns>
         public bool VerifySignature( DSA publicKey )
         {
-            if ( !this.RequiresSignature )
+            if (!RequiresSignature)
             {
                 return true;
             }
 
-            if ( publicKey == null )
+            if (publicKey == null)
             {
                 throw new ArgumentNullException( nameof(publicKey) );
             }
 
-            var signature = this.Signature;
+            var signature = Signature;
 
-            if ( signature == null )
+            if (signature == null)
             {
                 return false;
             }
 
-            return LicenseCryptography.VerifySignature( this.GetSignedBuffer(), publicKey, signature );
+            return LicenseCryptography.VerifySignature( GetSignedBuffer(), publicKey, signature );
         }
     }
 }

@@ -13,7 +13,7 @@ namespace PostSharp.Backstage.Licensing.Licenses
 
         private object? GetFieldValue( LicenseFieldIndex index )
         {
-            if ( this._fields.TryGetValue( index, out var licenseField ) )
+            if (_fields.TryGetValue( index, out var licenseField ))
             {
                 return licenseField.Value;
             }
@@ -26,53 +26,53 @@ namespace PostSharp.Backstage.Licensing.Licenses
         // Used for testing
         private void SetUnknownFieldValue( bool mustUnderstand, object value )
         {
-            var index = (LicenseFieldIndex) (mustUnderstand ? 128 : 253);
+            var index = (LicenseFieldIndex)( mustUnderstand ? 128 : 253 );
 
-            switch ( value.GetType().Name )
+            switch (value.GetType().Name)
             {
                 case nameof(Boolean):
-                    this.SetFieldValue<LicenseFieldBool>( index, value );
+                    SetFieldValue<LicenseFieldBool>( index, value );
 
                     break;
 
                 case nameof(Byte):
-                    this.SetFieldValue<LicenseFieldByte>( index, value );
+                    SetFieldValue<LicenseFieldByte>( index, value );
 
                     break;
 
                 case nameof(Int16):
-                    this.SetFieldValue<LicenseFieldInt16>( index, value );
+                    SetFieldValue<LicenseFieldInt16>( index, value );
 
                     break;
 
                 case nameof(Int32):
-                    this.SetFieldValue<LicenseFieldInt32>( index, value );
+                    SetFieldValue<LicenseFieldInt32>( index, value );
 
                     break;
 
                 case nameof(Int64):
-                    this.SetFieldValue<LicenseFieldInt64>( index, value );
+                    SetFieldValue<LicenseFieldInt64>( index, value );
 
                     break;
 
                 case nameof(DateTime):
-                    this.SetFieldValue<LicenseFieldDate>( index, ((DateTime) value).Date );
-                    this.SetFieldValue<LicenseFieldDateTime>( index, value );
+                    SetFieldValue<LicenseFieldDate>( index, ( (DateTime)value ).Date );
+                    SetFieldValue<LicenseFieldDateTime>( index, value );
 
                     break;
 
                 case nameof(String):
-                    this.SetFieldValue<LicenseFieldString>( index, value );
+                    SetFieldValue<LicenseFieldString>( index, value );
 
                     break;
 
                 case nameof(Byte) + "[]":
-                    this.SetFieldValue<LicenseFieldBytes>( index, value );
+                    SetFieldValue<LicenseFieldBytes>( index, value );
 
                     break;
 
                 case nameof(Guid):
-                    this.SetFieldValue<LicenseFieldGuid>( index, value );
+                    SetFieldValue<LicenseFieldGuid>( index, value );
 
                     break;
 
@@ -84,13 +84,13 @@ namespace PostSharp.Backstage.Licensing.Licenses
         private void SetFieldValue<T>( LicenseFieldIndex index, object? value )
             where T : LicenseField, new()
         {
-            if ( value == null )
+            if (value == null)
             {
-                this._fields.Remove( index );
+                _fields.Remove( index );
             }
             else
             {
-                this._fields[index] = new T { Value = value };
+                _fields[index] = new T { Value = value };
             }
         }
     }

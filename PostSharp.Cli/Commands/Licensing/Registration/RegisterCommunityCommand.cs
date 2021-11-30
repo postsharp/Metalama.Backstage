@@ -13,16 +13,16 @@ namespace PostSharp.Cli.Commands.Licensing.Registration
         public RegisterCommunityCommand( ICommandServiceProvider commandServiceProvider )
             : base( commandServiceProvider, "community", "Switches to the community edition" )
         {
-            this.Handler = CommandHandler.Create<bool, IConsole>( this.Execute );
+            Handler = CommandHandler.Create<bool, IConsole>( Execute );
         }
 
         private int Execute( bool verbose, IConsole console )
         {
-            var services = this.CommandServiceProvider.CreateServiceProvider( console, verbose );
+            var services = CommandServiceProvider.CreateServiceProvider( console, verbose );
 
             var registrar = new CommunityLicenseRegistrar( services );
 
-            if ( registrar.TryRegisterLicense() )
+            if (registrar.TryRegisterLicense())
             {
                 return 0;
             }

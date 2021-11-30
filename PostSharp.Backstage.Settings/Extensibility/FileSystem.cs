@@ -34,22 +34,22 @@ namespace PostSharp.Backstage.Extensibility
         /// <inheritdoc />
         public string[] GetFiles( string path, string? searchPattern = null, SearchOption? searchOption = null )
         {
-            return this.EnumerateFiles( path, searchPattern, searchOption ).ToArray();
+            return EnumerateFiles( path, searchPattern, searchOption ).ToArray();
         }
 
         /// <inheritdoc />
         public IEnumerable<string> EnumerateFiles( string path, string? searchPattern = null, SearchOption? searchOption = null )
         {
-            if ( searchOption.HasValue )
+            if (searchOption.HasValue)
             {
-                if ( searchPattern == null )
+                if (searchPattern == null)
                 {
                     throw new ArgumentNullException( nameof(searchPattern) );
                 }
 
                 return Directory.EnumerateFiles( path, searchPattern, searchOption.Value );
             }
-            else if ( searchPattern != null )
+            else if (searchPattern != null)
             {
                 return Directory.EnumerateFiles( path, searchPattern );
             }
@@ -62,22 +62,22 @@ namespace PostSharp.Backstage.Extensibility
         /// <inheritdoc />
         public string[] GetDirectories( string path, string? searchPattern = null, SearchOption? searchOption = null )
         {
-            return this.EnumerateDirectories( path, searchPattern, searchOption ).ToArray();
+            return EnumerateDirectories( path, searchPattern, searchOption ).ToArray();
         }
 
         /// <inheritdoc />
         public IEnumerable<string> EnumerateDirectories( string path, string? searchPattern = null, SearchOption? searchOption = null )
         {
-            if ( searchOption.HasValue )
+            if (searchOption.HasValue)
             {
-                if ( searchPattern == null )
+                if (searchPattern == null)
                 {
                     throw new ArgumentNullException( nameof(searchPattern) );
                 }
 
                 return Directory.EnumerateDirectories( path, searchPattern, searchOption.Value );
             }
-            else if ( searchPattern != null )
+            else if (searchPattern != null)
             {
                 return Directory.EnumerateDirectories( path, searchPattern );
             }
@@ -88,33 +88,63 @@ namespace PostSharp.Backstage.Extensibility
         }
 
         /// <inheritdoc />
-        public void CreateDirectory( string path ) => Directory.CreateDirectory( path );
+        public void CreateDirectory( string path )
+        {
+            Directory.CreateDirectory( path );
+        }
 
         /// <inheritdoc />
-        public Stream OpenRead( string path ) => File.OpenRead( path );
+        public Stream OpenRead( string path )
+        {
+            return File.OpenRead( path );
+        }
 
         /// <inheritdoc />
-        public Stream OpenWrite( string path ) => File.OpenWrite( path );
+        public Stream OpenWrite( string path )
+        {
+            return File.OpenWrite( path );
+        }
 
         /// <inheritdoc />
-        public byte[] ReadAllBytes( string path ) => File.ReadAllBytes( path );
+        public byte[] ReadAllBytes( string path )
+        {
+            return File.ReadAllBytes( path );
+        }
 
         /// <inheritdoc />
-        public void WriteAllBytes( string path, byte[] bytes ) => File.WriteAllBytes( path, bytes );
+        public void WriteAllBytes( string path, byte[] bytes )
+        {
+            File.WriteAllBytes( path, bytes );
+        }
 
         /// <inheritdoc />
-        public string ReadAllText( string path ) => File.ReadAllText( path );
+        public string ReadAllText( string path )
+        {
+            return File.ReadAllText( path );
+        }
 
         /// <inheritdoc />
-        public void WriteAllText( string path, string content ) => File.WriteAllText( path, content );
+        public void WriteAllText( string path, string content )
+        {
+            File.WriteAllText( path, content );
+        }
 
         /// <inheritdoc />
-        public string[] ReadAllLines( string path ) => File.ReadAllLines( path );
+        public string[] ReadAllLines( string path )
+        {
+            return File.ReadAllLines( path );
+        }
 
         /// <inheritdoc />
-        public void WriteAllLines( string path, string[] content ) => File.WriteAllLines( path, content );
+        public void WriteAllLines( string path, string[] content )
+        {
+            File.WriteAllLines( path, content );
+        }
 
         /// <inheritdoc />
-        public void WriteAllLines( string path, IEnumerable<string> content ) => File.WriteAllLines( path, content );
+        public void WriteAllLines( string path, IEnumerable<string> content )
+        {
+            File.WriteAllLines( path, content );
+        }
     }
 }

@@ -32,7 +32,7 @@ namespace PostSharp.Backstage.Licensing.Consumption
         /// <param name="services">Services.</param>
         /// <param name="licenseSources">License sources.</param>
         public LicenseConsumptionManager( IServiceProvider services, params ILicenseSource[] licenseSources )
-            : this( services, (IEnumerable<ILicenseSource>) licenseSources ) { }
+            : this( services, (IEnumerable<ILicenseSource>)licenseSources ) { }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="LicenseConsumptionManager"/> class.
@@ -41,28 +41,28 @@ namespace PostSharp.Backstage.Licensing.Consumption
         /// <param name="licenseSources">License sources.</param>
         public LicenseConsumptionManager( IServiceProvider services, IEnumerable<ILicenseSource> licenseSources )
         {
-            this._services = services;
-            this._logger = services.GetOptionalTraceLogger<LicenseConsumptionManager>();
+            _services = services;
+            _logger = services.GetOptionalTraceLogger<LicenseConsumptionManager>();
 
-            this._unusedLicenseSources.AddRange( licenseSources );
+            _unusedLicenseSources.AddRange( licenseSources );
         }
 
         private bool TryLoadNextLicenseSource()
         {
             // TODO: tracing
-            this._logger?.LogInformation( "TODO: tracing" );
+            _logger?.LogInformation( "TODO: tracing" );
 
-            if ( this._unusedLicenseSources.Count == 0 )
+            if (_unusedLicenseSources.Count == 0)
             {
                 return false;
             }
 
-            var licenseSource = this._unusedLicenseSources.First();
-            this._unusedLicenseSources.Remove( licenseSource );
+            var licenseSource = _unusedLicenseSources.First();
+            _unusedLicenseSources.Remove( licenseSource );
 
-            foreach ( var license in licenseSource.GetLicenses() )
+            foreach (var license in licenseSource.GetLicenses())
             {
-                this._unusedLicenses.Add( license );
+                _unusedLicenses.Add( license );
             }
 
             return true;
@@ -70,32 +70,32 @@ namespace PostSharp.Backstage.Licensing.Consumption
 
         private bool TryLoadNextLicense()
         {
-            if ( this._unusedLicenses.Count == 0 )
+            if (_unusedLicenses.Count == 0)
             {
                 return false;
             }
 
-            var license = this._unusedLicenses.First();
-            this._unusedLicenses.Remove( license );
-            this._usedLicenses.Add( license );
+            var license = _unusedLicenses.First();
+            _unusedLicenses.Remove( license );
+            _usedLicenses.Add( license );
 
             // TODO: trace
             // TODO: license audit
 
-            if ( !license.TryGetLicenseConsumptionData( out var licenseData ) )
+            if (!license.TryGetLicenseConsumptionData( out var licenseData ))
             {
                 return false;
             }
 
-            if ( licenseData.LicensedNamespace == null )
+            if (licenseData.LicensedNamespace == null)
             {
-                this._licensedFeatures |= licenseData.LicensedFeatures;
+                _licensedFeatures |= licenseData.LicensedFeatures;
             }
             else
             {
-                if ( !this._namespaceLimitedLicensedFeatures.TryGetValue( licenseData.LicensedNamespace, out var namespaceFeatures ) )
+                if (!_namespaceLimitedLicensedFeatures.TryGetValue( licenseData.LicensedNamespace, out var namespaceFeatures ))
                 {
-                    this._namespaceLimitedLicensedFeatures[licenseData.LicensedNamespace] = new LicenseNamespaceConstraint(
+                    _namespaceLimitedLicensedFeatures[licenseData.LicensedNamespace] = new LicenseNamespaceConstraint(
                         licenseData.LicensedNamespace,
                         licenseData.LicensedFeatures );
                 }
@@ -112,14 +112,14 @@ namespace PostSharp.Backstage.Licensing.Consumption
         {
             // TODO: trace
 
-            if ( this._usedLicenses.Count != 0 )
+            if (_usedLicenses.Count != 0)
             {
                 return false;
             }
 
-            var registrar = this._services.GetService<IFirstRunLicenseActivator>();
+            var registrar = _services.GetService<IFirstRunLicenseActivator>();
 
-            if ( registrar == null || !registrar.TryRegisterLicense() )
+            if (registrar == null || !registrar.TryRegisterLicense())
             {
                 return false;
             }
@@ -127,7 +127,7 @@ namespace PostSharp.Backstage.Licensing.Consumption
             // At this point, we would not get the newly registered license since all license sources have been enumerated.
             // Thus, we allow all features, which is what a valid evaluation license would do.
             // In the next compilation, the registered evaluation license would be retrieved from a license source.
-            this._licensedFeatures |= LicensedFeatures.All;
+            _licensedFeatures |= LicensedFeatures.All;
 
             return true;
         }
@@ -139,24 +139,24 @@ namespace PostSharp.Backstage.Licensing.Consumption
             {
                 do
                 {
-                    if ( this._licensedFeatures.HasFlag( requiredFeatures ) )
+                    if (_licensedFeatures.HasFlag( requiredFeatures ))
                     {
                         return true;
                     }
 
-                    if ( this._namespaceLimitedLicensedFeatures.Count > 0
-                         && this._namespaceLimitedLicensedFeatures.Values.Any(
-                             nsf => nsf.AllowsNamespace( consumer.TargetTypeNamespace )
-                                    && nsf.LicensedFeatures.HasFlag( requiredFeatures ) ) )
+                    if (_namespaceLimitedLicensedFeatures.Count > 0
+                        && _namespaceLimitedLicensedFeatures.Values.Any(
+                            nsf => nsf.AllowsNamespace( consumer.TargetTypeNamespace )
+                                   && nsf.LicensedFeatures.HasFlag( requiredFeatures ) ))
                     {
                         return true;
                     }
                 }
-                while ( this.TryLoadNextLicense() );
+                while (TryLoadNextLicense());
             }
-            while ( this.TryLoadNextLicenseSource() );
+            while (TryLoadNextLicenseSource());
 
-            if ( this.TryAutoRegisterLicense() )
+            if (TryAutoRegisterLicense())
             {
                 return true;
             }
@@ -168,9 +168,9 @@ namespace PostSharp.Backstage.Licensing.Consumption
         /// <inheritdoc />
         public void ConsumeFeatures( ILicenseConsumer consumer, LicensedFeatures requiredFeatures )
         {
-            if ( !this.CanConsumeFeatures( consumer, requiredFeatures ) )
+            if (!CanConsumeFeatures( consumer, requiredFeatures ))
             {
-                if ( consumer.TargetTypeName == null )
+                if (consumer.TargetTypeName == null)
                 {
                     consumer.Diagnostics.ReportError( $"No license available for feature(s) {requiredFeatures}" );
                 }

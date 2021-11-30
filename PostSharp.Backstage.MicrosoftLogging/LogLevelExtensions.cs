@@ -10,7 +10,8 @@ namespace PostSharp.Backstage.MicrosoftLogging
     internal static class LogLevelExtensions
     {
         public static MicrosoftLogLevel Convert( this BackstageLogLevel logLevel )
-            => logLevel switch
+        {
+            return logLevel switch
             {
                 BackstageLogLevel.Trace => MicrosoftLogLevel.Trace,
                 BackstageLogLevel.Debug => MicrosoftLogLevel.Debug,
@@ -21,5 +22,6 @@ namespace PostSharp.Backstage.MicrosoftLogging
                 BackstageLogLevel.None => MicrosoftLogLevel.None,
                 _ => throw new ArgumentException( $"Unknown log level: {logLevel}", nameof(logLevel) )
             };
+        }
     }
 }

@@ -16,24 +16,24 @@ namespace PostSharp.Cli.Tests.Commands.Licensing
         [Fact]
         public async Task CleanEnvironmentListsNoLicenses()
         {
-            await this.TestCommandAsync( "license list", "" );
+            await TestCommandAsync( "license list", "" );
         }
 
         [Fact]
         public async Task OneLicenseKeyListedAfterRegistration()
         {
-            await this.TestCommandAsync( $"license register {TestLicenses.Key1}", "" );
-            await this.TestCommandAsync( "license list", string.Format( CultureInfo.InvariantCulture, TestLicenses.Format1, 1 ) );
+            await TestCommandAsync( $"license register {TestLicenses.Key1}", "" );
+            await TestCommandAsync( "license list", string.Format( CultureInfo.InvariantCulture, TestLicenses.Format1, 1 ) );
         }
 
         [Fact]
         public async Task MultipleLicenseKeysListedAfterRegistration()
         {
-            await this.TestCommandAsync( $"license register {TestLicenses.Key1}", "" );
-            await this.TestCommandAsync( $"license register {TestLicenses.Key2}", "" );
-            await this.TestCommandAsync( $"license register {TestLicenses.Key3}", "" );
+            await TestCommandAsync( $"license register {TestLicenses.Key1}", "" );
+            await TestCommandAsync( $"license register {TestLicenses.Key2}", "" );
+            await TestCommandAsync( $"license register {TestLicenses.Key3}", "" );
 
-            await this.TestCommandAsync(
+            await TestCommandAsync(
                 "license list",
                 string.Format( CultureInfo.InvariantCulture, TestLicenses.Format1, 1 ) + string.Format( CultureInfo.InvariantCulture, TestLicenses.Format2, 2 )
                                                                                        + string.Format(

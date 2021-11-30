@@ -51,7 +51,7 @@ namespace PostSharp.Backstage.Licensing.Cryptography
                 var dwOutput = 0;
 
                 // ReSharper disable once ForCanBeConvertedToForeach
-                for ( var i = 0; i < input.Length; i++ )
+                for (var i = 0; i < input.Length; i++)
                 {
                     dwOutput *= 256;
                     dwOutput += input[i];
@@ -80,16 +80,16 @@ namespace PostSharp.Backstage.Licensing.Cryptography
 
             // ReSharper restore StringLiteralTypo
 
-            if ( expectPrivateParameters )
+            if (expectPrivateParameters)
             {
                 missingNodes.Add( "X" );
             }
 
-            if ( xmlDoc.DocumentElement!.Name.Equals( "DSAKeyValue", StringComparison.Ordinal ) )
+            if (xmlDoc.DocumentElement!.Name.Equals( "DSAKeyValue", StringComparison.Ordinal ))
             {
-                foreach ( XmlNode node in xmlDoc.DocumentElement.ChildNodes )
+                foreach (XmlNode node in xmlDoc.DocumentElement.ChildNodes)
                 {
-                    switch ( node.Name )
+                    switch (node.Name)
                     {
                         case "P":
                             parameters.P = Convert.FromBase64String( node.InnerText );
@@ -122,7 +122,7 @@ namespace PostSharp.Backstage.Licensing.Cryptography
                             break;
 
                         case "X":
-                            if ( !expectPrivateParameters )
+                            if (!expectPrivateParameters)
                             {
                                 // We check this so a private key is not accidentally disclosed.
                                 throw new ArgumentException( $"Invalid public key.", nameof(xmlString) );
@@ -151,7 +151,7 @@ namespace PostSharp.Backstage.Licensing.Cryptography
                     }
                 }
 
-                if ( missingNodes.Count != 0 )
+                if (missingNodes.Count != 0)
                 {
                     throw new ArgumentException( $"Invalid XML DSA key. Missing nodes: {string.Join( ", ", missingNodes )}", nameof(xmlString) );
                 }
@@ -180,23 +180,23 @@ namespace PostSharp.Backstage.Licensing.Cryptography
                 int t2;                 // t2 is t1 % 256
                 var i = 0;
 
-                if ( dwInput == 0 )
+                if (dwInput == 0)
                 {
                     return new byte[1];
                 }
 
                 t1 = dwInput;
 
-                while ( t1 > 0 )
+                while (t1 > 0)
                 {
-                    if ( i >= 8 )
+                    if (i >= 8)
                     {
                         throw new InvalidOperationException( "Got too big an int here!" );
                     }
 
                     t2 = t1 % 256;
-                    temp[i] = (byte) t2;
-                    t1 = (t1 - t2) / 256;
+                    temp[i] = (byte)t2;
+                    t1 = ( t1 - t2 ) / 256;
                     i++;
                 }
 
@@ -204,7 +204,7 @@ namespace PostSharp.Backstage.Licensing.Cryptography
                 var output = new byte[i];
 
                 // copy and reverse in one pass
-                for ( var j = 0; j < i; j++ )
+                for (var j = 0; j < i; j++)
                 {
                     output[j] = temp[i - j - 1];
                 }
@@ -249,12 +249,12 @@ namespace PostSharp.Backstage.Licensing.Cryptography
             sb.Append( "<Y>" + Convert.ToBase64String( dsaParams.Y ) + "</Y>" );
 
             // Add optional components if present
-            if ( dsaParams.J != null )
+            if (dsaParams.J != null)
             {
                 sb.Append( "<J>" + Convert.ToBase64String( dsaParams.J ) + "</J>" );
             }
 
-            if ( dsaParams.Seed != null )
+            if (dsaParams.Seed != null)
             {
                 // ReSharper disable StringLiteralTypo
 
@@ -265,7 +265,7 @@ namespace PostSharp.Backstage.Licensing.Cryptography
                 // ReSharper restore StringLiteralTypo
             }
 
-            if ( includePrivateParameters )
+            if (includePrivateParameters)
             {
                 // Add the private component
                 sb.Append( "<X>" + Convert.ToBase64String( dsaParams.X ) + "</X>" );
@@ -283,7 +283,7 @@ namespace PostSharp.Backstage.Licensing.Cryptography
         /// <returns>An invariant 32-bit hash of <paramref name="s"/>.</returns>
         public static int ComputeStringHash( string s )
         {
-            if ( s == null )
+            if (s == null)
             {
                 return 0;
             }
@@ -291,11 +291,11 @@ namespace PostSharp.Backstage.Licensing.Cryptography
             s = s.Trim().Normalize();
             var bytes = Encoding.UTF8.GetBytes( s );
 
-            using ( var md5 = new MD5Managed() )
+            using (var md5 = new MD5Managed())
             {
                 var hash = md5.ComputeHash( bytes );
 
-                return hash[0] | (hash[1] << 8) | (hash[2] << 16) | (hash[3] << 24);
+                return hash[0] | ( hash[1] << 8 ) | ( hash[2] << 16 ) | ( hash[3] << 24 );
             }
         }
 
@@ -306,7 +306,7 @@ namespace PostSharp.Backstage.Licensing.Cryptography
         /// <returns>An invariant 64-bit hash of <paramref name="s"/>.</returns>
         public static long ComputeStringHash64( string s )
         {
-            if ( s == null )
+            if (s == null)
             {
                 return 0;
             }
@@ -316,7 +316,7 @@ namespace PostSharp.Backstage.Licensing.Cryptography
 
             byte[] hash;
 
-            using ( var md5 = new MD5Managed() )
+            using (var md5 = new MD5Managed())
             {
                 hash = md5.ComputeHash( bytes );
             }
@@ -325,14 +325,14 @@ namespace PostSharp.Backstage.Licensing.Cryptography
 
             unsafe
             {
-                fixed ( byte* p = hash )
+                fixed (byte* p = hash)
                 {
-                    hash64 = *(long*) p;
+                    hash64 = *(long*)p;
                 }
             }
 
             // Make sure we never return 0 for a non-null string.
-            if ( hash64 == 0 )
+            if (hash64 == 0)
             {
                 hash64 = -1;
             }
@@ -342,7 +342,7 @@ namespace PostSharp.Backstage.Licensing.Cryptography
 
         private static byte[] GetHash( byte[] message )
         {
-            using ( SHA1 sha1 = new SHA1CryptoServiceProvider() )
+            using (SHA1 sha1 = new SHA1CryptoServiceProvider())
             {
                 return sha1.ComputeHash( message );
             }
@@ -379,7 +379,7 @@ namespace PostSharp.Backstage.Licensing.Cryptography
         /// <returns>The public key for the given <paramref name="index"/>.</returns>
         internal static DSA GetPublicKey( byte index )
         {
-            switch ( index )
+            switch (index)
             {
                 case 0:
                     return _productionPublicKey0;
@@ -403,7 +403,7 @@ namespace PostSharp.Backstage.Licensing.Cryptography
         internal static byte[] Sign( byte[] message, string privateKeyXml )
         {
             // Create the signature.
-            using ( var privateKey = DSA.Create() )
+            using (var privateKey = DSA.Create())
             {
                 privateKey.FromXmlString2( privateKeyXml, true );
 

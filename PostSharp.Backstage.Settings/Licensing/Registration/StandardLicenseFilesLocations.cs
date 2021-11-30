@@ -21,7 +21,7 @@ namespace PostSharp.Backstage.Licensing.Registration
         public StandardLicenseFilesLocations( IServiceProvider services )
         {
             var standardDirectories = services.GetRequiredService<IStandardDirectories>();
-            this.UserLicenseFile = Path.Combine( standardDirectories.ApplicationDataDirectory, "postsharp.lic" );
+            UserLicenseFile = Path.Combine( standardDirectories.ApplicationDataDirectory, "postsharp.lic" );
         }
     }
 }

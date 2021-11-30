@@ -12,15 +12,24 @@ namespace PostSharp.Backstage.MicrosoftLogging
     {
         public LoggerAdapter( IMicrosoftLogger logger )
         {
-            this._logger = logger;
+            _logger = logger;
         }
 
         private readonly IMicrosoftLogger _logger;
-        
-        public bool IsEnabled( PostSharpLogLevel logLevel ) => this._logger.IsEnabled( logLevel.Convert() );
 
-        public void LogTrace( string message ) => this._logger.LogTrace( message );
+        public bool IsEnabled( PostSharpLogLevel logLevel )
+        {
+            return _logger.IsEnabled( logLevel.Convert() );
+        }
 
-        public void LogInformation( string message ) => this._logger.LogInformation( message );
+        public void LogTrace( string message )
+        {
+            _logger.LogTrace( message );
+        }
+
+        public void LogInformation( string message )
+        {
+            _logger.LogInformation( message );
+        }
     }
 }

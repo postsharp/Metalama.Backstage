@@ -20,10 +20,10 @@ namespace PostSharp.Backstage.Licensing.Tests.Consumption
 
         public TestLicenseConsumer( string targetTypeNamespace, string targetTypeName, string diagnosticsLocationDescription, IServiceProvider services )
         {
-            this.TargetTypeNamespace = targetTypeNamespace;
-            this.TargetTypeName = targetTypeName;
-            this.Diagnostics = new TestDiagnosticsSink( services );
-            this.DiagnosticsLocation = new TestDiagnosticsLocation( diagnosticsLocationDescription );
+            TargetTypeNamespace = targetTypeNamespace;
+            TargetTypeName = targetTypeName;
+            Diagnostics = new TestDiagnosticsSink( services );
+            DiagnosticsLocation = new TestDiagnosticsLocation( diagnosticsLocationDescription );
         }
     }
 }

@@ -22,13 +22,13 @@ namespace PostSharp.Backstage.Licensing.Licenses
             get
             {
 #pragma warning disable CS0618 // Type or member is obsolete
-                if ( this.LicenseType == LicenseType.Anonymous )
+                if (LicenseType == LicenseType.Anonymous)
 #pragma warning restore CS0618 // Type or member is obsolete
                 {
                     return false;
                 }
 
-                if ( this.LicenseId == 0 && (this.LicenseType == LicenseType.Community || this.LicenseType == LicenseType.Evaluation) )
+                if (LicenseId == 0 && ( LicenseType == LicenseType.Community || LicenseType == LicenseType.Evaluation ))
                 {
                     return false;
                 }
@@ -37,19 +37,18 @@ namespace PostSharp.Backstage.Licensing.Licenses
             }
         }
 
-        public string LicenseUniqueId
-            => this.LicenseGuid.HasValue ? this.LicenseGuid.Value.ToString() : this.LicenseId.ToString( CultureInfo.InvariantCulture );
+        public string LicenseUniqueId => LicenseGuid.HasValue ? LicenseGuid.Value.ToString() : LicenseId.ToString( CultureInfo.InvariantCulture );
 
         // TODO in Caravela
-        public bool RequiresWatermark => this.LicenseType == LicenseType.Evaluation || this.LicenseType == LicenseType.Academic;
+        public bool RequiresWatermark => LicenseType == LicenseType.Evaluation || LicenseType == LicenseType.Academic;
 
         /// <summary>
         /// Gets the licensed features provided by this license.
         /// </summary>
         public LicensedFeatures LicensedFeatures
-            => this.Product switch
+            => Product switch
             {
-                LicensedProduct.Ultimate when this.LicenseType != LicenseType.Community => LicensedProductFeatures.Ultimate,
+                LicensedProduct.Ultimate when LicenseType != LicenseType.Community => LicensedProductFeatures.Ultimate,
                 LicensedProduct.Framework => LicensedProductFeatures.Framework,
                 LicensedProduct.ModelLibrary => LicensedProductFeatures.Mvvm,
                 LicensedProduct.ThreadingLibrary => LicensedProductFeatures.Threading,
@@ -62,24 +61,24 @@ namespace PostSharp.Backstage.Licensing.Licenses
         /// <summary>
         /// Gets a value indicating whether the license is limited by a namespace.
         /// </summary>
-        public bool IsLimitedByNamespace => !string.IsNullOrEmpty( this.Namespace );
+        public bool IsLimitedByNamespace => !string.IsNullOrEmpty( Namespace );
 
         public string ProductName
-            => this.Product switch
+            => Product switch
             {
                 LicensedProduct.Framework => "PostSharp Framework",
-                LicensedProduct.Ultimate => this.LicenseType == LicenseType.Community ? "PostSharp Community" : "PostSharp Ultimate",
+                LicensedProduct.Ultimate => LicenseType == LicenseType.Community ? "PostSharp Community" : "PostSharp Ultimate",
                 LicensedProduct.DiagnosticsLibrary => "PostSharp Logging",
                 LicensedProduct.ModelLibrary => "PostSharp MVVM",
                 LicensedProduct.ThreadingLibrary => "PostSharp Threading",
                 LicensedProduct.CachingLibrary => "PostSharp Caching",
                 LicensedProduct.Caravela => "PostSharp Caravela",
-                _ => string.Format( CultureInfo.InvariantCulture, "Unknown Product ({0})", this.Product )
+                _ => string.Format( CultureInfo.InvariantCulture, "Unknown Product ({0})", Product )
             };
 
         public LicenseKeyData()
         {
-            this.Version = 2;
+            Version = 2;
         }
 
         /// <inheritdoc />
@@ -90,12 +89,12 @@ namespace PostSharp.Backstage.Licensing.Licenses
             stringBuilder.AppendFormat(
                 CultureInfo.InvariantCulture,
                 "Version={0}, LicenseId={1}, LicenseType={2}, Product={3}",
-                this.Version,
-                this.LicenseId,
-                this.LicenseType,
-                this.Product );
+                Version,
+                LicenseId,
+                LicenseType,
+                Product );
 
-            foreach ( var licenseField in this._fields )
+            foreach (var licenseField in _fields)
             {
                 stringBuilder.AppendFormat( CultureInfo.InvariantCulture, ", {0}={1}", licenseField.Key, licenseField.Value );
             }

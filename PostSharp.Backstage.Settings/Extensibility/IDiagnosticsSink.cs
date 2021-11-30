@@ -10,13 +10,13 @@ namespace PostSharp.Backstage.Extensibility
         /// </summary>
         /// <param name="message">The message.</param>
         /// <param name="location">The location related to the message.</param>
-        void ReportWarning(string message, IDiagnosticsLocation? location = null);
+        void ReportWarning( string message, IDiagnosticsLocation? location = null );
 
         /// <summary>
         /// Reports an error.
         /// </summary>
         /// <param name="message">The message.</param>
         /// <param name="location">The location related to the message.</param>
-        void ReportError(string message, IDiagnosticsLocation? location = null);
+        void ReportError( string message, IDiagnosticsLocation? location = null );
     }
 }

@@ -10,9 +10,9 @@ namespace PostSharp.Cli.Commands.Licensing
         public LicenseCommand( ICommandServiceProvider commandServiceProvider )
             : base( commandServiceProvider, "license", "Manages licenses" )
         {
-            this.Add( new ListCommand( commandServiceProvider ) );
-            this.Add( new RegisterCommand( commandServiceProvider ) );
-            this.Add( new UnregisterCommand( commandServiceProvider ) );
+            Add( new ListCommand( commandServiceProvider ) );
+            Add( new RegisterCommand( commandServiceProvider ) );
+            Add( new UnregisterCommand( commandServiceProvider ) );
         }
     }
 }

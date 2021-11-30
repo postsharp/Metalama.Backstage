@@ -21,7 +21,7 @@ namespace PostSharp.Backstage.Licensing.Registration.Evaluation
         public EvaluationLicenseFilesLocations( IServiceProvider services )
         {
             var standardDirectories = services.GetRequiredService<IStandardDirectories>();
-            this.EvaluationLicenseFile = Path.Combine( standardDirectories.ApplicationDataDirectory, "licenseregistration.cnf" );
+            EvaluationLicenseFile = Path.Combine( standardDirectories.ApplicationDataDirectory, "licenseregistration.cnf" );
         }
     }
 }

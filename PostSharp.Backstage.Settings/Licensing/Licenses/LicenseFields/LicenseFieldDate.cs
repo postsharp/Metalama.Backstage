@@ -13,7 +13,7 @@ namespace PostSharp.Backstage.Licensing.Licenses.LicenseFields
 
         public override void Write( BinaryWriter writer )
         {
-            var days = (ushort) ((DateTime) this.Value!).Subtract( _referenceDate ).TotalDays;
+            var days = (ushort)( (DateTime)Value! ).Subtract( _referenceDate ).TotalDays;
             writer.Write( days );
         }
 
@@ -27,7 +27,7 @@ namespace PostSharp.Backstage.Licensing.Licenses.LicenseFields
         public override void Read( BinaryReader reader )
         {
             var days = reader.ReadUInt16();
-            this.Value = _referenceDate.AddDays( days );
+            Value = _referenceDate.AddDays( days );
         }
     }
 }

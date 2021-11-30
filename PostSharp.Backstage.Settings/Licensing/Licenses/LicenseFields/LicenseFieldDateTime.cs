@@ -11,7 +11,7 @@ namespace PostSharp.Backstage.Licensing.Licenses.LicenseFields
     {
         public override void Write( BinaryWriter writer )
         {
-            var data = ((DateTime) this.Value!).ToUniversalTime().ToBinary();
+            var data = ( (DateTime)Value! ).ToUniversalTime().ToBinary();
             writer.Write( data );
         }
 
@@ -25,7 +25,7 @@ namespace PostSharp.Backstage.Licensing.Licenses.LicenseFields
         public override void Read( BinaryReader reader )
         {
             var data = reader.ReadInt64();
-            this.Value = DateTime.FromBinary( data ).ToLocalTime();
+            Value = DateTime.FromBinary( data ).ToLocalTime();
         }
     }
 }
