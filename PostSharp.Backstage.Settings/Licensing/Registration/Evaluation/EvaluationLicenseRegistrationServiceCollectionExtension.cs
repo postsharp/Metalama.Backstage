@@ -1,7 +1,4 @@
-﻿// Copyright (c) SharpCrafters s.r.o. All rights reserved.
-// This project is not open source. Please see the LICENSE.md file in the repository root for details.
-
-using PostSharp.Backstage.Extensibility;
+﻿using PostSharp.Backstage.Extensibility;
 
 namespace PostSharp.Backstage.Licensing.Registration.Evaluation
 {
@@ -15,12 +12,16 @@ namespace PostSharp.Backstage.Licensing.Registration.Evaluation
         /// </summary>
         /// <param name="serviceCollection">The <see cref="IBackstageServiceCollection" /> to add services to.</param>
         /// <returns>The <see cref="IBackstageServiceCollection" /> so that additional calls can be chained.</returns>
-        internal static IBackstageServiceCollection AddStandardEvaluationLicenseFilesLocations( this IBackstageServiceCollection serviceCollection )
+        internal static BackstageServiceCollection AddStandardEvaluationLicenseFilesLocations(
+            this BackstageServiceCollection serviceCollection)
             => serviceCollection
-                .AddSingleton<IEvaluationLicenseFilesLocations>( services => new EvaluationLicenseFilesLocations( services ) );
+                .AddSingleton<IEvaluationLicenseFilesLocations>(services =>
+                    new EvaluationLicenseFilesLocations(services.ToServiceProvider()));
 
-        public static IBackstageServiceCollection AddFirstRunEvaluationLicenseActivator( this IBackstageServiceCollection serviceCollection )
+        public static BackstageServiceCollection AddFirstRunEvaluationLicenseActivator(
+            this BackstageServiceCollection serviceCollection)
             => serviceCollection
-                .AddSingleton<IFirstRunLicenseActivator>( services => new EvaluationLicenseRegistrar( services ) );
+                .AddSingleton<IFirstRunLicenseActivator>(services =>
+                    new EvaluationLicenseRegistrar(services.ToServiceProvider()));
     }
 }

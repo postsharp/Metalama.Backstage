@@ -1,22 +1,23 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
-    <IsTestProject>False</IsTestProject>
-    <IsPackable>False</IsPackable>
-  </PropertyGroup>
+    <PropertyGroup>
+        <TargetFramework>netstandard2.0</TargetFramework>
+        <IsTestProject>False</IsTestProject>
+        <IsPackable>False</IsPackable>
+    </PropertyGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\PostSharp.Backstage.DependencyInjection\PostSharp.Backstage.DependencyInjection.csproj" />
-    <ProjectReference Include="..\PostSharp.Backstage.Settings\PostSharp.Backstage.Settings.csproj" />
-  </ItemGroup>
+    <ItemGroup>
+        <ProjectReference Include="..\PostSharp.Backstage.Settings\PostSharp.Backstage.Settings.csproj"/>
+    </ItemGroup>
 
-  <ItemGroup>
-    <PackageReference Include="MartinCostello.Logging.XUnit" Version="0.1.1" />
-    <PackageReference Include="MELT" Version="0.8.0" />
-    <PackageReference Include="xunit" Version="2.4.1" />
-    <PackageReference Include="System.IO.Abstractions" Version="13.2.29" />
-    <PackageReference Include="System.IO.Abstractions.TestingHelpers" Version="13.2.29" />
-  </ItemGroup>
+    <ItemGroup>
+        <PackageReference Include="MartinCostello.Logging.XUnit" Version="0.1.1"/>
+        <PackageReference Include="MELT" Version="0.8.0"/>
+        <PackageReference Include="xunit" Version="2.4.1"/>
+        <PackageReference Include="System.IO.Abstractions" Version="13.2.29"/>
+        <PackageReference Include="System.IO.Abstractions.TestingHelpers" Version="13.2.29"/>
+    </ItemGroup>
+
+    <Import Project="..\PostSharp.Backstage.MicrosoftLogging\PostSharp.Backstage.MicrosoftLogging.projitems" Label="Shared"/>
 
 </Project>
