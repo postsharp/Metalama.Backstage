@@ -6,6 +6,8 @@ using IMicrosoftLogger = Microsoft.Extensions.Logging.ILogger;
 using IPostSharpLogger = PostSharp.Backstage.Extensibility.ILogger;
 using PostSharpLogLevel = PostSharp.Backstage.Extensibility.LogLevel;
 
+// ReSharper disable TemplateIsNotCompileTimeConstantProblem
+
 namespace PostSharp.Backstage.MicrosoftLogging
 {
     internal class LoggerAdapter : IPostSharpLogger
@@ -17,19 +19,10 @@ namespace PostSharp.Backstage.MicrosoftLogging
 
         private readonly IMicrosoftLogger _logger;
 
-        public bool IsEnabled( PostSharpLogLevel logLevel )
-        {
-            return this._logger.IsEnabled( logLevel.Convert() );
-        }
+        public bool IsEnabled( PostSharpLogLevel logLevel ) => this._logger.IsEnabled( logLevel.Convert() );
 
-        public void LogTrace( string message )
-        {
-            this._logger.LogTrace( message );
-        }
+        public void LogTrace( string message ) => this._logger.LogTrace( message );
 
-        public void LogInformation( string message )
-        {
-            this._logger.LogInformation( message );
-        }
+        public void LogInformation( string message ) => this._logger.LogInformation( message );
     }
 }

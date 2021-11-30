@@ -69,11 +69,14 @@ namespace PostSharp.Backstage.Licensing.Tests.Evaluation
             this.AssertEvaluationEligibilityReason( reason );
         }
 
+        // ReSharper disable ParameterOnlyUsedForPreconditionCheck.Local
         private void AssertEvaluationEligibilityReason( string reason )
         {
             Assert.Single( this.Log.LogEntries, x => x.Message == "Checking for trial license eligibility." );
             Assert.Single( this.Log.LogEntries, x => x.Message == reason );
             this.Log.Clear();
         }
+        
+        // ReSharper restore ParameterOnlyUsedForPreconditionCheck.Local
     }
 }

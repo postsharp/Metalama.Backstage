@@ -7,11 +7,11 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Microsoft.Bcl.HashCode" Version="1.1.1"/>
+        <PackageReference Include="Microsoft.Bcl.HashCode" Version="1.1.1" />
     </ItemGroup>
 
     <ItemGroup>
-        <InternalsVisibleTo Include="PostSharp.Backstage.Licensing.Tests"/>
+        <InternalsVisibleTo Include="PostSharp.Backstage.Licensing.Tests" />
     </ItemGroup>
 
 </Project>

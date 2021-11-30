@@ -44,11 +44,6 @@ namespace PostSharp.Backstage.Extensibility
                 this._parent = parent;
             }
 
-            object? IServiceProvider.GetService( Type serviceType )
-            {
-                return this.GetService( serviceType );
-            }
-
             public object? GetService( Type serviceType )
             {
                 if ( this._parent._services.TryGetValue( serviceType, out var service ) )
