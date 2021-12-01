@@ -14,7 +14,7 @@ namespace PostSharp.Backstage.Licensing.Tests.Registration
     {
         private protected LicenseRegistrationTestsBase(
             ITestOutputHelper logger,
-            Action<BackstageServiceCollection>? serviceBuilder = null )
+            Action<ServiceProviderBuilder>? serviceBuilder = null )
             : base(
                 logger,
                 serviceCollection => serviceBuilder?.Invoke( serviceCollection ) ) { }

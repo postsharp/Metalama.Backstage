@@ -9,11 +9,12 @@ namespace PostSharp.Backstage.MicrosoftLogging
 {
     public static class LoggingServiceCollectionExtensions
     {
-        public static BackstageServiceCollection AddMicrosoftLoggerFactory(
-            this BackstageServiceCollection serviceCollection,
+        public static ServiceProviderBuilder AddMicrosoftLoggerFactory(
+            this ServiceProviderBuilder serviceProviderBuilder,
             IMicrosoftLoggerFactory microsoftLoggerFactory )
         {
-            return serviceCollection.AddSingleton<IPostSharpLoggerFactory>( new LoggerFactoryAdapter( microsoftLoggerFactory ) );
+             serviceProviderBuilder.AddService( typeof(IPostSharpLoggerFactory), new LoggerFactoryAdapter( microsoftLoggerFactory ) );
+             return serviceProviderBuilder;
         }
     }
 }

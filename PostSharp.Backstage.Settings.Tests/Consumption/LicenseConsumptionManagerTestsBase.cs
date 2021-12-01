@@ -22,7 +22,7 @@ namespace PostSharp.Backstage.Licensing.Tests.Consumption
 
         private protected LicenseConsumptionManagerTestsBase(
             ITestOutputHelper logger,
-            Action<BackstageServiceCollection>? serviceBuilder = null )
+            Action<ServiceProviderBuilder>? serviceBuilder = null )
             : base(
                 logger,
                 serviceCollection =>

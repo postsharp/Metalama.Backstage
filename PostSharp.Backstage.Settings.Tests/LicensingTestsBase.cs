@@ -24,26 +24,25 @@ namespace PostSharp.Backstage.Licensing.Tests
 
         private protected LicensingTestsBase(
             ITestOutputHelper logger,
-            Action<BackstageServiceCollection>? serviceBuilder = null )
+            Action<ServiceProviderBuilder>? serviceBuilder = null )
             : base(
                 logger,
-                serviceCollection =>
+                services =>
                 {
                     // ReSharper disable once ExplicitCallerInfoArgument
-                    serviceCollection.AddSingleton<IBackstageDiagnosticSink>(
-                        services =>
-                            new TestDiagnosticsSink( services.ToServiceProvider(), "default" ) );
+                    services.AddSingleton<IBackstageDiagnosticSink>(
+                            new TestDiagnosticsSink( services.ServiceProvider, "default" ) );
 
-                    serviceCollection.AddSingleton<IApplicationInfo>(
+                    services.AddSingleton<IApplicationInfo>(
                         new TestApplicationInfo(
                             "Licensing Test App",
                             false,
                             new Version( 0, 1, 0 ),
                             new DateTime( 2021, 1, 1 ) ) );
 
-                    serviceCollection.AddStandardLicenseFilesLocations();
+                    services.AddStandardLicenseFilesLocations();
 
-                    serviceBuilder?.Invoke( serviceCollection );
+                    serviceBuilder?.Invoke( services );
                 } )
         {
             this.LicenseFactory = new LicenseFactory( this.Services );

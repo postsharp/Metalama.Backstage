@@ -9,6 +9,7 @@ using PostSharp.Backstage.MicrosoftLogging;
 using PostSharp.Cli.Console;
 using System;
 using System.CommandLine;
+using ILoggerFactory = Microsoft.Extensions.Logging.ILoggerFactory;
 using LogLevel = Microsoft.Extensions.Logging.LogLevel;
 
 namespace PostSharp.Cli
@@ -19,14 +20,14 @@ namespace PostSharp.Cli
         {
             // ReSharper disable RedundantTypeArgumentsOfMethod
 
-            ServiceProvider? systemServiceProvider = null;
-            Microsoft.Extensions.Logging.ILoggerFactory? loggerFactory = null;
+            var serviceCollection = new ServiceCollection();
 
+            ILoggerFactory? loggerFactory = null;
             if ( addTrace )
             {
-                var systemServiceCollection = new ServiceCollection();
+               
 
-                systemServiceCollection
+                serviceCollection
 
                     // https://docs.microsoft.com/en-us/dotnet/core/extensions/console-log-formatter
                     .AddLogging( builder => builder.AddConsole() )
@@ -34,15 +35,17 @@ namespace PostSharp.Cli
                     // https://www.blinkingcaret.com/2018/02/14/net-core-console-logging/
                     .Configure<LoggerFilterOptions>( options => options.MinLevel = LogLevel.Trace );
 
-                systemServiceProvider = systemServiceCollection.BuildServiceProvider();
-                loggerFactory = systemServiceProvider.GetService<Microsoft.Extensions.Logging.ILoggerFactory>();
+                
+                loggerFactory = serviceCollection.BuildServiceProvider().GetService<Microsoft.Extensions.Logging.ILoggerFactory>();
             }
 
-            var serviceCollection = new BackstageServiceCollection( systemServiceProvider );
+            var serviceProviderBuilder = new ServiceProviderBuilder(  
+                (type, instance) => serviceCollection.AddSingleton( type, instance ),
+                () => serviceCollection.BuildServiceProvider());
 
-            serviceCollection
+            serviceProviderBuilder
                 .AddSingleton<IConsole>( console )
-                .AddSingleton<IBackstageDiagnosticSink>( services => new ConsoleDiagnosticsSink( services.ToServiceProvider() ) )
+                .AddSingleton<IBackstageDiagnosticSink>( new ConsoleDiagnosticsSink( serviceProviderBuilder.ServiceProvider ) )
                 .AddCurrentDateTimeProvider()
                 .AddFileSystem()
                 .AddStandardDirectories()
@@ -50,12 +53,12 @@ namespace PostSharp.Cli
 
             if ( loggerFactory != null )
             {
-                serviceCollection.AddMicrosoftLoggerFactory( loggerFactory );
+                serviceProviderBuilder.AddMicrosoftLoggerFactory( loggerFactory );
             }
 
             // ReSharper restore RedundantTypeArgumentsOfMethod
 
-            return serviceCollection.ToServiceProvider();
+            return serviceCollection.BuildServiceProvider();
         }
     }
 }
