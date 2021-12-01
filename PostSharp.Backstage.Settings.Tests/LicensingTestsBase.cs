@@ -30,7 +30,7 @@ namespace PostSharp.Backstage.Licensing.Tests
                 serviceCollection =>
                 {
                     // ReSharper disable once ExplicitCallerInfoArgument
-                    serviceCollection.AddSingleton<IDiagnosticsSink>(
+                    serviceCollection.AddSingleton<IBackstageDiagnosticSink>(
                         services =>
                             new TestDiagnosticsSink( services.ToServiceProvider(), "default" ) );
 
@@ -48,7 +48,7 @@ namespace PostSharp.Backstage.Licensing.Tests
         {
             this.LicenseFactory = new LicenseFactory( this.Services );
             this.SelfSignedLicenseFactory = new UnsignedLicenseFactory( this.Services );
-            this.Diagnostics = (TestDiagnosticsSink) this.Services.GetRequiredService<IDiagnosticsSink>();
+            this.Diagnostics = (TestDiagnosticsSink) this.Services.GetRequiredService<IBackstageDiagnosticSink>();
             this.LicenseFiles = this.Services.GetRequiredService<IStandardLicenseFileLocations>();
         }
     }

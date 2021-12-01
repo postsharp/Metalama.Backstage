@@ -9,7 +9,7 @@ using System.CommandLine.IO;
 
 namespace PostSharp.Cli.Console
 {
-    internal class ConsoleDiagnosticsSink : IDiagnosticsSink
+    internal class ConsoleDiagnosticsSink : IBackstageDiagnosticSink
     {
         private readonly IConsole _console;
 

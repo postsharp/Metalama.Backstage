@@ -21,9 +21,9 @@ namespace PostSharp.Backstage.Licensing.Consumption
         public string? TargetTypeName { get; }
 
         /// <summary>
-        /// Gets <see cref="IDiagnosticsSink" /> specific to the location of the licensed feature request.
+        /// Gets <see cref="IBackstageDiagnosticSink" /> specific to the location of the licensed feature request.
         /// </summary>
-        public IDiagnosticsSink Diagnostics { get; }
+        public IBackstageDiagnosticSink Diagnostics { get; }
 
         /// <summary>
         /// Gets <see cref="IDiagnosticsLocation" /> of the licensed feature request.

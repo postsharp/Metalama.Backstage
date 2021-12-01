@@ -12,7 +12,7 @@ namespace PostSharp.Backstage.Licensing.Licenses
     /// A license providing licensed features.
     /// </summary>
     /// <remarks>
-    /// Reports warnings using <see cref="IDiagnosticsSink" />.
+    /// Reports warnings using <see cref="IBackstageDiagnosticSink" />.
     /// </remarks>
     public interface ILicense
     {

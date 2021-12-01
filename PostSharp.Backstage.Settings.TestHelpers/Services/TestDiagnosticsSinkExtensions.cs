@@ -10,44 +10,44 @@ namespace PostSharp.Backstage.Testing.Services
 {
     public static class TestDiagnosticsSinkExtensions
     {
-        public static TestDiagnosticsSink AsTestDiagnosticsSink( this IDiagnosticsSink diagnostics )
+        public static TestDiagnosticsSink AsTestDiagnosticsSink( this IBackstageDiagnosticSink diagnostics )
         {
             return (TestDiagnosticsSink) diagnostics;
         }
 
-        public static IReadOnlyList<(string Message, IDiagnosticsLocation? Location)> GetWarnings( this IDiagnosticsSink diagnostics )
+        public static IReadOnlyList<(string Message, IDiagnosticsLocation? Location)> GetWarnings( this IBackstageDiagnosticSink diagnostics )
         {
             return diagnostics.AsTestDiagnosticsSink().Warnings;
         }
 
-        public static IReadOnlyList<(string Message, IDiagnosticsLocation? Location)> GetErrors( this IDiagnosticsSink diagnostics )
+        public static IReadOnlyList<(string Message, IDiagnosticsLocation? Location)> GetErrors( this IBackstageDiagnosticSink diagnostics )
         {
             return diagnostics.AsTestDiagnosticsSink().Errors;
         }
 
-        public static void AssertNoErrors( this IDiagnosticsSink diagnostics )
+        public static void AssertNoErrors( this IBackstageDiagnosticSink diagnostics )
         {
             diagnostics.AsTestDiagnosticsSink().AssertNoErrors();
         }
 
-        public static void AssertNoWarnings( this IDiagnosticsSink diagnostics )
+        public static void AssertNoWarnings( this IBackstageDiagnosticSink diagnostics )
         {
             diagnostics.AsTestDiagnosticsSink().AssertNoWarnings();
         }
 
-        public static void AssertClean( this IDiagnosticsSink diagnostics )
+        public static void AssertClean( this IBackstageDiagnosticSink diagnostics )
         {
             diagnostics.AsTestDiagnosticsSink().AssertClean();
         }
 
-        public static void AssertSingleWarning( this IDiagnosticsSink diagnostics, string expectedMessage, IDiagnosticsLocation? expectedLocation = null )
+        public static void AssertSingleWarning( this IBackstageDiagnosticSink diagnostics, string expectedMessage, IDiagnosticsLocation? expectedLocation = null )
         {
             var warning = diagnostics.AsTestDiagnosticsSink().Warnings.Single();
             Assert.Equal( expectedMessage, warning.Message );
             Assert.Equal( expectedLocation, warning.Location );
         }
 
-        public static void AssertSingleError( this IDiagnosticsSink diagnostics, string expectedMessage, IDiagnosticsLocation? expectedLocation = null )
+        public static void AssertSingleError( this IBackstageDiagnosticSink diagnostics, string expectedMessage, IDiagnosticsLocation? expectedLocation = null )
         {
             var error = diagnostics.AsTestDiagnosticsSink().Errors.Single();
             Assert.Equal( expectedMessage, error.Message );

@@ -4,8 +4,8 @@
     <Import Project="MainVersion.props" />
     
     <PropertyGroup>
-        <BackstageVersion>$(MainVersion)$(PackageVersionSuffix)</BackstageVersion>
-        <BackstageAssemblyVersion>$(MainVersion)</BackstageAssemblyVersion>
+        <PostSharpBackstageSettingsVersion>$(MainVersion)$(PackageVersionSuffix)</PostSharpBackstageSettingsVersion>
+        <PostSharpBackstageSettingsAssemblyVersion>$(MainVersion)</PostSharpBackstageSettingsAssemblyVersion>
     </PropertyGroup>
 
     <!-- Versions of dependencies -->
@@ -13,13 +13,13 @@
     </PropertyGroup>
 
     <!-- Overrides by local settings -->
-    <Import Project="../artifacts/private/Backstage.version.props" Condition="Exists('../artifacts/private/Backstage.version.props')" />
+    <Import Project="../artifacts/private/PostSharp.Backstage.Settings.version.props" Condition="Exists('../artifacts/private/PostSharp.Backstage.Settings.version.props')" />
     <Import Project="Dependencies.props" Condition="Exists('Dependencies.props')" />
 
     <!-- Other properties dependent on the versions set above. -->
     <PropertyGroup>
-        <AssemblyVersion>$(BackstageAssemblyVersion)</AssemblyVersion>
-        <Version>$(BackstageVersion)</Version>
+        <AssemblyVersion>$(PostSharpBackstageSettingsAssemblyVersion)</AssemblyVersion>
+        <Version>$(PostSharpBackstageSettingsVersion)</Version>
     </PropertyGroup>
 
 </Project>

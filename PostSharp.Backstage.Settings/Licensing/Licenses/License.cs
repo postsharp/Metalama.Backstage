@@ -24,7 +24,7 @@ namespace PostSharp.Backstage.Licensing.Licenses
 
         private readonly IServiceProvider _services;
         private readonly IDateTimeProvider _dateTimeProvider;
-        private readonly IDiagnosticsSink _diagnostics;
+        private readonly IBackstageDiagnosticSink _diagnostics;
         private readonly ILogger? _logger;
 
         private static string CleanLicenseKey( string licenseKey )
@@ -53,7 +53,7 @@ namespace PostSharp.Backstage.Licensing.Licenses
             this._licenseKey = CleanLicenseKey( licenseKey );
             this._services = services;
             this._dateTimeProvider = services.GetRequiredService<IDateTimeProvider>();
-            this._diagnostics = services.GetRequiredService<IDiagnosticsSink>();
+            this._diagnostics = services.GetRequiredService<IBackstageDiagnosticSink>();
             this._logger = services.GetOptionalTraceLogger<License>();
         }
 

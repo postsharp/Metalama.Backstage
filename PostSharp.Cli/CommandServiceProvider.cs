@@ -42,7 +42,7 @@ namespace PostSharp.Cli
 
             serviceCollection
                 .AddSingleton<IConsole>( console )
-                .AddSingleton<IDiagnosticsSink>( services => new ConsoleDiagnosticsSink( services.ToServiceProvider() ) )
+                .AddSingleton<IBackstageDiagnosticSink>( services => new ConsoleDiagnosticsSink( services.ToServiceProvider() ) )
                 .AddCurrentDateTimeProvider()
                 .AddFileSystem()
                 .AddStandardDirectories()

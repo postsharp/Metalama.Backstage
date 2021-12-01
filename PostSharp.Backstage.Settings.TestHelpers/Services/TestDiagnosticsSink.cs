@@ -9,7 +9,7 @@ using System.Runtime.CompilerServices;
 
 namespace PostSharp.Backstage.Testing.Services
 {
-    public class TestDiagnosticsSink : IDiagnosticsSink
+    public class TestDiagnosticsSink : IBackstageDiagnosticSink
     {
         private readonly ILogger _logger;
         private readonly List<(string, IDiagnosticsLocation?)> _warnings = new();

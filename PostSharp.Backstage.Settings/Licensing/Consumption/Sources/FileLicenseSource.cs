@@ -38,7 +38,7 @@ namespace PostSharp.Backstage.Licensing.Consumption.Sources
         {
             this._logger?.LogTrace( $"Loading licenses from '{this._path}'." );
 
-            var diagnosticsSink = this._services.GetRequiredService<IDiagnosticsSink>();
+            var diagnosticsSink = this._services.GetRequiredService<IBackstageDiagnosticSink>();
             var fileSystem = this._services.GetRequiredService<IFileSystem>();
 
             string[] licenseStrings;

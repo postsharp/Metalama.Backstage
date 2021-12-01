@@ -14,7 +14,7 @@ namespace PostSharp.Backstage.Licensing.Licenses
     public class LicenseFactory
     {
         private readonly IServiceProvider _services;
-        private readonly IDiagnosticsSink _diagnostics;
+        private readonly IBackstageDiagnosticSink _diagnostics;
         private readonly ILogger? _logger;
 
         /// <summary>
@@ -24,7 +24,7 @@ namespace PostSharp.Backstage.Licensing.Licenses
         public LicenseFactory( IServiceProvider services )
         {
             this._services = services;
-            this._diagnostics = services.GetRequiredService<IDiagnosticsSink>();
+            this._diagnostics = services.GetRequiredService<IBackstageDiagnosticSink>();
             this._logger = services.GetOptionalTraceLogger<LicenseFactory>();
         }
 

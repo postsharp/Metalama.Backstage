@@ -31,7 +31,7 @@ namespace BuildCaravela
 
             var product = new Product
             {
-                ProductName = "Backstage",
+                ProductName = "PostSharp.Backstage.Settings",
                 Solutions = ImmutableArray.Create<Solution>(
                     new DotNetSolution( "PostSharp.Backstage.Settings.sln" ) { SupportsTestCoverage = true, CanFormatCode = true } ),
                 PublishingTargets = ImmutableArray.Create<PublishingTarget>( publicPublishing ),

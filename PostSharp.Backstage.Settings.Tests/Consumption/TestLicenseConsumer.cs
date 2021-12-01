@@ -14,7 +14,7 @@ namespace PostSharp.Backstage.Licensing.Tests.Consumption
 
         public string TargetTypeName { get; }
 
-        public IDiagnosticsSink Diagnostics { get; }
+        public IBackstageDiagnosticSink Diagnostics { get; }
 
         public IDiagnosticsLocation DiagnosticsLocation { get; }
 

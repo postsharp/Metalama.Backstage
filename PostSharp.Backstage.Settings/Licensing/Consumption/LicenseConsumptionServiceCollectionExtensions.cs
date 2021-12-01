@@ -11,7 +11,7 @@ namespace PostSharp.Backstage.Licensing.Consumption
     /// <summary>
     /// Extension methods for setting up license consumption services in an <see cref="BackstageServiceCollection" />.
     /// </summary>
-    internal static class LicenseConsumptionServiceCollectionExtensions
+    public static class LicenseConsumptionServiceCollectionExtensions
     {
         /// <summary>
         /// Adds license file location and license consumption services to the specified <see cref="BackstageServiceCollection" />.
