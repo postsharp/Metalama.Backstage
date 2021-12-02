@@ -21,16 +21,15 @@ namespace PostSharp.Cli.Tests.Commands
         private readonly ILogger _logger;
         private readonly TestConsole _console;
 
-        protected CommandsTestsBase( ITestOutputHelper logger, Action<BackstageServiceCollection>? serviceBuilder = null )
+        protected CommandsTestsBase( ITestOutputHelper logger, Action<ServiceProviderBuilder>? serviceBuilder = null )
             : base(
                 logger,
                 serviceCollection =>
                 {
                     serviceCollection
-                        .AddSingleton<IConsole>( services => new TestConsole( services.ToServiceProvider() ) )
+                        .AddSingleton<IConsole>( new TestConsole( serviceCollection.ServiceProvider ) )
                         .AddSingleton<IBackstageDiagnosticSink>(
-                            services =>
-                                new ConsoleDiagnosticsSink( services.ToServiceProvider() ) );
+                                new ConsoleDiagnosticsSink( serviceCollection.ServiceProvider ) );
 
                     serviceBuilder?.Invoke( serviceCollection );
                 } )

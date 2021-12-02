@@ -12,7 +12,7 @@ namespace PostSharp.Cli.Tests.Commands.Licensing
     {
         protected LicensingCommandsTestsBase(
             ITestOutputHelper logger,
-            Action<BackstageServiceCollection>? serviceBuilder = null )
+            Action<ServiceProviderBuilder>? serviceBuilder = null )
             : base(
                 logger,
                 serviceCollection =>

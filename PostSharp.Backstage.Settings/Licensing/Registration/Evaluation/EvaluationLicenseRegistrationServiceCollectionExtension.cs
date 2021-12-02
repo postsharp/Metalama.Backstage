@@ -6,29 +6,27 @@ using PostSharp.Backstage.Extensibility;
 namespace PostSharp.Backstage.Licensing.Registration.Evaluation
 {
     /// <summary>
-    /// Extension methods for setting evaluation license files locations services in an <see cref="BackstageServiceCollection" />.
+    /// Extension methods for setting evaluation license files locations services in an <see cref="ServiceProviderBuilder" />.
     /// </summary>
     public static class EvaluationLicenseRegistrationServiceCollectionExtension
     {
         /// <summary>
-        /// Adds evaluation license files locations service to the specified <see cref="BackstageServiceCollection" />.
+        /// Adds evaluation license files locations service to the specified <see cref="ServiceProviderBuilder" />.
         /// </summary>
-        /// <param name="serviceCollection">The <see cref="BackstageServiceCollection" /> to add services to.</param>
-        /// <returns>The <see cref="BackstageServiceCollection" /> so that additional calls can be chained.</returns>
-        internal static BackstageServiceCollection AddStandardEvaluationLicenseFilesLocations( this BackstageServiceCollection serviceCollection )
+        /// <param name="serviceProviderBuilder">The <see cref="ServiceProviderBuilder" /> to add services to.</param>
+        /// <returns>The <see cref="ServiceProviderBuilder" /> so that additional calls can be chained.</returns>
+        internal static ServiceProviderBuilder AddStandardEvaluationLicenseFilesLocations( this ServiceProviderBuilder serviceProviderBuilder )
         {
-            return serviceCollection
+            return serviceProviderBuilder
                 .AddSingleton<IEvaluationLicenseFilesLocations>(
-                    services =>
-                        new EvaluationLicenseFilesLocations( services.ToServiceProvider() ) );
+                        new EvaluationLicenseFilesLocations( serviceProviderBuilder.ServiceProvider ) );
         }
 
-        public static BackstageServiceCollection AddFirstRunEvaluationLicenseActivator( this BackstageServiceCollection serviceCollection )
+        public static ServiceProviderBuilder AddFirstRunEvaluationLicenseActivator( this ServiceProviderBuilder serviceProviderBuilder )
         {
-            return serviceCollection
+            return serviceProviderBuilder
                 .AddSingleton<IFirstRunLicenseActivator>(
-                    services =>
-                        new EvaluationLicenseRegistrar( services.ToServiceProvider() ) );
+                        new EvaluationLicenseRegistrar( serviceProviderBuilder.ServiceProvider ) );
         }
     }
 }

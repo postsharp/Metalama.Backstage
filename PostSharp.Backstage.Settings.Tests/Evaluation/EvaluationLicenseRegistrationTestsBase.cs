@@ -24,7 +24,7 @@ namespace PostSharp.Backstage.Licensing.Tests.Evaluation
 
         private protected EvaluationLicenseRegistrationTestsBase(
             ITestOutputHelper logger,
-            Action<BackstageServiceCollection>? serviceBuilder = null ) :
+            Action<ServiceProviderBuilder>? serviceBuilder = null ) :
             base(
                 logger,
                 serviceCollection => serviceBuilder?.Invoke( serviceCollection ) )

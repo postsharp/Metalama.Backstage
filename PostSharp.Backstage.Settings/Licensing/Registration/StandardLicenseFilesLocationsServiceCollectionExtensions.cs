@@ -7,21 +7,20 @@ using PostSharp.Backstage.Licensing.Registration.Evaluation;
 namespace PostSharp.Backstage.Licensing.Registration
 {
     /// <summary>
-    /// Extension methods for setting standard license files locations services in an <see cref="BackstageServiceCollection" />.
+    /// Extension methods for setting standard license files locations services in an <see cref="ServiceProviderBuilder" />.
     /// </summary>
     public static class StandardLicenseFilesLocationsServiceCollectionExtensions
     {
         /// <summary>
-        /// Adds license file location services to the specified <see cref="BackstageServiceCollection" />.
+        /// Adds license file location services to the specified <see cref="ServiceProviderBuilder" />.
         /// </summary>
-        /// <param name="serviceCollection">The <see cref="BackstageServiceCollection" /> to add services to.</param>
-        /// <returns>The <see cref="BackstageServiceCollection" /> so that additional calls can be chained.</returns>
-        public static BackstageServiceCollection AddStandardLicenseFilesLocations( this BackstageServiceCollection serviceCollection )
+        /// <param name="serviceProviderBuilder">The <see cref="ServiceProviderBuilder" /> to add services to.</param>
+        /// <returns>The <see cref="ServiceProviderBuilder" /> so that additional calls can be chained.</returns>
+        public static ServiceProviderBuilder AddStandardLicenseFilesLocations( this ServiceProviderBuilder serviceProviderBuilder )
         {
-            return serviceCollection
+            return serviceProviderBuilder
                 .AddSingleton<IStandardLicenseFileLocations>(
-                    services =>
-                        new StandardLicenseFilesLocations( services.ToServiceProvider() ) )
+                        new StandardLicenseFilesLocations( serviceProviderBuilder.ServiceProvider ) )
                 .AddStandardEvaluationLicenseFilesLocations();
         }
     }

@@ -2,6 +2,7 @@
 // This project is not open source. Please see the LICENSE.md file in the repository root for details.
 
 using MELT;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using PostSharp.Backstage.Extensibility;
 using PostSharp.Backstage.MicrosoftLogging;
@@ -21,7 +22,7 @@ namespace PostSharp.Backstage.Testing
 
         public IServiceProvider Services { get; }
 
-        public TestsBase( ITestOutputHelper logger, Action<BackstageServiceCollection>? serviceBuilder = null )
+        public TestsBase( ITestOutputHelper logger, Action<ServiceProviderBuilder>? serviceBuilder = null )
         {
             var loggerFactory = TestLoggerFactory
                 .Create()
@@ -31,21 +32,24 @@ namespace PostSharp.Backstage.Testing
 
             // ReSharper disable RedundantTypeArgumentsOfMethod
 
-            var serviceCollection = new BackstageServiceCollection();
-
-            serviceCollection
-                .AddMicrosoftLoggerFactory( loggerFactory )
+            var serviceCollection = new ServiceCollection()
                 .AddSingleton<IDateTimeProvider>( this.Time )
                 .AddSingleton<IFileSystem>( this.FileSystem );
 
-            serviceCollection
+            var serviceCollectionAdapter =
+                new ServiceProviderBuilder(
+                    ( type, instance ) => serviceCollection.AddSingleton( type, instance ),
+                    () => serviceCollection.BuildServiceProvider() );
+
+            serviceCollectionAdapter
+                .AddMicrosoftLoggerFactory( loggerFactory )
                 .AddStandardDirectories();
 
             // ReSharper restore RedundantTypeArgumentsOfMethod
 
-            serviceBuilder?.Invoke( serviceCollection );
+            serviceBuilder?.Invoke( serviceCollectionAdapter );
 
-            this.Services = serviceCollection.ToServiceProvider();
+            this.Services = serviceCollection.BuildServiceProvider();
         }
     }
 }
