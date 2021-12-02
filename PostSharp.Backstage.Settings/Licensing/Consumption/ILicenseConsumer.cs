@@ -13,21 +13,21 @@ namespace PostSharp.Backstage.Licensing.Consumption
         /// <summary>
         /// Gets the namespace of the type requiring a licensed feature.
         /// </summary>
-        public string TargetTypeNamespace { get; }
+        public string? TargetTypeNamespace { get; }
 
         /// <summary>
         /// Gets the name of the type requiring a licensed feature.
         /// </summary>
-        public string TargetTypeName { get; }
+        public string? TargetTypeName { get; }
 
         /// <summary>
-        /// Gets <see cref="IDiagnosticsSink" /> specific to the location of the licensed feature request.
+        /// Gets <see cref="IBackstageDiagnosticSink" /> specific to the location of the licensed feature request.
         /// </summary>
-        public IDiagnosticsSink Diagnostics { get; }
+        public IBackstageDiagnosticSink Diagnostics { get; }
 
         /// <summary>
         /// Gets <see cref="IDiagnosticsLocation" /> of the licensed feature request.
         /// </summary>
-        public IDiagnosticsLocation DiagnosticsLocation { get; }
+        public IDiagnosticsLocation? DiagnosticsLocation { get; }
     }
 }

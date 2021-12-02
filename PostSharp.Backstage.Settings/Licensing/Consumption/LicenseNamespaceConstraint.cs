@@ -38,10 +38,16 @@ namespace PostSharp.Backstage.Licensing.Consumption
         /// <summary>
         /// Check if <paramref name="requiredNamespace"/> is allowed by the constraint.
         /// </summary>
-        /// <param name="requiredNamespace">The namespace or assembly name required by a license consumer.</param>
-        /// <returns>A value indication if <paramref name="requiredNamespace"/> is allowed by the constraint.</returns>
-        public bool AllowsNamespace( string requiredNamespace )
+        /// <param name="requiredNamespace">The namespace or assembly name required by a license consumer. <c>null</c> for requirements where namespace is not applicable.</param>
+        /// <returns>A value indicating if <paramref name="requiredNamespace"/> is allowed by the constraint.</returns>
+        public bool AllowsNamespace( string? requiredNamespace )
         {
+            // Requirements where namespace is not applicable are allowed regardless of license namespace constraints.
+            if ( requiredNamespace == null )
+            {
+                return true;
+            }
+
             if ( !requiredNamespace.StartsWith( this.AllowedNamespace, StringComparison.OrdinalIgnoreCase ) )
             {
                 return false;

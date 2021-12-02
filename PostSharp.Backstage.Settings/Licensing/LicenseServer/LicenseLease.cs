@@ -26,7 +26,7 @@ namespace PostSharp.Backstage.Licensing.LicenseServer
         public static bool TryDeserialize(
             string serializedLicenseLease,
             IDateTimeProvider dateTimeProvider,
-            [MaybeNullWhen( returnValue: false )] out LicenseLease lease )
+            [MaybeNullWhen( false )] out LicenseLease lease )
         {
             try
             {

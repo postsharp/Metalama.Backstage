@@ -2,7 +2,6 @@
 // This project is not open source. Please see the LICENSE.md file in the repository root for details.
 
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 using PostSharp.Backstage.Extensibility;
 using PostSharp.Backstage.Licensing.Registration;
 using System;
@@ -30,7 +29,7 @@ namespace PostSharp.Cli.Commands.Licensing.Registration
             public int UnregisterOrdinal( int ordinal )
             {
                 // TODO: tracing
-                this._logger.LogInformation( "TODO: tracing" );
+                this._logger?.LogInformation( "TODO: tracing" );
 
                 var ordinals = new LicenseCommandSessionState( this._services ).Load();
 

@@ -1,9 +1,8 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. All rights reserved.
 // This project is not open source. Please see the LICENSE.md file in the repository root for details.
 
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 using PostSharp.Backstage.Extensibility;
+using PostSharp.Backstage.Extensibility.Extensions;
 using System;
 using System.Diagnostics.CodeAnalysis;
 
@@ -15,7 +14,7 @@ namespace PostSharp.Backstage.Licensing.Licenses
     public class LicenseFactory
     {
         private readonly IServiceProvider _services;
-        private readonly IDiagnosticsSink _diagnostics;
+        private readonly IBackstageDiagnosticSink _diagnostics;
         private readonly ILogger? _logger;
 
         /// <summary>
@@ -25,7 +24,7 @@ namespace PostSharp.Backstage.Licensing.Licenses
         public LicenseFactory( IServiceProvider services )
         {
             this._services = services;
-            this._diagnostics = services.GetRequiredService<IDiagnosticsSink>();
+            this._diagnostics = services.GetRequiredService<IBackstageDiagnosticSink>();
             this._logger = services.GetOptionalTraceLogger<LicenseFactory>();
         }
 
@@ -35,10 +34,10 @@ namespace PostSharp.Backstage.Licensing.Licenses
         /// <param name="licenseString">The license string. E.g. license key or license server URL.</param>
         /// <param name="license">The <see cref="ILicense" /> object represented by the <paramref name="licenseString"/>.</param>
         /// <returns>A value indicating if the <paramref name="licenseString"/> represents a license.</returns>
-        public bool TryCreate( string? licenseString, [MaybeNullWhen( returnValue: false )] out ILicense license )
+        public bool TryCreate( string? licenseString, [MaybeNullWhen( false )] out ILicense license )
         {
             // TODO: trace
-            this._logger.LogInformation( "TODO: trace" );
+            this._logger?.LogInformation( "TODO: trace" );
 
             licenseString = licenseString?.Trim();
 

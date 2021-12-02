@@ -17,6 +17,6 @@ namespace PostSharp.Backstage.Licensing
         public const LicensedFeatures Caching = LicensedFeatures.Community | LicensedFeatures.Common | LicensedFeatures.Caching;
         public const LicensedFeatures Framework = LicensedFeatures.Community | LicensedFeatures.Common | LicensedFeatures.Framework | LicensedFeatures.Caravela;
         public const LicensedFeatures Ultimate = LicensedFeatures.All;
-        public const LicensedFeatures Caravela = LicensedFeatures.Caravela;
+        public const LicensedFeatures Caravela = LicensedFeatures.Community | LicensedFeatures.Caravela;
     }
 }

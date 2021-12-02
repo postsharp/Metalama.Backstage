@@ -96,7 +96,10 @@ namespace PostSharp.Backstage.Extensibility
         /// and that match the specified <paramref name="searchPattern"/>
         /// and <paramref name="searchOption"/>.
         /// </returns>
-        IEnumerable<string> EnumerateFiles( string path, string? searchPattern = null, SearchOption? searchOption = null );
+        IEnumerable<string> EnumerateFiles(
+            string path,
+            string? searchPattern = null,
+            SearchOption? searchOption = null );
 
         /// <summary>
         /// Returns an array of directory names that match a search pattern
@@ -150,7 +153,10 @@ namespace PostSharp.Backstage.Extensibility
         /// and that match the specified <paramref name="searchPattern"/>
         /// and <paramref name="searchOption"/>.
         /// </returns>
-        IEnumerable<string> EnumerateDirectories( string path, string? searchPattern = null, SearchOption? searchOption = null );
+        IEnumerable<string> EnumerateDirectories(
+            string path,
+            string? searchPattern = null,
+            SearchOption? searchOption = null );
 
         /// <summary>
         /// Creates all directories and subdirectories in the specified path unless they already exist.

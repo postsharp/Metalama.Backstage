@@ -1,9 +1,8 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. All rights reserved.
 // This project is not open source. Please see the LICENSE.md file in the repository root for details.
 
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 using PostSharp.Backstage.Extensibility;
+using PostSharp.Backstage.Extensibility.Extensions;
 using PostSharp.Backstage.Licensing.Consumption.Sources;
 using PostSharp.Backstage.Licensing.Licenses;
 using PostSharp.Backstage.Licensing.Registration;
@@ -51,7 +50,7 @@ namespace PostSharp.Backstage.Licensing.Consumption
         private bool TryLoadNextLicenseSource()
         {
             // TODO: tracing
-            this._logger.LogInformation( "TODO: tracing" );
+            this._logger?.LogInformation( "TODO: tracing" );
 
             if ( this._unusedLicenseSources.Count == 0 )
             {
@@ -118,9 +117,9 @@ namespace PostSharp.Backstage.Licensing.Consumption
                 return false;
             }
 
-            var registrar = this._services.GetRequiredService<IFirstRunLicenseActivator>();
+            var registrar = this._services.GetService<IFirstRunLicenseActivator>();
 
-            if ( !registrar.TryRegisterLicense() )
+            if ( registrar == null || !registrar.TryRegisterLicense() )
             {
                 return false;
             }
@@ -165,14 +164,23 @@ namespace PostSharp.Backstage.Licensing.Consumption
             return false;
         }
 
+        // TODO: Improve messages
+
         /// <inheritdoc />
         public void ConsumeFeatures( ILicenseConsumer consumer, LicensedFeatures requiredFeatures )
         {
             if ( !this.CanConsumeFeatures( consumer, requiredFeatures ) )
             {
-                consumer.Diagnostics.ReportError(
-                    $"No license available for feature(s) {requiredFeatures} required by '{consumer.TargetTypeName}' type.",
-                    consumer.DiagnosticsLocation );
+                if ( consumer.TargetTypeName == null )
+                {
+                    consumer.Diagnostics.ReportError( $"No license available for feature(s) {requiredFeatures}" );
+                }
+                else
+                {
+                    consumer.Diagnostics.ReportError(
+                        $"No license available for feature(s) {requiredFeatures} required by '{consumer.TargetTypeName}' type.",
+                        consumer.DiagnosticsLocation );
+                }
             }
         }
     }

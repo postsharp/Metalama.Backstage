@@ -12,7 +12,7 @@ namespace PostSharp.Backstage.Licensing.Licenses
     /// A license providing licensed features.
     /// </summary>
     /// <remarks>
-    /// Reports warnings using <see cref="IDiagnosticsSink" />.
+    /// Reports warnings using <see cref="IBackstageDiagnosticSink" />.
     /// </remarks>
     public interface ILicense
     {
@@ -24,7 +24,7 @@ namespace PostSharp.Backstage.Licensing.Licenses
         /// <returns>
         /// <c>true</c> if the object represents or retrieves a consistent and valid license.
         /// </returns>
-        bool TryGetLicenseConsumptionData( [MaybeNullWhen( returnValue: false )] out LicenseConsumptionData licenseConsumptionData );
+        bool TryGetLicenseConsumptionData( [MaybeNullWhen( false )] out LicenseConsumptionData licenseConsumptionData );
 
         /// <summary>
         /// Tries to deserialize data relevant to license registration.
@@ -33,6 +33,6 @@ namespace PostSharp.Backstage.Licensing.Licenses
         /// <returns>
         /// <c>true</c> if the object represents a consistent license.
         /// </returns>
-        bool TryGetLicenseRegistrationData( [MaybeNullWhen( returnValue: false )] out LicenseRegistrationData licenseRegistrationData );
+        bool TryGetLicenseRegistrationData( [MaybeNullWhen( false )] out LicenseRegistrationData licenseRegistrationData );
     }
 }

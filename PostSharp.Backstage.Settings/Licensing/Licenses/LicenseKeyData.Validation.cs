@@ -15,9 +15,8 @@ namespace PostSharp.Backstage.Licensing.Licenses
         public bool Validate(
             byte[]? publicKeyToken,
             IDateTimeProvider dateTimeProvider,
-            DateTime productBuildDate,
-            Version productVersion,
-            [MaybeNullWhen( returnValue: true )] out string errorDescription )
+            IApplicationInfo applicationInfo,
+            [MaybeNullWhen( true )] out string errorDescription )
         {
 #pragma warning disable 618
             if ( this.LicenseType == LicenseType.Anonymous )
@@ -91,14 +90,14 @@ namespace PostSharp.Backstage.Licensing.Licenses
                 return false;
             }
 
-            if ( this.SubscriptionEndDate.HasValue && this.SubscriptionEndDate.Value < productBuildDate )
+            if ( this.SubscriptionEndDate.HasValue && this.SubscriptionEndDate.Value < applicationInfo.BuildDate )
             {
                 errorDescription = string.Format(
                     CultureInfo.InvariantCulture,
                     "{0} {1} has been released on {2:d}, but the license key {3} only allows you to use versions released before {4:d}.",
                     this.ProductName,
-                    productVersion,
-                    productBuildDate,
+                    applicationInfo.Version,
+                    applicationInfo.BuildDate,
                     this.LicenseId,
                     this.SubscriptionEndDate );
 

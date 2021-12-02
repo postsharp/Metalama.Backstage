@@ -1,9 +1,8 @@
 // Copyright (c) SharpCrafters s.r.o. All rights reserved.
 // This project is not open source. Please see the LICENSE.md file in the repository root for details.
 
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 using PostSharp.Backstage.Extensibility;
+using PostSharp.Backstage.Extensibility.Extensions;
 using PostSharp.Backstage.Licensing.Consumption;
 using PostSharp.Backstage.Licensing.Registration;
 using PostSharp.Backstage.Utilities;
@@ -25,7 +24,7 @@ namespace PostSharp.Backstage.Licensing.Licenses
 
         private readonly IServiceProvider _services;
         private readonly IDateTimeProvider _dateTimeProvider;
-        private readonly IDiagnosticsSink _diagnostics;
+        private readonly IBackstageDiagnosticSink _diagnostics;
         private readonly ILogger? _logger;
 
         private static string CleanLicenseKey( string licenseKey )
@@ -54,7 +53,7 @@ namespace PostSharp.Backstage.Licensing.Licenses
             this._licenseKey = CleanLicenseKey( licenseKey );
             this._services = services;
             this._dateTimeProvider = services.GetRequiredService<IDateTimeProvider>();
-            this._diagnostics = services.GetRequiredService<IDiagnosticsSink>();
+            this._diagnostics = services.GetRequiredService<IBackstageDiagnosticSink>();
             this._logger = services.GetOptionalTraceLogger<License>();
         }
 
@@ -95,7 +94,7 @@ namespace PostSharp.Backstage.Licensing.Licenses
         }
 
         /// <inheritdoc />
-        public bool TryGetLicenseConsumptionData( [MaybeNullWhen( returnValue: false )] out LicenseConsumptionData licenseConsumptionData )
+        public bool TryGetLicenseConsumptionData( [MaybeNullWhen( false )] out LicenseConsumptionData licenseConsumptionData )
         {
             if ( !this.TryGetLicenseKeyData( out var licenseKeyData ) )
             {
@@ -109,8 +108,7 @@ namespace PostSharp.Backstage.Licensing.Licenses
             if ( !licenseKeyData.Validate(
                 null,
                 this._dateTimeProvider,
-                applicationInfoService.BuildDate,
-                applicationInfoService.Version,
+                applicationInfoService,
                 out var errorDescription ) )
             {
                 this._diagnostics.ReportWarning( $"License key {licenseKeyData.LicenseUniqueId} is invalid: {errorDescription}" );
@@ -125,7 +123,7 @@ namespace PostSharp.Backstage.Licensing.Licenses
         }
 
         /// <inheritdoc />
-        public bool TryGetLicenseRegistrationData( [MaybeNullWhen( returnValue: false )] out LicenseRegistrationData licenseRegistrationData )
+        public bool TryGetLicenseRegistrationData( [MaybeNullWhen( false )] out LicenseRegistrationData licenseRegistrationData )
         {
             if ( !this.TryGetLicenseKeyData( out var licenseKeyData ) )
             {
@@ -139,7 +137,7 @@ namespace PostSharp.Backstage.Licensing.Licenses
             return true;
         }
 
-        private bool TryGetLicenseKeyData( [MaybeNullWhen( returnValue: false )] out LicenseKeyData data )
+        private bool TryGetLicenseKeyData( [MaybeNullWhen( false )] out LicenseKeyData data )
         {
             this._logger?.LogTrace( $"Deserializing license {{{this._licenseKey}}}." );
             Guid? licenseGuid = null;

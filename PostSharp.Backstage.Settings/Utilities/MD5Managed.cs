@@ -15,10 +15,8 @@ using System.Security.Cryptography;
 #pragma warning disable SA1307  // Accessible fields should begin with upper-case letter
 #pragma warning disable SA1401  // Fields should be private
 #pragma warning disable SA1203  // Constants should appear before fields
-#pragma warning disable SA1502  // Element should not be on a single line
 #pragma warning disable SA1119  // Statement should not use unnecessary parenthesis
 #pragma warning disable IDE0004 // Remove Unnecessary Cast
-#pragma warning disable SA1116  // Split parameters should start on line after declaration
 
 namespace PostSharp.Backstage.Utilities
 {
@@ -214,16 +212,31 @@ namespace PostSharp.Backstage.Utilities
         }
 
         /* F, G, H and I are basic MD5 functions. */
-        private static uint F( uint x, uint y, uint z ) { return ((x) & (y)) | ((~x) & (z)); }
+        private static uint F( uint x, uint y, uint z )
+        {
+            return ((x) & (y)) | ((~x) & (z));
+        }
 
-        private static uint G( uint x, uint y, uint z ) { return ((x) & (z)) | ((y) & (~z)); }
+        private static uint G( uint x, uint y, uint z )
+        {
+            return ((x) & (z)) | ((y) & (~z));
+        }
 
-        private static uint H( uint x, uint y, uint z ) { return (x) ^ (y) ^ (z); }
+        private static uint H( uint x, uint y, uint z )
+        {
+            return (x) ^ (y) ^ (z);
+        }
 
-        private static uint I( uint x, uint y, uint z ) { return (y) ^ ((x) | (~z)); }
+        private static uint I( uint x, uint y, uint z )
+        {
+            return (y) ^ ((x) | (~z));
+        }
 
         /* ROTATE_LEFT rotates x left n bits. */
-        private static uint ROTATE_LEFT( uint x, int n ) { return ((x) << (n)) | ((x) >> (32 - n)); }
+        private static uint ROTATE_LEFT( uint x, int n )
+        {
+            return ((x) << (n)) | ((x) >> (32 - n));
+        }
 
         /* FF, GG, HH, and II transformations for rounds 1, 2, 3, and 4.
            Rotation is separate from addition to prevent recomputation. */

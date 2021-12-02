@@ -1,10 +1,9 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. All rights reserved.
 // This project is not open source. Please see the LICENSE.md file in the repository root for details.
 
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 using PostSharp.Backstage.Extensibility;
-using PostSharp.Backstage.Licensing.Licenses;
+using PostSharp.Backstage.Extensibility.Extensions;
+using PostSharp.Backstage.Licensing.Registration;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -14,25 +13,32 @@ namespace PostSharp.Backstage.Licensing.Consumption.Sources
     /// <summary>
     /// License source providing licenses from a license file.
     /// </summary>
-    public class FileLicenseSource : ILicenseSource
+    public class FileLicenseSource : LicenseStringsLicenseSourceBase
     {
         private readonly string _path;
         private readonly IServiceProvider _services;
         private readonly ILogger? _logger;
 
+        public static FileLicenseSource CreateUserLicenseFileLicenseSource( IServiceProvider services )
+        {
+            var standardLicenseFileLocations = services.GetRequiredService<IStandardLicenseFileLocations>();
+
+            return new FileLicenseSource( standardLicenseFileLocations.UserLicenseFile, services );
+        }
+
         public FileLicenseSource( string path, IServiceProvider services )
+            : base( services )
         {
             this._path = path;
             this._services = services;
             this._logger = services.GetOptionalTraceLogger<FileLicenseSource>();
         }
 
-        /// <inheritdoc />
-        public IEnumerable<ILicense> GetLicenses()
+        protected override IEnumerable<string> GetLicenseStrings()
         {
             this._logger?.LogTrace( $"Loading licenses from '{this._path}'." );
 
-            var diagnosticsSink = this._services.GetRequiredService<IDiagnosticsSink>();
+            var diagnosticsSink = this._services.GetRequiredService<IBackstageDiagnosticSink>();
             var fileSystem = this._services.GetRequiredService<IFileSystem>();
 
             string[] licenseStrings;
@@ -50,21 +56,9 @@ namespace PostSharp.Backstage.Licensing.Consumption.Sources
                 yield break;
             }
 
-            var licenseFactory = new LicenseFactory( this._services );
-
             foreach ( var licenseString in licenseStrings )
             {
-                if ( string.IsNullOrWhiteSpace( licenseString ) )
-                {
-                    continue;
-                }
-
-                if ( licenseFactory.TryCreate( licenseString, out var license ) )
-                {
-                    this._logger?.LogTrace( $"{license} loaded from '{this._path}'." );
-
-                    yield return license;
-                }
+                yield return licenseString;
             }
         }
     }

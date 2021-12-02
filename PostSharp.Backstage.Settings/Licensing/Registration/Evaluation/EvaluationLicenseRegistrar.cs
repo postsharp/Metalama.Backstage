@@ -1,9 +1,8 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. All rights reserved.
 // This project is not open source. Please see the LICENSE.md file in the repository root for details.
 
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 using PostSharp.Backstage.Extensibility;
+using PostSharp.Backstage.Extensibility.Extensions;
 using PostSharp.Backstage.Licensing.Licenses;
 using System;
 using System.IO;
@@ -22,7 +21,7 @@ namespace PostSharp.Backstage.Licensing.Registration.Evaluation
         /// </summary>
         internal static TimeSpan EvaluationPeriod { get; } = TimeSpan.FromDays( 45 );
 
-        // TODO (Do not register a license - allow prerelease to build without a license for 30 days?)
+        // TODO: How to license pre-release versions?
         internal static TimeSpan PrereleaseEvaluationPeriod { get; } = TimeSpan.FromDays( 30 );
 
         /// <summary>
@@ -55,8 +54,6 @@ namespace PostSharp.Backstage.Licensing.Registration.Evaluation
         /// </summary>
         /// <returns>
         /// A value indicating whether the license has been registered.
-        /// Success is indicated when a new community license is registered
-        /// as well as when an existing community license is registered already.
         /// </returns>
         public bool TryRegisterLicense()
         {

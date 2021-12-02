@@ -11,11 +11,11 @@ namespace PostSharp.Backstage.Licensing.Licenses
         public static LicenseConsumptionData ToConsumptionData( this LicenseKeyData licenseKeyData )
         {
             LicenseConsumptionData data = new(
-                licensedProduct: licenseKeyData.Product,
-                licenseType: licenseKeyData.LicenseType,
-                licensedFeatures: licenseKeyData.LicensedFeatures,
-                licensedNamespace: licenseKeyData.Namespace,
-                displayName: $"{licenseKeyData.ProductName} {licenseKeyData.LicenseType.GetLicenseTypeName()} ID {licenseKeyData.LicenseUniqueId}" );
+                licenseKeyData.Product,
+                licenseKeyData.LicenseType,
+                licenseKeyData.LicensedFeatures,
+                licenseKeyData.Namespace,
+                $"{licenseKeyData.ProductName} {licenseKeyData.LicenseType.GetLicenseTypeName()} ID {licenseKeyData.LicenseUniqueId}" );
 
             return data;
         }
@@ -25,16 +25,16 @@ namespace PostSharp.Backstage.Licensing.Licenses
             var description = $"{licenseKeyData.ProductName} ({licenseKeyData.LicenseType.GetLicenseTypeName()})";
 
             LicenseRegistrationData data = new(
-                uniqueId: licenseKeyData.LicenseUniqueId,
-                isSelfCreated: licenseKeyData.LicenseGuid != null,
-                licenseId: licenseKeyData.LicenseGuid == null ? licenseKeyData.LicenseId : null,
-                licensee: licenseKeyData.Licensee,
-                description: description,
-                licenseType: licenseKeyData.LicenseType,
-                validFrom: licenseKeyData.ValidFrom,
-                validTo: licenseKeyData.ValidTo,
-                perpetual: !licenseKeyData.ValidTo.HasValue,
-                subscriptionEndDate: licenseKeyData.SubscriptionEndDate );
+                licenseKeyData.LicenseUniqueId,
+                licenseKeyData.LicenseGuid != null,
+                licenseKeyData.LicenseGuid == null ? licenseKeyData.LicenseId : null,
+                licenseKeyData.Licensee,
+                description,
+                licenseKeyData.LicenseType,
+                licenseKeyData.ValidFrom,
+                licenseKeyData.ValidTo,
+                !licenseKeyData.ValidTo.HasValue,
+                licenseKeyData.SubscriptionEndDate );
 
             return data;
         }

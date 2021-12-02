@@ -1,0 +1,17 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <MSBuildAllProjects>$(MSBuildAllProjects);$(MSBuildThisFileFullPath)</MSBuildAllProjects>
+    <HasSharedItems>true</HasSharedItems>
+    <SharedGUID>D8F0FD6B-7B90-4FEC-BC21-6EF8F5055BAC</SharedGUID>
+  </PropertyGroup>
+  <PropertyGroup Label="Configuration">
+    <Import_RootNamespace>PostSharp.Backstage.MicrosoftLogging</Import_RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)LoggerFactoryAdapter.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)LoggerAdapter.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)LoggingServiceCollectionExtensions.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)LogLevelExtensions.cs" />
+  </ItemGroup>
+</Project>
