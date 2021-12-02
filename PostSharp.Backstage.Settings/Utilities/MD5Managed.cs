@@ -287,7 +287,7 @@ namespace PostSharp.Backstage.Utilities
             MD5_CTX context, /* context */
             byte[] input,    /* input block */
             uint inputIndex, // Starting index for input block
-            uint inputLen )  /*  length of input block */
+            uint inputLen ) /*  length of input block */
         {
             /* Compute number of bytes mod 64 */
             var index = (uint) ((context.count[0] >> 3) & 0x3F);
