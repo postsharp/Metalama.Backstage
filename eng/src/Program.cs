@@ -22,6 +22,10 @@ namespace BuildCaravela
                 "PostSharp.Cli.$(PackageVersion).nupkg"
             };
 
+            var privatePublishing = new NugetPublishTarget(
+                Pattern.Empty.Add( publicPackages ),
+                privateSource);
+
             var publicPublishing = new NugetPublishTarget(
                 Pattern.Empty.Add( publicPackages ),
                 privateSource,
@@ -34,7 +38,7 @@ namespace BuildCaravela
                 ProductName = "PostSharp.Backstage.Settings",
                 Solutions = ImmutableArray.Create<Solution>(
                     new DotNetSolution( "PostSharp.Backstage.Settings.sln" ) { SupportsTestCoverage = true, CanFormatCode = true } ),
-                PublishingTargets = ImmutableArray.Create<PublishingTarget>( publicPublishing ),
+                PublishingTargets = ImmutableArray.Create<PublishingTarget>( publicPublishing, privatePublishing ),
                 Dependencies = ImmutableArray<ProductDependency>.Empty
             };
             var commandApp = new CommandApp();
