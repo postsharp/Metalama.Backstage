@@ -76,7 +76,7 @@ namespace PostSharp.Backstage.Licensing.Tests.Evaluation
             Assert.Single( this.Log.LogEntries, x => x.Message == reason );
             this.Log.Clear();
         }
-        
+
         // ReSharper restore ParameterOnlyUsedForPreconditionCheck.Local
     }
 }

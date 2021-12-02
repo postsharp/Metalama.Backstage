@@ -40,7 +40,10 @@ namespace PostSharp.Backstage.Testing.Services
             diagnostics.AsTestDiagnosticsSink().AssertClean();
         }
 
-        public static void AssertSingleWarning( this IBackstageDiagnosticSink diagnostics, string expectedMessage, IDiagnosticsLocation? expectedLocation = null )
+        public static void AssertSingleWarning(
+            this IBackstageDiagnosticSink diagnostics,
+            string expectedMessage,
+            IDiagnosticsLocation? expectedLocation = null )
         {
             var warning = diagnostics.AsTestDiagnosticsSink().Warnings.Single();
             Assert.Equal( expectedMessage, warning.Message );

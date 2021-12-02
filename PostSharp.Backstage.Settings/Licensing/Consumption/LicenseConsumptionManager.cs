@@ -165,7 +165,7 @@ namespace PostSharp.Backstage.Licensing.Consumption
         }
 
         // TODO: Improve messages
-        
+
         /// <inheritdoc />
         public void ConsumeFeatures( ILicenseConsumer consumer, LicensedFeatures requiredFeatures )
         {

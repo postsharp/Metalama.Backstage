@@ -30,8 +30,7 @@ namespace PostSharp.Backstage.Licensing.Tests
                 services =>
                 {
                     // ReSharper disable once ExplicitCallerInfoArgument
-                    services.AddSingleton<IBackstageDiagnosticSink>(
-                            new TestDiagnosticsSink( services.ServiceProvider, "default" ) );
+                    services.AddSingleton<IBackstageDiagnosticSink>( new TestDiagnosticsSink( services.ServiceProvider, "default" ) );
 
                     services.AddSingleton<IApplicationInfo>(
                         new TestApplicationInfo(

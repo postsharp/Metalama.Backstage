@@ -18,15 +18,13 @@ namespace PostSharp.Backstage.Licensing.Registration.Evaluation
         internal static ServiceProviderBuilder AddStandardEvaluationLicenseFilesLocations( this ServiceProviderBuilder serviceProviderBuilder )
         {
             return serviceProviderBuilder
-                .AddSingleton<IEvaluationLicenseFilesLocations>(
-                        new EvaluationLicenseFilesLocations( serviceProviderBuilder.ServiceProvider ) );
+                .AddSingleton<IEvaluationLicenseFilesLocations>( new EvaluationLicenseFilesLocations( serviceProviderBuilder.ServiceProvider ) );
         }
 
         public static ServiceProviderBuilder AddFirstRunEvaluationLicenseActivator( this ServiceProviderBuilder serviceProviderBuilder )
         {
             return serviceProviderBuilder
-                .AddSingleton<IFirstRunLicenseActivator>(
-                        new EvaluationLicenseRegistrar( serviceProviderBuilder.ServiceProvider ) );
+                .AddSingleton<IFirstRunLicenseActivator>( new EvaluationLicenseRegistrar( serviceProviderBuilder.ServiceProvider ) );
         }
     }
 }

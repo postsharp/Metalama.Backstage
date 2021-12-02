@@ -2,7 +2,6 @@
 // This project is not open source. Please see the LICENSE.md file in the repository root for details.
 
 using System;
-using System.Collections.Generic;
 
 namespace PostSharp.Backstage.Extensibility
 {
@@ -12,7 +11,7 @@ namespace PostSharp.Backstage.Extensibility
     /// </summary>
     public sealed class ServiceProviderBuilder
     {
-        private readonly Action<Type,object> _addService;
+        private readonly Action<Type, object> _addService;
         private readonly Func<IServiceProvider> _getServiceProvider;
 
         public ServiceProviderBuilder( Action<Type, object> addService, Func<IServiceProvider> getServiceProvider )
@@ -22,8 +21,7 @@ namespace PostSharp.Backstage.Extensibility
         }
 
         public void AddService( Type type, object instance ) => this._addService( type, instance );
-        
+
         public IServiceProvider ServiceProvider => this._getServiceProvider();
     }
-
 }

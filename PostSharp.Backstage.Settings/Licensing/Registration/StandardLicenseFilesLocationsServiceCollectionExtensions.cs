@@ -19,8 +19,7 @@ namespace PostSharp.Backstage.Licensing.Registration
         public static ServiceProviderBuilder AddStandardLicenseFilesLocations( this ServiceProviderBuilder serviceProviderBuilder )
         {
             return serviceProviderBuilder
-                .AddSingleton<IStandardLicenseFileLocations>(
-                        new StandardLicenseFilesLocations( serviceProviderBuilder.ServiceProvider ) )
+                .AddSingleton<IStandardLicenseFileLocations>( new StandardLicenseFilesLocations( serviceProviderBuilder.ServiceProvider ) )
                 .AddStandardEvaluationLicenseFilesLocations();
         }
     }

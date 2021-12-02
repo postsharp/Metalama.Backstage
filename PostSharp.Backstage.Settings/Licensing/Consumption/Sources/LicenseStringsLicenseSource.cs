@@ -9,7 +9,7 @@ namespace PostSharp.Backstage.Licensing.Consumption.Sources
     public class LicenseStringsLicenseSource : LicenseStringsLicenseSourceBase
     {
         private readonly IEnumerable<string> _licenseStrings;
-        
+
         public LicenseStringsLicenseSource( IEnumerable<string> licenseKeys, IServiceProvider services )
             : base( services )
         {

@@ -25,8 +25,7 @@ namespace PostSharp.Backstage.Licensing.Consumption
         {
             return services
                 .AddStandardLicenseFilesLocations()
-                .AddSingleton<ILicenseConsumptionManager>(
-                        new LicenseConsumptionManager( services.ServiceProvider, licenseSources ) );
+                .AddSingleton<ILicenseConsumptionManager>( new LicenseConsumptionManager( services.ServiceProvider, licenseSources ) );
         }
 
         /// <summary>
@@ -41,8 +40,7 @@ namespace PostSharp.Backstage.Licensing.Consumption
         {
             return services
                 .AddStandardLicenseFilesLocations()
-                .AddSingleton<ILicenseConsumptionManager>(
-                        new LicenseConsumptionManager( services.ServiceProvider, licenseSources ) );
+                .AddSingleton<ILicenseConsumptionManager>( new LicenseConsumptionManager( services.ServiceProvider, licenseSources ) );
         }
     }
 }

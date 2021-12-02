@@ -10,12 +10,13 @@ namespace PostSharp.Backstage.Extensibility
     /// </summary>
     public static class RegisterServiceExtensions
     {
-        public static ServiceProviderBuilder AddSingleton<T>( 
+        public static ServiceProviderBuilder AddSingleton<T>(
             this ServiceProviderBuilder serviceProviderBuilder,
-            T instance ) 
+            T instance )
             where T : notnull
         {
             serviceProviderBuilder.AddService( typeof(T), instance );
+
             return serviceProviderBuilder;
         }
 
@@ -24,10 +25,8 @@ namespace PostSharp.Backstage.Extensibility
         /// </summary>
         /// <param name="serviceProviderBuilder">The <see cref="ServiceProviderBuilder" /> to add services to.</param>
         /// <returns>The <see cref="ServiceProviderBuilder" /> so that additional calls can be chained.</returns>
-        public static ServiceProviderBuilder AddCurrentDateTimeProvider(
-            this ServiceProviderBuilder serviceProviderBuilder )
+        public static ServiceProviderBuilder AddCurrentDateTimeProvider( this ServiceProviderBuilder serviceProviderBuilder )
             => serviceProviderBuilder.AddSingleton<IDateTimeProvider>( new CurrentDateTimeProvider() );
-
 
         /// <summary>
         /// Adds a service providing access to file system using API in <see cref="System.IO" /> namespace to the specified <see cref="ServiceProviderBuilder" />.

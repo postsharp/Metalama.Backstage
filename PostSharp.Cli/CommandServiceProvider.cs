@@ -23,10 +23,9 @@ namespace PostSharp.Cli
             var serviceCollection = new ServiceCollection();
 
             ILoggerFactory? loggerFactory = null;
+
             if ( addTrace )
             {
-               
-
                 serviceCollection
 
                     // https://docs.microsoft.com/en-us/dotnet/core/extensions/console-log-formatter
@@ -35,13 +34,12 @@ namespace PostSharp.Cli
                     // https://www.blinkingcaret.com/2018/02/14/net-core-console-logging/
                     .Configure<LoggerFilterOptions>( options => options.MinLevel = LogLevel.Trace );
 
-                
-                loggerFactory = serviceCollection.BuildServiceProvider().GetService<Microsoft.Extensions.Logging.ILoggerFactory>();
+                loggerFactory = serviceCollection.BuildServiceProvider().GetService<ILoggerFactory>();
             }
 
-            var serviceProviderBuilder = new ServiceProviderBuilder(  
-                (type, instance) => serviceCollection.AddSingleton( type, instance ),
-                () => serviceCollection.BuildServiceProvider());
+            var serviceProviderBuilder = new ServiceProviderBuilder(
+                ( type, instance ) => serviceCollection.AddSingleton( type, instance ),
+                () => serviceCollection.BuildServiceProvider() );
 
             serviceProviderBuilder
                 .AddSingleton<IConsole>( console )
