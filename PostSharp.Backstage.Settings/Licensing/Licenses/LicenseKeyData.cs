@@ -73,7 +73,7 @@ namespace PostSharp.Backstage.Licensing.Licenses
                 LicensedProduct.ModelLibrary => "PostSharp MVVM",
                 LicensedProduct.ThreadingLibrary => "PostSharp Threading",
                 LicensedProduct.CachingLibrary => "PostSharp Caching",
-                LicensedProduct.Metalama => "PostSharp Metalama",
+                LicensedProduct.Metalama => "Metalama",
                 _ => string.Format( CultureInfo.InvariantCulture, "Unknown Product ({0})", this.Product )
             };
 
