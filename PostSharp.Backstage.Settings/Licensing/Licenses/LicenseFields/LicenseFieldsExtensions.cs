@@ -15,7 +15,7 @@ namespace PostSharp.Backstage.Licensing.Licenses.LicenseFields
         /// <remarks>
         /// Till PostSharp 6.5.16/6.8.9/6.9.2, all license fields had to be understood.
         /// Adding a field used to cause backward incompatibility.
-        /// In the next versions and in Caravela, we allow fields of indexes 129-253
+        /// In the next versions and in Metalama, we allow fields of indexes 129-253
         /// to be followed by its length (1 byte).
         /// If such field is unknown, the given number of bytes is ignored.
         /// </remarks>
@@ -39,7 +39,7 @@ namespace PostSharp.Backstage.Licensing.Licenses.LicenseFields
         /// <remarks>
         /// Till PostSharp 6.5.16/6.8.9/6.9.2, all license fields had to be known.
         /// Adding a field used to cause backward incompatibility.
-        /// In the next versions and in Caravela, we require each new filed index
+        /// In the next versions and in Metalama, we require each new filed index
         /// to be followed by its length (1 byte).
         /// If such field is unknown, the given number of bytes is ignored.
         /// </remarks>

@@ -103,8 +103,8 @@ This section describes centralized NuGet packages metadata management.
     <!-- Properties of NuGet packages-->
     <PropertyGroup>
         <Authors>PostSharp Technologies</Authors>
-        <PackageProjectUrl>https://github.com/postsharp/Caravela</PackageProjectUrl>
-        <PackageTags>PostSharp Caravela AOP</PackageTags>
+        <PackageProjectUrl>https://github.com/postsharp/Metalama</PackageProjectUrl>
+        <PackageTags>PostSharp Metalama AOP</PackageTags>
         <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
         <PackageIcon>PostSharpIcon.png</PackageIcon>
         <PackageLicenseFile>LICENSE.md</PackageLicenseFile>
@@ -173,7 +173,7 @@ Create `eng\Versions.props` file. The content should look like:
     <!-- Versions of dependencies -->
     <PropertyGroup>
         <RoslynVersion>3.8.0</RoslynVersion>
-        <CaravelaCompilerVersion>3.8.12-preview</CaravelaCompilerVersion>
+        <MetalamaCompilerVersion>3.8.12-preview</MetalamaCompilerVersion>
         <MicrosoftCSharpVersion>4.7.0</MicrosoftCSharpVersion>
     </PropertyGroup>
 
@@ -256,12 +256,12 @@ namespace Build
             // These packages are published to internal and private feeds.
             var publicPackages = new ParametricString[]
             {
-                "Caravela.Framework.$(PackageVersion).nupkg",
-                "Caravela.TestFramework.$(PackageVersion).nupkg",
-                "Caravela.Framework.Redist.$(PackageVersion).nupkg",
-                "Caravela.Framework.Sdk.$(PackageVersion).nupkg",
-                "Caravela.Framework.Impl.$(PackageVersion).nupkg",
-                "Caravela.Framework.DesignTime.Contracts.$(PackageVersion).nupkg"
+                "Metalama.Framework.$(PackageVersion).nupkg",
+                "Metalama.TestFramework.$(PackageVersion).nupkg",
+                "Metalama.Framework.Redist.$(PackageVersion).nupkg",
+                "Metalama.Framework.Sdk.$(PackageVersion).nupkg",
+                "Metalama.Framework.Impl.$(PackageVersion).nupkg",
+                "Metalama.Framework.DesignTime.Contracts.$(PackageVersion).nupkg"
             };
 
             var publicPublishing = new NugetPublishTarget(
@@ -273,12 +273,12 @@ namespace Build
 
             var product = new Product
             {
-                ProductName = "Caravela",
+                ProductName = "Metalama",
                 Solutions = ImmutableArray.Create<Solution>(
-                    new DotNetSolution( "Caravela.sln" ) { SupportsTestCoverage = true, CanFormatCode = true },
-                    new DotNetSolution( "Tests\\Caravela.Framework.TestApp\\Caravela.Framework.TestApp.sln" ) { IsTestOnly = true } ),
+                    new DotNetSolution( "Metalama.sln" ) { SupportsTestCoverage = true, CanFormatCode = true },
+                    new DotNetSolution( "Tests\\Metalama.Framework.TestApp\\Metalama.Framework.TestApp.sln" ) { IsTestOnly = true } ),
                 PublishingTargets = ImmutableArray.Create<PublishingTarget>( publicPublishing ),
-                Dependencies = ImmutableArray.Create( new ProductDependency( "PostSharp.Backstage", "Caravela.Compiler" ) )
+                Dependencies = ImmutableArray.Create( new ProductDependency( "PostSharp.Backstage", "Metalama.Compiler" ) )
             };
 
             var commandApp = new CommandApp();

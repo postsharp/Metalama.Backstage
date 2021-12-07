@@ -113,7 +113,7 @@ namespace PostSharp.Backstage.Licensing.Tests.Consumption
                     consumer.Diagnostics.AssertNoWarnings();
 
                     consumer.Diagnostics.AssertSingleError(
-                        "No license available for feature(s) Caravela required by 'Bar' type.",
+                        "No license available for feature(s) Metalama required by 'Bar' type.",
                         consumer.DiagnosticsLocation );
                 }
             }

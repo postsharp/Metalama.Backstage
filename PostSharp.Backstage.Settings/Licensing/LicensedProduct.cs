@@ -38,9 +38,9 @@ namespace PostSharp.Backstage.Licensing
         Framework = 4,
 
         /// <summary>
-        /// Caravela.
+        /// Metalama.
         /// </summary>
-        Caravela = 5,
+        Metalama = 5,
 
         /// <summary>
         /// Logging Library.
