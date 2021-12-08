@@ -6,7 +6,7 @@ using PostSharp.Engineering.BuildTools.Build.Model;
 using Spectre.Console.Cli;
 using System.Collections.Immutable;
 
-namespace BuildCaravela
+namespace BuildMetalama
 {
     internal class Program
     {

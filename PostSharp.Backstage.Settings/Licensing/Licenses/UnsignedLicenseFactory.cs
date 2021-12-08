@@ -38,7 +38,7 @@ namespace PostSharp.Backstage.Licensing.Licenses
             {
                 MinPostSharpVersion = LicenseKeyData.MinPostSharpVersionValidationRemovedPostSharpVersion,
                 LicenseGuid = Guid.NewGuid(),
-                Product = LicensedProduct.Caravela,
+                Product = LicensedProduct.Metalama,
                 LicenseType = LicenseType.Evaluation,
                 ValidFrom = start,
                 ValidTo = end,
@@ -63,7 +63,7 @@ namespace PostSharp.Backstage.Licensing.Licenses
             {
                 MinPostSharpVersion = LicenseKeyData.MinPostSharpVersionValidationRemovedPostSharpVersion,
                 LicenseGuid = Guid.NewGuid(),
-                Product = LicensedProduct.Caravela,
+                Product = LicensedProduct.Metalama,
                 LicenseType = LicenseType.Community,
                 ValidFrom = start
             };

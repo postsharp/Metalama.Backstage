@@ -34,49 +34,49 @@ namespace PostSharp.Backstage.Licensing.Tests.Consumption
         public void NoLicenseAutoRegistersEvaluationLicense()
         {
             LicenseConsumptionManager manager = new( this.Services );
-            this.TestConsumption( manager, LicensedFeatures.Caravela, false, true );
+            this.TestConsumption( manager, LicensedFeatures.Metalama, false, true );
         }
 
         [Fact]
-        public void UltimateLicenseAllowsCaravelaFeature()
+        public void UltimateLicenseAllowsMetalamaFeature()
         {
-            this.TestOneLicense( TestLicenseKeys.Ultimate, LicensedFeatures.Caravela, true );
+            this.TestOneLicense( TestLicenseKeys.Ultimate, LicensedFeatures.Metalama, true );
         }
 
         [Fact]
-        public void LoggingLicenseForbidsCaravelaFeature()
+        public void LoggingLicenseForbidsMetalamaFeature()
         {
-            this.TestOneLicense( TestLicenseKeys.Logging, LicensedFeatures.Caravela, false );
+            this.TestOneLicense( TestLicenseKeys.Logging, LicensedFeatures.Metalama, false );
         }
 
         [Fact]
-        public void OpenSourceAllowsCaravelaInSameNamespace()
+        public void OpenSourceAllowsMetalamaInSameNamespace()
         {
-            this.TestOneLicense( TestLicenseKeys.OpenSource, LicensedFeatures.Caravela, TestLicenseKeys.OpenSourceNamespace, true );
+            this.TestOneLicense( TestLicenseKeys.OpenSource, LicensedFeatures.Metalama, TestLicenseKeys.OpenSourceNamespace, true );
         }
 
         [Fact]
-        public void OpenSourceForbidsCaravelaInDifferentNamespace()
+        public void OpenSourceForbidsMetalamaInDifferentNamespace()
         {
-            this.TestOneLicense( TestLicenseKeys.OpenSource, LicensedFeatures.Caravela, "Foo", false );
+            this.TestOneLicense( TestLicenseKeys.OpenSource, LicensedFeatures.Metalama, "Foo", false );
         }
 
         [Fact]
-        public void CaravelaLicenseAllowsCaravelaFeature()
+        public void MetalamaLicenseAllowsMetalamaFeature()
         {
-            this.TestOneLicense( TestLicenseKeys.Caravela, LicensedFeatures.Caravela, true );
+            this.TestOneLicense( TestLicenseKeys.Metalama, LicensedFeatures.Metalama, true );
         }
 
         [Fact]
-        public void CaravelaLicenseAllowsCommunityFeature()
+        public void MetalamaLicenseAllowsCommunityFeature()
         {
-            this.TestOneLicense( TestLicenseKeys.Caravela, LicensedFeatures.Community, true );
+            this.TestOneLicense( TestLicenseKeys.Metalama, LicensedFeatures.Community, true );
         }
 
         [Fact]
-        public void CommunityLicenseForbidsCaravelaFeature()
+        public void CommunityLicenseForbidsMetalamaFeature()
         {
-            this.TestOneLicense( TestLicenseKeys.Community, LicensedFeatures.Caravela, false );
+            this.TestOneLicense( TestLicenseKeys.Community, LicensedFeatures.Metalama, false );
         }
 
         [Fact]

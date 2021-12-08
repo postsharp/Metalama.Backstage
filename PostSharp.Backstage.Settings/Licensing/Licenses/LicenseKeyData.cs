@@ -40,7 +40,7 @@ namespace PostSharp.Backstage.Licensing.Licenses
         public string LicenseUniqueId
             => this.LicenseGuid.HasValue ? this.LicenseGuid.Value.ToString() : this.LicenseId.ToString( CultureInfo.InvariantCulture );
 
-        // TODO in Caravela
+        // TODO in Metalama
         public bool RequiresWatermark => this.LicenseType == LicenseType.Evaluation || this.LicenseType == LicenseType.Academic;
 
         /// <summary>
@@ -55,7 +55,7 @@ namespace PostSharp.Backstage.Licensing.Licenses
                 LicensedProduct.ThreadingLibrary => LicensedProductFeatures.Threading,
                 LicensedProduct.DiagnosticsLibrary => LicensedProductFeatures.Logging,
                 LicensedProduct.CachingLibrary => LicensedProductFeatures.Caching,
-                LicensedProduct.Caravela => LicensedProductFeatures.Caravela,
+                LicensedProduct.Metalama => LicensedProductFeatures.Metalama,
                 _ => LicensedProductFeatures.Community
             };
 
@@ -73,7 +73,7 @@ namespace PostSharp.Backstage.Licensing.Licenses
                 LicensedProduct.ModelLibrary => "PostSharp MVVM",
                 LicensedProduct.ThreadingLibrary => "PostSharp Threading",
                 LicensedProduct.CachingLibrary => "PostSharp Caching",
-                LicensedProduct.Caravela => "PostSharp Caravela",
+                LicensedProduct.Metalama => "Metalama",
                 _ => string.Format( CultureInfo.InvariantCulture, "Unknown Product ({0})", this.Product )
             };
 

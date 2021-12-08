@@ -27,7 +27,7 @@ namespace PostSharp.Backstage.Licensing
         Aggregation = 1 << 6,
         Diagnostics = 1 << 7,
         Caching = 1 << 8,
-        Caravela = 1 << 9,
+        Metalama = 1 << 9,
 
         All = int.MaxValue
     }

@@ -31,7 +31,7 @@ namespace PostSharp.Backstage.Licensing.Tests.Consumption
             var license1 = this.CreateLicense( TestLicenseKeys.Ultimate );
             var license2 = this.CreateLicense( TestLicenseKeys.Ultimate );
             var manager = this.CreateConsumptionManager( license1, license2 );
-            this.TestConsumption( manager, LicensedFeatures.Caravela, true );
+            this.TestConsumption( manager, LicensedFeatures.Metalama, true );
             this.AssertOneUsed( false, license1, license2 );
         }
 
@@ -41,7 +41,7 @@ namespace PostSharp.Backstage.Licensing.Tests.Consumption
             var license1 = this.CreateLicense( TestLicenseKeys.Logging );
             var license2 = this.CreateLicense( TestLicenseKeys.Logging );
             var manager = this.CreateConsumptionManager( license1, license2 );
-            this.TestConsumption( manager, LicensedFeatures.Caravela, false );
+            this.TestConsumption( manager, LicensedFeatures.Metalama, false );
             this.AssertOneUsed( false, license1, license2 );
         }
 
@@ -51,7 +51,7 @@ namespace PostSharp.Backstage.Licensing.Tests.Consumption
             var license1 = this.CreateLicense( TestLicenseKeys.Logging );
             var license2 = this.CreateLicense( TestLicenseKeys.Caching );
             var manager = this.CreateConsumptionManager( license1, license2 );
-            this.TestConsumption( manager, LicensedFeatures.Caravela, false );
+            this.TestConsumption( manager, LicensedFeatures.Metalama, false );
             this.AssertAllUsed( false, license1, license2 );
         }
 
@@ -65,7 +65,7 @@ namespace PostSharp.Backstage.Licensing.Tests.Consumption
             var source2 = new TestLicenseSource( "source2", license2 );
 
             var manager = this.CreateConsumptionManager( source1, source2 );
-            this.TestConsumption( manager, LicensedFeatures.Caravela, true );
+            this.TestConsumption( manager, LicensedFeatures.Metalama, true );
             this.AssertOneUsed( false, license1, license2 );
             this.AssertOneUsed( false, source1, source2 );
         }
@@ -80,7 +80,7 @@ namespace PostSharp.Backstage.Licensing.Tests.Consumption
             var source2 = new TestLicenseSource( "source2", license2 );
 
             var manager = this.CreateConsumptionManager( source1, source2 );
-            this.TestConsumption( manager, LicensedFeatures.Caravela, false );
+            this.TestConsumption( manager, LicensedFeatures.Metalama, false );
             this.AssertAllUsed( false, license1, license2 );
             this.AssertAllUsed( false, source1, source2 );
         }
@@ -91,7 +91,7 @@ namespace PostSharp.Backstage.Licensing.Tests.Consumption
             var license1 = this.CreateLicense( TestLicenseKeys.Ultimate );
             var license2 = this.CreateLicense( TestLicenseKeys.OpenSource );
             var manager = this.CreateConsumptionManager( license1, license2 );
-            this.TestConsumption( manager, LicensedFeatures.Caravela, TestLicenseKeys.OpenSourceNamespace, true );
+            this.TestConsumption( manager, LicensedFeatures.Metalama, TestLicenseKeys.OpenSourceNamespace, true );
             Assert.True( license1.IsUsed );
             Assert.False( license2.IsUsed );
         }
@@ -102,7 +102,7 @@ namespace PostSharp.Backstage.Licensing.Tests.Consumption
             var license1 = this.CreateLicense( TestLicenseKeys.Logging );
             var license2 = this.CreateLicense( TestLicenseKeys.OpenSource );
             var manager = this.CreateConsumptionManager( license1, license2 );
-            this.TestConsumption( manager, LicensedFeatures.Caravela, "Foo", false );
+            this.TestConsumption( manager, LicensedFeatures.Metalama, "Foo", false );
             this.AssertAllUsed( false, license1, license2 );
         }
     }
