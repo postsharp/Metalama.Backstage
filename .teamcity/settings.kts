@@ -60,7 +60,7 @@ object ReleaseBuild : BuildType({
                 path = "Build.ps1"
             }
             noProfile = false
-            param("jetbrains_powershell_scriptArguments", "test  --numbered %build.number% --configuration Release --sign")
+            param("jetbrains_powershell_scriptArguments", "test  --numbered %build.number% --configuration Release")
         }
     }
 
