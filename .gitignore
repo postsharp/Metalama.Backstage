@@ -366,6 +366,7 @@ FodyWeavers.xsd
 */packages/
 .packages/
 *.g.cs
+*.g.props
 .packages
 .idea/**/workspace.xml
 .idea/**/tasks.xml
@@ -373,3 +374,4 @@ FodyWeavers.xsd
 /tools/
 **/inspectcode.xml
 /eng/BackstageVersion.props
+/PostSharp.Backstage.Settings.Import.props
