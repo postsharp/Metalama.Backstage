@@ -1,6 +1,6 @@
 <Project>
 
-    <!-- Version of PostSharp.Backstage -->
+    <!-- Set the default version -->
     <Import Project="MainVersion.props" />
     
     <PropertyGroup>
@@ -10,16 +10,20 @@
 
     <!-- Versions of dependencies -->
     <PropertyGroup>
+        <PostSharpEngineeringVersion>1.0.19-preview</PostSharpEngineeringVersion>
     </PropertyGroup>
 
-    <!-- Overrides by local settings -->
-    <Import Project="../artifacts/private/PostSharp.Backstage.Settings.version.props" Condition="Exists('../artifacts/private/PostSharp.Backstage.Settings.version.props')" />
-    <Import Project="Dependencies.props" Condition="Exists('Dependencies.props')" />
+    <!-- Import overrides for the local build -->
+    <Import Project="Versions.g.props" Condition="Exists('Versions.g.props')" />
 
     <!-- Other properties dependent on the versions set above. -->
     <PropertyGroup>
         <AssemblyVersion>$(PostSharpBackstageSettingsAssemblyVersion)</AssemblyVersion>
         <Version>$(PostSharpBackstageSettingsVersion)</Version>
+    </PropertyGroup>
+
+    <!-- Public strong name keys used by InternalsVisibleTo. -->
+    <PropertyGroup>
     </PropertyGroup>
 
 </Project>
