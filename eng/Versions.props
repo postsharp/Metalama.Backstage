@@ -10,7 +10,7 @@
 
     <!-- Versions of dependencies -->
     <PropertyGroup>
-        <PostSharpEngineeringVersion>1.0.20-preview</PostSharpEngineeringVersion>
+        <PostSharpEngineeringVersion>1.0.21-preview</PostSharpEngineeringVersion>
     </PropertyGroup>
 
     <!-- Import overrides for the local build -->
