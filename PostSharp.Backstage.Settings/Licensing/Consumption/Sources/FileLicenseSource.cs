@@ -41,6 +41,13 @@ namespace PostSharp.Backstage.Licensing.Consumption.Sources
             var diagnosticsSink = this._services.GetRequiredService<IBackstageDiagnosticSink>();
             var fileSystem = this._services.GetRequiredService<IFileSystem>();
 
+            if ( !fileSystem.FileExists( this._path ) )
+            {
+                this._logger?.LogTrace( $"'{this._path}' does not exist." );
+
+                yield break;
+            }
+
             string[] licenseStrings;
 
             try

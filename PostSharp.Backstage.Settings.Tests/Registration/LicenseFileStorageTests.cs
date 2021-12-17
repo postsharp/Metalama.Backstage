@@ -74,6 +74,15 @@ namespace PostSharp.Backstage.Licensing.Tests.Registration
         }
 
         [Fact]
+        public void NonExistentStorageCanBeRead()
+        {
+            var storage = this.OpenOrCreateStorage();
+            
+            Assert.Empty( storage.Licenses );
+            Assert.Throws<FileNotFoundException>( () => this.AssertFileContains() );
+        }
+
+        [Fact]
         public void EmptyStorageCanBeCreated()
         {
             var storage = this.OpenOrCreateStorage();
