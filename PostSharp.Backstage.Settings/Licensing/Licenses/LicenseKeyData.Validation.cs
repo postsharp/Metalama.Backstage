@@ -10,7 +10,7 @@ using System.Linq;
 
 namespace PostSharp.Backstage.Licensing.Licenses
 {
-    internal partial class LicenseKeyData
+    public partial class LicenseKeyData
     {
         public bool Validate(
             byte[]? publicKeyToken,

@@ -7,7 +7,7 @@ using System.Collections.Generic;
 
 namespace PostSharp.Backstage.Licensing.Licenses
 {
-    internal partial class LicenseKeyData
+    public partial class LicenseKeyData
     {
         private readonly SortedDictionary<LicenseFieldIndex, LicenseField> _fields = new();
 

@@ -5,7 +5,7 @@ using PostSharp.Backstage.Licensing.Cryptography;
 
 namespace PostSharp.Backstage.Licensing.Licenses
 {
-    internal partial class LicenseKeyData
+    public partial class LicenseKeyData
     {
         /// <exclude/>
         public bool VerifySignature()

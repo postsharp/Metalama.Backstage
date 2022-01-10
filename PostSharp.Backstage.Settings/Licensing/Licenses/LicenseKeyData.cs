@@ -7,7 +7,10 @@ using System.Text;
 
 namespace PostSharp.Backstage.Licensing.Licenses
 {
-    internal partial class LicenseKeyData
+    /// <summary>
+    /// Provides serialization, cryptography and validation for license keys.
+    /// </summary>
+    public partial class LicenseKeyData
     {
         /// <summary>
         /// Since PostSharp 6.5.17, 6.8.10, and 6.9.3 the <see cref="MinPostSharpVersion" /> is no longer checked.
