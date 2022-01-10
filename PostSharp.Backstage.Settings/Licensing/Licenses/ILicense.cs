@@ -2,7 +2,6 @@
 // This project is not open source. Please see the LICENSE.md file in the repository root for details.
 
 using PostSharp.Backstage.Extensibility;
-using PostSharp.Backstage.Licensing.Audit;
 using PostSharp.Backstage.Licensing.Consumption;
 using PostSharp.Backstage.Licensing.Registration;
 using System.Diagnostics.CodeAnalysis;
@@ -25,7 +24,7 @@ namespace PostSharp.Backstage.Licensing.Licenses
         /// <returns>
         /// <c>true</c> if the object represents or retrieves a consistent and valid license.
         /// </returns>
-        bool TryGetLicenseConsumptionData( [MaybeNullWhen( false )] out LicenseConsumptionData? licenseConsumptionData );
+        bool TryGetLicenseConsumptionData( [MaybeNullWhen( false )] out LicenseConsumptionData licenseConsumptionData );
 
         /// <summary>
         /// Tries to deserialize data relevant to license registration.
@@ -34,6 +33,6 @@ namespace PostSharp.Backstage.Licensing.Licenses
         /// <returns>
         /// <c>true</c> if the object represents a consistent license.
         /// </returns>
-        bool TryGetLicenseRegistrationData( [MaybeNullWhen( false )] out LicenseRegistrationData? licenseRegistrationData );
+        bool TryGetLicenseRegistrationData( [MaybeNullWhen( false )] out LicenseRegistrationData licenseRegistrationData );
     }
 }

@@ -38,9 +38,14 @@ namespace PostSharp.Backstage.Licensing
         Framework = 4,
 
         /// <summary>
-        /// Metalama.
+        /// Metalama Ultimate.
         /// </summary>
-        Metalama = 5,
+        MetalamaUltimate = 5,
+
+        /// <summary>
+        /// Metalama Professional.
+        /// </summary>
+        MetalamaProfessional = 6,
 
         /// <summary>
         /// Logging Library.

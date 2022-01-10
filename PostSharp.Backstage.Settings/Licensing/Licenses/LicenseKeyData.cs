@@ -58,7 +58,8 @@ namespace PostSharp.Backstage.Licensing.Licenses
                 LicensedProduct.ThreadingLibrary => LicensedProductFeatures.Threading,
                 LicensedProduct.DiagnosticsLibrary => LicensedProductFeatures.Logging,
                 LicensedProduct.CachingLibrary => LicensedProductFeatures.Caching,
-                LicensedProduct.Metalama => LicensedProductFeatures.Metalama,
+                LicensedProduct.MetalamaProfessional => LicensedProductFeatures.Metalama,
+                LicensedProduct.MetalamaUltimate => LicensedProductFeatures.Metalama,
                 _ => LicensedProductFeatures.Community
             };
 
@@ -76,7 +77,8 @@ namespace PostSharp.Backstage.Licensing.Licenses
                 LicensedProduct.ModelLibrary => "PostSharp MVVM",
                 LicensedProduct.ThreadingLibrary => "PostSharp Threading",
                 LicensedProduct.CachingLibrary => "PostSharp Caching",
-                LicensedProduct.Metalama => "Metalama",
+                LicensedProduct.MetalamaUltimate => "Metalama Ultimate",
+                LicensedProduct.MetalamaProfessional => "Metalama Professional",
                 _ => string.Format( CultureInfo.InvariantCulture, "Unknown Product ({0})", this.Product )
             };
 
