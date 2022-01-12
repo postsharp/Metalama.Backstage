@@ -34,7 +34,9 @@ namespace PostSharp.Backstage.Licensing.Licenses
                 licenseKeyData.ValidFrom,
                 licenseKeyData.ValidTo,
                 !licenseKeyData.ValidTo.HasValue,
-                licenseKeyData.SubscriptionEndDate );
+                licenseKeyData.SubscriptionEndDate,
+                licenseKeyData.Auditable,
+                licenseKeyData.LicenseServerEligible );
 
             return data;
         }

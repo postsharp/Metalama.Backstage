@@ -96,22 +96,8 @@ namespace PostSharp.Backstage.Licensing.Licenses
         /// <inheritdoc />
         public bool TryGetLicenseConsumptionData( [MaybeNullWhen( false )] out LicenseConsumptionData licenseConsumptionData )
         {
-            if ( !this.TryGetLicenseKeyData( out var licenseKeyData ) )
+            if ( !this.TryGetAndValidateLicenseKeyData( out var licenseKeyData ) )
             {
-                licenseConsumptionData = null;
-
-                return false;
-            }
-
-            var applicationInfoService = this._services.GetRequiredService<IApplicationInfo>();
-
-            if ( !licenseKeyData.Validate(
-                null,
-                this._dateTimeProvider,
-                applicationInfoService,
-                out var errorDescription ) )
-            {
-                this._diagnostics.ReportWarning( $"License key {licenseKeyData.LicenseUniqueId} is invalid: {errorDescription}" );
                 licenseConsumptionData = null;
 
                 return false;
@@ -161,8 +147,8 @@ namespace PostSharp.Backstage.Licensing.Licenses
                 }
 
                 var licenseBytes = Base32.FromBase32String( this._licenseKey.Substring( firstDash + 1 ) );
-                var memoryStream = new MemoryStream( licenseBytes );
 
+                using ( var memoryStream = new MemoryStream( licenseBytes ) )
                 using ( var reader = new BinaryReader( memoryStream ) )
                 {
                     data = LicenseKeyData.Deserialize( reader );
@@ -197,6 +183,30 @@ namespace PostSharp.Backstage.Licensing.Licenses
 
                 return false;
             }
+        }
+
+        private bool TryGetAndValidateLicenseKeyData( [MaybeNullWhen( false )] out LicenseKeyData data )
+        {
+            if ( !this.TryGetLicenseKeyData( out data ) )
+            {
+                return false;
+            }
+
+            var applicationInfoService = this._services.GetRequiredService<IApplicationInfo>();
+
+            if ( !data.Validate(
+                null,
+                this._dateTimeProvider,
+                applicationInfoService,
+                out var errorDescription ) )
+            {
+                this._diagnostics.ReportWarning( $"License key {data.LicenseUniqueId} is invalid: {errorDescription}" );
+                data = null;
+
+                return false;
+            }
+
+            return true;
         }
 
         /// <inheritdoc />

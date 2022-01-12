@@ -6,7 +6,7 @@ using System;
 
 namespace PostSharp.Backstage.Licensing.Licenses
 {
-    internal partial class LicenseKeyData
+    public partial class LicenseKeyData
     {
         public string? LicenseString { get; set; }
 
@@ -37,11 +37,7 @@ namespace PostSharp.Backstage.Licensing.Licenses
 
             set => this._licenseType = value;
         }
-#pragma warning restore 618
 
-        public string LicenseTypeString => this.LicenseType.ToString();
-
-#pragma warning disable 618
         private LicensedProduct _product;
 
         /// <summary>
@@ -76,6 +72,9 @@ namespace PostSharp.Backstage.Licensing.Licenses
             set => this.SetFieldValue<LicenseFieldString>( LicenseFieldIndex.Namespace, value );
         }
 
+        /// <summary>
+        /// Gets or sets a value indicating whether the license usage can be audited.
+        /// </summary>
         public bool Auditable
         {
             get
@@ -204,6 +203,9 @@ namespace PostSharp.Backstage.Licensing.Licenses
 
         private bool? _isLicenseServerEligible;
 
+        /// <summary>
+        /// Gets or sets a value indicating whether the license can be installed on a license server.
+        /// </summary>
         public bool LicenseServerEligible
         {
             get

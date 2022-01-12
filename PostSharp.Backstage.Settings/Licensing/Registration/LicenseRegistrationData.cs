@@ -40,6 +40,11 @@ namespace PostSharp.Backstage.Licensing.Registration
         public string Description { get; }
 
         /// <summary>
+        /// Gets the product licensed by the license.
+        /// </summary>
+        public LicensedProduct LicensedProduct { get; }
+
+        /// <summary>
         /// Gets the type of the license.
         /// </summary>
         public LicenseType LicenseType { get; }
@@ -69,6 +74,16 @@ namespace PostSharp.Backstage.Licensing.Registration
         public DateTime? SubscriptionEndDate { get; }
 
         /// <summary>
+        /// Gets a value indicating whether the license usage can be audited.
+        /// </summary>
+        public bool Auditable { get; }
+
+        /// <summary>
+        /// Gets a value indicating whether the license can be installed on a license server.
+        /// </summary>
+        public bool LicenseServerEligible { get; }
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="LicenseRegistrationData"/> class.
         /// </summary>
         /// <remarks>
@@ -92,7 +107,9 @@ namespace PostSharp.Backstage.Licensing.Registration
             DateTime? validFrom,
             DateTime? validTo,
             bool? perpetual,
-            DateTime? subscriptionEndDate )
+            DateTime? subscriptionEndDate,
+            bool auditable,
+            bool licenseServerEligible )
         {
             this.UniqueId = uniqueId;
             this.IsSelfCreated = isSelfCreated;
@@ -104,6 +121,8 @@ namespace PostSharp.Backstage.Licensing.Registration
             this.ValidTo = validTo;
             this.Perpetual = perpetual;
             this.SubscriptionEndDate = subscriptionEndDate;
+            this.Auditable = auditable;
+            this.LicenseServerEligible = licenseServerEligible;
         }
 
         /// <inheritdoc />
@@ -118,7 +137,9 @@ namespace PostSharp.Backstage.Licensing.Registration
                    this.ValidFrom == other.ValidFrom &&
                    this.ValidTo == other.ValidTo &&
                    this.Perpetual == other.Perpetual &&
-                   this.SubscriptionEndDate == other.SubscriptionEndDate;
+                   this.SubscriptionEndDate == other.SubscriptionEndDate &&
+                   this.Auditable == other.Auditable &&
+                   this.LicenseServerEligible == other.LicenseServerEligible;
         }
 
         /// <inheritdoc />
@@ -142,6 +163,8 @@ namespace PostSharp.Backstage.Licensing.Registration
             hashCode.Add( this.ValidTo );
             hashCode.Add( this.Perpetual );
             hashCode.Add( this.SubscriptionEndDate );
+            hashCode.Add( this.Auditable );
+            hashCode.Add( this.LicenseServerEligible );
 
             return hashCode.ToHashCode();
         }

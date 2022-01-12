@@ -7,7 +7,10 @@ using System.Text;
 
 namespace PostSharp.Backstage.Licensing.Licenses
 {
-    internal partial class LicenseKeyData
+    /// <summary>
+    /// Provides serialization, cryptography and validation for license keys.
+    /// </summary>
+    public partial class LicenseKeyData
     {
         /// <summary>
         /// Since PostSharp 6.5.17, 6.8.10, and 6.9.3 the <see cref="MinPostSharpVersion" /> is no longer checked.
@@ -55,7 +58,8 @@ namespace PostSharp.Backstage.Licensing.Licenses
                 LicensedProduct.ThreadingLibrary => LicensedProductFeatures.Threading,
                 LicensedProduct.DiagnosticsLibrary => LicensedProductFeatures.Logging,
                 LicensedProduct.CachingLibrary => LicensedProductFeatures.Caching,
-                LicensedProduct.Metalama => LicensedProductFeatures.Metalama,
+                LicensedProduct.MetalamaProfessional => LicensedProductFeatures.Metalama,
+                LicensedProduct.MetalamaUltimate => LicensedProductFeatures.Metalama,
                 _ => LicensedProductFeatures.Community
             };
 
@@ -73,7 +77,8 @@ namespace PostSharp.Backstage.Licensing.Licenses
                 LicensedProduct.ModelLibrary => "PostSharp MVVM",
                 LicensedProduct.ThreadingLibrary => "PostSharp Threading",
                 LicensedProduct.CachingLibrary => "PostSharp Caching",
-                LicensedProduct.Metalama => "Metalama",
+                LicensedProduct.MetalamaUltimate => "Metalama Ultimate",
+                LicensedProduct.MetalamaProfessional => "Metalama Professional",
                 _ => string.Format( CultureInfo.InvariantCulture, "Unknown Product ({0})", this.Product )
             };
 

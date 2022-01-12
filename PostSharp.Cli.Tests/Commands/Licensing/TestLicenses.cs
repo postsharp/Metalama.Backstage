@@ -47,20 +47,20 @@ namespace PostSharp.Cli.Tests.Commands.Licensing
 ";
 
         public const string CommunityFormat = @"                 Ordinal: {0}
-             Description: Metalama (Community License)
+             Description: Metalama Ultimate (Community License)
    Subscription End Date: Never (perpetual license)
 
 ";
 
         public const string EvaluationFormat = @"                 Ordinal: {0}
-             Description: Metalama (Evaluation License)
+             Description: Metalama Ultimate (Evaluation License)
    Subscription End Date: Saturday, 15 February 2020
   Maintenance Expiration: Saturday, 15 February 2020
 
 ";
 
         public const string NextEvaluationFormat = @"                 Ordinal: {0}
-             Description: Metalama (Evaluation License)
+             Description: Metalama Ultimate (Evaluation License)
    Subscription End Date: Monday, 15 February 2021
   Maintenance Expiration: Monday, 15 February 2021
 

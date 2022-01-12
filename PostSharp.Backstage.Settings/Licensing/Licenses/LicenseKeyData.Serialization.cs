@@ -12,7 +12,7 @@ using System.Security.Cryptography;
 
 namespace PostSharp.Backstage.Licensing.Licenses
 {
-    internal partial class LicenseKeyData
+    public partial class LicenseKeyData
     {
         public static LicenseKeyData Deserialize( BinaryReader reader )
         {
