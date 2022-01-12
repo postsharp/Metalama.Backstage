@@ -28,7 +28,7 @@ namespace PostSharp.Backstage.Licensing.Licenses
         Community = 1,
 
         /// <summary>
-        /// PerUser license.
+        /// Commercial PerUser license.
         /// </summary>
         PerUser = 2,
 
@@ -93,7 +93,15 @@ namespace PostSharp.Backstage.Licensing.Licenses
         /// <summary>
         /// License limiting the number of enhanced types. This is used with Ultimate or with the aspect libraries.
         /// </summary>
-        PerUsage = 18
+        PerUsage = 18,
+
+        /// <summary>
+        /// Personal license.
+        /// </summary>
+        /// <remarks>
+        /// Bound to single person.
+        /// </remarks>
+        Personal = 19
 
         // 255 is reserved as unknown for testing purposes
     }
