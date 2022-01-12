@@ -52,7 +52,7 @@ namespace PostSharp.Backstage.Licensing.Tests.Evaluation
             {
                 MinPostSharpVersion = LicenseKeyData.MinPostSharpVersionValidationRemovedPostSharpVersion,
                 LicenseGuid = Guid.NewGuid(),
-                Product = LicensedProduct.Metalama,
+                Product = LicensedProduct.MetalamaUltimate,
                 LicenseType = LicenseType.Evaluation
             };
 
