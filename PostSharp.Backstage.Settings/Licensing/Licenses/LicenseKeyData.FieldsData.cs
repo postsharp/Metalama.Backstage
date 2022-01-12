@@ -73,7 +73,7 @@ namespace PostSharp.Backstage.Licensing.Licenses
         }
 
         /// <summary>
-        /// Gets or sets a value indicating whether gets or sets whether the license usage can be audited.
+        /// Gets or sets a value indicating whether the license usage can be audited.
         /// </summary>
         public bool Auditable
         {

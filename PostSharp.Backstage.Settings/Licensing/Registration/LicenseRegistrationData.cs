@@ -74,7 +74,7 @@ namespace PostSharp.Backstage.Licensing.Registration
         public DateTime? SubscriptionEndDate { get; }
 
         /// <summary>
-        /// Gets a value indicating whether gets or sets whether the license usage can be audited.
+        /// Gets a value indicating whether the license usage can be audited.
         /// </summary>
         public bool Auditable { get; }
 
