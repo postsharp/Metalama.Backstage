@@ -279,26 +279,6 @@ namespace PostSharp.Backstage.Licensing.Licenses
 
                 return this._minPostSharpVersion;
             }
-
-            // Used for testing and backward-compatible license creation.
-            internal set
-            {
-                if ( this._minPostSharpVersion != null )
-                {
-                    if ( this._minPostSharpVersion > MinPostSharpVersionValidationRemovedPostSharpVersion )
-                    {
-                        throw new ArgumentOutOfRangeException(
-                            $"Since PostSharp {MinPostSharpVersionValidationRemovedPostSharpVersion}, " +
-                            $"all license keys are backward compatible and the minimal PostSharp version is only considered by previous versions. " +
-                            $"Set the {nameof(this.MinPostSharpVersion)} to \"{MinPostSharpVersionValidationRemovedPostSharpVersion}\" if the license is incompatible with versions prior to "
-                            +
-                            $"6.5.17, 6.8.10 and 6.9.3 or keep null if it is compatible." );
-                    }
-                }
-
-                this._minPostSharpVersion = value;
-                this.SetFieldValue<LicenseFieldString>( LicenseFieldIndex.MinPostSharpVersion, value.ToString() );
-            }
         }
 
         // Used for testing

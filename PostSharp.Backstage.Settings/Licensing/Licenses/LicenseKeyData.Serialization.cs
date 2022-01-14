@@ -140,13 +140,19 @@ namespace PostSharp.Backstage.Licensing.Licenses
             if ( !IsLicensedProductValidInAllPostSharpVersions( this.Product )
                  || this._fields.Keys.Any( i => i.IsPrefixedByLength() ) )
             {
-                if ( this.MinPostSharpVersion != MinPostSharpVersionValidationRemovedPostSharpVersion )
+                if ( this._minPostSharpVersion == null )
+                {
+                    this._minPostSharpVersion = _minPostSharpVersionValidationRemovedPostSharpVersion;
+                    this.SetFieldValue<LicenseFieldString>( LicenseFieldIndex.MinPostSharpVersion, _minPostSharpVersionValidationRemovedPostSharpVersion.ToString() );
+                }
+                else
                 {
                     throw new InvalidOperationException(
                         $"The license contains products or fields introduced " +
-                        $"after PostSharp {MinPostSharpVersionValidationRemovedPostSharpVersion}. " +
-                        $"Set the {nameof(this.MinPostSharpVersion)} property " +
-                        $"to {this.GetType().Name}.{nameof(MinPostSharpVersionValidationRemovedPostSharpVersion)}." );
+                        $"after PostSharp {_minPostSharpVersionValidationRemovedPostSharpVersion}. " +
+                        $"Set the {nameof( this.MinPostSharpVersion )} property " +
+                        $"to null, to avoid backward compatibility issues." +
+                        $"The right version will be set automatically." );
                 }
             }
 

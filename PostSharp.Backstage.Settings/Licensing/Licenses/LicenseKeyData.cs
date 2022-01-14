@@ -16,9 +16,9 @@ namespace PostSharp.Backstage.Licensing.Licenses
         /// Since PostSharp 6.5.17, 6.8.10, and 6.9.3 the <see cref="MinPostSharpVersion" /> is no longer checked.
         /// For compatibility with previous version, all licenses with features introduced since these versions
         /// should have the <see cref="MinPostSharpVersion" />
-        /// set to <see cref="MinPostSharpVersionValidationRemovedPostSharpVersion" />.
+        /// set to <see cref="_minPostSharpVersionValidationRemovedPostSharpVersion" />.
         /// </summary>
-        public static readonly Version MinPostSharpVersionValidationRemovedPostSharpVersion = new( 6, 9, 3 );
+        private static readonly Version _minPostSharpVersionValidationRemovedPostSharpVersion = new( 6, 9, 3 );
 
         public bool RequiresSignature
         {

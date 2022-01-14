@@ -50,7 +50,6 @@ namespace PostSharp.Backstage.Licensing.Tests.Evaluation
         {
             var licenseKeyData = new LicenseKeyData
             {
-                MinPostSharpVersion = LicenseKeyData.MinPostSharpVersionValidationRemovedPostSharpVersion,
                 LicenseGuid = Guid.NewGuid(),
                 Product = LicensedProduct.MetalamaUltimate,
                 LicenseType = LicenseType.Evaluation
