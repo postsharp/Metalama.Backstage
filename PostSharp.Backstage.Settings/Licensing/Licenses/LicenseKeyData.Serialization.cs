@@ -14,6 +14,46 @@ namespace PostSharp.Backstage.Licensing.Licenses
 {
     public partial class LicenseKeyData
     {
+        public static LicenseKeyData Deserialize( string licenseKey )
+        {
+            LicenseKeyData data;
+            Guid? licenseGuid = null;
+
+            // Parse the license key prefix.
+            var firstDash = licenseKey.IndexOf( '-' );
+
+            if ( firstDash < 0 )
+            {
+                throw new InvalidLicenseException( $"License header not found for license {{{licenseKey}}}." );
+            }
+
+            var prefix = licenseKey.Substring( 0, firstDash );
+
+            if ( !int.TryParse( prefix, NumberStyles.Integer, CultureInfo.InvariantCulture, out var licenseId ) )
+            {
+                // If this is not an integer, this may be a GUID.
+                licenseGuid = new Guid( Base32.FromBase32String( prefix ) );
+            }
+
+            var licenseBytes = Base32.FromBase32String( licenseKey.Substring( firstDash + 1 ) );
+
+            using var memoryStream = new MemoryStream( licenseBytes );
+            using var reader = new BinaryReader( memoryStream );
+
+            data = Deserialize( reader );
+
+            if ( data.LicenseId != licenseId )
+            {
+                throw new InvalidLicenseException(
+                    $"The license id in the body ({licenseId}) does not match the header for license {{{licenseKey}}}." );
+            }
+
+            data.LicenseGuid = licenseGuid;
+            data.LicenseString = licenseKey;
+
+            return data;
+        }
+
         public static LicenseKeyData Deserialize( BinaryReader reader )
         {
             LicenseFieldIndex index;
@@ -140,9 +180,8 @@ namespace PostSharp.Backstage.Licensing.Licenses
             if ( !IsLicensedProductValidInAllPostSharpVersions( this.Product )
                  || this._fields.Keys.Any( i => i.IsPrefixedByLength() ) )
             {
-                if ( this._minPostSharpVersion == null )
+                if ( this.MinPostSharpVersion == null )
                 {
-                    this._minPostSharpVersion = _minPostSharpVersionValidationRemovedPostSharpVersion;
                     this.SetFieldValue<LicenseFieldString>( LicenseFieldIndex.MinPostSharpVersion, _minPostSharpVersionValidationRemovedPostSharpVersion.ToString() );
                 }
                 else
@@ -150,9 +189,7 @@ namespace PostSharp.Backstage.Licensing.Licenses
                     throw new InvalidOperationException(
                         $"The license contains products or fields introduced " +
                         $"after PostSharp {_minPostSharpVersionValidationRemovedPostSharpVersion}. " +
-                        $"Set the {nameof( this.MinPostSharpVersion )} property " +
-                        $"to null, to avoid backward compatibility issues." +
-                        $"The right version will be set automatically." );
+                        $"However, the {nameof( this.MinPostSharpVersion )} property is not null as expected." );
                 }
             }
 
@@ -184,8 +221,8 @@ namespace PostSharp.Backstage.Licensing.Licenses
         {
             writer.Write( this.Version );
             writer.Write( this.LicenseId );
-            writer.Write( (byte) this._licenseType );
-            writer.Write( (byte) this._product );
+            writer.Write( (byte) this.LicenseType );
+            writer.Write( (byte) this.Product );
 
             foreach ( var pair in this._fields )
             {

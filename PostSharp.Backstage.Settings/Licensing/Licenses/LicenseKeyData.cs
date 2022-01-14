@@ -47,40 +47,9 @@ namespace PostSharp.Backstage.Licensing.Licenses
         public bool RequiresWatermark => this.LicenseType == LicenseType.Evaluation || this.LicenseType == LicenseType.Academic;
 
         /// <summary>
-        /// Gets the licensed features provided by this license.
-        /// </summary>
-        public LicensedFeatures LicensedFeatures
-            => this.Product switch
-            {
-                LicensedProduct.Ultimate when this.LicenseType != LicenseType.Community => LicensedProductFeatures.Ultimate,
-                LicensedProduct.Framework => LicensedProductFeatures.Framework,
-                LicensedProduct.ModelLibrary => LicensedProductFeatures.Mvvm,
-                LicensedProduct.ThreadingLibrary => LicensedProductFeatures.Threading,
-                LicensedProduct.DiagnosticsLibrary => LicensedProductFeatures.Logging,
-                LicensedProduct.CachingLibrary => LicensedProductFeatures.Caching,
-                LicensedProduct.MetalamaProfessional => LicensedProductFeatures.Metalama,
-                LicensedProduct.MetalamaUltimate => LicensedProductFeatures.Metalama,
-                _ => LicensedProductFeatures.Community
-            };
-
-        /// <summary>
         /// Gets a value indicating whether the license is limited by a namespace.
         /// </summary>
         public bool IsLimitedByNamespace => !string.IsNullOrEmpty( this.Namespace );
-
-        public string ProductName
-            => this.Product switch
-            {
-                LicensedProduct.Framework => "PostSharp Framework",
-                LicensedProduct.Ultimate => this.LicenseType == LicenseType.Community ? "PostSharp Community" : "PostSharp Ultimate",
-                LicensedProduct.DiagnosticsLibrary => "PostSharp Logging",
-                LicensedProduct.ModelLibrary => "PostSharp MVVM",
-                LicensedProduct.ThreadingLibrary => "PostSharp Threading",
-                LicensedProduct.CachingLibrary => "PostSharp Caching",
-                LicensedProduct.MetalamaUltimate => "Metalama Ultimate",
-                LicensedProduct.MetalamaProfessional => "Metalama Professional",
-                _ => string.Format( CultureInfo.InvariantCulture, "Unknown Product ({0})", this.Product )
-            };
 
         public LicenseKeyData()
         {

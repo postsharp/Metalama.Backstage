@@ -84,6 +84,14 @@ namespace PostSharp.Backstage.Licensing.Registration
         public bool LicenseServerEligible { get; }
 
         /// <summary>
+        /// Gets the minimal PostSharp version this license can be used with.
+        /// </summary>
+        /// <remarks>
+        /// Doesn't apply to products not based on PostSharp. (E.g. Metalama.)
+        /// </remarks>
+        public Version MinPostSharpVersion { get; }
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="LicenseRegistrationData"/> class.
         /// </summary>
         /// <remarks>
@@ -109,7 +117,8 @@ namespace PostSharp.Backstage.Licensing.Registration
             bool? perpetual,
             DateTime? subscriptionEndDate,
             bool auditable,
-            bool licenseServerEligible )
+            bool licenseServerEligible,
+            Version minPostSharpVersion)
         {
             this.UniqueId = uniqueId;
             this.IsSelfCreated = isSelfCreated;
@@ -123,6 +132,7 @@ namespace PostSharp.Backstage.Licensing.Registration
             this.SubscriptionEndDate = subscriptionEndDate;
             this.Auditable = auditable;
             this.LicenseServerEligible = licenseServerEligible;
+            this.MinPostSharpVersion = minPostSharpVersion;
         }
 
         /// <inheritdoc />
@@ -139,7 +149,8 @@ namespace PostSharp.Backstage.Licensing.Registration
                    this.Perpetual == other.Perpetual &&
                    this.SubscriptionEndDate == other.SubscriptionEndDate &&
                    this.Auditable == other.Auditable &&
-                   this.LicenseServerEligible == other.LicenseServerEligible;
+                   this.LicenseServerEligible == other.LicenseServerEligible &&
+                   this.MinPostSharpVersion == other.MinPostSharpVersion;
         }
 
         /// <inheritdoc />
@@ -165,6 +176,7 @@ namespace PostSharp.Backstage.Licensing.Registration
             hashCode.Add( this.SubscriptionEndDate );
             hashCode.Add( this.Auditable );
             hashCode.Add( this.LicenseServerEligible );
+            hashCode.Add( this.MinPostSharpVersion );
 
             return hashCode.ToHashCode();
         }

@@ -94,8 +94,7 @@ namespace PostSharp.Backstage.Licensing.Licenses
             {
                 errorDescription = string.Format(
                     CultureInfo.InvariantCulture,
-                    "{0} {1} has been released on {2:d}, but the license key {3} only allows you to use versions released before {4:d}.",
-                    this.ProductName,
+                    "The licensed product version {0} has been released on {1:d}, but the license key {2} only allows you to use versions released before {3:d}.",
                     applicationInfo.Version,
                     applicationInfo.BuildDate,
                     this.LicenseId,

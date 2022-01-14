@@ -96,7 +96,7 @@ namespace PostSharp.Backstage.Licensing.Licenses
         /// <inheritdoc />
         public bool TryGetLicenseConsumptionData( [MaybeNullWhen( false )] out LicenseConsumptionData licenseConsumptionData )
         {
-            if ( !this.TryGetAndValidateLicenseKeyData( out var licenseKeyData ) )
+            if ( !this.TryGetValidatedLicenseKeyData( out var licenseKeyData ) )
             {
                 licenseConsumptionData = null;
 
@@ -111,7 +111,7 @@ namespace PostSharp.Backstage.Licensing.Licenses
         /// <inheritdoc />
         public bool TryGetLicenseRegistrationData( [MaybeNullWhen( false )] out LicenseRegistrationData licenseRegistrationData )
         {
-            if ( !this.TryGetLicenseKeyData( out var licenseKeyData ) )
+            if ( !this.TryGetLicenseKeyDataWithVerifiedSignature( out var licenseKeyData ) )
             {
                 licenseRegistrationData = null;
 
@@ -123,49 +123,17 @@ namespace PostSharp.Backstage.Licensing.Licenses
             return true;
         }
 
-        private bool TryGetLicenseKeyData( [MaybeNullWhen( false )] out LicenseKeyData data )
+        internal bool TryGetLicenseKeyData( [MaybeNullWhen( false )] out LicenseKeyData data )
         {
             this._logger?.LogTrace( $"Deserializing license {{{this._licenseKey}}}." );
-            Guid? licenseGuid = null;
 
             try
             {
-                // Parse the license key prefix.
-                var firstDash = this._licenseKey.IndexOf( '-' );
+                data = LicenseKeyData.Deserialize( this._licenseKey );
 
-                if ( firstDash < 0 )
-                {
-                    throw new InvalidLicenseException( $"License header not found for license {{{this._licenseKey}}}." );
-                }
+                this._logger?.LogTrace( $"Deserialized license: {data}" );
 
-                var prefix = this._licenseKey.Substring( 0, firstDash );
-
-                if ( !int.TryParse( prefix, NumberStyles.Integer, CultureInfo.InvariantCulture, out var licenseId ) )
-                {
-                    // If this is not an integer, this may be a GUID.
-                    licenseGuid = new Guid( Base32.FromBase32String( prefix ) );
-                }
-
-                var licenseBytes = Base32.FromBase32String( this._licenseKey.Substring( firstDash + 1 ) );
-
-                using ( var memoryStream = new MemoryStream( licenseBytes ) )
-                using ( var reader = new BinaryReader( memoryStream ) )
-                {
-                    data = LicenseKeyData.Deserialize( reader );
-
-                    if ( data.LicenseId != licenseId )
-                    {
-                        throw new InvalidLicenseException(
-                            $"The license id in the body ({licenseId}) does not match the header for license {{{this._licenseKey}}}." );
-                    }
-
-                    data.LicenseGuid = licenseGuid;
-                    data.LicenseString = this._licenseKey;
-
-                    this._logger?.LogTrace( $"Deserialized license: {data}" );
-
-                    return true;
-                }
+                return true;
             }
             catch ( Exception e )
             {
@@ -185,7 +153,7 @@ namespace PostSharp.Backstage.Licensing.Licenses
             }
         }
 
-        private bool TryGetAndValidateLicenseKeyData( [MaybeNullWhen( false )] out LicenseKeyData data )
+        private bool TryGetValidatedLicenseKeyData( [MaybeNullWhen( false )] out LicenseKeyData data )
         {
             if ( !this.TryGetLicenseKeyData( out data ) )
             {
@@ -201,6 +169,24 @@ namespace PostSharp.Backstage.Licensing.Licenses
                 out var errorDescription ) )
             {
                 this._diagnostics.ReportWarning( $"License key {data.LicenseUniqueId} is invalid: {errorDescription}" );
+                data = null;
+
+                return false;
+            }
+
+            return true;
+        }
+
+        private bool TryGetLicenseKeyDataWithVerifiedSignature( [MaybeNullWhen( false )] out LicenseKeyData data )
+        {
+            if ( !this.TryGetLicenseKeyData( out data ) )
+            {
+                return false;
+            }
+
+            if ( !data.VerifySignature() )
+            {
+                this._diagnostics.ReportWarning( $"License key {data.LicenseUniqueId} has invalid signature." );
                 data = null;
 
                 return false;
