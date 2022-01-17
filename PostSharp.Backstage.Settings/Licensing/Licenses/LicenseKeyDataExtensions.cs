@@ -8,9 +8,16 @@ using System.Globalization;
 
 namespace PostSharp.Backstage.Licensing.Licenses
 {
-    internal static class LicenseKeyDataExtensions
+    /// <summary>
+    /// Provides extension methods for processing license key data for license consumption, registration and audit.
+    /// </summary>
+    public static class LicenseKeyDataExtensions
     {
-        private static LicenseType GetLicenseType(this LicenseKeyData licenseKeyData)
+        /// <summary>
+        /// If the <paramref name="licenseKeyData"/> contains an obsolete license type, it gets transormed to a respective non-obsolete one.
+        /// Otherwise, the same license type is returned.
+        /// </summary>
+        private static LicenseType TransformObsoleteLicenseType( this LicenseKeyData licenseKeyData )
         {
 #pragma warning disable CS0618 // Type or member is obsolete
             if ( licenseKeyData.Product == LicensedProduct.PostSharp30 && licenseKeyData.LicenseType == LicenseType.Professional )
@@ -73,9 +80,12 @@ namespace PostSharp.Backstage.Licensing.Licenses
             }
         }
 
+        /// <summary>
+        /// Creates a new object of <see cref="LicenseConsumptionData"/> based on the given <see cref="LicenseKeyData"/>.
+        /// </summary>
         public static LicenseConsumptionData ToConsumptionData( this LicenseKeyData licenseKeyData )
         {
-            var licenseType = licenseKeyData.GetLicenseType();
+            var licenseType = licenseKeyData.TransformObsoleteLicenseType();
 
             var product = licenseKeyData.Product;
 
@@ -110,6 +120,9 @@ namespace PostSharp.Backstage.Licensing.Licenses
             return data;
         }
 
+        /// <summary>
+        /// Creates a new object of <see cref="LicenseRegistrationData"/> based on the given <see cref="LicenseKeyData"/>.
+        /// </summary>
         public static LicenseRegistrationData ToRegistrationData( this LicenseKeyData licenseKeyData )
         {
             var description = $"{licenseKeyData.GetProductName()} ({licenseKeyData.LicenseType.GetLicenseTypeName()})";
@@ -145,7 +158,7 @@ namespace PostSharp.Backstage.Licensing.Licenses
                     licenseKeyData.LicenseGuid == null ? licenseKeyData.LicenseId : null,
                     licenseKeyData.Licensee,
                     description,
-                    licenseKeyData.GetLicenseType(),
+                    licenseKeyData.TransformObsoleteLicenseType(),
                     licenseKeyData.ValidFrom,
                     licenseKeyData.ValidTo,
                     !licenseKeyData.ValidTo.HasValue,

@@ -28,19 +28,19 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.propertyGrid1 = new System.Windows.Forms.PropertyGrid();
+            this._propertyGrid = new System.Windows.Forms.PropertyGrid();
             this._serializeButton = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
-            // propertyGrid1
+            // _propertyGrid
             // 
-            this.propertyGrid1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            this._propertyGrid.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.propertyGrid1.Location = new System.Drawing.Point(12, 12);
-            this.propertyGrid1.Name = "propertyGrid1";
-            this.propertyGrid1.Size = new System.Drawing.Size(776, 460);
-            this.propertyGrid1.TabIndex = 0;
+            this._propertyGrid.Location = new System.Drawing.Point(12, 12);
+            this._propertyGrid.Name = "_propertyGrid";
+            this._propertyGrid.Size = new System.Drawing.Size(776, 460);
+            this._propertyGrid.TabIndex = 0;
             // 
             // _serializeButton
             // 
@@ -59,7 +59,7 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(800, 524);
             this.Controls.Add(this._serializeButton);
-            this.Controls.Add(this.propertyGrid1);
+            this.Controls.Add(this._propertyGrid);
             this.Name = "MainForm";
             this.Text = "PostSharp License Key Generator";
             this.ResumeLayout(false);
@@ -68,7 +68,7 @@
 
         #endregion
 
-        private PropertyGrid propertyGrid1;
+        private PropertyGrid _propertyGrid;
         private Button _serializeButton;
     }
 }

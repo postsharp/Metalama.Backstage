@@ -10,7 +10,6 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
-using System.IO;
 using System.Text;
 
 namespace PostSharp.Backstage.Licensing.Licenses
@@ -123,7 +122,7 @@ namespace PostSharp.Backstage.Licensing.Licenses
             return true;
         }
 
-        internal bool TryGetLicenseKeyData( [MaybeNullWhen( false )] out LicenseKeyData data )
+        private bool TryGetLicenseKeyData( [MaybeNullWhen( false )] out LicenseKeyData data )
         {
             this._logger?.LogTrace( $"Deserializing license {{{this._licenseKey}}}." );
 

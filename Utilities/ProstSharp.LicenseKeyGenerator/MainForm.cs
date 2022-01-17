@@ -12,7 +12,7 @@ namespace ProstSharp.LicenseKeyGenerator
         public MainForm()
         {
             this.InitializeComponent();
-            this.propertyGrid1.SelectedObject = new LicenseKeyData();
+            this._propertyGrid.SelectedObject = new LicenseKeyData();
         }
 
         private void OnSerializedButtonClicked( object sender, EventArgs e )
@@ -21,17 +21,24 @@ namespace ProstSharp.LicenseKeyGenerator
             var client = new SecretClient( new Uri( kvUri ), new DefaultAzureCredential() );
             var privateKey = client.GetSecret( "Licensing-PrivateKey0" ).Value.Value;
 
-            var licenseKeyData = (LicenseKeyData) this.propertyGrid1.SelectedObject;
-            licenseKeyData.Sign( 0, privateKey );
-            var licenseKey = licenseKeyData.Serialize();
-            licenseKeyData = LicenseKeyData.Deserialize(licenseKey);
-            
-            if (!licenseKeyData.VerifySignature())
+            var licenseKeyData = (LicenseKeyData) this._propertyGrid.SelectedObject;
+            licenseKeyData.SignAndSerialize( 0, privateKey );
+
+            if ( !licenseKeyData.VerifySignature() )
             {
                 throw new InvalidOperationException();
             }
 
-            this.propertyGrid1.SelectedObject = licenseKeyData;
+            var licenseKey = licenseKeyData.Serialize();
+
+            var deserializedLicenseKeyData = LicenseKeyData.Deserialize( licenseKey );
+
+            if ( !deserializedLicenseKeyData.VerifySignature() )
+            {
+                throw new InvalidOperationException();
+            }
+
+            this._propertyGrid.SelectedObject = licenseKeyData;
         }
     }
 }

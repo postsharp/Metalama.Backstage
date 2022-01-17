@@ -28,65 +28,51 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.licenseKeyTextBox = new System.Windows.Forms.TextBox();
-            this.readButton = new System.Windows.Forms.Button();
-            this.propertyGrid = new System.Windows.Forms.PropertyGrid();
-            this.logTextBox = new System.Windows.Forms.TextBox();
+            this._licenseKeyTextBox = new System.Windows.Forms.TextBox();
+            this._readButton = new System.Windows.Forms.Button();
+            this._propertyGrid = new System.Windows.Forms.PropertyGrid();
             this.SuspendLayout();
             // 
-            // licenseKeyTextBox
+            // _licenseKeyTextBox
             // 
-            this.licenseKeyTextBox.AcceptsReturn = true;
-            this.licenseKeyTextBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            this._licenseKeyTextBox.AcceptsReturn = true;
+            this._licenseKeyTextBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.licenseKeyTextBox.Location = new System.Drawing.Point(12, 12);
-            this.licenseKeyTextBox.Multiline = true;
-            this.licenseKeyTextBox.Name = "licenseKeyTextBox";
-            this.licenseKeyTextBox.Size = new System.Drawing.Size(1059, 110);
-            this.licenseKeyTextBox.TabIndex = 0;
+            this._licenseKeyTextBox.Location = new System.Drawing.Point(12, 12);
+            this._licenseKeyTextBox.Multiline = true;
+            this._licenseKeyTextBox.Name = "_licenseKeyTextBox";
+            this._licenseKeyTextBox.Size = new System.Drawing.Size(1059, 110);
+            this._licenseKeyTextBox.TabIndex = 0;
             // 
-            // readButton
+            // _readButton
             // 
-            this.readButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.readButton.Location = new System.Drawing.Point(959, 126);
-            this.readButton.Name = "readButton";
-            this.readButton.Size = new System.Drawing.Size(112, 34);
-            this.readButton.TabIndex = 1;
-            this.readButton.Text = "Read";
-            this.readButton.UseVisualStyleBackColor = true;
-            this.readButton.Click += new System.EventHandler(this.OnReadButtonClicked);
+            this._readButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this._readButton.Location = new System.Drawing.Point(959, 126);
+            this._readButton.Name = "_readButton";
+            this._readButton.Size = new System.Drawing.Size(112, 34);
+            this._readButton.TabIndex = 1;
+            this._readButton.Text = "Read";
+            this._readButton.UseVisualStyleBackColor = true;
+            this._readButton.Click += new System.EventHandler(this.OnReadButtonClicked);
             // 
-            // propertyGrid
+            // _propertyGrid
             // 
-            this.propertyGrid.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            this._propertyGrid.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.propertyGrid.Enabled = false;
-            this.propertyGrid.Location = new System.Drawing.Point(12, 128);
-            this.propertyGrid.Name = "propertyGrid";
-            this.propertyGrid.Size = new System.Drawing.Size(1059, 478);
-            this.propertyGrid.TabIndex = 2;
-            // 
-            // logTextBox
-            // 
-            this.logTextBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.logTextBox.Location = new System.Drawing.Point(12, 612);
-            this.logTextBox.Multiline = true;
-            this.logTextBox.Name = "logTextBox";
-            this.logTextBox.ScrollBars = System.Windows.Forms.ScrollBars.Both;
-            this.logTextBox.Size = new System.Drawing.Size(1059, 168);
-            this.logTextBox.TabIndex = 3;
+            this._propertyGrid.Location = new System.Drawing.Point(12, 128);
+            this._propertyGrid.Name = "_propertyGrid";
+            this._propertyGrid.Size = new System.Drawing.Size(1059, 766);
+            this._propertyGrid.TabIndex = 2;
             // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(10F, 25F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1083, 792);
-            this.Controls.Add(this.logTextBox);
-            this.Controls.Add(this.readButton);
-            this.Controls.Add(this.licenseKeyTextBox);
-            this.Controls.Add(this.propertyGrid);
+            this.ClientSize = new System.Drawing.Size(1083, 906);
+            this.Controls.Add(this._readButton);
+            this.Controls.Add(this._licenseKeyTextBox);
+            this.Controls.Add(this._propertyGrid);
             this.Name = "MainForm";
             this.Text = "PostSharp License Key Reader";
             this.ResumeLayout(false);
@@ -96,9 +82,8 @@
 
         #endregion
 
-        private TextBox licenseKeyTextBox;
-        private Button readButton;
-        private PropertyGrid propertyGrid;
-        private TextBox logTextBox;
+        private TextBox _licenseKeyTextBox;
+        private Button _readButton;
+        private PropertyGrid _propertyGrid;
     }
 }

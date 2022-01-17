@@ -149,10 +149,11 @@ namespace PostSharp.Backstage.Licensing.Licenses
         }
 
         /// <summary>
-        /// Serializes the current license key data into a string.
+        /// Sets the <see cref="MinPostSharpVersion"/> to <see cref="_minPostSharpVersionValidationRemovedPostSharpVersion"/>
+        /// if the license key data are not backward compatible with PostSharp versions
+        /// prior to <see cref="_minPostSharpVersionValidationRemovedPostSharpVersion"/>.
         /// </summary>
-        /// <returns>A string representing the current license key data.</returns>
-        public string Serialize()
+        private void SetMinPostSharpVersionIfRequired()
         {
             // Returns <c>true</c> if the licensed product has been present prior to PostSharp 6.5.17/6.8.10/6.9.3.
             static bool IsLicensedProductValidInAllPostSharpVersions( LicensedProduct licenseProduct )
@@ -184,15 +185,22 @@ namespace PostSharp.Backstage.Licensing.Licenses
                 {
                     this.SetFieldValue<LicenseFieldString>( LicenseFieldIndex.MinPostSharpVersion, _minPostSharpVersionValidationRemovedPostSharpVersion.ToString() );
                 }
-                else
+                else if ( this.MinPostSharpVersion != _minPostSharpVersionValidationRemovedPostSharpVersion )
                 {
                     throw new InvalidOperationException(
                         $"The license contains products or fields introduced " +
                         $"after PostSharp {_minPostSharpVersionValidationRemovedPostSharpVersion}. " +
-                        $"However, the {nameof( this.MinPostSharpVersion )} property is not null as expected." );
+                        $"However, the {nameof( this.MinPostSharpVersion )} property is not null " +
+                        $"or '{_minPostSharpVersionValidationRemovedPostSharpVersion}' as expected." );
                 }
             }
+        }
 
+        /// <summary>
+        /// Serializes the current license key data into a string and sets the value to the <see cref="LicenseString"/> property.
+        /// </summary>
+        private void SerializeToLicenseString()
+        {
             var memoryStream = new MemoryStream();
 
             using ( var binaryWriter = new BinaryWriter( memoryStream ) )
@@ -213,8 +221,30 @@ namespace PostSharp.Backstage.Licensing.Licenses
             }
 
             this.LicenseString = prefix + "-" + Base32.ToBase32String( memoryStream.ToArray(), 0 );
+        }
 
-            return this.LicenseString;
+        /// <summary>
+        /// Serializes the current license key data into a string.
+        /// </summary>
+        /// <returns>A string representing the current license key data.</returns>
+        public string Serialize()
+        {
+            this.SetMinPostSharpVersionIfRequired();
+            this.SerializeToLicenseString();
+            return this.LicenseString!;
+        }
+
+        /// <summary>
+        /// Signs the current license.
+        /// </summary>
+        /// <param name="signatureKeyId">Identifier of the private key.</param>
+        /// <param name="privateKey">XML representation of the private key.</param>
+        public string SignAndSerialize( byte signatureKeyId, string privateKey )
+        {
+            this.SetMinPostSharpVersionIfRequired();
+            this.Sign( signatureKeyId, privateKey );
+            this.SerializeToLicenseString();
+            return this.LicenseString!;
         }
 
         private void Write( BinaryWriter writer, bool includeAll )
@@ -271,7 +301,7 @@ namespace PostSharp.Backstage.Licensing.Licenses
         /// </summary>
         /// <param name="signatureKeyId">Identifier of the private key.</param>
         /// <param name="privateKey">XML representation of the private key.</param>
-        public void Sign( byte signatureKeyId, string privateKey )
+        private void Sign( byte signatureKeyId, string privateKey )
         {
             this.SignatureKeyId = signatureKeyId;
             var signedBuffer = this.GetSignedBuffer();
