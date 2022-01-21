@@ -11,7 +11,9 @@ namespace PostSharp.Cli.Commands.Logging;
 
 internal class EditLoggingCommand : CommandBase
 {
-    public EditLoggingCommand( ICommandServiceProvider commandServiceProvider ) : base( commandServiceProvider, "edit",
+    public EditLoggingCommand( ICommandServiceProvider commandServiceProvider ) : base( 
+        commandServiceProvider, 
+        "edit",
         "Edits the logging configuration with the default editor for JSON files" )
     {
         this.Handler = CommandHandler.Create<IConsole>( this.Execute );

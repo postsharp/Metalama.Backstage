@@ -13,7 +13,7 @@ namespace PostSharp.Backstage.Utilities
             var mutex = CreateGlobalMutex( name );
             mutex.WaitOne();
 
-            return new MutexHandle( mutex, name );
+            return new MutexHandle( mutex );
         }
 
         private static Mutex CreateGlobalMutex( string fullName )
@@ -26,12 +26,10 @@ namespace PostSharp.Backstage.Utilities
         private class MutexHandle : IDisposable
         {
             private readonly Mutex _mutex;
-            private readonly string _name;
 
-            public MutexHandle( Mutex mutex, string name )
+            public MutexHandle( Mutex mutex)
             {
                 this._mutex = mutex;
-                this._name = name;
             }
 
             public void Dispose()

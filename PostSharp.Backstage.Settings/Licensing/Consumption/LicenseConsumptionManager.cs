@@ -96,8 +96,9 @@ namespace PostSharp.Backstage.Licensing.Consumption
             }
             else
             {
-                if ( !this._namespaceLimitedLicensedFeatures.TryGetValue( licenseData.LicensedNamespace,
-                        out var namespaceFeatures ) )
+                if ( !this._namespaceLimitedLicensedFeatures.TryGetValue( 
+                    licenseData.LicensedNamespace,
+                    out var namespaceFeatures ) )
                 {
                     this._namespaceLimitedLicensedFeatures[licenseData.LicensedNamespace] =
                         new LicenseNamespaceConstraint(
@@ -156,8 +157,10 @@ namespace PostSharp.Backstage.Licensing.Consumption
                     {
                         return true;
                     }
-                } while ( this.TryLoadNextLicense() );
-            } while ( this.TryLoadNextLicenseSource() );
+                }
+                while ( this.TryLoadNextLicense() );
+            }
+            while ( this.TryLoadNextLicenseSource() );
 
             if ( this.TryAutoRegisterLicense() )
             {

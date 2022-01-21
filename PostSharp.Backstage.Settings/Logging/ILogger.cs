@@ -6,8 +6,11 @@ namespace PostSharp.Backstage.Logging
     public interface ILogger
     {
         ILogWriter? Trace { get; }
+
         ILogWriter? Info { get; }
+       
         ILogWriter? Warning { get; }
+       
         ILogWriter? Error { get; }
     }
 }

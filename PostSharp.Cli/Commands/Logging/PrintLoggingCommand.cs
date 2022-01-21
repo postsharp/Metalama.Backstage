@@ -11,8 +11,10 @@ namespace PostSharp.Cli.Commands.Logging;
 
 internal class PrintLoggingCommand : CommandBase
 {
-    public PrintLoggingCommand( ICommandServiceProvider commandServiceProvider ) : base( commandServiceProvider,
-        "print", "Prints the current logging configuration" )
+    public PrintLoggingCommand( ICommandServiceProvider commandServiceProvider ) : base( 
+        commandServiceProvider,
+        "print", 
+        "Prints the current logging configuration" )
     {
         this.Handler = CommandHandler.Create<IConsole>( this.Execute );
     }

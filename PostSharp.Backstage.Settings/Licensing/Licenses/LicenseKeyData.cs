@@ -109,7 +109,10 @@ namespace PostSharp.Backstage.Licensing.Licenses
 
             foreach ( var licenseField in this._fields )
             {
-                stringBuilder.AppendFormat( CultureInfo.InvariantCulture, ", {0}={1}", licenseField.Key,
+                stringBuilder.AppendFormat(
+                    CultureInfo.InvariantCulture,
+                    ", {0}={1}",
+                    licenseField.Key,
                     licenseField.Value );
             }
 

@@ -26,7 +26,7 @@ namespace PostSharp.Backstage.Licensing.Licenses
         private readonly IServiceProvider _services;
         private readonly IDateTimeProvider _dateTimeProvider;
         private readonly IBackstageDiagnosticSink _diagnostics;
-        private readonly ILogger? _logger;
+        private readonly ILogger _logger;
 
         private static string CleanLicenseKey( string licenseKey )
         {

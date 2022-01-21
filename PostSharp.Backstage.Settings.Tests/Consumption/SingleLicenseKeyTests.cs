@@ -54,8 +54,11 @@ namespace PostSharp.Backstage.Licensing.Tests.Consumption
         [Fact]
         public void OpenSourceAllowsMetalamaInSameNamespace()
         {
-            this.TestOneLicense( TestLicenseKeys.OpenSource, LicensedFeatures.Metalama,
-                TestLicenseKeys.OpenSourceNamespace, true );
+            this.TestOneLicense( 
+                TestLicenseKeys.OpenSource,
+                LicensedFeatures.Metalama,
+                TestLicenseKeys.OpenSourceNamespace,
+                true );
         }
 
         [Fact]

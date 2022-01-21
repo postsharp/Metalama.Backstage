@@ -35,12 +35,13 @@ namespace PostSharp.Backstage.MicrosoftLogging
             }
         }
 
-
         public ILogWriter? Trace { get; }
-        public ILogWriter? Info { get; }
-        public ILogWriter? Warning { get; }
-        public ILogWriter? Error { get; }
 
+        public ILogWriter? Info { get; }
+
+        public ILogWriter? Warning { get; }
+
+        public ILogWriter? Error { get; }
 
         private class LogWriter : ILogWriter
         {

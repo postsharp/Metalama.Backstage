@@ -16,7 +16,6 @@ public class LoggingConfiguration : ConfigurationFile
     [JsonProperty( "processes" )]
     public Dictionary<LoggingProcessKind, bool> Processes { get; set; }
 
-
     /// <summary>
     /// Gets or sets the list of categories that are enabled for trace-level logging.
     /// </summary>

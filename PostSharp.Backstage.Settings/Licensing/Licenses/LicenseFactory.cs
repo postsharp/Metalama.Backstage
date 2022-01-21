@@ -16,7 +16,7 @@ namespace PostSharp.Backstage.Licensing.Licenses
     {
         private readonly IServiceProvider _services;
         private readonly IBackstageDiagnosticSink _diagnostics;
-        private readonly ILogger? _logger;
+        private readonly ILogger _logger;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="LicenseFactory"/> class.

@@ -13,7 +13,8 @@ namespace PostSharp.Backstage.MicrosoftLogging
             this ServiceProviderBuilder serviceProviderBuilder,
             IMicrosoftLoggerFactory microsoftLoggerFactory )
         {
-            serviceProviderBuilder.AddService( typeof(IPostSharpLoggerFactory),
+            serviceProviderBuilder.AddService( 
+                typeof(IPostSharpLoggerFactory),
                 new LoggerFactoryAdapter( microsoftLoggerFactory ) );
 
             return serviceProviderBuilder;

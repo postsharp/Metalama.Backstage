@@ -35,7 +35,10 @@ namespace PostSharp.Cli.Commands.Licensing
         }
 
 #pragma warning disable CA1822 // Member can be marked static
-        private void WriteLicense( IStandardStreamWriter @out, int ordinal, string licenseKey,
+        private void WriteLicense(
+            IStandardStreamWriter @out,
+            int ordinal,
+            string licenseKey,
             LicenseRegistrationData? data )
 #pragma warning restore CA1822 // Member can be marked static
         {

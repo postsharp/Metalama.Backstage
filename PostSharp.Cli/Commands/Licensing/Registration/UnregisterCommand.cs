@@ -36,8 +36,9 @@ namespace PostSharp.Cli.Commands.Licensing.Registration
             }
         }
 
-
-        private static int UnregisterOrdinal( int ordinal, EvaluatedLicensingConfiguration licensingConfiguration,
+        private static int UnregisterOrdinal(
+            int ordinal,
+            EvaluatedLicensingConfiguration licensingConfiguration,
             IConsole console )
         {
             if ( ordinal <= 0 || ordinal > licensingConfiguration.Licenses.Count )
@@ -51,7 +52,8 @@ namespace PostSharp.Cli.Commands.Licensing.Registration
             return UnregisterLicense( license.LicenseString, licensingConfiguration, console );
         }
 
-        private static int UnregisterLicense( string licenseString,
+        private static int UnregisterLicense( 
+            string licenseString,
             EvaluatedLicensingConfiguration licensingConfiguration,
             IConsole console )
         {

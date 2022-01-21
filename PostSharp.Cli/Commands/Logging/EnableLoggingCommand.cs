@@ -5,7 +5,9 @@ namespace PostSharp.Cli.Commands.Logging;
 
 internal class EnableLoggingCommand : CommandBase
 {
-    public EnableLoggingCommand( ICommandServiceProvider commandServiceProvider, string name,
+    public EnableLoggingCommand(
+        ICommandServiceProvider commandServiceProvider,
+        string name,
         string? description = null ) : base( commandServiceProvider, name, description )
     {
     }

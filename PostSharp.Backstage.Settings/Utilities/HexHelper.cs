@@ -22,8 +22,11 @@ namespace PostSharp.Backstage.Utilities
 
             for ( var i = 0; i < count / 2; i++ )
             {
-                if ( !byte.TryParse( str.Substring( start + (2 * i), 2 ), NumberStyles.HexNumber,
-                        CultureInfo.InvariantCulture, out var result ) )
+                if ( !byte.TryParse( 
+                    str.Substring( start + (2 * i), 2 ), 
+                    NumberStyles.HexNumber,
+                    CultureInfo.InvariantCulture, 
+                    out var result ) )
                 {
                     return false;
                 }

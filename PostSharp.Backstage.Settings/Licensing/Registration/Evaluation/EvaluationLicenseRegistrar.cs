@@ -32,7 +32,7 @@ namespace PostSharp.Backstage.Licensing.Registration.Evaluation
 
         private readonly IServiceProvider _services;
         private readonly IDateTimeProvider _time;
-        private readonly ILogger? _logger;
+        private readonly ILogger _logger;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="EvaluationLicenseRegistrar"/> class.
@@ -59,7 +59,6 @@ namespace PostSharp.Backstage.Licensing.Registration.Evaluation
             }
 
             this._logger?.Trace?.Log( "Registering evaluation license." );
-
 
             using ( MutexHelper.WithGlobalLock( "Evaluation" ) )
             {
@@ -88,7 +87,6 @@ namespace PostSharp.Backstage.Licensing.Registration.Evaluation
 
                 var factory = new UnsignedLicenseFactory( this._services );
                 var (licenseKey, data) = factory.CreateEvaluationLicense();
-
 
                 if ( configuration.Licenses.Any( l =>
                         l.LicenseData is { LicenseType: LicenseType.Evaluation } &&

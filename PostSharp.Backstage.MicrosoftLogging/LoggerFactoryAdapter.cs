@@ -18,7 +18,8 @@ namespace PostSharp.Backstage.MicrosoftLogging
             this._factory = factory;
         }
 
-        public IPostSharpLogger CreateLogger<T>() where T : ILogCategory, new() =>
+        public IPostSharpLogger CreateLogger<T>() 
+            where T : ILogCategory, new() =>
             new LoggerAdapter( this._factory.CreateLogger<T>() );
     }
 }

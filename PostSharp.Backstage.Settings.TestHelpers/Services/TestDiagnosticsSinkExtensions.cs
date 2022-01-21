@@ -52,7 +52,9 @@ namespace PostSharp.Backstage.Testing.Services
             Assert.Equal( expectedLocation, warning.Location );
         }
 
-        public static void AssertSingleError( this IBackstageDiagnosticSink diagnostics, string expectedMessage,
+        public static void AssertSingleError( 
+            this IBackstageDiagnosticSink diagnostics,
+            string expectedMessage,
             IDiagnosticLocation? expectedLocation = null )
         {
             var error = diagnostics.AsTestDiagnosticsSink().Errors.Single();

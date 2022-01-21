@@ -6,6 +6,7 @@ namespace PostSharp.Backstage.Logging;
 internal class Logger : ILogger
 {
     public LoggerFactory LoggerFactory { get; }
+
     public string Category { get; }
 
     public Logger( LoggerFactory loggerLoggerFactory, string category )
@@ -24,9 +25,11 @@ internal class Logger : ILogger
 
     private LogWriter? CreateLogWriter( string logLevel ) => new(this, logLevel);
 
-
     public ILogWriter? Trace { get; }
+   
     public ILogWriter? Info { get; }
+    
     public ILogWriter? Warning { get; }
+    
     public ILogWriter? Error { get; }
 }

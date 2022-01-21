@@ -15,7 +15,8 @@ public class LicensingConfiguration : ConfigurationFile
     [JsonProperty( "lastEvaluationStartDate" )]
     public DateTime? LastEvaluationStartDate { get; set; }
 
-    [JsonProperty( "licenses" )] public string[] Licenses { get; set; } = Array.Empty<string>();
+    [JsonProperty( "licenses" )]
+    public string[] Licenses { get; set; } = Array.Empty<string>();
 
     public static LicensingConfiguration Load( IServiceProvider services ) =>
         Load<LicensingConfiguration>( services );

@@ -25,7 +25,8 @@ namespace PostSharp.Cli.Tests.Commands.Licensing
         public async Task OneLicenseKeyListedAfterRegistration()
         {
             await this.TestCommandAsync( $"license register {TestLicenses.Key1}", "" );
-            await this.TestCommandAsync( "license list",
+            await this.TestCommandAsync( 
+                "license list",
                 string.Format( CultureInfo.InvariantCulture, TestLicenses.Format1, 1 ) );
         }
 

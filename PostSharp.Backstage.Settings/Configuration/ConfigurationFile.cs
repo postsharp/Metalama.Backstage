@@ -4,21 +4,16 @@
 using Newtonsoft.Json;
 using PostSharp.Backstage.Extensibility;
 using PostSharp.Backstage.Extensibility.Extensions;
-using PostSharp.Backstage.Logging;
 using PostSharp.Backstage.Utilities;
 using System;
 using System.IO;
 
 namespace PostSharp.Backstage.Configuration;
 
-internal class ConfigurationLogCategory : ILogCategory
-{
-    public string Name => "Configuration";
-}
-
 public abstract class ConfigurationFile
 {
-    [JsonIgnore] public string FilePath { get; private set; }
+    [JsonIgnore]
+    public string? FilePath { get; private set; }
 
     public abstract string FileName { get; }
 
@@ -30,7 +25,6 @@ public abstract class ConfigurationFile
         var fileSystem = serviceProvider.GetRequiredService<IFileSystem>();
         var directories = serviceProvider.GetRequiredService<IStandardDirectories>();
         var logger = serviceProvider.GetLogger<ConfigurationLogCategory>();
-
 
         // Create the directory if it does not exist.
         var directoryName = directories.ApplicationDataDirectory;

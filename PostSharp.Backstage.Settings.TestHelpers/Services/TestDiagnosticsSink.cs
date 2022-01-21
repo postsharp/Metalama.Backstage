@@ -10,12 +10,6 @@ using System.Runtime.CompilerServices;
 
 namespace PostSharp.Backstage.Testing.Services
 {
-    internal class TestLogCategory : ILogCategory
-    {
-        public string Name => "Test";
-    }
-
-
     public class TestDiagnosticsSink : IBackstageDiagnosticSink
     {
         private readonly ILogger _logger;
@@ -62,7 +56,8 @@ namespace PostSharp.Backstage.Testing.Services
         {
             if ( this._warnings.Count != 0 )
             {
-                throw new InvalidOperationException( string.Join( Environment.NewLine,
+                throw new InvalidOperationException( string.Join( 
+                    Environment.NewLine,
                     DiagnosticsToString( this._warnings ).Prepend( "Warnings:" ) ) );
             }
         }
@@ -71,7 +66,8 @@ namespace PostSharp.Backstage.Testing.Services
         {
             if ( this._errors.Count != 0 )
             {
-                throw new InvalidOperationException( string.Join( Environment.NewLine,
+                throw new InvalidOperationException( string.Join( 
+                    Environment.NewLine,
                     DiagnosticsToString( this._errors ).Prepend( "Errors:" ) ) );
             }
         }

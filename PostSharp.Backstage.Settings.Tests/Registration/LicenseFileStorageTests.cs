@@ -29,14 +29,16 @@ namespace PostSharp.Backstage.Licensing.Tests.Registration
             Assert.Equal( expectedLicenseStrings, this.ReadStoredLicenseStrings() );
         }
 
-        private void AssertStorageContains( EvaluatedLicensingConfiguration storage,
+        private void AssertStorageContains( 
+            EvaluatedLicensingConfiguration storage,
             params string[] expectedLicenseStrings )
         {
             Assert.Equal( expectedLicenseStrings.Length, storage.Licenses.Count );
 
             foreach ( var expectedLicenseString in expectedLicenseStrings )
             {
-                Assert.True( storage.TryGetRegistrationData( expectedLicenseString, out var actualData ),
+                Assert.True( 
+                    storage.TryGetRegistrationData( expectedLicenseString, out var actualData ),
                     $"License is missing: '{expectedLicenseString}'" );
 
                 if ( !this.LicenseFactory.TryCreate( expectedLicenseString, out var expectedLicense ) )
@@ -62,7 +64,6 @@ namespace PostSharp.Backstage.Licensing.Tests.Registration
             var data = this.GetLicenseRegistrationData( licenseString );
             storage.AddLicense( licenseString, data );
         }
-
 
         [Fact]
         public void ExistingStorageSucceedsToRead()
@@ -150,7 +151,10 @@ namespace PostSharp.Backstage.Licensing.Tests.Registration
             this.Add( storage, TestLicenseKeys.Caching );
             storage.Save();
 
-            this.AssertStorageContains( storage, TestLicenseKeys.Ultimate, TestLicenseKeys.Logging,
+            this.AssertStorageContains( 
+                storage, 
+                TestLicenseKeys.Ultimate,
+                TestLicenseKeys.Logging,
                 TestLicenseKeys.Caching );
             this.AssertFileContains( TestLicenseKeys.Ultimate, TestLicenseKeys.Logging, TestLicenseKeys.Caching );
         }

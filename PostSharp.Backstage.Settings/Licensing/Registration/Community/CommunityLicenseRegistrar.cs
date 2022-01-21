@@ -15,7 +15,7 @@ namespace PostSharp.Backstage.Licensing.Registration.Community
     public class CommunityLicenseRegistrar
     {
         private readonly IServiceProvider _services;
-        private readonly ILogger? _logger;
+        private readonly ILogger _logger;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="CommunityLicenseRegistrar"/> class.

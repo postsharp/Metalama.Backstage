@@ -25,17 +25,22 @@ namespace PostSharp.Cli.Tests.Commands.Licensing
         [Fact]
         public async Task UnknownLicenseKeyFailsToUnregisterInCleanEnvironment()
         {
-            await this.TestCommandAsync( $"license unregister {TestLicenses.Key1}", "",
-                $"This license is not registered." + Environment.NewLine, 2 );
+            await this.TestCommandAsync( 
+                $"license unregister {TestLicenses.Key1}", 
+                "",
+                $"This license is not registered." + Environment.NewLine, 
+                2 );
         }
 
         [Fact]
         public async Task OneOrdinalUnregisters()
         {
             await this.TestCommandAsync( $"license register {TestLicenses.Key1}", "" );
-            await this.TestCommandAsync( "license list",
+            await this.TestCommandAsync( 
+                "license list",
                 string.Format( CultureInfo.InvariantCulture, TestLicenses.Format1, 1 ) );
-            await this.TestCommandAsync( $"license unregister 1",
+            await this.TestCommandAsync( 
+                $"license unregister 1",
                 $"{TestLicenses.Key1} unregistered." + Environment.NewLine );
             await this.TestCommandAsync( "license list", "" );
         }
@@ -44,7 +49,8 @@ namespace PostSharp.Cli.Tests.Commands.Licensing
         public async Task OneLicenseKeyUnregisters()
         {
             await this.TestCommandAsync( $"license register {TestLicenses.Key1}", "" );
-            await this.TestCommandAsync( $"license unregister {TestLicenses.Key1}",
+            await this.TestCommandAsync( 
+                $"license unregister {TestLicenses.Key1}",
                 $"{TestLicenses.Key1} unregistered." + Environment.NewLine );
             await this.TestCommandAsync( "license list", "" );
         }

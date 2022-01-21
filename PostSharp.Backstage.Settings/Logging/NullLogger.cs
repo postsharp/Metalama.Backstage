@@ -10,8 +10,11 @@ public class NullLogger : ILogger, ILoggerFactory
     public static NullLogger Instance { get; } = new();
 
     ILogWriter? ILogger.Trace => null;
+
     ILogWriter? ILogger.Info => null;
+
     ILogWriter? ILogger.Warning => null;
+
     ILogWriter? ILogger.Error => null;
 
     ILogger ILoggerFactory.CreateLogger<T>() => this;

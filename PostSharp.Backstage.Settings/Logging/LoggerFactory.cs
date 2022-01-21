@@ -11,6 +11,7 @@ namespace PostSharp.Backstage.Logging;
 public class LoggerFactory : ILoggerFactory
 {
     public TextWriter? TextWriter { get; }
+
     public LoggingConfiguration Configuration { get; }
 
     public LoggerFactory( IServiceProvider serviceProvider, LoggingProcessKind processKind )
@@ -36,7 +37,8 @@ public class LoggerFactory : ILoggerFactory
 
                 // The filename must be unique because several instances of the current assembly (of different versions) may be loaded in the process.
                 this.TextWriter = File.CreateText(
-                    Path.Combine( directory,
+                    Path.Combine( 
+                        directory,
                         $"Metalama.{Process.GetCurrentProcess().ProcessName}.{pid}.{Guid.NewGuid()}.log" ) );
             }
             catch
@@ -45,7 +47,6 @@ public class LoggerFactory : ILoggerFactory
             }
         }
     }
-
 
     public ILogger CreateLogger<T>()
         where T : ILogCategory, new() =>

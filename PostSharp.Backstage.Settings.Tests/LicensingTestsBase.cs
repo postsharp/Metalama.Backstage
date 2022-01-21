@@ -45,7 +45,7 @@ namespace PostSharp.Backstage.Licensing.Tests
             this.LicenseFactory = new LicenseFactory( this.Services );
             this.SelfSignedLicenseFactory = new UnsignedLicenseFactory( this.Services );
             this.Diagnostics = (TestDiagnosticsSink) this.Services.GetRequiredService<IBackstageDiagnosticSink>();
-            this.LicensingConfigurationFile = LicensingConfiguration.Load( this.Services ).FilePath;
+            this.LicensingConfigurationFile = LicensingConfiguration.Load( this.Services ).FilePath!;
         }
     }
 }

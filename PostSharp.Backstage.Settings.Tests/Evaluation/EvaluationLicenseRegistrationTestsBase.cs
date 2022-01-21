@@ -30,7 +30,8 @@ namespace PostSharp.Backstage.Licensing.Tests.Evaluation
         protected void SetLicenses( params string[] licenses )
         {
             LicensingConfiguration configuration = new() { Licenses = licenses };
-            this.FileSystem.Mock.AddFile( this.LicensingConfigurationFile,
+            this.FileSystem.Mock.AddFile( 
+                this.LicensingConfigurationFile,
                 new MockFileDataEx( configuration.ToJson() ) );
         }
 

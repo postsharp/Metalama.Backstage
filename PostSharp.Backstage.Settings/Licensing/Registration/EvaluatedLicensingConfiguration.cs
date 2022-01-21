@@ -24,7 +24,6 @@ namespace PostSharp.Backstage.Licensing.Registration
             set => this._configuration.LastEvaluationStartDate = value;
         }
 
-
         /// <summary>
         /// Gets licenses contained in the storage.
         /// </summary>
@@ -47,7 +46,6 @@ namespace PostSharp.Backstage.Licensing.Registration
                 return false;
             }
         }
-
 
         /// <summary>
         /// Creates an empty storage.

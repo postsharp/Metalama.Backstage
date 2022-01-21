@@ -86,7 +86,9 @@ namespace PostSharp.Backstage.Testing.Services
             return this.Mock.Directory.Exists( path );
         }
 
-        public IEnumerable<string> EnumerateFiles( string path, string? searchPattern = null,
+        public IEnumerable<string> EnumerateFiles( 
+            string path,
+            string? searchPattern = null,
             SearchOption? searchOption = null )
         {
             return this.GetFiles( path, searchPattern, searchOption );
@@ -113,7 +115,9 @@ namespace PostSharp.Backstage.Testing.Services
             }
         }
 
-        public IEnumerable<string> EnumerateDirectories( string path, string? searchPattern = null,
+        public IEnumerable<string> EnumerateDirectories( 
+            string path, 
+            string? searchPattern = null,
             SearchOption? searchOption = null )
         {
             return this.GetDirectories( path, searchPattern, searchOption );

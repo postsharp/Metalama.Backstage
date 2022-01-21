@@ -22,7 +22,6 @@ namespace PostSharp.Backstage.Licensing.Tests.Evaluation
             this.AssertEvaluationEligible();
         }
 
-
         private void TestRepetitiveRegistration( TimeSpan retryAfter, bool expectedEligibility )
         {
             this.Time.Set( TestStart );

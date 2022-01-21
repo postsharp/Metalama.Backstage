@@ -26,7 +26,8 @@ namespace PostSharp.Backstage.Licensing.Tests.Registration
         protected void SetStoredLicenseStrings( params string[] licenseStrings )
         {
             var configuration = new LicensingConfiguration { Licenses = licenseStrings };
-            this.FileSystem.Mock.AddFile( this.LicensingConfigurationFile,
+            this.FileSystem.Mock.AddFile( 
+                this.LicensingConfigurationFile,
                 new MockFileDataEx( configuration.ToJson() ) );
         }
 
