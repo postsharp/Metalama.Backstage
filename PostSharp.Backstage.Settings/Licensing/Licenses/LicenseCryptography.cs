@@ -153,7 +153,8 @@ namespace PostSharp.Backstage.Licensing.Cryptography
 
                 if ( missingNodes.Count != 0 )
                 {
-                    throw new ArgumentException( $"Invalid XML DSA key. Missing nodes: {string.Join( ", ", missingNodes )}", nameof(xmlString) );
+                    throw new ArgumentException(
+                        $"Invalid XML DSA key. Missing nodes: {string.Join( ", ", missingNodes )}", nameof(xmlString) );
                 }
             }
             else
@@ -176,8 +177,8 @@ namespace PostSharp.Backstage.Licensing.Cryptography
             static byte[] ConvertIntToByteArray( int dwInput )
             {
                 var temp = new byte[8]; // int can never be greater than Int64
-                int t1;                 // t1 is remaining value to account for
-                int t2;                 // t2 is t1 % 256
+                int t1; // t1 is remaining value to account for
+                int t2; // t2 is t1 % 256
                 var i = 0;
 
                 if ( dwInput == 0 )
@@ -260,7 +261,8 @@ namespace PostSharp.Backstage.Licensing.Cryptography
 
                 // note we assume counter is correct if Seed is present
                 sb.Append( "<Seed>" + Convert.ToBase64String( dsaParams.Seed ) + "</Seed>" );
-                sb.Append( "<PgenCounter>" + Convert.ToBase64String( ConvertIntToByteArray( dsaParams.Counter ) ) + "</PgenCounter>" );
+                sb.Append( "<PgenCounter>" + Convert.ToBase64String( ConvertIntToByteArray( dsaParams.Counter ) ) +
+                           "</PgenCounter>" );
 
                 // ReSharper restore StringLiteralTypo
             }

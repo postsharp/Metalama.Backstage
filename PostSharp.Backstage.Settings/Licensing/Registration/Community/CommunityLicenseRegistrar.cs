@@ -2,8 +2,8 @@
 // This project is not open source. Please see the LICENSE.md file in the repository root for details.
 
 using PostSharp.Backstage.Extensibility;
-using PostSharp.Backstage.Extensibility.Extensions;
 using PostSharp.Backstage.Licensing.Licenses;
+using PostSharp.Backstage.Logging;
 using System;
 using System.Linq;
 
@@ -15,7 +15,6 @@ namespace PostSharp.Backstage.Licensing.Registration.Community
     public class CommunityLicenseRegistrar
     {
         private readonly IServiceProvider _services;
-        private readonly IStandardLicenseFileLocations _licenseFiles;
         private readonly ILogger? _logger;
 
         /// <summary>
@@ -25,8 +24,7 @@ namespace PostSharp.Backstage.Licensing.Registration.Community
         public CommunityLicenseRegistrar( IServiceProvider services )
         {
             this._services = services;
-            this._licenseFiles = services.GetRequiredService<IStandardLicenseFileLocations>();
-            this._logger = services.GetOptionalTraceLogger<CommunityLicenseRegistrar>();
+            this._logger = services.GetLogger<LicensingLogCategory>();
         }
 
         /// <summary>
@@ -41,16 +39,16 @@ namespace PostSharp.Backstage.Licensing.Registration.Community
         {
             void TraceFailure( string message )
             {
-                this._logger?.LogTrace( $"Failed to register community license: {message}" );
+                this._logger.Trace?.Log( $"Failed to register community license: {message}" );
             }
 
-            this._logger?.LogTrace( "Registering community license." );
+            this._logger.Trace?.Log( "Registering community license." );
 
             try
             {
-                var userStorage = LicenseFileStorage.OpenOrCreate( this._licenseFiles.UserLicenseFile, this._services );
+                var userStorage = EvaluatedLicensingConfiguration.OpenOrCreate( this._services );
 
-                if ( userStorage.Licenses.Values.Any( l => l != null && l.LicenseType == LicenseType.Community ) )
+                if ( userStorage.Licenses.Any( l => l.LicenseData is { LicenseType: LicenseType.Community } ) )
                 {
                     TraceFailure( "A community license is registered already." );
 

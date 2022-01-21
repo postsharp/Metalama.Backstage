@@ -10,7 +10,8 @@ namespace PostSharp.Backstage.Licensing.Licenses.LicenseFields
     /// </summary>
     internal enum LicenseFieldIndex : byte
     {
-        [Obsolete( "This field is no longer used. It has been replaced by former LicensedProducts enum, which has been renamed to LicensedFeatures." )]
+        [Obsolete(
+            "This field is no longer used. It has been replaced by former LicensedProducts enum, which has been renamed to LicensedFeatures." )]
         Features = 1,
         ValidFrom = 2,
         ValidTo = 3,

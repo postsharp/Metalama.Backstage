@@ -5,6 +5,7 @@ using PostSharp.Backstage.Extensibility;
 using PostSharp.Backstage.Extensibility.Extensions;
 using PostSharp.Backstage.Licensing.Consumption;
 using PostSharp.Backstage.Licensing.Registration;
+using PostSharp.Backstage.Logging;
 using PostSharp.Backstage.Utilities;
 using System;
 using System.Collections.Generic;
@@ -54,7 +55,7 @@ namespace PostSharp.Backstage.Licensing.Licenses
             this._services = services;
             this._dateTimeProvider = services.GetRequiredService<IDateTimeProvider>();
             this._diagnostics = services.GetRequiredService<IBackstageDiagnosticSink>();
-            this._logger = services.GetOptionalTraceLogger<License>();
+            this._logger = services.GetLogger<LicensingLogCategory>();
         }
 
         private static bool TryGetLicenseId( string s, out int id )
@@ -94,7 +95,8 @@ namespace PostSharp.Backstage.Licensing.Licenses
         }
 
         /// <inheritdoc />
-        public bool TryGetLicenseConsumptionData( [MaybeNullWhen( false )] out LicenseConsumptionData licenseConsumptionData )
+        public bool TryGetLicenseConsumptionData(
+            [MaybeNullWhen( false )] out LicenseConsumptionData licenseConsumptionData )
         {
             if ( !this.TryGetAndValidateLicenseKeyData( out var licenseKeyData ) )
             {
@@ -109,7 +111,8 @@ namespace PostSharp.Backstage.Licensing.Licenses
         }
 
         /// <inheritdoc />
-        public bool TryGetLicenseRegistrationData( [MaybeNullWhen( false )] out LicenseRegistrationData licenseRegistrationData )
+        public bool TryGetLicenseRegistrationData(
+            [MaybeNullWhen( false )] out LicenseRegistrationData licenseRegistrationData )
         {
             if ( !this.TryGetLicenseKeyData( out var licenseKeyData ) )
             {
@@ -125,7 +128,7 @@ namespace PostSharp.Backstage.Licensing.Licenses
 
         private bool TryGetLicenseKeyData( [MaybeNullWhen( false )] out LicenseKeyData data )
         {
-            this._logger?.LogTrace( $"Deserializing license {{{this._licenseKey}}}." );
+            this._logger.Trace?.Log( $"Deserializing license {{{this._licenseKey}}}." );
             Guid? licenseGuid = null;
 
             try
@@ -135,7 +138,8 @@ namespace PostSharp.Backstage.Licensing.Licenses
 
                 if ( firstDash < 0 )
                 {
-                    throw new InvalidLicenseException( $"License header not found for license {{{this._licenseKey}}}." );
+                    throw new InvalidLicenseException(
+                        $"License header not found for license {{{this._licenseKey}}}." );
                 }
 
                 var prefix = this._licenseKey.Substring( 0, firstDash );
@@ -162,7 +166,7 @@ namespace PostSharp.Backstage.Licensing.Licenses
                     data.LicenseGuid = licenseGuid;
                     data.LicenseString = this._licenseKey;
 
-                    this._logger?.LogTrace( $"Deserialized license: {data}" );
+                    this._logger.Trace?.Log( $"Deserialized license: {data}" );
 
                     return true;
                 }
@@ -178,7 +182,7 @@ namespace PostSharp.Backstage.Licensing.Licenses
                     this._diagnostics.ReportWarning( $"Cannot parse license key {this._licenseKey}: {e.Message}" );
                 }
 
-                this._logger?.LogTrace( $"Cannot parse the license {{{this._licenseKey}}}: {e}" );
+                this._logger.Trace?.Log( $"Cannot parse the license {{{this._licenseKey}}}: {e}" );
                 data = null;
 
                 return false;
@@ -195,10 +199,10 @@ namespace PostSharp.Backstage.Licensing.Licenses
             var applicationInfoService = this._services.GetRequiredService<IApplicationInfo>();
 
             if ( !data.Validate(
-                null,
-                this._dateTimeProvider,
-                applicationInfoService,
-                out var errorDescription ) )
+                    null,
+                    this._dateTimeProvider,
+                    applicationInfoService,
+                    out var errorDescription ) )
             {
                 this._diagnostics.ReportWarning( $"License key {data.LicenseUniqueId} is invalid: {errorDescription}" );
                 data = null;

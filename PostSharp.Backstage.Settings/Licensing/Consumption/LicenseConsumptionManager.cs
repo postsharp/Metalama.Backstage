@@ -6,6 +6,7 @@ using PostSharp.Backstage.Extensibility.Extensions;
 using PostSharp.Backstage.Licensing.Consumption.Sources;
 using PostSharp.Backstage.Licensing.Licenses;
 using PostSharp.Backstage.Licensing.Registration;
+using PostSharp.Backstage.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,7 +17,7 @@ namespace PostSharp.Backstage.Licensing.Consumption
     internal class LicenseConsumptionManager : ILicenseConsumptionManager
     {
         private readonly IServiceProvider _services;
-        private readonly ILogger? _logger;
+        private readonly ILogger _logger;
 
         private readonly List<ILicenseSource> _unusedLicenseSources = new();
         private readonly HashSet<ILicense> _unusedLicenses = new();
@@ -32,7 +33,9 @@ namespace PostSharp.Backstage.Licensing.Consumption
         /// <param name="services">Services.</param>
         /// <param name="licenseSources">License sources.</param>
         public LicenseConsumptionManager( IServiceProvider services, params ILicenseSource[] licenseSources )
-            : this( services, (IEnumerable<ILicenseSource>) licenseSources ) { }
+            : this( services, (IEnumerable<ILicenseSource>) licenseSources )
+        {
+        }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="LicenseConsumptionManager"/> class.
@@ -42,7 +45,7 @@ namespace PostSharp.Backstage.Licensing.Consumption
         public LicenseConsumptionManager( IServiceProvider services, IEnumerable<ILicenseSource> licenseSources )
         {
             this._services = services;
-            this._logger = services.GetOptionalTraceLogger<LicenseConsumptionManager>();
+            this._logger = services.GetLogger<LicensingLogCategory>();
 
             this._unusedLicenseSources.AddRange( licenseSources );
         }
@@ -50,7 +53,7 @@ namespace PostSharp.Backstage.Licensing.Consumption
         private bool TryLoadNextLicenseSource()
         {
             // TODO: tracing
-            this._logger?.LogInformation( "TODO: tracing" );
+            this._logger.Info?.Log( "TODO: tracing" );
 
             if ( this._unusedLicenseSources.Count == 0 )
             {
@@ -93,11 +96,13 @@ namespace PostSharp.Backstage.Licensing.Consumption
             }
             else
             {
-                if ( !this._namespaceLimitedLicensedFeatures.TryGetValue( licenseData.LicensedNamespace, out var namespaceFeatures ) )
+                if ( !this._namespaceLimitedLicensedFeatures.TryGetValue( licenseData.LicensedNamespace,
+                        out var namespaceFeatures ) )
                 {
-                    this._namespaceLimitedLicensedFeatures[licenseData.LicensedNamespace] = new LicenseNamespaceConstraint(
-                        licenseData.LicensedNamespace,
-                        licenseData.LicensedFeatures );
+                    this._namespaceLimitedLicensedFeatures[licenseData.LicensedNamespace] =
+                        new LicenseNamespaceConstraint(
+                            licenseData.LicensedNamespace,
+                            licenseData.LicensedFeatures );
                 }
                 else
                 {
@@ -151,10 +156,8 @@ namespace PostSharp.Backstage.Licensing.Consumption
                     {
                         return true;
                     }
-                }
-                while ( this.TryLoadNextLicense() );
-            }
-            while ( this.TryLoadNextLicenseSource() );
+                } while ( this.TryLoadNextLicense() );
+            } while ( this.TryLoadNextLicenseSource() );
 
             if ( this.TryAutoRegisterLicense() )
             {
@@ -173,13 +176,13 @@ namespace PostSharp.Backstage.Licensing.Consumption
             {
                 if ( consumer.TargetTypeName == null )
                 {
-                    consumer.Diagnostics.ReportError( $"No license available for feature(s) {requiredFeatures}" );
+                    consumer.DiagnosticsSink.ReportError( $"No license available for feature(s) {requiredFeatures}" );
                 }
                 else
                 {
-                    consumer.Diagnostics.ReportError(
+                    consumer.DiagnosticsSink.ReportError(
                         $"No license available for feature(s) {requiredFeatures} required by '{consumer.TargetTypeName}' type.",
-                        consumer.DiagnosticsLocation );
+                        consumer.DiagnosticLocation );
                 }
             }
         }

@@ -3,7 +3,7 @@
 
 using PostSharp.Backstage.Extensibility;
 using IMicrosoftLoggerFactory = Microsoft.Extensions.Logging.ILoggerFactory;
-using IPostSharpLoggerFactory = PostSharp.Backstage.Extensibility.ILoggerFactory;
+using IPostSharpLoggerFactory = PostSharp.Backstage.Logging.ILoggerFactory;
 
 namespace PostSharp.Backstage.MicrosoftLogging
 {
@@ -13,7 +13,8 @@ namespace PostSharp.Backstage.MicrosoftLogging
             this ServiceProviderBuilder serviceProviderBuilder,
             IMicrosoftLoggerFactory microsoftLoggerFactory )
         {
-            serviceProviderBuilder.AddService( typeof(IPostSharpLoggerFactory), new LoggerFactoryAdapter( microsoftLoggerFactory ) );
+            serviceProviderBuilder.AddService( typeof(IPostSharpLoggerFactory),
+                new LoggerFactoryAdapter( microsoftLoggerFactory ) );
 
             return serviceProviderBuilder;
         }

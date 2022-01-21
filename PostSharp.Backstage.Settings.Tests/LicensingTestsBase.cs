@@ -4,7 +4,6 @@
 using Microsoft.Extensions.DependencyInjection;
 using PostSharp.Backstage.Extensibility;
 using PostSharp.Backstage.Licensing.Licenses;
-using PostSharp.Backstage.Licensing.Registration;
 using PostSharp.Backstage.Testing;
 using PostSharp.Backstage.Testing.Services;
 using System;
@@ -16,11 +15,11 @@ namespace PostSharp.Backstage.Licensing.Tests
     {
         private protected LicenseFactory LicenseFactory { get; }
 
+        protected string LicensingConfigurationFile { get; }
+
         private protected UnsignedLicenseFactory SelfSignedLicenseFactory { get; }
 
         private protected TestDiagnosticsSink Diagnostics { get; }
-
-        private protected IStandardLicenseFileLocations LicenseFiles { get; }
 
         private protected LicensingTestsBase(
             ITestOutputHelper logger,
@@ -30,7 +29,8 @@ namespace PostSharp.Backstage.Licensing.Tests
                 services =>
                 {
                     // ReSharper disable once ExplicitCallerInfoArgument
-                    services.AddSingleton<IBackstageDiagnosticSink>( new TestDiagnosticsSink( services.ServiceProvider, "default" ) );
+                    services.AddSingleton<IBackstageDiagnosticSink>(
+                        new TestDiagnosticsSink( services.ServiceProvider, "default" ) );
 
                     services.AddSingleton<IApplicationInfo>(
                         new TestApplicationInfo(
@@ -39,15 +39,13 @@ namespace PostSharp.Backstage.Licensing.Tests
                             new Version( 0, 1, 0 ),
                             new DateTime( 2021, 1, 1 ) ) );
 
-                    services.AddStandardLicenseFilesLocations();
-
                     serviceBuilder?.Invoke( services );
                 } )
         {
             this.LicenseFactory = new LicenseFactory( this.Services );
             this.SelfSignedLicenseFactory = new UnsignedLicenseFactory( this.Services );
             this.Diagnostics = (TestDiagnosticsSink) this.Services.GetRequiredService<IBackstageDiagnosticSink>();
-            this.LicenseFiles = this.Services.GetRequiredService<IStandardLicenseFileLocations>();
+            this.LicensingConfigurationFile = LicensingConfiguration.Load( this.Services ).FilePath;
         }
     }
 }

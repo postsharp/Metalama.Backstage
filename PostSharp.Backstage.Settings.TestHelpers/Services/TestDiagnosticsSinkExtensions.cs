@@ -15,12 +15,14 @@ namespace PostSharp.Backstage.Testing.Services
             return (TestDiagnosticsSink) diagnostics;
         }
 
-        public static IReadOnlyList<(string Message, IDiagnosticsLocation? Location)> GetWarnings( this IBackstageDiagnosticSink diagnostics )
+        public static IReadOnlyList<(string Message, IDiagnosticLocation? Location)> GetWarnings(
+            this IBackstageDiagnosticSink diagnostics )
         {
             return diagnostics.AsTestDiagnosticsSink().Warnings;
         }
 
-        public static IReadOnlyList<(string Message, IDiagnosticsLocation? Location)> GetErrors( this IBackstageDiagnosticSink diagnostics )
+        public static IReadOnlyList<(string Message, IDiagnosticLocation? Location)> GetErrors(
+            this IBackstageDiagnosticSink diagnostics )
         {
             return diagnostics.AsTestDiagnosticsSink().Errors;
         }
@@ -43,14 +45,15 @@ namespace PostSharp.Backstage.Testing.Services
         public static void AssertSingleWarning(
             this IBackstageDiagnosticSink diagnostics,
             string expectedMessage,
-            IDiagnosticsLocation? expectedLocation = null )
+            IDiagnosticLocation? expectedLocation = null )
         {
             var warning = diagnostics.AsTestDiagnosticsSink().Warnings.Single();
             Assert.Equal( expectedMessage, warning.Message );
             Assert.Equal( expectedLocation, warning.Location );
         }
 
-        public static void AssertSingleError( this IBackstageDiagnosticSink diagnostics, string expectedMessage, IDiagnosticsLocation? expectedLocation = null )
+        public static void AssertSingleError( this IBackstageDiagnosticSink diagnostics, string expectedMessage,
+            IDiagnosticLocation? expectedLocation = null )
         {
             var error = diagnostics.AsTestDiagnosticsSink().Errors.Single();
             Assert.Equal( expectedMessage, error.Message );

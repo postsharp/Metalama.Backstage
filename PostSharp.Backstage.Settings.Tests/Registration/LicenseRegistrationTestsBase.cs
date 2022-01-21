@@ -17,16 +17,17 @@ namespace PostSharp.Backstage.Licensing.Tests.Registration
             Action<ServiceProviderBuilder>? serviceBuilder = null )
             : base(
                 logger,
-                serviceCollection => serviceBuilder?.Invoke( serviceCollection ) ) { }
-
-        protected string[] ReadStoredLicenseStrings()
+                serviceCollection => serviceBuilder?.Invoke( serviceCollection ) )
         {
-            return this.FileSystem.ReadAllLines( this.LicenseFiles.UserLicenseFile );
         }
+
+        protected string[] ReadStoredLicenseStrings() => LicensingConfiguration.Load( this.Services ).Licenses;
 
         protected void SetStoredLicenseStrings( params string[] licenseStrings )
         {
-            this.FileSystem.Mock.AddFile( this.LicenseFiles.UserLicenseFile, new MockFileDataEx( licenseStrings ) );
+            var configuration = new LicensingConfiguration { Licenses = licenseStrings };
+            this.FileSystem.Mock.AddFile( this.LicensingConfigurationFile,
+                new MockFileDataEx( configuration.ToJson() ) );
         }
 
         internal LicenseRegistrationData GetLicenseRegistrationData( string licenseString )

@@ -7,7 +7,7 @@ using System;
 using System.CommandLine;
 using System.CommandLine.IO;
 
-namespace PostSharp.Cli.Console
+namespace PostSharp.Cli
 {
     internal class ConsoleDiagnosticsSink : IBackstageDiagnosticSink
     {
@@ -18,12 +18,12 @@ namespace PostSharp.Cli.Console
             this._console = services.GetRequiredService<IConsole>();
         }
 
-        public void ReportError( string message, IDiagnosticsLocation? location = null )
+        public void ReportError( string message, IDiagnosticLocation? location = null )
         {
             this._console.Error.WriteLine( message );
         }
 
-        public void ReportWarning( string message, IDiagnosticsLocation? location = null )
+        public void ReportWarning( string message, IDiagnosticLocation? location = null )
         {
             this.ReportError( message );
         }

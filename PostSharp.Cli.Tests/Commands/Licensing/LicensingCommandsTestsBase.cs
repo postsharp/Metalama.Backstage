@@ -2,7 +2,6 @@
 // This project is not open source. Please see the LICENSE.md file in the repository root for details.
 
 using PostSharp.Backstage.Extensibility;
-using PostSharp.Backstage.Licensing.Registration;
 using System;
 using Xunit.Abstractions;
 
@@ -17,9 +16,9 @@ namespace PostSharp.Cli.Tests.Commands.Licensing
                 logger,
                 serviceCollection =>
                 {
-                    serviceCollection.AddStandardLicenseFilesLocations();
-
                     serviceBuilder?.Invoke( serviceCollection );
-                } ) { }
+                } )
+        {
+        }
     }
 }

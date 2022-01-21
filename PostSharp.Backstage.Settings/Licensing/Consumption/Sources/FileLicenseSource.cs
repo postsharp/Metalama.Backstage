@@ -1,12 +1,8 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. All rights reserved.
 // This project is not open source. Please see the LICENSE.md file in the repository root for details.
 
-using PostSharp.Backstage.Extensibility;
-using PostSharp.Backstage.Extensibility.Extensions;
-using PostSharp.Backstage.Licensing.Registration;
 using System;
 using System.Collections.Generic;
-using System.Globalization;
 
 namespace PostSharp.Backstage.Licensing.Consumption.Sources
 {
@@ -15,58 +11,19 @@ namespace PostSharp.Backstage.Licensing.Consumption.Sources
     /// </summary>
     public class FileLicenseSource : LicenseStringsLicenseSourceBase
     {
-        private readonly string _path;
-        private readonly IServiceProvider _services;
-        private readonly ILogger? _logger;
+        private readonly LicensingConfiguration _licensingConfiguration;
 
         public static FileLicenseSource CreateUserLicenseFileLicenseSource( IServiceProvider services )
         {
-            var standardLicenseFileLocations = services.GetRequiredService<IStandardLicenseFileLocations>();
-
-            return new FileLicenseSource( standardLicenseFileLocations.UserLicenseFile, services );
+            return new FileLicenseSource( services );
         }
 
-        public FileLicenseSource( string path, IServiceProvider services )
+        public FileLicenseSource( IServiceProvider services )
             : base( services )
         {
-            this._path = path;
-            this._services = services;
-            this._logger = services.GetOptionalTraceLogger<FileLicenseSource>();
+            this._licensingConfiguration = LicensingConfiguration.Load( services );
         }
 
-        protected override IEnumerable<string> GetLicenseStrings()
-        {
-            this._logger?.LogTrace( $"Loading licenses from '{this._path}'." );
-
-            var diagnosticsSink = this._services.GetRequiredService<IBackstageDiagnosticSink>();
-            var fileSystem = this._services.GetRequiredService<IFileSystem>();
-
-            if ( !fileSystem.FileExists( this._path ) )
-            {
-                this._logger?.LogTrace( $"'{this._path}' does not exist." );
-
-                yield break;
-            }
-
-            string[] licenseStrings;
-
-            try
-            {
-                licenseStrings = fileSystem.ReadAllLines( this._path );
-            }
-            catch ( Exception e )
-            {
-                const string messageFormat = "Failed to load licenses from '{0}': {1}";
-                this._logger?.LogTrace( string.Format( CultureInfo.InvariantCulture, messageFormat, this._path, e ) );
-                diagnosticsSink.ReportWarning( string.Format( CultureInfo.InvariantCulture, messageFormat, this._path, e.Message ) );
-
-                yield break;
-            }
-
-            foreach ( var licenseString in licenseStrings )
-            {
-                yield return licenseString;
-            }
-        }
+        protected override IEnumerable<string> GetLicenseStrings() => this._licensingConfiguration.Licenses;
     }
 }

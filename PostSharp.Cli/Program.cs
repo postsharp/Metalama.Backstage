@@ -12,7 +12,7 @@ namespace PostSharp.Cli
         private static Task<int> Main( string[] args )
         {
             var servicesFactory = new CommandServiceProvider();
-            var root = new PostSharpCommand( servicesFactory );
+            var root = new TheRootCommand( servicesFactory );
 
             return root.InvokeAsync( args );
         }

@@ -10,7 +10,9 @@ namespace PostSharp.Backstage.Licensing.Tests.Consumption
     public class SingleLicenseKeyTests : LicenseConsumptionManagerTestsBase
     {
         public SingleLicenseKeyTests( ITestOutputHelper logger )
-            : base( logger ) { }
+            : base( logger )
+        {
+        }
 
         private void TestOneLicense( string licenseKey, LicensedFeatures requiredFeatures, bool expectedCanConsume )
         {
@@ -33,7 +35,7 @@ namespace PostSharp.Backstage.Licensing.Tests.Consumption
         [Fact]
         public void NoLicenseAutoRegistersEvaluationLicense()
         {
-            LicenseConsumptionManager manager = new( this.Services );
+            LicenseConsumptionManager manager = new(this.Services);
             this.TestConsumption( manager, LicensedFeatures.Metalama, false, true );
         }
 
@@ -52,7 +54,8 @@ namespace PostSharp.Backstage.Licensing.Tests.Consumption
         [Fact]
         public void OpenSourceAllowsMetalamaInSameNamespace()
         {
-            this.TestOneLicense( TestLicenseKeys.OpenSource, LicensedFeatures.Metalama, TestLicenseKeys.OpenSourceNamespace, true );
+            this.TestOneLicense( TestLicenseKeys.OpenSource, LicensedFeatures.Metalama,
+                TestLicenseKeys.OpenSourceNamespace, true );
         }
 
         [Fact]

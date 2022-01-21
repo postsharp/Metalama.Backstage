@@ -1,24 +1,29 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. All rights reserved.
 // This project is not open source. Please see the LICENSE.md file in the repository root for details.
 
-using PostSharp.Backstage.Extensibility;
-using PostSharp.Backstage.Extensibility.Extensions;
 using PostSharp.Backstage.Licensing.Licenses;
 using System;
 using System.Collections.Generic;
-using System.IO;
+using System.Linq;
 
 namespace PostSharp.Backstage.Licensing.Registration
 {
     /// <summary>
     /// Manages license file for license registration purposes.
     /// </summary>
-    public class LicenseFileStorage
+    public class EvaluatedLicensingConfiguration
     {
-        private readonly string _path;
-        private readonly Dictionary<string, LicenseRegistrationData?> _licenses = new();
+        private readonly IServiceProvider _services;
+        private readonly LicensingConfiguration _configuration;
 
-        private readonly IFileSystem _fileSystem;
+        private readonly List<(string LicenseString, LicenseRegistrationData? LicenseData)> _licenses = new();
+
+        public DateTime? LastEvaluationStartDate
+        {
+            get => this._configuration.LastEvaluationStartDate;
+            set => this._configuration.LastEvaluationStartDate = value;
+        }
+
 
         /// <summary>
         /// Gets licenses contained in the storage.
@@ -26,18 +31,31 @@ namespace PostSharp.Backstage.Licensing.Registration
         /// <remarks>
         /// Includes both the licenses loaded from a license file and licenses pending to be stored.
         /// </remarks>
-        public IReadOnlyDictionary<string, LicenseRegistrationData?> Licenses => this._licenses;
+        public IReadOnlyList<(string LicenseString, LicenseRegistrationData? LicenseData)> Licenses => this._licenses;
+
+        public bool TryGetRegistrationData( string licenseKey, out LicenseRegistrationData? registrationData )
+        {
+            var item = this._licenses.FirstOrDefault( l => l.LicenseString == licenseKey );
+            if ( item.LicenseString != null! )
+            {
+                registrationData = item.LicenseData;
+                return true;
+            }
+            else
+            {
+                registrationData = null;
+                return false;
+            }
+        }
+
 
         /// <summary>
         /// Creates an empty storage.
         /// </summary>
-        /// <param name="path">Path of the license file to be created or overwritten.</param>
-        /// <param name="services">Services.</param>
         /// <returns>The empty storage.</returns>
-        public static LicenseFileStorage Create( string path, IServiceProvider services )
+        public static EvaluatedLicensingConfiguration CreateEmpty( IServiceProvider services )
         {
-            var fileSystem = services.GetRequiredService<IFileSystem>();
-            var storage = new LicenseFileStorage( path, fileSystem );
+            var storage = new EvaluatedLicensingConfiguration( new LicensingConfiguration(), services );
 
             return storage;
         }
@@ -45,23 +63,16 @@ namespace PostSharp.Backstage.Licensing.Registration
         /// <summary>
         /// Opens a license file or creates an empty storage is the license file doesn't exist.
         /// </summary>
-        /// <param name="path">Path of the license file to be loaded or created.</param>
         /// <param name="services">Services.</param>
         /// <returns></returns>
-        public static LicenseFileStorage OpenOrCreate( string path, IServiceProvider services )
+        public static EvaluatedLicensingConfiguration OpenOrCreate( IServiceProvider services )
         {
-            var storage = Create( path, services );
+            var licensingConfiguration = LicensingConfiguration.Load( services );
 
-            if ( !storage._fileSystem.FileExists( path ) )
-            {
-                return storage;
-            }
-
-            var licenseStrings = storage._fileSystem.ReadAllLines( path );
-
+            var storage = new EvaluatedLicensingConfiguration( licensingConfiguration, services );
             var factory = new LicenseFactory( services );
 
-            foreach ( var licenseString in licenseStrings )
+            foreach ( var licenseString in licensingConfiguration.Licenses )
             {
                 if ( string.IsNullOrWhiteSpace( licenseString ) )
                 {
@@ -75,16 +86,16 @@ namespace PostSharp.Backstage.Licensing.Registration
                     _ = license.TryGetLicenseRegistrationData( out data );
                 }
 
-                storage._licenses[licenseString] = data;
+                storage._licenses.Add( (licenseString, data) );
             }
 
             return storage;
         }
 
-        private LicenseFileStorage( string path, IFileSystem fileSystem )
+        private EvaluatedLicensingConfiguration( LicensingConfiguration configuration, IServiceProvider services )
         {
-            this._path = path;
-            this._fileSystem = fileSystem;
+            this._services = services;
+            this._configuration = configuration;
         }
 
         /// <summary>
@@ -94,16 +105,16 @@ namespace PostSharp.Backstage.Licensing.Registration
         /// <param name="data">Data represented by the <paramref name="licenseString"/>.</param>
         public void AddLicense( string licenseString, LicenseRegistrationData data )
         {
-            this._licenses[licenseString] = data;
+            this._licenses.Add( (licenseString, data) );
         }
 
         /// <summary>
         /// Removes a license.
         /// </summary>
         /// <param name="licenseString">String representing the license to be removed.</param>
-        public void RemoveLicense( string licenseString )
+        public bool RemoveLicense( string licenseString )
         {
-            this._licenses.Remove( licenseString );
+            return this._licenses.RemoveAll( l => l.LicenseString == licenseString ) > 0;
         }
 
         /// <summary>
@@ -114,9 +125,8 @@ namespace PostSharp.Backstage.Licensing.Registration
         /// </remarks>
         public void Save()
         {
-            var directory = Path.GetDirectoryName( this._path );
-            this._fileSystem.CreateDirectory( directory! );
-            this._fileSystem.WriteAllLines( this._path, this._licenses.Keys );
+            this._configuration.Licenses = this._licenses.Select( l => l.LicenseString ).ToArray();
+            this._configuration.Save( this._services );
         }
     }
 }

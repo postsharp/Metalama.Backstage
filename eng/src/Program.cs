@@ -10,13 +10,12 @@ using System.Collections.Immutable;
 var product = new Product
 {
     ProductName = "PostSharp.Backstage.Settings",
-    Solutions = ImmutableArray.Create<Solution>(
-                    new DotNetSolution( "PostSharp.Backstage.Settings.sln" ) { SupportsTestCoverage = true, CanFormatCode = true } ),
+    Solutions = new Solution[] {
+                    new DotNetSolution( "PostSharp.Backstage.Settings.sln" ) { SupportsTestCoverage = true, CanFormatCode = true } },
     PublicArtifacts = Pattern.Create(
         "PostSharp.Backstage.Settings.$(PackageVersion).nupkg",
         "PostSharp.Cli.$(PackageVersion).nupkg" ),
-    Dependencies = ImmutableArray.Create(
-        Dependencies.PostSharpEngineering )
+    Dependencies = new [] { Dependencies.PostSharpEngineering }
 };
 
 var commandApp = new CommandApp();

@@ -1,14 +1,13 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. All rights reserved.
 // This project is not open source. Please see the LICENSE.md file in the repository root for details.
 
-namespace PostSharp.Backstage.Extensibility
+namespace PostSharp.Backstage.Logging
 {
     public interface ILogger
     {
-        bool IsEnabled( LogLevel logLevel );
-
-        void LogTrace( string message );
-
-        void LogInformation( string message );
+        ILogWriter? Trace { get; }
+        ILogWriter? Info { get; }
+        ILogWriter? Warning { get; }
+        ILogWriter? Error { get; }
     }
 }

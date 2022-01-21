@@ -27,7 +27,8 @@ namespace PostSharp.Backstage.Licensing.Licenses.LicenseFields
         {
             if ( this._isBuggy )
             {
-                throw new InvalidOperationException( "Boolean license fields requiring the length to be serialized should no longer be buggy." );
+                throw new InvalidOperationException(
+                    "Boolean license fields requiring the length to be serialized should no longer be buggy." );
             }
 
             length = sizeof(byte);

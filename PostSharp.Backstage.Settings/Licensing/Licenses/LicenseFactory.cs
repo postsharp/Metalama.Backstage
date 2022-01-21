@@ -3,6 +3,7 @@
 
 using PostSharp.Backstage.Extensibility;
 using PostSharp.Backstage.Extensibility.Extensions;
+using PostSharp.Backstage.Logging;
 using System;
 using System.Diagnostics.CodeAnalysis;
 
@@ -25,7 +26,7 @@ namespace PostSharp.Backstage.Licensing.Licenses
         {
             this._services = services;
             this._diagnostics = services.GetRequiredService<IBackstageDiagnosticSink>();
-            this._logger = services.GetOptionalTraceLogger<LicenseFactory>();
+            this._logger = services.GetLogger<LicensingLogCategory>();
         }
 
         /// <summary>
@@ -37,7 +38,7 @@ namespace PostSharp.Backstage.Licensing.Licenses
         public bool TryCreate( string? licenseString, [MaybeNullWhen( false )] out ILicense license )
         {
             // TODO: trace
-            this._logger?.LogInformation( "TODO: trace" );
+            this._logger.Info?.Log( "TODO: trace" );
 
             licenseString = licenseString?.Trim();
 

@@ -81,9 +81,9 @@ namespace PostSharp.Backstage.Licensing.Licenses
             }
 
             if ( this._fields.Keys.Any(
-                i =>
-                    i.IsMustUnderstand()
-                    && !Enum.IsDefined( typeof(LicenseFieldIndex), i ) ) )
+                    i =>
+                        i.IsMustUnderstand()
+                        && !Enum.IsDefined( typeof(LicenseFieldIndex), i ) ) )
             {
                 errorDescription = "The license contains unknown must-understand fields.";
 

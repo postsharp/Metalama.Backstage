@@ -1,7 +1,6 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. All rights reserved.
 // This project is not open source. Please see the LICENSE.md file in the repository root for details.
 
-using Microsoft.Extensions.DependencyInjection;
 using PostSharp.Backstage.Licensing.Registration;
 using System;
 using System.CommandLine;
@@ -22,28 +21,22 @@ namespace PostSharp.Cli.Commands.Licensing
         private int Execute( bool verbose, IConsole console )
         {
             var services = this.CommandServiceProvider.CreateServiceProvider( console, verbose );
-            var licenseFiles = services.GetRequiredService<IStandardLicenseFileLocations>();
-            var storage = LicenseFileStorage.OpenOrCreate( licenseFiles.UserLicenseFile, services );
+            var storage = EvaluatedLicensingConfiguration.OpenOrCreate( services );
 
-            var ordinal = 1;
-            LicenseCommandSessionState ordinals = new( services );
-
+            var index = 1;
             foreach ( var license in storage.Licenses )
             {
-                ordinals.Add( ordinal, license.Key );
-                this.WriteLicense( console.Out, ordinal, license.Key, license.Value );
+                this.WriteLicense( console.Out, index, license.LicenseString, license.LicenseData );
                 console.Out.WriteLine();
-
-                ordinal++;
+                index++;
             }
-
-            ordinals.Save();
 
             return 0;
         }
 
 #pragma warning disable CA1822 // Member can be marked static
-        private void WriteLicense( IStandardStreamWriter @out, int ordinal, string licenseKey, LicenseRegistrationData? data )
+        private void WriteLicense( IStandardStreamWriter @out, int ordinal, string licenseKey,
+            LicenseRegistrationData? data )
 #pragma warning restore CA1822 // Member can be marked static
         {
             string? Format( DateTime? dateTime )
@@ -91,7 +84,7 @@ namespace PostSharp.Cli.Commands.Licensing
                     }
                 }
 
-                Write( "Subscription End Date", expiration );
+                Write( "License Expiration", expiration );
                 Write( "Maintenance Expiration", Format( data.SubscriptionEndDate ) );
             }
         }

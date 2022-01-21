@@ -28,7 +28,8 @@ namespace PostSharp.Cli.Commands.Licensing.Registration
             }
             else
             {
-                console.Error.WriteLine( "Cannot switch to the community edition. Use --verbose (-v) flag for details." );
+                console.Error.WriteLine(
+                    "Cannot switch to the community edition. Use --verbose (-v) flag for details." );
 
                 return 1;
             }

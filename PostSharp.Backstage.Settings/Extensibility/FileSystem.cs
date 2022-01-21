@@ -38,7 +38,8 @@ namespace PostSharp.Backstage.Extensibility
         }
 
         /// <inheritdoc />
-        public IEnumerable<string> EnumerateFiles( string path, string? searchPattern = null, SearchOption? searchOption = null )
+        public IEnumerable<string> EnumerateFiles( string path, string? searchPattern = null,
+            SearchOption? searchOption = null )
         {
             if ( searchOption.HasValue )
             {
@@ -66,7 +67,8 @@ namespace PostSharp.Backstage.Extensibility
         }
 
         /// <inheritdoc />
-        public IEnumerable<string> EnumerateDirectories( string path, string? searchPattern = null, SearchOption? searchOption = null )
+        public IEnumerable<string> EnumerateDirectories( string path, string? searchPattern = null,
+            SearchOption? searchOption = null )
         {
             if ( searchOption.HasValue )
             {

@@ -23,11 +23,11 @@ namespace PostSharp.Backstage.Licensing.Consumption
         /// <summary>
         /// Gets <see cref="IBackstageDiagnosticSink" /> specific to the location of the licensed feature request.
         /// </summary>
-        public IBackstageDiagnosticSink Diagnostics { get; }
+        public IBackstageDiagnosticSink DiagnosticsSink { get; }
 
         /// <summary>
-        /// Gets <see cref="IDiagnosticsLocation" /> of the licensed feature request.
+        /// Gets <see cref="IDiagnosticLocation" /> of the licensed feature request.
         /// </summary>
-        public IDiagnosticsLocation? DiagnosticsLocation { get; }
+        public IDiagnosticLocation? DiagnosticLocation { get; }
     }
 }

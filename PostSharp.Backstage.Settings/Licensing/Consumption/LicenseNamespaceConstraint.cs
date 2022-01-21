@@ -24,7 +24,8 @@ namespace PostSharp.Backstage.Licensing.Consumption
         /// Initializes a new instance of the <see cref="LicenseNamespaceConstraint"/> class.
         /// </summary>
         /// <param name="allowedNamespace">The namespace allowed by the license.</param>
-        public LicenseNamespaceConstraint( string allowedNamespace, LicensedFeatures licensedFeatures = LicensedFeatures.None )
+        public LicenseNamespaceConstraint( string allowedNamespace,
+            LicensedFeatures licensedFeatures = LicensedFeatures.None )
         {
             if ( string.IsNullOrEmpty( allowedNamespace ) )
             {
@@ -61,7 +62,6 @@ namespace PostSharp.Backstage.Licensing.Consumption
             var delimiter = requiredNamespace[this.AllowedNamespace.Length];
 
             if (
-
                 // If there is not '.' after the namespace name,
                 // it means the namespace name is different
                 // and it only begins with the required name.

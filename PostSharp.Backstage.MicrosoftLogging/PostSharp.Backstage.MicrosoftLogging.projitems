@@ -12,6 +12,5 @@
     <Compile Include="$(MSBuildThisFileDirectory)LoggerFactoryAdapter.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)LoggerAdapter.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)LoggingServiceCollectionExtensions.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)LogLevelExtensions.cs" />
   </ItemGroup>
 </Project>

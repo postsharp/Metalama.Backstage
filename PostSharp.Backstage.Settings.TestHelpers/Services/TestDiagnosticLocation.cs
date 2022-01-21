@@ -7,11 +7,11 @@ using PostSharp.Backstage.Extensibility;
 
 namespace PostSharp.Backstage.Testing.Services
 {
-    public class TestDiagnosticsLocation : IDiagnosticsLocation
+    public class TestDiagnosticLocation : IDiagnosticLocation
     {
         private readonly string _description;
 
-        public TestDiagnosticsLocation( string description )
+        public TestDiagnosticLocation( string description )
         {
             this._description = description;
         }

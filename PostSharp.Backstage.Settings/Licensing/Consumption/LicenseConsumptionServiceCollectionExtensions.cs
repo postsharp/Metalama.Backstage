@@ -3,7 +3,6 @@
 
 using PostSharp.Backstage.Extensibility;
 using PostSharp.Backstage.Licensing.Consumption.Sources;
-using PostSharp.Backstage.Licensing.Registration;
 using System.Collections.Generic;
 
 namespace PostSharp.Backstage.Licensing.Consumption
@@ -24,8 +23,8 @@ namespace PostSharp.Backstage.Licensing.Consumption
             IEnumerable<ILicenseSource> licenseSources )
         {
             return services
-                .AddStandardLicenseFilesLocations()
-                .AddSingleton<ILicenseConsumptionManager>( new LicenseConsumptionManager( services.ServiceProvider, licenseSources ) );
+                .AddSingleton<ILicenseConsumptionManager>(
+                    new LicenseConsumptionManager( services.ServiceProvider, licenseSources ) );
         }
 
         /// <summary>
@@ -39,8 +38,8 @@ namespace PostSharp.Backstage.Licensing.Consumption
             params ILicenseSource[] licenseSources )
         {
             return services
-                .AddStandardLicenseFilesLocations()
-                .AddSingleton<ILicenseConsumptionManager>( new LicenseConsumptionManager( services.ServiceProvider, licenseSources ) );
+                .AddSingleton<ILicenseConsumptionManager>(
+                    new LicenseConsumptionManager( services.ServiceProvider, licenseSources ) );
         }
     }
 }

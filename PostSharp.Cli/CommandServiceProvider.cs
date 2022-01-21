@@ -4,13 +4,9 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using PostSharp.Backstage.Extensibility;
-using PostSharp.Backstage.Licensing.Registration;
 using PostSharp.Backstage.MicrosoftLogging;
-using PostSharp.Cli.Console;
 using System;
 using System.CommandLine;
-using ILoggerFactory = Microsoft.Extensions.Logging.ILoggerFactory;
-using LogLevel = Microsoft.Extensions.Logging.LogLevel;
 
 namespace PostSharp.Cli
 {
@@ -43,11 +39,11 @@ namespace PostSharp.Cli
 
             serviceProviderBuilder
                 .AddSingleton<IConsole>( console )
-                .AddSingleton<IBackstageDiagnosticSink>( new ConsoleDiagnosticsSink( serviceProviderBuilder.ServiceProvider ) )
+                .AddSingleton<IBackstageDiagnosticSink>(
+                    new ConsoleDiagnosticsSink( serviceProviderBuilder.ServiceProvider ) )
                 .AddCurrentDateTimeProvider()
                 .AddFileSystem()
-                .AddStandardDirectories()
-                .AddStandardLicenseFilesLocations();
+                .AddStandardDirectories();
 
             if ( loggerFactory != null )
             {

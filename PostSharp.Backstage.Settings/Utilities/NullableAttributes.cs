@@ -9,40 +9,54 @@
 namespace System.Diagnostics.CodeAnalysis
 {
     /// <summary>Specifies that null is allowed as an input even if the corresponding type disallows it.</summary>
-    [AttributeUsage( AttributeTargets.Field | AttributeTargets.Parameter | AttributeTargets.Property, Inherited = false )]
+    [AttributeUsage( AttributeTargets.Field | AttributeTargets.Parameter | AttributeTargets.Property,
+        Inherited = false )]
 #if SYSTEM_PRIVATE_CORELIB
     public
 #else
     internal
 #endif
-        sealed class AllowNullAttribute : Attribute { }
+        sealed class AllowNullAttribute : Attribute
+    {
+    }
 
     /// <summary>Specifies that null is disallowed as an input even if the corresponding type allows it.</summary>
-    [AttributeUsage( AttributeTargets.Field | AttributeTargets.Parameter | AttributeTargets.Property, Inherited = false )]
+    [AttributeUsage( AttributeTargets.Field | AttributeTargets.Parameter | AttributeTargets.Property,
+        Inherited = false )]
 #if SYSTEM_PRIVATE_CORELIB
     public
 #else
     internal
 #endif
-        sealed class DisallowNullAttribute : Attribute { }
+        sealed class DisallowNullAttribute : Attribute
+    {
+    }
 
     /// <summary>Specifies that an output may be null even if the corresponding type disallows it.</summary>
-    [AttributeUsage( AttributeTargets.Field | AttributeTargets.Parameter | AttributeTargets.Property | AttributeTargets.ReturnValue, Inherited = false )]
+    [AttributeUsage(
+        AttributeTargets.Field | AttributeTargets.Parameter | AttributeTargets.Property | AttributeTargets.ReturnValue,
+        Inherited = false )]
 #if SYSTEM_PRIVATE_CORELIB
     public
 #else
     internal
 #endif
-        sealed class MaybeNullAttribute : Attribute { }
+        sealed class MaybeNullAttribute : Attribute
+    {
+    }
 
     /// <summary>Specifies that an output will not be null even if the corresponding type allows it. Specifies that an input argument was not null when the call returns.</summary>
-    [AttributeUsage( AttributeTargets.Field | AttributeTargets.Parameter | AttributeTargets.Property | AttributeTargets.ReturnValue, Inherited = false )]
+    [AttributeUsage(
+        AttributeTargets.Field | AttributeTargets.Parameter | AttributeTargets.Property | AttributeTargets.ReturnValue,
+        Inherited = false )]
 #if SYSTEM_PRIVATE_CORELIB
     public
 #else
     internal
 #endif
-        sealed class NotNullAttribute : Attribute { }
+        sealed class NotNullAttribute : Attribute
+    {
+    }
 
     /// <summary>Specifies that when a method returns <see cref="ReturnValue"/>, the parameter may be null even if the corresponding type disallows it.</summary>
     [AttributeUsage( AttributeTargets.Parameter, Inherited = false )]
@@ -89,7 +103,8 @@ namespace System.Diagnostics.CodeAnalysis
     }
 
     /// <summary>Specifies that the output will be non-null if the named parameter is non-null.</summary>
-    [AttributeUsage( AttributeTargets.Parameter | AttributeTargets.Property | AttributeTargets.ReturnValue, AllowMultiple = true, Inherited = false )]
+    [AttributeUsage( AttributeTargets.Parameter | AttributeTargets.Property | AttributeTargets.ReturnValue,
+        AllowMultiple = true, Inherited = false )]
 #if SYSTEM_PRIVATE_CORELIB
     public
 #else
@@ -117,7 +132,9 @@ namespace System.Diagnostics.CodeAnalysis
 #else
     internal
 #endif
-        sealed class DoesNotReturnAttribute : Attribute { }
+        sealed class DoesNotReturnAttribute : Attribute
+    {
+    }
 
     /// <summary>Specifies that the method will not return if the associated Boolean parameter is passed the specified value.</summary>
     [AttributeUsage( AttributeTargets.Parameter, Inherited = false )]

@@ -4,10 +4,10 @@
 using PostSharp.Backstage.Extensibility;
 using PostSharp.Backstage.Extensibility.Extensions;
 using PostSharp.Backstage.Licensing.Licenses;
+using PostSharp.Backstage.Logging;
+using PostSharp.Backstage.Utilities;
 using System;
-using System.IO;
 using System.Linq;
-using System.Threading;
 
 namespace PostSharp.Backstage.Licensing.Registration.Evaluation
 {
@@ -32,8 +32,6 @@ namespace PostSharp.Backstage.Licensing.Registration.Evaluation
 
         private readonly IServiceProvider _services;
         private readonly IDateTimeProvider _time;
-        private readonly IStandardLicenseFileLocations _licenseFiles;
-        private readonly IEvaluationLicenseFilesLocations _evaluationLicenseFiles;
         private readonly ILogger? _logger;
 
         /// <summary>
@@ -44,9 +42,7 @@ namespace PostSharp.Backstage.Licensing.Registration.Evaluation
         {
             this._services = services;
             this._time = services.GetRequiredService<IDateTimeProvider>();
-            this._licenseFiles = services.GetRequiredService<IStandardLicenseFileLocations>();
-            this._evaluationLicenseFiles = services.GetRequiredService<IEvaluationLicenseFilesLocations>();
-            this._logger = services.GetOptionalTraceLogger<EvaluationLicenseRegistrar>();
+            this._logger = services.GetLogger<LicensingLogCategory>();
         }
 
         /// <summary>
@@ -57,168 +53,57 @@ namespace PostSharp.Backstage.Licensing.Registration.Evaluation
         /// </returns>
         public bool TryRegisterLicense()
         {
-            if ( !this.IsEvaluationEligible() )
-            {
-                return false;
-            }
-
-            if ( !this.TryRegisterEvaluationLicenseImpl() )
-            {
-                this._logger?.LogTrace(
-                    "Evaluation license registration finished with errors which might be caused by concurrent evaluation license registration. " +
-                    "If a concurrent evaluation license registration has succeeded, it will be used now." );
-            }
-
-            return true;
-        }
-
-        private bool IsEvaluationEligible()
-        {
             void TraceFailure( string message )
             {
-                this._logger?.LogTrace( $"Failed to find the latest trial license: {message}" );
+                this._logger?.Trace?.Log( $"Failed to register evaluation license: {message}" );
             }
 
-            this._logger?.LogTrace( "Checking for trial license eligibility." );
+            this._logger?.Trace?.Log( "Registering evaluation license." );
 
-            try
+
+            using ( MutexHelper.WithGlobalLock( "Evaluation" ) )
             {
-                var evaluationStorage = LicenseFileStorage.OpenOrCreate( this._evaluationLicenseFiles.EvaluationLicenseFile, this._services );
+                var configuration = EvaluatedLicensingConfiguration.OpenOrCreate( this._services );
 
-                if ( evaluationStorage.Licenses.Count == 0 )
+                // If the configuration file contains an evaluation license, this may be a race condition with
+                // another process. In this case, we just pretend we have succeeded.
+                if ( configuration.Licenses.Any( l =>
+                        l.LicenseData is { LicenseType: LicenseType.Evaluation } &&
+                        l.LicenseData.ValidTo >= this._time.Now ) )
                 {
-                    this._logger?.LogTrace( "No trial license found." );
-
                     return true;
                 }
 
-                if ( evaluationStorage.Licenses.Count > 1 )
+                if ( configuration.LastEvaluationStartDate != null )
                 {
-                    TraceFailure( "Invalid count." );
+                    var nextEvaluationMinStartDate =
+                        configuration.LastEvaluationStartDate.Value + NoEvaluationPeriod + EvaluationPeriod;
 
-                    return false;
+                    if ( nextEvaluationMinStartDate >= this._time.Now )
+                    {
+                        this._logger?.Warning?.Log( "You cannot start the evaluation mode at the moment." );
+                        return false;
+                    }
                 }
 
-                var data = evaluationStorage.Licenses.Values.Single();
-
-                if ( data == null )
-                {
-                    TraceFailure( "Invalid data." );
-
-                    return false;
-                }
-
-                if ( data.LicenseType != LicenseType.Evaluation )
-                {
-                    TraceFailure( "Invalid license type." );
-
-                    return false;
-                }
-
-                if ( data.ValidTo == null )
-                {
-                    TraceFailure( "Invalid validity." );
-
-                    return false;
-                }
-
-                if ( data.ValidTo + NoEvaluationPeriod < this._time.Now )
-                {
-                    this._logger?.LogTrace( "Evaluation license registration can be repeated." );
-
-                    return true;
-                }
-                else
-                {
-                    this._logger?.LogTrace( "Evaluation license requested recently." );
-
-                    return false;
-                }
-            }
-            catch ( Exception e )
-            {
-                // We don't want to disclose the evaluation license file path here.
-                TraceFailure( $"{e.GetType()}" );
-
-                return false;
-            }
-        }
-
-        private bool TryRegisterEvaluationLicenseImpl()
-        {
-            void TraceFailure( string message )
-            {
-                this._logger?.LogTrace( $"Failed to register evaluation license: {message}" );
-            }
-
-            this._logger?.LogTrace( "Registering evaluation license." );
-
-            string licenseKey;
-            LicenseRegistrationData data;
-
-            try
-            {
                 var factory = new UnsignedLicenseFactory( this._services );
-                (licenseKey, data) = factory.CreateEvaluationLicense();
+                var (licenseKey, data) = factory.CreateEvaluationLicense();
 
-                var retryCount = 0;
 
-                while ( true )
+                if ( configuration.Licenses.Any( l =>
+                        l.LicenseData is { LicenseType: LicenseType.Evaluation } &&
+                        l.LicenseData.ValidTo >= data.ValidFrom ) )
                 {
-                    try
-                    {
-                        var userStorage = LicenseFileStorage.OpenOrCreate( this._licenseFiles.UserLicenseFile, this._services );
+                    // This may happen when concurrent processes try to register an evaluation license at the same time.
+                    TraceFailure( "A valid evaluation license is registered already." );
 
-                        if ( userStorage.Licenses.Values.Any( l => l != null && l.LicenseType == LicenseType.Evaluation && l.ValidTo >= data.ValidFrom ) )
-                        {
-                            // This may happen when concurrent processes try to register an evaluation license at the same time.
-                            TraceFailure( "A valid evaluation license is registered already." );
-
-                            // We failed to register the license, but there is a valid license already.
-                            return true;
-                        }
-
-                        userStorage.AddLicense( licenseKey, data );
-                        userStorage.Save();
-
-                        break;
-                    }
-                    catch ( IOException e )
-                    {
-                        if ( ++retryCount < 10 )
-                        {
-                            TraceFailure( $"Attempt #1: {e.Message} Retrying." );
-                            Thread.Sleep( 500 );
-                        }
-                        else
-                        {
-                            throw;
-                        }
-                    }
+                    // We failed to register the license, but there is a valid license already.
+                    return true;
                 }
-            }
-            catch ( Exception e )
-            {
-                TraceFailure( e.ToString() );
 
-                return false;
-            }
-
-            // Prevent repetitive evaluation license registration.
-            try
-            {
-                // We overwrite existing storage.
-                var evaluationStorage = LicenseFileStorage.Create( this._evaluationLicenseFiles.EvaluationLicenseFile, this._services );
-                evaluationStorage.AddLicense( licenseKey, data );
-                evaluationStorage.Save();
-            }
-            catch ( Exception e )
-            {
-                // We don't want to disclose the evaluation license file path here.
-                this._logger?.LogTrace( $"Failed to store evaluation license information: {e.GetType()}" );
-
-                // We failed to prevent repetitive evaluation license registration, but the license has been registered already.
-                return true;
+                configuration.AddLicense( licenseKey, data );
+                configuration.LastEvaluationStartDate = this._time.Now;
+                configuration.Save();
             }
 
             return true;

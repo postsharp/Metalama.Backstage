@@ -3,9 +3,9 @@
 
 using Microsoft.Extensions.DependencyInjection;
 using PostSharp.Backstage.Extensibility;
+using PostSharp.Backstage.Logging;
 using PostSharp.Backstage.Testing;
 using PostSharp.Cli.Commands;
-using PostSharp.Cli.Console;
 using PostSharp.Cli.Tests.Console;
 using System;
 using System.CommandLine;
@@ -17,7 +17,7 @@ namespace PostSharp.Cli.Tests.Commands
 {
     public abstract class CommandsTestsBase : TestsBase, ICommandServiceProvider
     {
-        private readonly PostSharpCommand _rootCommand;
+        private readonly TheRootCommand _theRootCommand;
         private readonly ILogger _logger;
         private readonly TestConsole _console;
 
@@ -28,13 +28,14 @@ namespace PostSharp.Cli.Tests.Commands
                 {
                     serviceCollection
                         .AddSingleton<IConsole>( new TestConsole( serviceCollection.ServiceProvider ) )
-                        .AddSingleton<IBackstageDiagnosticSink>( new ConsoleDiagnosticsSink( serviceCollection.ServiceProvider ) );
+                        .AddSingleton<IBackstageDiagnosticSink>(
+                            new ConsoleDiagnosticsSink( serviceCollection.ServiceProvider ) );
 
                     serviceBuilder?.Invoke( serviceCollection );
                 } )
         {
-            this._rootCommand = new PostSharpCommand( this );
-            this._logger = this.Services.GetOptionalTraceLogger<CommandsTestsBase>()!;
+            this._theRootCommand = new TheRootCommand( this );
+            this._logger = this.Services.GetLogger<ConsoleLogCategory>()!;
             this._console = (TestConsole) this.Services.GetRequiredService<IConsole>();
         }
 
@@ -44,8 +45,8 @@ namespace PostSharp.Cli.Tests.Commands
             string expectedError = "",
             int expectedExitCode = 0 )
         {
-            this._logger.LogTrace( $" < {commandLine}" );
-            var exitCode = await this._rootCommand.InvokeAsync( commandLine, this._console );
+            this._logger.Trace?.Log( $" < {commandLine}" );
+            var exitCode = await this._theRootCommand.InvokeAsync( commandLine, this._console );
             Assert.Equal( expectedOutput, this._console.Out.ToString() );
             Assert.Equal( expectedError, this._console.Error.ToString() );
             Assert.Equal( expectedExitCode, exitCode );

@@ -12,7 +12,8 @@ namespace PostSharp.Backstage.Extensibility
     internal class StandardDirectories : IStandardDirectories
     {
         /// <inheritdoc />
-        public string ApplicationDataDirectory { get; } = Path.Combine( Environment.GetFolderPath( Environment.SpecialFolder.ApplicationData ), ".postsharp" );
+        public string ApplicationDataDirectory { get; } =
+            Path.Combine( Environment.GetFolderPath( Environment.SpecialFolder.ApplicationData ), ".postsharp" );
 
         /// <inheritdoc />
         public string TempDirectory { get; } = Path.Combine( Path.GetTempPath(), "PostSharp" );

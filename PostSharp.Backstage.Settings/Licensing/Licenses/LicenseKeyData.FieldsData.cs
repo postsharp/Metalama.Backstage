@@ -49,7 +49,9 @@ namespace PostSharp.Backstage.Licensing.Licenses
             {
                 if ( this._product == LicensedProduct.PostSharp30 )
                 {
-                    return this._licenseType == LicenseType.Professional ? LicensedProduct.Framework : LicensedProduct.Ultimate;
+                    return this._licenseType == LicenseType.Professional
+                        ? LicensedProduct.Framework
+                        : LicensedProduct.Ultimate;
                 }
 
                 return this._product;
@@ -82,8 +84,9 @@ namespace PostSharp.Backstage.Licensing.Licenses
                 {
 #pragma warning disable CS0618 // Type or member is obsolete
                     LicenseType.Site or LicenseType.Global or LicenseType.Anonymous => false,
-#pragma warning restore CS0618                      // Type or member is obsolete
-                    LicenseType.Evaluation => true, // We want to audit evaluation licenses so we know how people are using the product during evaluation.
+#pragma warning restore CS0618 // Type or member is obsolete
+                    LicenseType
+                        .Evaluation => true, // We want to audit evaluation licenses so we know how people are using the product during evaluation.
                     _ => (bool?) this.GetFieldValue( LicenseFieldIndex.Auditable ) ?? true
                 };
 
@@ -214,7 +217,8 @@ namespace PostSharp.Backstage.Licensing.Licenses
                 {
                     const int lastLicenseIdBefore50Rtm = 100802;
 
-                    var isExplicitlyLicenseServerEligible = (bool?) this.GetFieldValue( LicenseFieldIndex.LicenseServerEligible );
+                    var isExplicitlyLicenseServerEligible =
+                        (bool?) this.GetFieldValue( LicenseFieldIndex.LicenseServerEligible );
 
                     if ( isExplicitlyLicenseServerEligible != null )
                     {
@@ -226,14 +230,16 @@ namespace PostSharp.Backstage.Licensing.Licenses
                     }
                     else
                     {
-                        this._isLicenseServerEligible = this.LicenseId > 0 && this.LicenseId <= lastLicenseIdBefore50Rtm;
+                        this._isLicenseServerEligible =
+                            this.LicenseId > 0 && this.LicenseId <= lastLicenseIdBefore50Rtm;
                     }
                 }
 
                 return this._isLicenseServerEligible.Value;
             }
 
-            set => this.SetFieldValue<LicenseFieldBool>( LicenseFieldIndex.LicenseServerEligible, this._isLicenseServerEligible = value );
+            set => this.SetFieldValue<LicenseFieldBool>( LicenseFieldIndex.LicenseServerEligible,
+                this._isLicenseServerEligible = value );
         }
 
         private Version? _minPostSharpVersion;
@@ -246,13 +252,15 @@ namespace PostSharp.Backstage.Licensing.Licenses
             {
                 if ( this._minPostSharpVersion == null )
                 {
-                    var minPostSharpVersionString = (string?) this.GetFieldValue( LicenseFieldIndex.MinPostSharpVersion );
+                    var minPostSharpVersionString =
+                        (string?) this.GetFieldValue( LicenseFieldIndex.MinPostSharpVersion );
 
                     if ( minPostSharpVersionString != null )
                     {
                         this._minPostSharpVersion = System.Version.Parse( minPostSharpVersionString );
                     }
-                    else if ( this.LicenseType == LicenseType.PerUsage || this.Product == LicensedProduct.CachingLibrary )
+                    else if ( this.LicenseType == LicenseType.PerUsage ||
+                              this.Product == LicensedProduct.CachingLibrary )
                     {
                         this._minPostSharpVersion = new Version( 6, 6, 0 );
                     }

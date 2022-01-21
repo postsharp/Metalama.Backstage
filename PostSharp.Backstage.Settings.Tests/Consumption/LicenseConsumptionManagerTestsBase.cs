@@ -33,7 +33,8 @@ namespace PostSharp.Backstage.Licensing.Tests.Consumption
                     serviceBuilder?.Invoke( serviceCollection );
                 } )
         {
-            this.AutoRegistrar = (TestFirstRunLicenseActivator) this.Services.GetRequiredService<IFirstRunLicenseActivator>();
+            this.AutoRegistrar =
+                (TestFirstRunLicenseActivator) this.Services.GetRequiredService<IFirstRunLicenseActivator>();
         }
 
         private protected ILicenseConsumer CreateConsumer(
@@ -94,7 +95,7 @@ namespace PostSharp.Backstage.Licensing.Tests.Consumption
             {
                 var actualCanConsume = manager.CanConsumeFeatures( consumer, requiredFeatures );
                 this.Diagnostics.AssertClean();
-                consumer.Diagnostics.AssertClean();
+                consumer.DiagnosticsSink.AssertClean();
                 Assert.Equal( expectedCanConsume, actualCanConsume );
             }
 
@@ -106,15 +107,15 @@ namespace PostSharp.Backstage.Licensing.Tests.Consumption
 
                 if ( expectedCanConsume )
                 {
-                    consumer.Diagnostics.AssertClean();
+                    consumer.DiagnosticsSink.AssertClean();
                 }
                 else
                 {
-                    consumer.Diagnostics.AssertNoWarnings();
+                    consumer.DiagnosticsSink.AssertNoWarnings();
 
-                    consumer.Diagnostics.AssertSingleError(
+                    consumer.DiagnosticsSink.AssertSingleError(
                         "No license available for feature(s) Metalama required by 'Bar' type.",
-                        consumer.DiagnosticsLocation );
+                        consumer.DiagnosticLocation );
                 }
             }
 

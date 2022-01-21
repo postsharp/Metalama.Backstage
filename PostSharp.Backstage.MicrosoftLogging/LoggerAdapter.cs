@@ -2,9 +2,9 @@
 // This project is not open source. Please see the LICENSE.md file in the repository root for details.
 
 using Microsoft.Extensions.Logging;
+using PostSharp.Backstage.Logging;
 using IMicrosoftLogger = Microsoft.Extensions.Logging.ILogger;
-using IPostSharpLogger = PostSharp.Backstage.Extensibility.ILogger;
-using PostSharpLogLevel = PostSharp.Backstage.Extensibility.LogLevel;
+using IPostSharpLogger = PostSharp.Backstage.Logging.ILogger;
 
 // ReSharper disable TemplateIsNotCompileTimeConstantProblem
 
@@ -12,17 +12,51 @@ namespace PostSharp.Backstage.MicrosoftLogging
 {
     internal class LoggerAdapter : IPostSharpLogger
     {
+        private readonly IMicrosoftLogger _logger;
+
         public LoggerAdapter( IMicrosoftLogger logger )
         {
             this._logger = logger;
+            this.Error = this.CreateLogWriter( LogLevel.Error );
+            this.Info = this.CreateLogWriter( LogLevel.Information );
+            this.Trace = this.CreateLogWriter( LogLevel.Trace );
+            this.Warning = this.CreateLogWriter( LogLevel.Warning );
         }
 
-        private readonly IMicrosoftLogger _logger;
+        private LogWriter? CreateLogWriter( LogLevel logLevel )
+        {
+            if ( this._logger.IsEnabled( logLevel ) )
+            {
+                return new LogWriter( this._logger, logLevel );
+            }
+            else
+            {
+                return null;
+            }
+        }
 
-        public bool IsEnabled( PostSharpLogLevel logLevel ) => this._logger.IsEnabled( logLevel.Convert() );
 
-        public void LogTrace( string message ) => this._logger.LogTrace( message );
+        public ILogWriter? Trace { get; }
+        public ILogWriter? Info { get; }
+        public ILogWriter? Warning { get; }
+        public ILogWriter? Error { get; }
 
-        public void LogInformation( string message ) => this._logger.LogInformation( message );
+
+        private class LogWriter : ILogWriter
+        {
+            private readonly IMicrosoftLogger _logger;
+            private readonly LogLevel _logLevel;
+
+            public LogWriter( IMicrosoftLogger logger, LogLevel logLevel )
+            {
+                this._logger = logger;
+                this._logLevel = logLevel;
+            }
+
+            public void Log( string message )
+            {
+                this._logger.Log( this._logLevel, message );
+            }
+        }
     }
 }

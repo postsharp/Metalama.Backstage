@@ -13,8 +13,11 @@ namespace PostSharp.Backstage.Testing.Services
 {
     public class TestFileSystem : IFileSystem
     {
-        private readonly Dictionary<string, (ManualResetEventSlim Callee, ManualResetEventSlim Caller)> _blockedReads = new();
-        private readonly Dictionary<string, (ManualResetEventSlim Callee, ManualResetEventSlim Caller)> _blockedWrites = new();
+        private readonly Dictionary<string, (ManualResetEventSlim Callee, ManualResetEventSlim Caller)> _blockedReads =
+            new();
+
+        private readonly Dictionary<string, (ManualResetEventSlim Callee, ManualResetEventSlim Caller)> _blockedWrites =
+            new();
 
         private readonly List<string> _failedAccesses = new();
 
@@ -40,7 +43,8 @@ namespace PostSharp.Backstage.Testing.Services
 
         public void Unblock( string path )
         {
-            void UnblockEvents( Dictionary<string, (ManualResetEventSlim Callee, ManualResetEventSlim Caller)> blockingEvents )
+            void UnblockEvents(
+                Dictionary<string, (ManualResetEventSlim Callee, ManualResetEventSlim Caller)> blockingEvents )
             {
                 if ( blockingEvents.TryGetValue( path, out var events ) )
                 {
@@ -82,7 +86,8 @@ namespace PostSharp.Backstage.Testing.Services
             return this.Mock.Directory.Exists( path );
         }
 
-        public IEnumerable<string> EnumerateFiles( string path, string? searchPattern = null, SearchOption? searchOption = null )
+        public IEnumerable<string> EnumerateFiles( string path, string? searchPattern = null,
+            SearchOption? searchOption = null )
         {
             return this.GetFiles( path, searchPattern, searchOption );
         }
@@ -108,7 +113,8 @@ namespace PostSharp.Backstage.Testing.Services
             }
         }
 
-        public IEnumerable<string> EnumerateDirectories( string path, string? searchPattern = null, SearchOption? searchOption = null )
+        public IEnumerable<string> EnumerateDirectories( string path, string? searchPattern = null,
+            SearchOption? searchOption = null )
         {
             return this.GetDirectories( path, searchPattern, searchOption );
         }

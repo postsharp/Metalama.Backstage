@@ -21,7 +21,8 @@ namespace PostSharp.Cli.Tests.Commands.Licensing
         public async Task TrialRegistersInEmptyEnvironment()
         {
             await this.TestCommandAsync( "license register trial", "" );
-            await this.TestCommandAsync( "license list", string.Format( CultureInfo.InvariantCulture, TestLicenses.EvaluationFormat, 1 ) );
+            await this.TestCommandAsync( "license list",
+                string.Format( CultureInfo.InvariantCulture, TestLicenses.EvaluationFormat, 1 ) );
         }
 
         [Fact]
@@ -37,7 +38,8 @@ namespace PostSharp.Cli.Tests.Commands.Licensing
                 "Cannot start the trial period. Use --verbose (-v) flag for details." + Environment.NewLine,
                 1 );
 
-            await this.TestCommandAsync( "license list", string.Format( CultureInfo.InvariantCulture, TestLicenses.EvaluationFormat, 1 ) );
+            await this.TestCommandAsync( "license list",
+                string.Format( CultureInfo.InvariantCulture, TestLicenses.EvaluationFormat, 1 ) );
         }
 
         [Fact]

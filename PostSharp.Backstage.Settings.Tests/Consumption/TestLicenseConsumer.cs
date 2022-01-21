@@ -14,16 +14,17 @@ namespace PostSharp.Backstage.Licensing.Tests.Consumption
 
         public string TargetTypeName { get; }
 
-        public IBackstageDiagnosticSink Diagnostics { get; }
+        public IBackstageDiagnosticSink DiagnosticsSink { get; }
 
-        public IDiagnosticsLocation DiagnosticsLocation { get; }
+        public IDiagnosticLocation DiagnosticLocation { get; }
 
-        public TestLicenseConsumer( string targetTypeNamespace, string targetTypeName, string diagnosticsLocationDescription, IServiceProvider services )
+        public TestLicenseConsumer( string targetTypeNamespace, string targetTypeName,
+            string diagnosticsLocationDescription, IServiceProvider services )
         {
             this.TargetTypeNamespace = targetTypeNamespace;
             this.TargetTypeName = targetTypeName;
-            this.Diagnostics = new TestDiagnosticsSink( services );
-            this.DiagnosticsLocation = new TestDiagnosticsLocation( diagnosticsLocationDescription );
+            this.DiagnosticsSink = new TestDiagnosticsSink( services );
+            this.DiagnosticLocation = new TestDiagnosticLocation( diagnosticsLocationDescription );
         }
     }
 }

@@ -11,7 +11,9 @@ namespace PostSharp.Cli.Tests.Commands.Licensing
     public class RegisterCommandTests : LicensingCommandsTestsBase
     {
         public RegisterCommandTests( ITestOutputHelper logger )
-            : base( logger ) { }
+            : base( logger )
+        {
+        }
 
         [Fact]
         public async Task CleanEnvironmentListsNoLicenses()
@@ -23,7 +25,8 @@ namespace PostSharp.Cli.Tests.Commands.Licensing
         public async Task OneLicenseKeyListedAfterRegistration()
         {
             await this.TestCommandAsync( $"license register {TestLicenses.Key1}", "" );
-            await this.TestCommandAsync( "license list", string.Format( CultureInfo.InvariantCulture, TestLicenses.Format1, 1 ) );
+            await this.TestCommandAsync( "license list",
+                string.Format( CultureInfo.InvariantCulture, TestLicenses.Format1, 1 ) );
         }
 
         [Fact]
@@ -35,11 +38,9 @@ namespace PostSharp.Cli.Tests.Commands.Licensing
 
             await this.TestCommandAsync(
                 "license list",
-                string.Format( CultureInfo.InvariantCulture, TestLicenses.Format1, 1 ) + string.Format( CultureInfo.InvariantCulture, TestLicenses.Format2, 2 )
-                                                                                       + string.Format(
-                                                                                           CultureInfo.InvariantCulture,
-                                                                                           TestLicenses.Format3,
-                                                                                           3 ) );
+                string.Format( CultureInfo.InvariantCulture, TestLicenses.Format1, 1 )
+                + string.Format( CultureInfo.InvariantCulture, TestLicenses.Format2, 2 )
+                + string.Format( CultureInfo.InvariantCulture, TestLicenses.Format3, 3 ) );
         }
     }
 }

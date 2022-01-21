@@ -2,6 +2,7 @@
 // This project is not open source. Please see the LICENSE.md file in the repository root for details.
 
 using PostSharp.Backstage.Extensibility;
+using PostSharp.Backstage.Logging;
 using System;
 using System.CommandLine;
 using System.CommandLine.IO;
@@ -27,7 +28,7 @@ namespace PostSharp.Cli.Tests.Console
 
         public TestConsole( IServiceProvider services )
         {
-            var logger = services.GetOptionalTraceLogger<TestConsole>()!;
+            var logger = services.GetLogger<ConsoleLogCategory>()!;
             this.Out = new TestStreamWriter( logger, "o>" );
             this.Error = new TestStreamWriter( logger, "e>" );
         }
@@ -61,7 +62,7 @@ namespace PostSharp.Cli.Tests.Console
                     var traceMessage = this._line.ToString();
                     this._line.Clear();
                     traceMessage = traceMessage.Substring( 0, traceMessage.Length - Environment.NewLine.Length );
-                    this._logger.LogTrace( $"{this._tracePrefix} {traceMessage}" );
+                    this._logger.Trace?.Log( $"{this._tracePrefix} {traceMessage}" );
                 }
             }
 

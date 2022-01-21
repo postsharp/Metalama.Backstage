@@ -15,7 +15,7 @@ namespace PostSharp.Backstage.Licensing.Licenses
                 licenseKeyData.LicenseType,
                 licenseKeyData.LicensedFeatures,
                 licenseKeyData.Namespace,
-                $"{licenseKeyData.ProductName} {licenseKeyData.LicenseType.GetLicenseTypeName()} ID {licenseKeyData.LicenseUniqueId}" );
+                $"{licenseKeyData.ProductName} {licenseKeyData.LicenseType.GetLicenseTypeName()} ID {licenseKeyData.LicenseUniqueId}");
 
             return data;
         }
@@ -36,7 +36,7 @@ namespace PostSharp.Backstage.Licensing.Licenses
                 !licenseKeyData.ValidTo.HasValue,
                 licenseKeyData.SubscriptionEndDate,
                 licenseKeyData.Auditable,
-                licenseKeyData.LicenseServerEligible );
+                licenseKeyData.LicenseServerEligible);
 
             return data;
         }
