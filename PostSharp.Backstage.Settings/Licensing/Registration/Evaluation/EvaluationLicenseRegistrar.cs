@@ -66,9 +66,10 @@ namespace PostSharp.Backstage.Licensing.Registration.Evaluation
 
                 // If the configuration file contains an evaluation license, this may be a race condition with
                 // another process. In this case, we just pretend we have succeeded.
-                if ( configuration.Licenses.Any( l =>
-                        l.LicenseData is { LicenseType: LicenseType.Evaluation } &&
-                        l.LicenseData.ValidTo >= this._time.Now ) )
+                if ( configuration.Licenses.Any(
+                        l =>
+                            l.LicenseData is { LicenseType: LicenseType.Evaluation } &&
+                            l.LicenseData.ValidTo >= this._time.Now ) )
                 {
                     return true;
                 }
@@ -81,6 +82,7 @@ namespace PostSharp.Backstage.Licensing.Registration.Evaluation
                     if ( nextEvaluationMinStartDate >= this._time.Now )
                     {
                         this._logger?.Warning?.Log( "You cannot start the evaluation mode at the moment." );
+
                         return false;
                     }
                 }
@@ -88,9 +90,10 @@ namespace PostSharp.Backstage.Licensing.Registration.Evaluation
                 var factory = new UnsignedLicenseFactory( this._services );
                 var (licenseKey, data) = factory.CreateEvaluationLicense();
 
-                if ( configuration.Licenses.Any( l =>
-                        l.LicenseData is { LicenseType: LicenseType.Evaluation } &&
-                        l.LicenseData.ValidTo >= data.ValidFrom ) )
+                if ( configuration.Licenses.Any(
+                        l =>
+                            l.LicenseData is { LicenseType: LicenseType.Evaluation } &&
+                            l.LicenseData.ValidTo >= data.ValidFrom ) )
                 {
                     // This may happen when concurrent processes try to register an evaluation license at the same time.
                     TraceFailure( "A valid evaluation license is registered already." );

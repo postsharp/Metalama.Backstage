@@ -33,7 +33,6 @@ namespace PostSharp.Backstage.Licensing.Licenses
         /// <returns>
         /// <c>true</c> if the object represents a consistent license.
         /// </returns>
-        bool TryGetLicenseRegistrationData(
-            [MaybeNullWhen( false )] out LicenseRegistrationData licenseRegistrationData );
+        bool TryGetLicenseRegistrationData( [MaybeNullWhen( false )] out LicenseRegistrationData licenseRegistrationData );
     }
 }

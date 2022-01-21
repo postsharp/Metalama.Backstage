@@ -30,8 +30,7 @@ namespace PostSharp.Backstage.Testing.Services
 
         private void Trace( string verbosity, string message, IDiagnosticLocation? location )
         {
-            this._logger.Trace?.Log(
-                $"Diagnostic sink '{this.Name}' reported '{verbosity}' at '{location?.ToString() ?? "unknown"}': {message}" );
+            this._logger.Trace?.Log( $"Diagnostic sink '{this.Name}' reported '{verbosity}' at '{location?.ToString() ?? "unknown"}': {message}" );
         }
 
         public void ReportWarning( string message, IDiagnosticLocation? location = null )
@@ -46,8 +45,7 @@ namespace PostSharp.Backstage.Testing.Services
             this._errors.Add( (message, location) );
         }
 
-        private static IEnumerable<string> DiagnosticsToString(
-            IEnumerable<(string Message, IDiagnosticLocation? Location)> diagnostics )
+        private static IEnumerable<string> DiagnosticsToString( IEnumerable<(string Message, IDiagnosticLocation? Location)> diagnostics )
         {
             return diagnostics.Select( d => $"{d.Message} at {d.Location?.ToString() ?? "unknown"}" );
         }
@@ -56,9 +54,10 @@ namespace PostSharp.Backstage.Testing.Services
         {
             if ( this._warnings.Count != 0 )
             {
-                throw new InvalidOperationException( string.Join( 
-                    Environment.NewLine,
-                    DiagnosticsToString( this._warnings ).Prepend( "Warnings:" ) ) );
+                throw new InvalidOperationException(
+                    string.Join(
+                        Environment.NewLine,
+                        DiagnosticsToString( this._warnings ).Prepend( "Warnings:" ) ) );
             }
         }
 
@@ -66,9 +65,10 @@ namespace PostSharp.Backstage.Testing.Services
         {
             if ( this._errors.Count != 0 )
             {
-                throw new InvalidOperationException( string.Join( 
-                    Environment.NewLine,
-                    DiagnosticsToString( this._errors ).Prepend( "Errors:" ) ) );
+                throw new InvalidOperationException(
+                    string.Join(
+                        Environment.NewLine,
+                        DiagnosticsToString( this._errors ).Prepend( "Errors:" ) ) );
             }
         }
 
@@ -79,7 +79,8 @@ namespace PostSharp.Backstage.Testing.Services
                 throw new InvalidOperationException(
                     string.Join(
                         Environment.NewLine,
-                        DiagnosticsToString( this._warnings ).Prepend( "Warnings:" )
+                        DiagnosticsToString( this._warnings )
+                            .Prepend( "Warnings:" )
                             .Union( DiagnosticsToString( this._errors ).Prepend( "Errors:" ) ) ) );
             }
             else

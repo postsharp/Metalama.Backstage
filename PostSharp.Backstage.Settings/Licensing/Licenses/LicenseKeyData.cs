@@ -18,7 +18,7 @@ namespace PostSharp.Backstage.Licensing.Licenses
         /// should have the <see cref="MinPostSharpVersion" />
         /// set to <see cref="MinPostSharpVersionValidationRemovedPostSharpVersion" />.
         /// </summary>
-        public static readonly Version MinPostSharpVersionValidationRemovedPostSharpVersion = new(6, 9, 3);
+        public static readonly Version MinPostSharpVersionValidationRemovedPostSharpVersion = new( 6, 9, 3 );
 
         public bool RequiresSignature
         {
@@ -47,8 +47,7 @@ namespace PostSharp.Backstage.Licensing.Licenses
                 : this.LicenseId.ToString( CultureInfo.InvariantCulture );
 
         // TODO in Metalama
-        public bool RequiresWatermark =>
-            this.LicenseType == LicenseType.Evaluation || this.LicenseType == LicenseType.Academic;
+        public bool RequiresWatermark => this.LicenseType == LicenseType.Evaluation || this.LicenseType == LicenseType.Academic;
 
         /// <summary>
         /// Gets the licensed features provided by this license.

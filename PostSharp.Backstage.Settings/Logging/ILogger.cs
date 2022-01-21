@@ -8,9 +8,9 @@ namespace PostSharp.Backstage.Logging
         ILogWriter? Trace { get; }
 
         ILogWriter? Info { get; }
-       
+
         ILogWriter? Warning { get; }
-       
+
         ILogWriter? Error { get; }
     }
 }

@@ -10,28 +10,18 @@ namespace PostSharp.Backstage.Testing.Services
     public class MockFileDataEx : MockFileData
     {
         public MockFileDataEx( string textContents )
-            : base( textContents )
-        {
-        }
+            : base( textContents ) { }
 
         public MockFileDataEx( byte[] contents )
-            : base( contents )
-        {
-        }
+            : base( contents ) { }
 
         public MockFileDataEx( MockFileData template )
-            : base( template )
-        {
-        }
+            : base( template ) { }
 
         public MockFileDataEx( string textContents, Encoding encoding )
-            : base( textContents, encoding )
-        {
-        }
+            : base( textContents, encoding ) { }
 
         public MockFileDataEx( params string[] content )
-            : this( string.Join( Environment.NewLine, content ) )
-        {
-        }
+            : this( string.Join( Environment.NewLine, content ) ) { }
     }
 }

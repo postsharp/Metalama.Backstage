@@ -39,8 +39,7 @@ namespace PostSharp.Cli
 
             serviceProviderBuilder
                 .AddSingleton<IConsole>( console )
-                .AddSingleton<IBackstageDiagnosticSink>(
-                    new ConsoleDiagnosticsSink( serviceProviderBuilder.ServiceProvider ) )
+                .AddSingleton<IBackstageDiagnosticSink>( new ConsoleDiagnosticsSink( serviceProviderBuilder.ServiceProvider ) )
                 .AddCurrentDateTimeProvider()
                 .AddFileSystem()
                 .AddStandardDirectories();

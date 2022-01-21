@@ -14,8 +14,6 @@ namespace PostSharp.Cli.Tests.Commands.Licensing
             Action<ServiceProviderBuilder>? serviceBuilder = null )
             : base(
                 logger,
-                serviceCollection => serviceBuilder?.Invoke( serviceCollection ) )
-        {
-        }
+                serviceCollection => serviceBuilder?.Invoke( serviceCollection ) ) { }
     }
 }

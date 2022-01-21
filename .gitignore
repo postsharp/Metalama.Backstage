@@ -375,3 +375,4 @@ FodyWeavers.xsd
 **/inspectcode.xml
 /eng/BackstageVersion.props
 /PostSharp.Backstage.Settings.Import.props
+/eng/tools

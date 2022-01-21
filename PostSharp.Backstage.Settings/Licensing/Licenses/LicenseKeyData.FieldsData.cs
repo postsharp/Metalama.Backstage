@@ -238,9 +238,10 @@ namespace PostSharp.Backstage.Licensing.Licenses
                 return this._isLicenseServerEligible.Value;
             }
 
-            set => this.SetFieldValue<LicenseFieldBool>( 
-                LicenseFieldIndex.LicenseServerEligible,
-                this._isLicenseServerEligible = value );
+            set
+                => this.SetFieldValue<LicenseFieldBool>(
+                    LicenseFieldIndex.LicenseServerEligible,
+                    this._isLicenseServerEligible = value );
         }
 
         private Version? _minPostSharpVersion;

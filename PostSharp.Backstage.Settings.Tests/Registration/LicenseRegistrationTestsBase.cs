@@ -17,16 +17,15 @@ namespace PostSharp.Backstage.Licensing.Tests.Registration
             Action<ServiceProviderBuilder>? serviceBuilder = null )
             : base(
                 logger,
-                serviceCollection => serviceBuilder?.Invoke( serviceCollection ) )
-        {
-        }
+                serviceCollection => serviceBuilder?.Invoke( serviceCollection ) ) { }
 
         protected string[] ReadStoredLicenseStrings() => LicensingConfiguration.Load( this.Services ).Licenses;
 
         protected void SetStoredLicenseStrings( params string[] licenseStrings )
         {
             var configuration = new LicensingConfiguration { Licenses = licenseStrings };
-            this.FileSystem.Mock.AddFile( 
+
+            this.FileSystem.Mock.AddFile(
                 this.LicensingConfigurationFile,
                 new MockFileDataEx( configuration.ToJson() ) );
         }

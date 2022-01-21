@@ -11,9 +11,7 @@ namespace PostSharp.Backstage.Licensing.Tests.Licenses
     public class LicenseFactoryTests : LicensingTestsBase
     {
         public LicenseFactoryTests( ITestOutputHelper logger )
-            : base( logger )
-        {
-        }
+            : base( logger ) { }
 
         [Fact]
         public void NullLicenseStringFails()

@@ -41,14 +41,10 @@ public class LoggingConfiguration : ConfigurationFile
             [LoggingProcessKind.RoslynCodeAnalysisService] = false
         };
 
-        this.Categories = new Dictionary<string, bool>( StringComparer.OrdinalIgnoreCase )
-        {
-            ["*"] = false, ["Licensing"] = false
-        };
+        this.Categories = new Dictionary<string, bool>( StringComparer.OrdinalIgnoreCase ) { ["*"] = false, ["Licensing"] = false };
     }
 
-    public static LoggingConfiguration Load( IServiceProvider services ) =>
-        Load<LoggingConfiguration>( services );
+    public static LoggingConfiguration Load( IServiceProvider services ) => Load<LoggingConfiguration>( services );
 
     public override string FileName => "logging.json";
 }

@@ -25,8 +25,7 @@ namespace PostSharp.Backstage.Extensibility
         /// </summary>
         /// <param name="serviceProviderBuilder">The <see cref="ServiceProviderBuilder" /> to add services to.</param>
         /// <returns>The <see cref="ServiceProviderBuilder" /> so that additional calls can be chained.</returns>
-        public static ServiceProviderBuilder AddCurrentDateTimeProvider(
-            this ServiceProviderBuilder serviceProviderBuilder )
+        public static ServiceProviderBuilder AddCurrentDateTimeProvider( this ServiceProviderBuilder serviceProviderBuilder )
             => serviceProviderBuilder.AddSingleton<IDateTimeProvider>( new CurrentDateTimeProvider() );
 
         /// <summary>
@@ -42,8 +41,7 @@ namespace PostSharp.Backstage.Extensibility
         /// </summary>
         /// <param name="serviceProviderBuilder">The <see cref="ServiceProviderBuilder" /> to add services to.</param>
         /// <returns>The <see cref="ServiceProviderBuilder" /> so that additional calls can be chained.</returns>
-        public static ServiceProviderBuilder AddStandardDirectories(
-            this ServiceProviderBuilder serviceProviderBuilder )
+        public static ServiceProviderBuilder AddStandardDirectories( this ServiceProviderBuilder serviceProviderBuilder )
             => serviceProviderBuilder.AddSingleton<IStandardDirectories>( new StandardDirectories() );
     }
 }

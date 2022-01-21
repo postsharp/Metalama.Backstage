@@ -18,8 +18,7 @@ public class LicensingConfiguration : ConfigurationFile
     [JsonProperty( "licenses" )]
     public string[] Licenses { get; set; } = Array.Empty<string>();
 
-    public static LicensingConfiguration Load( IServiceProvider services ) =>
-        Load<LicensingConfiguration>( services );
+    public static LicensingConfiguration Load( IServiceProvider services ) => Load<LicensingConfiguration>( services );
 
     public override string FileName => "licensing.json";
 }

@@ -20,12 +20,13 @@ internal class LogWriter : ILogWriter
     {
         // ReSharper disable once InconsistentlySynchronizedField
         var writer = this._logger.LoggerFactory.TextWriter;
+
         if ( writer != null )
         {
             lock ( writer )
             {
-                writer.WriteLine( FormattableString.Invariant(
-                    $"{DateTime.Now} {this._logLevel.ToString().ToUpperInvariant()} {this._logger.Category}: {message}" ) );
+                writer.WriteLine(
+                    FormattableString.Invariant( $"{DateTime.Now} {this._logLevel.ToString().ToUpperInvariant()} {this._logger.Category}: {message}" ) );
             }
         }
     }

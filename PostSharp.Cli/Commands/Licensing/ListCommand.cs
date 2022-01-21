@@ -24,6 +24,7 @@ namespace PostSharp.Cli.Commands.Licensing
             var storage = EvaluatedLicensingConfiguration.OpenOrCreate( services );
 
             var index = 1;
+
             foreach ( var license in storage.Licenses )
             {
                 this.WriteLicense( console.Out, index, license.LicenseString, license.LicenseData );

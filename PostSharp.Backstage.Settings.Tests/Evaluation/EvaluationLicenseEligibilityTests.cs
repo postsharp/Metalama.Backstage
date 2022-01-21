@@ -11,9 +11,7 @@ namespace PostSharp.Backstage.Licensing.Tests.Evaluation
     public class EvaluationLicenseEligibilityTests : EvaluationLicenseRegistrationTestsBase
     {
         public EvaluationLicenseEligibilityTests( ITestOutputHelper logger )
-            : base( logger )
-        {
-        }
+            : base( logger ) { }
 
         [Fact]
         public void EvaluationLicenseRegistersInCleanEnvironment()
@@ -62,8 +60,7 @@ namespace PostSharp.Backstage.Licensing.Tests.Evaluation
         [Fact]
         public void EvaluationLicenseRegistrationAtTheEndOfNoEvaluationPeriodFails()
         {
-            this.TestRepetitiveRegistration(
-                EvaluationLicenseRegistrar.EvaluationPeriod + EvaluationLicenseRegistrar.NoEvaluationPeriod, false );
+            this.TestRepetitiveRegistration( EvaluationLicenseRegistrar.EvaluationPeriod + EvaluationLicenseRegistrar.NoEvaluationPeriod, false );
         }
 
         [Fact]

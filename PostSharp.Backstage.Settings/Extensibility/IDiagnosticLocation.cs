@@ -6,7 +6,5 @@ namespace PostSharp.Backstage.Extensibility
     /// <summary>
     /// Points to a location related to a diagnostic.
     /// </summary>
-    public interface IDiagnosticLocation
-    {
-    }
+    public interface IDiagnosticLocation { }
 }

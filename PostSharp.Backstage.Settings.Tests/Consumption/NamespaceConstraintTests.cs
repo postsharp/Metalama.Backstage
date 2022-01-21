@@ -8,7 +8,7 @@ namespace PostSharp.Backstage.Licensing.Tests.Consumption
 {
     public class NamespaceConstraintTests
     {
-        private static readonly LicenseNamespaceConstraint _constraint = new("Ns1.Ns2");
+        private static readonly LicenseNamespaceConstraint _constraint = new( "Ns1.Ns2" );
 
         private static void AssertNamespaceConstraint( string? requestedNamespace, bool expectedAllowed )
         {

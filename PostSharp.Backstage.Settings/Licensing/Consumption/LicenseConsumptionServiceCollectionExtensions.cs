@@ -23,8 +23,7 @@ namespace PostSharp.Backstage.Licensing.Consumption
             IEnumerable<ILicenseSource> licenseSources )
         {
             return services
-                .AddSingleton<ILicenseConsumptionManager>(
-                    new LicenseConsumptionManager( services.ServiceProvider, licenseSources ) );
+                .AddSingleton<ILicenseConsumptionManager>( new LicenseConsumptionManager( services.ServiceProvider, licenseSources ) );
         }
 
         /// <summary>
@@ -38,8 +37,7 @@ namespace PostSharp.Backstage.Licensing.Consumption
             params ILicenseSource[] licenseSources )
         {
             return services
-                .AddSingleton<ILicenseConsumptionManager>(
-                    new LicenseConsumptionManager( services.ServiceProvider, licenseSources ) );
+                .AddSingleton<ILicenseConsumptionManager>( new LicenseConsumptionManager( services.ServiceProvider, licenseSources ) );
         }
     }
 }

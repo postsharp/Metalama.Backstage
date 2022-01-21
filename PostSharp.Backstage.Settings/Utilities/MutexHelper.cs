@@ -27,7 +27,7 @@ namespace PostSharp.Backstage.Utilities
         {
             private readonly Mutex _mutex;
 
-            public MutexHandle( Mutex mutex)
+            public MutexHandle( Mutex mutex )
             {
                 this._mutex = mutex;
             }

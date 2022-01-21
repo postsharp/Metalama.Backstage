@@ -7,7 +7,6 @@ namespace PostSharp.Backstage.Utilities
 {
     internal static class HashUtilities
     {
-        public static string HashString( string s ) =>
-            HexHelper.FormatBytes( new MD5Managed().ComputeHash( Encoding.UTF8.GetBytes( s ) ) );
+        public static string HashString( string s ) => HexHelper.FormatBytes( new MD5Managed().ComputeHash( Encoding.UTF8.GetBytes( s ) ) );
     }
 }

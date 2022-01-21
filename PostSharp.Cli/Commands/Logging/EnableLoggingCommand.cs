@@ -8,7 +8,5 @@ internal class EnableLoggingCommand : CommandBase
     public EnableLoggingCommand(
         ICommandServiceProvider commandServiceProvider,
         string name,
-        string? description = null ) : base( commandServiceProvider, name, description )
-    {
-    }
+        string? description = null ) : base( commandServiceProvider, name, description ) { }
 }

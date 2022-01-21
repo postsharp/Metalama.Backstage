@@ -13,7 +13,7 @@ namespace PostSharp.Backstage.Licensing.Tests.Evaluation
 {
     public abstract class EvaluationLicenseRegistrationTestsBase : LicenseRegistrationTestsBase
     {
-        protected static readonly DateTime TestStart = new(2020, 1, 1);
+        protected static readonly DateTime TestStart = new( 2020, 1, 1 );
 
         private protected EvaluationLicenseRegistrar Registrar { get; }
 
@@ -30,7 +30,8 @@ namespace PostSharp.Backstage.Licensing.Tests.Evaluation
         protected void SetLicenses( params string[] licenses )
         {
             LicensingConfiguration configuration = new() { Licenses = licenses };
-            this.FileSystem.Mock.AddFile( 
+
+            this.FileSystem.Mock.AddFile(
                 this.LicensingConfigurationFile,
                 new MockFileDataEx( configuration.ToJson() ) );
         }

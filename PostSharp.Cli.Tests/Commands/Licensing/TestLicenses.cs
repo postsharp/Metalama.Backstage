@@ -66,10 +66,10 @@ namespace PostSharp.Cli.Tests.Commands.Licensing
 
 ";
 
-        public static readonly DateTime EvaluationStart = new(2020, 1, 1);
+        public static readonly DateTime EvaluationStart = new( 2020, 1, 1 );
 
-        public static readonly DateTime InvalidNextEvaluationStart = new(2020, 1, 14);
+        public static readonly DateTime InvalidNextEvaluationStart = new( 2020, 1, 14 );
 
-        public static readonly DateTime ValidNextEvaluationStart = new(2021, 1, 1);
+        public static readonly DateTime ValidNextEvaluationStart = new( 2021, 1, 1 );
     }
 }

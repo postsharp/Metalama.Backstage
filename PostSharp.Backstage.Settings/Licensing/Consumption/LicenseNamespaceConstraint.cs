@@ -24,7 +24,7 @@ namespace PostSharp.Backstage.Licensing.Consumption
         /// Initializes a new instance of the <see cref="LicenseNamespaceConstraint"/> class.
         /// </summary>
         /// <param name="allowedNamespace">The namespace allowed by the license.</param>
-        public LicenseNamespaceConstraint( 
+        public LicenseNamespaceConstraint(
             string allowedNamespace,
             LicensedFeatures licensedFeatures = LicensedFeatures.None )
         {

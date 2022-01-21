@@ -10,9 +10,7 @@ namespace PostSharp.Backstage.Licensing.Tests.Registration
     public class LicenseFileStorageTests : LicenseRegistrationTestsBase
     {
         public LicenseFileStorageTests( ITestOutputHelper logger )
-            : base( logger )
-        {
-        }
+            : base( logger ) { }
 
         private EvaluatedLicensingConfiguration CreateStorage()
         {
@@ -29,7 +27,7 @@ namespace PostSharp.Backstage.Licensing.Tests.Registration
             Assert.Equal( expectedLicenseStrings, this.ReadStoredLicenseStrings() );
         }
 
-        private void AssertStorageContains( 
+        private void AssertStorageContains(
             EvaluatedLicensingConfiguration storage,
             params string[] expectedLicenseStrings )
         {
@@ -37,7 +35,7 @@ namespace PostSharp.Backstage.Licensing.Tests.Registration
 
             foreach ( var expectedLicenseString in expectedLicenseStrings )
             {
-                Assert.True( 
+                Assert.True(
                     storage.TryGetRegistrationData( expectedLicenseString, out var actualData ),
                     $"License is missing: '{expectedLicenseString}'" );
 
@@ -151,11 +149,12 @@ namespace PostSharp.Backstage.Licensing.Tests.Registration
             this.Add( storage, TestLicenseKeys.Caching );
             storage.Save();
 
-            this.AssertStorageContains( 
-                storage, 
+            this.AssertStorageContains(
+                storage,
                 TestLicenseKeys.Ultimate,
                 TestLicenseKeys.Logging,
                 TestLicenseKeys.Caching );
+
             this.AssertFileContains( TestLicenseKeys.Ultimate, TestLicenseKeys.Logging, TestLicenseKeys.Caching );
         }
 

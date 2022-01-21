@@ -43,8 +43,7 @@ namespace PostSharp.Backstage.Testing.Services
 
         public void Unblock( string path )
         {
-            void UnblockEvents(
-                Dictionary<string, (ManualResetEventSlim Callee, ManualResetEventSlim Caller)> blockingEvents )
+            void UnblockEvents( Dictionary<string, (ManualResetEventSlim Callee, ManualResetEventSlim Caller)> blockingEvents )
             {
                 if ( blockingEvents.TryGetValue( path, out var events ) )
                 {
@@ -86,7 +85,7 @@ namespace PostSharp.Backstage.Testing.Services
             return this.Mock.Directory.Exists( path );
         }
 
-        public IEnumerable<string> EnumerateFiles( 
+        public IEnumerable<string> EnumerateFiles(
             string path,
             string? searchPattern = null,
             SearchOption? searchOption = null )
@@ -115,8 +114,8 @@ namespace PostSharp.Backstage.Testing.Services
             }
         }
 
-        public IEnumerable<string> EnumerateDirectories( 
-            string path, 
+        public IEnumerable<string> EnumerateDirectories(
+            string path,
             string? searchPattern = null,
             SearchOption? searchOption = null )
         {

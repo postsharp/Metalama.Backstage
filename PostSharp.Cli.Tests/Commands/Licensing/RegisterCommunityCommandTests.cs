@@ -11,15 +11,14 @@ namespace PostSharp.Cli.Tests.Commands.Licensing
     public class RegisterCommunityCommandTests : LicensingCommandsTestsBase
     {
         public RegisterCommunityCommandTests( ITestOutputHelper logger )
-            : base( logger )
-        {
-        }
+            : base( logger ) { }
 
         [Fact]
         public async Task CommunityRegistersInEmptyEnvironment()
         {
             await this.TestCommandAsync( "license register community", "" );
-            await this.TestCommandAsync( 
+
+            await this.TestCommandAsync(
                 "license list",
                 string.Format( CultureInfo.InvariantCulture, TestLicenses.CommunityFormat, 1 ) );
         }
@@ -29,7 +28,8 @@ namespace PostSharp.Cli.Tests.Commands.Licensing
         {
             await this.TestCommandAsync( "license register community", "" );
             await this.TestCommandAsync( "license register community", "" );
-            await this.TestCommandAsync( 
+
+            await this.TestCommandAsync(
                 "license list",
                 string.Format( CultureInfo.InvariantCulture, TestLicenses.CommunityFormat, 1 ) );
         }

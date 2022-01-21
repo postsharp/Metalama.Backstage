@@ -44,6 +44,7 @@ namespace PostSharp.Cli.Commands.Licensing.Registration
             if ( ordinal <= 0 || ordinal > licensingConfiguration.Licenses.Count )
             {
                 console.Error.WriteLine( "Invalid ordinal." );
+
                 return 1;
             }
 
@@ -52,7 +53,7 @@ namespace PostSharp.Cli.Commands.Licensing.Registration
             return UnregisterLicense( license.LicenseString, licensingConfiguration, console );
         }
 
-        private static int UnregisterLicense( 
+        private static int UnregisterLicense(
             string licenseString,
             EvaluatedLicensingConfiguration licensingConfiguration,
             IConsole console )

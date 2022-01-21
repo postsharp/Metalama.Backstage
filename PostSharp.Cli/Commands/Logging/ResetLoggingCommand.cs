@@ -9,9 +9,9 @@ namespace PostSharp.Cli.Commands.Logging;
 
 internal class ResetLoggingCommand : CommandBase
 {
-    public ResetLoggingCommand( ICommandServiceProvider commandServiceProvider ) : base( 
+    public ResetLoggingCommand( ICommandServiceProvider commandServiceProvider ) : base(
         commandServiceProvider,
-        "reset", 
+        "reset",
         "Disables logging for all applications and all categories." )
     {
         this.Handler = CommandHandler.Create<IConsole>( this.Execute );

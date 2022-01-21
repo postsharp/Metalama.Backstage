@@ -95,8 +95,7 @@ namespace PostSharp.Backstage.Licensing.Licenses
         }
 
         /// <inheritdoc />
-        public bool TryGetLicenseConsumptionData(
-            [MaybeNullWhen( false )] out LicenseConsumptionData licenseConsumptionData )
+        public bool TryGetLicenseConsumptionData( [MaybeNullWhen( false )] out LicenseConsumptionData licenseConsumptionData )
         {
             if ( !this.TryGetAndValidateLicenseKeyData( out var licenseKeyData ) )
             {
@@ -111,8 +110,7 @@ namespace PostSharp.Backstage.Licensing.Licenses
         }
 
         /// <inheritdoc />
-        public bool TryGetLicenseRegistrationData(
-            [MaybeNullWhen( false )] out LicenseRegistrationData licenseRegistrationData )
+        public bool TryGetLicenseRegistrationData( [MaybeNullWhen( false )] out LicenseRegistrationData licenseRegistrationData )
         {
             if ( !this.TryGetLicenseKeyData( out var licenseKeyData ) )
             {
@@ -138,8 +136,7 @@ namespace PostSharp.Backstage.Licensing.Licenses
 
                 if ( firstDash < 0 )
                 {
-                    throw new InvalidLicenseException(
-                        $"License header not found for license {{{this._licenseKey}}}." );
+                    throw new InvalidLicenseException( $"License header not found for license {{{this._licenseKey}}}." );
                 }
 
                 var prefix = this._licenseKey.Substring( 0, firstDash );

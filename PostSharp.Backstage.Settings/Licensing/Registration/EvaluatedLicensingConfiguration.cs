@@ -35,14 +35,17 @@ namespace PostSharp.Backstage.Licensing.Registration
         public bool TryGetRegistrationData( string licenseKey, out LicenseRegistrationData? registrationData )
         {
             var item = this._licenses.FirstOrDefault( l => l.LicenseString == licenseKey );
+
             if ( item.LicenseString != null! )
             {
                 registrationData = item.LicenseData;
+
                 return true;
             }
             else
             {
                 registrationData = null;
+
                 return false;
             }
         }

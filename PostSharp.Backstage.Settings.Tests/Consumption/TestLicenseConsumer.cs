@@ -18,8 +18,8 @@ namespace PostSharp.Backstage.Licensing.Tests.Consumption
 
         public IDiagnosticLocation DiagnosticLocation { get; }
 
-        public TestLicenseConsumer( 
-            string targetTypeNamespace, 
+        public TestLicenseConsumer(
+            string targetTypeNamespace,
             string targetTypeName,
             string diagnosticsLocationDescription,
             IServiceProvider services )

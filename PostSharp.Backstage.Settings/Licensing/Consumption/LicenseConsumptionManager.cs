@@ -33,9 +33,7 @@ namespace PostSharp.Backstage.Licensing.Consumption
         /// <param name="services">Services.</param>
         /// <param name="licenseSources">License sources.</param>
         public LicenseConsumptionManager( IServiceProvider services, params ILicenseSource[] licenseSources )
-            : this( services, (IEnumerable<ILicenseSource>) licenseSources )
-        {
-        }
+            : this( services, (IEnumerable<ILicenseSource>) licenseSources ) { }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="LicenseConsumptionManager"/> class.
@@ -96,9 +94,9 @@ namespace PostSharp.Backstage.Licensing.Consumption
             }
             else
             {
-                if ( !this._namespaceLimitedLicensedFeatures.TryGetValue( 
-                    licenseData.LicensedNamespace,
-                    out var namespaceFeatures ) )
+                if ( !this._namespaceLimitedLicensedFeatures.TryGetValue(
+                        licenseData.LicensedNamespace,
+                        out var namespaceFeatures ) )
                 {
                     this._namespaceLimitedLicensedFeatures[licenseData.LicensedNamespace] =
                         new LicenseNamespaceConstraint(

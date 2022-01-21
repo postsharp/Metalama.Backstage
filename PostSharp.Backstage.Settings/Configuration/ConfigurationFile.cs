@@ -29,13 +29,14 @@ public abstract class ConfigurationFile
         // Create the directory if it does not exist.
         var directoryName = directories.ApplicationDataDirectory;
 
-        RetryHelper.Retry( () =>
-        {
-            if ( !fileSystem.DirectoryExists( directoryName ) )
+        RetryHelper.Retry(
+            () =>
             {
-                fileSystem.CreateDirectory( directoryName );
-            }
-        } );
+                if ( !fileSystem.DirectoryExists( directoryName ) )
+                {
+                    fileSystem.CreateDirectory( directoryName );
+                }
+            } );
 
         var json = this.ToJson();
         var path = Path.Combine( directoryName, this.FileName );
@@ -51,6 +52,7 @@ public abstract class ConfigurationFile
         var serializer = JsonSerializer.Create();
         serializer.Formatting = Formatting.Indented;
         serializer.Serialize( textWriter, this );
+
         return textWriter.ToString();
     }
 
@@ -76,8 +78,7 @@ public abstract class ConfigurationFile
             {
                 var serializer = JsonSerializer.Create();
                 var json = RetryHelper.Retry( () => fileSystem.ReadAllText( path ), logger: logger );
-                configuration = serializer.Deserialize<T>(
-                    new JsonTextReader( new StringReader( json ) ) );
+                configuration = serializer.Deserialize<T>( new JsonTextReader( new StringReader( json ) ) );
             }
             else
             {

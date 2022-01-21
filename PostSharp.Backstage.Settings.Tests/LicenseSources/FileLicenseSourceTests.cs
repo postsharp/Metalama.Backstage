@@ -13,14 +13,12 @@ namespace PostSharp.Backstage.Licensing.Tests.LicenseSources
         private const string _licenseFilePath = "licensing.json";
 
         public FileLicenseSourceTests( ITestOutputHelper logger )
-            : base( logger )
-        {
-        }
+            : base( logger ) { }
 
         [Fact]
         public void NonexistentFileIsReported()
         {
-            FileLicenseSource source = new(this.Services);
+            FileLicenseSource source = new( this.Services );
 
             Assert.Empty( source.GetLicenses() );
             this.Diagnostics.AssertNoErrors();
@@ -32,7 +30,7 @@ namespace PostSharp.Backstage.Licensing.Tests.LicenseSources
         {
             this.FileSystem.Mock.AddFile( _licenseFilePath, new MockFileData( "" ) );
 
-            FileLicenseSource source = new(this.Services);
+            FileLicenseSource source = new( this.Services );
 
             Assert.Empty( source.GetLicenses() );
             this.Diagnostics.AssertClean();
