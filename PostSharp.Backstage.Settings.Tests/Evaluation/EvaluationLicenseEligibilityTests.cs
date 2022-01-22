@@ -38,9 +38,9 @@ namespace PostSharp.Backstage.Licensing.Tests.Evaluation
         }
 
         [Fact]
-        public void RepetitiveEvaluationLicenseRegistrationFails()
+        public void RepetitiveEvaluationLicenseRegistrationSucceeds()
         {
-            this.TestRepetitiveRegistration( TimeSpan.Zero, false );
+            this.TestRepetitiveRegistration( TimeSpan.Zero, true );
         }
 
         [Fact]

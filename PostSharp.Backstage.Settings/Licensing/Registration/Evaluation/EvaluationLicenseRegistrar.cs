@@ -64,12 +64,12 @@ namespace PostSharp.Backstage.Licensing.Registration.Evaluation
             {
                 var configuration = EvaluatedLicensingConfiguration.OpenOrCreate( this._services );
 
-                // If the configuration file contains an evaluation license, this may be a race condition with
-                // another process. In this case, we just pretend we have succeeded.
+                // If the configuration file contains an evaluation license created today, this may be a race condition with
+                // another process also trying to activate the evaluation mode. In this case, we just pretend we have succeeded.
                 if ( configuration.Licenses.Any(
                         l =>
                             l.LicenseData is { LicenseType: LicenseType.Evaluation } &&
-                            l.LicenseData.ValidTo >= this._time.Now ) )
+                            l.LicenseData.ValidFrom == this._time.Now.Date ) )
                 {
                     return true;
                 }

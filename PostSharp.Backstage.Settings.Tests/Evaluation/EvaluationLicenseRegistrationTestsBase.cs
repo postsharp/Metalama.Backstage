@@ -2,10 +2,13 @@
 // This project is not open source. Please see the LICENSE.md file in the repository root for details.
 
 using PostSharp.Backstage.Extensibility;
+using PostSharp.Backstage.Licensing.Licenses;
+using PostSharp.Backstage.Licensing.Registration;
 using PostSharp.Backstage.Licensing.Registration.Evaluation;
 using PostSharp.Backstage.Licensing.Tests.Registration;
 using PostSharp.Backstage.Testing.Services;
 using System;
+using System.Linq;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -39,23 +42,17 @@ namespace PostSharp.Backstage.Licensing.Tests.Evaluation
         protected void AssertEvaluationEligible()
         {
             Assert.True( this.Registrar.TryRegisterLicense() );
-
-            /*
-            Assert.Contains( registeredLicense, registeredLicenses );
-
-            Assert.True( this.LicenseFactory.TryCreate( registeredLicense, out var license ) );
-            Assert.True( license!.TryGetLicenseRegistrationData( out var data ) );
-            Assert.Equal( LicenseType.Evaluation, data!.LicenseType );
-
             var expectedStart = this.Time.Now;
             var expectedEnd = expectedStart + EvaluationLicenseRegistrar.EvaluationPeriod;
 
-            Assert.Equal( expectedStart, data.ValidFrom );
-            Assert.Equal( expectedEnd, data.ValidTo );
-            Assert.Equal( expectedEnd, data.SubscriptionEndDate );
+            var licenses = EvaluatedLicensingConfiguration.OpenOrCreate( this.Services );
+            var registeredLicense = licenses.Licenses.Single( x => x.LicenseData is { LicenseType: LicenseType.Evaluation } && x.LicenseData.ValidFrom == expectedStart ).LicenseData;
+            
+            Assert.Equal( expectedEnd, registeredLicense.ValidTo );
+            Assert.Equal( expectedEnd, registeredLicense.SubscriptionEndDate );
 
-            this.AssertEvaluationEligibilityReason( reason );
-            */
+            
+            
         }
 
         protected void AssertEvaluationNotEligible( string reason )
