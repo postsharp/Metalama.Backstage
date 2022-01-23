@@ -1,10 +1,10 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. All rights reserved.
 // This project is not open source. Please see the LICENSE.md file in the repository root for details.
 
+using PostSharp.Backstage.Diagnostics;
 using PostSharp.Backstage.Extensibility;
 using PostSharp.Backstage.Extensibility.Extensions;
 using PostSharp.Backstage.Licensing.Licenses;
-using PostSharp.Backstage.Logging;
 using PostSharp.Backstage.Utilities;
 using System;
 using System.Linq;
@@ -42,7 +42,7 @@ namespace PostSharp.Backstage.Licensing.Registration.Evaluation
         {
             this._services = services;
             this._time = services.GetRequiredService<IDateTimeProvider>();
-            this._logger = services.GetLogger<LicensingLogCategory>();
+            this._logger = services.GetLoggerFactory().Licensing();
         }
 
         /// <summary>

@@ -1,15 +1,14 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. All rights reserved.
 // This project is not open source. Please see the LICENSE.md file in the repository root for details.
 
-using Microsoft.Extensions.Logging;
-using PostSharp.Backstage.Logging;
+using ILoggerFactory = PostSharp.Backstage.Diagnostics.ILoggerFactory;
 using IMicrosoftLoggerFactory = Microsoft.Extensions.Logging.ILoggerFactory;
-using IPostSharpLogger = PostSharp.Backstage.Logging.ILogger;
-using IPostSharpLoggerFactory = PostSharp.Backstage.Logging.ILoggerFactory;
+using IPostSharpLogger = PostSharp.Backstage.Diagnostics.ILogger;
+using IPostSharpLoggerFactory = PostSharp.Backstage.Diagnostics.ILoggerFactory;
 
 namespace PostSharp.Backstage.MicrosoftLogging
 {
-    internal class LoggerFactoryAdapter : IPostSharpLoggerFactory
+    internal class LoggerFactoryAdapter : ILoggerFactory
     {
         private readonly IMicrosoftLoggerFactory _factory;
 
@@ -18,8 +17,7 @@ namespace PostSharp.Backstage.MicrosoftLogging
             this._factory = factory;
         }
 
-        public IPostSharpLogger CreateLogger<T>()
-            where T : ILogCategory, new()
-            => new LoggerAdapter( this._factory.CreateLogger<T>() );
+        public IPostSharpLogger GetLogger(string category)
+            => new LoggerAdapter( this._factory.CreateLogger(category) );
     }
 }

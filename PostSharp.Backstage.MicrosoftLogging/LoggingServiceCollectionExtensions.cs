@@ -3,7 +3,7 @@
 
 using PostSharp.Backstage.Extensibility;
 using IMicrosoftLoggerFactory = Microsoft.Extensions.Logging.ILoggerFactory;
-using IPostSharpLoggerFactory = PostSharp.Backstage.Logging.ILoggerFactory;
+using IPostSharpLoggerFactory = PostSharp.Backstage.Diagnostics.ILoggerFactory;
 
 namespace PostSharp.Backstage.MicrosoftLogging
 {

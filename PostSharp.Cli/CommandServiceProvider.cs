@@ -7,6 +7,7 @@ using PostSharp.Backstage.Extensibility;
 using PostSharp.Backstage.MicrosoftLogging;
 using System;
 using System.CommandLine;
+using ILoggerFactory = Microsoft.Extensions.Logging.ILoggerFactory;
 
 namespace PostSharp.Cli
 {
@@ -40,9 +41,7 @@ namespace PostSharp.Cli
             serviceProviderBuilder
                 .AddSingleton<IConsole>( console )
                 .AddSingleton<IBackstageDiagnosticSink>( new ConsoleDiagnosticsSink( serviceProviderBuilder.ServiceProvider ) )
-                .AddCurrentDateTimeProvider()
-                .AddFileSystem()
-                .AddStandardDirectories();
+                .AddSystemServices();
 
             if ( loggerFactory != null )
             {

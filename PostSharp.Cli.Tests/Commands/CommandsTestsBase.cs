@@ -2,8 +2,8 @@
 // This project is not open source. Please see the LICENSE.md file in the repository root for details.
 
 using Microsoft.Extensions.DependencyInjection;
+using PostSharp.Backstage.Diagnostics;
 using PostSharp.Backstage.Extensibility;
-using PostSharp.Backstage.Logging;
 using PostSharp.Backstage.Testing;
 using PostSharp.Cli.Commands;
 using PostSharp.Cli.Tests.Console;
@@ -34,7 +34,7 @@ namespace PostSharp.Cli.Tests.Commands
                 } )
         {
             this._theRootCommand = new TheRootCommand( this );
-            this._logger = this.Services.GetLogger<ConsoleLogCategory>()!;
+            this._logger = this.Services.GetLoggerFactory().GetLogger( "Console" );
             this._console = (TestConsole) this.Services.GetRequiredService<IConsole>();
         }
 

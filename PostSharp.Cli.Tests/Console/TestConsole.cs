@@ -1,8 +1,8 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. All rights reserved.
 // This project is not open source. Please see the LICENSE.md file in the repository root for details.
 
+using PostSharp.Backstage.Diagnostics;
 using PostSharp.Backstage.Extensibility;
-using PostSharp.Backstage.Logging;
 using System;
 using System.CommandLine;
 using System.CommandLine.IO;
@@ -28,7 +28,7 @@ namespace PostSharp.Cli.Tests.Console
 
         public TestConsole( IServiceProvider services )
         {
-            var logger = services.GetLogger<ConsoleLogCategory>()!;
+            var logger = services.GetLoggerFactory().GetLogger( "Console" );
             this.Out = new TestStreamWriter( logger, "o>" );
             this.Error = new TestStreamWriter( logger, "e>" );
         }

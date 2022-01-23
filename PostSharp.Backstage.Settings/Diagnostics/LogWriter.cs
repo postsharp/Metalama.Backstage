@@ -3,7 +3,7 @@
 
 using System;
 
-namespace PostSharp.Backstage.Logging;
+namespace PostSharp.Backstage.Diagnostics;
 
 internal class LogWriter : ILogWriter
 {
@@ -19,7 +19,7 @@ internal class LogWriter : ILogWriter
     public void Log( string message )
     {
         // ReSharper disable once InconsistentlySynchronizedField
-        var writer = this._logger.LoggerFactory.TextWriter;
+        var writer = this._logger.DiagnosticsService.TextWriter;
 
         if ( writer != null )
         {

@@ -2,15 +2,16 @@
 // This project is not open source. Please see the LICENSE.md file in the repository root for details.
 
 using Microsoft.Extensions.Logging;
-using PostSharp.Backstage.Logging;
+using PostSharp.Backstage.Diagnostics;
+using ILogger = PostSharp.Backstage.Diagnostics.ILogger;
 using IMicrosoftLogger = Microsoft.Extensions.Logging.ILogger;
-using IPostSharpLogger = PostSharp.Backstage.Logging.ILogger;
+using IPostSharpLogger = PostSharp.Backstage.Diagnostics.ILogger;
 
 // ReSharper disable TemplateIsNotCompileTimeConstantProblem
 
 namespace PostSharp.Backstage.MicrosoftLogging
 {
-    internal class LoggerAdapter : IPostSharpLogger
+    internal class LoggerAdapter : ILogger
     {
         private readonly IMicrosoftLogger _logger;
 

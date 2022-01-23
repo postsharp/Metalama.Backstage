@@ -2,6 +2,7 @@
 // This project is not open source. Please see the LICENSE.md file in the repository root for details.
 
 using Newtonsoft.Json;
+using PostSharp.Backstage.Diagnostics;
 using PostSharp.Backstage.Extensibility;
 using PostSharp.Backstage.Extensibility.Extensions;
 using PostSharp.Backstage.Utilities;
@@ -15,6 +16,7 @@ public abstract class ConfigurationFile
     [JsonIgnore]
     public string? FilePath { get; private set; }
 
+    [JsonIgnore]
     public abstract string FileName { get; }
 
     /// <summary>
@@ -24,7 +26,7 @@ public abstract class ConfigurationFile
     {
         var fileSystem = serviceProvider.GetRequiredService<IFileSystem>();
         var directories = serviceProvider.GetRequiredService<IStandardDirectories>();
-        var logger = serviceProvider.GetLogger<ConfigurationLogCategory>();
+        var logger = serviceProvider.GetLoggerFactory().Configuration();
 
         // Create the directory if it does not exist.
         var directoryName = directories.ApplicationDataDirectory;
@@ -65,7 +67,7 @@ public abstract class ConfigurationFile
     {
         T prototype = new();
         var fileSystem = services.GetRequiredService<IFileSystem>();
-        var logger = services.GetLogger<ConfigurationLogCategory>();
+        var logger = services.GetLoggerFactory().Configuration();
 
         var standardDirectories = services.GetRequiredService<IStandardDirectories>();
         var path = Path.Combine( standardDirectories.ApplicationDataDirectory, prototype.FileName );

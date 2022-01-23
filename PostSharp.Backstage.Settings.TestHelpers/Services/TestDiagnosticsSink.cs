@@ -1,8 +1,8 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. All rights reserved.
 // This project is not open source. Please see the LICENSE.md file in the repository root for details.
 
+using PostSharp.Backstage.Diagnostics;
 using PostSharp.Backstage.Extensibility;
-using PostSharp.Backstage.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -25,7 +25,7 @@ namespace PostSharp.Backstage.Testing.Services
         public TestDiagnosticsSink( IServiceProvider services, [CallerMemberName] string name = "" )
         {
             this.Name = name;
-            this._logger = services.GetLogger<TestLogCategory>()!;
+            this._logger = services.GetLoggerFactory().Test();
         }
 
         private void Trace( string verbosity, string message, IDiagnosticLocation? location )

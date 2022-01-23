@@ -1,7 +1,7 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. All rights reserved.
 // This project is not open source. Please see the LICENSE.md file in the repository root for details.
 
-namespace PostSharp.Backstage.Logging;
+namespace PostSharp.Backstage.Diagnostics;
 
 public class NullLogger : ILogger, ILoggerFactory
 {
@@ -17,5 +17,5 @@ public class NullLogger : ILogger, ILoggerFactory
 
     ILogWriter? ILogger.Error => null;
 
-    ILogger ILoggerFactory.CreateLogger<T>() => this;
+    ILogger ILoggerFactory.GetLogger( string category ) => this;
 }

@@ -7,7 +7,7 @@ using System;
 
 namespace PostSharp.Backstage.Licensing;
 
-public class LicensingConfiguration : ConfigurationFile
+internal class LicensingConfiguration : ConfigurationFile
 {
     /// <summary>
     /// Gets or sets the date of the last evaluation period.

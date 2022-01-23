@@ -13,7 +13,7 @@ namespace PostSharp.Cli.Commands
             : base( "Management tool for PostSharp" )
         {
             this.Add( new LicenseCommand( commandServiceProvider ) );
-            this.Add( new LoggingCommand( commandServiceProvider ) );
+            this.Add( new DiagnosticsCommand( commandServiceProvider ) );
 
             var verboseOption = new Option<bool>( "--verbose", "Set detailed verbosity level" );
             verboseOption.AddAlias( "-v" );

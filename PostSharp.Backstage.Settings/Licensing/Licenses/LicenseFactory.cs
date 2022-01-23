@@ -1,9 +1,9 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. All rights reserved.
 // This project is not open source. Please see the LICENSE.md file in the repository root for details.
 
+using PostSharp.Backstage.Diagnostics;
 using PostSharp.Backstage.Extensibility;
 using PostSharp.Backstage.Extensibility.Extensions;
-using PostSharp.Backstage.Logging;
 using System;
 using System.Diagnostics.CodeAnalysis;
 
@@ -26,7 +26,7 @@ namespace PostSharp.Backstage.Licensing.Licenses
         {
             this._services = services;
             this._diagnostics = services.GetRequiredService<IBackstageDiagnosticSink>();
-            this._logger = services.GetLogger<LicensingLogCategory>();
+            this._logger = services.GetLoggerFactory().Licensing();
         }
 
         /// <summary>

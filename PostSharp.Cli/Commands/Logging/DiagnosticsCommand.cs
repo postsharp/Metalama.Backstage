@@ -3,12 +3,12 @@
 
 namespace PostSharp.Cli.Commands.Logging;
 
-internal class LoggingCommand : CommandBase
+internal class DiagnosticsCommand : CommandBase
 {
-    public LoggingCommand( ICommandServiceProvider commandServiceProvider ) : base(
+    public DiagnosticsCommand( ICommandServiceProvider commandServiceProvider ) : base(
         commandServiceProvider,
-        "logging",
-        "Configure the logging of PostSharp itself." )
+        "diag",
+        "Configure the diagnostics settings of PostSharp itself." )
     {
         this.AddCommand( new ResetLoggingCommand( commandServiceProvider ) );
         this.AddCommand( new PrintLoggingCommand( commandServiceProvider ) );
