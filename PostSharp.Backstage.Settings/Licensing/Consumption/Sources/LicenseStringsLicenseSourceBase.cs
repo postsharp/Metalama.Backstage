@@ -18,7 +18,7 @@ namespace PostSharp.Backstage.Licensing.Consumption.Sources
 
         protected abstract IEnumerable<string> GetLicenseStrings();
 
-        public IEnumerable<ILicense> GetLicenses()
+        public IEnumerable<ILicense> GetLicenses( Action<LicensingMessage> reportMessage )
         {
             var licenseFactory = new LicenseFactory( this._services );
 

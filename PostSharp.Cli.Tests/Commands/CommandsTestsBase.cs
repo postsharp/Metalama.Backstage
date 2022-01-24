@@ -28,7 +28,6 @@ namespace PostSharp.Cli.Tests.Commands
                 {
                     serviceCollection
                         .AddSingleton<IConsole>( new TestConsole( serviceCollection.ServiceProvider ) )
-                        .AddSingleton<IBackstageDiagnosticSink>( new ConsoleDiagnosticsSink( serviceCollection.ServiceProvider ) )
                         .AddConfigurationManager();
 
                     serviceBuilder?.Invoke( serviceCollection );

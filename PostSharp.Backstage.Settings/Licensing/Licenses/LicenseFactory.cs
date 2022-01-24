@@ -14,7 +14,6 @@ namespace PostSharp.Backstage.Licensing.Licenses
     public class LicenseFactory
     {
         private readonly IServiceProvider _services;
-        private readonly IBackstageDiagnosticSink _diagnostics;
         private readonly ILogger _logger;
 
         /// <summary>
@@ -24,7 +23,6 @@ namespace PostSharp.Backstage.Licensing.Licenses
         public LicenseFactory( IServiceProvider services )
         {
             this._services = services;
-            this._diagnostics = services.GetRequiredService<IBackstageDiagnosticSink>();
             this._logger = services.GetLoggerFactory().Licensing();
         }
 
@@ -43,7 +41,7 @@ namespace PostSharp.Backstage.Licensing.Licenses
 
             if ( licenseString == null || licenseString == "" )
             {
-                this._diagnostics.ReportWarning( "Empty license string provided." );
+                this._logger.Error?.Log( "Empty license string provided." );
                 license = null;
 
                 return false;
@@ -52,7 +50,7 @@ namespace PostSharp.Backstage.Licensing.Licenses
             if ( Uri.IsWellFormedUriString( licenseString, UriKind.Absolute ) )
             {
                 // TODO License Server Support
-                this._diagnostics.ReportWarning( "License server is not yet supported." );
+                this._logger.Error?.Log( "License server is not yet supported." );
                 license = null;
 
                 return false;

@@ -58,11 +58,13 @@ namespace PostSharp.Backstage.Extensibility
         /// <summary>
         /// Adds the minimal set of services required to run the <see cref="DiagnosticsService"/>.
         /// </summary>
-        public static ServiceProviderBuilder AddMinimalServices( this ServiceProviderBuilder serviceProviderBuilder )
+        internal static ServiceProviderBuilder AddDiagnosticServiceRequirements( this ServiceProviderBuilder serviceProviderBuilder )
         {
-            return serviceProviderBuilder.AddCurrentDateTimeProvider()
+            return serviceProviderBuilder
+                .AddCurrentDateTimeProvider()
                 .AddFileSystem()
-                .AddStandardDirectories();
+                .AddStandardDirectories()
+                .AddConfigurationManager();
         }
 
         public static ServiceProviderBuilder AddConfigurationManager( this ServiceProviderBuilder serviceProviderBuilder )
@@ -71,25 +73,27 @@ namespace PostSharp.Backstage.Extensibility
                 serviceProviderBuilder.AddSingleton<IConfigurationManager>( new ConfigurationManager( serviceProviderBuilder.ServiceProvider ) );
         }
 
-        public static ServiceProviderBuilder AddBackstageServices( this ServiceProviderBuilder serviceProviderBuilder, IApplicationInfo? applicationInfo )
+        /// <summary>
+        /// Adds the minimal backstage services, without diagnostics and telemetry.
+        /// </summary>
+        public static ServiceProviderBuilder AddMinimalBackstageServices( this ServiceProviderBuilder serviceProviderBuilder )
         {
-            if ( applicationInfo != null )
-            {
-                serviceProviderBuilder = serviceProviderBuilder.AddSingleton( applicationInfo );
-            }
+            return serviceProviderBuilder.AddDiagnosticServiceRequirements();
+        }
 
+        public static ServiceProviderBuilder AddBackstageServices( this ServiceProviderBuilder serviceProviderBuilder, IApplicationInfo applicationInfo )
+        {
             serviceProviderBuilder = serviceProviderBuilder
+                .AddSingleton( applicationInfo )
                 .AddCurrentDateTimeProvider()
                 .AddFileSystem()
-                .AddStandardDirectories();
+                .AddStandardDirectories()
+                .AddConfigurationManager();
 
-            if ( applicationInfo != null && applicationInfo.ProcessKind != ProcessKind.Other )
+            if ( applicationInfo.ProcessKind != ProcessKind.Other )
             {
                 serviceProviderBuilder = serviceProviderBuilder.AddDiagnostics( applicationInfo.ProcessKind );
             }
-
-            serviceProviderBuilder =
-                serviceProviderBuilder.AddConfigurationManager();
 
             var uploadManager = new UploadManager( serviceProviderBuilder.ServiceProvider );
 

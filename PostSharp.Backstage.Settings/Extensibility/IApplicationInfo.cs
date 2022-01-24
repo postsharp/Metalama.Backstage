@@ -19,7 +19,7 @@ namespace PostSharp.Backstage.Extensibility
         /// <summary>
         /// Gets a version of the application.
         /// </summary>
-        Version Version { get; }
+        string Version { get; }
 
         /// <summary>
         /// Gets a value indicating whether the application is a pre-release.
@@ -30,8 +30,6 @@ namespace PostSharp.Backstage.Extensibility
         /// Gets a date of build of the application.
         /// </summary>
         DateTime BuildDate { get; }
-
-        string Hash { get; }
 
         ProcessKind ProcessKind { get; }
 

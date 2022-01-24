@@ -1,6 +1,9 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. All rights reserved.
 // This project is not open source. Please see the LICENSE.md file in the repository root for details.
 
+using PostSharp.Backstage.Licensing.Consumption;
+using System;
+
 namespace PostSharp.Backstage.Licensing.Registration
 {
     /// <summary>
@@ -12,6 +15,6 @@ namespace PostSharp.Backstage.Licensing.Registration
         /// Tries to register a license without user interaction.
         /// </summary>
         /// <returns>A value indicating whether a license has been registered.</returns>
-        bool TryRegisterLicense();
+        bool TryActivateLicense( Action<LicensingMessage> reportMessage );
     }
 }

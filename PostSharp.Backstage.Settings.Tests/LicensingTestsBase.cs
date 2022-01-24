@@ -19,8 +19,6 @@ namespace PostSharp.Backstage.Licensing.Tests
 
         private protected UnsignedLicenseFactory SelfSignedLicenseFactory { get; }
 
-        private protected TestDiagnosticsSink Diagnostics { get; }
-
         private protected LicensingTestsBase(
             ITestOutputHelper logger,
             Action<ServiceProviderBuilder>? serviceBuilder = null )
@@ -30,14 +28,12 @@ namespace PostSharp.Backstage.Licensing.Tests
                 {
                     // ReSharper disable once ExplicitCallerInfoArgument
                     services
-                        .AddSingleton<IBackstageDiagnosticSink>( new TestDiagnosticsSink( services.ServiceProvider, "default" ) )
                         .AddSingleton<IApplicationInfo>(
                             new TestApplicationInfo(
                                 "Licensing Test App",
                                 false,
-                                new Version( 0, 1, 0 ),
-                                new DateTime( 2021, 1, 1 ),
-                                "Hash" ) )
+                                "1.0",
+                                new DateTime( 2021, 1, 1 ) ) )
                         .AddConfigurationManager();
 
                     serviceBuilder?.Invoke( services );
@@ -45,7 +41,6 @@ namespace PostSharp.Backstage.Licensing.Tests
         {
             this.LicenseFactory = new LicenseFactory( this.Services );
             this.SelfSignedLicenseFactory = new UnsignedLicenseFactory( this.Services );
-            this.Diagnostics = (TestDiagnosticsSink) this.Services.GetRequiredService<IBackstageDiagnosticSink>();
             this.LicensingConfigurationFile = this.Services.GetRequiredService<IConfigurationManager>().GetFileName<LicensingConfiguration>();
         }
     }

@@ -18,23 +18,9 @@ namespace PostSharp.Backstage.Licensing.Consumption
         /// <param name="services">The <see cref="ServiceProviderBuilder" /> to add services to.</param>
         /// <param name="licenseSources">License sources.</param>
         /// <returns>The <see cref="ServiceProviderBuilder" /> so that additional calls can be chained.</returns>
-        public static ServiceProviderBuilder AddLicenseConsumption(
+        public static ServiceProviderBuilder AddLicenseConsumptionManager(
             this ServiceProviderBuilder services,
             IEnumerable<ILicenseSource> licenseSources )
-        {
-            return services
-                .AddSingleton<ILicenseConsumptionManager>( new LicenseConsumptionManager( services.ServiceProvider, licenseSources ) );
-        }
-
-        /// <summary>
-        /// Adds license file location and license consumption services to the specified <see cref="ServiceProviderBuilder" />.
-        /// </summary>
-        /// <param name="services">The <see cref="ServiceProviderBuilder" /> to add services to.</param>
-        /// <param name="licenseSources">License sources.</param>
-        /// <returns>The <see cref="ServiceProviderBuilder" /> so that additional calls can be chained.</returns>
-        public static ServiceProviderBuilder AddLicenseConsumption(
-            this ServiceProviderBuilder services,
-            params ILicenseSource[] licenseSources )
         {
             return services
                 .AddSingleton<ILicenseConsumptionManager>( new LicenseConsumptionManager( services.ServiceProvider, licenseSources ) );

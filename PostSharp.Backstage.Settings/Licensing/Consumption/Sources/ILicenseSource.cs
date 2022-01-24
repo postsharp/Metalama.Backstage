@@ -2,6 +2,7 @@
 // This project is not open source. Please see the LICENSE.md file in the repository root for details.
 
 using PostSharp.Backstage.Licensing.Licenses;
+using System;
 using System.Collections.Generic;
 
 namespace PostSharp.Backstage.Licensing.Consumption.Sources
@@ -15,6 +16,6 @@ namespace PostSharp.Backstage.Licensing.Consumption.Sources
         /// Gets an enumerable of licenses.
         /// </summary>
         /// <returns>The enumerable of licenses.</returns>
-        IEnumerable<ILicense> GetLicenses();
+        IEnumerable<ILicense> GetLicenses( Action<LicensingMessage> reportMessage );
     }
 }

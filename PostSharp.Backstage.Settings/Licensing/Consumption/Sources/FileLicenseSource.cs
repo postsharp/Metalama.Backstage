@@ -15,11 +15,6 @@ namespace PostSharp.Backstage.Licensing.Consumption.Sources
     {
         private readonly LicensingConfiguration _licensingConfiguration;
 
-        public static FileLicenseSource CreateUserLicenseFileLicenseSource( IServiceProvider services )
-        {
-            return new FileLicenseSource( services );
-        }
-
         public FileLicenseSource( IServiceProvider services )
             : base( services )
         {

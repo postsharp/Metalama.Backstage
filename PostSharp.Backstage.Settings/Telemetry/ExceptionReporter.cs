@@ -185,9 +185,7 @@ namespace PostSharp.Backstage.Telemetry
             writer.WriteElementString( "ClientId", this._configuration.DeviceId.ToString() );
             writer.WriteStartElement( "Application" );
             writer.WriteElementString( "Name", this._applicationInfo.Name );
-            writer.WriteElementString( "Build", this._applicationInfo.Hash );
-
-            writer.WriteElementString( "Version", this._applicationInfo.Version.ToString() );
+            writer.WriteElementString( "Version", this._applicationInfo.Version );
             writer.WriteEndElement();
 
             var currentProcess = Process.GetCurrentProcess();

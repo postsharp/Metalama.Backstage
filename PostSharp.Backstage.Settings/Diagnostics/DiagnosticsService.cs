@@ -40,7 +40,7 @@ public class DiagnosticsService : ILoggerFactory, IDebuggerService
         {
             if ( _instance != null )
             {
-                var serviceProvider = new ServiceProviderBuilder().AddMinimalServices();
+                var serviceProvider = new ServiceProviderBuilder().AddDiagnosticServiceRequirements();
                 _instance = new DiagnosticsService( serviceProvider.ServiceProvider, processKind );
             }
         }

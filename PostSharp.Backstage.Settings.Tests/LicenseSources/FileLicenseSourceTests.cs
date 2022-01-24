@@ -20,9 +20,7 @@ namespace PostSharp.Backstage.Licensing.Tests.LicenseSources
         {
             FileLicenseSource source = new( this.Services );
 
-            Assert.Empty( source.GetLicenses() );
-            this.Diagnostics.AssertNoErrors();
-            this.Diagnostics.AssertNoWarnings();
+            Assert.Empty( source.GetLicenses( _ => { } ) );
         }
 
         [Fact]
@@ -32,8 +30,7 @@ namespace PostSharp.Backstage.Licensing.Tests.LicenseSources
 
             FileLicenseSource source = new( this.Services );
 
-            Assert.Empty( source.GetLicenses() );
-            this.Diagnostics.AssertClean();
+            Assert.Empty( source.GetLicenses( _ => { } ) );
         }
     }
 }

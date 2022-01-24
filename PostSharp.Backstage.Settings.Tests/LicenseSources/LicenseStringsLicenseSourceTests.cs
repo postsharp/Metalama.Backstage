@@ -18,8 +18,7 @@ namespace PostSharp.Backstage.Licensing.Tests.LicenseSources
         {
             LicenseStringsLicenseSource source = new( Enumerable.Empty<string>(), this.Services );
 
-            Assert.Empty( source.GetLicenses() );
-            this.Diagnostics.AssertClean();
+            Assert.Empty( source.GetLicenses( _ => { } ) );
         }
 
         [Fact]
@@ -27,8 +26,7 @@ namespace PostSharp.Backstage.Licensing.Tests.LicenseSources
         {
             LicenseStringsLicenseSource source = new( new[] { TestLicenseKeys.Ultimate }, this.Services );
 
-            Assert.Equal( $"License '{TestLicenseKeys.Ultimate}'", source.GetLicenses().Single().ToString() );
-            this.Diagnostics.AssertClean();
+            Assert.Equal( $"License '{TestLicenseKeys.Ultimate}'", source.GetLicenses( _ => { } ).Single().ToString() );
         }
 
         [Fact]
@@ -37,12 +35,10 @@ namespace PostSharp.Backstage.Licensing.Tests.LicenseSources
             LicenseStringsLicenseSource source =
                 new( new[] { "", TestLicenseKeys.Ultimate, "", "", TestLicenseKeys.Logging, "" }, this.Services );
 
-            var licenses = source.GetLicenses().ToArray();
+            var licenses = source.GetLicenses( _ => { } ).ToArray();
             Assert.Equal( 2, licenses.Length );
             Assert.Equal( $"License '{TestLicenseKeys.Ultimate}'", licenses[0].ToString() );
             Assert.Equal( $"License '{TestLicenseKeys.Logging}'", licenses[1].ToString() );
-
-            this.Diagnostics.AssertClean();
         }
     }
 }

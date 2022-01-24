@@ -22,7 +22,7 @@ namespace PostSharp.Cli.Commands.Licensing.Registration
 
             var registrar = new EvaluationLicenseRegistrar( services );
 
-            if ( registrar.TryRegisterLicense() )
+            if ( registrar.TryActivateLicense() )
             {
                 return 0;
             }

@@ -24,7 +24,6 @@ namespace PostSharp.Backstage.Licensing.Licenses
 
         private readonly IServiceProvider _services;
         private readonly IDateTimeProvider _dateTimeProvider;
-        private readonly IBackstageDiagnosticSink _diagnostics;
         private readonly ILogger _logger;
 
         private static string CleanLicenseKey( string licenseKey )
@@ -53,7 +52,6 @@ namespace PostSharp.Backstage.Licensing.Licenses
             this._licenseKey = CleanLicenseKey( licenseKey );
             this._services = services;
             this._dateTimeProvider = services.GetRequiredService<IDateTimeProvider>();
-            this._diagnostics = services.GetRequiredService<IBackstageDiagnosticSink>();
             this._logger = services.GetLoggerFactory().Licensing();
         }
 
@@ -171,11 +169,11 @@ namespace PostSharp.Backstage.Licensing.Licenses
             {
                 if ( TryGetLicenseId( this._licenseKey, out var id ) )
                 {
-                    this._diagnostics.ReportWarning( $"Cannot parse license key ID {id}: {e.Message}" );
+                    this._logger.Error?.Log( $"Cannot parse license key ID {id}: {e.Message}" );
                 }
                 else
                 {
-                    this._diagnostics.ReportWarning( $"Cannot parse license key {this._licenseKey}: {e.Message}" );
+                    this._logger.Error?.Log( $"Cannot parse license key {this._licenseKey}: {e.Message}" );
                 }
 
                 this._logger.Trace?.Log( $"Cannot parse the license {{{this._licenseKey}}}: {e}" );
@@ -200,7 +198,7 @@ namespace PostSharp.Backstage.Licensing.Licenses
                     applicationInfoService,
                     out var errorDescription ) )
             {
-                this._diagnostics.ReportWarning( $"License key {data.LicenseUniqueId} is invalid: {errorDescription}" );
+                this._logger.Error?.Log( $"License key {data.LicenseUniqueId} is invalid: {errorDescription}" );
                 data = null;
 
                 return false;

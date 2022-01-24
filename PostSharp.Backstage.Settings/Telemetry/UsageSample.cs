@@ -52,7 +52,6 @@ namespace PostSharp.Backstage.Telemetry
             this.Metrics.Add( new StringMetric( "Net.Version", Environment.Version.ToString() ) );
 
             var applicationInfo = serviceProvider.GetRequiredService<IApplicationInfo>();
-            this.Metrics.Add( new StringMetric( "Application.Build", applicationInfo.Hash ) );
             this.Metrics.Add( new StringMetric( "Application.Version", applicationInfo.Version.ToString() ) );
             this.Metrics.Add( new StringMetric( "Application.ProcessName", process.ProcessName ) );
 

@@ -3,6 +3,7 @@
 
 using PostSharp.Backstage.Diagnostics;
 using PostSharp.Backstage.Extensibility;
+using PostSharp.Backstage.Licensing.Consumption;
 using PostSharp.Backstage.Licensing.Licenses;
 using PostSharp.Backstage.Utilities;
 using System;
@@ -50,7 +51,7 @@ namespace PostSharp.Backstage.Licensing.Registration.Evaluation
         /// <returns>
         /// A value indicating whether the license has been registered.
         /// </returns>
-        public bool TryRegisterLicense()
+        public bool TryActivateLicense( Action<LicensingMessage>? reportMessage = null )
         {
             void TraceFailure( string message )
             {

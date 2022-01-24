@@ -41,7 +41,7 @@ namespace PostSharp.Backstage.Licensing.Tests.Evaluation
 
         protected void AssertEvaluationEligible()
         {
-            Assert.True( this.Registrar.TryRegisterLicense() );
+            Assert.True( this.Registrar.TryActivateLicense() );
             var expectedStart = this.Time.Now;
             var expectedEnd = expectedStart + EvaluationLicenseRegistrar.EvaluationPeriod;
 
@@ -57,7 +57,7 @@ namespace PostSharp.Backstage.Licensing.Tests.Evaluation
 
         protected void AssertEvaluationNotEligible( string reason )
         {
-            Assert.False( this.Registrar.TryRegisterLicense() );
+            Assert.False( this.Registrar.TryActivateLicense() );
         }
     }
 }

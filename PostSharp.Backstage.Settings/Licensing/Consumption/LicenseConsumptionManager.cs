@@ -17,12 +17,11 @@ namespace PostSharp.Backstage.Licensing.Consumption
     {
         private readonly IServiceProvider _services;
         private readonly ILogger _logger;
-
         private readonly List<ILicenseSource> _unusedLicenseSources = new();
         private readonly HashSet<ILicense> _unusedLicenses = new();
         private readonly HashSet<ILicense> _usedLicenses = new();
-
         private readonly Dictionary<string, LicenseNamespaceConstraint> _namespaceLimitedLicensedFeatures = new();
+        private readonly List<string> _warnings = new();
 
         private LicensedFeatures _licensedFeatures;
 
@@ -47,7 +46,7 @@ namespace PostSharp.Backstage.Licensing.Consumption
             this._unusedLicenseSources.AddRange( licenseSources );
         }
 
-        private bool TryLoadNextLicenseSource()
+        private bool TryLoadNextLicenseSource( Action<LicensingMessage> reportMessage )
         {
             // TODO: tracing
             this._logger.Info?.Log( "TODO: tracing" );
@@ -60,7 +59,7 @@ namespace PostSharp.Backstage.Licensing.Consumption
             var licenseSource = this._unusedLicenseSources.First();
             this._unusedLicenseSources.Remove( licenseSource );
 
-            foreach ( var license in licenseSource.GetLicenses() )
+            foreach ( var license in licenseSource.GetLicenses( reportMessage ) )
             {
                 this._unusedLicenses.Add( license );
             }
@@ -111,7 +110,7 @@ namespace PostSharp.Backstage.Licensing.Consumption
             return true;
         }
 
-        private bool TryAutoRegisterLicense()
+        private bool TryAutoRegisterLicense( Action<LicensingMessage> reportMessage )
         {
             // TODO: trace
 
@@ -120,9 +119,9 @@ namespace PostSharp.Backstage.Licensing.Consumption
                 return false;
             }
 
-            var registrar = this._services.GetService<IFirstRunLicenseActivator>();
+            var licenseActivator = this._services.GetService<IFirstRunLicenseActivator>();
 
-            if ( registrar == null || !registrar.TryRegisterLicense() )
+            if ( licenseActivator == null || !licenseActivator.TryActivateLicense( reportMessage ) )
             {
                 return false;
             }
@@ -136,8 +135,14 @@ namespace PostSharp.Backstage.Licensing.Consumption
         }
 
         /// <inheritdoc />
-        public bool CanConsumeFeatures( ILicenseConsumer consumer, LicensedFeatures requiredFeatures )
+        public bool CanConsumeFeatures( LicensedFeatures requiredFeatures, string? consumerNamespace, Action<LicensingMessage>? reportMessage )
         {
+            void ReportWarning( LicensingMessage message )
+            {
+                reportMessage?.Invoke( message );
+                this._logger.Warning?.Log( message.Text );
+            }
+
             do
             {
                 do
@@ -147,9 +152,10 @@ namespace PostSharp.Backstage.Licensing.Consumption
                         return true;
                     }
 
-                    if ( this._namespaceLimitedLicensedFeatures.Count > 0
+                    if ( !string.IsNullOrEmpty( consumerNamespace ) 
+                         && this._namespaceLimitedLicensedFeatures.Count > 0
                          && this._namespaceLimitedLicensedFeatures.Values.Any(
-                             nsf => nsf.AllowsNamespace( consumer.TargetTypeNamespace )
+                             nsf => nsf.AllowsNamespace( consumerNamespace )
                                     && nsf.LicensedFeatures.HasFlag( requiredFeatures ) ) )
                     {
                         return true;
@@ -157,9 +163,9 @@ namespace PostSharp.Backstage.Licensing.Consumption
                 }
                 while ( this.TryLoadNextLicense() );
             }
-            while ( this.TryLoadNextLicenseSource() );
+            while ( this.TryLoadNextLicenseSource( ReportWarning ) );
 
-            if ( this.TryAutoRegisterLicense() )
+            if ( this.TryAutoRegisterLicense( ReportWarning ) )
             {
                 return true;
             }
@@ -167,24 +173,6 @@ namespace PostSharp.Backstage.Licensing.Consumption
             return false;
         }
 
-        // TODO: Improve messages
-
-        /// <inheritdoc />
-        public void ConsumeFeatures( ILicenseConsumer consumer, LicensedFeatures requiredFeatures )
-        {
-            if ( !this.CanConsumeFeatures( consumer, requiredFeatures ) )
-            {
-                if ( consumer.TargetTypeName == null )
-                {
-                    consumer.DiagnosticsSink.ReportError( $"No license available for feature(s) {requiredFeatures}" );
-                }
-                else
-                {
-                    consumer.DiagnosticsSink.ReportError(
-                        $"No license available for feature(s) {requiredFeatures} required by '{consumer.TargetTypeName}' type.",
-                        consumer.DiagnosticLocation );
-                }
-            }
-        }
+        public IReadOnlyList<string> Warnings => this._warnings;
     }
 }

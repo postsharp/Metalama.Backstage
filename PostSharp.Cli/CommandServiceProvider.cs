@@ -30,7 +30,7 @@ namespace PostSharp.Cli
                     // https://www.blinkingcaret.com/2018/02/14/net-core-console-logging/
                     .Configure<LoggerFilterOptions>( options => options.MinLevel = LogLevel.Trace );
 
-                loggerFactory = ServiceProviderServiceExtensions.GetService<ILoggerFactory>( serviceCollection.BuildServiceProvider() );
+                loggerFactory = serviceCollection.BuildServiceProvider().GetService<ILoggerFactory>();
             }
 
             var serviceProviderBuilder = new ServiceProviderBuilder(
@@ -39,8 +39,7 @@ namespace PostSharp.Cli
 
             serviceProviderBuilder
                 .AddSingleton<IConsole>( console )
-                .AddSingleton<IBackstageDiagnosticSink>( new ConsoleDiagnosticsSink( serviceProviderBuilder.ServiceProvider ) )
-                .AddBackstageServices( null );
+                .AddMinimalBackstageServices();
 
             if ( loggerFactory != null )
             {

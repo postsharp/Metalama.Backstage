@@ -8,7 +8,6 @@ using PostSharp.Backstage.Licensing.Registration;
 using PostSharp.Backstage.Licensing.Tests.Licenses;
 using PostSharp.Backstage.Licensing.Tests.LicenseSources;
 using PostSharp.Backstage.Licensing.Tests.Registration;
-using PostSharp.Backstage.Testing.Services;
 using System;
 using Xunit;
 using Xunit.Abstractions;
@@ -34,17 +33,6 @@ namespace PostSharp.Backstage.Licensing.Tests.Consumption
         {
             this.AutoRegistrar =
                 (TestFirstRunLicenseActivator) this.Services.GetRequiredService<IFirstRunLicenseActivator>();
-        }
-
-        private protected ILicenseConsumer CreateConsumer(
-            string requiredNamespace = "Foo",
-            string diagnosticsLocationDescription = "TestLocation" )
-        {
-            return new TestLicenseConsumer(
-                requiredNamespace,
-                "Bar",
-                diagnosticsLocationDescription,
-                this.Services );
         }
 
         private protected TestLicense CreateLicense( string licenseString )
@@ -88,38 +76,14 @@ namespace PostSharp.Backstage.Licensing.Tests.Consumption
             bool expectedCanConsume,
             bool expectedLicenseAutoRegistrationAttempt = false )
         {
-            var consumer = this.CreateConsumer( requiredNamespace );
 
             void TestCanConsume()
             {
-                var actualCanConsume = manager.CanConsumeFeatures( consumer, requiredFeatures );
-                this.Diagnostics.AssertClean();
-                consumer.DiagnosticsSink.AssertClean();
+                var actualCanConsume = manager.CanConsumeFeatures( requiredFeatures, "" );
                 Assert.Equal( expectedCanConsume, actualCanConsume );
             }
 
-            void TestConsume()
-            {
-                manager.ConsumeFeatures( consumer, requiredFeatures );
-
-                this.Diagnostics.AssertClean();
-
-                if ( expectedCanConsume )
-                {
-                    consumer.DiagnosticsSink.AssertClean();
-                }
-                else
-                {
-                    consumer.DiagnosticsSink.AssertNoWarnings();
-
-                    consumer.DiagnosticsSink.AssertSingleError(
-                        "No license available for feature(s) Metalama required by 'Bar' type.",
-                        consumer.DiagnosticLocation );
-                }
-            }
-
             TestCanConsume();
-            TestConsume();
 
             Assert.Equal( expectedLicenseAutoRegistrationAttempt, this.AutoRegistrar.RegistrationAttempted );
         }
