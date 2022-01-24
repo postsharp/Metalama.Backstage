@@ -34,12 +34,9 @@ namespace PostSharp.Backstage.Licensing.Licenses
         /// <returns>A value indicating if the <paramref name="licenseString"/> represents a license.</returns>
         public bool TryCreate( string? licenseString, [MaybeNullWhen( false )] out ILicense license )
         {
-            // TODO: trace
-            this._logger.Info?.Log( "TODO: trace" );
-
             licenseString = licenseString?.Trim();
 
-            if ( licenseString == null || licenseString == "" )
+            if ( string.IsNullOrEmpty( licenseString ) )
             {
                 this._logger.Error?.Log( "Empty license string provided." );
                 license = null;
@@ -57,7 +54,7 @@ namespace PostSharp.Backstage.Licensing.Licenses
             }
             else
             {
-                license = new License( licenseString, this._services );
+                license = new License( licenseString!, this._services );
 
                 return true;
             }

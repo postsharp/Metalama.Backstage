@@ -76,15 +76,9 @@ namespace PostSharp.Backstage.Licensing.Tests.Consumption
             bool expectedCanConsume,
             bool expectedLicenseAutoRegistrationAttempt = false )
         {
-
-            void TestCanConsume()
-            {
-                var actualCanConsume = manager.CanConsumeFeatures( requiredFeatures, "" );
-                Assert.Equal( expectedCanConsume, actualCanConsume );
-            }
-
-            TestCanConsume();
-
+            var actualCanConsume = manager.CanConsumeFeatures( requiredFeatures, requiredNamespace );
+            Assert.Equal( expectedCanConsume, actualCanConsume );
+        
             Assert.Equal( expectedLicenseAutoRegistrationAttempt, this.AutoRegistrar.RegistrationAttempted );
         }
     }
