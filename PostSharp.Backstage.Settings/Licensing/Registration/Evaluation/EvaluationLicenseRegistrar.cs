@@ -3,7 +3,6 @@
 
 using PostSharp.Backstage.Diagnostics;
 using PostSharp.Backstage.Extensibility;
-using PostSharp.Backstage.Extensibility.Extensions;
 using PostSharp.Backstage.Licensing.Licenses;
 using PostSharp.Backstage.Utilities;
 using System;
@@ -55,14 +54,14 @@ namespace PostSharp.Backstage.Licensing.Registration.Evaluation
         {
             void TraceFailure( string message )
             {
-                this._logger?.Trace?.Log( $"Failed to register evaluation license: {message}" );
+                this._logger.Trace?.Log( $"Failed to register evaluation license: {message}" );
             }
 
-            this._logger?.Trace?.Log( "Registering evaluation license." );
+            this._logger.Trace?.Log( "Registering evaluation license." );
 
             using ( MutexHelper.WithGlobalLock( "Evaluation" ) )
             {
-                var configuration = EvaluatedLicensingConfiguration.OpenOrCreate( this._services );
+                var configuration = ParsedLicensingConfiguration.OpenOrCreate( this._services );
 
                 // If the configuration file contains an evaluation license created today, this may be a race condition with
                 // another process also trying to activate the evaluation mode. In this case, we just pretend we have succeeded.
@@ -104,7 +103,6 @@ namespace PostSharp.Backstage.Licensing.Registration.Evaluation
 
                 configuration.AddLicense( licenseKey, data );
                 configuration.LastEvaluationStartDate = this._time.Now;
-                configuration.Save();
             }
 
             return true;

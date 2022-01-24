@@ -3,7 +3,6 @@
 
 using PostSharp.Backstage.Diagnostics;
 using PostSharp.Backstage.Extensibility;
-using PostSharp.Backstage.Extensibility.Extensions;
 using System;
 using System.Diagnostics.CodeAnalysis;
 

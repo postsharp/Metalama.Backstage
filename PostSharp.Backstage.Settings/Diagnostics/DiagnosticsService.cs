@@ -1,6 +1,7 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. All rights reserved.
 // This project is not open source. Please see the LICENSE.md file in the repository root for details.
 
+using PostSharp.Backstage.Configuration;
 using PostSharp.Backstage.Extensibility;
 using PostSharp.Backstage.Utilities;
 using System;
@@ -16,10 +17,10 @@ public class DiagnosticsService : ILoggerFactory, IDebuggerService
     private static readonly DiagnosticsService _uninitializedInstance = new();
     private static volatile DiagnosticsService? _instance;
     private readonly ProcessKind _processKind;
-    private readonly ConcurrentDictionary<string, ILogger> _loggers = new ConcurrentDictionary<string, ILogger>( StringComparer.OrdinalIgnoreCase );
+    private readonly ConcurrentDictionary<string, ILogger> _loggers = new( StringComparer.OrdinalIgnoreCase );
 
     public TextWriter? TextWriter { get; }
-    
+
     internal DiagnosticsConfiguration Configuration { get; }
 
     /// <summary>
@@ -28,7 +29,7 @@ public class DiagnosticsService : ILoggerFactory, IDebuggerService
     /// of code that do not have access to a service provider.
     /// </summary>
     public static DiagnosticsService Instance => _instance ?? _uninitializedInstance;
-    
+
     /// <summary>
     /// Initializes the global <see cref="Instance"/> of the <see cref="DiagnosticsService"/> class.
     /// </summary>
@@ -39,18 +40,17 @@ public class DiagnosticsService : ILoggerFactory, IDebuggerService
         {
             if ( _instance != null )
             {
-                var serviceProvider = new ServiceProviderBuilder();
-                serviceProvider.AddSystemServices( processKind );
+                var serviceProvider = new ServiceProviderBuilder().AddMinimalServices();
                 _instance = new DiagnosticsService( serviceProvider.ServiceProvider, processKind );
             }
         }
     }
-    
+
     /// <summary>
     /// Gets a initialized instance of the <see cref="DiagnosticsService"/> class. If the <see cref="Initialize"/> method has been called, it
     /// returns the instance created by this method. Otherwise, it creates a new instance for the given <see cref="IServiceProvider"/>.
     /// </summary>
-    public static DiagnosticsService GetInstance( IServiceProvider serviceProvider,  ProcessKind processKind )
+    public static DiagnosticsService GetInstance( IServiceProvider serviceProvider, ProcessKind processKind )
     {
         lock ( _sync )
         {
@@ -60,7 +60,7 @@ public class DiagnosticsService : ILoggerFactory, IDebuggerService
                 {
                     throw new InvalidOperationException( "The class has been initialized with a different ProcessKind." );
                 }
-                
+
                 return _instance;
             }
             else
@@ -68,7 +68,6 @@ public class DiagnosticsService : ILoggerFactory, IDebuggerService
                 return new DiagnosticsService( serviceProvider, processKind );
             }
         }
-        
     }
 
     /// <summary>
@@ -77,13 +76,13 @@ public class DiagnosticsService : ILoggerFactory, IDebuggerService
     /// </summary>
     private DiagnosticsService()
     {
-        this.Configuration = new();
+        this.Configuration = new DiagnosticsConfiguration();
     }
-    
+
     private DiagnosticsService( IServiceProvider serviceProvider, ProcessKind processKind )
     {
         this._processKind = processKind;
-        this.Configuration = DiagnosticsConfiguration.Load( serviceProvider );
+        this.Configuration = serviceProvider.GetRequiredService<IConfigurationManager>().Get<DiagnosticsConfiguration>();
 
         if ( this.Configuration.Logging.Processes.TryGetValue( processKind, out var enabled ) && enabled )
         {

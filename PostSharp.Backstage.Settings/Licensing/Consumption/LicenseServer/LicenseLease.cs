@@ -7,7 +7,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Text;
 using System.Xml;
 
-namespace PostSharp.Backstage.Licensing.LicenseServer
+namespace PostSharp.Backstage.Licensing.Consumption.LicenseServer
 {
     // TODO (this is just a copy from PostSharp.)
 

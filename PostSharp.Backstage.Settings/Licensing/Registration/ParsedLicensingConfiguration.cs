@@ -1,6 +1,8 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. All rights reserved.
 // This project is not open source. Please see the LICENSE.md file in the repository root for details.
 
+using PostSharp.Backstage.Configuration;
+using PostSharp.Backstage.Extensibility;
 using PostSharp.Backstage.Licensing.Licenses;
 using System;
 using System.Collections.Generic;
@@ -11,7 +13,7 @@ namespace PostSharp.Backstage.Licensing.Registration
     /// <summary>
     /// Manages license file for license registration purposes.
     /// </summary>
-    public class EvaluatedLicensingConfiguration
+    public class ParsedLicensingConfiguration
     {
         private readonly IServiceProvider _services;
         private readonly LicensingConfiguration _configuration;
@@ -21,7 +23,7 @@ namespace PostSharp.Backstage.Licensing.Registration
         public DateTime? LastEvaluationStartDate
         {
             get => this._configuration.LastEvaluationStartDate;
-            set => this._configuration.LastEvaluationStartDate = value;
+            set => this._configuration.ConfigurationManager.Update<LicensingConfiguration>( c => c.LastEvaluationStartDate = value );
         }
 
         /// <summary>
@@ -54,9 +56,9 @@ namespace PostSharp.Backstage.Licensing.Registration
         /// Creates an empty storage.
         /// </summary>
         /// <returns>The empty storage.</returns>
-        public static EvaluatedLicensingConfiguration CreateEmpty( IServiceProvider services )
+        public static ParsedLicensingConfiguration CreateEmpty( IServiceProvider services )
         {
-            var storage = new EvaluatedLicensingConfiguration( new LicensingConfiguration(), services );
+            var storage = new ParsedLicensingConfiguration( new LicensingConfiguration(), services );
 
             return storage;
         }
@@ -66,11 +68,11 @@ namespace PostSharp.Backstage.Licensing.Registration
         /// </summary>
         /// <param name="services">Services.</param>
         /// <returns></returns>
-        public static EvaluatedLicensingConfiguration OpenOrCreate( IServiceProvider services )
+        public static ParsedLicensingConfiguration OpenOrCreate( IServiceProvider services )
         {
-            var licensingConfiguration = LicensingConfiguration.Load( services );
+            var licensingConfiguration = services.GetRequiredService<IConfigurationManager>().Get<LicensingConfiguration>();
 
-            var storage = new EvaluatedLicensingConfiguration( licensingConfiguration, services );
+            var storage = new ParsedLicensingConfiguration( licensingConfiguration, services );
             var factory = new LicenseFactory( services );
 
             foreach ( var licenseString in licensingConfiguration.Licenses )
@@ -93,7 +95,7 @@ namespace PostSharp.Backstage.Licensing.Registration
             return storage;
         }
 
-        private EvaluatedLicensingConfiguration( LicensingConfiguration configuration, IServiceProvider services )
+        private ParsedLicensingConfiguration( LicensingConfiguration configuration, IServiceProvider services )
         {
             this._services = services;
             this._configuration = configuration;
@@ -107,6 +109,7 @@ namespace PostSharp.Backstage.Licensing.Registration
         public void AddLicense( string licenseString, LicenseRegistrationData data )
         {
             this._licenses.Add( (licenseString, data) );
+            this.Save();
         }
 
         /// <summary>
@@ -115,7 +118,14 @@ namespace PostSharp.Backstage.Licensing.Registration
         /// <param name="licenseString">String representing the license to be removed.</param>
         public bool RemoveLicense( string licenseString )
         {
-            return this._licenses.RemoveAll( l => l.LicenseString == licenseString ) > 0;
+            if ( this._licenses.RemoveAll( l => l.LicenseString == licenseString ) > 0 )
+            {
+                this.Save();
+
+                return true;
+            }
+
+            return false;
         }
 
         /// <summary>
@@ -124,10 +134,10 @@ namespace PostSharp.Backstage.Licensing.Registration
         /// <remarks>
         /// Overwrites existing file.
         /// </remarks>
-        public void Save()
+        private void Save()
         {
-            this._configuration.Licenses = this._licenses.Select( l => l.LicenseString ).ToArray();
-            this._configuration.Save( this._services );
+            this._services.GetRequiredService<IConfigurationManager>()
+                .Update<LicensingConfiguration>( c => c.Licenses = this._licenses.Select( l => l.LicenseString ).ToArray() );
         }
     }
 }

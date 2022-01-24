@@ -1,6 +1,8 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. All rights reserved.
 // This project is not open source. Please see the LICENSE.md file in the repository root for details.
 
+using Microsoft.Extensions.DependencyInjection;
+using PostSharp.Backstage.Configuration;
 using PostSharp.Backstage.Diagnostics;
 using System.CommandLine;
 using System.CommandLine.Invocation;
@@ -20,8 +22,7 @@ internal class ResetLoggingCommand : CommandBase
     private void Execute( IConsole console )
     {
         var services = this.CommandServiceProvider.CreateServiceProvider( console, false );
-        var configuration = DiagnosticsConfiguration.Load( services );
-        configuration.Reset();
-        configuration.Save( services );
+        var configurationManager = services.GetRequiredService<IConfigurationManager>();
+        configurationManager.Update<DiagnosticsConfiguration>( c => c.Reset() );
     }
 }

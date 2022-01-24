@@ -38,7 +38,7 @@ namespace PostSharp.Backstage.Extensibility
 
         public IServiceProvider ServiceProvider => this._getServiceProvider();
 
-        class ServiceProviderImpl : Dictionary<Type,object>, IServiceProvider
+        private class ServiceProviderImpl : Dictionary<Type, object>, IServiceProvider
         {
             object? IServiceProvider.GetService( Type serviceType )
             {

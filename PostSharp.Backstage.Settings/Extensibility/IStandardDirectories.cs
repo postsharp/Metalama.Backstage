@@ -17,5 +17,17 @@ namespace PostSharp.Backstage.Extensibility
         /// Gets the path of the current user's application temporary folder.
         /// </summary>
         string TempDirectory { get; }
+
+        /// <summary>
+        /// Gets the directory where the exception reports should be stored just after they are captured.
+        /// </summary>
+        string TelemetryExceptionsDirectory { get; }
+
+        /// <summary>
+        /// Gets the directory where files to be uploaded to the server have to be stored.
+        /// </summary>
+        string TelemetryUploadQueueDirectory { get; }
+
+        string TelemetryUploadPackagesDirectory { get; }
     }
 }

@@ -45,14 +45,14 @@ namespace PostSharp.Backstage.Licensing.Tests.Evaluation
             var expectedStart = this.Time.Now;
             var expectedEnd = expectedStart + EvaluationLicenseRegistrar.EvaluationPeriod;
 
-            var licenses = EvaluatedLicensingConfiguration.OpenOrCreate( this.Services );
-            var registeredLicense = licenses.Licenses.Single( x => x.LicenseData is { LicenseType: LicenseType.Evaluation } && x.LicenseData.ValidFrom == expectedStart ).LicenseData;
-            
+            var licenses = ParsedLicensingConfiguration.OpenOrCreate( this.Services );
+
+            var registeredLicense = licenses.Licenses
+                .Single( x => x.LicenseData is { LicenseType: LicenseType.Evaluation } && x.LicenseData.ValidFrom == expectedStart )
+                .LicenseData!;
+
             Assert.Equal( expectedEnd, registeredLicense.ValidTo );
             Assert.Equal( expectedEnd, registeredLicense.SubscriptionEndDate );
-
-            
-            
         }
 
         protected void AssertEvaluationNotEligible( string reason )

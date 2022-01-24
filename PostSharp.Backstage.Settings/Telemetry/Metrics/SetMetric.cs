@@ -1,0 +1,64 @@
+// Copyright (c) SharpCrafters s.r.o. All rights reserved.
+// This project is not open source. Please see the LICENSE.md file in the repository root for details.
+
+using System;
+using System.Collections.Generic;
+using System.IO;
+
+namespace PostSharp.Backstage.Telemetry.Metrics
+{
+    /// <summary>
+    /// A <see cref="Metric"/> storing a set of strings.
+    /// </summary>
+    [Serializable]
+    public sealed class SetMetric : Metric
+    {
+        private readonly HashSet<string> _set = new();
+
+        public SetMetric( string name ) : base( name ) { }
+
+        public HashSet<string> Set => this._set;
+
+        /// <inheritdoc />
+        public override void WriteValue( TextWriter textWriter )
+        {
+            var first = true;
+
+            foreach ( var s in this._set )
+            {
+                if ( first )
+                {
+                    first = false;
+                }
+                else
+                {
+                    textWriter.Write( ',' );
+                }
+
+                textWriter.Write( s );
+            }
+        }
+
+        /// <inheritdoc />
+        public override string ToString()
+        {
+            using var stringWriter = new StringWriter();
+            this.WriteValue( stringWriter );
+
+            return stringWriter.ToString();
+        }
+
+        /// <inheritdoc />
+        public override bool SetValue( object? value )
+        {
+            if ( value is not string operand )
+            {
+                return false;
+            }
+
+            this._set.Add( operand );
+
+            return true;
+        }
+    }
+}

@@ -1,7 +1,7 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. All rights reserved.
 // This project is not open source. Please see the LICENSE.md file in the repository root for details.
 
-using Microsoft.Extensions.DependencyInjection;
+using PostSharp.Backstage.Configuration;
 using PostSharp.Backstage.Extensibility;
 using PostSharp.Backstage.Licensing.Licenses;
 using PostSharp.Backstage.Testing;
@@ -29,14 +29,16 @@ namespace PostSharp.Backstage.Licensing.Tests
                 services =>
                 {
                     // ReSharper disable once ExplicitCallerInfoArgument
-                    services.AddSingleton<IBackstageDiagnosticSink>( new TestDiagnosticsSink( services.ServiceProvider, "default" ) );
-
-                    services.AddSingleton<IApplicationInfo>(
-                        new TestApplicationInfo(
-                            "Licensing Test App",
-                            false,
-                            new Version( 0, 1, 0 ),
-                            new DateTime( 2021, 1, 1 ) ) );
+                    services
+                        .AddSingleton<IBackstageDiagnosticSink>( new TestDiagnosticsSink( services.ServiceProvider, "default" ) )
+                        .AddSingleton<IApplicationInfo>(
+                            new TestApplicationInfo(
+                                "Licensing Test App",
+                                false,
+                                new Version( 0, 1, 0 ),
+                                new DateTime( 2021, 1, 1 ),
+                                "Hash" ) )
+                        .AddConfigurationManager();
 
                     serviceBuilder?.Invoke( services );
                 } )
@@ -44,7 +46,7 @@ namespace PostSharp.Backstage.Licensing.Tests
             this.LicenseFactory = new LicenseFactory( this.Services );
             this.SelfSignedLicenseFactory = new UnsignedLicenseFactory( this.Services );
             this.Diagnostics = (TestDiagnosticsSink) this.Services.GetRequiredService<IBackstageDiagnosticSink>();
-            this.LicensingConfigurationFile = LicensingConfiguration.Load( this.Services ).FilePath!;
+            this.LicensingConfigurationFile = this.Services.GetRequiredService<IConfigurationManager>().GetFileName<LicensingConfiguration>();
         }
     }
 }

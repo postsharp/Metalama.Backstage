@@ -3,7 +3,6 @@
 
 using Microsoft.Extensions.Logging;
 using PostSharp.Backstage.Diagnostics;
-using ILogger = PostSharp.Backstage.Diagnostics.ILogger;
 using IMicrosoftLogger = Microsoft.Extensions.Logging.ILogger;
 using IPostSharpLogger = PostSharp.Backstage.Diagnostics.ILogger;
 
@@ -11,7 +10,7 @@ using IPostSharpLogger = PostSharp.Backstage.Diagnostics.ILogger;
 
 namespace PostSharp.Backstage.MicrosoftLogging
 {
-    internal class LoggerAdapter : ILogger
+    internal class LoggerAdapter : IPostSharpLogger
     {
         private readonly IMicrosoftLogger _logger;
 

@@ -1,11 +1,14 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. All rights reserved.
 // This project is not open source. Please see the LICENSE.md file in the repository root for details.
 
-namespace PostSharp.Backstage.Telemetry
+using System;
+
+namespace PostSharp.Backstage.Telemetry;
+
+[Obsolete( "Not used anymore." )]
+public enum ExceptionCategory
 {
-    // TODO
-    public class Metrics
-    {
-        // public static LicenseRegistration LicenseRegistration { get; set; }
-    }
+    Environment,
+    Defect,
+    Cancellation
 }

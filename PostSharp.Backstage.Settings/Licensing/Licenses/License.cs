@@ -3,7 +3,6 @@
 
 using PostSharp.Backstage.Diagnostics;
 using PostSharp.Backstage.Extensibility;
-using PostSharp.Backstage.Extensibility.Extensions;
 using PostSharp.Backstage.Licensing.Consumption;
 using PostSharp.Backstage.Licensing.Registration;
 using PostSharp.Backstage.Utilities;

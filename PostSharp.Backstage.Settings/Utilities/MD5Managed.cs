@@ -284,10 +284,10 @@ namespace PostSharp.Backstage.Utilities
            operation, processing another message block, and updating the
            context. */
         private static void MD5Update(
-            MD5_CTX context, /* context */
-            byte[] input,    /* input block */
-            uint inputIndex, // Starting index for input block
-            uint inputLen )  /*  length of input block */
+            MD5_CTX context,
+            byte[] input,
+            uint inputIndex,
+            uint inputLen )
         {
             /* Compute number of bytes mod 64 */
             var index = (uint) ((context.count[0] >> 3) & 0x3F);

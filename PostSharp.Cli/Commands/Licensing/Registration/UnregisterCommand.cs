@@ -24,7 +24,7 @@ namespace PostSharp.Cli.Commands.Licensing.Registration
         private int Execute( string licenseKeyOrOrdinal, bool verbose, IConsole console )
         {
             var services = this.CommandServiceProvider.CreateServiceProvider( console, verbose );
-            var licenseStorage = EvaluatedLicensingConfiguration.OpenOrCreate( services );
+            var licenseStorage = ParsedLicensingConfiguration.OpenOrCreate( services );
 
             if ( int.TryParse( licenseKeyOrOrdinal, out var ordinal ) )
             {
@@ -38,7 +38,7 @@ namespace PostSharp.Cli.Commands.Licensing.Registration
 
         private static int UnregisterOrdinal(
             int ordinal,
-            EvaluatedLicensingConfiguration licensingConfiguration,
+            ParsedLicensingConfiguration licensingConfiguration,
             IConsole console )
         {
             if ( ordinal <= 0 || ordinal > licensingConfiguration.Licenses.Count )
@@ -55,7 +55,7 @@ namespace PostSharp.Cli.Commands.Licensing.Registration
 
         private static int UnregisterLicense(
             string licenseString,
-            EvaluatedLicensingConfiguration licensingConfiguration,
+            ParsedLicensingConfiguration licensingConfiguration,
             IConsole console )
         {
             if ( !licensingConfiguration.RemoveLicense( licenseString ) )
@@ -64,8 +64,6 @@ namespace PostSharp.Cli.Commands.Licensing.Registration
 
                 return 2;
             }
-
-            licensingConfiguration.Save();
 
             console.Out.WriteLine( $"{licenseString} unregistered." );
 

@@ -7,7 +7,6 @@ using PostSharp.Backstage.Extensibility;
 using PostSharp.Backstage.MicrosoftLogging;
 using System;
 using System.CommandLine;
-using ILoggerFactory = Microsoft.Extensions.Logging.ILoggerFactory;
 
 namespace PostSharp.Cli
 {
@@ -31,7 +30,7 @@ namespace PostSharp.Cli
                     // https://www.blinkingcaret.com/2018/02/14/net-core-console-logging/
                     .Configure<LoggerFilterOptions>( options => options.MinLevel = LogLevel.Trace );
 
-                loggerFactory = serviceCollection.BuildServiceProvider().GetService<ILoggerFactory>();
+                loggerFactory = ServiceProviderServiceExtensions.GetService<ILoggerFactory>( serviceCollection.BuildServiceProvider() );
             }
 
             var serviceProviderBuilder = new ServiceProviderBuilder(
@@ -41,7 +40,7 @@ namespace PostSharp.Cli
             serviceProviderBuilder
                 .AddSingleton<IConsole>( console )
                 .AddSingleton<IBackstageDiagnosticSink>( new ConsoleDiagnosticsSink( serviceProviderBuilder.ServiceProvider ) )
-                .AddSystemServices();
+                .AddBackstageServices( null );
 
             if ( loggerFactory != null )
             {

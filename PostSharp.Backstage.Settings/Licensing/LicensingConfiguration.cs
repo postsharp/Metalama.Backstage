@@ -7,6 +7,7 @@ using System;
 
 namespace PostSharp.Backstage.Licensing;
 
+[ConfigurationFile( "licensing.json" )]
 internal class LicensingConfiguration : ConfigurationFile
 {
     /// <summary>
@@ -18,7 +19,10 @@ internal class LicensingConfiguration : ConfigurationFile
     [JsonProperty( "licenses" )]
     public string[] Licenses { get; set; } = Array.Empty<string>();
 
-    public static LicensingConfiguration Load( IServiceProvider services ) => Load<LicensingConfiguration>( services );
-
-    public override string FileName => "licensing.json";
+    public override void CopyFrom( ConfigurationFile configurationFile )
+    {
+        var source = (LicensingConfiguration) configurationFile;
+        this.LastEvaluationStartDate = source.LastEvaluationStartDate;
+        this.Licenses = (string[]) source.Licenses.Clone();
+    }
 }

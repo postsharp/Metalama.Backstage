@@ -44,10 +44,9 @@ namespace PostSharp.Cli.Commands.Licensing.Registration
                 return 1;
             }
 
-            var storage = EvaluatedLicensingConfiguration.OpenOrCreate( services );
+            var storage = ParsedLicensingConfiguration.OpenOrCreate( services );
 
             storage.AddLicense( licenseKey, data );
-            storage.Save();
 
             return 0;
         }

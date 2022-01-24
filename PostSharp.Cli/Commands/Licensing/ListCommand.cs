@@ -21,7 +21,7 @@ namespace PostSharp.Cli.Commands.Licensing
         private int Execute( bool verbose, IConsole console )
         {
             var services = this.CommandServiceProvider.CreateServiceProvider( console, verbose );
-            var storage = EvaluatedLicensingConfiguration.OpenOrCreate( services );
+            var storage = ParsedLicensingConfiguration.OpenOrCreate( services );
 
             var index = 1;
 

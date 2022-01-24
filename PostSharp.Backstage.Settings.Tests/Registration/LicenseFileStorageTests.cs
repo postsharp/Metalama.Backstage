@@ -12,14 +12,9 @@ namespace PostSharp.Backstage.Licensing.Tests.Registration
         public LicenseFileStorageTests( ITestOutputHelper logger )
             : base( logger ) { }
 
-        private EvaluatedLicensingConfiguration CreateStorage()
+        private ParsedLicensingConfiguration OpenOrCreateStorage()
         {
-            return EvaluatedLicensingConfiguration.CreateEmpty( this.Services );
-        }
-
-        private EvaluatedLicensingConfiguration OpenOrCreateStorage()
-        {
-            return EvaluatedLicensingConfiguration.OpenOrCreate( this.Services );
+            return ParsedLicensingConfiguration.OpenOrCreate( this.Services );
         }
 
         private void AssertFileContains( params string[] expectedLicenseStrings )
@@ -28,7 +23,7 @@ namespace PostSharp.Backstage.Licensing.Tests.Registration
         }
 
         private void AssertStorageContains(
-            EvaluatedLicensingConfiguration storage,
+            ParsedLicensingConfiguration storage,
             params string[] expectedLicenseStrings )
         {
             Assert.Equal( expectedLicenseStrings.Length, storage.Licenses.Count );
@@ -57,7 +52,7 @@ namespace PostSharp.Backstage.Licensing.Tests.Registration
             }
         }
 
-        private void Add( EvaluatedLicensingConfiguration storage, string licenseString )
+        private void Add( ParsedLicensingConfiguration storage, string licenseString )
         {
             var data = this.GetLicenseRegistrationData( licenseString );
             storage.AddLicense( licenseString, data );
@@ -81,20 +76,7 @@ namespace PostSharp.Backstage.Licensing.Tests.Registration
         [Fact]
         public void EmptyStorageCanBeCreated()
         {
-            var storage = this.OpenOrCreateStorage();
-            storage.Save();
-
-            this.AssertFileContains();
-        }
-
-        [Fact]
-        public void ExistingStorageCanBeOverwritten()
-        {
-            this.SetStoredLicenseStrings( "dummy" );
-
-            var storage = this.CreateStorage();
-            storage.Save();
-
+            this.OpenOrCreateStorage();
             this.AssertFileContains();
         }
 
@@ -103,7 +85,6 @@ namespace PostSharp.Backstage.Licensing.Tests.Registration
         {
             var storage = this.OpenOrCreateStorage();
             this.Add( storage, TestLicenseKeys.Ultimate );
-            storage.Save();
 
             this.AssertFileContains( TestLicenseKeys.Ultimate );
         }
@@ -135,7 +116,6 @@ namespace PostSharp.Backstage.Licensing.Tests.Registration
 
             var storage = this.OpenOrCreateStorage();
             this.Add( storage, TestLicenseKeys.Ultimate );
-            storage.Save();
 
             this.AssertStorageContains( storage, "dummy", TestLicenseKeys.Ultimate );
         }
@@ -147,7 +127,6 @@ namespace PostSharp.Backstage.Licensing.Tests.Registration
 
             var storage = this.OpenOrCreateStorage();
             this.Add( storage, TestLicenseKeys.Caching );
-            storage.Save();
 
             this.AssertStorageContains(
                 storage,

@@ -10,7 +10,7 @@ using System.Xml;
 
 #pragma warning disable CA5350, CA5350, CA5384, CA5351 // Do Not Use Weak Cryptographic Algorithms (TODO - but this means upgrading all license keys)
 
-namespace PostSharp.Backstage.Licensing.Cryptography
+namespace PostSharp.Backstage.Licensing.Licenses
 {
     /// <summary>
     /// Utility cryptographic methods for use with the PostSharp licensing system.

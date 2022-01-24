@@ -8,13 +8,14 @@ using System.Collections.Generic;
 
 namespace PostSharp.Backstage.Diagnostics;
 
+[ConfigurationFile( "diagnostics.json" )]
 public class DiagnosticsConfiguration : ConfigurationFile
 {
-    [JsonProperty("logging")]
-    public LoggingConfiguration Logging { get; } = new LoggingConfiguration();
+    [JsonProperty( "logging" )]
+    public LoggingConfiguration Logging { get; private set; } = new();
 
-    [JsonProperty("debugger")]
-    public DebuggerConfiguration Debugger { get; } = new DebuggerConfiguration();
+    [JsonProperty( "debugger" )]
+    public DebuggerConfiguration Debugger { get; private set; } = new();
 
     public DiagnosticsConfiguration()
     {
@@ -25,25 +26,21 @@ public class DiagnosticsConfiguration : ConfigurationFile
     {
         this.Logging.Processes = new Dictionary<ProcessKind, bool>
         {
-            [ProcessKind.Compiler] = false,
-            [ProcessKind.Rider] = false,
-            [ProcessKind.DevEnv] = false,
-            [ProcessKind.RoslynCodeAnalysisService] = false
+            [ProcessKind.Compiler] = false, [ProcessKind.Rider] = false, [ProcessKind.DevEnv] = false, [ProcessKind.RoslynCodeAnalysisService] = false
         };
-        
+
         this.Logging.Categories = new Dictionary<string, bool>( StringComparer.OrdinalIgnoreCase ) { ["*"] = false, ["Licensing"] = false };
-        
+
         this.Debugger.Processes = new Dictionary<ProcessKind, bool>
         {
-            [ProcessKind.Compiler] = false,
-            [ProcessKind.Rider] = false,
-            [ProcessKind.DevEnv] = false,
-            [ProcessKind.RoslynCodeAnalysisService] = false
+            [ProcessKind.Compiler] = false, [ProcessKind.Rider] = false, [ProcessKind.DevEnv] = false, [ProcessKind.RoslynCodeAnalysisService] = false
         };
     }
 
-    public static DiagnosticsConfiguration Load( IServiceProvider services ) => Load<DiagnosticsConfiguration>( services );
-
-    public override string FileName => "logging.json";
+    public override void CopyFrom( ConfigurationFile configurationFile )
+    {
+        var source = (DiagnosticsConfiguration) configurationFile;
+        this.Logging = source.Logging.Clone();
+        this.Debugger = source.Debugger.Clone();
+    }
 }
-

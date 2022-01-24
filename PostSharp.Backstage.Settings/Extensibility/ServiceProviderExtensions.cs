@@ -3,9 +3,9 @@
 
 using System;
 
-namespace PostSharp.Backstage.Extensibility.Extensions
+namespace PostSharp.Backstage.Extensibility
 {
-    public static class ServiceProviderExtensions
+    internal static class ServiceProviderExtensions
     {
         public static TService? GetService<TService>( this IServiceProvider serviceProvider )
         {

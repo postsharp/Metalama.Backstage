@@ -46,7 +46,7 @@ namespace PostSharp.Backstage.Licensing.Registration.Community
 
             try
             {
-                var userStorage = EvaluatedLicensingConfiguration.OpenOrCreate( this._services );
+                var userStorage = ParsedLicensingConfiguration.OpenOrCreate( this._services );
 
                 if ( userStorage.Licenses.Any( l => l.LicenseData is { LicenseType: LicenseType.Community } ) )
                 {
@@ -59,7 +59,6 @@ namespace PostSharp.Backstage.Licensing.Registration.Community
                 var (licenseKey, data) = factory.CreateCommunityLicense();
 
                 userStorage.AddLicense( licenseKey, data );
-                userStorage.Save();
             }
             catch ( Exception e )
             {

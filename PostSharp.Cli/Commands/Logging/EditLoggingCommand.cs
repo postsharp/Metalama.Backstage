@@ -1,11 +1,12 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. All rights reserved.
 // This project is not open source. Please see the LICENSE.md file in the repository root for details.
 
+using Microsoft.Extensions.DependencyInjection;
+using PostSharp.Backstage.Configuration;
 using PostSharp.Backstage.Diagnostics;
 using System.CommandLine;
 using System.CommandLine.Invocation;
 using System.Diagnostics;
-using System.IO;
 
 namespace PostSharp.Cli.Commands.Logging;
 
@@ -22,12 +23,13 @@ internal class EditLoggingCommand : CommandBase
     private void Execute( IConsole console )
     {
         var services = this.CommandServiceProvider.CreateServiceProvider( console, false );
-        var configuration = DiagnosticsConfiguration.Load( services );
+        var configurationManager = services.GetRequiredService<IConfigurationManager>();
+        var configuration = configurationManager.Get<DiagnosticsConfiguration>();
 
-        if ( !File.Exists( configuration.FilePath ) )
+        if ( configuration.LastModified == null )
         {
             // Create a default file if it does not exist.
-            configuration.Save( services );
+            configurationManager.Update<DiagnosticsConfiguration>( _ => { } );
         }
 
         Process.Start( new ProcessStartInfo( configuration.FilePath ) { UseShellExecute = true } );

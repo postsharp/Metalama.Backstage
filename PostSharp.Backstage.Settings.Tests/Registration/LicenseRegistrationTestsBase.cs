@@ -1,6 +1,7 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. All rights reserved.
 // This project is not open source. Please see the LICENSE.md file in the repository root for details.
 
+using PostSharp.Backstage.Configuration;
 using PostSharp.Backstage.Extensibility;
 using PostSharp.Backstage.Licensing.Registration;
 using PostSharp.Backstage.Testing.Services;
@@ -19,7 +20,7 @@ namespace PostSharp.Backstage.Licensing.Tests.Registration
                 logger,
                 serviceCollection => serviceBuilder?.Invoke( serviceCollection ) ) { }
 
-        protected string[] ReadStoredLicenseStrings() => LicensingConfiguration.Load( this.Services ).Licenses;
+        protected string[] ReadStoredLicenseStrings() => this.Services.GetRequiredService<IConfigurationManager>().Get<LicensingConfiguration>().Licenses;
 
         protected void SetStoredLicenseStrings( params string[] licenseStrings )
         {

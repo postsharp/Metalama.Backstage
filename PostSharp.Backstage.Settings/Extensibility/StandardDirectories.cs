@@ -17,5 +17,11 @@ namespace PostSharp.Backstage.Extensibility
 
         /// <inheritdoc />
         public string TempDirectory { get; } = Path.Combine( Path.GetTempPath(), "PostSharp" );
+
+        public string TelemetryExceptionsDirectory => Path.Combine( this.ApplicationDataDirectory, "Telemetry", "Exceptions" );
+
+        public string TelemetryUploadQueueDirectory => Path.Combine( this.ApplicationDataDirectory, "Telemetry", "UploadQueue" );
+
+        public string TelemetryUploadPackagesDirectory => Path.Combine( this.ApplicationDataDirectory, "Telemetry", "Packages" );
     }
 }
