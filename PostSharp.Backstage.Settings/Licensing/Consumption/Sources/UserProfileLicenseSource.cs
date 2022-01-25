@@ -11,11 +11,11 @@ namespace PostSharp.Backstage.Licensing.Consumption.Sources
     /// <summary>
     /// License source providing licenses from a license file.
     /// </summary>
-    public class FileLicenseSource : LicenseStringsLicenseSourceBase
+    public class UserProfileLicenseSource : LicenseSourceBase
     {
         private readonly LicensingConfiguration _licensingConfiguration;
 
-        public FileLicenseSource( IServiceProvider services )
+        public UserProfileLicenseSource( IServiceProvider services )
             : base( services )
         {
             this._licensingConfiguration = services.GetRequiredService<IConfigurationManager>().Get<LicensingConfiguration>();

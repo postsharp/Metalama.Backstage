@@ -18,16 +18,7 @@ internal class LogWriter : ILogWriter
 
     public void Log( string message )
     {
-        // ReSharper disable once InconsistentlySynchronizedField
-        var writer = this._logger.DiagnosticsService.TextWriter;
-
-        if ( writer != null )
-        {
-            lock ( writer )
-            {
-                writer.WriteLine(
-                    FormattableString.Invariant( $"{DateTime.Now} {this._logLevel.ToString().ToUpperInvariant()} {this._logger.Category}: {message}" ) );
-            }
-        }
+        this._logger.DiagnosticsService.WriteLine(
+            FormattableString.Invariant( $"{DateTime.Now} {this._logLevel.ToString().ToUpperInvariant()} {this._logger.Category}: {message}" ) );
     }
 }

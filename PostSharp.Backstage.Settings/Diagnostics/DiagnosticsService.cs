@@ -11,16 +11,20 @@ using System.IO;
 
 namespace PostSharp.Backstage.Diagnostics;
 
-public class DiagnosticsService : ILoggerFactory, IDebuggerService
+public class DiagnosticsService : ILoggerFactory
 {
-    private static readonly object _sync = new();
+    private static readonly object _initializeSync = new();
     private static readonly DiagnosticsService _uninitializedInstance = new();
     private static volatile DiagnosticsService? _instance;
+    private static volatile bool _attachDebuggerRequested;
+    private static volatile object _attachDebuggerSync= new();
+
     private readonly ProcessKind _processKind;
     private readonly ConcurrentDictionary<string, ILogger> _loggers = new( StringComparer.OrdinalIgnoreCase );
-
-    public TextWriter? TextWriter { get; }
-
+    private readonly object _textWriterSync = new();
+    private readonly string? _fileName;
+    private TextWriter? _textWriter;
+    
     internal DiagnosticsConfiguration Configuration { get; }
 
     /// <summary>
@@ -34,14 +38,14 @@ public class DiagnosticsService : ILoggerFactory, IDebuggerService
     /// Initializes the global <see cref="Instance"/> of the <see cref="DiagnosticsService"/> class.
     /// </summary>
     /// <param name="processKind"></param>
-    public static void Initialize( ProcessKind processKind )
+    public static void Initialize( ProcessKind processKind, string? projectName = null )
     {
-        lock ( _sync )
+        lock ( _initializeSync )
         {
             if ( _instance != null )
             {
                 var serviceProvider = new ServiceProviderBuilder().AddDiagnosticServiceRequirements();
-                _instance = new DiagnosticsService( serviceProvider.ServiceProvider, processKind );
+                _instance = new DiagnosticsService( serviceProvider.ServiceProvider, processKind, projectName );
             }
         }
     }
@@ -50,9 +54,9 @@ public class DiagnosticsService : ILoggerFactory, IDebuggerService
     /// Gets a initialized instance of the <see cref="DiagnosticsService"/> class. If the <see cref="Initialize"/> method has been called, it
     /// returns the instance created by this method. Otherwise, it creates a new instance for the given <see cref="IServiceProvider"/>.
     /// </summary>
-    public static DiagnosticsService GetInstance( IServiceProvider serviceProvider, ProcessKind processKind )
+    public static DiagnosticsService GetInstance( IServiceProvider serviceProvider, ProcessKind processKind, string? projectName = null )
     {
-        lock ( _sync )
+        lock ( _initializeSync )
         {
             if ( _instance != null )
             {
@@ -65,7 +69,7 @@ public class DiagnosticsService : ILoggerFactory, IDebuggerService
             }
             else
             {
-                return new DiagnosticsService( serviceProvider, processKind );
+                return new DiagnosticsService( serviceProvider, processKind, projectName );
             }
         }
     }
@@ -79,15 +83,13 @@ public class DiagnosticsService : ILoggerFactory, IDebuggerService
         this.Configuration = new DiagnosticsConfiguration();
     }
 
-    private DiagnosticsService( IServiceProvider serviceProvider, ProcessKind processKind )
+    private DiagnosticsService( IServiceProvider serviceProvider, ProcessKind processKind, string? projectName )
     {
         this._processKind = processKind;
         this.Configuration = serviceProvider.GetRequiredService<IConfigurationManager>().Get<DiagnosticsConfiguration>();
 
         if ( this.Configuration.Logging.Processes.TryGetValue( processKind, out var enabled ) && enabled )
         {
-            var pid = Process.GetCurrentProcess().Id;
-
             var directory = Path.Combine( Path.GetTempPath(), "Metalama", "Logs" );
 
             try
@@ -101,22 +103,35 @@ public class DiagnosticsService : ILoggerFactory, IDebuggerService
                         }
                     } );
 
+                var projectNameWithDot = string.IsNullOrEmpty( projectName ) ? "" : "-" + projectName;
+
                 // The filename must be unique because several instances of the current assembly (of different versions) may be loaded in the process.
-                this.TextWriter = File.CreateText(
-                    Path.Combine(
-                        directory,
-                        $"Metalama.{Process.GetCurrentProcess().ProcessName}.{pid}.{Guid.NewGuid()}.log" ) );
+                this._fileName = Path.Combine(
+                    directory,
+                    $"Metalama-{Process.GetCurrentProcess().ProcessName}{projectNameWithDot}-{Guid.NewGuid()}.log" );
             }
             catch
             {
                 // Don't fail if we cannot initialize the log.
             }
         }
+        
+        this.LaunchDebugger();
+    }
+
+    public void WriteLine( string s )
+    {
+        lock ( this._textWriterSync )
+        {
+            this._textWriter ??= File.CreateText( this._fileName );
+
+            this._textWriter.WriteLine( s );
+        }
     }
 
     public ILogger GetLogger( string category )
     {
-        if ( this.TextWriter != null )
+        if ( this._fileName != null )
         {
             if ( this._loggers.TryGetValue( category, out var logger ) )
             {
@@ -135,11 +150,26 @@ public class DiagnosticsService : ILoggerFactory, IDebuggerService
         }
     }
 
-    public void LaunchDebugger()
+    private void LaunchDebugger()
     {
         if ( this.Configuration.Debugger.Processes.TryGetValue( this._processKind, out var enabled ) && enabled )
         {
-            Debugger.Launch();
+            lock ( _attachDebuggerSync )
+            {
+                if ( !_attachDebuggerRequested )
+                {
+                    // We try to request to attach the debugger a single time, even if the user refuses or if the debugger gets
+                    // detached. It makes a better debugging experience.
+                    _attachDebuggerRequested = true;
+
+                    if ( !Debugger.IsAttached )
+                    {
+                        Debugger.Launch();
+                    }
+                }
+            }
         }
     }
+
+    public void Dispose() => this._textWriter?.Close();
 }

@@ -6,11 +6,11 @@ using System.Collections.Generic;
 
 namespace PostSharp.Backstage.Licensing.Consumption.Sources
 {
-    public class LicenseStringsLicenseSource : LicenseStringsLicenseSourceBase
+    public class ExplicitLicenseSource : LicenseSourceBase
     {
         private readonly IEnumerable<string> _licenseStrings;
 
-        public LicenseStringsLicenseSource( IEnumerable<string> licenseKeys, IServiceProvider services )
+        public ExplicitLicenseSource( IEnumerable<string> licenseKeys, IServiceProvider services )
             : base( services )
         {
             this._licenseStrings = licenseKeys;

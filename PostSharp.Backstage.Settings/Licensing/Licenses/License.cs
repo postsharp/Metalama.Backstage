@@ -123,7 +123,7 @@ namespace PostSharp.Backstage.Licensing.Licenses
 
         private bool TryGetLicenseKeyData( [MaybeNullWhen( false )] out LicenseKeyData data )
         {
-            this._logger.Trace?.Log( $"Deserializing license {{{this._licenseKey}}}." );
+            this._logger.Trace?.Log( $"Deserializing license '{this._licenseKey}'." );
             Guid? licenseGuid = null;
 
             try
@@ -208,22 +208,12 @@ namespace PostSharp.Backstage.Licensing.Licenses
         }
 
         /// <inheritdoc />
-        public override bool Equals( object? obj )
-        {
-            return obj is License license &&
-                   this._licenseKey == license._licenseKey;
-        }
+        public override bool Equals( object? obj ) => obj is License license && this._licenseKey == license._licenseKey;
 
         /// <inheritdoc />
-        public override int GetHashCode()
-        {
-            return 668981160 + EqualityComparer<string>.Default.GetHashCode( this._licenseKey );
-        }
+        public override int GetHashCode() => 668981160 + EqualityComparer<string>.Default.GetHashCode( this._licenseKey );
 
         /// <inheritdoc />
-        public override string ToString()
-        {
-            return $"License '{this._licenseKey}'";
-        }
+        public override string ToString() => this._licenseKey;
     }
 }

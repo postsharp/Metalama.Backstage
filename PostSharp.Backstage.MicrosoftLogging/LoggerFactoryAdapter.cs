@@ -17,5 +17,7 @@ namespace PostSharp.Backstage.MicrosoftLogging
         }
 
         public IPostSharpLogger GetLogger( string category ) => new LoggerAdapter( this._factory.CreateLogger( category ) );
+
+        public void Dispose() { }
     }
 }

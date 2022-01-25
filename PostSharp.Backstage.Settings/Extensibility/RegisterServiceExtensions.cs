@@ -47,12 +47,12 @@ namespace PostSharp.Backstage.Extensibility
         internal static ServiceProviderBuilder AddStandardDirectories( this ServiceProviderBuilder serviceProviderBuilder )
             => serviceProviderBuilder.AddSingleton<IStandardDirectories>( new StandardDirectories() );
 
-        private static ServiceProviderBuilder AddDiagnostics( this ServiceProviderBuilder serviceProviderBuilder, ProcessKind processKind )
+        private static ServiceProviderBuilder AddDiagnostics( this ServiceProviderBuilder serviceProviderBuilder, ProcessKind processKind, string? projectName = null )
         {
             var serviceProvider = serviceProviderBuilder.ServiceProvider;
-            var service = DiagnosticsService.GetInstance( serviceProvider, processKind );
+            var service = DiagnosticsService.GetInstance( serviceProvider, processKind, projectName );
 
-            return serviceProviderBuilder.AddSingleton<ILoggerFactory>( service ).AddSingleton<IDebuggerService>( service );
+            return serviceProviderBuilder.AddSingleton<ILoggerFactory>( service );
         }
 
         /// <summary>
@@ -81,7 +81,7 @@ namespace PostSharp.Backstage.Extensibility
             return serviceProviderBuilder.AddDiagnosticServiceRequirements();
         }
 
-        public static ServiceProviderBuilder AddBackstageServices( this ServiceProviderBuilder serviceProviderBuilder, IApplicationInfo applicationInfo )
+        public static ServiceProviderBuilder AddBackstageServices( this ServiceProviderBuilder serviceProviderBuilder, IApplicationInfo applicationInfo, string? projectName = null )
         {
             serviceProviderBuilder = serviceProviderBuilder
                 .AddSingleton( applicationInfo )
@@ -92,7 +92,7 @@ namespace PostSharp.Backstage.Extensibility
 
             if ( applicationInfo.ProcessKind != ProcessKind.Other )
             {
-                serviceProviderBuilder = serviceProviderBuilder.AddDiagnostics( applicationInfo.ProcessKind );
+                serviceProviderBuilder = serviceProviderBuilder.AddDiagnostics( applicationInfo.ProcessKind, projectName );
             }
 
             var uploadManager = new UploadManager( serviceProviderBuilder.ServiceProvider );

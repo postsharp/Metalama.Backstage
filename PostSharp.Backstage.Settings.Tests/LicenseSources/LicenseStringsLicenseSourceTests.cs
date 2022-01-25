@@ -16,7 +16,7 @@ namespace PostSharp.Backstage.Licensing.Tests.LicenseSources
         [Fact]
         public void NoLicenseStringPasses()
         {
-            LicenseStringsLicenseSource source = new( Enumerable.Empty<string>(), this.Services );
+            ExplicitLicenseSource source = new( Enumerable.Empty<string>(), this.Services );
 
             Assert.Empty( source.GetLicenses( _ => { } ) );
         }
@@ -24,7 +24,7 @@ namespace PostSharp.Backstage.Licensing.Tests.LicenseSources
         [Fact]
         public void OneLicenseStringPasses()
         {
-            LicenseStringsLicenseSource source = new( new[] { TestLicenseKeys.Ultimate }, this.Services );
+            ExplicitLicenseSource source = new( new[] { TestLicenseKeys.Ultimate }, this.Services );
 
             Assert.Equal( $"License '{TestLicenseKeys.Ultimate}'", source.GetLicenses( _ => { } ).Single().ToString() );
         }
@@ -32,7 +32,7 @@ namespace PostSharp.Backstage.Licensing.Tests.LicenseSources
         [Fact]
         public void EmptyLicenseStringsSkipped()
         {
-            LicenseStringsLicenseSource source =
+            ExplicitLicenseSource source =
                 new( new[] { "", TestLicenseKeys.Ultimate, "", "", TestLicenseKeys.Logging, "" }, this.Services );
 
             var licenses = source.GetLicenses( _ => { } ).ToArray();

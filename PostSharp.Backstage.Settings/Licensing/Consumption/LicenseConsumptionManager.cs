@@ -21,7 +21,7 @@ namespace PostSharp.Backstage.Licensing.Consumption
         private readonly HashSet<ILicense> _unusedLicenses = new();
         private readonly HashSet<ILicense> _usedLicenses = new();
         private readonly Dictionary<string, LicenseNamespaceConstraint> _namespaceLimitedLicensedFeatures = new();
-        private readonly List<string> _warnings = new();
+        private readonly List<LicensingMessage> _warnings = new();
 
         private LicensedFeatures _licensedFeatures;
 
@@ -48,19 +48,20 @@ namespace PostSharp.Backstage.Licensing.Consumption
 
         private bool TryLoadNextLicenseSource( Action<LicensingMessage> reportMessage )
         {
-            // TODO: tracing
-            this._logger.Info?.Log( "TODO: tracing" );
-
             if ( this._unusedLicenseSources.Count == 0 )
             {
                 return false;
             }
 
             var licenseSource = this._unusedLicenseSources.First();
+            
+            this._logger.Trace?.Log( $"Enumerating the license source {licenseSource}." );
+            
             this._unusedLicenseSources.Remove( licenseSource );
 
             foreach ( var license in licenseSource.GetLicenses( reportMessage ) )
             {
+                this._logger.Trace?.Log( $"{licenseSource} provided the license '{license}'." );
                 this._unusedLicenses.Add( license );
             }
 
@@ -75,10 +76,11 @@ namespace PostSharp.Backstage.Licensing.Consumption
             }
 
             var license = this._unusedLicenses.First();
+            
+            this._logger.Trace?.Log( $"Loading the license '{license}'." );
             this._unusedLicenses.Remove( license );
             this._usedLicenses.Add( license );
 
-            // TODO: trace
             // TODO: license audit
 
             if ( !license.TryGetLicenseConsumptionData( out var licenseData ) )
@@ -135,11 +137,11 @@ namespace PostSharp.Backstage.Licensing.Consumption
         }
 
         /// <inheritdoc />
-        public bool CanConsumeFeatures( LicensedFeatures requiredFeatures, string? consumerNamespace, Action<LicensingMessage>? reportMessage )
+        public bool CanConsumeFeatures( LicensedFeatures requiredFeatures, string? consumerNamespace )
         {
             void ReportWarning( LicensingMessage message )
             {
-                reportMessage?.Invoke( message );
+                this._warnings.Add( message );
                 this._logger.Warning?.Log( message.Text );
             }
 
@@ -173,6 +175,8 @@ namespace PostSharp.Backstage.Licensing.Consumption
             return false;
         }
 
-        public IReadOnlyList<string> Warnings => this._warnings;
+        public IReadOnlyList<LicensingMessage> Messages => this._warnings;
+
+
     }
 }

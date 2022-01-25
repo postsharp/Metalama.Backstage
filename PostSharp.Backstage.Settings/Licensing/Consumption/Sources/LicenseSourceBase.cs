@@ -7,11 +7,11 @@ using System.Collections.Generic;
 
 namespace PostSharp.Backstage.Licensing.Consumption.Sources
 {
-    public abstract class LicenseStringsLicenseSourceBase : ILicenseSource
+    public abstract class LicenseSourceBase : ILicenseSource
     {
         private readonly IServiceProvider _services;
 
-        protected LicenseStringsLicenseSourceBase( IServiceProvider services )
+        protected LicenseSourceBase( IServiceProvider services )
         {
             this._services = services;
         }
@@ -35,5 +35,7 @@ namespace PostSharp.Backstage.Licensing.Consumption.Sources
                 }
             }
         }
+
+        public override string ToString() => this.GetType().Name;
     }
 }

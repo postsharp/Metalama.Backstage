@@ -5,6 +5,7 @@ using System;
 
 namespace PostSharp.Backstage.Extensibility
 {
+    // Intentionally internal because the names conflict with Microsoft.Extensions.DependencyInjection.
     internal static class ServiceProviderExtensions
     {
         public static TService? GetService<TService>( this IServiceProvider serviceProvider )

@@ -18,4 +18,6 @@ public class NullLogger : ILogger, ILoggerFactory
     ILogWriter? ILogger.Error => null;
 
     ILogger ILoggerFactory.GetLogger( string category ) => this;
+
+    public void Dispose() { }
 }

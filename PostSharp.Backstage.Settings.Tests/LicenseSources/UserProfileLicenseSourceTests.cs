@@ -8,17 +8,17 @@ using Xunit.Abstractions;
 
 namespace PostSharp.Backstage.Licensing.Tests.LicenseSources
 {
-    public class FileLicenseSourceTests : LicensingTestsBase
+    public class UserProfileLicenseSourceTests : LicensingTestsBase
     {
         private const string _licenseFilePath = "licensing.json";
 
-        public FileLicenseSourceTests( ITestOutputHelper logger )
+        public UserProfileLicenseSourceTests( ITestOutputHelper logger )
             : base( logger ) { }
 
         [Fact]
         public void NonexistentFileIsReported()
         {
-            FileLicenseSource source = new( this.Services );
+            UserProfileLicenseSource source = new( this.Services );
 
             Assert.Empty( source.GetLicenses( _ => { } ) );
         }
@@ -28,7 +28,7 @@ namespace PostSharp.Backstage.Licensing.Tests.LicenseSources
         {
             this.FileSystem.Mock.AddFile( _licenseFilePath, new MockFileData( "" ) );
 
-            FileLicenseSource source = new( this.Services );
+            UserProfileLicenseSource source = new( this.Services );
 
             Assert.Empty( source.GetLicenses( _ => { } ) );
         }
