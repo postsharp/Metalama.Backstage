@@ -26,7 +26,7 @@ namespace Metalama.Backstage.Licensing.Tests.LicenseSources
         {
             ExplicitLicenseSource source = new( new[] { TestLicenseKeys.Ultimate }, this.Services );
 
-            Assert.Equal( $"License '{TestLicenseKeys.Ultimate}'", source.GetLicenses( _ => { } ).Single().ToString() );
+            Assert.Equal( TestLicenseKeys.Ultimate, source.GetLicenses( _ => { } ).Single().ToString() );
         }
 
         [Fact]
@@ -37,8 +37,8 @@ namespace Metalama.Backstage.Licensing.Tests.LicenseSources
 
             var licenses = source.GetLicenses( _ => { } ).ToArray();
             Assert.Equal( 2, licenses.Length );
-            Assert.Equal( $"License '{TestLicenseKeys.Ultimate}'", licenses[0].ToString() );
-            Assert.Equal( $"License '{TestLicenseKeys.Logging}'", licenses[1].ToString() );
+            Assert.Equal( TestLicenseKeys.Ultimate, licenses[0].ToString() );
+            Assert.Equal( TestLicenseKeys.Logging, licenses[1].ToString() );
         }
     }
 }
