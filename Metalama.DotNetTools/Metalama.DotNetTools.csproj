@@ -13,7 +13,7 @@
         <WarningLevel>4</WarningLevel>
         <PackAsTool>true</PackAsTool>
         <PackageType>DotNetCliTool</PackageType>
-        <ToolCommandName>postsharp</ToolCommandName>
+        <ToolCommandName>metalama</ToolCommandName>
     </PropertyGroup>
 
     <ItemGroup>

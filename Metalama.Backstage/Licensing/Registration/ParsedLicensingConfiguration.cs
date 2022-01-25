@@ -64,7 +64,7 @@ namespace Metalama.Backstage.Licensing.Registration
         }
 
         /// <summary>
-        /// Opens a license file or creates an empty storage is the license file doesn't exist.
+        /// Opens a license file or creates empty storage if the license file doesn't exist.
         /// </summary>
         /// <param name="services">Services.</param>
         /// <returns></returns>
