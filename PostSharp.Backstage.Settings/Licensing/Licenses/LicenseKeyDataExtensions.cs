@@ -30,6 +30,7 @@ namespace PostSharp.Backstage.Licensing.Licenses
                 licenseKeyData.LicenseGuid == null ? licenseKeyData.LicenseId : null,
                 licenseKeyData.Licensee,
                 description,
+                licenseKeyData.Product,
                 licenseKeyData.LicenseType,
                 licenseKeyData.ValidFrom,
                 licenseKeyData.ValidTo,

@@ -157,7 +157,7 @@ namespace PostSharp.Backstage.Telemetry
 
             // Compute a signature for this exception.
             var hash = this.ComputeExceptionHash(
-                this._applicationInfo.Version.ToString(),
+                this._applicationInfo.Version,
                 e.GetType().FullName,
                 ExceptionSensitiveDataHelper.RemoveSensitiveData( e.StackTrace ) );
 

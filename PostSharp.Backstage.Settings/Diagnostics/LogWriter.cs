@@ -13,12 +13,12 @@ internal class LogWriter : ILogWriter
     public LogWriter( Logger logger, string logLevel )
     {
         this._logger = logger;
-        this._logLevel = logLevel;
+        this._logLevel = logLevel.ToUpperInvariant();
     }
 
     public void Log( string message )
     {
         this._logger.DiagnosticsService.WriteLine(
-            FormattableString.Invariant( $"{DateTime.Now} {this._logLevel.ToString().ToUpperInvariant()} {this._logger.Category}: {message}" ) );
+            FormattableString.Invariant( $"{DateTime.Now} {this._logLevel} {this._logger.Category}: {message}" ) );
     }
 }

@@ -42,7 +42,7 @@ namespace PostSharp.Backstage.Licensing.Registration
         /// <summary>
         /// Gets the product licensed by the license.
         /// </summary>
-        public LicensedProduct LicensedProduct { get; }
+        public LicensedProduct Product { get; }
 
         /// <summary>
         /// Gets the type of the license.
@@ -103,6 +103,7 @@ namespace PostSharp.Backstage.Licensing.Registration
             int? licenseId,
             string? licensee,
             string description,
+            LicensedProduct product,
             LicenseType licenseType,
             DateTime? validFrom,
             DateTime? validTo,
@@ -117,6 +118,7 @@ namespace PostSharp.Backstage.Licensing.Registration
             this.Licensee = licensee;
             this.Description = description;
             this.LicenseType = licenseType;
+            this.Product = product;
             this.ValidFrom = validFrom;
             this.ValidTo = validTo;
             this.Perpetual = perpetual;

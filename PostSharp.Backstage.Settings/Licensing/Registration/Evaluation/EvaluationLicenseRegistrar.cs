@@ -81,7 +81,7 @@ namespace PostSharp.Backstage.Licensing.Registration.Evaluation
 
                     if ( nextEvaluationMinStartDate >= this._time.Now )
                     {
-                        this._logger?.Warning?.Log( "You cannot start the evaluation mode at the moment." );
+                        this._logger.Warning?.Log( "You cannot start the evaluation mode at the moment." );
 
                         return false;
                     }

@@ -14,17 +14,17 @@ namespace PostSharp.Backstage.Diagnostics;
 public class DiagnosticsService : ILoggerFactory
 {
     private static readonly object _initializeSync = new();
+    private static readonly object _attachDebuggerSync = new();
     private static readonly DiagnosticsService _uninitializedInstance = new();
     private static volatile DiagnosticsService? _instance;
     private static volatile bool _attachDebuggerRequested;
-    private static volatile object _attachDebuggerSync= new();
 
     private readonly ProcessKind _processKind;
     private readonly ConcurrentDictionary<string, ILogger> _loggers = new( StringComparer.OrdinalIgnoreCase );
     private readonly object _textWriterSync = new();
     private readonly string? _fileName;
     private TextWriter? _textWriter;
-    
+
     internal DiagnosticsConfiguration Configuration { get; }
 
     /// <summary>
@@ -115,7 +115,7 @@ public class DiagnosticsService : ILoggerFactory
                 // Don't fail if we cannot initialize the log.
             }
         }
-        
+
         this.LaunchDebugger();
     }
 

@@ -54,9 +54,9 @@ namespace PostSharp.Backstage.Licensing.Consumption
             }
 
             var licenseSource = this._unusedLicenseSources.First();
-            
+
             this._logger.Trace?.Log( $"Enumerating the license source {licenseSource}." );
-            
+
             this._unusedLicenseSources.Remove( licenseSource );
 
             foreach ( var license in licenseSource.GetLicenses( reportMessage ) )
@@ -76,7 +76,7 @@ namespace PostSharp.Backstage.Licensing.Consumption
             }
 
             var license = this._unusedLicenses.First();
-            
+
             this._logger.Trace?.Log( $"Loading the license '{license}'." );
             this._unusedLicenses.Remove( license );
             this._usedLicenses.Add( license );
@@ -154,7 +154,7 @@ namespace PostSharp.Backstage.Licensing.Consumption
                         return true;
                     }
 
-                    if ( !string.IsNullOrEmpty( consumerNamespace ) 
+                    if ( !string.IsNullOrEmpty( consumerNamespace )
                          && this._namespaceLimitedLicensedFeatures.Count > 0
                          && this._namespaceLimitedLicensedFeatures.Values.Any(
                              nsf => nsf.AllowsNamespace( consumerNamespace )
@@ -176,7 +176,5 @@ namespace PostSharp.Backstage.Licensing.Consumption
         }
 
         public IReadOnlyList<LicensingMessage> Messages => this._warnings;
-
-
     }
 }
