@@ -75,7 +75,7 @@ namespace Metalama.Backstage.Configuration
         {
             var attribute = type.GetCustomAttribute<ConfigurationFileAttribute>();
 
-            return Path.Combine( this.ApplicationDataDirectory, attribute.FileName + ".json" );
+            return Path.Combine( this.ApplicationDataDirectory, attribute.FileName );
         }
 
         public ConfigurationFile Get( Type type, bool ignoreCache = false )
