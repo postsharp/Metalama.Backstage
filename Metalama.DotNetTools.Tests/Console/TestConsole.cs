@@ -7,7 +7,7 @@ using System.CommandLine;
 using System.CommandLine.IO;
 using System.Text;
 
-namespace PostSharp.Cli.Tests.Console
+namespace Metalama.DotNetTools.Tests.Console
 {
     internal class TestConsole : IConsole
     {

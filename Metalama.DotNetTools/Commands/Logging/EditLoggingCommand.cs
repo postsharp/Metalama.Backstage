@@ -8,7 +8,7 @@ using System.CommandLine;
 using System.CommandLine.Invocation;
 using System.Diagnostics;
 
-namespace PostSharp.Cli.Commands.Logging;
+namespace Metalama.DotNetTools.Commands.Logging;
 
 internal class EditLoggingCommand : CommandBase
 {

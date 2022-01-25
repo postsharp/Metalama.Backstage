@@ -4,7 +4,7 @@
         <OutputType>Exe</OutputType>
         <TargetFramework>netcoreapp3.1</TargetFramework>
         <AssemblyName>postsharp</AssemblyName>
-        <PackageId>PostSharp.Cli</PackageId>
+        <PackageId>Metalama.DotNetTools</PackageId>
     </PropertyGroup>
 
     <PropertyGroup>
@@ -26,7 +26,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <InternalsVisibleTo Include="PostSharp.Cli.Tests"/>
+        <InternalsVisibleTo Include="Metalama.DotNetTools.Tests"/>
     </ItemGroup>
 
     <Import Project="..\Metalama.Backstage.MicrosoftLogging\Metalama.Backstage.MicrosoftLogging.projitems" Label="Shared"/>

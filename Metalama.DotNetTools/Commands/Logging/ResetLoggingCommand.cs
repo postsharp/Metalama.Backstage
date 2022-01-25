@@ -7,7 +7,7 @@ using Metalama.Backstage.Diagnostics;
 using System.CommandLine;
 using System.CommandLine.Invocation;
 
-namespace PostSharp.Cli.Commands.Logging;
+namespace Metalama.DotNetTools.Commands.Logging;
 
 internal class ResetLoggingCommand : CommandBase
 {

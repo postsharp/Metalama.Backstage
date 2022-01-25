@@ -8,7 +8,7 @@ using System.CommandLine.Invocation;
 using System.CommandLine.IO;
 using System.Globalization;
 
-namespace PostSharp.Cli.Commands.Licensing
+namespace Metalama.DotNetTools.Commands.Licensing
 {
     internal class ListCommand : CommandBase
     {

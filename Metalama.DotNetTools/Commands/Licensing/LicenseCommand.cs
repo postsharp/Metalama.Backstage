@@ -1,9 +1,9 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. All rights reserved.
 // This project is not open source. Please see the LICENSE.md file in the repository root for details.
 
-using PostSharp.Cli.Commands.Licensing.Registration;
+using Metalama.DotNetTools.Commands.Licensing.Registration;
 
-namespace PostSharp.Cli.Commands.Licensing
+namespace Metalama.DotNetTools.Commands.Licensing
 {
     internal class LicenseCommand : CommandBase
     {

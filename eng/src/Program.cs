@@ -14,7 +14,7 @@ var product = new Product
                     new DotNetSolution( "Metalama.Backstage.sln" ) { SupportsTestCoverage = true, CanFormatCode = true } },
     PublicArtifacts = Pattern.Create(
         "Metalama.Backstage.$(PackageVersion).nupkg",
-        "PostSharp.Cli.$(PackageVersion).nupkg" ),
+        "Metalama.DotNetTools.$(PackageVersion).nupkg" ),
     Dependencies = new [] { Dependencies.PostSharpEngineering }
 };
 

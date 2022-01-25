@@ -5,7 +5,7 @@ using Metalama.Backstage.Extensibility;
 using System;
 using Xunit.Abstractions;
 
-namespace PostSharp.Cli.Tests.Commands.Licensing
+namespace Metalama.DotNetTools.Tests.Commands.Licensing
 {
     public abstract class LicensingCommandsTestsBase : CommandsTestsBase
     {

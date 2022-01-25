@@ -3,7 +3,7 @@
 
 using System;
 
-namespace PostSharp.Cli.Tests.Commands.Licensing
+namespace Metalama.DotNetTools.Tests.Commands.Licensing
 {
     internal static class TestLicenses
     {

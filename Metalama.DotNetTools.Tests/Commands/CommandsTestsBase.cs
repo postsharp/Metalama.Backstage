@@ -5,15 +5,15 @@ using Microsoft.Extensions.DependencyInjection;
 using Metalama.Backstage.Diagnostics;
 using Metalama.Backstage.Extensibility;
 using Metalama.Backstage.Testing;
-using PostSharp.Cli.Commands;
-using PostSharp.Cli.Tests.Console;
+using Metalama.DotNetTools.Commands;
+using Metalama.DotNetTools.Tests.Console;
 using System;
 using System.CommandLine;
 using System.Threading.Tasks;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace PostSharp.Cli.Tests.Commands
+namespace Metalama.DotNetTools.Tests.Commands
 {
     public abstract class CommandsTestsBase : TestsBase, ICommandServiceProvider
     {

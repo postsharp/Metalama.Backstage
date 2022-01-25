@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace PostSharp.Cli.Tests.Commands.Licensing
+namespace Metalama.DotNetTools.Tests.Commands.Licensing
 {
     public class RegisterCommunityCommandTests : LicensingCommandsTestsBase
     {

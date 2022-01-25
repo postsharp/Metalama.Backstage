@@ -22,7 +22,7 @@
     <ItemGroup>
         <ProjectReference Include="..\Metalama.Backstage\Metalama.Backstage.csproj"/>
         <ProjectReference Include="..\Metalama.Backstage.TestHelpers\Metalama.Backstage.TestHelpers.csproj"/>
-        <ProjectReference Include="..\PostSharp.Cli\PostSharp.Cli.csproj"/>
+        <ProjectReference Include="..\Metalama.DotNetTools\Metalama.DotNetTools.csproj"/>
     </ItemGroup>
 
 </Project>

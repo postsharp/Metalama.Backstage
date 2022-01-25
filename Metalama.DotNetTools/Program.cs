@@ -1,11 +1,11 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. All rights reserved.
 // This project is not open source. Please see the LICENSE.md file in the repository root for details.
 
-using PostSharp.Cli.Commands;
+using Metalama.DotNetTools.Commands;
 using System.CommandLine;
 using System.Threading.Tasks;
 
-namespace PostSharp.Cli
+namespace Metalama.DotNetTools
 {
     internal class Program
     {

@@ -4,7 +4,7 @@
 using System;
 using System.CommandLine;
 
-namespace PostSharp.Cli
+namespace Metalama.DotNetTools
 {
     /// <summary>
     /// Creates an instance <see cref="IServiceProvider"/> configured for a console command.

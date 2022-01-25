@@ -8,7 +8,7 @@ using System.CommandLine;
 using System.CommandLine.Invocation;
 using System.CommandLine.IO;
 
-namespace PostSharp.Cli.Commands.Logging;
+namespace Metalama.DotNetTools.Commands.Logging;
 
 internal class PrintLoggingCommand : CommandBase
 {

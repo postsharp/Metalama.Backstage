@@ -3,7 +3,7 @@
 
 using System.CommandLine;
 
-namespace PostSharp.Cli.Commands
+namespace Metalama.DotNetTools.Commands
 {
     internal class CommandBase : Command
     {

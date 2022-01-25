@@ -6,7 +6,7 @@ using System.CommandLine;
 using System.CommandLine.Invocation;
 using System.CommandLine.IO;
 
-namespace PostSharp.Cli.Commands.Licensing.Registration
+namespace Metalama.DotNetTools.Commands.Licensing.Registration
 {
     internal class RegisterCommunityCommand : CommandBase
     {

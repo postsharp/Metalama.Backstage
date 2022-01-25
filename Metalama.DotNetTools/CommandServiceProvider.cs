@@ -8,7 +8,7 @@ using Metalama.Backstage.MicrosoftLogging;
 using System;
 using System.CommandLine;
 
-namespace PostSharp.Cli
+namespace Metalama.DotNetTools
 {
     internal class CommandServiceProvider : ICommandServiceProvider
     {
