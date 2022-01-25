@@ -3,7 +3,7 @@
 
 // ReSharper disable StringLiteralTypo
 
-namespace PostSharp.Backstage.Licensing.Tests
+namespace Metalama.Backstage.Licensing.Tests
 {
     internal static class TestLicenseKeys
     {

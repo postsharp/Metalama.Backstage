@@ -3,7 +3,7 @@
 
 using System;
 
-namespace PostSharp.Backstage.Licensing.Licenses.LicenseFields
+namespace Metalama.Backstage.Licensing.Licenses.LicenseFields
 {
     internal static class LicenseFieldsExtensions
     {

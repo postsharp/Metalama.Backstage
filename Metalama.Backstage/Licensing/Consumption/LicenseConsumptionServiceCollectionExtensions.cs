@@ -1,11 +1,11 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. All rights reserved.
 // This project is not open source. Please see the LICENSE.md file in the repository root for details.
 
-using PostSharp.Backstage.Extensibility;
-using PostSharp.Backstage.Licensing.Consumption.Sources;
+using Metalama.Backstage.Extensibility;
+using Metalama.Backstage.Licensing.Consumption.Sources;
 using System.Collections.Generic;
 
-namespace PostSharp.Backstage.Licensing.Consumption
+namespace Metalama.Backstage.Licensing.Consumption
 {
     /// <summary>
     /// Extension methods for setting up license consumption services in an <see cref="ServiceProviderBuilder" />.

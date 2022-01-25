@@ -3,7 +3,7 @@
 
 using System.Collections.Generic;
 
-namespace PostSharp.Backstage.Licensing.Consumption
+namespace Metalama.Backstage.Licensing.Consumption
 {
     /// <summary>
     /// Manages license consumption.

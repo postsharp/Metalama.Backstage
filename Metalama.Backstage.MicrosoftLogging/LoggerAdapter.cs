@@ -2,13 +2,13 @@
 // This project is not open source. Please see the LICENSE.md file in the repository root for details.
 
 using Microsoft.Extensions.Logging;
-using PostSharp.Backstage.Diagnostics;
+using Metalama.Backstage.Diagnostics;
 using IMicrosoftLogger = Microsoft.Extensions.Logging.ILogger;
-using IPostSharpLogger = PostSharp.Backstage.Diagnostics.ILogger;
+using IPostSharpLogger = Metalama.Backstage.Diagnostics.ILogger;
 
 // ReSharper disable TemplateIsNotCompileTimeConstantProblem
 
-namespace PostSharp.Backstage.MicrosoftLogging
+namespace Metalama.Backstage.MicrosoftLogging
 {
     internal class LoggerAdapter : IPostSharpLogger
     {

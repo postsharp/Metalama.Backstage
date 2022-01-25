@@ -1,11 +1,11 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. All rights reserved.
 // This project is not open source. Please see the LICENSE.md file in the repository root for details.
 
-using PostSharp.Backstage.Licensing.Consumption;
-using PostSharp.Backstage.Licensing.Registration;
+using Metalama.Backstage.Licensing.Consumption;
+using Metalama.Backstage.Licensing.Registration;
 using System.Diagnostics.CodeAnalysis;
 
-namespace PostSharp.Backstage.Licensing.Licenses
+namespace Metalama.Backstage.Licensing.Licenses
 {
     /// <summary>
     /// A license providing licensed features.

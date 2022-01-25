@@ -1,15 +1,15 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. All rights reserved.
 // This project is not open source. Please see the LICENSE.md file in the repository root for details.
 
-using PostSharp.Backstage.Licensing.Licenses.LicenseFields;
-using PostSharp.Backstage.Utilities;
+using Metalama.Backstage.Licensing.Licenses.LicenseFields;
+using Metalama.Backstage.Utilities;
 using System;
 using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
 
-namespace PostSharp.Backstage.Licensing.Licenses
+namespace Metalama.Backstage.Licensing.Licenses
 {
     public partial class LicenseKeyData
     {

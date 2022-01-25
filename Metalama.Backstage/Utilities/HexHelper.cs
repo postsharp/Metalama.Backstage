@@ -5,7 +5,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Text;
 
-namespace PostSharp.Backstage.Utilities
+namespace Metalama.Backstage.Utilities
 {
     internal static class HexHelper
     {

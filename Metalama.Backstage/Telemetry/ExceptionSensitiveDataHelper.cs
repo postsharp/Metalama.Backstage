@@ -3,7 +3,7 @@
 
 using System.Text.RegularExpressions;
 
-namespace PostSharp.Backstage.Telemetry
+namespace Metalama.Backstage.Telemetry
 {
     // Warning: this file is linked to UserInterface solution. We need to serialize
     // exceptions from debugging server in the same way as ExceptionPackager does without

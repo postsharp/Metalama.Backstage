@@ -1,12 +1,12 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. All rights reserved.
 // This project is not open source. Please see the LICENSE.md file in the repository root for details.
 
-using PostSharp.Backstage.Licensing.Registration.Evaluation;
+using Metalama.Backstage.Licensing.Registration.Evaluation;
 using System;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace PostSharp.Backstage.Licensing.Tests.Evaluation
+namespace Metalama.Backstage.Licensing.Tests.Evaluation
 {
     public class EvaluationLicenseEligibilityTests : EvaluationLicenseRegistrationTestsBase
     {

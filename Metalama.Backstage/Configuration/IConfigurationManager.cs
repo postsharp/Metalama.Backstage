@@ -3,7 +3,7 @@
 
 using System;
 
-namespace PostSharp.Backstage.Configuration
+namespace Metalama.Backstage.Configuration
 {
     public interface IConfigurationManager : IDisposable
     {

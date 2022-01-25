@@ -3,7 +3,7 @@
 
 using System;
 
-namespace PostSharp.Backstage.Licensing.Licenses
+namespace Metalama.Backstage.Licensing.Licenses
 {
     /// <summary>
     /// Exception thrown when an invalid license is provided.

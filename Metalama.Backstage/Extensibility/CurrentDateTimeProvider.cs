@@ -3,7 +3,7 @@
 
 using System;
 
-namespace PostSharp.Backstage.Extensibility
+namespace Metalama.Backstage.Extensibility
 {
     /// <summary>
     /// Provides current date and time using <see cref="DateTime.Now" />.

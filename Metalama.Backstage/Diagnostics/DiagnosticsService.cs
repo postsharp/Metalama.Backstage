@@ -1,15 +1,15 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. All rights reserved.
 // This project is not open source. Please see the LICENSE.md file in the repository root for details.
 
-using PostSharp.Backstage.Configuration;
-using PostSharp.Backstage.Extensibility;
-using PostSharp.Backstage.Utilities;
+using Metalama.Backstage.Configuration;
+using Metalama.Backstage.Extensibility;
+using Metalama.Backstage.Utilities;
 using System;
 using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.IO;
 
-namespace PostSharp.Backstage.Diagnostics;
+namespace Metalama.Backstage.Diagnostics;
 
 public class DiagnosticsService : ILoggerFactory
 {

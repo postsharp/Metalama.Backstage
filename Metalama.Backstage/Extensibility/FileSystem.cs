@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
-namespace PostSharp.Backstage.Extensibility
+namespace Metalama.Backstage.Extensibility
 {
     /// <summary>
     /// Provides access to file system using API in <see cref="System.IO" /> namespace.

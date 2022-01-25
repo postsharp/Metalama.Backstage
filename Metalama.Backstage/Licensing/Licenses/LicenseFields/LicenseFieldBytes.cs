@@ -1,11 +1,11 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. All rights reserved.
 // This project is not open source. Please see the LICENSE.md file in the repository root for details.
 
-using PostSharp.Backstage.Utilities;
+using Metalama.Backstage.Utilities;
 using System;
 using System.IO;
 
-namespace PostSharp.Backstage.Licensing.Licenses.LicenseFields
+namespace Metalama.Backstage.Licensing.Licenses.LicenseFields
 {
     [Serializable]
     internal sealed class LicenseFieldBytes : LicenseField

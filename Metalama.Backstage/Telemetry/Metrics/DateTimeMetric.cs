@@ -4,7 +4,7 @@
 using System;
 using System.Xml;
 
-namespace PostSharp.Backstage.Telemetry.Metrics
+namespace Metalama.Backstage.Telemetry.Metrics
 {
     /// <summary>
     /// A <see cref="Metric"/> storing a <see cref="DateTime"/> value.

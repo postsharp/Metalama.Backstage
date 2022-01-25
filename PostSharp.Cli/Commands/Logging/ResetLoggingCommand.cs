@@ -2,8 +2,8 @@
 // This project is not open source. Please see the LICENSE.md file in the repository root for details.
 
 using Microsoft.Extensions.DependencyInjection;
-using PostSharp.Backstage.Configuration;
-using PostSharp.Backstage.Diagnostics;
+using Metalama.Backstage.Configuration;
+using Metalama.Backstage.Diagnostics;
 using System.CommandLine;
 using System.CommandLine.Invocation;
 

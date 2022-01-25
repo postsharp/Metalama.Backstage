@@ -3,7 +3,7 @@
 
 using System;
 
-namespace PostSharp.Backstage.Telemetry;
+namespace Metalama.Backstage.Telemetry;
 
 [Obsolete( "Not used anymore." )]
 public enum ExceptionCategory

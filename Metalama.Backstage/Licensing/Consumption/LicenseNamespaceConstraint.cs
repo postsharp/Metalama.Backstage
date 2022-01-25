@@ -3,7 +3,7 @@
 
 using System;
 
-namespace PostSharp.Backstage.Licensing.Consumption
+namespace Metalama.Backstage.Licensing.Consumption
 {
     /// <summary>
     /// License namespace constraint.

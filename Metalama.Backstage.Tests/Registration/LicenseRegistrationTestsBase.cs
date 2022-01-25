@@ -1,15 +1,15 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. All rights reserved.
 // This project is not open source. Please see the LICENSE.md file in the repository root for details.
 
-using PostSharp.Backstage.Configuration;
-using PostSharp.Backstage.Extensibility;
-using PostSharp.Backstage.Licensing.Registration;
-using PostSharp.Backstage.Testing.Services;
+using Metalama.Backstage.Configuration;
+using Metalama.Backstage.Extensibility;
+using Metalama.Backstage.Licensing.Registration;
+using Metalama.Backstage.Testing.Services;
 using System;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace PostSharp.Backstage.Licensing.Tests.Registration
+namespace Metalama.Backstage.Licensing.Tests.Registration
 {
     public abstract class LicenseRegistrationTestsBase : LicensingTestsBase
     {

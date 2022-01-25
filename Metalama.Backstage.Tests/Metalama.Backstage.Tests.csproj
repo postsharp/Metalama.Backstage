@@ -5,7 +5,7 @@
 
         <IsPackable>false</IsPackable>
 
-        <RootNamespace>PostSharp.Backstage.Licensing.Tests</RootNamespace>
+        <RootNamespace>Metalama.Backstage.Licensing.Tests</RootNamespace>
     </PropertyGroup>
 
     <ItemGroup>
@@ -22,8 +22,8 @@
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\PostSharp.Backstage.Settings\PostSharp.Backstage.Settings.csproj" />
-        <ProjectReference Include="..\PostSharp.Backstage.Settings.TestHelpers\PostSharp.Backstage.Settings.TestHelpers.csproj" />
+        <ProjectReference Include="..\Metalama.Backstage\Metalama.Backstage.csproj" />
+        <ProjectReference Include="..\Metalama.Backstage.TestHelpers\Metalama.Backstage.TestHelpers.csproj" />
     </ItemGroup>
 
 </Project>

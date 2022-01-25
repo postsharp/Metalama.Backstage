@@ -3,7 +3,7 @@
 
 using System;
 
-namespace PostSharp.Backstage.Extensibility
+namespace Metalama.Backstage.Extensibility
 {
     public interface IDateTimeProvider
     {

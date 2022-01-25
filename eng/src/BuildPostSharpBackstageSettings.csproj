@@ -11,7 +11,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <Content Remove="C:\src\PostSharp.Backstage.Settings\\eng\style\stylecop.json" />
+      <Content Remove="C:\src\Metalama.Backstage\\eng\style\stylecop.json" />
     </ItemGroup>
 
     <ItemGroup>

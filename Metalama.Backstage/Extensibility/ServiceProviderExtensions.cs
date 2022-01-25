@@ -3,7 +3,7 @@
 
 using System;
 
-namespace PostSharp.Backstage.Extensibility
+namespace Metalama.Backstage.Extensibility
 {
     // Intentionally internal because the names conflict with Microsoft.Extensions.DependencyInjection.
     internal static class ServiceProviderExtensions

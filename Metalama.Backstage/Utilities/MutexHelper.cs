@@ -4,7 +4,7 @@
 using System;
 using System.Threading;
 
-namespace PostSharp.Backstage.Utilities
+namespace Metalama.Backstage.Utilities
 {
     internal static class MutexHelper
     {

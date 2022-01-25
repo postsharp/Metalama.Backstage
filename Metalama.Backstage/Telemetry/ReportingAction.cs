@@ -3,7 +3,7 @@
 
 using System.Reflection;
 
-namespace PostSharp.Backstage.Telemetry
+namespace Metalama.Backstage.Telemetry
 {
     /// <exclude />
     [Obfuscation( Exclude = true, ApplyToMembers = true )]

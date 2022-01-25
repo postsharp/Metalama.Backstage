@@ -3,7 +3,7 @@
 
 using System;
 
-namespace PostSharp.Backstage.Licensing.Licenses.LicenseFields
+namespace Metalama.Backstage.Licensing.Licenses.LicenseFields
 {
     /// <summary>
     /// Identifies a field in a license key. It is given as the first byte of a field binary data.

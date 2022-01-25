@@ -4,7 +4,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace PostSharp.Backstage.Licensing.Consumption.Sources
+namespace Metalama.Backstage.Licensing.Consumption.Sources
 {
     public class ExplicitLicenseSource : LicenseSourceBase
     {

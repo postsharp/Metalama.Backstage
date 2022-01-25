@@ -3,8 +3,8 @@
 
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using PostSharp.Backstage.Extensibility;
-using PostSharp.Backstage.MicrosoftLogging;
+using Metalama.Backstage.Extensibility;
+using Metalama.Backstage.MicrosoftLogging;
 using System;
 using System.CommandLine;
 

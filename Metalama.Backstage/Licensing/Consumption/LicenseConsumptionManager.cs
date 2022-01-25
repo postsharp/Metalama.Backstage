@@ -1,16 +1,16 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. All rights reserved.
 // This project is not open source. Please see the LICENSE.md file in the repository root for details.
 
-using PostSharp.Backstage.Diagnostics;
-using PostSharp.Backstage.Extensibility;
-using PostSharp.Backstage.Licensing.Consumption.Sources;
-using PostSharp.Backstage.Licensing.Licenses;
-using PostSharp.Backstage.Licensing.Registration;
+using Metalama.Backstage.Diagnostics;
+using Metalama.Backstage.Extensibility;
+using Metalama.Backstage.Licensing.Consumption.Sources;
+using Metalama.Backstage.Licensing.Licenses;
+using Metalama.Backstage.Licensing.Registration;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace PostSharp.Backstage.Licensing.Consumption
+namespace Metalama.Backstage.Licensing.Consumption
 {
     /// <inheritdoc />
     internal class LicenseConsumptionManager : ILicenseConsumptionManager

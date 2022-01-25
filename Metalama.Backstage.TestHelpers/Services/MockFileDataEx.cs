@@ -5,7 +5,7 @@ using System;
 using System.IO.Abstractions.TestingHelpers;
 using System.Text;
 
-namespace PostSharp.Backstage.Testing.Services
+namespace Metalama.Backstage.Testing.Services
 {
     public class MockFileDataEx : MockFileData
     {

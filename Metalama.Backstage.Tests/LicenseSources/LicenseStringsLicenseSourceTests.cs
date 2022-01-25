@@ -1,12 +1,12 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. All rights reserved.
 // This project is not open source. Please see the LICENSE.md file in the repository root for details.
 
-using PostSharp.Backstage.Licensing.Consumption.Sources;
+using Metalama.Backstage.Licensing.Consumption.Sources;
 using System.Linq;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace PostSharp.Backstage.Licensing.Tests.LicenseSources
+namespace Metalama.Backstage.Licensing.Tests.LicenseSources
 {
     public class LicenseStringsLicenseSourceTests : LicensingTestsBase
     {

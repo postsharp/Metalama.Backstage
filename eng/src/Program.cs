@@ -9,11 +9,11 @@ using System.Collections.Immutable;
 
 var product = new Product
 {
-    ProductName = "PostSharp.Backstage.Settings",
+    ProductName = "Metalama.Backstage",
     Solutions = new Solution[] {
-                    new DotNetSolution( "PostSharp.Backstage.Settings.sln" ) { SupportsTestCoverage = true, CanFormatCode = true } },
+                    new DotNetSolution( "Metalama.Backstage.sln" ) { SupportsTestCoverage = true, CanFormatCode = true } },
     PublicArtifacts = Pattern.Create(
-        "PostSharp.Backstage.Settings.$(PackageVersion).nupkg",
+        "Metalama.Backstage.$(PackageVersion).nupkg",
         "PostSharp.Cli.$(PackageVersion).nupkg" ),
     Dependencies = new [] { Dependencies.PostSharpEngineering }
 };

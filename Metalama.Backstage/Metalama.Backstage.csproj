@@ -2,7 +2,7 @@
 
     <PropertyGroup>
         <TargetFramework>netstandard2.0</TargetFramework>
-        <RootNamespace>PostSharp.Backstage</RootNamespace>
+        <RootNamespace>Metalama.Backstage</RootNamespace>
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     </PropertyGroup>
 
@@ -13,8 +13,8 @@
     </ItemGroup>
 
     <ItemGroup>
-        <InternalsVisibleTo Include="PostSharp.Backstage.Settings.Tests" />
-        <InternalsVisibleTo Include="PostSharp.Backstage.Settings.TestHelpers" />
+        <InternalsVisibleTo Include="Metalama.Backstage.Tests" />
+        <InternalsVisibleTo Include="Metalama.Backstage.TestHelpers" />
     </ItemGroup>
 
 </Project>

@@ -1,12 +1,12 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. All rights reserved.
 // This project is not open source. Please see the LICENSE.md file in the repository root for details.
 
-using PostSharp.Backstage.Extensibility;
-using PostSharp.Backstage.Licensing.Registration;
-using PostSharp.Backstage.Licensing.Registration.Evaluation;
+using Metalama.Backstage.Extensibility;
+using Metalama.Backstage.Licensing.Registration;
+using Metalama.Backstage.Licensing.Registration.Evaluation;
 using System;
 
-namespace PostSharp.Backstage.Licensing.Licenses
+namespace Metalama.Backstage.Licensing.Licenses
 {
     /// <summary>
     /// Creates unsigned licenses for self-registration.

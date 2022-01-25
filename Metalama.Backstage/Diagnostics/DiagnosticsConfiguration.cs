@@ -2,11 +2,11 @@
 // This project is not open source. Please see the LICENSE.md file in the repository root for details.
 
 using Newtonsoft.Json;
-using PostSharp.Backstage.Configuration;
+using Metalama.Backstage.Configuration;
 using System;
 using System.Collections.Generic;
 
-namespace PostSharp.Backstage.Diagnostics;
+namespace Metalama.Backstage.Diagnostics;
 
 [ConfigurationFile( "diagnostics.json" )]
 public class DiagnosticsConfiguration : ConfigurationFile

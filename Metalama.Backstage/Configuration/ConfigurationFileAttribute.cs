@@ -3,7 +3,7 @@
 
 using System;
 
-namespace PostSharp.Backstage.Configuration;
+namespace Metalama.Backstage.Configuration;
 
 [AttributeUsage( AttributeTargets.Class )]
 internal class ConfigurationFileAttribute : Attribute

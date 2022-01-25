@@ -4,7 +4,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace PostSharp.Backstage.Extensibility
+namespace Metalama.Backstage.Extensibility
 {
     /// <summary>
     /// Wraps a service provider factory or service collection, so that this project can

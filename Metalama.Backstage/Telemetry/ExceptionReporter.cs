@@ -1,9 +1,9 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. All rights reserved.
 // This project is not open source. Please see the LICENSE.md file in the repository root for details.
 
-using PostSharp.Backstage.Configuration;
-using PostSharp.Backstage.Extensibility;
-using PostSharp.Backstage.Utilities;
+using Metalama.Backstage.Configuration;
+using Metalama.Backstage.Extensibility;
+using Metalama.Backstage.Utilities;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -16,7 +16,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Xml;
 
-namespace PostSharp.Backstage.Telemetry
+namespace Metalama.Backstage.Telemetry
 {
     internal class ExceptionReporter : IExceptionReporter
     {

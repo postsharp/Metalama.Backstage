@@ -5,7 +5,7 @@ using System;
 using System.Globalization;
 using System.Text;
 
-namespace PostSharp.Backstage.Licensing.Licenses
+namespace Metalama.Backstage.Licensing.Licenses
 {
     /// <summary>
     /// Provides serialization, cryptography and validation for license keys.

@@ -3,7 +3,7 @@
 
 using System;
 
-namespace PostSharp.Backstage.Telemetry;
+namespace Metalama.Backstage.Telemetry;
 
 public interface IExceptionReporter
 {

@@ -4,13 +4,13 @@
 using MELT;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using PostSharp.Backstage.Extensibility;
-using PostSharp.Backstage.MicrosoftLogging;
-using PostSharp.Backstage.Testing.Services;
+using Metalama.Backstage.Extensibility;
+using Metalama.Backstage.MicrosoftLogging;
+using Metalama.Backstage.Testing.Services;
 using System;
 using Xunit.Abstractions;
 
-namespace PostSharp.Backstage.Testing
+namespace Metalama.Backstage.Testing
 {
     public abstract class TestsBase
     {

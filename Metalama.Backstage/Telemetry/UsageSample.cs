@@ -1,9 +1,9 @@
 // Copyright (c) SharpCrafters s.r.o. All rights reserved.
 // This project is not open source. Please see the LICENSE.md file in the repository root for details.
 
-using PostSharp.Backstage.Configuration;
-using PostSharp.Backstage.Extensibility;
-using PostSharp.Backstage.Telemetry.Metrics;
+using Metalama.Backstage.Configuration;
+using Metalama.Backstage.Extensibility;
+using Metalama.Backstage.Telemetry.Metrics;
 using System;
 using System.Diagnostics;
 using System.Globalization;
@@ -12,7 +12,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace PostSharp.Backstage.Telemetry
+namespace Metalama.Backstage.Telemetry
 {
     internal class UsageSample : IUsageSample
     {

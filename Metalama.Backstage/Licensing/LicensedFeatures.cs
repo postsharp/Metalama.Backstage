@@ -3,7 +3,7 @@
 
 using System;
 
-namespace PostSharp.Backstage.Licensing
+namespace Metalama.Backstage.Licensing
 {
     /// <summary>
     /// Features of PostSharp for the purpose of license checking.

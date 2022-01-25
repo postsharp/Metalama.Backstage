@@ -1,13 +1,13 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. All rights reserved.
 // This project is not open source. Please see the LICENSE.md file in the repository root for details.
 
-using PostSharp.Backstage.Licensing.Consumption;
-using PostSharp.Backstage.Licensing.Consumption.Sources;
-using PostSharp.Backstage.Licensing.Licenses;
+using Metalama.Backstage.Licensing.Consumption;
+using Metalama.Backstage.Licensing.Consumption.Sources;
+using Metalama.Backstage.Licensing.Licenses;
 using System;
 using System.Collections.Generic;
 
-namespace PostSharp.Backstage.Licensing.Tests.LicenseSources
+namespace Metalama.Backstage.Licensing.Tests.LicenseSources
 {
     internal class TestLicenseSource : ILicenseSource, IUsable
     {

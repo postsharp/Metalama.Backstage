@@ -3,7 +3,7 @@
 
 using System;
 
-namespace PostSharp.Backstage.Diagnostics
+namespace Metalama.Backstage.Diagnostics
 {
     public interface ILoggerFactory : IDisposable
     {

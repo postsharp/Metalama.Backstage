@@ -3,7 +3,7 @@
 
 using System;
 
-namespace PostSharp.Backstage.Licensing.Audit
+namespace Metalama.Backstage.Licensing.Audit
 {
     // TODO
     [Serializable]

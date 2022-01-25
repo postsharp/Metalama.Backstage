@@ -4,7 +4,7 @@
 using System;
 using System.IO;
 
-namespace PostSharp.Backstage.Telemetry
+namespace Metalama.Backstage.Telemetry
 {
     /// <summary>
     /// Encapsulates a metric, i.e. anything that can be measured.

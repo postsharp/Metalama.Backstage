@@ -1,14 +1,14 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. All rights reserved.
 // This project is not open source. Please see the LICENSE.md file in the repository root for details.
 
-using PostSharp.Backstage.Licensing.Consumption;
-using PostSharp.Backstage.Licensing.Licenses;
-using PostSharp.Backstage.Licensing.Registration;
+using Metalama.Backstage.Licensing.Consumption;
+using Metalama.Backstage.Licensing.Licenses;
+using Metalama.Backstage.Licensing.Registration;
 using System;
 using System.Collections.Generic;
 using Xunit;
 
-namespace PostSharp.Backstage.Licensing.Tests.Licenses
+namespace Metalama.Backstage.Licensing.Tests.Licenses
 {
     internal class TestLicense : ILicense, IUsable
     {
@@ -21,7 +21,7 @@ namespace PostSharp.Backstage.Licensing.Tests.Licenses
             this.License = license;
         }
 
-        // MaybeNullWhenAttribute cannot be used here since the PostSharp.Backstage.Settings assembly shares internals with this assembly.
+        // MaybeNullWhenAttribute cannot be used here since the Metalama.Backstage assembly shares internals with this assembly.
         // That causes CS0433 error. (Same type defined in two referenced assemblies.)
         public bool TryGetLicenseConsumptionData( /* [MaybeNullWhenAttribute( false )] */
             out LicenseConsumptionData licenseData )
@@ -34,7 +34,7 @@ namespace PostSharp.Backstage.Licensing.Tests.Licenses
             return this.License.TryGetLicenseConsumptionData( out licenseData! );
         }
 
-        // MaybeNullWhenAttribute cannot be used here since the PostSharp.Backstage.Settings assembly shares internals with this assembly.
+        // MaybeNullWhenAttribute cannot be used here since the Metalama.Backstage assembly shares internals with this assembly.
         // That causes CS0433 error. (Same type defined in two referenced assemblies.)
         public bool TryGetLicenseRegistrationData( /* [MaybeNullWhenAttribute( false )] */
             out LicenseRegistrationData licenseRegistrationData )

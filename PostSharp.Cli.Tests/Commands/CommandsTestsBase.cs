@@ -2,9 +2,9 @@
 // This project is not open source. Please see the LICENSE.md file in the repository root for details.
 
 using Microsoft.Extensions.DependencyInjection;
-using PostSharp.Backstage.Diagnostics;
-using PostSharp.Backstage.Extensibility;
-using PostSharp.Backstage.Testing;
+using Metalama.Backstage.Diagnostics;
+using Metalama.Backstage.Extensibility;
+using Metalama.Backstage.Testing;
 using PostSharp.Cli.Commands;
 using PostSharp.Cli.Tests.Console;
 using System;

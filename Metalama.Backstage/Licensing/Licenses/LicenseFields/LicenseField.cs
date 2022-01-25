@@ -3,7 +3,7 @@
 
 using System.IO;
 
-namespace PostSharp.Backstage.Licensing.Licenses.LicenseFields
+namespace Metalama.Backstage.Licensing.Licenses.LicenseFields
 {
     internal abstract class LicenseField
     {

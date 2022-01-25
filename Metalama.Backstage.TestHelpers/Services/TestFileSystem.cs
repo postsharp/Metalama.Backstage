@@ -1,7 +1,7 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. All rights reserved.
 // This project is not open source. Please see the LICENSE.md file in the repository root for details.
 
-using PostSharp.Backstage.Extensibility;
+using Metalama.Backstage.Extensibility;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -9,7 +9,7 @@ using System.IO.Abstractions.TestingHelpers;
 using System.Runtime.CompilerServices;
 using System.Threading;
 
-namespace PostSharp.Backstage.Testing.Services
+namespace Metalama.Backstage.Testing.Services
 {
     public class TestFileSystem : IFileSystem
     {

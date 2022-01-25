@@ -5,7 +5,7 @@ using Newtonsoft.Json;
 using System;
 using System.IO;
 
-namespace PostSharp.Backstage.Configuration;
+namespace Metalama.Backstage.Configuration;
 
 public abstract class ConfigurationFile
 {

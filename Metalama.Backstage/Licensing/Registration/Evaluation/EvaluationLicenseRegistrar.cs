@@ -1,15 +1,15 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. All rights reserved.
 // This project is not open source. Please see the LICENSE.md file in the repository root for details.
 
-using PostSharp.Backstage.Diagnostics;
-using PostSharp.Backstage.Extensibility;
-using PostSharp.Backstage.Licensing.Consumption;
-using PostSharp.Backstage.Licensing.Licenses;
-using PostSharp.Backstage.Utilities;
+using Metalama.Backstage.Diagnostics;
+using Metalama.Backstage.Extensibility;
+using Metalama.Backstage.Licensing.Consumption;
+using Metalama.Backstage.Licensing.Licenses;
+using Metalama.Backstage.Utilities;
 using System;
 using System.Linq;
 
-namespace PostSharp.Backstage.Licensing.Registration.Evaluation
+namespace Metalama.Backstage.Licensing.Registration.Evaluation
 {
     /// <summary>
     /// Registers an evaluation (trial) license.

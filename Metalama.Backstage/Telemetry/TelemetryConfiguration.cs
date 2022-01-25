@@ -1,11 +1,11 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. All rights reserved.
 // This project is not open source. Please see the LICENSE.md file in the repository root for details.
 
-using PostSharp.Backstage.Configuration;
+using Metalama.Backstage.Configuration;
 using System;
 using System.Collections.Generic;
 
-namespace PostSharp.Backstage.Telemetry;
+namespace Metalama.Backstage.Telemetry;
 
 [ConfigurationFile( "telemetry.json" )]
 internal class TelemetryConfiguration : ConfigurationFile

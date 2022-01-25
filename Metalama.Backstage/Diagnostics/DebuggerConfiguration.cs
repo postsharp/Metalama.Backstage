@@ -4,7 +4,7 @@
 using Newtonsoft.Json;
 using System.Collections.Generic;
 
-namespace PostSharp.Backstage.Diagnostics;
+namespace Metalama.Backstage.Diagnostics;
 
 public class DebuggerConfiguration
 {

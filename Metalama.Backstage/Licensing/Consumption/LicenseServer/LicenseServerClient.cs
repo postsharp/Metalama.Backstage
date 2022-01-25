@@ -3,13 +3,13 @@
 
 // TODO
 
-// using PostSharp.Backstage.Extensibility;
+// using Metalama.Backstage.Extensibility;
 // using System;
 // using System.Globalization;
 // using System.IO;
 // using System.Net;
 
-namespace PostSharp.Backstage.Licensing.Consumption.LicenseServer
+namespace Metalama.Backstage.Licensing.Consumption.LicenseServer
 {
     internal sealed class LicenseServerClient
     {

@@ -5,7 +5,7 @@ using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 
-namespace PostSharp.Backstage.Diagnostics;
+namespace Metalama.Backstage.Diagnostics;
 
 public class LoggingConfiguration
 {

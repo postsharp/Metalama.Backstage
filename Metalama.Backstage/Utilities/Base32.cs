@@ -3,7 +3,7 @@
 
 using System.Text;
 
-namespace PostSharp.Backstage.Utilities
+namespace Metalama.Backstage.Utilities
 {
     internal sealed class Base32
     {

@@ -5,7 +5,7 @@ using System;
 using System.IO;
 using System.Text;
 
-namespace PostSharp.Backstage.Licensing.Licenses.LicenseFields
+namespace Metalama.Backstage.Licensing.Licenses.LicenseFields
 {
     [Serializable]
     internal sealed class LicenseFieldString : LicenseField

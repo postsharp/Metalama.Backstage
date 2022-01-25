@@ -18,7 +18,7 @@ using System.Security.Cryptography;
 #pragma warning disable SA1119  // Statement should not use unnecessary parenthesis
 #pragma warning disable IDE0004 // Remove Unnecessary Cast
 
-namespace PostSharp.Backstage.Utilities
+namespace Metalama.Backstage.Utilities
 {
     /// <summary>
     /// MD5Managed: A HashAlgorithm implementation that acts as a thin wrapper

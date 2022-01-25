@@ -5,7 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 
-namespace PostSharp.Backstage.Telemetry.Metrics
+namespace Metalama.Backstage.Telemetry.Metrics
 {
     /// <summary>
     /// A <see cref="Metric"/> storing a set of strings.

@@ -5,7 +5,7 @@ using System;
 using System.Collections.ObjectModel;
 using System.IO;
 
-namespace PostSharp.Backstage.Telemetry
+namespace Metalama.Backstage.Telemetry
 {
     /// <summary>
     /// Collection of metrics (<see cref="Metric"/>).

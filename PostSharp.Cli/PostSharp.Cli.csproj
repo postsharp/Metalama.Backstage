@@ -22,13 +22,13 @@
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\PostSharp.Backstage.Settings\PostSharp.Backstage.Settings.csproj"/>
+        <ProjectReference Include="..\Metalama.Backstage\Metalama.Backstage.csproj"/>
     </ItemGroup>
 
     <ItemGroup>
         <InternalsVisibleTo Include="PostSharp.Cli.Tests"/>
     </ItemGroup>
 
-    <Import Project="..\PostSharp.Backstage.MicrosoftLogging\PostSharp.Backstage.MicrosoftLogging.projitems" Label="Shared"/>
+    <Import Project="..\Metalama.Backstage.MicrosoftLogging\Metalama.Backstage.MicrosoftLogging.projitems" Label="Shared"/>
 
 </Project>

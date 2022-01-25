@@ -1,7 +1,7 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. All rights reserved.
 // This project is not open source. Please see the LICENSE.md file in the repository root for details.
 
-using PostSharp.Backstage.Utilities;
+using Metalama.Backstage.Utilities;
 using System;
 using System.Collections.Generic;
 using System.Security.Cryptography;
@@ -10,7 +10,7 @@ using System.Xml;
 
 #pragma warning disable CA5350, CA5350, CA5384, CA5351 // Do Not Use Weak Cryptographic Algorithms (TODO - but this means upgrading all license keys)
 
-namespace PostSharp.Backstage.Licensing.Licenses
+namespace Metalama.Backstage.Licensing.Licenses
 {
     /// <summary>
     /// Utility cryptographic methods for use with the PostSharp licensing system.

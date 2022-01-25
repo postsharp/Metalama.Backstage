@@ -1,11 +1,11 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. All rights reserved.
 // This project is not open source. Please see the LICENSE.md file in the repository root for details.
 
-using PostSharp.Backstage.Diagnostics;
+using Metalama.Backstage.Diagnostics;
 using System;
 using System.Diagnostics.CodeAnalysis;
 
-namespace PostSharp.Backstage.Licensing.Licenses
+namespace Metalama.Backstage.Licensing.Licenses
 {
     /// <summary>
     /// Creates an <see cref="ILicense" /> object from a license string.

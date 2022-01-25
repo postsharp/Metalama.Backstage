@@ -3,19 +3,19 @@
 
 // These tests are too slow.
 
-// using PostSharp.Backstage.Licensing.Licenses;
-// using PostSharp.Backstage.Licensing.Cryptography;
+// using Metalama.Backstage.Licensing.Licenses;
+// using Metalama.Backstage.Licensing.Cryptography;
 // using System;
 // using System.Collections.Generic;
 // using System.Linq;
 // using System.Security.Cryptography;
 // using System.Text;
 // using System.Threading.Tasks;
-// using PostSharp.Backstage.Settings.Tests.Services;
+// using Metalama.Backstage.Tests.Services;
 // using Xunit.Abstractions;
 // using Xunit;
 
-namespace PostSharp.Backstage.Licensing.Tests.Licenses
+namespace Metalama.Backstage.Licensing.Tests.Licenses
 {
     public class LicenseKeySerializationTests // : LicensingTestsBase
     {

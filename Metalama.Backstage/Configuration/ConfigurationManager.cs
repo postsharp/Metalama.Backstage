@@ -2,8 +2,8 @@
 // This project is not open source. Please see the LICENSE.md file in the repository root for details.
 
 using Newtonsoft.Json;
-using PostSharp.Backstage.Extensibility;
-using PostSharp.Backstage.Utilities;
+using Metalama.Backstage.Extensibility;
+using Metalama.Backstage.Utilities;
 using System;
 using System.Collections.Concurrent;
 using System.Diagnostics.CodeAnalysis;
@@ -12,7 +12,7 @@ using System.Linq;
 using System.Reflection;
 using System.Threading;
 
-namespace PostSharp.Backstage.Configuration
+namespace Metalama.Backstage.Configuration
 {
     internal sealed class ConfigurationManager : IConfigurationManager
     {
