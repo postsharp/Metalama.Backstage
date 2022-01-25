@@ -4,8 +4,8 @@
     <Import Project="MainVersion.props" />
     
     <PropertyGroup>
-        <PostSharpBackstageSettingsVersion>$(MainVersion)$(PackageVersionSuffix)</PostSharpBackstageSettingsVersion>
-        <PostSharpBackstageSettingsAssemblyVersion>$(MainVersion)</PostSharpBackstageSettingsAssemblyVersion>
+        <MetalamaBackstageVersion>$(MainVersion)$(PackageVersionSuffix)</MetalamaBackstageVersion>
+        <MetalamaBackstageAssemblyVersion>$(MainVersion)</MetalamaBackstageAssemblyVersion>
     </PropertyGroup>
 
     <!-- Versions of dependencies -->
@@ -20,8 +20,8 @@
 
     <!-- Other properties dependent on the versions set above. -->
     <PropertyGroup>
-        <AssemblyVersion>$(PostSharpBackstageSettingsAssemblyVersion)</AssemblyVersion>
-        <Version>$(PostSharpBackstageSettingsVersion)</Version>
+        <AssemblyVersion>$(MetalamaBackstageAssemblyVersion)</AssemblyVersion>
+        <Version>$(MetalamaBackstageVersion)</Version>
     </PropertyGroup>
 
 </Project>

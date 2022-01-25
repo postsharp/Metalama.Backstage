@@ -9,11 +9,6 @@
         <Nullable>enable</Nullable>
         <NoWarn>SA0001;CS8002</NoWarn>
     </PropertyGroup>
-
-    <ItemGroup>
-      <Content Remove="C:\src\Metalama.Backstage\\eng\style\stylecop.json" />
-    </ItemGroup>
-
     <ItemGroup>
         <PackageReference Include="PostSharp.Engineering.BuildTools" Version="$(PostSharpEngineeringVersion)" />
     </ItemGroup>
