@@ -2,11 +2,11 @@
 // This project is not open source. Please see the LICENSE.md file in the repository root for details.
 
 using MELT;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 using Metalama.Backstage.Extensibility;
 using Metalama.Backstage.MicrosoftLogging;
 using Metalama.Backstage.Testing.Services;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using System;
 using Xunit.Abstractions;
 

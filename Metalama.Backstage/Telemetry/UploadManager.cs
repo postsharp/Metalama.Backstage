@@ -17,7 +17,8 @@ namespace Metalama.Backstage.Telemetry
     {
         private readonly IStandardDirectories _directories;
         private readonly ILogger _logger;
-        private readonly Uri _serverUrl = new( "https://bits.postsharp.net" );
+
+        // private readonly Uri _serverUrl = new( "https://bits.postsharp.net" );
 
         public UploadManager( IServiceProvider serviceProvider )
         {
