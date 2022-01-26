@@ -4,13 +4,15 @@
     <Import Project="MainVersion.props" />
     
     <PropertyGroup>
-        <PostSharpBackstageSettingsVersion>$(MainVersion)$(PackageVersionSuffix)</PostSharpBackstageSettingsVersion>
-        <PostSharpBackstageSettingsAssemblyVersion>$(MainVersion)</PostSharpBackstageSettingsAssemblyVersion>
+        <MetalamaBackstageVersion>$(MainVersion)$(PackageVersionSuffix)</MetalamaBackstageVersion>
+        <MetalamaBackstageAssemblyVersion>$(MainVersion)</MetalamaBackstageAssemblyVersion>
     </PropertyGroup>
 
     <!-- Versions of dependencies -->
     <PropertyGroup>
-        <PostSharpEngineeringVersion>1.0.21-preview</PostSharpEngineeringVersion>
+        <PostSharpEngineeringVersion>1.0.36-preview</PostSharpEngineeringVersion>
+        <NewtonsoftJsonVersion>13.0.1</NewtonsoftJsonVersion>
+        <MicrosoftBclHashCodeVersion>1.1.1</MicrosoftBclHashCodeVersion>
     </PropertyGroup>
 
     <!-- Import overrides for the local build -->
@@ -18,12 +20,8 @@
 
     <!-- Other properties dependent on the versions set above. -->
     <PropertyGroup>
-        <AssemblyVersion>$(PostSharpBackstageSettingsAssemblyVersion)</AssemblyVersion>
-        <Version>$(PostSharpBackstageSettingsVersion)</Version>
-    </PropertyGroup>
-
-    <!-- Public strong name keys used by InternalsVisibleTo. -->
-    <PropertyGroup>
+        <AssemblyVersion>$(MetalamaBackstageAssemblyVersion)</AssemblyVersion>
+        <Version>$(MetalamaBackstageVersion)</Version>
     </PropertyGroup>
 
 </Project>

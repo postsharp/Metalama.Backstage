@@ -5,18 +5,18 @@ using PostSharp.Engineering.BuildTools;
 using PostSharp.Engineering.BuildTools.Build.Model;
 using PostSharp.Engineering.BuildTools.Dependencies.Model;
 using Spectre.Console.Cli;
-using System.Collections.Immutable;
 
 var product = new Product
 {
-    ProductName = "PostSharp.Backstage.Settings",
-    Solutions = ImmutableArray.Create<Solution>(
-                    new DotNetSolution( "PostSharp.Backstage.Settings.sln" ) { SupportsTestCoverage = true, CanFormatCode = true } ),
+    ProductName = "Metalama.Backstage",
+    Solutions = new Solution[]
+    {
+                    new DotNetSolution( "Metalama.Backstage.sln" ) { SupportsTestCoverage = true, CanFormatCode = true } 
+    },
     PublicArtifacts = Pattern.Create(
-        "PostSharp.Backstage.Settings.$(PackageVersion).nupkg",
-        "PostSharp.Cli.$(PackageVersion).nupkg" ),
-    Dependencies = ImmutableArray.Create(
-        Dependencies.PostSharpEngineering )
+        "Metalama.Backstage.$(PackageVersion).nupkg",
+        "Metalama.DotNetTools.$(PackageVersion).nupkg" ),
+    Dependencies = new[] { Dependencies.PostSharpEngineering }
 };
 
 var commandApp = new CommandApp();

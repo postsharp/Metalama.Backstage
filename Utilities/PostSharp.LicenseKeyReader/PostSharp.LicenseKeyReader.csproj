@@ -10,7 +10,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\PostSharp.Backstage.Settings\PostSharp.Backstage.Settings.csproj" />
+    <ProjectReference Include="..\..\Metalama.Backstage\Metalama.Backstage.csproj" />
   </ItemGroup>
 
 </Project>

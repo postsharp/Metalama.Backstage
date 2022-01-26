@@ -1,0 +1,74 @@
+﻿// Copyright (c) SharpCrafters s.r.o. All rights reserved.
+// This project is not open source. Please see the LICENSE.md file in the repository root for details.
+
+using Metalama.Backstage.Extensibility;
+using Metalama.Backstage.Licensing.Registration;
+using Metalama.Backstage.Licensing.Registration.Evaluation;
+using System;
+
+namespace Metalama.Backstage.Licensing.Licenses
+{
+    /// <summary>
+    /// Creates unsigned licenses for self-registration.
+    /// </summary>
+    internal class UnsignedLicenseFactory
+    {
+        private readonly IDateTimeProvider _time;
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="UnsignedLicenseFactory"/> class.
+        /// </summary>
+        /// <param name="services">Services.</param>
+        public UnsignedLicenseFactory( IServiceProvider services )
+        {
+            this._time = services.GetRequiredService<IDateTimeProvider>();
+        }
+
+        /// <summary>
+        /// Creates an unsigned evaluation license.
+        /// </summary>
+        /// <returns>The unsigned evaluation license.</returns>
+        public (string LicenseKey, LicenseRegistrationData Data) CreateEvaluationLicense()
+        {
+            var start = this._time.Now.Date;
+            var end = start + EvaluationLicenseRegistrar.EvaluationPeriod;
+
+            var licenseKeyData = new LicenseKeyData
+            {
+                LicenseGuid = Guid.NewGuid(),
+                Product = LicensedProduct.MetalamaUltimate,
+                LicenseType = LicenseType.Evaluation,
+                ValidFrom = start,
+                ValidTo = end,
+                SubscriptionEndDate = end
+            };
+
+            var licenseKey = licenseKeyData.Serialize();
+            var licenseRegistrationData = licenseKeyData.ToRegistrationData();
+
+            return (licenseKey, licenseRegistrationData);
+        }
+
+        /// <summary>
+        /// Creates an unsigned community license.
+        /// </summary>
+        /// <returns>The unsigned community license.</returns>
+        public (string LicenseKey, LicenseRegistrationData Data) CreateCommunityLicense()
+        {
+            var start = this._time.Now;
+
+            var licenseKeyData = new LicenseKeyData
+            {
+                LicenseGuid = Guid.NewGuid(),
+                Product = LicensedProduct.MetalamaUltimate,
+                LicenseType = LicenseType.Community,
+                ValidFrom = start
+            };
+
+            var licenseKey = licenseKeyData.Serialize();
+            var licenseRegistrationData = licenseKeyData.ToRegistrationData();
+
+            return (licenseKey, licenseRegistrationData);
+        }
+    }
+}

@@ -3,6 +3,7 @@ if ( $env:VisualStudioVersion -eq $null ) {
     Enter-VsDevShell -VsInstallPath "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\" -StartInPath $(Get-Location)
 }
 
-& dotnet run --project "$PSScriptRoot\eng\src\BuildPostSharpBackstageSettings.csproj" -- $args
+(& dotnet nuget locals http-cache -c) | Out-Null
+& dotnet run --project "$PSScriptRoot\eng\src\BuildMetalamaBackstage.csproj" -- $args
 exit $LASTEXITCODE
 

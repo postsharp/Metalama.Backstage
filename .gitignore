@@ -374,4 +374,5 @@ FodyWeavers.xsd
 /tools/
 **/inspectcode.xml
 /eng/BackstageVersion.props
-/PostSharp.Backstage.Settings.Import.props
+/Metalama.Backstage.Import.props
+/eng/tools

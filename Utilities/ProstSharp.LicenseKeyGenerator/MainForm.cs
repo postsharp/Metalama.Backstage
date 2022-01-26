@@ -3,26 +3,29 @@
 
 using Azure.Identity;
 using Azure.Security.KeyVault.Secrets;
-using PostSharp.Backstage.Licensing.Licenses;
+using Metalama.Backstage.Licensing.Licenses;
 
 namespace ProstSharp.LicenseKeyGenerator
 {
     public partial class MainForm : Form
     {
+        private readonly string _privateKey;
+
         public MainForm()
         {
             this.InitializeComponent();
             this._propertyGrid.SelectedObject = new LicenseKeyData();
+
+            // We load the private key on startup to avoid KeyVault exceptions after filling all the data.
+            var kvUri = "https://postsharpbusinesssystkv.vault.azure.net/";
+            var client = new SecretClient( new Uri( kvUri ), new DefaultAzureCredential() );
+            this._privateKey = client.GetSecret( "Licensing-PrivateKey0" ).Value.Value;
         }
 
         private void OnSerializedButtonClicked( object sender, EventArgs e )
         {
-            var kvUri = "https://postsharpbusinesssystkv.vault.azure.net/";
-            var client = new SecretClient( new Uri( kvUri ), new DefaultAzureCredential() );
-            var privateKey = client.GetSecret( "Licensing-PrivateKey0" ).Value.Value;
-
             var licenseKeyData = (LicenseKeyData) this._propertyGrid.SelectedObject;
-            licenseKeyData.SignAndSerialize( 0, privateKey );
+            licenseKeyData.SignAndSerialize( 0, this._privateKey );
 
             if ( !licenseKeyData.VerifySignature() )
             {
