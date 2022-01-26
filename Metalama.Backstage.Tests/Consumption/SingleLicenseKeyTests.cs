@@ -23,14 +23,14 @@ public class SingleLicenseKeyTests : LicenseConsumptionManagerTestsBase
     {
         var license = this.CreateLicense( licenseKey );
         var manager = this.CreateConsumptionManager( license );
-        this.TestConsumption( manager, requiredFeatures, requiredNamespace, expectedCanConsume );
+        TestConsumption( manager, requiredFeatures, requiredNamespace, expectedCanConsume );
     }
 
     [Fact]
     public void NoLicenseAutoRegistersEvaluationLicense()
     {
         LicenseConsumptionManager manager = new( this.Services );
-        this.TestConsumption( manager, LicensedFeatures.Metalama, false, true );
+        TestConsumption( manager, LicensedFeatures.Metalama, false, true );
     }
 
     [Fact]

@@ -16,7 +16,7 @@ namespace Metalama.DotNetTools.Tests.Commands.Licensing
         [Fact]
         public async Task CommunityRegistersInEmptyEnvironment()
         {
-            await this.TestCommandAsync( "license register community", "" );
+            await this.TestCommandAsync( "license register essentials", "" );
 
             await this.TestCommandAsync(
                 "license list",
@@ -26,8 +26,8 @@ namespace Metalama.DotNetTools.Tests.Commands.Licensing
         [Fact]
         public async Task RepetitiveCommunityRegistrationKeepsOneCommunityLicenseRegistered()
         {
-            await this.TestCommandAsync( "license register community", "" );
-            await this.TestCommandAsync( "license register community", "" );
+            await this.TestCommandAsync( "license register essentials", "" );
+            await this.TestCommandAsync( "license register essentials", "" );
 
             await this.TestCommandAsync(
                 "license list",

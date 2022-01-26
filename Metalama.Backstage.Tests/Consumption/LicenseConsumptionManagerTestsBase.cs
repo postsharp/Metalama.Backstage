@@ -4,10 +4,8 @@
 using Metalama.Backstage.Extensibility;
 using Metalama.Backstage.Licensing.Consumption;
 using Metalama.Backstage.Licensing.Consumption.Sources;
-using Metalama.Backstage.Licensing.Registration;
 using Metalama.Backstage.Licensing.Tests.Licenses;
 using Metalama.Backstage.Licensing.Tests.LicenseSources;
-using Metalama.Backstage.Licensing.Tests.Registration;
 using System;
 using Xunit;
 using Xunit.Abstractions;
@@ -39,18 +37,18 @@ public abstract class LicenseConsumptionManagerTestsBase : LicensingTestsBase
     private protected ILicenseConsumptionManager CreateConsumptionManager( params ILicenseSource[] licenseSources )
         => new LicenseConsumptionManager( this.Services, licenseSources );
 
-    private protected void TestConsumption(
+    private protected static void TestConsumption(
         ILicenseConsumptionManager manager,
         LicensedFeatures requiredFeatures,
         bool expectedCanConsume,
         bool expectedLicenseAutoRegistrationAttempt = false )
-        => this.TestConsumption(
+        => TestConsumption(
             manager,
             requiredFeatures,
             "Foo",
             expectedCanConsume );
 
-    private protected void TestConsumption(
+    private protected static void TestConsumption(
         ILicenseConsumptionManager manager,
         LicensedFeatures requiredFeatures,
         string requiredNamespace,

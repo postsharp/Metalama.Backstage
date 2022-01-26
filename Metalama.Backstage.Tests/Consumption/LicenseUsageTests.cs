@@ -23,7 +23,7 @@ public class LicenseUsageTests : LicenseConsumptionManagerTestsBase
         var license1 = this.CreateLicense( TestLicenseKeys.Ultimate );
         var license2 = this.CreateLicense( TestLicenseKeys.Ultimate );
         var manager = this.CreateConsumptionManager( license1, license2 );
-        this.TestConsumption( manager, LicensedFeatures.Metalama, true );
+        TestConsumption( manager, LicensedFeatures.Metalama, true );
         AssertOneUsed( license1, license2 );
     }
 
@@ -33,7 +33,7 @@ public class LicenseUsageTests : LicenseConsumptionManagerTestsBase
         var license1 = this.CreateLicense( TestLicenseKeys.Logging );
         var license2 = this.CreateLicense( TestLicenseKeys.Logging );
         var manager = this.CreateConsumptionManager( license1, license2 );
-        this.TestConsumption( manager, LicensedFeatures.Metalama, false );
+        TestConsumption( manager, LicensedFeatures.Metalama, false );
         AssertOneUsed( license1, license2 );
     }
 
@@ -43,7 +43,7 @@ public class LicenseUsageTests : LicenseConsumptionManagerTestsBase
         var license1 = this.CreateLicense( TestLicenseKeys.Logging );
         var license2 = this.CreateLicense( TestLicenseKeys.Caching );
         var manager = this.CreateConsumptionManager( license1, license2 );
-        this.TestConsumption( manager, LicensedFeatures.Metalama, false );
+        TestConsumption( manager, LicensedFeatures.Metalama, false );
         AssertAllUsed( license1, license2 );
     }
 
@@ -57,7 +57,7 @@ public class LicenseUsageTests : LicenseConsumptionManagerTestsBase
         var source2 = new TestLicenseSource( "source2", license2 );
 
         var manager = this.CreateConsumptionManager( source1, source2 );
-        this.TestConsumption( manager, LicensedFeatures.Metalama, true );
+        TestConsumption( manager, LicensedFeatures.Metalama, true );
         AssertOneUsed( license1, license2 );
         AssertOneUsed( source1, source2 );
     }
@@ -72,7 +72,7 @@ public class LicenseUsageTests : LicenseConsumptionManagerTestsBase
         var source2 = new TestLicenseSource( "source2", license2 );
 
         var manager = this.CreateConsumptionManager( source1, source2 );
-        this.TestConsumption( manager, LicensedFeatures.Metalama, false );
+        TestConsumption( manager, LicensedFeatures.Metalama, false );
         AssertAllUsed( license1, license2 );
         AssertAllUsed( source1, source2 );
     }
@@ -83,7 +83,7 @@ public class LicenseUsageTests : LicenseConsumptionManagerTestsBase
         var license1 = this.CreateLicense( TestLicenseKeys.Ultimate );
         var license2 = this.CreateLicense( TestLicenseKeys.OpenSource );
         var manager = this.CreateConsumptionManager( license1, license2 );
-        this.TestConsumption( manager, LicensedFeatures.Metalama, TestLicenseKeys.OpenSourceNamespace, true );
+        TestConsumption( manager, LicensedFeatures.Metalama, TestLicenseKeys.OpenSourceNamespace, true );
         Assert.True( license1.IsUsed );
         Assert.False( license2.IsUsed );
     }
@@ -94,7 +94,7 @@ public class LicenseUsageTests : LicenseConsumptionManagerTestsBase
         var license1 = this.CreateLicense( TestLicenseKeys.Logging );
         var license2 = this.CreateLicense( TestLicenseKeys.OpenSource );
         var manager = this.CreateConsumptionManager( license1, license2 );
-        this.TestConsumption( manager, LicensedFeatures.Metalama, "Foo", false );
+        TestConsumption( manager, LicensedFeatures.Metalama, "Foo", false );
         AssertAllUsed( license1, license2 );
     }
 }

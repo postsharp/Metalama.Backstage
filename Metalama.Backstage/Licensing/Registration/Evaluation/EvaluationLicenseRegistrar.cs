@@ -52,11 +52,6 @@ public class EvaluationLicenseRegistrar
     /// </returns>
     public bool TryActivateLicense()
     {
-        void TraceFailure( string message )
-        {
-            this._logger.Trace?.Log( $"Failed to register evaluation license: {message}" );
-        }
-
         this._logger.Trace?.Log( "Attempting to register an evaluation license." );
 
         using ( MutexHelper.WithGlobalLock( "Evaluation" ) )

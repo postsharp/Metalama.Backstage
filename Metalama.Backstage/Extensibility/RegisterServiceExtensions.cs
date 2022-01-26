@@ -79,33 +79,12 @@ public static class RegisterServiceExtensions
     /// Adds the minimal backstage services, without diagnostics and telemetry.
     /// </summary>
     public static ServiceProviderBuilder AddMinimalBackstageServices( this ServiceProviderBuilder serviceProviderBuilder )
-        => serviceProviderBuilder.AddDiagnosticServiceRequirements();
-
-    public static ServiceProviderBuilder AddBackstageServices(
-        this ServiceProviderBuilder serviceProviderBuilder,
-        IApplicationInfo applicationInfo,
-        string? projectName = null,
-        bool ignoreUserProfileLicenses = false,
-        string[]? additionalLicenses = null )
     {
-        // Add base services.
-        serviceProviderBuilder = serviceProviderBuilder
-            .AddSingleton( applicationInfo )
-            .AddCurrentDateTimeProvider()
-            .AddFileSystem()
-            .AddStandardDirectories()
-            .AddConfigurationManager();
+        return serviceProviderBuilder.AddDiagnosticServiceRequirements();
+    }
 
-        // Add diagnostics.
-        if ( applicationInfo.ProcessKind != ProcessKind.Other )
-        {
-            serviceProviderBuilder = serviceProviderBuilder.AddDiagnostics( applicationInfo.ProcessKind, projectName );
-        }
-
-        // First-run configuration. This must be done before initializing licensing and telemetry.
-        WelcomeService.Execute( serviceProviderBuilder.ServiceProvider, !ignoreUserProfileLicenses );
-
-        // Add licensing.
+    public static ServiceProviderBuilder AddLicensing( this ServiceProviderBuilder serviceProviderBuilder, bool ignoreUserProfileLicenses = false, string[]? additionalLicenses = null )
+    {
         var licenseSources = new List<ILicenseSource>();
 
         if ( !ignoreUserProfileLicenses )
@@ -117,16 +96,47 @@ public static class RegisterServiceExtensions
         {
             licenseSources.Add( new ExplicitLicenseSource( additionalLicenses, serviceProviderBuilder.ServiceProvider ) );
         }
-
+        
         serviceProviderBuilder.AddSingleton<ILicenseConsumptionManager>(
             new LicenseConsumptionManager( serviceProviderBuilder.ServiceProvider, licenseSources ) );
 
-        // Add telemetry.
-        var uploadManager = new UploadManager( serviceProviderBuilder.ServiceProvider );
+        return serviceProviderBuilder;
+    }
 
+    public static ServiceProviderBuilder AddBackstageServices(
+        this ServiceProviderBuilder serviceProviderBuilder,
+        IApplicationInfo applicationInfo,
+        string? projectName = null,
+        bool ignoreUserProfileLicenses = false,
+        string[]? additionalLicenses = null,
+        bool addSupportServices = true )
+    {
+        // Add base services.
         serviceProviderBuilder = serviceProviderBuilder
-            .AddSingleton<IExceptionReporter>( new ExceptionReporter( uploadManager, serviceProviderBuilder.ServiceProvider ) )
-            .AddSingleton<IUsageReporter>( new UsageReporter( uploadManager, serviceProviderBuilder.ServiceProvider ) );
+            .AddSingleton( applicationInfo )
+            .AddDiagnosticServiceRequirements();
+
+        // Add diagnostics.
+        if ( addSupportServices )
+        {
+            serviceProviderBuilder = serviceProviderBuilder.AddDiagnostics( applicationInfo.ProcessKind, projectName );
+
+            // First-run configuration. This must be done before initializing licensing and telemetry.
+            WelcomeService.Execute( serviceProviderBuilder.ServiceProvider, !ignoreUserProfileLicenses );
+        }
+
+        // Add licensing.
+        serviceProviderBuilder.AddLicensing( ignoreUserProfileLicenses, additionalLicenses );
+
+        if ( addSupportServices )
+        {
+            // Add telemetry.
+            var uploadManager = new UploadManager( serviceProviderBuilder.ServiceProvider );
+
+            serviceProviderBuilder = serviceProviderBuilder
+                .AddSingleton<IExceptionReporter>( new ExceptionReporter( uploadManager, serviceProviderBuilder.ServiceProvider ) )
+                .AddSingleton<IUsageReporter>( new UsageReporter( uploadManager, serviceProviderBuilder.ServiceProvider ) );
+        }
 
         return serviceProviderBuilder;
     }

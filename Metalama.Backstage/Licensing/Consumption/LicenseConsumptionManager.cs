@@ -2,10 +2,8 @@
 // This project is not open source. Please see the LICENSE.md file in the repository root for details.
 
 using Metalama.Backstage.Diagnostics;
-using Metalama.Backstage.Extensibility;
 using Metalama.Backstage.Licensing.Consumption.Sources;
 using Metalama.Backstage.Licensing.Licenses;
-using Metalama.Backstage.Licensing.Registration;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,10 +13,11 @@ namespace Metalama.Backstage.Licensing.Consumption;
 /// <inheritdoc />
 internal class LicenseConsumptionManager : ILicenseConsumptionManager
 {
-    private readonly IServiceProvider _services;
     private readonly ILogger _logger;
     private readonly List<ILicenseSource> _unusedLicenseSources = new();
     private readonly HashSet<ILicense> _unusedLicenses = new();
+
+    // ReSharper disable once CollectionNeverQueried.Local (should be used in license audit).
     private readonly HashSet<ILicense> _usedLicenses = new();
     private readonly Dictionary<string, LicenseNamespaceConstraint> _namespaceLimitedLicensedFeatures = new();
     private readonly List<LicensingMessage> _warnings = new();
@@ -40,7 +39,6 @@ internal class LicenseConsumptionManager : ILicenseConsumptionManager
     /// <param name="licenseSources">License sources.</param>
     public LicenseConsumptionManager( IServiceProvider services, IEnumerable<ILicenseSource> licenseSources )
     {
-        this._services = services;
         this._logger = services.GetLoggerFactory().Licensing();
 
         this._unusedLicenseSources.AddRange( licenseSources );
