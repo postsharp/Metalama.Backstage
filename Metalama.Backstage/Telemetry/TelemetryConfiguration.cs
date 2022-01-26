@@ -4,6 +4,7 @@
 using Metalama.Backstage.Configuration;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Metalama.Backstage.Telemetry;
 
@@ -22,21 +23,18 @@ public class TelemetryConfiguration : ConfigurationFile
 
     public Dictionary<string, ReportingStatus> Issues { get; private set; } = new( StringComparer.OrdinalIgnoreCase );
 
+    public Dictionary<string, DateTime> Sessions { get; private set; } = new( StringComparer.OrdinalIgnoreCase );
+
     public ReportingAction ReportUsage { get; set; } = ReportingAction.Ask;
 
-    public bool MustReportIssue( string hash )
+    public void CleanUp( DateTime threshold )
     {
-        if ( this.Issues.TryGetValue( hash, out var currentStatus ) )
+        var sessionsToRemove = this.Sessions.Where( s => s.Value < threshold ).Select( s => s.Key );
+
+        foreach ( var sessionToRemove in sessionsToRemove )
         {
-            if ( currentStatus is ReportingStatus.Ignored or ReportingStatus.Reported )
-            {
-                return false;
-            }
+            this.Sessions.Remove( sessionToRemove );
         }
-
-        this.Issues[hash] = currentStatus;
-
-        return true;
     }
 
     public override void CopyFrom( ConfigurationFile configurationFile )
@@ -48,6 +46,7 @@ public class TelemetryConfiguration : ConfigurationFile
         this.DeviceId = source.DeviceId;
         this.LastUploadTime = source.LastUploadTime;
         this.Issues = new Dictionary<string, ReportingStatus>( source.Issues );
+        this.Sessions = new Dictionary<string, DateTime>( source.Sessions );
     }
 }
 

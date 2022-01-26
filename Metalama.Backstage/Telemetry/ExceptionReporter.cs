@@ -2,6 +2,7 @@
 // This project is not open source. Please see the LICENSE.md file in the repository root for details.
 
 using Metalama.Backstage.Configuration;
+using Metalama.Backstage.Diagnostics;
 using Metalama.Backstage.Extensibility;
 using Metalama.Backstage.Utilities;
 using System;
@@ -27,6 +28,7 @@ internal class ExceptionReporter : IExceptionReporter
     private readonly IDateTimeProvider _time;
     private readonly IApplicationInfo _applicationInfo;
     private readonly IStandardDirectories _directories;
+    private readonly ILogger _logger;
 
     private readonly Regex _stackFrameRegex = new( @"\S+\([^\)]*\)" );
 
@@ -37,6 +39,7 @@ internal class ExceptionReporter : IExceptionReporter
         this._time = serviceProvider.GetRequiredService<IDateTimeProvider>();
         this._applicationInfo = serviceProvider.GetRequiredService<IApplicationInfo>();
         this._directories = serviceProvider.GetRequiredService<IStandardDirectories>();
+        this._logger = serviceProvider.GetLoggerFactory().Telemetry();
     }
 
     public IEnumerable<string> CleanStackTrace( string stackTrace )
@@ -135,14 +138,49 @@ internal class ExceptionReporter : IExceptionReporter
         return hash.ToString();
     }
 
+    private bool ShouldReportIssue( string hash )
+    {
+        if ( this._configuration.Issues.TryGetValue( hash, out var currentStatus ) )
+        {
+            if ( currentStatus is ReportingStatus.Ignored or ReportingStatus.Reported )
+            {
+                this._logger.Info?.Log( $"The issue {hash} should not be reported because its status is {currentStatus}." );
+
+                return false;
+            }
+        }
+
+        return this._configuration.ConfigurationManager.Update<TelemetryConfiguration>(
+            c =>
+            {
+                if ( c.Issues.TryGetValue( hash, out var raceStatus ) )
+                {
+                    if ( raceStatus is ReportingStatus.Ignored or ReportingStatus.Reported )
+                    {
+                        this._logger.Info?.Log( $"The issue {hash} should not be reported because another process is reporting it." );
+
+                        return false;
+                    }
+                }
+
+                c.Issues[hash] = currentStatus;
+
+                return true;
+            } );
+    }
+
     public void ReportException( Exception e, ExceptionReportingKind exceptionReportingKind = ExceptionReportingKind.Exception )
     {
+        this._logger.Trace?.Log( $"Reporting an exception of type {e.GetType().Name}." );
+
         var reportingAction = exceptionReportingKind == ExceptionReportingKind.Exception
             ? this._configuration.ExceptionReportingAction
             : this._configuration.PerformanceProblemReportingAction;
 
-        if ( reportingAction == ReportingAction.No )
+        if ( reportingAction != ReportingAction.Yes )
         {
+            this._logger.Trace?.Log( $"The issue will not be reported because the reporting action in the user profile is set to {reportingAction}." );
+
             return;
         }
 
@@ -153,7 +191,8 @@ internal class ExceptionReporter : IExceptionReporter
             ExceptionSensitiveDataHelper.RemoveSensitiveData( e.StackTrace ) );
 
         // Check if this exception has already been reported.
-        if ( !this._configuration.MustReportIssue( hash ) )
+
+        if ( !this.ShouldReportIssue( hash ) )
         {
             return;
         }
