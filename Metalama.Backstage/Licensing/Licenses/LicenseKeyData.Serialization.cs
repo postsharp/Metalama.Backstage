@@ -149,7 +149,7 @@ namespace Metalama.Backstage.Licensing.Licenses
 
         /// <summary>
         /// Sets the <see cref="MinPostSharpVersion"/> to <see cref="_minPostSharpVersionValidationRemovedPostSharpVersion"/>
-        /// if the license key data are not backward compatible with PostSharp versions
+        /// if the license key data is not backward compatible with PostSharp versions
         /// prior to <see cref="_minPostSharpVersionValidationRemovedPostSharpVersion"/>.
         /// </summary>
         private void SetMinPostSharpVersionIfRequired()
