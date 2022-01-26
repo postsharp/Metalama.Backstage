@@ -3,21 +3,23 @@
 
 using Metalama.DotNetTools.Commands.Licensing;
 using Metalama.DotNetTools.Commands.Logging;
+using Metalama.DotNetTools.Commands.Telemetry;
 using System.CommandLine;
 
-namespace Metalama.DotNetTools.Commands
-{
-    internal class TheRootCommand : RootCommand
-    {
-        public TheRootCommand( ICommandServiceProvider commandServiceProvider )
-            : base( "Management tool for PostSharp" )
-        {
-            this.Add( new LicenseCommand( commandServiceProvider ) );
-            this.Add( new DiagnosticsCommand( commandServiceProvider ) );
+namespace Metalama.DotNetTools.Commands;
 
-            var verboseOption = new Option<bool>( "--verbose", "Set detailed verbosity level" );
-            verboseOption.AddAlias( "-v" );
-            this.AddGlobalOption( verboseOption );
-        }
+internal class TheRootCommand : RootCommand
+{
+    public TheRootCommand( ICommandServiceProvider commandServiceProvider )
+        : base( "Manages user options of Metalama" )
+    {
+        this.Add( new LicenseCommand( commandServiceProvider ) );
+        this.Add( new TelemetryCommand( commandServiceProvider ) );
+        this.Add( new DiagnosticsCommand( commandServiceProvider ) );
+        this.Add( new WelcomeCommand( commandServiceProvider ) );
+
+        var verboseOption = new Option<bool>( "--verbose", "Set detailed verbosity level" );
+        verboseOption.AddAlias( "-v" );
+        this.AddGlobalOption( verboseOption );
     }
 }

@@ -13,7 +13,7 @@ namespace Metalama.Backstage.Extensibility
     {
         /// <inheritdoc />
         public string ApplicationDataDirectory { get; } =
-            Path.Combine( Environment.GetFolderPath( Environment.SpecialFolder.ApplicationData ), ".postsharp" );
+            Path.Combine( Environment.GetFolderPath( Environment.SpecialFolder.ApplicationData ), ".metalama" );
 
         /// <inheritdoc />
         public string TempDirectory { get; } = Path.Combine( Path.GetTempPath(), "PostSharp" );
