@@ -12,74 +12,51 @@ using System;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace Metalama.Backstage.Licensing.Tests.Consumption
+namespace Metalama.Backstage.Licensing.Tests.Consumption;
+
+public abstract class LicenseConsumptionManagerTestsBase : LicensingTestsBase
 {
-    public abstract class LicenseConsumptionManagerTestsBase : LicensingTestsBase
+    private protected LicenseConsumptionManagerTestsBase(
+        ITestOutputHelper logger,
+        Action<ServiceProviderBuilder>? serviceBuilder = null )
+        : base( logger, serviceBuilder ) { }
+
+    private protected TestLicense CreateLicense( string licenseString )
     {
-        private protected TestFirstRunLicenseActivator AutoRegistrar { get; }
+        Assert.True( this.LicenseFactory.TryCreate( licenseString, out var license ) );
 
-        private protected LicenseConsumptionManagerTestsBase(
-            ITestOutputHelper logger,
-            Action<ServiceProviderBuilder>? serviceBuilder = null )
-            : base(
-                logger,
-                serviceCollection =>
-                {
-                    serviceCollection
-                        .AddSingleton<IFirstRunLicenseActivator>( new TestFirstRunLicenseActivator() );
+        return new TestLicense( license! );
+    }
 
-                    serviceBuilder?.Invoke( serviceCollection );
-                } )
-        {
-            this.AutoRegistrar =
-                (TestFirstRunLicenseActivator) this.Services.GetRequiredService<IFirstRunLicenseActivator>();
-        }
+    private protected ILicenseConsumptionManager CreateConsumptionManager( params TestLicense[] licenses )
+    {
+        // ReSharper disable once CoVariantArrayConversion
+        var licenseSource = new TestLicenseSource( "test", licenses );
 
-        private protected TestLicense CreateLicense( string licenseString )
-        {
-            Assert.True( this.LicenseFactory.TryCreate( licenseString, out var license ) );
+        return this.CreateConsumptionManager( licenseSource );
+    }
 
-            return new TestLicense( license! );
-        }
+    private protected ILicenseConsumptionManager CreateConsumptionManager( params ILicenseSource[] licenseSources )
+        => new LicenseConsumptionManager( this.Services, licenseSources );
 
-        private protected ILicenseConsumptionManager CreateConsumptionManager( params TestLicense[] licenses )
-        {
-            // ReSharper disable once CoVariantArrayConversion
-            var licenseSource = new TestLicenseSource( "test", licenses );
+    private protected void TestConsumption(
+        ILicenseConsumptionManager manager,
+        LicensedFeatures requiredFeatures,
+        bool expectedCanConsume,
+        bool expectedLicenseAutoRegistrationAttempt = false )
+        => this.TestConsumption(
+            manager,
+            requiredFeatures,
+            "Foo",
+            expectedCanConsume );
 
-            return this.CreateConsumptionManager( licenseSource );
-        }
-
-        private protected ILicenseConsumptionManager CreateConsumptionManager( params ILicenseSource[] licenseSources )
-        {
-            return new LicenseConsumptionManager( this.Services, licenseSources );
-        }
-
-        private protected void TestConsumption(
-            ILicenseConsumptionManager manager,
-            LicensedFeatures requiredFeatures,
-            bool expectedCanConsume,
-            bool expectedLicenseAutoRegistrationAttempt = false )
-        {
-            this.TestConsumption(
-                manager,
-                requiredFeatures,
-                "Foo",
-                expectedCanConsume,
-                expectedLicenseAutoRegistrationAttempt );
-        }
-
-        private protected void TestConsumption(
-            ILicenseConsumptionManager manager,
-            LicensedFeatures requiredFeatures,
-            string requiredNamespace,
-            bool expectedCanConsume,
-            bool expectedLicenseAutoRegistrationAttempt = false )
-        {
-            var actualCanConsume = manager.CanConsumeFeatures( requiredFeatures, requiredNamespace );
-            Assert.Equal( expectedCanConsume, actualCanConsume );
-
-            Assert.Equal( expectedLicenseAutoRegistrationAttempt, this.AutoRegistrar.RegistrationAttempted );
-        }
+    private protected void TestConsumption(
+        ILicenseConsumptionManager manager,
+        LicensedFeatures requiredFeatures,
+        string requiredNamespace,
+        bool expectedCanConsume )
+    {
+        var actualCanConsume = manager.CanConsumeFeatures( requiredFeatures, requiredNamespace );
+        Assert.Equal( expectedCanConsume, actualCanConsume );
     }
 }

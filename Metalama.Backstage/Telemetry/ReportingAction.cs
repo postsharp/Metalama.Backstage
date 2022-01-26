@@ -3,19 +3,16 @@
 
 using System.Reflection;
 
-namespace Metalama.Backstage.Telemetry
+namespace Metalama.Backstage.Telemetry;
+
+public enum ReportingAction
 {
     /// <exclude />
-    [Obfuscation( Exclude = true, ApplyToMembers = true )]
-    internal enum ReportingAction
-    {
-        /// <exclude />
-        Ask,
+    Ask,
 
-        /// <exclude />
-        Yes,
+    /// <exclude />
+    Yes,
 
-        /// <exclude />
-        No
-    }
+    /// <exclude />
+    No
 }

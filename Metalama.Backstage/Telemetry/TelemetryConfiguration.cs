@@ -8,19 +8,21 @@ using System.Collections.Generic;
 namespace Metalama.Backstage.Telemetry;
 
 [ConfigurationFile( "telemetry.json" )]
-internal class TelemetryConfiguration : ConfigurationFile
+public class TelemetryConfiguration : ConfigurationFile
 {
-    public ReportingAction ErrorReportingAction { get; set; } = ReportingAction.Yes;
+    public static bool IsOptOutEnvironmentVariableSet() => !string.IsNullOrEmpty( Environment.GetEnvironmentVariable( "METALAMA_TELEMETRY_OPT_OUT" ) );
 
-    public ReportingAction NewExceptionReportingAction { get; set; } = ReportingAction.Yes;
+    public ReportingAction ExceptionReportingAction { get; set; } = ReportingAction.Ask;
 
-    public ReportingAction NewPerformanceProblemReportingAction { get; set; } = ReportingAction.Yes;
+    public ReportingAction PerformanceProblemReportingAction { get; set; } = ReportingAction.Ask;
 
     public Guid DeviceId { get; set; } = Guid.NewGuid();
 
     public DateTime? LastUploadTime { get; set; }
 
     public Dictionary<string, ReportingStatus> Issues { get; private set; } = new( StringComparer.OrdinalIgnoreCase );
+
+    public ReportingAction ReportUsage { get; set; } = ReportingAction.Ask;
 
     public bool MustReportIssue( string hash )
     {
@@ -40,16 +42,16 @@ internal class TelemetryConfiguration : ConfigurationFile
     public override void CopyFrom( ConfigurationFile configurationFile )
     {
         var source = (TelemetryConfiguration) configurationFile;
-        this.ErrorReportingAction = source.ErrorReportingAction;
-        this.NewExceptionReportingAction = source.NewExceptionReportingAction;
-        this.NewPerformanceProblemReportingAction = source.NewPerformanceProblemReportingAction;
+        this.ExceptionReportingAction = source.ExceptionReportingAction;
+        this.PerformanceProblemReportingAction = source.PerformanceProblemReportingAction;
+        this.ReportUsage = source.ReportUsage;
         this.DeviceId = source.DeviceId;
         this.LastUploadTime = source.LastUploadTime;
         this.Issues = new Dictionary<string, ReportingStatus>( source.Issues );
     }
 }
 
-internal enum ReportingStatus
+public enum ReportingStatus
 {
     None,
     Reported,

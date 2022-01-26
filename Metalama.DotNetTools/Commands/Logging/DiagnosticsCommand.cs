@@ -8,7 +8,7 @@ internal class DiagnosticsCommand : CommandBase
     public DiagnosticsCommand( ICommandServiceProvider commandServiceProvider ) : base(
         commandServiceProvider,
         "diag",
-        "Configure the diagnostics settings of Metalama" )
+        "Manages logging and debugging options" )
     {
         this.AddCommand( new ResetLoggingCommand( commandServiceProvider ) );
         this.AddCommand( new PrintLoggingCommand( commandServiceProvider ) );
