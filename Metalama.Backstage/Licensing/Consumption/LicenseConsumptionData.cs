@@ -2,6 +2,7 @@
 // This project is not open source. Please see the LICENSE.md file in the repository root for details.
 
 using Metalama.Backstage.Licensing.Licenses;
+using System;
 
 namespace Metalama.Backstage.Licensing.Consumption
 {
@@ -37,6 +38,14 @@ namespace Metalama.Backstage.Licensing.Consumption
         public string DisplayName { get; }
 
         /// <summary>
+        /// Gets the minimal PostSharp version this license can be used with.
+        /// </summary>
+        /// <remarks>
+        /// Doesn't apply to products not based on PostSharp. (E.g. Metalama.)
+        /// </remarks>
+        public Version MinPostSharpVersion { get; }
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="LicenseConsumptionData"/> class.
         /// </summary>
         /// <param name="licensedProduct">The product licensed by the license.</param>
@@ -49,13 +58,15 @@ namespace Metalama.Backstage.Licensing.Consumption
             LicenseType licenseType,
             LicensedFeatures licensedFeatures,
             string? licensedNamespace,
-            string displayName )
+            string displayName,
+            Version minPostSharpVersion )
         {
             this.LicensedProduct = licensedProduct;
             this.LicenseType = licenseType;
             this.LicensedFeatures = licensedFeatures;
             this.LicensedNamespace = licensedNamespace;
             this.DisplayName = displayName;
+            this.MinPostSharpVersion = minPostSharpVersion;
         }
 
         /// <summary>

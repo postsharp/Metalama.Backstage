@@ -4,6 +4,7 @@
 using Metalama.Backstage.Licensing.Licenses.LicenseFields;
 using Metalama.Backstage.Utilities;
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -13,6 +14,55 @@ namespace Metalama.Backstage.Licensing.Licenses
 {
     public partial class LicenseKeyData
     {
+        public static bool TryDeserialize( string licenseKey, [MaybeNullWhen(false)] out LicenseKeyData data, [MaybeNullWhen( true )] out string errorMessage )
+        {
+            try
+            {
+                Guid? licenseGuid = null;
+
+                // Parse the license key prefix.
+                var firstDash = licenseKey.IndexOf( '-' );
+
+                if ( firstDash < 0 )
+                {
+                    throw new InvalidLicenseException( $"License header not found for license {{{licenseKey}}}." );
+                }
+
+                var prefix = licenseKey.Substring( 0, firstDash );
+
+                if ( !int.TryParse( prefix, NumberStyles.Integer, CultureInfo.InvariantCulture, out var licenseId ) )
+                {
+                    // If this is not an integer, this may be a GUID.
+                    licenseGuid = new Guid( Base32.FromBase32String( prefix ) );
+                }
+
+                var licenseBytes = Base32.FromBase32String( licenseKey.Substring( firstDash + 1 ) );
+
+                using var memoryStream = new MemoryStream( licenseBytes );
+                using var reader = new BinaryReader( memoryStream );
+
+                data = Deserialize( reader );
+
+                if ( data.LicenseId != licenseId )
+                {
+                    throw new InvalidLicenseException(
+                        $"The license id in the body ({licenseId}) does not match the header for license {{{licenseKey}}}." );
+                }
+
+                data.LicenseGuid = licenseGuid;
+                data.LicenseString = licenseKey;
+
+                errorMessage = null;
+                return true;
+            }
+            catch ( Exception e )
+            {
+                data = null;
+                errorMessage = e.Message;
+                return false;
+            }
+        }
+
         public static LicenseKeyData Deserialize( BinaryReader reader )
         {
             LicenseFieldIndex index;
@@ -108,10 +158,11 @@ namespace Metalama.Backstage.Licensing.Licenses
         }
 
         /// <summary>
-        /// Serializes the current license key data into a string.
+        /// Sets the <see cref="MinPostSharpVersion"/> to <see cref="_minPostSharpVersionValidationRemovedPostSharpVersion"/>
+        /// if the license key data is not backward compatible with PostSharp versions
+        /// prior to <see cref="_minPostSharpVersionValidationRemovedPostSharpVersion"/>.
         /// </summary>
-        /// <returns>A string representing the current license key data.</returns>
-        public string Serialize()
+        private void SetMinPostSharpVersionIfRequired()
         {
             // Returns <c>true</c> if the licensed product has been present prior to PostSharp 6.5.17/6.8.10/6.9.3.
             static bool IsLicensedProductValidInAllPostSharpVersions( LicensedProduct licenseProduct )
@@ -139,16 +190,26 @@ namespace Metalama.Backstage.Licensing.Licenses
             if ( !IsLicensedProductValidInAllPostSharpVersions( this.Product )
                  || this._fields.Keys.Any( i => i.IsPrefixedByLength() ) )
             {
-                if ( this.MinPostSharpVersion != MinPostSharpVersionValidationRemovedPostSharpVersion )
+                if ( this.MinPostSharpVersion == null )
+                {
+                    this.SetFieldValue<LicenseFieldString>( LicenseFieldIndex.MinPostSharpVersion, _minPostSharpVersionValidationRemovedPostSharpVersion.ToString() );
+                }
+                else if ( this.MinPostSharpVersion != _minPostSharpVersionValidationRemovedPostSharpVersion )
                 {
                     throw new InvalidOperationException(
                         $"The license contains products or fields introduced " +
-                        $"after PostSharp {MinPostSharpVersionValidationRemovedPostSharpVersion}. " +
-                        $"Set the {nameof(this.MinPostSharpVersion)} property " +
-                        $"to {this.GetType().Name}.{nameof(MinPostSharpVersionValidationRemovedPostSharpVersion)}." );
+                        $"after PostSharp {_minPostSharpVersionValidationRemovedPostSharpVersion}. " +
+                        $"However, the {nameof( this.MinPostSharpVersion )} property is not null " +
+                        $"or '{_minPostSharpVersionValidationRemovedPostSharpVersion}' as expected." );
                 }
             }
+        }
 
+        /// <summary>
+        /// Serializes the current license key data into a string and sets the value to the <see cref="LicenseString"/> property.
+        /// </summary>
+        private void SerializeToLicenseString()
+        {
             var memoryStream = new MemoryStream();
 
             using ( var binaryWriter = new BinaryWriter( memoryStream ) )
@@ -169,16 +230,38 @@ namespace Metalama.Backstage.Licensing.Licenses
             }
 
             this.LicenseString = prefix + "-" + Base32.ToBase32String( memoryStream.ToArray(), 0 );
+        }
 
-            return this.LicenseString;
+        /// <summary>
+        /// Serializes the current license key data into a string.
+        /// </summary>
+        /// <returns>A string representing the current license key data.</returns>
+        public string Serialize()
+        {
+            this.SetMinPostSharpVersionIfRequired();
+            this.SerializeToLicenseString();
+            return this.LicenseString!;
+        }
+
+        /// <summary>
+        /// Signs the current license.
+        /// </summary>
+        /// <param name="signatureKeyId">Identifier of the private key.</param>
+        /// <param name="privateKey">XML representation of the private key.</param>
+        public string SignAndSerialize( byte signatureKeyId, string privateKey )
+        {
+            this.SetMinPostSharpVersionIfRequired();
+            this.Sign( signatureKeyId, privateKey );
+            this.SerializeToLicenseString();
+            return this.LicenseString!;
         }
 
         private void Write( BinaryWriter writer, bool includeAll )
         {
             writer.Write( this.Version );
             writer.Write( this.LicenseId );
-            writer.Write( (byte) this._licenseType );
-            writer.Write( (byte) this._product );
+            writer.Write( (byte) this.LicenseType );
+            writer.Write( (byte) this.Product );
 
             foreach ( var pair in this._fields )
             {
@@ -227,7 +310,7 @@ namespace Metalama.Backstage.Licensing.Licenses
         /// </summary>
         /// <param name="signatureKeyId">Identifier of the private key.</param>
         /// <param name="privateKey">XML representation of the private key.</param>
-        public void Sign( byte signatureKeyId, string privateKey )
+        private void Sign( byte signatureKeyId, string privateKey )
         {
             this.SignatureKeyId = signatureKeyId;
             var signedBuffer = this.GetSignedBuffer();

@@ -35,7 +35,6 @@ namespace Metalama.Backstage.Licensing.Licenses
 
             var licenseKeyData = new LicenseKeyData
             {
-                MinPostSharpVersion = LicenseKeyData.MinPostSharpVersionValidationRemovedPostSharpVersion,
                 LicenseGuid = Guid.NewGuid(),
                 Product = LicensedProduct.MetalamaUltimate,
                 LicenseType = LicenseType.Evaluation,
@@ -60,7 +59,6 @@ namespace Metalama.Backstage.Licensing.Licenses
 
             var licenseKeyData = new LicenseKeyData
             {
-                MinPostSharpVersion = LicenseKeyData.MinPostSharpVersionValidationRemovedPostSharpVersion,
                 LicenseGuid = Guid.NewGuid(),
                 Product = LicensedProduct.MetalamaUltimate,
                 LicenseType = LicenseType.Community,

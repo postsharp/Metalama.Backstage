@@ -10,7 +10,6 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
-using System.IO;
 using System.Text;
 
 namespace Metalama.Backstage.Licensing.Licenses
@@ -94,7 +93,7 @@ namespace Metalama.Backstage.Licensing.Licenses
         /// <inheritdoc />
         public bool TryGetLicenseConsumptionData( [MaybeNullWhen( false )] out LicenseConsumptionData licenseConsumptionData )
         {
-            if ( !this.TryGetAndValidateLicenseKeyData( out var licenseKeyData ) )
+            if ( !this.TryGetValidatedLicenseKeyData( out var licenseKeyData ) )
             {
                 licenseConsumptionData = null;
 
@@ -109,7 +108,7 @@ namespace Metalama.Backstage.Licensing.Licenses
         /// <inheritdoc />
         public bool TryGetLicenseRegistrationData( [MaybeNullWhen( false )] out LicenseRegistrationData licenseRegistrationData )
         {
-            if ( !this.TryGetLicenseKeyData( out var licenseKeyData ) )
+            if ( !this.TryGetLicenseKeyDataWithVerifiedSignature( out var licenseKeyData ) )
             {
                 licenseRegistrationData = null;
 
@@ -124,66 +123,31 @@ namespace Metalama.Backstage.Licensing.Licenses
         private bool TryGetLicenseKeyData( [MaybeNullWhen( false )] out LicenseKeyData data )
         {
             this._logger.Trace?.Log( $"Deserializing license '{this._licenseKey}'." );
-            Guid? licenseGuid = null;
 
-            try
+            if ( LicenseKeyData.TryDeserialize( this._licenseKey, out data, out var errorMessage ) )
             {
-                // Parse the license key prefix.
-                var firstDash = this._licenseKey.IndexOf( '-' );
+                this._logger.Trace?.Log( $"Deserialized license: {data}" );
 
-                if ( firstDash < 0 )
-                {
-                    throw new InvalidLicenseException( $"License header not found for license {{{this._licenseKey}}}." );
-                }
-
-                var prefix = this._licenseKey.Substring( 0, firstDash );
-
-                if ( !int.TryParse( prefix, NumberStyles.Integer, CultureInfo.InvariantCulture, out var licenseId ) )
-                {
-                    // If this is not an integer, this may be a GUID.
-                    licenseGuid = new Guid( Base32.FromBase32String( prefix ) );
-                }
-
-                var licenseBytes = Base32.FromBase32String( this._licenseKey.Substring( firstDash + 1 ) );
-
-                using ( var memoryStream = new MemoryStream( licenseBytes ) )
-                using ( var reader = new BinaryReader( memoryStream ) )
-                {
-                    data = LicenseKeyData.Deserialize( reader );
-
-                    if ( data.LicenseId != licenseId )
-                    {
-                        throw new InvalidLicenseException(
-                            $"The license id in the body ({licenseId}) does not match the header for license {{{this._licenseKey}}}." );
-                    }
-
-                    data.LicenseGuid = licenseGuid;
-                    data.LicenseString = this._licenseKey;
-
-                    this._logger.Trace?.Log( $"Deserialized license: {data}" );
-
-                    return true;
-                }
+                return true;
             }
-            catch ( Exception e )
+            else
             {
                 if ( TryGetLicenseId( this._licenseKey, out var id ) )
                 {
-                    this._logger.Error?.Log( $"Cannot parse license key ID {id}: {e.Message}" );
+                    this._logger.Error?.Log( $"Cannot parse license key ID {id}: {errorMessage}" );
                 }
                 else
                 {
-                    this._logger.Error?.Log( $"Cannot parse license key {this._licenseKey}: {e.Message}" );
+                    this._logger.Error?.Log( $"Cannot parse license key {this._licenseKey}: {errorMessage}" );
                 }
 
-                this._logger.Trace?.Log( $"Cannot parse the license {{{this._licenseKey}}}: {e}" );
-                data = null;
+                this._logger.Trace?.Log( $"Cannot parse the license {{{this._licenseKey}}}: {errorMessage}" );
 
                 return false;
             }
         }
 
-        private bool TryGetAndValidateLicenseKeyData( [MaybeNullWhen( false )] out LicenseKeyData data )
+        private bool TryGetValidatedLicenseKeyData( [MaybeNullWhen( false )] out LicenseKeyData data )
         {
             if ( !this.TryGetLicenseKeyData( out data ) )
             {
@@ -199,6 +163,24 @@ namespace Metalama.Backstage.Licensing.Licenses
                     out var errorDescription ) )
             {
                 this._logger.Error?.Log( $"License key {data.LicenseUniqueId} is invalid: {errorDescription}" );
+                data = null;
+
+                return false;
+            }
+
+            return true;
+        }
+
+        private bool TryGetLicenseKeyDataWithVerifiedSignature( [MaybeNullWhen( false )] out LicenseKeyData data )
+        {
+            if ( !this.TryGetLicenseKeyData( out data ) )
+            {
+                return false;
+            }
+
+            if ( !data.VerifySignature() )
+            {
+                this._logger.Warning?.Log( $"License key {data.LicenseUniqueId} has invalid signature." );
                 data = null;
 
                 return false;
