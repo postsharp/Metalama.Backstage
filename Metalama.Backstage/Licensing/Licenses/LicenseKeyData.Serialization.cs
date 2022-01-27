@@ -4,6 +4,7 @@
 using Metalama.Backstage.Licensing.Licenses.LicenseFields;
 using Metalama.Backstage.Utilities;
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -13,44 +14,53 @@ namespace Metalama.Backstage.Licensing.Licenses
 {
     public partial class LicenseKeyData
     {
-        public static LicenseKeyData Deserialize( string licenseKey )
+        public static bool TryDeserialize( string licenseKey, [MaybeNullWhen(false)] out LicenseKeyData data, [MaybeNullWhen( true )] out string errorMessage )
         {
-            LicenseKeyData data;
-            Guid? licenseGuid = null;
-
-            // Parse the license key prefix.
-            var firstDash = licenseKey.IndexOf( '-' );
-
-            if ( firstDash < 0 )
+            try
             {
-                throw new InvalidLicenseException( $"License header not found for license {{{licenseKey}}}." );
+                Guid? licenseGuid = null;
+
+                // Parse the license key prefix.
+                var firstDash = licenseKey.IndexOf( '-' );
+
+                if ( firstDash < 0 )
+                {
+                    throw new InvalidLicenseException( $"License header not found for license {{{licenseKey}}}." );
+                }
+
+                var prefix = licenseKey.Substring( 0, firstDash );
+
+                if ( !int.TryParse( prefix, NumberStyles.Integer, CultureInfo.InvariantCulture, out var licenseId ) )
+                {
+                    // If this is not an integer, this may be a GUID.
+                    licenseGuid = new Guid( Base32.FromBase32String( prefix ) );
+                }
+
+                var licenseBytes = Base32.FromBase32String( licenseKey.Substring( firstDash + 1 ) );
+
+                using var memoryStream = new MemoryStream( licenseBytes );
+                using var reader = new BinaryReader( memoryStream );
+
+                data = Deserialize( reader );
+
+                if ( data.LicenseId != licenseId )
+                {
+                    throw new InvalidLicenseException(
+                        $"The license id in the body ({licenseId}) does not match the header for license {{{licenseKey}}}." );
+                }
+
+                data.LicenseGuid = licenseGuid;
+                data.LicenseString = licenseKey;
+
+                errorMessage = null;
+                return true;
             }
-
-            var prefix = licenseKey.Substring( 0, firstDash );
-
-            if ( !int.TryParse( prefix, NumberStyles.Integer, CultureInfo.InvariantCulture, out var licenseId ) )
+            catch ( Exception e )
             {
-                // If this is not an integer, this may be a GUID.
-                licenseGuid = new Guid( Base32.FromBase32String( prefix ) );
+                data = null;
+                errorMessage = e.Message;
+                return false;
             }
-
-            var licenseBytes = Base32.FromBase32String( licenseKey.Substring( firstDash + 1 ) );
-
-            using var memoryStream = new MemoryStream( licenseBytes );
-            using var reader = new BinaryReader( memoryStream );
-
-            data = Deserialize( reader );
-
-            if ( data.LicenseId != licenseId )
-            {
-                throw new InvalidLicenseException(
-                    $"The license id in the body ({licenseId}) does not match the header for license {{{licenseKey}}}." );
-            }
-
-            data.LicenseGuid = licenseGuid;
-            data.LicenseString = licenseKey;
-
-            return data;
         }
 
         public static LicenseKeyData Deserialize( BinaryReader reader )
