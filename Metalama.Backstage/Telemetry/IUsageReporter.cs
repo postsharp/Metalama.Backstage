@@ -5,5 +5,7 @@ namespace Metalama.Backstage.Telemetry;
 
 public interface IUsageReporter
 {
+    bool ShouldReportSession( string projectName );
+
     IUsageSample CreateSample( string kind );
 }

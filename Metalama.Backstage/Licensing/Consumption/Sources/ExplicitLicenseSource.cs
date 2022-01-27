@@ -4,18 +4,17 @@
 using System;
 using System.Collections.Generic;
 
-namespace Metalama.Backstage.Licensing.Consumption.Sources
+namespace Metalama.Backstage.Licensing.Consumption.Sources;
+
+internal class ExplicitLicenseSource : LicenseSourceBase
 {
-    public class ExplicitLicenseSource : LicenseSourceBase
+    private readonly IEnumerable<string> _licenseStrings;
+
+    public ExplicitLicenseSource( IEnumerable<string> licenseKeys, IServiceProvider services )
+        : base( services )
     {
-        private readonly IEnumerable<string> _licenseStrings;
-
-        public ExplicitLicenseSource( IEnumerable<string> licenseKeys, IServiceProvider services )
-            : base( services )
-        {
-            this._licenseStrings = licenseKeys;
-        }
-
-        protected override IEnumerable<string> GetLicenseStrings() => this._licenseStrings;
+        this._licenseStrings = licenseKeys;
     }
+
+    protected override IEnumerable<string> GetLicenseStrings() => this._licenseStrings;
 }

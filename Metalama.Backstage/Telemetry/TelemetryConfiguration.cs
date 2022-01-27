@@ -4,17 +4,18 @@
 using Metalama.Backstage.Configuration;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Metalama.Backstage.Telemetry;
 
 [ConfigurationFile( "telemetry.json" )]
-internal class TelemetryConfiguration : ConfigurationFile
+public class TelemetryConfiguration : ConfigurationFile
 {
-    public ReportingAction ErrorReportingAction { get; set; } = ReportingAction.Yes;
+    public static bool IsOptOutEnvironmentVariableSet() => !string.IsNullOrEmpty( Environment.GetEnvironmentVariable( "METALAMA_TELEMETRY_OPT_OUT" ) );
 
-    public ReportingAction NewExceptionReportingAction { get; set; } = ReportingAction.Yes;
+    public ReportingAction ExceptionReportingAction { get; set; } = ReportingAction.Ask;
 
-    public ReportingAction NewPerformanceProblemReportingAction { get; set; } = ReportingAction.Yes;
+    public ReportingAction PerformanceProblemReportingAction { get; set; } = ReportingAction.Ask;
 
     public Guid DeviceId { get; set; } = Guid.NewGuid();
 
@@ -22,34 +23,34 @@ internal class TelemetryConfiguration : ConfigurationFile
 
     public Dictionary<string, ReportingStatus> Issues { get; private set; } = new( StringComparer.OrdinalIgnoreCase );
 
-    public bool MustReportIssue( string hash )
+    public Dictionary<string, DateTime> Sessions { get; private set; } = new( StringComparer.OrdinalIgnoreCase );
+
+    public ReportingAction ReportUsage { get; set; } = ReportingAction.Ask;
+
+    public void CleanUp( DateTime threshold )
     {
-        if ( this.Issues.TryGetValue( hash, out var currentStatus ) )
+        var sessionsToRemove = this.Sessions.Where( s => s.Value < threshold ).Select( s => s.Key );
+
+        foreach ( var sessionToRemove in sessionsToRemove )
         {
-            if ( currentStatus is ReportingStatus.Ignored or ReportingStatus.Reported )
-            {
-                return false;
-            }
+            this.Sessions.Remove( sessionToRemove );
         }
-
-        this.Issues[hash] = currentStatus;
-
-        return true;
     }
 
     public override void CopyFrom( ConfigurationFile configurationFile )
     {
         var source = (TelemetryConfiguration) configurationFile;
-        this.ErrorReportingAction = source.ErrorReportingAction;
-        this.NewExceptionReportingAction = source.NewExceptionReportingAction;
-        this.NewPerformanceProblemReportingAction = source.NewPerformanceProblemReportingAction;
+        this.ExceptionReportingAction = source.ExceptionReportingAction;
+        this.PerformanceProblemReportingAction = source.PerformanceProblemReportingAction;
+        this.ReportUsage = source.ReportUsage;
         this.DeviceId = source.DeviceId;
         this.LastUploadTime = source.LastUploadTime;
         this.Issues = new Dictionary<string, ReportingStatus>( source.Issues );
+        this.Sessions = new Dictionary<string, DateTime>( source.Sessions );
     }
 }
 
-internal enum ReportingStatus
+public enum ReportingStatus
 {
     None,
     Reported,
