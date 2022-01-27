@@ -34,11 +34,14 @@ namespace ProstSharp.LicenseKeyGenerator
 
             var licenseKey = licenseKeyData.Serialize();
 
-            var deserializedLicenseKeyData = LicenseKeyData.Deserialize( licenseKey );
+            if ( !LicenseKeyData.TryDeserialize( licenseKey, out var deserializedLicenseKeyData, out var errorMessage ) )
+            {
+                throw new InvalidOperationException( errorMessage );
+            }
 
             if ( !deserializedLicenseKeyData.VerifySignature() )
             {
-                throw new InvalidOperationException();
+                throw new InvalidOperationException( "Failed to verify license signature." );
             }
 
             this._propertyGrid.SelectedObject = licenseKeyData;
