@@ -1,7 +1,7 @@
 // Copyright (c) SharpCrafters s.r.o. All rights reserved.
 // This project is not open source. Please see the LICENSE.md file in the repository root for details.
 
-namespace ProstSharp.LicenseKeyGenerator
+namespace PostSharp.LicenseKeyGenerator
 {
     internal static class Program
     {
@@ -14,7 +14,7 @@ namespace ProstSharp.LicenseKeyGenerator
             // To customize application configuration such as set high DPI settings or default font,
             // see https://aka.ms/applicationconfiguration.
             ApplicationConfiguration.Initialize();
-            Application.Run(new MainForm());
+            Application.Run( new MainForm() );
         }
     }
 }

@@ -14,7 +14,10 @@ namespace Metalama.Backstage.Licensing.Licenses
 {
     public partial class LicenseKeyData
     {
-        public static bool TryDeserialize( string licenseKey, [MaybeNullWhen(false)] out LicenseKeyData data, [MaybeNullWhen( true )] out string errorMessage )
+        public static bool TryDeserialize(
+            string licenseKey,
+            [MaybeNullWhen( false )] out LicenseKeyData data,
+            [MaybeNullWhen( true )] out string errorMessage )
         {
             try
             {
@@ -45,20 +48,21 @@ namespace Metalama.Backstage.Licensing.Licenses
 
                 if ( data.LicenseId != licenseId )
                 {
-                    throw new InvalidLicenseException(
-                        $"The license id in the body ({licenseId}) does not match the header for license {{{licenseKey}}}." );
+                    throw new InvalidLicenseException( $"The license id in the body ({licenseId}) does not match the header for license {{{licenseKey}}}." );
                 }
 
                 data.LicenseGuid = licenseGuid;
                 data.LicenseString = licenseKey;
 
                 errorMessage = null;
+
                 return true;
             }
             catch ( Exception e )
             {
                 data = null;
                 errorMessage = e.Message;
+
                 return false;
             }
         }
@@ -192,14 +196,16 @@ namespace Metalama.Backstage.Licensing.Licenses
             {
                 if ( this.MinPostSharpVersion == null )
                 {
-                    this.SetFieldValue<LicenseFieldString>( LicenseFieldIndex.MinPostSharpVersion, _minPostSharpVersionValidationRemovedPostSharpVersion.ToString() );
+                    this.SetFieldValue<LicenseFieldString>(
+                        LicenseFieldIndex.MinPostSharpVersion,
+                        _minPostSharpVersionValidationRemovedPostSharpVersion.ToString() );
                 }
                 else if ( this.MinPostSharpVersion != _minPostSharpVersionValidationRemovedPostSharpVersion )
                 {
                     throw new InvalidOperationException(
                         $"The license contains products or fields introduced " +
                         $"after PostSharp {_minPostSharpVersionValidationRemovedPostSharpVersion}. " +
-                        $"However, the {nameof( this.MinPostSharpVersion )} property is not null " +
+                        $"However, the {nameof(this.MinPostSharpVersion)} property is not null " +
                         $"or '{_minPostSharpVersionValidationRemovedPostSharpVersion}' as expected." );
                 }
             }
@@ -240,6 +246,7 @@ namespace Metalama.Backstage.Licensing.Licenses
         {
             this.SetMinPostSharpVersionIfRequired();
             this.SerializeToLicenseString();
+
             return this.LicenseString!;
         }
 
@@ -253,6 +260,7 @@ namespace Metalama.Backstage.Licensing.Licenses
             this.SetMinPostSharpVersionIfRequired();
             this.Sign( signatureKeyId, privateKey );
             this.SerializeToLicenseString();
+
             return this.LicenseString!;
         }
 

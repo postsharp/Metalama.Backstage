@@ -19,7 +19,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Utilities", "Utilities", "{
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PostSharp.LicenseKeyReader", "Utilities\PostSharp.LicenseKeyReader\PostSharp.LicenseKeyReader.csproj", "{271AC152-B5E5-417D-9FAF-C095A70A53FA}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProstSharp.LicenseKeyGenerator", "Utilities\ProstSharp.LicenseKeyGenerator\ProstSharp.LicenseKeyGenerator.csproj", "{296E7F83-6009-409E-A53D-06211A20FDC0}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PostSharp.LicenseKeyGenerator", "Utilities\PostSharp.LicenseKeyGenerator\PostSharp.LicenseKeyGenerator.csproj", "{296E7F83-6009-409E-A53D-06211A20FDC0}"
 EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution

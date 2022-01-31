@@ -83,7 +83,10 @@ public static class RegisterServiceExtensions
         return serviceProviderBuilder.AddDiagnosticServiceRequirements();
     }
 
-    public static ServiceProviderBuilder AddLicensing( this ServiceProviderBuilder serviceProviderBuilder, bool ignoreUserProfileLicenses = false, string[]? additionalLicenses = null )
+    public static ServiceProviderBuilder AddLicensing(
+        this ServiceProviderBuilder serviceProviderBuilder,
+        bool ignoreUserProfileLicenses = false,
+        string[]? additionalLicenses = null )
     {
         var licenseSources = new List<ILicenseSource>();
 
@@ -96,7 +99,7 @@ public static class RegisterServiceExtensions
         {
             licenseSources.Add( new ExplicitLicenseSource( additionalLicenses, serviceProviderBuilder.ServiceProvider ) );
         }
-        
+
         serviceProviderBuilder.AddSingleton<ILicenseConsumptionManager>(
             new LicenseConsumptionManager( serviceProviderBuilder.ServiceProvider, licenseSources ) );
 

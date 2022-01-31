@@ -1,4 +1,4 @@
-﻿namespace ProstSharp.LicenseKeyGenerator
+﻿namespace PostSharp.LicenseKeyGenerator
 {
     partial class MainForm
     {

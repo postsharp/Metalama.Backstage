@@ -5,7 +5,7 @@ using Azure.Identity;
 using Azure.Security.KeyVault.Secrets;
 using Metalama.Backstage.Licensing.Licenses;
 
-namespace ProstSharp.LicenseKeyGenerator
+namespace PostSharp.LicenseKeyGenerator
 {
     public partial class MainForm : Form
     {
