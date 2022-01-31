@@ -38,16 +38,23 @@ public class DiagnosticsService : ILoggerFactory
     /// Initializes the global <see cref="Instance"/> of the <see cref="DiagnosticsService"/> class.
     /// </summary>
     /// <param name="processKind"></param>
-    public static void Initialize( ProcessKind processKind, string? projectName = null )
+    public static bool Initialize( ProcessKind processKind, string? projectName = null )
     {
-        lock ( _initializeSync )
+        if ( _instance == null )
         {
-            if ( _instance != null )
+            lock ( _initializeSync )
             {
-                var serviceProvider = new ServiceProviderBuilder().AddDiagnosticServiceRequirements();
-                _instance = new DiagnosticsService( serviceProvider.ServiceProvider, processKind, projectName );
+                if ( _instance == null )
+                {
+                    var serviceProvider = new ServiceProviderBuilder().AddDiagnosticServiceRequirements();
+                    _instance = new DiagnosticsService( serviceProvider.ServiceProvider, processKind, projectName );
+
+                    return true;
+                }
             }
         }
+
+        return false;
     }
 
     /// <summary>
@@ -126,6 +133,7 @@ public class DiagnosticsService : ILoggerFactory
             this._textWriter ??= File.CreateText( this._fileName );
 
             this._textWriter.WriteLine( s );
+            this._textWriter.Flush();
         }
     }
 

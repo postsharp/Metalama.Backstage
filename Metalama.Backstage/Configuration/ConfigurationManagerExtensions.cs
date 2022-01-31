@@ -7,6 +7,8 @@ namespace Metalama.Backstage.Configuration
 {
     public static class ConfigurationManagerExtensions
     {
+        private const int _maxUpdateAttempts = 10;
+        
         public static T Get<T>( this IConfigurationManager configurationManager, bool ignoreCache = false )
             where T : ConfigurationFile
             => (T) configurationManager.Get( typeof(T), ignoreCache );
@@ -23,8 +25,17 @@ namespace Metalama.Backstage.Configuration
         {
             ConfigurationFile originalSettings;
 
+            var attempts = 0;
+            
             do
             {
+                attempts++;
+
+                if ( attempts > _maxUpdateAttempts )
+                {
+                    throw new InvalidOperationException( "Too many attempts to update the configuration. There must be an unaddressed race condition." );
+                }
+                
                 originalSettings = configurationManager.Get( value.GetType(), true );
             }
             while ( !configurationManager.TryUpdate( value, originalSettings.LastModified ) );
@@ -39,8 +50,17 @@ namespace Metalama.Backstage.Configuration
             ConfigurationFile editableCopy;
             ConfigurationFile originalSettings;
 
+            var attempts = 0;
+            
             do
             {
+                attempts++;
+
+                if ( attempts > _maxUpdateAttempts )
+                {
+                    throw new InvalidOperationException( "Too many attempts to update the configuration. There must be an unaddressed race condition." );
+                }
+                
                 originalSettings = configurationManager.Get( type, true );
                 editableCopy = originalSettings.Clone();
 
@@ -60,8 +80,17 @@ namespace Metalama.Backstage.Configuration
             T editableCopy;
             T originalSettings;
 
+            var attempts = 0;
+            
             do
             {
+                attempts++;
+
+                if ( attempts > _maxUpdateAttempts )
+                {
+                    throw new InvalidOperationException( "Too many attempts to update the configuration. There must be an unaddressed race condition." );
+                }
+                
                 originalSettings = configurationManager.Get<T>( true );
                 editableCopy = (T) originalSettings.Clone();
 
@@ -80,9 +109,18 @@ namespace Metalama.Backstage.Configuration
         {
             T editableCopy;
             T originalSettings;
+            
+            var attempts = 0;
 
             do
             {
+                attempts++;
+                
+                if ( attempts > _maxUpdateAttempts )
+                {
+                    throw new InvalidOperationException( "Too many attempts to update the configuration. There must be an unaddressed race condition." );
+                }
+                
                 originalSettings = configurationManager.Get<T>( true );
                 editableCopy = (T) originalSettings.Clone();
                 action( editableCopy );
