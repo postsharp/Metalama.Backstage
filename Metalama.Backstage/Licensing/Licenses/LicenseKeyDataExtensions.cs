@@ -14,7 +14,7 @@ namespace Metalama.Backstage.Licensing.Licenses
     public static class LicenseKeyDataExtensions
     {
         /// <summary>
-        /// If the <paramref name="licenseKeyData"/> contains an obsolete license type, it gets transormed to a respective non-obsolete one.
+        /// If the <paramref name="licenseKeyData"/> contains an obsolete license type, it gets transformed to a respective non-obsolete one.
         /// Otherwise, the same license type is returned.
         /// </summary>
         private static LicenseType TransformObsoleteLicenseType( this LicenseKeyData licenseKeyData )
@@ -71,26 +71,26 @@ namespace Metalama.Backstage.Licensing.Licenses
             }
             else if ( licenseKeyData.LicenseType == LicenseType.PerUsage || licenseKeyData.Product == LicensedProduct.CachingLibrary )
             {
-                return new( 6, 6, 0 );
+                return new Version( 6, 6, 0 );
             }
 #pragma warning disable 618
             else if ( licenseKeyData.Product == LicensedProduct.PostSharp20 )
             {
-                return new( 2, 0, 0 );
+                return new Version( 2, 0, 0 );
             }
             else if ( (licenseKeyData.Product == LicensedProduct.Ultimate || licenseKeyData.Product == LicensedProduct.Framework)
                       && licenseKeyData.LicenseType == LicenseType.Enterprise )
             {
-                return new( 5, 0, 22 );
+                return new Version( 5, 0, 22 );
             }
 #pragma warning restore 618
             else if ( licenseKeyData.LicenseServerEligible != null )
             {
-                return new( 5, 0, 22 );
+                return new Version( 5, 0, 22 );
             }
             else
             {
-                return new( 3, 0, 0 );
+                return new Version( 3, 0, 0 );
             }
         }
 
@@ -153,26 +153,26 @@ namespace Metalama.Backstage.Licensing.Licenses
             {
 #pragma warning disable CS0618 // Type or member is obsolete
                 LicenseType.Site or LicenseType.Global or LicenseType.Anonymous => false,
-#pragma warning restore CS0618 // Type or member is obsolete
+#pragma warning restore CS0618                  // Type or member is obsolete
                 LicenseType.Evaluation => true, // We want to audit evaluation licenses so we know how people are using the product during evaluation.
                 _ => licenseKeyData.Auditable ?? true
             };
 
             LicenseRegistrationData data = new(
-                    licenseKeyData.LicenseUniqueId,
-                    licenseKeyData.LicenseGuid != null,
-                    licenseKeyData.LicenseGuid == null ? licenseKeyData.LicenseId : null,
-                    licenseKeyData.Licensee,
-                    description,
-                    licenseKeyData.TransformObsoleteProduct(),
-                    licenseKeyData.TransformObsoleteLicenseType(),
-                    licenseKeyData.ValidFrom,
-                    licenseKeyData.ValidTo,
-                    !licenseKeyData.ValidTo.HasValue,
-                    licenseKeyData.SubscriptionEndDate,
-                    auditable,
-                    licenseServerEligible,
-                    licenseKeyData.GetMinPostSharpVersion() );
+                licenseKeyData.LicenseUniqueId,
+                licenseKeyData.LicenseGuid != null,
+                licenseKeyData.LicenseGuid == null ? licenseKeyData.LicenseId : null,
+                licenseKeyData.Licensee,
+                description,
+                licenseKeyData.TransformObsoleteProduct(),
+                licenseKeyData.TransformObsoleteLicenseType(),
+                licenseKeyData.ValidFrom,
+                licenseKeyData.ValidTo,
+                !licenseKeyData.ValidTo.HasValue,
+                licenseKeyData.SubscriptionEndDate,
+                auditable,
+                licenseServerEligible,
+                licenseKeyData.GetMinPostSharpVersion() );
 
             return data;
         }

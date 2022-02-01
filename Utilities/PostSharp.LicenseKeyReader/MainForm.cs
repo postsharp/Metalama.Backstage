@@ -19,21 +19,23 @@ namespace PostSharp.LicenseKeyReader
 
         private void OnReadButtonClicked( object sender, EventArgs e )
         {
-                this._propertyGrid.SelectedObject = null;
+            this._propertyGrid.SelectedObject = null;
 
-                if ( !LicenseKeyData.TryDeserialize( this._licenseKeyTextBox.Text, out var licenseKeyData, out var errorMessage ) )
-                {
-                    this.ShowError( errorMessage );
-                    return;
-                }
+            if ( !LicenseKeyData.TryDeserialize( this._licenseKeyTextBox.Text, out var licenseKeyData, out var errorMessage ) )
+            {
+                this.ShowError( errorMessage );
 
-                if ( !licenseKeyData.VerifySignature() )
-                {
-                    this.ShowError( "Failed to verify the license key signature" );
-                    return;
-                }
+                return;
+            }
 
-                this._propertyGrid.SelectedObject = licenseKeyData;
+            if ( !licenseKeyData.VerifySignature() )
+            {
+                this.ShowError( "Failed to verify the license key signature" );
+
+                return;
+            }
+
+            this._propertyGrid.SelectedObject = licenseKeyData;
         }
     }
 }

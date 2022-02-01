@@ -2,6 +2,7 @@
 // This project is not open source. Please see the LICENSE.md file in the repository root for details.
 
 using System;
+using System.Threading;
 
 namespace Metalama.Backstage.Diagnostics;
 
@@ -19,6 +20,7 @@ internal class LogWriter : ILogWriter
     public void Log( string message )
     {
         this._logger.DiagnosticsService.WriteLine(
-            FormattableString.Invariant( $"{DateTime.Now} {this._logLevel} {this._logger.Category}: {message}" ) );
+            FormattableString.Invariant(
+                $"{DateTime.Now}, {this._logLevel}, {this._logger.Category}, Thread {Thread.CurrentThread.ManagedThreadId}: {message}" ) );
     }
 }

@@ -119,7 +119,7 @@ namespace Metalama.Backstage.Licensing.Registration
             DateTime? subscriptionEndDate,
             bool auditable,
             bool licenseServerEligible,
-            Version minPostSharpVersion)
+            Version minPostSharpVersion )
         {
             this.UniqueId = uniqueId;
             this.IsSelfCreated = isSelfCreated;

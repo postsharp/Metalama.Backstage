@@ -172,6 +172,7 @@ namespace Metalama.Backstage.Licensing.Licenses
             get
             {
                 var minPostSharpVersionString = (string?) this.GetFieldValue( LicenseFieldIndex.MinPostSharpVersion );
+
                 return minPostSharpVersionString == null ? null : System.Version.Parse( minPostSharpVersionString );
             }
         }
