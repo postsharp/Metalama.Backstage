@@ -7,7 +7,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Metalama.Backstage", "Metal
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Metalama.Backstage.Tests", "Metalama.Backstage.Tests\Metalama.Backstage.Tests.csproj", "{BFCF5B9E-7F97-4D8B-8905-5EC6E1205F35}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Metalama.DotNetTools", "Metalama.DotNetTools\Metalama.DotNetTools.csproj", "{6A7A96ED-555C-4DF4-9C36-7F15E5902D6F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Metalama.Tools.Config", "Metalama.Tools.Config\Metalama.Tools.Config.csproj", "{6A7A96ED-555C-4DF4-9C36-7F15E5902D6F}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Metalama.Backstage.TestHelpers", "Metalama.Backstage.TestHelpers\Metalama.Backstage.TestHelpers.csproj", "{5739D794-BB03-44C9-A3F6-D76A87030653}"
 EndProject

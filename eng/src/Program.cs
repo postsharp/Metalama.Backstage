@@ -15,7 +15,7 @@ var product = new Product
     },
     PublicArtifacts = Pattern.Create(
         "Metalama.Backstage.$(PackageVersion).nupkg",
-        "Metalama.DotNetTools.$(PackageVersion).nupkg" ),
+        "metalama-config.$(PackageVersion).nupkg" ),
     Dependencies = new[] { Dependencies.PostSharpEngineering }
 };
 
