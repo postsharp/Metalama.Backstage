@@ -18,7 +18,7 @@ namespace Metalama.Backstage.Licensing.Tests.LicenseSources;
 
 public class PreviewLicenseTests
 {
-    private static PreviewLicense CreatePreviewLicense( bool isPrerelease, int daysAfterBuild )
+    private static PreviewLicenseSource CreatePreviewLicense( bool isPrerelease, int daysAfterBuild )
     {
         var services = new ServiceCollection();
         var timeProvider = new TestDateTimeProvider();
@@ -26,7 +26,7 @@ public class PreviewLicenseTests
         services.AddSingleton<IApplicationInfo>( new TestApplicationInfo( "Test", isPrerelease, "<version>", timeProvider.Now.AddDays( -daysAfterBuild ) ) );
         var serviceProvider = services.BuildServiceProvider();
 
-        return new PreviewLicense( serviceProvider );
+        return new PreviewLicenseSource( serviceProvider );
     }
 
     private static (bool HasLicense, bool HasMessage, LicensingMessage? Message) RunTest( bool isPrerelease, int daysAfterBuild )
@@ -40,9 +40,9 @@ public class PreviewLicenseTests
 
     [Theory]
     [InlineData( 0 )]
-    [InlineData( PreviewLicense.PreviewLicensePeriod - PreviewLicense.WarningPeriod )]
-    [InlineData( PreviewLicense.PreviewLicensePeriod + 1 )]
-    [InlineData( PreviewLicense.PreviewLicensePeriod + 100 )]
+    [InlineData( PreviewLicenseSource.PreviewLicensePeriod - PreviewLicenseSource.WarningPeriod )]
+    [InlineData( PreviewLicenseSource.PreviewLicensePeriod + 1 )]
+    [InlineData( PreviewLicenseSource.PreviewLicensePeriod + 100 )]
     public void NoLicenseInStableRelease( int daysAfterBuild )
     {
         var result = RunTest( false, daysAfterBuild );
@@ -53,7 +53,7 @@ public class PreviewLicenseTests
 
     [Theory]
     [InlineData( 0 )]
-    [InlineData( PreviewLicense.PreviewLicensePeriod - PreviewLicense.WarningPeriod )]
+    [InlineData( PreviewLicenseSource.PreviewLicensePeriod - PreviewLicenseSource.WarningPeriod )]
     public void TimeBombIsSafeBeforeWarningPeriod( int daysAfterBuild )
     {
         var result = RunTest( true, daysAfterBuild );
@@ -63,8 +63,8 @@ public class PreviewLicenseTests
     }
 
     [Theory]
-    [InlineData( PreviewLicense.PreviewLicensePeriod - PreviewLicense.WarningPeriod + 1 )]
-    [InlineData( PreviewLicense.PreviewLicensePeriod )]
+    [InlineData( PreviewLicenseSource.PreviewLicensePeriod - PreviewLicenseSource.WarningPeriod + 1 )]
+    [InlineData( PreviewLicenseSource.PreviewLicensePeriod )]
     public void TimeBombWarnsDuringWarningPeriod( int daysAfterBuild )
     {
         var result = RunTest( true, daysAfterBuild );
@@ -74,8 +74,8 @@ public class PreviewLicenseTests
     }
 
     [Theory]
-    [InlineData( PreviewLicense.PreviewLicensePeriod + 1 )]
-    [InlineData( PreviewLicense.PreviewLicensePeriod + 100 )]
+    [InlineData( PreviewLicenseSource.PreviewLicensePeriod + 1 )]
+    [InlineData( PreviewLicenseSource.PreviewLicensePeriod + 100 )]
     public void TimeBombExplodesAfterPreviewLicensePeriod( int daysAfterBuild )
     {
         var result = RunTest( true, daysAfterBuild );

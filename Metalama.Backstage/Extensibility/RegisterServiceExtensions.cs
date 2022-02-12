@@ -85,25 +85,35 @@ public static class RegisterServiceExtensions
 
     public static ServiceProviderBuilder AddLicensing(
         this ServiceProviderBuilder serviceProviderBuilder,
+        bool considerUnattendedLicense = false,
         bool ignoreUserProfileLicenses = false,
         string[]? additionalLicenses = null )
     {
         var licenseSources = new List<ILicenseSource>();
         var serviceProvider = serviceProviderBuilder.ServiceProvider;
 
+        if ( considerUnattendedLicense )
+        {
+            licenseSources.Add( new UnattendedLicenseSource( serviceProvider ) );
+        }
+
         if ( !ignoreUserProfileLicenses )
         {
             licenseSources.Add( new UserProfileLicenseSource( serviceProvider ) );
-            licenseSources.Add( new PreviewLicense( serviceProvider ) );
         }
 
         if ( additionalLicenses is { Length: > 0 } )
         {
             licenseSources.Add( new ExplicitLicenseSource( additionalLicenses, serviceProvider ) );
         }
-        
-        serviceProviderBuilder.AddSingleton<ILicenseConsumptionManager>(
-            new LicenseConsumptionManager( serviceProvider, licenseSources ) );
+
+        if ( !ignoreUserProfileLicenses )
+        {
+            // Must be added last.
+            licenseSources.Add( new PreviewLicenseSource( serviceProvider ) );
+        }
+
+        serviceProviderBuilder.AddSingleton<ILicenseConsumptionManager>( new LicenseConsumptionManager( serviceProvider, licenseSources ) );
 
         return serviceProviderBuilder;
     }
@@ -112,6 +122,7 @@ public static class RegisterServiceExtensions
         this ServiceProviderBuilder serviceProviderBuilder,
         IApplicationInfo applicationInfo,
         string? projectName = null,
+        bool considerUnattendedProcessLicense = false,
         bool ignoreUserProfileLicenses = false,
         string[]? additionalLicenses = null,
         bool addSupportServices = true )
@@ -127,11 +138,12 @@ public static class RegisterServiceExtensions
             serviceProviderBuilder = serviceProviderBuilder.AddDiagnostics( applicationInfo.ProcessKind, projectName );
 
             // First-run configuration. This must be done before initializing licensing and telemetry.
-            WelcomeService.Execute( serviceProviderBuilder.ServiceProvider, !ignoreUserProfileLicenses );
+            var registerEvaluationLicense = !ignoreUserProfileLicenses && !applicationInfo.IsPrerelease;
+            WelcomeService.Execute( serviceProviderBuilder.ServiceProvider, registerEvaluationLicense );
         }
 
         // Add licensing.
-        serviceProviderBuilder.AddLicensing( ignoreUserProfileLicenses, additionalLicenses );
+        serviceProviderBuilder.AddLicensing( considerUnattendedProcessLicense, ignoreUserProfileLicenses, additionalLicenses );
 
         if ( addSupportServices )
         {
