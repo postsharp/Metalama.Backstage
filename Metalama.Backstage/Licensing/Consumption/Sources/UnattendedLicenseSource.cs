@@ -2,9 +2,9 @@
 // This project is not open source. Please see the LICENSE.md file in the repository root for details.
 
 using Metalama.Backstage.Diagnostics;
+using Metalama.Backstage.Extensibility;
 using Metalama.Backstage.Licensing.Licenses;
 using Metalama.Backstage.Licensing.Registration;
-using Metalama.Backstage.Utilities;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
@@ -13,19 +13,20 @@ namespace Metalama.Backstage.Licensing.Consumption.Sources;
 
 internal class UnattendedLicenseSource : ILicenseSource, ILicense
 {
+    private readonly IServiceProvider _serviceProvider;
     private readonly ILogger _logger;
+    private readonly IApplicationInfo _applicationInfo;
 
     public UnattendedLicenseSource( IServiceProvider serviceProvider )
     {
+        this._serviceProvider = serviceProvider;
+        this._applicationInfo = serviceProvider.GetRequiredService<IApplicationInfo>();
         this._logger = serviceProvider.GetLoggerFactory().Licensing();
     }
 
     public IEnumerable<ILicense> GetLicenses( Action<LicensingMessage> reportMessage )
     {
-        // Determines whether the current process is unattended. If logging is enabled, we do not go through the cached property, so we capture the log.
-        var isProcessUnattended = this._logger.Trace != null ? ProcessUtilities.IsCurrentProcessUnattendedNoCache( this._logger ) : ProcessUtilities.IsCurrentProcessUnattended;
-
-        if ( isProcessUnattended )
+        if ( this._applicationInfo.IsUnattendedProcess( this._serviceProvider.GetLoggerFactory() ) )
         {
             this._logger.Trace?.Log( "Providing an unattended process license." );
 

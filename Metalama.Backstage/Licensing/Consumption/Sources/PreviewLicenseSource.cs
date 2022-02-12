@@ -58,7 +58,7 @@ internal sealed class PreviewLicenseSource : ILicenseSource, ILicense
 
         this._logger.Trace?.Log( "PreviewLicenseSource: providing a license." );
 
-        if ( !this._messageReported && age > (PreviewLicensePeriod - WarningPeriod) )
+        if ( !this._messageReported && age > PreviewLicensePeriod - WarningPeriod )
         {
             reportMessage(
                 new LicensingMessage(

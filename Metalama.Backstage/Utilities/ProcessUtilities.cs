@@ -13,7 +13,12 @@ using System.Text;
 
 namespace Metalama.Backstage.Utilities;
 
+// ReSharper disable UnusedMember.Local
 // ReSharper disable StringLiteralTypo
+// ReSharper disable FieldCanBeMadeReadOnly.Local
+// ReSharper disable MemberCanBePrivate.Local
+// ReSharper disable InconsistentNaming
+
 #pragma warning disable SA1310, IDE1006 // Naming conventions.
 
 public static class ProcessUtilities
@@ -31,9 +36,6 @@ public static class ProcessUtilities
             _ => ProcessKind.Other
         };
 
-    // ReSharper disable FieldCanBeMadeReadOnly.Local
-    // ReSharper disable MemberCanBePrivate.Local
-    // ReSharper disable InconsistentNaming
     [StructLayout( LayoutKind.Sequential )]
     private struct PROCESS_BASIC_INFORMATION
     {
@@ -76,7 +78,8 @@ public static class ProcessUtilities
     private static extern unsafe bool EnumProcesses( int* pProcessIds, int cb, out int pBytesReturned );
 
     private const uint PROCESS_QUERY_INFORMATION = 0x0400;
-    private const uint PROCESS_TERMINATE = 0x0001;
+
+    // private const uint PROCESS_TERMINATE = 0x0001;
 
     // ReSharper restore MemberCanBePrivate.Local
     // ReSharper restore FieldCanBeMadeReadOnly.Local
@@ -84,34 +87,22 @@ public static class ProcessUtilities
 
     private static int _isCurrentProcessUnattended;
 
-    public static bool IsCurrentProcessUnattended
+    public static bool IsCurrentProcessUnattended( ILoggerFactory loggerFactory )
     {
-        get
-        {
-            if ( _isCurrentProcessUnattended == 0 )
-            {
-#pragma warning disable IDE0059 // Unnecessary assignment of a value
-                _isCurrentProcessUnattended = IsCurrentProcessUnattendedNoCache() ? 1 : 2;
-#pragma warning restore IDE0059 // Unnecessary assignment of a value
-            }
+        var logger = loggerFactory.GetLogger( "ProcessUtilities" );
 
-            return _isCurrentProcessUnattended == 1;
+        if ( _isCurrentProcessUnattended == 0 )
+        {
+            _isCurrentProcessUnattended = Detect() ? 1 : 2;
         }
 
-        set => _isCurrentProcessUnattended = value ? 1 : 2;
-    }
-
-    public static bool IsCurrentProcessUnattendedNoCache( ILogger? logger = null )
-    {
-        IsCurrentProcessUnattended = Detect();
-
-        return IsCurrentProcessUnattended;
+        return _isCurrentProcessUnattended == 1;
 
         bool Detect()
         {
             if ( !Environment.UserInteractive )
             {
-                logger?.Trace?.Log( "Unattended mode detected because Environment.UserInteractive = false." );
+                logger.Trace?.Log( "Unattended mode detected because Environment.UserInteractive = false." );
 
                 return true;
             }
@@ -119,7 +110,7 @@ public static class ProcessUtilities
             if ( !RuntimeInformation.IsOSPlatform( OSPlatform.Windows ) )
             {
                 // TODO: actual implementation.
-                logger?.Trace?.Log( "Attended mode detected because of the platform is not Windows and Environment.UserInteractive is true." );
+                logger.Trace?.Log( "Attended mode detected because of the platform is not Windows and Environment.UserInteractive is true." );
 
                 return false;
             }
@@ -135,7 +126,7 @@ public static class ProcessUtilities
 
             if ( Environment.OSVersion.Version.Major >= 6 && Process.GetCurrentProcess().SessionId == 0 )
             {
-                logger?.Trace?.Log( "Unattended mode detected because SessionId = 0" );
+                logger.Trace?.Log( "Unattended mode detected because SessionId = 0" );
 
                 return true;
             }
@@ -144,7 +135,7 @@ public static class ProcessUtilities
 
             var parentProcesses = GetParentProcesses();
 
-            logger?.Trace?.Log(
+            logger.Trace?.Log(
                 string.Format(
                     CultureInfo.InvariantCulture,
                     "Parent processes: {0}. ",
@@ -154,7 +145,7 @@ public static class ProcessUtilities
 
             if ( unattendedProcessInfo != null )
             {
-                logger?.Trace?.Log(
+                logger.Trace?.Log(
                     string.Format(
                         CultureInfo.InvariantCulture,
                         " Unattended mode detected because of parent process '{0}'.",
@@ -163,7 +154,7 @@ public static class ProcessUtilities
                 return true;
             }
 
-            logger?.Trace?.Log( "Unattended mode NOT detected." );
+            logger.Trace?.Log( "Unattended mode NOT detected." );
 
             return false;
         }

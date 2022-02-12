@@ -33,6 +33,14 @@ namespace Metalama.Backstage.Extensibility
 
         ProcessKind ProcessKind { get; }
 
+        /// <summary>
+        /// Determines whether the current process is unattended. This method accepts an <see cref="ILoggerFactory"/> because
+        /// the <see cref="IServiceProvider"/> cannot be available when we instantiate implementations of this interface.
+        /// </summary>
+        /// <param name="loggerFactory"></param>
+        /// <returns></returns>
+        bool IsUnattendedProcess( ILoggerFactory loggerFactory );
+
         bool IsLongRunningProcess { get; }
     }
 }

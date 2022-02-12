@@ -137,9 +137,11 @@ public static class RegisterServiceExtensions
         {
             serviceProviderBuilder = serviceProviderBuilder.AddDiagnostics( applicationInfo.ProcessKind, projectName );
 
+            var serviceProvider = serviceProviderBuilder.ServiceProvider;
+
             // First-run configuration. This must be done before initializing licensing and telemetry.
-            var registerEvaluationLicense = !ignoreUserProfileLicenses && !applicationInfo.IsPrerelease;
-            WelcomeService.Execute( serviceProviderBuilder.ServiceProvider, registerEvaluationLicense );
+            var registerEvaluationLicense = !ignoreUserProfileLicenses && !applicationInfo.IsPrerelease && !applicationInfo.IsUnattendedProcess( serviceProvider.GetLoggerFactory() );
+            WelcomeService.Execute( serviceProvider, registerEvaluationLicense );
         }
 
         // Add licensing.
@@ -147,12 +149,14 @@ public static class RegisterServiceExtensions
 
         if ( addSupportServices )
         {
+            var serviceProvider = serviceProviderBuilder.ServiceProvider;
+
             // Add telemetry.
             var uploadManager = new UploadManager( serviceProviderBuilder.ServiceProvider );
 
             serviceProviderBuilder = serviceProviderBuilder
-                .AddSingleton<IExceptionReporter>( new ExceptionReporter( uploadManager, serviceProviderBuilder.ServiceProvider ) )
-                .AddSingleton<IUsageReporter>( new UsageReporter( uploadManager, serviceProviderBuilder.ServiceProvider ) );
+                .AddSingleton<IExceptionReporter>( new ExceptionReporter( uploadManager, serviceProvider ) )
+                .AddSingleton<IUsageReporter>( new UsageReporter( uploadManager, serviceProvider ) );
         }
 
         return serviceProviderBuilder;
