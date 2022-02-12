@@ -86,22 +86,29 @@ public static class RegisterServiceExtensions
     public static ServiceProviderBuilder AddLicensing(
         this ServiceProviderBuilder serviceProviderBuilder,
         bool ignoreUserProfileLicenses = false,
+        bool ignorePreviewLicense = false,
         string[]? additionalLicenses = null )
     {
         var licenseSources = new List<ILicenseSource>();
+        var serviceProvider = serviceProviderBuilder.ServiceProvider;
 
         if ( !ignoreUserProfileLicenses )
         {
-            licenseSources.Add( new UserProfileLicenseSource( serviceProviderBuilder.ServiceProvider ) );
+            licenseSources.Add( new UserProfileLicenseSource( serviceProvider ) );
         }
 
         if ( additionalLicenses is { Length: > 0 } )
         {
-            licenseSources.Add( new ExplicitLicenseSource( additionalLicenses, serviceProviderBuilder.ServiceProvider ) );
+            licenseSources.Add( new ExplicitLicenseSource( additionalLicenses, serviceProvider ) );
+        }
+
+        if ( !ignorePreviewLicense )
+        {
+            licenseSources.Add( new PreviewLicense( serviceProvider ) );
         }
 
         serviceProviderBuilder.AddSingleton<ILicenseConsumptionManager>(
-            new LicenseConsumptionManager( serviceProviderBuilder.ServiceProvider, licenseSources ) );
+            new LicenseConsumptionManager( serviceProvider, licenseSources ) );
 
         return serviceProviderBuilder;
     }
@@ -111,6 +118,7 @@ public static class RegisterServiceExtensions
         IApplicationInfo applicationInfo,
         string? projectName = null,
         bool ignoreUserProfileLicenses = false,
+        bool ignorePreviewLicense = false,
         string[]? additionalLicenses = null,
         bool addSupportServices = true )
     {
@@ -129,7 +137,7 @@ public static class RegisterServiceExtensions
         }
 
         // Add licensing.
-        serviceProviderBuilder.AddLicensing( ignoreUserProfileLicenses, additionalLicenses );
+        serviceProviderBuilder.AddLicensing( ignoreUserProfileLicenses, ignorePreviewLicense, additionalLicenses );
 
         if ( addSupportServices )
         {

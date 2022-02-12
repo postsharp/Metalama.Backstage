@@ -7,8 +7,11 @@ public class LicensingMessage
 {
     public string Text { get; }
 
-    public LicensingMessage( string text )
+    public bool IsError { get; }
+
+    public LicensingMessage( string text, bool isError = false )
     {
         this.Text = text;
+        this.IsError = isError;
     }
 }
