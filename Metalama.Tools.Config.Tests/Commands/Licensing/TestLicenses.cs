@@ -3,7 +3,7 @@
 
 using System;
 
-namespace Metalama.DotNetTools.Tests.Commands.Licensing
+namespace Metalama.Tools.Config.Tests.Commands.Licensing
 {
     internal static class TestLicenses
     {

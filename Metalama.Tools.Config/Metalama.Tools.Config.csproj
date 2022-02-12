@@ -3,7 +3,7 @@
     <PropertyGroup>
         <OutputType>Exe</OutputType>
         <TargetFramework>netcoreapp3.1</TargetFramework>
-        <AssemblyName>metalama</AssemblyName>
+        <AssemblyName>metalama-config</AssemblyName>
         <PackageId>metalama-config</PackageId>
         <RootNamespace>Metalama.DotNetTools</RootNamespace>
     </PropertyGroup>
@@ -27,7 +27,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <InternalsVisibleTo Include="Metalama.DotNetTools.Tests" />
+        <InternalsVisibleTo Include="Metalama.Tools.Config.Tests" />
     </ItemGroup>
 
     <Import Project="..\Metalama.Backstage.MicrosoftLogging\Metalama.Backstage.MicrosoftLogging.projitems" Label="Shared" />

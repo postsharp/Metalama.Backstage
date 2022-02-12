@@ -5,7 +5,7 @@ using Metalama.Backstage.Extensibility;
 using System;
 using Xunit.Abstractions;
 
-namespace Metalama.DotNetTools.Tests.Commands.Licensing
+namespace Metalama.Tools.Config.Tests.Commands.Licensing
 {
     public abstract class LicensingCommandsTestsBase : CommandsTestsBase
     {
