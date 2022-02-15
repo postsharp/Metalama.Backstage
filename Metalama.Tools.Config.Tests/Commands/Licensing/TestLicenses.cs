@@ -46,8 +46,8 @@ namespace Metalama.Tools.Config.Tests.Commands.Licensing
 
 ";
 
-        public const string CommunityFormat = @"                 Ordinal: {0}
-             Description: Metalama Ultimate (Community License)
+        public const string EssentialsFormat = @"                 Ordinal: {0}
+             Description: Metalama Ultimate (Essentials License)
       License Expiration: Never (perpetual license)
 
 ";

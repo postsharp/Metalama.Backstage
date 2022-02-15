@@ -1,7 +1,7 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. All rights reserved.
 // This project is not open source. Please see the LICENSE.md file in the repository root for details.
 
-using Metalama.Backstage.Licensing.Registration.Community;
+using Metalama.Backstage.Licensing.Registration.Essentials;
 using System.CommandLine;
 using System.CommandLine.Invocation;
 using System.CommandLine.IO;
@@ -20,7 +20,7 @@ internal class RegisterEssentialsCommand : CommandBase
     {
         var services = this.CommandServiceProvider.CreateServiceProvider( console, verbose );
 
-        var registrar = new CommunityLicenseRegistrar( services );
+        var registrar = new EssentialsLicenseRegistrar( services );
 
         if ( registrar.TryRegisterLicense() )
         {
@@ -28,7 +28,7 @@ internal class RegisterEssentialsCommand : CommandBase
         }
         else
         {
-            console.Error.WriteLine( "Cannot switch to the community edition. Use --verbose (-v) flag for details." );
+            console.Error.WriteLine( "Cannot switch to the Essentials edition. Use --verbose (-v) flag for details." );
 
             return 1;
         }
