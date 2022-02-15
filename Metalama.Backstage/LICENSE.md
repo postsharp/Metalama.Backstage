@@ -44,7 +44,7 @@ Technologies'.
 
 * '**Software**' means the software program known as PostSharp, in the respective edition i.e. PostSharp Caching,
   PostSharp Ultimate, PostSharp Threading, PostSharp Diagnostics, PostSharp XAML, PostSharp Framework, PostSharp
-  Community or any other editions of the software program and respective build dates specified in the Order. Software
+  Essentials or any other editions of the software program and respective build dates specified in the Order. Software
   includes any copies, Software Updates, upgrades, enhancements and other derivative works of the foregoing provided by
   Licensor, as well as the Documentation. Software also means any third-party software programs that are owned and
   licensed by parties other than the Licensor and that are either integrated with or made part of the PostSharp

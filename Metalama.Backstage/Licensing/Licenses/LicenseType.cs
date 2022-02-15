@@ -23,9 +23,9 @@ namespace Metalama.Backstage.Licensing.Licenses
         None = 0,
 
         /// <summary>
-        /// Community license (former Essentials, Express or Starter).
+        /// Essentials license (former Community, Essentials, Express or Starter).
         /// </summary>
-        Community = 1,
+        Essentials = 1,
 
         /// <summary>
         /// Commercial PerUser license.

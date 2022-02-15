@@ -50,16 +50,16 @@ namespace Metalama.Backstage.Licensing.Licenses
         }
 
         /// <summary>
-        /// Creates an unsigned community license.
+        /// Creates an unsigned Essentials license.
         /// </summary>
-        /// <returns>The unsigned community license.</returns>
-        public (string LicenseKey, LicenseRegistrationData Data) CreateCommunityLicense()
+        /// <returns>The unsigned Essentials license.</returns>
+        public (string LicenseKey, LicenseRegistrationData Data) CreateEssentialsLicense()
         {
             var start = this._time.Now;
 
             var licenseKeyData = new LicenseKeyData
             {
-                LicenseGuid = Guid.NewGuid(), Product = LicensedProduct.MetalamaUltimate, LicenseType = LicenseType.Community, ValidFrom = start
+                LicenseGuid = Guid.NewGuid(), Product = LicensedProduct.MetalamaUltimate, LicenseType = LicenseType.Essentials, ValidFrom = start
             };
 
             var licenseKey = licenseKeyData.Serialize();

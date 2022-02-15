@@ -16,9 +16,9 @@ namespace Metalama.Backstage.Licensing
     {
         None = 0,
 
-        // Some features are free in the Community Edition (e.g. non-semantic OnMethodBoundaryAspect), but those transformations
+        // Some features are free in the Essentials Edition (e.g. non-semantic OnMethodBoundaryAspect), but those transformations
         // also need at least some license to be loaded. Licenses can only be loaded if a requirement is present.
-        Community = 1,
+        Essentials = 1,
         Common = 1 << 1,
         Framework = 1 << 2,
         Threading = 1 << 3,

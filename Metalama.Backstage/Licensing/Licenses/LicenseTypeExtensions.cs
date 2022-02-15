@@ -18,8 +18,8 @@ namespace Metalama.Backstage.Licensing.Licenses
 #pragma warning disable 618
             switch ( licenseType )
             {
-                case LicenseType.Community:
-                    return "Community License";
+                case LicenseType.Essentials:
+                    return "Essentials License";
 
                 case LicenseType.Enterprise:
                 case LicenseType.PerUser:

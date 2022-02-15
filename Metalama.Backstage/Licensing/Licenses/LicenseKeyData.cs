@@ -31,7 +31,7 @@ namespace Metalama.Backstage.Licensing.Licenses
                     return false;
                 }
 
-                if ( this.LicenseId == 0 && (this.LicenseType == LicenseType.Community ||
+                if ( this.LicenseId == 0 && (this.LicenseType == LicenseType.Essentials ||
                                              this.LicenseType == LicenseType.Evaluation) )
                 {
                     return false;
