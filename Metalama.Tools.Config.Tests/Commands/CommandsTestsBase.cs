@@ -4,8 +4,9 @@
 using Metalama.Backstage.Diagnostics;
 using Metalama.Backstage.Extensibility;
 using Metalama.Backstage.Testing;
+using Metalama.DotNetTools;
 using Metalama.DotNetTools.Commands;
-using Metalama.DotNetTools.Tests.Console;
+using Metalama.Tools.Config.Tests.Console;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.CommandLine;
@@ -13,7 +14,7 @@ using System.Threading.Tasks;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace Metalama.DotNetTools.Tests.Commands
+namespace Metalama.Tools.Config.Tests.Commands
 {
     public abstract class CommandsTestsBase : TestsBase, ICommandServiceProvider
     {

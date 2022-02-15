@@ -85,23 +85,35 @@ public static class RegisterServiceExtensions
 
     public static ServiceProviderBuilder AddLicensing(
         this ServiceProviderBuilder serviceProviderBuilder,
+        bool considerUnattendedLicense = false,
         bool ignoreUserProfileLicenses = false,
         string[]? additionalLicenses = null )
     {
         var licenseSources = new List<ILicenseSource>();
+        var serviceProvider = serviceProviderBuilder.ServiceProvider;
+
+        if ( considerUnattendedLicense )
+        {
+            licenseSources.Add( new UnattendedLicenseSource( serviceProvider ) );
+        }
 
         if ( !ignoreUserProfileLicenses )
         {
-            licenseSources.Add( new UserProfileLicenseSource( serviceProviderBuilder.ServiceProvider ) );
+            licenseSources.Add( new UserProfileLicenseSource( serviceProvider ) );
         }
 
         if ( additionalLicenses is { Length: > 0 } )
         {
-            licenseSources.Add( new ExplicitLicenseSource( additionalLicenses, serviceProviderBuilder.ServiceProvider ) );
+            licenseSources.Add( new ExplicitLicenseSource( additionalLicenses, serviceProvider ) );
         }
 
-        serviceProviderBuilder.AddSingleton<ILicenseConsumptionManager>(
-            new LicenseConsumptionManager( serviceProviderBuilder.ServiceProvider, licenseSources ) );
+        if ( !ignoreUserProfileLicenses )
+        {
+            // Must be added last.
+            licenseSources.Add( new PreviewLicenseSource( serviceProvider ) );
+        }
+
+        serviceProviderBuilder.AddSingleton<ILicenseConsumptionManager>( new LicenseConsumptionManager( serviceProvider, licenseSources ) );
 
         return serviceProviderBuilder;
     }
@@ -110,6 +122,7 @@ public static class RegisterServiceExtensions
         this ServiceProviderBuilder serviceProviderBuilder,
         IApplicationInfo applicationInfo,
         string? projectName = null,
+        bool considerUnattendedProcessLicense = false,
         bool ignoreUserProfileLicenses = false,
         string[]? additionalLicenses = null,
         bool addSupportServices = true )
@@ -124,21 +137,26 @@ public static class RegisterServiceExtensions
         {
             serviceProviderBuilder = serviceProviderBuilder.AddDiagnostics( applicationInfo.ProcessKind, projectName );
 
+            var serviceProvider = serviceProviderBuilder.ServiceProvider;
+
             // First-run configuration. This must be done before initializing licensing and telemetry.
-            WelcomeService.Execute( serviceProviderBuilder.ServiceProvider, !ignoreUserProfileLicenses );
+            var registerEvaluationLicense = !ignoreUserProfileLicenses && !applicationInfo.IsPrerelease && !applicationInfo.IsUnattendedProcess( serviceProvider.GetLoggerFactory() );
+            WelcomeService.Execute( serviceProvider, registerEvaluationLicense );
         }
 
         // Add licensing.
-        serviceProviderBuilder.AddLicensing( ignoreUserProfileLicenses, additionalLicenses );
+        serviceProviderBuilder.AddLicensing( considerUnattendedProcessLicense, ignoreUserProfileLicenses, additionalLicenses );
 
         if ( addSupportServices )
         {
+            var serviceProvider = serviceProviderBuilder.ServiceProvider;
+
             // Add telemetry.
             var uploadManager = new UploadManager( serviceProviderBuilder.ServiceProvider );
 
             serviceProviderBuilder = serviceProviderBuilder
-                .AddSingleton<IExceptionReporter>( new ExceptionReporter( uploadManager, serviceProviderBuilder.ServiceProvider ) )
-                .AddSingleton<IUsageReporter>( new UsageReporter( uploadManager, serviceProviderBuilder.ServiceProvider ) );
+                .AddSingleton<IExceptionReporter>( new ExceptionReporter( uploadManager, serviceProvider ) )
+                .AddSingleton<IUsageReporter>( new UsageReporter( uploadManager, serviceProvider ) );
         }
 
         return serviceProviderBuilder;

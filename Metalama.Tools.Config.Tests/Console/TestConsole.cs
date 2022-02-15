@@ -7,7 +7,7 @@ using System.CommandLine;
 using System.CommandLine.IO;
 using System.Text;
 
-namespace Metalama.DotNetTools.Tests.Console
+namespace Metalama.Tools.Config.Tests.Console
 {
     internal class TestConsole : IConsole
     {

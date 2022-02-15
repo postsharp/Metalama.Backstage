@@ -101,7 +101,12 @@ namespace Metalama.Backstage.Licensing.Licenses
         /// <remarks>
         /// Bound to single person.
         /// </remarks>
-        Personal = 19
+        Personal = 19,
+
+        /// <summary>
+        /// Usable with a preview build.
+        /// </summary>
+        Preview
 
         // 255 is reserved as unknown for testing purposes
     }

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace Metalama.DotNetTools.Tests.Commands.Licensing
+namespace Metalama.Tools.Config.Tests.Commands.Licensing
 {
     public class RegisterCommunityCommandTests : LicensingCommandsTestsBase
     {
