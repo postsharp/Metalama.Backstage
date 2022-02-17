@@ -49,7 +49,7 @@ namespace Metalama.Backstage.Licensing.Licenses
             => licenseKeyData.Product switch
             {
                 LicensedProduct.Framework => "PostSharp Framework",
-                LicensedProduct.Ultimate => licenseKeyData.LicenseType == LicenseType.Community ? "PostSharp Community" : "PostSharp Ultimate",
+                LicensedProduct.Ultimate => licenseKeyData.LicenseType == LicenseType.Essentials ? "PostSharp Essentials" : "PostSharp Ultimate",
                 LicensedProduct.DiagnosticsLibrary => "PostSharp Logging",
                 LicensedProduct.ModelLibrary => "PostSharp MVVM",
                 LicensedProduct.ThreadingLibrary => "PostSharp Threading",
@@ -104,7 +104,7 @@ namespace Metalama.Backstage.Licensing.Licenses
 
             var licensedFeatures = product switch
             {
-                LicensedProduct.Ultimate when licenseType != LicenseType.Community => LicensedProductFeatures.Ultimate,
+                LicensedProduct.Ultimate when licenseType != LicenseType.Essentials => LicensedProductFeatures.Ultimate,
                 LicensedProduct.Framework => LicensedProductFeatures.Framework,
                 LicensedProduct.ModelLibrary => LicensedProductFeatures.Mvvm,
                 LicensedProduct.ThreadingLibrary => LicensedProductFeatures.Threading,
@@ -112,7 +112,7 @@ namespace Metalama.Backstage.Licensing.Licenses
                 LicensedProduct.CachingLibrary => LicensedProductFeatures.Caching,
                 LicensedProduct.MetalamaProfessional => LicensedProductFeatures.Metalama,
                 LicensedProduct.MetalamaUltimate => LicensedProductFeatures.Metalama,
-                _ => LicensedProductFeatures.Community
+                _ => LicensedProductFeatures.Essentials
             };
 
             LicenseConsumptionData data = new(

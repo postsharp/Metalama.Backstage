@@ -54,11 +54,11 @@ public class SingleLicenseKeyTests : LicenseConsumptionManagerTestsBase
     public void MetalamaLicenseAllowsMetalamaFeature() => this.TestOneLicense( TestLicenseKeys.Metalama, LicensedFeatures.Metalama, true );
 
     [Fact]
-    public void MetalamaLicenseAllowsCommunityFeature() => this.TestOneLicense( TestLicenseKeys.Metalama, LicensedFeatures.Community, true );
+    public void MetalamaLicenseAllowsEssentialsFeature() => this.TestOneLicense( TestLicenseKeys.Metalama, LicensedFeatures.Essentials, true );
 
     [Fact]
-    public void CommunityLicenseForbidsMetalamaFeature() => this.TestOneLicense( TestLicenseKeys.Community, LicensedFeatures.Metalama, false );
+    public void EssentialsLicenseForbidsMetalamaFeature() => this.TestOneLicense( TestLicenseKeys.Essentials, LicensedFeatures.Metalama, false );
 
     [Fact]
-    public void CommunityLicenseAllowsCommunityFeature() => this.TestOneLicense( TestLicenseKeys.Community, LicensedFeatures.Community, true );
+    public void EssentialsLicenseAllowsEssentialsFeature() => this.TestOneLicense( TestLicenseKeys.Essentials, LicensedFeatures.Essentials, true );
 }

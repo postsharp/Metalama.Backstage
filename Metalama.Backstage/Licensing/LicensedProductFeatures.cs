@@ -5,26 +5,26 @@ namespace Metalama.Backstage.Licensing
 {
     internal static class LicensedProductFeatures
     {
-        public const LicensedFeatures Community = LicensedFeatures.Community | LicensedFeatures.Common;
+        public const LicensedFeatures Essentials = LicensedFeatures.Essentials | LicensedFeatures.Common;
 
-        public const LicensedFeatures Mvvm = LicensedFeatures.Community | LicensedFeatures.Common |
+        public const LicensedFeatures Mvvm = LicensedFeatures.Essentials | LicensedFeatures.Common |
                                              LicensedFeatures.Model |
                                              LicensedFeatures.Xaml | LicensedFeatures.Aggregation;
 
-        public const LicensedFeatures Threading = LicensedFeatures.Community | LicensedFeatures.Common |
+        public const LicensedFeatures Threading = LicensedFeatures.Essentials | LicensedFeatures.Common |
                                                   LicensedFeatures.Threading
                                                   | LicensedFeatures.Aggregation;
 
         public const LicensedFeatures Logging =
-            LicensedFeatures.Community | LicensedFeatures.Common | LicensedFeatures.Diagnostics;
+            LicensedFeatures.Essentials | LicensedFeatures.Common | LicensedFeatures.Diagnostics;
 
         public const LicensedFeatures Caching =
-            LicensedFeatures.Community | LicensedFeatures.Common | LicensedFeatures.Caching;
+            LicensedFeatures.Essentials | LicensedFeatures.Common | LicensedFeatures.Caching;
 
-        public const LicensedFeatures Framework = LicensedFeatures.Community | LicensedFeatures.Common |
+        public const LicensedFeatures Framework = LicensedFeatures.Essentials | LicensedFeatures.Common |
                                                   LicensedFeatures.Framework | LicensedFeatures.Metalama;
 
         public const LicensedFeatures Ultimate = LicensedFeatures.All;
-        public const LicensedFeatures Metalama = LicensedFeatures.Community | LicensedFeatures.Metalama;
+        public const LicensedFeatures Metalama = LicensedFeatures.Essentials | LicensedFeatures.Metalama;
     }
 }

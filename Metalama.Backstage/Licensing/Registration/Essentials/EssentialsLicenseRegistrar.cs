@@ -6,56 +6,56 @@ using Metalama.Backstage.Licensing.Licenses;
 using System;
 using System.Linq;
 
-namespace Metalama.Backstage.Licensing.Registration.Community
+namespace Metalama.Backstage.Licensing.Registration.Essentials
 {
     /// <summary>
-    /// Registers a community license.
+    /// Registers a Essentials license.
     /// </summary>
-    public class CommunityLicenseRegistrar
+    public class EssentialsLicenseRegistrar
     {
         private readonly IServiceProvider _services;
         private readonly ILogger _logger;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="CommunityLicenseRegistrar"/> class.
+        /// Initializes a new instance of the <see cref="EssentialsLicenseRegistrar"/> class.
         /// </summary>
         /// <param name="services">Service provider.</param>
-        public CommunityLicenseRegistrar( IServiceProvider services )
+        public EssentialsLicenseRegistrar( IServiceProvider services )
         {
             this._services = services;
             this._logger = services.GetLoggerFactory().Licensing();
         }
 
         /// <summary>
-        /// Attempts to register a community license.
+        /// Attempts to register a Essentials license.
         /// </summary>
         /// <returns>
         /// A value indicating whether the license has been registered.
-        /// Success is indicated when a new community license is registered
-        /// as well as when an existing community license is registered already.
+        /// Success is indicated when a new Essentials license is registered
+        /// as well as when an existing Essentials license is registered already.
         /// </returns>
         public bool TryRegisterLicense()
         {
             void TraceFailure( string message )
             {
-                this._logger.Trace?.Log( $"Failed to register community license: {message}" );
+                this._logger.Trace?.Log( $"Failed to register Essentials license: {message}" );
             }
 
-            this._logger.Trace?.Log( "Registering community license." );
+            this._logger.Trace?.Log( "Registering Essentials license." );
 
             try
             {
                 var userStorage = ParsedLicensingConfiguration.OpenOrCreate( this._services );
 
-                if ( userStorage.Licenses.Any( l => l.LicenseData is { LicenseType: LicenseType.Community } ) )
+                if ( userStorage.Licenses.Any( l => l.LicenseData is { LicenseType: LicenseType.Essentials } ) )
                 {
-                    TraceFailure( "A community license is registered already." );
+                    TraceFailure( "A Essentials license is registered already." );
 
                     return true;
                 }
 
                 var factory = new UnsignedLicenseFactory( this._services );
-                var (licenseKey, data) = factory.CreateCommunityLicense();
+                var (licenseKey, data) = factory.CreateEssentialsLicense();
 
                 userStorage.AddLicense( licenseKey, data );
             }

@@ -2,52 +2,52 @@
 // This project is not open source. Please see the LICENSE.md file in the repository root for details.
 
 using Metalama.Backstage.Licensing.Licenses;
-using Metalama.Backstage.Licensing.Registration.Community;
+using Metalama.Backstage.Licensing.Registration.Essentials;
 using Metalama.Backstage.Licensing.Tests.Registration;
 using System;
 using System.Linq;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace Metalama.Backstage.Licensing.Tests.Community
+namespace Metalama.Backstage.Licensing.Tests.Essentials
 {
-    public class CommunityLicenseRegistrationTests : LicenseRegistrationTestsBase
+    public class EssentialsLicenseRegistrationTests : LicenseRegistrationTestsBase
     {
-        private readonly CommunityLicenseRegistrar _registrar;
+        private readonly EssentialsLicenseRegistrar _registrar;
 
-        public CommunityLicenseRegistrationTests( ITestOutputHelper logger )
+        public EssentialsLicenseRegistrationTests( ITestOutputHelper logger )
             : base( logger )
         {
-            this._registrar = new CommunityLicenseRegistrar( this.Services );
+            this._registrar = new EssentialsLicenseRegistrar( this.Services );
         }
 
-        private void AssertSingleCommunityLicenseRegistered()
+        private void AssertSingleEssentialsLicenseRegistered()
         {
             var registeredLicenseString = this.ReadStoredLicenseStrings().Single();
             Assert.True( this.LicenseFactory.TryCreate( registeredLicenseString, out var registeredLicense ) );
             Assert.True( registeredLicense!.TryGetLicenseRegistrationData( out var data ) );
             Assert.True( Guid.TryParse( data!.UniqueId, out var id ) );
             Assert.NotEqual( Guid.Empty, id );
-            Assert.Equal( LicenseType.Community, data.LicenseType );
+            Assert.Equal( LicenseType.Essentials, data.LicenseType );
         }
 
         [Fact]
-        public void CommunityLicenseRegistersInCleanEnvironment()
+        public void EssentialsLicenseRegistersInCleanEnvironment()
         {
             Assert.True( this._registrar.TryRegisterLicense() );
-            this.AssertSingleCommunityLicenseRegistered();
+            this.AssertSingleEssentialsLicenseRegistered();
         }
 
         [Fact]
-        public void RepeatedCommunityLicenseRegistrationKeepsSingleLicenseRegistered()
+        public void RepeatedEssentialsLicenseRegistrationKeepsSingleLicenseRegistered()
         {
             Assert.True( this._registrar.TryRegisterLicense() );
             Assert.True( this._registrar.TryRegisterLicense() );
-            this.AssertSingleCommunityLicenseRegistered();
+            this.AssertSingleEssentialsLicenseRegistered();
 
             Assert.Single(
                 this.Log.LogEntries,
-                x => x.Message == "Failed to register community license: A community license is registered already." );
+                x => x.Message == "Failed to register Essentials license: A Essentials license is registered already." );
         }
     }
 }

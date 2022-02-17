@@ -8,30 +8,30 @@ using Xunit.Abstractions;
 
 namespace Metalama.Tools.Config.Tests.Commands.Licensing
 {
-    public class RegisterCommunityCommandTests : LicensingCommandsTestsBase
+    public class RegisterEssentialsCommandTests : LicensingCommandsTestsBase
     {
-        public RegisterCommunityCommandTests( ITestOutputHelper logger )
+        public RegisterEssentialsCommandTests( ITestOutputHelper logger )
             : base( logger ) { }
 
         [Fact]
-        public async Task CommunityRegistersInEmptyEnvironment()
+        public async Task EssentialsRegistersInEmptyEnvironment()
         {
             await this.TestCommandAsync( "license register essentials", "" );
 
             await this.TestCommandAsync(
                 "license list",
-                string.Format( CultureInfo.InvariantCulture, TestLicenses.CommunityFormat, 1 ) );
+                string.Format( CultureInfo.InvariantCulture, TestLicenses.EssentialsFormat, 1 ) );
         }
 
         [Fact]
-        public async Task RepetitiveCommunityRegistrationKeepsOneCommunityLicenseRegistered()
+        public async Task RepetitiveEssentialsRegistrationKeepsOneEssentialsLicenseRegistered()
         {
             await this.TestCommandAsync( "license register essentials", "" );
             await this.TestCommandAsync( "license register essentials", "" );
 
             await this.TestCommandAsync(
                 "license list",
-                string.Format( CultureInfo.InvariantCulture, TestLicenses.CommunityFormat, 1 ) );
+                string.Format( CultureInfo.InvariantCulture, TestLicenses.EssentialsFormat, 1 ) );
         }
     }
 }
