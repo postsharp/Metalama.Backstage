@@ -12,7 +12,7 @@ namespace Metalama.Backstage.Telemetry
     {
         private static readonly Regex _userNameRegEx =
             new(
-                @"(?<![\.\^0-9a-zA-Z`])(?![0-9]|Microsoft\.|System\.|PostSharp\.|Metalama\.|Presentation|EnvDTE|Windows|`)[a-zA-Z0-9\$`@_\?]+(?:\.(?![0-9])[a-zA-Z0-9\$`@_]+)+(?![\.\^0-9a-zA-Z`@_\$])" );
+                @"(?<![\.\^0-9a-zA-Z<>_`])(?![0-9]|Microsoft\.|MS\.|System\.|PostSharp\.|Metalama\.|Presentation|EnvDTE|Windows|`)[a-zA-Z0-9\$`@_\?]+(?:\.(?![0-9])\.?[a-zA-Z0-9\$`@<>_]+)+(?![\.\^0-9a-zA-Z`@_\$])" );
 
         private static readonly Regex _pathRegex = new( @"(?:[a-zA-Z]\:)?\\[^\:;\r\n"",'\]\}]+" );
 
