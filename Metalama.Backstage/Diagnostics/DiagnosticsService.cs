@@ -69,7 +69,7 @@ public class DiagnosticsService : ILoggerFactory
             {
                 if ( _instance._processKind != processKind )
                 {
-                    throw new InvalidOperationException( "The class has been initialized with a different ProcessKind." );
+                    throw new InvalidOperationException( $"The class has been initialized with ProcessKind={_instance._processKind}, but ProcessKind={processKind} is now requested. ProcessName='{Process.GetCurrentProcess().ProcessName}'. Command Line='{Environment.CommandLine}'." );
                 }
 
                 return _instance;

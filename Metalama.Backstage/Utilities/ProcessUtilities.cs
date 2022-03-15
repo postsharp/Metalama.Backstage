@@ -18,23 +18,45 @@ namespace Metalama.Backstage.Utilities;
 // ReSharper disable FieldCanBeMadeReadOnly.Local
 // ReSharper disable MemberCanBePrivate.Local
 // ReSharper disable InconsistentNaming
-
 #pragma warning disable SA1310, IDE1006 // Naming conventions.
 
 public static class ProcessUtilities
 {
     public static ProcessKind ProcessKind
-        => Process.GetCurrentProcess().ProcessName.ToLowerInvariant() switch
+    {
+        get
         {
-            "devenv" => ProcessKind.DevEnv,
-            "servicehub.roslyncodeanalysisservice" => ProcessKind.RoslynCodeAnalysisService,
-            "csc" => ProcessKind.Compiler,
-            "dotnet" =>
-                Environment.CommandLine.Contains( "JetBrains.ReSharper.Roslyn.Worker.exe" ) ? ProcessKind.Rider :
-                Environment.CommandLine.Contains( "VBCSCompiler.dll" ) || Environment.CommandLine.Contains( "csc.dll" ) ? ProcessKind.Compiler :
-                ProcessKind.Other,
-            _ => ProcessKind.Other
-        };
+            switch ( Process.GetCurrentProcess().ProcessName.ToLowerInvariant() )
+            {
+                case "devenv":
+                    return ProcessKind.DevEnv;
+
+                case "servicehub.roslyncodeanalysisservice":
+                    return ProcessKind.RoslynCodeAnalysisService;
+
+                case "csc":
+                case "vbcscompiler":
+                    return ProcessKind.Compiler;
+
+                case "dotnet":
+                    var commandLine = Environment.CommandLine.ToLowerInvariant();
+
+                    if ( commandLine.Contains( "jetbrains.resharper.roslyn.worker.exe" ) )
+                    {
+                        return ProcessKind.Rider;
+                    }
+                    else
+                    {
+                        return commandLine.Contains( "vbcscompiler.dll" ) || commandLine.Contains( "csc.dll" )
+                            ? ProcessKind.Compiler
+                            : ProcessKind.Other;
+                    }
+
+                default:
+                    return ProcessKind.Other;
+            }
+        }
+    }
 
     [StructLayout( LayoutKind.Sequential )]
     private struct PROCESS_BASIC_INFORMATION
