@@ -11,7 +11,7 @@ namespace Metalama.Backstage.Utilities
 
         public string? ImagePath { get; }
 
-        public string? ProcessName => this.ImagePath == null ? null : Path.GetFileNameWithoutExtension( this.ImagePath ).ToLowerInvariant();
+        public string? ProcessName => Path.GetFileNameWithoutExtension( this.ImagePath )?.ToLowerInvariant();
 
         public ProcessInfo( int processId, string? imageFileName )
         {
