@@ -18,7 +18,7 @@ namespace Metalama.Backstage.Utilities
 
         private static Mutex CreateGlobalMutex( string fullName )
         {
-            var mutexName = "Global\\Metalama_" + HashUtilities.HashString( fullName );
+            var mutexName = @"Global\Metalama_" + HashUtilities.HashString( fullName );
 
             return new Mutex( false, mutexName );
         }

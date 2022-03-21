@@ -24,7 +24,7 @@ namespace Metalama.Backstage.Configuration
         private readonly IFileSystem _fileSystem;
 
         // Named semaphore to handle many instances.
-        private readonly Semaphore _semaphore = new( 1, 1, "Metalama.Configuration" );
+        private readonly Mutex _mutex = new( false, "Global\\Metalama.Configuration" );
 
         public ConfigurationManager( IServiceProvider serviceProvider )
         {
@@ -116,7 +116,7 @@ namespace Metalama.Backstage.Configuration
 
         public bool TryUpdate( ConfigurationFile value, DateTime? lastModified )
         {
-            this._semaphore.WaitOne();
+            this._mutex.WaitOne();
 
             try
             {
@@ -151,7 +151,7 @@ namespace Metalama.Backstage.Configuration
             }
             finally
             {
-                this._semaphore.Release();
+                this._mutex.ReleaseMutex();
             }
 
             return true;
@@ -193,7 +193,7 @@ namespace Metalama.Backstage.Configuration
 
         public void Dispose()
         {
-            this._semaphore.Dispose();
+            this._mutex.Dispose();
             this._fileSystemWatcher?.Dispose();
         }
     }
