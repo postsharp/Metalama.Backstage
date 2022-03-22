@@ -3,7 +3,6 @@
 
 using Metalama.Backstage.Telemetry;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reflection;
 using System.Text;
@@ -28,7 +27,39 @@ namespace Metalama.Backstage.Licensing.Tests.Telemetry
         [InlineData( "   at SystemMyNamespace.MyType.MyMethod(SystemMyNamespace.MyType param) in :line 16707565", "   at #user(#user param) in :line 16707565" )]
         public void SensitiveDataIsRemoved( string input, string expectedOutput )
         {
-            var actualOutput = ExceptionSensitiveDataHelper.RemoveSensitiveData( input );
+            var actualOutput = ExceptionSensitiveDataHelper.Instance.RemoveSensitiveData( input );
+
+            Assert.Equal( expectedOutput, actualOutput );
+        }
+
+        [Theory]
+        [InlineData( @"C:\Windows path with spaces\file.extension", "#path" )]
+        [InlineData( @"foo C:\Windows path with spaces\file.extension", "foo #path" )]
+        [InlineData( @"C:\Windows path with spaces\file.extension bar", "#path" )]
+        [InlineData( @"foo C:\Windows path with spaces\file.extension bar", "foo #path" )]
+        [InlineData( @"C:\WindowsPathWithoutSpaces\file.extension", "#path" )]
+        [InlineData( @"foo C:\WindowsPathWithoutSpaces\file.extension", "foo #path" )]
+        [InlineData( @"C:\WindowsPathWithoutSpaces\file.extension bar", "#path" )]
+        [InlineData( @"foo C:\WindowsPathWithoutSpaces\file.extension bar", "foo #path" )]
+        public void SensitiveDataIsRemovedOnWindows( string input, string expectedOutput )
+        {
+            var actualOutput = new ExceptionSensitiveDataHelper( isWindows: true ).RemoveSensitiveData( input );
+
+            Assert.Equal( expectedOutput, actualOutput );
+        }
+
+        [Theory]
+        [InlineData( @"/var/unix\ path\ with\ spaces/file.extension", "#path" )]
+        [InlineData( @"foo /var/unix\ path\ with\ spaces/file.extension", "foo #path" )]
+        [InlineData( @"/var/unix\ path\ with\ spaces/file.extension bar", "#path bar" )]
+        [InlineData( @"foo /var/unix\ path\ with\ spaces/file.extension bar", "foo #path bar" )]
+        [InlineData( @"/var/UnixPathWithoutSpaces/file.extension", "#path" )]
+        [InlineData( @"foo /var/UnixPathWithoutSpaces/file.extension", "foo #path" )]
+        [InlineData( @"/var/UnixPathWithoutSpaces/file.extension bar", "#path bar" )]
+        [InlineData( @"foo /var/UnixPathWithoutSpaces/file.extension bar", "foo #path bar" )]
+        public void SensitiveDataIsRemovedOnUnix( string input, string expectedOutput )
+        {
+            var actualOutput = new ExceptionSensitiveDataHelper( isWindows: false ).RemoveSensitiveData( input );
 
             Assert.Equal( expectedOutput, actualOutput );
         }
@@ -50,7 +81,7 @@ namespace Metalama.Backstage.Licensing.Tests.Telemetry
         [InlineData( "   at WindowsNamespace.Type.Method(String message) in :line 16707565" )]
         public void NonSensitiveDataIsNotRemoved( string input )
         {
-            var actualOutput = ExceptionSensitiveDataHelper.RemoveSensitiveData( input );
+            var actualOutput = ExceptionSensitiveDataHelper.Instance.RemoveSensitiveData( input );
 
             Assert.Equal( input, actualOutput );
         }
@@ -82,9 +113,29 @@ namespace Metalama.Backstage.Licensing.Tests.Telemetry
                 expectedResultBuilder.AppendLine( data[0] );
             }
 
-            var actualOutput = ExceptionSensitiveDataHelper.RemoveSensitiveData( inputBuilder.ToString() );
+            StringBuilder windowsInputBuilder = new(inputBuilder.ToString());
+            StringBuilder windowsExpectedResultBuilder = new(expectedResultBuilder.ToString());
 
-            Assert.Equal( actualOutput, expectedResultBuilder.ToString() );
+            foreach ( var data in GetInlineData( nameof( this.SensitiveDataIsRemovedOnWindows ) ) )
+            {
+                windowsInputBuilder.AppendLine( data[0] );
+                windowsExpectedResultBuilder.AppendLine( data[1] );
+            }
+
+            StringBuilder unixInputBuilder = new( inputBuilder.ToString() );
+            StringBuilder unixExpectedResultBuilder = new( expectedResultBuilder.ToString() );
+
+            foreach ( var data in GetInlineData( nameof( this.SensitiveDataIsRemovedOnUnix ) ) )
+            {
+                unixInputBuilder.AppendLine( data[0] );
+                unixExpectedResultBuilder.AppendLine( data[1] );
+            }
+
+            var actualWindowsOutput = new ExceptionSensitiveDataHelper( isWindows: true ).RemoveSensitiveData( windowsInputBuilder.ToString() );
+            Assert.Equal( actualWindowsOutput, windowsExpectedResultBuilder.ToString() );
+
+            var actualUnixOutput = new ExceptionSensitiveDataHelper( isWindows: false ).RemoveSensitiveData( unixExpectedResultBuilder.ToString() );
+            Assert.Equal( actualUnixOutput, unixExpectedResultBuilder.ToString() );
         }
     }
 }

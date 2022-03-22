@@ -1,30 +1,46 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. All rights reserved.
 // This project is not open source. Please see the LICENSE.md file in the repository root for details.
 
+using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
 
 namespace Metalama.Backstage.Telemetry
 {
-    // Warning: this file is linked to UserInterface solution. We need to serialize
-    // exceptions from debugging server in the same way as ExceptionPackager does without
-    // referencing PostSharp.Compiler.Settings.
-    internal static class ExceptionSensitiveDataHelper
+    internal class ExceptionSensitiveDataHelper
     {
+        // The Windows regex takes all words delimited by space after the path.
+        private const string _windowsPathRegex = @"(?:[a-zA-Z]\:)?\\[^\:;\r\n"",'\]\}]+";
+
+        // The Linux regex doesn't take words delimited by space after the path, but requires the path to have escaped spaces.
+        private const string _unixPathRegex = @"/(?:(?:[^\:;\r\n"",'\]\}\ ])|(?:(?<=\\)\ ))+";
+
+        public static readonly ExceptionSensitiveDataHelper Instance = new ExceptionSensitiveDataHelper();
+
         private static readonly Regex _userNameRegEx =
             new(
                 @"(?<![\.\^0-9a-zA-Z<>_`])(?![0-9]|Microsoft\.|MS\.|System\.|PostSharp\.|Metalama\.|Presentation|EnvDTE|Windows|`)[a-zA-Z0-9\$`@_\?]+(?:\.(?![0-9])\.?[a-zA-Z0-9\$`@<>_]+)+(?![\.\^0-9a-zA-Z`@_\$])" );
 
-        private static readonly Regex _pathRegex = new( @"(?:[a-zA-Z]\:)?\\[^\:;\r\n"",'\]\}]+" );
+        private readonly Regex _pathRegex;
+
+        internal ExceptionSensitiveDataHelper( bool? isWindows = null )
+        {
+            if ( isWindows == null )
+            {
+                isWindows = RuntimeInformation.IsOSPlatform( OSPlatform.Windows );
+            }
+
+            this._pathRegex = new( isWindows.Value ? _windowsPathRegex : _unixPathRegex );
+        }
 
         /// <exclude />
-        public static string RemoveSensitiveData( string? input )
+        public string RemoveSensitiveData( string? input )
         {
             if ( input == null )
             {
                 return "";
             }
 
-            return _pathRegex.Replace( _userNameRegEx.Replace( input, "#user" ), "#path" );
+            return this._pathRegex.Replace( _userNameRegEx.Replace( input, "#user" ), "#path" );
         }
     }
 }
