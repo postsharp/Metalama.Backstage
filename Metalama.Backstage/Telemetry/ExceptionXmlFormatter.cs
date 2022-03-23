@@ -14,9 +14,9 @@ namespace Metalama.Backstage.Telemetry
     {
         public static void WriteException( XmlWriter writer, Exception e )
         {
-            writer.WriteElementString( "Type", ExceptionSensitiveDataHelper.RemoveSensitiveData( e.GetType().FullName ) );
-            writer.WriteElementString( "Message", ExceptionSensitiveDataHelper.RemoveSensitiveData( e.Message ) );
-            writer.WriteElementString( "Source", ExceptionSensitiveDataHelper.RemoveSensitiveData( e.Source ) );
+            writer.WriteElementString( "Type", ExceptionSensitiveDataHelper.Instance.RemoveSensitiveData( e.GetType().FullName ) );
+            writer.WriteElementString( "Message", ExceptionSensitiveDataHelper.Instance.RemoveSensitiveData( e.Message ) );
+            writer.WriteElementString( "Source", ExceptionSensitiveDataHelper.Instance.RemoveSensitiveData( e.Source ) );
 
             if ( e.Data != null )
             {
@@ -28,7 +28,7 @@ namespace Metalama.Backstage.Telemetry
 
                     if ( data.Key != null )
                     {
-                        writer.WriteElementString( "Key", ExceptionSensitiveDataHelper.RemoveSensitiveData( data.Key.ToString() ) );
+                        writer.WriteElementString( "Key", ExceptionSensitiveDataHelper.Instance.RemoveSensitiveData( data.Key.ToString() ) );
                     }
 
                     if ( data.Value != null )
@@ -49,7 +49,7 @@ namespace Metalama.Backstage.Telemetry
                                 }
                                 else
                                 {
-                                    writer.WriteElementString( "Item", ExceptionSensitiveDataHelper.RemoveSensitiveData( value.ToString() ) );
+                                    writer.WriteElementString( "Item", ExceptionSensitiveDataHelper.Instance.RemoveSensitiveData( value.ToString() ) );
                                 }
                             }
 
@@ -63,7 +63,7 @@ namespace Metalama.Backstage.Telemetry
                         }
                         else
                         {
-                            writer.WriteElementString( "Value", ExceptionSensitiveDataHelper.RemoveSensitiveData( data.Value.ToString() ) );
+                            writer.WriteElementString( "Value", ExceptionSensitiveDataHelper.Instance.RemoveSensitiveData( data.Value.ToString() ) );
                         }
                     }
 
@@ -75,7 +75,7 @@ namespace Metalama.Backstage.Telemetry
 
             writer.WriteElementString(
                 "StackTrace",
-                Environment.NewLine + ExceptionSensitiveDataHelper.RemoveSensitiveData( e.StackTrace ) + Environment.NewLine );
+                Environment.NewLine + ExceptionSensitiveDataHelper.Instance.RemoveSensitiveData( e.StackTrace ) + Environment.NewLine );
 
             if ( e.InnerException != null )
             {
