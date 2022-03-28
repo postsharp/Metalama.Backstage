@@ -19,6 +19,7 @@ public static class WelcomeService
         var logger = serviceProvider.GetLoggerFactory().GetLogger( "Welcome" );
         var configurationManager = serviceProvider.GetRequiredService<IConfigurationManager>();
         var welcomeConfiguration = configurationManager.Get<WelcomeConfiguration>();
+        var applicationInfo = serviceProvider.GetRequiredService<IApplicationInfo>();
 
         if ( !welcomeConfiguration.IsFirstStart )
         {
@@ -93,8 +94,8 @@ public static class WelcomeService
             // Open the welcome web page.
             try
             {
-                // TODO: Open the welcome web page.
-                const string url = "https://doc.metalama.net/welcome";
+                var url = applicationInfo.IsPrerelease ? "https://www.postsharp.net/links/metalama-welcome-preview" : "https://www.postsharp.net/links/metalama-welcome";
+                
                 logger.Trace?.Log( $"Opening '{url}'." );
 
                 Process.Start( new ProcessStartInfo( url ) { UseShellExecute = true } );
