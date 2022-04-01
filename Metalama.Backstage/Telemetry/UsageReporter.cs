@@ -12,12 +12,12 @@ internal class UsageReporter : IUsageReporter
 {
     private readonly IServiceProvider _serviceProvider;
     private readonly TelemetryConfiguration _configuration;
-    private readonly UploadManager _uploadManager;
+    private readonly TelemetryQueue _uploadManager;
     private readonly IConfigurationManager _configurationManager;
     private readonly IDateTimeProvider _time;
     private readonly ILogger _logger;
 
-    public UsageReporter( UploadManager uploadManager, IServiceProvider serviceProvider )
+    public UsageReporter( TelemetryQueue uploadManager, IServiceProvider serviceProvider )
     {
         this._serviceProvider = serviceProvider;
         this._configurationManager = serviceProvider.GetRequiredService<IConfigurationManager>();

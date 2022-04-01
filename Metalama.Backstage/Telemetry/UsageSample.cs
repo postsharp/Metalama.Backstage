@@ -19,11 +19,11 @@ namespace Metalama.Backstage.Telemetry
         private readonly IStandardDirectories _directories;
         private readonly IDateTimeProvider _time;
         private readonly TelemetryConfiguration _configuration;
-        private readonly UploadManager _uploadManager;
+        private readonly TelemetryQueue _uploadManager;
 
         public MetricCollection Metrics { get; } = new();
 
-        internal UsageSample( IServiceProvider serviceProvider, TelemetryConfiguration configuration, string eventKind, UploadManager uploadManager )
+        internal UsageSample( IServiceProvider serviceProvider, TelemetryConfiguration configuration, string eventKind, TelemetryQueue uploadManager )
         {
             this._directories = serviceProvider.GetRequiredService<IStandardDirectories>();
             this._time = serviceProvider.GetRequiredService<IDateTimeProvider>();
@@ -129,7 +129,8 @@ namespace Metalama.Backstage.Telemetry
                  this._configuration.LastUploadTime > this._time.Now ||
                  this._configuration.LastUploadTime.Value.AddDays( 1 ) < this._time.Now )
             {
-                Task.Run( () => this._uploadManager.Upload() );
+                // TODO: Start the upload.
+                // Task.Run( () => this._uploadManager.Upload() );
 
                 this._configuration.ConfigurationManager.Update<TelemetryConfiguration>( c => c.LastUploadTime = this._time.Now );
             }

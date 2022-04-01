@@ -11,5 +11,6 @@ internal class TelemetryCommand : CommandBase
         this.Add( new EnableTelemetryCommand( commandServiceProvider, "enable", "Enables telemetry", true ) );
         this.Add( new EnableTelemetryCommand( commandServiceProvider, "disable", "Disables telemetry", false ) );
         this.Add( new ResetDeviceIdCommand( commandServiceProvider ) );
+        this.Add( new UploadTelemetryCommand( commandServiceProvider ) );
     }
 }

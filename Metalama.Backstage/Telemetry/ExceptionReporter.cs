@@ -23,7 +23,7 @@ internal class ExceptionReporter : IExceptionReporter
 {
     private const string _errorContextDataSlot = "__PSErrorContext";
 
-    private readonly UploadManager _uploadManager;
+    private readonly TelemetryQueue _uploadManager;
     private readonly TelemetryConfiguration _configuration;
     private readonly IDateTimeProvider _time;
     private readonly IApplicationInfo _applicationInfo;
@@ -32,7 +32,7 @@ internal class ExceptionReporter : IExceptionReporter
 
     private readonly Regex _stackFrameRegex = new( @"\S+\([^\)]*\)" );
 
-    public ExceptionReporter( UploadManager uploadManager, IServiceProvider serviceProvider )
+    public ExceptionReporter( TelemetryQueue uploadManager, IServiceProvider serviceProvider )
     {
         this._uploadManager = uploadManager;
         this._configuration = serviceProvider.GetRequiredService<IConfigurationManager>().Get<TelemetryConfiguration>();

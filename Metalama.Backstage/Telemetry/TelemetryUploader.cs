@@ -1,4 +1,4 @@
-// Copyright (c) SharpCrafters s.r.o. All rights reserved.
+﻿// Copyright (c) SharpCrafters s.r.o. All rights reserved.
 // This project is not open source. Please see the LICENSE.md file in the repository root for details.
 
 using Metalama.Backstage.Diagnostics;
@@ -7,45 +7,24 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Packaging;
+using System.Net.Http;
 using System.Net.Mime;
 using System.Security.Cryptography;
-using System.Text;
+using System.Threading.Tasks;
 
 namespace Metalama.Backstage.Telemetry
 {
-    internal sealed class UploadManager
+    public sealed class TelemetryUploader
     {
         private readonly IStandardDirectories _directories;
         private readonly ILogger _logger;
 
-        // private readonly Uri _serverUrl = new( "https://bits.postsharp.net" );
+        private readonly Uri _requestUri = new( "https://localhost:7031/upload" );
 
-        public UploadManager( IServiceProvider serviceProvider )
+        public TelemetryUploader( IServiceProvider serviceProvider )
         {
             this._directories = serviceProvider.GetRequiredService<IStandardDirectories>();
             this._logger = serviceProvider.GetLoggerFactory().Telemetry();
-        }
-
-        public void EnqueueFile( string file )
-        {
-            var directory = this._directories.TelemetryUploadQueueDirectory;
-
-            if ( !Directory.Exists( directory ) )
-            {
-                Directory.CreateDirectory( directory );
-            }
-
-            File.Move( file, Path.Combine( directory, Path.GetFileName( file ) ) );
-        }
-
-        public void EnqueueContent( string fileName, string contents )
-        {
-            if ( !Directory.Exists( this._directories.TelemetryUploadQueueDirectory ) )
-            {
-                Directory.CreateDirectory( this._directories.TelemetryUploadQueueDirectory );
-            }
-
-            File.WriteAllText( Path.Combine( this._directories.TelemetryUploadQueueDirectory, fileName ), contents, Encoding.UTF8 );
         }
 
         private static void CopyStream( Stream inputStream, Stream outputStream )
@@ -87,7 +66,9 @@ namespace Metalama.Backstage.Telemetry
             byte[] publicKey;
 
             using (
-                var keyStream = typeof(UploadManager).Assembly.GetManifestResourceStream( "PostSharp.Settings.Ceip.Diagnostics-Public.csp" )! )
+                var keyStream = typeof( TelemetryUploader )
+                    .Assembly
+                    .GetManifestResourceStream( "Metalama.Backstage.Telemetry.Diagnostics-Public.csp" )! )
             {
                 publicKey = new byte[keyStream.Length];
                 keyStream.Read( publicKey, 0, (int) keyStream.Length );
@@ -138,94 +119,117 @@ namespace Metalama.Backstage.Telemetry
             string? tempPackagePath = null;
             Package? package = null;
 
-            foreach ( var file in files )
+            try
             {
-                Console.WriteLine( "Packaging '{0}'.", file );
-
-                // Attempt to open that file. Skip the file if we can't open it.
-                try
+                foreach ( var file in files )
                 {
-                    using ( Stream stream = File.Open( file, FileMode.Open, FileAccess.Read, FileShare.None ) )
+                    this._logger?.Info?.Log( $"Packing '{file}'." );
+
+                    // Attempt to open that file. Skip the file if we can't open it.
+                    try
                     {
-                        // Create a ZIP package if it does not exist yet.
-                        if ( package == null )
+                        using ( Stream stream = File.Open( file, FileMode.Open, FileAccess.Read, FileShare.None ) )
                         {
-                            tempPackagePath = Path.GetTempFileName();
-                            package = Package.Open( tempPackagePath, FileMode.Create );
+                            // Create a ZIP package if it does not exist yet.
+                            if ( package == null )
+                            {
+                                tempPackagePath = Path.GetTempFileName();
+                                package = Package.Open( tempPackagePath, FileMode.Create );
+                            }
+
+                            string? mime = null;
+
+                            // Add the file to the zip.
+                            var packagePart =
+                                package.CreatePart(
+                                    new Uri( "/" + Uri.EscapeDataString( Path.GetFileName( file ) ), UriKind.Relative ),
+                                    mime ?? MediaTypeNames.Application.Octet,
+                                    CompressionOption.Maximum );
+
+                            using ( var packagePartStream = packagePart.GetStream( FileMode.Create ) )
+                            {
+                                CopyStream( stream, packagePartStream );
+                            }
                         }
 
-                        string? mime = null;
-
-                        // Add the file to the zip.
-                        var packagePart =
-                            package.CreatePart(
-                                new Uri( "/" + Uri.EscapeDataString( Path.GetFileName( file ) ), UriKind.Relative ),
-                                mime ?? MediaTypeNames.Application.Octet,
-                                CompressionOption.Maximum );
-
-                        using ( var packagePartStream = packagePart.GetStream( FileMode.Create ) )
-                        {
-                            CopyStream( stream, packagePartStream );
-                        }
+                        filesToDeleteLocal.Add( file );
                     }
-
-                    filesToDeleteLocal.Add( file );
+                    catch ( Exception e )
+                    {
+                        this._logger?.Error?.Log( $"Cannot pack file '{file}': {e.Message}" );
+                    }
                 }
-                catch ( Exception e )
+
+                filesToDelete = filesToDeleteLocal;
+
+                if ( package == null )
                 {
-                    this._logger.Error?.Log( "Cannot package file " + file + ": " + e.Message );
-                    Console.WriteLine( "Cannot package file '{0}': {1}", file, e.Message );
+                    // We did not find any file.
+                    this._logger.Info?.Log( "No file found." );
+
+                    return;
+                }
+
+                package.Close();
+
+                // Encrypt the package.
+                EncryptFile( tempPackagePath!, outputPath );
+            }
+            finally
+            {
+                if ( tempPackagePath != null && File.Exists( tempPackagePath ) )
+                {
+                    File.Delete( tempPackagePath );
                 }
             }
-
-            filesToDelete = filesToDeleteLocal;
-
-            if ( package == null )
-            {
-                // We did not find any file.
-                this._logger.Info?.Log( "No file found." );
-
-                return;
-            }
-
-            package.Close();
-
-            // Encrypt the package.
-            EncryptFile( tempPackagePath!, outputPath );
         }
 
-        public void Upload()
+        public async Task UploadAsync()
         {
             if ( !Directory.Exists( this._directories.TelemetryUploadQueueDirectory ) )
             {
                 return;
             }
 
-            // Open the registry key now so if we fail, we fail safe.
+            Directory.CreateDirectory( this._directories.TelemetryUploadPackagesDirectory );
+
+            var packageId = Guid.NewGuid().ToString();
+            var packageName = packageId + ".psf";
+            var packagePath = Path.Combine( this._directories.TelemetryUploadPackagesDirectory, packageName );
+
+            IEnumerable<string> filesToDelete;
+
+            try
             {
-                var packageName = Guid.NewGuid().ToString() + ".psf";
-                var packagePath = Path.Combine( this._directories.TelemetryUploadPackagesDirectory, packageName );
+                // TODO: Stream the data directly to HTTP
+                this.CreatePackage( Directory.GetFiles( this._directories.TelemetryUploadQueueDirectory ), packagePath, out filesToDelete );
 
-                IEnumerable<string> filesToDelete;
+                using var formData = new MultipartFormDataContent();
+                using var packageFile = File.OpenRead( packagePath );
+                var streamContent = new StreamContent( packageFile );
+                formData.Add( streamContent, packageId, packageName );
 
-                try
+                using var client = new HttpClient();
+                await client.PutAsync( this._requestUri, formData );
+            }
+            catch ( Exception exception )
+            {
+                this._logger.Error?.Log( exception.ToString() );
+
+                return;
+            }
+            finally
+            {
+                if ( File.Exists( packagePath ) )
                 {
-                    this.CreatePackage( Directory.GetFiles( this._directories.TelemetryUploadQueueDirectory ), packagePath, out filesToDelete );
-
-                    // TODO: Upload the package.
+                    File.Delete( packagePath );
                 }
-                catch ( Exception exception )
-                {
-                    this._logger.Error?.Log( exception.ToString() );
+            }
 
-                    return;
-                }
-
-                // Delete the files that have just been zipped.
-                foreach ( var file in filesToDelete )
-                {
-                    File.Delete( file );
-                }
+            // Delete the files that have just been sent.
+            foreach ( var file in filesToDelete )
+            {
+                File.Delete( file );
             }
         }
     }
