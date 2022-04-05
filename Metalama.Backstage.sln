@@ -5,25 +5,27 @@ VisualStudioVersion = 17.0.31912.275
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Metalama.Backstage", "Metalama.Backstage\Metalama.Backstage.csproj", "{B49FF95D-E828-4A93-85F7-AFCAF30A5588}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Metalama.Backstage.Tests", "Metalama.Backstage.Tests\Metalama.Backstage.Tests.csproj", "{BFCF5B9E-7F97-4D8B-8905-5EC6E1205F35}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Metalama.Tools.Config", "Metalama.Tools.Config\Metalama.Tools.Config.csproj", "{6A7A96ED-555C-4DF4-9C36-7F15E5902D6F}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Metalama.Backstage.TestHelpers", "Metalama.Backstage.TestHelpers\Metalama.Backstage.TestHelpers.csproj", "{5739D794-BB03-44C9-A3F6-D76A87030653}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Metalama.Tools.Config.Tests", "Metalama.Tools.Config.Tests\Metalama.Tools.Config.Tests.csproj", "{090C166D-DD43-45DE-BC85-5BF68F15E818}"
 EndProject
 Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Metalama.Backstage.MicrosoftLogging", "Metalama.Backstage.MicrosoftLogging\Metalama.Backstage.MicrosoftLogging.shproj", "{5D3DD7E9-74CA-4192-9E62-5F3044460B54}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Utilities", "Utilities", "{8646425E-F3F1-4741-992D-09F0112F67CD}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PostSharp.LicenseKeyReader", "Utilities\PostSharp.LicenseKeyReader\PostSharp.LicenseKeyReader.csproj", "{271AC152-B5E5-417D-9FAF-C095A70A53FA}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PostSharp.LicenseKeyReader", "Utilities\PostSharp.LicenseKeyReader\PostSharp.LicenseKeyReader.csproj", "{271AC152-B5E5-417D-9FAF-C095A70A53FA}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PostSharp.LicenseKeyGenerator", "Utilities\PostSharp.LicenseKeyGenerator\PostSharp.LicenseKeyGenerator.csproj", "{296E7F83-6009-409E-A53D-06211A20FDC0}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PostSharp.LicenseKeyGenerator", "Utilities\PostSharp.LicenseKeyGenerator\PostSharp.LicenseKeyGenerator.csproj", "{296E7F83-6009-409E-A53D-06211A20FDC0}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{9D6FD712-60EF-4B8A-95EE-0143DF7E4B97}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Metalama.Backstage.TestHelpers", "Tests\Metalama.Backstage.TestHelpers\Metalama.Backstage.TestHelpers.csproj", "{35D4322C-116D-461A-9006-B9C838631CAE}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Metalama.Backstage.Tests", "Tests\Metalama.Backstage.Tests\Metalama.Backstage.Tests.csproj", "{223E7228-F193-4FAD-A993-76FC800E18E4}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Metalama.Tools.Config.Tests", "Tests\Metalama.Tools.Config.Tests\Metalama.Tools.Config.Tests.csproj", "{EDF195AE-53FD-4FD1-B560-688EB0AC548B}"
 EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
-		Metalama.Backstage.MicrosoftLogging\Metalama.Backstage.MicrosoftLogging.projitems*{5739d794-bb03-44c9-a3f6-d76a87030653}*SharedItemsImports = 5
+		Metalama.Backstage.MicrosoftLogging\Metalama.Backstage.MicrosoftLogging.projitems*{35d4322c-116d-461a-9006-b9c838631cae}*SharedItemsImports = 5
 		Metalama.Backstage.MicrosoftLogging\Metalama.Backstage.MicrosoftLogging.projitems*{5d3dd7e9-74ca-4192-9e62-5f3044460b54}*SharedItemsImports = 13
 		Metalama.Backstage.MicrosoftLogging\Metalama.Backstage.MicrosoftLogging.projitems*{6a7a96ed-555c-4df4-9c36-7f15e5902d6f}*SharedItemsImports = 5
 	EndGlobalSection
@@ -36,22 +38,10 @@ Global
 		{B49FF95D-E828-4A93-85F7-AFCAF30A5588}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B49FF95D-E828-4A93-85F7-AFCAF30A5588}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B49FF95D-E828-4A93-85F7-AFCAF30A5588}.Release|Any CPU.Build.0 = Release|Any CPU
-		{BFCF5B9E-7F97-4D8B-8905-5EC6E1205F35}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{BFCF5B9E-7F97-4D8B-8905-5EC6E1205F35}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{BFCF5B9E-7F97-4D8B-8905-5EC6E1205F35}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{BFCF5B9E-7F97-4D8B-8905-5EC6E1205F35}.Release|Any CPU.Build.0 = Release|Any CPU
 		{6A7A96ED-555C-4DF4-9C36-7F15E5902D6F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{6A7A96ED-555C-4DF4-9C36-7F15E5902D6F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6A7A96ED-555C-4DF4-9C36-7F15E5902D6F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6A7A96ED-555C-4DF4-9C36-7F15E5902D6F}.Release|Any CPU.Build.0 = Release|Any CPU
-		{5739D794-BB03-44C9-A3F6-D76A87030653}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{5739D794-BB03-44C9-A3F6-D76A87030653}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{5739D794-BB03-44C9-A3F6-D76A87030653}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{5739D794-BB03-44C9-A3F6-D76A87030653}.Release|Any CPU.Build.0 = Release|Any CPU
-		{090C166D-DD43-45DE-BC85-5BF68F15E818}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{090C166D-DD43-45DE-BC85-5BF68F15E818}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{090C166D-DD43-45DE-BC85-5BF68F15E818}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{090C166D-DD43-45DE-BC85-5BF68F15E818}.Release|Any CPU.Build.0 = Release|Any CPU
 		{271AC152-B5E5-417D-9FAF-C095A70A53FA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{271AC152-B5E5-417D-9FAF-C095A70A53FA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{271AC152-B5E5-417D-9FAF-C095A70A53FA}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -60,6 +50,18 @@ Global
 		{296E7F83-6009-409E-A53D-06211A20FDC0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{296E7F83-6009-409E-A53D-06211A20FDC0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{296E7F83-6009-409E-A53D-06211A20FDC0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{35D4322C-116D-461A-9006-B9C838631CAE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{35D4322C-116D-461A-9006-B9C838631CAE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{35D4322C-116D-461A-9006-B9C838631CAE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{35D4322C-116D-461A-9006-B9C838631CAE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{223E7228-F193-4FAD-A993-76FC800E18E4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{223E7228-F193-4FAD-A993-76FC800E18E4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{223E7228-F193-4FAD-A993-76FC800E18E4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{223E7228-F193-4FAD-A993-76FC800E18E4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EDF195AE-53FD-4FD1-B560-688EB0AC548B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EDF195AE-53FD-4FD1-B560-688EB0AC548B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EDF195AE-53FD-4FD1-B560-688EB0AC548B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EDF195AE-53FD-4FD1-B560-688EB0AC548B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -67,6 +69,9 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{271AC152-B5E5-417D-9FAF-C095A70A53FA} = {8646425E-F3F1-4741-992D-09F0112F67CD}
 		{296E7F83-6009-409E-A53D-06211A20FDC0} = {8646425E-F3F1-4741-992D-09F0112F67CD}
+		{35D4322C-116D-461A-9006-B9C838631CAE} = {9D6FD712-60EF-4B8A-95EE-0143DF7E4B97}
+		{223E7228-F193-4FAD-A993-76FC800E18E4} = {9D6FD712-60EF-4B8A-95EE-0143DF7E4B97}
+		{EDF195AE-53FD-4FD1-B560-688EB0AC548B} = {9D6FD712-60EF-4B8A-95EE-0143DF7E4B97}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {8AA8827C-CABA-4539-ABED-306BD5240FE1}

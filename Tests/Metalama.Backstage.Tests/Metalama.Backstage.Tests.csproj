@@ -1,13 +1,17 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFramework>net6.0</TargetFramework>
+        <!-- Keep the same as in Metalama.Backstage.csproj. -->
+        <TargetFrameworks>netframework4.7.2;net5.0</TargetFrameworks>
+
         <IsPackable>false</IsPackable>
+
+        <RootNamespace>Metalama.Backstage.Licensing.Tests</RootNamespace>
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.7.1" />
-        <PackageReference Include="xunit" Version="2.4.1" />
+        <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.7.1"/>
+        <PackageReference Include="xunit" Version="2.4.1"/>
         <PackageReference Include="xunit.runner.visualstudio" Version="2.4.3">
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
             <PrivateAssets>all</PrivateAssets>
@@ -19,9 +23,8 @@
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\Metalama.Backstage\Metalama.Backstage.csproj" />
-        <ProjectReference Include="..\Metalama.Backstage.TestHelpers\Metalama.Backstage.TestHelpers.csproj" />
-        <ProjectReference Include="..\Metalama.Tools.Config\Metalama.Tools.Config.csproj" />
+        <ProjectReference Include="..\..\Metalama.Backstage\Metalama.Backstage.csproj"/>
+        <ProjectReference Include="..\Metalama.Backstage.TestHelpers\Metalama.Backstage.TestHelpers.csproj"/>
     </ItemGroup>
 
 </Project>

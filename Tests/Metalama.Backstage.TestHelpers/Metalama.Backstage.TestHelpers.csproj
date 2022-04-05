@@ -9,7 +9,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\Metalama.Backstage\Metalama.Backstage.csproj" />
+        <ProjectReference Include="..\..\Metalama.Backstage\Metalama.Backstage.csproj" />
     </ItemGroup>
 
     <ItemGroup>
@@ -20,6 +20,6 @@
         <PackageReference Include="System.IO.Abstractions.TestingHelpers" Version="13.2.29" />
     </ItemGroup>
 
-    <Import Project="..\Metalama.Backstage.MicrosoftLogging\Metalama.Backstage.MicrosoftLogging.projitems" Label="Shared" />
+    <Import Project="..\..\Metalama.Backstage.MicrosoftLogging\Metalama.Backstage.MicrosoftLogging.projitems" Label="Shared" />
 
 </Project>
