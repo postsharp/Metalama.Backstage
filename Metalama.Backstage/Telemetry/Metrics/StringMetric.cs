@@ -13,7 +13,7 @@ namespace Metalama.Backstage.Telemetry.Metrics
     {
         public StringMetric( string name ) : base( name ) { }
 
-        public StringMetric( string name, string value )
+        public StringMetric( string name, string? value )
             : base( name )
         {
             this.Value = value;

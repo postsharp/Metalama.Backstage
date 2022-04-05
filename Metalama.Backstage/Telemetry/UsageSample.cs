@@ -1,7 +1,6 @@
 // Copyright (c) SharpCrafters s.r.o. All rights reserved.
 // This project is not open source. Please see the LICENSE.md file in the repository root for details.
 
-using Metalama.Backstage.Configuration;
 using Metalama.Backstage.Extensibility;
 using Metalama.Backstage.Telemetry.Metrics;
 using System;
@@ -10,7 +9,6 @@ using System.Globalization;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace Metalama.Backstage.Telemetry
 {
@@ -18,18 +16,16 @@ namespace Metalama.Backstage.Telemetry
     {
         private readonly IStandardDirectories _directories;
         private readonly IDateTimeProvider _time;
-        private readonly TelemetryConfiguration _configuration;
-        private readonly TelemetryQueue _uploadManager;
+        private readonly TelemetryUploader _uploader;
 
         public MetricCollection Metrics { get; } = new();
 
-        internal UsageSample( IServiceProvider serviceProvider, TelemetryConfiguration configuration, string eventKind, TelemetryQueue uploadManager )
+        internal UsageSample( IServiceProvider serviceProvider, string eventKind, TelemetryUploader uploader )
         {
             this._directories = serviceProvider.GetRequiredService<IStandardDirectories>();
             this._time = serviceProvider.GetRequiredService<IDateTimeProvider>();
 
-            this._configuration = configuration;
-            this._uploadManager = uploadManager;
+            this._uploader = uploader;
 
             this.Metrics.Add( new StringMetric( "MetricsEventKind", eventKind ) );
 
@@ -81,8 +77,8 @@ namespace Metalama.Backstage.Telemetry
                         continue;
                     }
 
-                    // Start the upload program once a week.
-                    this.Upload();
+                    // Start the upload periodically.
+                    this._uploader.StartUpload();
 
                     break;
                 }
@@ -120,19 +116,6 @@ namespace Metalama.Backstage.Telemetry
             if ( !Directory.Exists( this._directories.TelemetryUploadQueueDirectory ) )
             {
                 Directory.CreateDirectory( this._directories.TelemetryUploadQueueDirectory );
-            }
-        }
-
-        private void Upload()
-        {
-            if ( this._configuration.LastUploadTime == null ||
-                 this._configuration.LastUploadTime > this._time.Now ||
-                 this._configuration.LastUploadTime.Value.AddDays( 1 ) < this._time.Now )
-            {
-                // TODO: Start the upload.
-                // Task.Run( () => this._uploadManager.Upload() );
-
-                this._configuration.ConfigurationManager.Update<TelemetryConfiguration>( c => c.LastUploadTime = this._time.Now );
             }
         }
     }

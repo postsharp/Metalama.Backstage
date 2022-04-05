@@ -152,11 +152,12 @@ public static class RegisterServiceExtensions
             var serviceProvider = serviceProviderBuilder.ServiceProvider;
 
             // Add telemetry.
-            var uploadManager = new TelemetryQueue( serviceProviderBuilder.ServiceProvider );
+            var queue = new TelemetryQueue( serviceProviderBuilder.ServiceProvider );
+            var uploader = new TelemetryUploader( serviceProviderBuilder.ServiceProvider );
 
             serviceProviderBuilder = serviceProviderBuilder
-                .AddSingleton<IExceptionReporter>( new ExceptionReporter( uploadManager, serviceProvider ) )
-                .AddSingleton<IUsageReporter>( new UsageReporter( uploadManager, serviceProvider ) );
+                .AddSingleton<IExceptionReporter>( new ExceptionReporter( queue, serviceProvider ) )
+                .AddSingleton<IUsageReporter>( new UsageReporter( uploader, serviceProvider ) );
         }
 
         return serviceProviderBuilder;

@@ -1,29 +1,39 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. All rights reserved.
 // This project is not open source. Please see the LICENSE.md file in the repository root for details.
 
+using Metalama.Backstage.Configuration;
 using Metalama.Backstage.Diagnostics;
 using Metalama.Backstage.Extensibility;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.IO.Packaging;
 using System.Net.Http;
 using System.Net.Mime;
 using System.Security.Cryptography;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Metalama.Backstage.Telemetry
 {
     public sealed class TelemetryUploader
     {
+        private readonly TelemetryConfiguration _configuration;
+        private readonly IConfigurationManager _configurationManager;
         private readonly IStandardDirectories _directories;
+        private readonly IDateTimeProvider _time;
         private readonly ILogger _logger;
 
         private readonly Uri _requestUri = new( "https://localhost:7031/upload" );
 
         public TelemetryUploader( IServiceProvider serviceProvider )
         {
+            this._configurationManager = serviceProvider.GetRequiredService<IConfigurationManager>();
+            this._configuration = this._configurationManager.Get<TelemetryConfiguration>();
+
             this._directories = serviceProvider.GetRequiredService<IStandardDirectories>();
+            this._time = serviceProvider.GetRequiredService<IDateTimeProvider>();
             this._logger = serviceProvider.GetLoggerFactory().Telemetry();
         }
 
@@ -184,10 +194,73 @@ namespace Metalama.Backstage.Telemetry
             }
         }
 
+        public void StartUpload()
+        {
+            var now = this._time.Now;
+            var lastUploadTime = this._configuration.LastUploadTime;
+
+            if ( lastUploadTime != null &&
+                 lastUploadTime.Value.AddDays( 1 ) < now )
+            {
+                this._logger?.Info?.Log( $"It's not time to upload the telemetry yet. Now: {now} Last upload time: {lastUploadTime}" );
+                return;
+            }
+
+            const string mutexName = "Global\\Metalama.Backstage.Telemetry.TelemetryUploader";
+
+            this._logger?.Trace?.Log( $"Acquiring '{mutexName}' mutex." );
+
+            var m = new Mutex( false, mutexName, out var acquired );
+
+            try
+            {
+                if ( !acquired )
+                {
+                    this._logger?.Info?.Log( "Another upload is already being started." );
+                    return;
+                }
+
+                this._configuration.ConfigurationManager.Update<TelemetryConfiguration>( c => c.LastUploadTime = this._time.Now );
+
+                var assemblyPath = this.GetType().Assembly.Location;
+
+                string executableFileName;
+                string arguments;
+
+                if ( Path.GetExtension( assemblyPath ) == ".exe" )
+                {
+                    executableFileName = assemblyPath;
+                    arguments = "";
+                }
+                else
+                {
+                    executableFileName = "dotnet";
+                    arguments = assemblyPath;
+                }
+
+                var processStartInfo = new ProcessStartInfo()
+                {
+                    FileName = executableFileName,
+                    Arguments = arguments,
+                    UseShellExecute = true,
+                    WindowStyle = ProcessWindowStyle.Hidden
+                };
+
+                this._logger?.Trace?.Log( $"Starting '{executableFileName} {arguments}' from '{assemblyPath}'." );
+
+                Process.Start( processStartInfo );
+            }
+            finally
+            {
+                m.ReleaseMutex();
+            }
+        }
+
         public async Task UploadAsync()
         {
             if ( !Directory.Exists( this._directories.TelemetryUploadQueueDirectory ) )
             {
+                this._logger?.Info?.Log( $"The telemetry upload queue directory '{this._directories.TelemetryUploadQueueDirectory}' doesn't exist. Assuming there's nothing to upload." );
                 return;
             }
 
