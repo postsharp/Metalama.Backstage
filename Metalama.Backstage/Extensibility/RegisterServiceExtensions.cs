@@ -72,6 +72,16 @@ public static class RegisterServiceExtensions
             .AddStandardDirectories()
             .AddConfigurationManager();
 
+    /// <summary>
+    /// Adds the minimal set of services required to run the <see cref="DiagnosticsService"/>.
+    /// </summary>
+    internal static ServiceProviderBuilder AddTelemetryUploadRequirements( this ServiceProviderBuilder serviceProviderBuilder )
+        => serviceProviderBuilder
+            .AddCurrentDateTimeProvider()
+            .AddFileSystem()
+            .AddStandardDirectories()
+            .AddConfigurationManager();
+
     public static ServiceProviderBuilder AddConfigurationManager( this ServiceProviderBuilder serviceProviderBuilder )
         => serviceProviderBuilder.AddSingleton<IConfigurationManager>( new ConfigurationManager( serviceProviderBuilder.ServiceProvider ) );
 

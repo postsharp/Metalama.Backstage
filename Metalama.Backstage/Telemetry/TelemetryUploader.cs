@@ -246,7 +246,7 @@ namespace Metalama.Backstage.Telemetry
                     WindowStyle = ProcessWindowStyle.Hidden
                 };
 
-                this._logger?.Trace?.Log( $"Starting '{executableFileName} {arguments}' from '{assemblyPath}'." );
+                this._logger?.Info?.Log( $"Starting '{executableFileName} {arguments}' from '{assemblyPath}'." );
 
                 Process.Start( processStartInfo );
             }
@@ -264,8 +264,6 @@ namespace Metalama.Backstage.Telemetry
                 return;
             }
 
-            Directory.CreateDirectory( this._directories.TelemetryUploadPackagesDirectory );
-
             var packageId = Guid.NewGuid().ToString();
             var packageName = packageId + ".psf";
             var packagePath = Path.Combine( this._directories.TelemetryUploadPackagesDirectory, packageName );
@@ -276,6 +274,12 @@ namespace Metalama.Backstage.Telemetry
             {
                 // TODO: Stream the data directly to HTTP
                 this.CreatePackage( Directory.GetFiles( this._directories.TelemetryUploadQueueDirectory ), packagePath, out filesToDelete );
+
+                if ( !File.Exists( packagePath ) )
+                {
+                    this._logger?.Info?.Log( $"The package '{packagePath}' has not been created. Assuming there's nothing to upload." );
+                    return;
+                }
 
                 using var formData = new MultipartFormDataContent();
                 using var packageFile = File.OpenRead( packagePath );

@@ -12,7 +12,7 @@ namespace Metalama.Backstage
         public static async Task Main(string[] args)
         {
             var serviceProviderBuilder = new ServiceProviderBuilder()
-                .AddStandardDirectories();
+                .AddTelemetryUploadRequirements();
 
             var services = serviceProviderBuilder.ServiceProvider;
 
