@@ -1,7 +1,8 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFramework>net6.0</TargetFramework>
+        <!-- Keep the same as in Metalama.Backstage.csproj. -->
+        <TargetFrameworks>netframework4.7.2;net5.0</TargetFrameworks>
 
         <IsPackable>false</IsPackable>
 

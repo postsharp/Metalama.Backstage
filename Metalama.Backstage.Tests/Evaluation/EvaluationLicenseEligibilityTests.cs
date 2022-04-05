@@ -46,14 +46,14 @@ namespace Metalama.Backstage.Licensing.Tests.Evaluation
         [Fact]
         public void EvaluationLicenseRegistrationWithinRunningEvaluationFails()
         {
-            this.TestRepetitiveRegistration( EvaluationLicenseRegistrar.EvaluationPeriod / 2, false );
+            this.TestRepetitiveRegistration( new TimeSpan( EvaluationLicenseRegistrar.EvaluationPeriod.Ticks / 2 ), false );
         }
 
         [Fact]
         public void EvaluationLicenseRegistrationWithinNoEvaluationPeriodFails()
         {
             this.TestRepetitiveRegistration(
-                EvaluationLicenseRegistrar.EvaluationPeriod + (EvaluationLicenseRegistrar.NoEvaluationPeriod / 2),
+                EvaluationLicenseRegistrar.EvaluationPeriod + (new TimeSpan( EvaluationLicenseRegistrar.NoEvaluationPeriod.Ticks / 2 )),
                 false );
         }
 
