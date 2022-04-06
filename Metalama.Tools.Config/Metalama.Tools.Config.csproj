@@ -6,6 +6,12 @@
         <AssemblyName>metalama-config</AssemblyName>
         <PackageId>metalama-config</PackageId>
         <RootNamespace>Metalama.DotNetTools</RootNamespace>
+        
+        <!--
+        Disable globalization so users on Linux do not have to install the lib-icu library.
+        https://aka.ms/dotnet-missing-libicu
+         -->
+        <InvariantGlobalization>True</InvariantGlobalization>
     </PropertyGroup>
 
     <PropertyGroup>
