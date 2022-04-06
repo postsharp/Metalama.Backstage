@@ -24,7 +24,7 @@ namespace Metalama.Backstage.Licensing.Audit
             return $"{this.LicensedProduct}-{this.LicenseType}";
         }
 
-        public override bool Equals( object obj )
+        public override bool Equals( object? obj )
         {
             if ( obj is ReportedLicense other )
             {
@@ -36,7 +36,7 @@ namespace Metalama.Backstage.Licensing.Audit
 
         public override int GetHashCode()
         {
-            return (this.LicensedProduct.GetHashCode() * 17) + this.LicenseType.GetHashCode();
+            return (this.LicensedProduct.GetHashCode( StringComparison.Ordinal ) * 17) + this.LicenseType.GetHashCode( StringComparison.Ordinal );
         }
 
         public static bool operator ==( ReportedLicense left, ReportedLicense right )

@@ -2,7 +2,7 @@
 
     <PropertyGroup>
 		<!-- .NET Framework and .NET Core build are there so we can execute a new process. (E.g. for telemetry upload.) -->
-        <TargetFrameworks>netframework4.7.2;net5.0</TargetFrameworks>
+        <TargetFrameworks>netframework4.7.2;net6.0</TargetFrameworks>
         <RootNamespace>Metalama.Backstage</RootNamespace>
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 		<OutputType>exe</OutputType>

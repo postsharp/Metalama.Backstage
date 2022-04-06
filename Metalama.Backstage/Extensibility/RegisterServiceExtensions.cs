@@ -72,16 +72,6 @@ public static class RegisterServiceExtensions
             .AddStandardDirectories()
             .AddConfigurationManager();
 
-    /// <summary>
-    /// Adds the minimal set of services required to run the <see cref="DiagnosticsService"/>.
-    /// </summary>
-    internal static ServiceProviderBuilder AddTelemetryUploadRequirements( this ServiceProviderBuilder serviceProviderBuilder )
-        => serviceProviderBuilder
-            .AddCurrentDateTimeProvider()
-            .AddFileSystem()
-            .AddStandardDirectories()
-            .AddConfigurationManager();
-
     public static ServiceProviderBuilder AddConfigurationManager( this ServiceProviderBuilder serviceProviderBuilder )
         => serviceProviderBuilder.AddSingleton<IConfigurationManager>( new ConfigurationManager( serviceProviderBuilder.ServiceProvider ) );
 
@@ -159,16 +149,38 @@ public static class RegisterServiceExtensions
 
         if ( addSupportServices )
         {
-            var serviceProvider = serviceProviderBuilder.ServiceProvider;
-
-            // Add telemetry.
-            var queue = new TelemetryQueue( serviceProviderBuilder.ServiceProvider );
-            var uploader = new TelemetryUploader( serviceProviderBuilder.ServiceProvider );
-
-            serviceProviderBuilder = serviceProviderBuilder
-                .AddSingleton<IExceptionReporter>( new ExceptionReporter( queue, serviceProvider ) )
-                .AddSingleton<IUsageReporter>( new UsageReporter( uploader, serviceProvider ) );
+            serviceProviderBuilder = serviceProviderBuilder.AddTelemetryServices();
         }
+
+        return serviceProviderBuilder;
+    }
+
+    internal static ServiceProviderBuilder AddBackstageProcessServices(
+        this ServiceProviderBuilder serviceProviderBuilder,
+        IApplicationInfo applicationInfo )
+    {
+        // Add base services.
+        serviceProviderBuilder = serviceProviderBuilder
+            .AddSingleton( applicationInfo )
+            .AddDiagnosticServiceRequirements()
+            .AddDiagnostics( applicationInfo.ProcessKind, projectName: null )
+            .AddTelemetryServices();
+ 
+        return serviceProviderBuilder;
+    }
+
+    private static ServiceProviderBuilder AddTelemetryServices(
+        this ServiceProviderBuilder serviceProviderBuilder )
+    {
+        var serviceProvider = serviceProviderBuilder.ServiceProvider;
+
+        // Add telemetry.
+        var queue = new TelemetryQueue( serviceProviderBuilder.ServiceProvider );
+        var uploader = new TelemetryUploader( serviceProviderBuilder.ServiceProvider );
+
+        serviceProviderBuilder = serviceProviderBuilder
+            .AddSingleton<IExceptionReporter>( new ExceptionReporter( queue, serviceProvider ) )
+            .AddSingleton<IUsageReporter>( new UsageReporter( uploader, serviceProvider ) );
 
         return serviceProviderBuilder;
     }

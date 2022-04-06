@@ -75,6 +75,11 @@ namespace Metalama.Backstage.Configuration
         {
             var attribute = type.GetCustomAttribute<ConfigurationFileAttribute>();
 
+            if ( attribute == null )
+            {
+                throw new InvalidOperationException( $"'{nameof( ConfigurationFileAttribute )}' custom attribute not found for '{type.FullName}' type." );
+            }
+
             return Path.Combine( this.ApplicationDataDirectory, attribute.FileName );
         }
 
@@ -87,7 +92,14 @@ namespace Metalama.Backstage.Configuration
                     return value;
                 }
 
-                var settings = (ConfigurationFile) Activator.CreateInstance( type );
+                var settingsObject = Activator.CreateInstance( type );
+
+                if ( settingsObject == null )
+                {
+                    throw new InvalidOperationException( $"Failed to create instance of '{type.FullName}' type." );
+                }
+
+                var settings = (ConfigurationFile) settingsObject;
                 settings.Initialize( this, fileName, null );
 
                 return settings;

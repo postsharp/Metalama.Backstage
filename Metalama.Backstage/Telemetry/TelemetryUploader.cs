@@ -194,13 +194,14 @@ namespace Metalama.Backstage.Telemetry
             }
         }
 
-        public void StartUpload()
+        public void StartUpload( bool force = false )
         {
             var now = this._time.Now;
             var lastUploadTime = this._configuration.LastUploadTime;
 
-            if ( lastUploadTime != null &&
-                 lastUploadTime.Value.AddDays( 1 ) < now )
+            if ( !force &&
+                 lastUploadTime != null &&
+                 lastUploadTime.Value.AddDays( 1 ) >= now )
             {
                 this._logger?.Info?.Log( $"It's not time to upload the telemetry yet. Now: {now} Last upload time: {lastUploadTime}" );
                 return;
@@ -210,16 +211,16 @@ namespace Metalama.Backstage.Telemetry
 
             this._logger?.Trace?.Log( $"Acquiring '{mutexName}' mutex." );
 
-            var m = new Mutex( false, mutexName, out var acquired );
+            using var m = new Mutex( false, mutexName );
+
+            if ( !m.WaitOne( 1 ) )
+            {
+                this._logger?.Info?.Log( "Another upload is already being started." );
+                return;
+            }
 
             try
             {
-                if ( !acquired )
-                {
-                    this._logger?.Info?.Log( "Another upload is already being started." );
-                    return;
-                }
-
                 this._configuration.ConfigurationManager.Update<TelemetryConfiguration>( c => c.LastUploadTime = this._time.Now );
 
                 var assemblyPath = this.GetType().Assembly.Location;

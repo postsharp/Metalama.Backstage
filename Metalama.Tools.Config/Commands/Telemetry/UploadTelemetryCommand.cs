@@ -13,16 +13,26 @@ namespace Metalama.DotNetTools.Commands.Telemetry
         public UploadTelemetryCommand( ICommandServiceProvider commandServiceProvider )
             : base( commandServiceProvider, "upload", "Uploads the telemetry" )
         {
-            this.Handler = CommandHandler.Create<bool, IConsole>( this.ExecuteAsync );
+            this.AddOption( new Option( new[] { "--async", "-a" }, "Run the upload asynchroneously in a background process." ) );
+            this.AddOption( new Option( new[] { "--force", "f" }, "Force the upload even if another upload has been performed recently." ) );
+
+            this.Handler = CommandHandler.Create<bool, bool, bool, IConsole>( this.ExecuteAsync );
         }
 
-        private async Task<int> ExecuteAsync( bool verbose, IConsole console )
+        private async Task<int> ExecuteAsync( bool async, bool force, bool verbose, IConsole console )
         {
             var services = this.CommandServiceProvider.CreateServiceProvider( console, verbose );
 
             var uploader = new TelemetryUploader( services );
 
-            await uploader.UploadAsync();
+            if ( async )
+            {
+                uploader.StartUpload( force );
+            }
+            else
+            {
+                await uploader.UploadAsync();
+            }
 
             return 0;
         }

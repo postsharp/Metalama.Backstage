@@ -130,6 +130,11 @@ public class DiagnosticsService : ILoggerFactory
     {
         lock ( this._textWriterSync )
         {
+            if ( this._fileName == null )
+            {
+                throw new InvalidOperationException( $"Cannot write diagnostics. The '{this.GetType().Name}' is not properly initialized." );
+            }
+
             this._textWriter ??= File.CreateText( this._fileName );
 
             this._textWriter.WriteLine( s );

@@ -13,5 +13,6 @@ public enum ProcessKind
     Compiler,
     DevEnv,
     RoslynCodeAnalysisService,
-    Rider
+    Rider,
+    Backstage
 }

@@ -2,7 +2,7 @@
 
     <PropertyGroup>
         <!-- Keep the same as in Metalama.Backstage.csproj. -->
-        <TargetFrameworks>netframework4.7.2;net5.0</TargetFrameworks>
+        <TargetFrameworks>netframework4.7.2;net6.0</TargetFrameworks>
         <IsTestProject>False</IsTestProject>
         <IsPackable>False</IsPackable>
         <RootNamespace>Metalama.Backstage.Testing</RootNamespace>
@@ -15,7 +15,7 @@
     <ItemGroup>
         <PackageReference Include="MartinCostello.Logging.XUnit" Version="0.1.1" />
         <PackageReference Include="MELT" Version="0.8.0" />
-        <PackageReference Include="xunit" Version="2.4.1" />
+        <PackageReference Include="xunit" Version="$(XunitVersion)" />
         <PackageReference Include="System.IO.Abstractions" Version="13.2.29" />
         <PackageReference Include="System.IO.Abstractions.TestingHelpers" Version="13.2.29" />
     </ItemGroup>
