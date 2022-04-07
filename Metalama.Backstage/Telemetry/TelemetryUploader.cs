@@ -20,17 +20,18 @@ namespace Metalama.Backstage.Telemetry
     public sealed class TelemetryUploader
     {
         private readonly TelemetryConfiguration _configuration;
-        private readonly IConfigurationManager _configurationManager;
         private readonly IStandardDirectories _directories;
         private readonly IDateTimeProvider _time;
         private readonly ILogger _logger;
 
         private readonly Uri _requestUri = new( "https://localhost:7031/upload" );
 
+        // private readonly Uri _requestUri = new( "https://1729-89-177-48-245.ngrok.io/upload" );
+
         public TelemetryUploader( IServiceProvider serviceProvider )
         {
-            this._configurationManager = serviceProvider.GetRequiredService<IConfigurationManager>();
-            this._configuration = this._configurationManager.Get<TelemetryConfiguration>();
+            var configurationManager = serviceProvider.GetRequiredService<IConfigurationManager>();
+            this._configuration = configurationManager.Get<TelemetryConfiguration>();
 
             this._directories = serviceProvider.GetRequiredService<IStandardDirectories>();
             this._time = serviceProvider.GetRequiredService<IDateTimeProvider>();
@@ -74,35 +75,41 @@ namespace Metalama.Backstage.Telemetry
 
             // Retrieve the public key.
             byte[] publicKey;
+            string publicKeyXml;
 
             using (
-                var keyStream = typeof( TelemetryUploader )
+                var keyStream = typeof(TelemetryUploader)
                     .Assembly
-                    .GetManifestResourceStream( "Metalama.Backstage.Telemetry.Diagnostics-Public.csp" )! )
+                    .GetManifestResourceStream( "Metalama.Backstage.Telemetry.public.key" )! )
             {
                 publicKey = new byte[keyStream.Length];
                 keyStream.Read( publicKey, 0, (int) keyStream.Length );
+
+                keyStream.Position = 0;
+
+                using var keyReader = new StreamReader( keyStream );
+                publicKeyXml = keyReader.ReadToEnd();
             }
 
             // Compute a hash of the public key.
-#pragma warning disable CA5350 // Weak hash.
-            var sha1 = SHA1.Create();
-#pragma warning restore CA5350
-            var publicKeyHash = sha1.ComputeHash( publicKey );
+            var sha = SHA512.Create();
+            var publicKeyHash = sha.ComputeHash( publicKey );
 
             // Encrypt the random key using the public key.
-            var cspParameters = new CspParameters( 1 ) { KeyNumber = (int) KeyNumber.Exchange };
-            var rsa = new RSACryptoServiceProvider( cspParameters );
-            rsa.ImportCspBlob( publicKey );
-            var encryptedSymmetricKey = rsa.Encrypt( symmetricKey, false );
+            using var rsa = RSA.Create();
+            rsa.FromXmlString( publicKeyXml );
 
-            var rijndael = Rijndael.Create();
-            rijndael.GenerateIV();
+            var encryptedSymmetricKey = rsa.Encrypt( symmetricKey, RSAEncryptionPadding.Pkcs1 );
+
+            var aes = Aes.Create();
+            aes.GenerateIV();
 
             var writer = new BinaryWriter( outputStream );
 
             // Write the version.
-            writer.Write( 0 );
+            // 0 = Windows-specific implementation.
+            // 1 = Metalama multi-platform implementation. 
+            writer.Write( 1 );
 
             // Write the public key hash.
             writer.Write( publicKeyHash.Length );
@@ -113,13 +120,13 @@ namespace Metalama.Backstage.Telemetry
             writer.Write( encryptedSymmetricKey );
 
             // Write the initial vector.
-            writer.Write( rijndael.IV.Length );
-            writer.Write( rijndael.IV );
+            writer.Write( aes.IV.Length );
+            writer.Write( aes.IV );
 
             // Encrypt the package content.
             return new CryptoStream(
                 outputStream,
-                rijndael.CreateEncryptor( symmetricKey, rijndael.IV ),
+                aes.CreateEncryptor( symmetricKey, aes.IV ),
                 CryptoStreamMode.Write );
         }
 
@@ -133,7 +140,7 @@ namespace Metalama.Backstage.Telemetry
             {
                 foreach ( var file in files )
                 {
-                    this._logger?.Info?.Log( $"Packing '{file}'." );
+                    this._logger.Info?.Log( $"Packing '{file}'." );
 
                     // Attempt to open that file. Skip the file if we can't open it.
                     try
@@ -166,7 +173,7 @@ namespace Metalama.Backstage.Telemetry
                     }
                     catch ( Exception e )
                     {
-                        this._logger?.Error?.Log( $"Cannot pack file '{file}': {e.Message}" );
+                        this._logger.Error?.Log( $"Cannot pack file '{file}': {e.Message}" );
                     }
                 }
 
@@ -183,6 +190,13 @@ namespace Metalama.Backstage.Telemetry
                 package.Close();
 
                 // Encrypt the package.
+
+/* Unmerged change from project 'Metalama.Backstage'
+Before:
+                this.EncryptFile( tempPackagePath!, outputPath );
+After:
+                TelemetryUploader.EncryptFile( tempPackagePath!, outputPath );
+*/
                 EncryptFile( tempPackagePath!, outputPath );
             }
             finally
@@ -203,19 +217,21 @@ namespace Metalama.Backstage.Telemetry
                  lastUploadTime != null &&
                  lastUploadTime.Value.AddDays( 1 ) >= now )
             {
-                this._logger?.Info?.Log( $"It's not time to upload the telemetry yet. Now: {now} Last upload time: {lastUploadTime}" );
+                this._logger.Info?.Log( $"It's not time to upload the telemetry yet. Now: {now} Last upload time: {lastUploadTime}" );
+
                 return;
             }
 
             const string mutexName = "Global\\Metalama.Backstage.Telemetry.TelemetryUploader";
 
-            this._logger?.Trace?.Log( $"Acquiring '{mutexName}' mutex." );
+            this._logger.Trace?.Log( $"Acquiring '{mutexName}' mutex." );
 
             using var m = new Mutex( false, mutexName );
 
             if ( !m.WaitOne( 1 ) )
             {
-                this._logger?.Info?.Log( "Another upload is already being started." );
+                this._logger.Info?.Log( "Another upload is already being started." );
+
                 return;
             }
 
@@ -247,7 +263,7 @@ namespace Metalama.Backstage.Telemetry
                     WindowStyle = ProcessWindowStyle.Hidden
                 };
 
-                this._logger?.Info?.Log( $"Starting '{executableFileName} {arguments}' from '{assemblyPath}'." );
+                this._logger.Info?.Log( $"Starting '{executableFileName} {arguments}' from '{assemblyPath}'." );
 
                 Process.Start( processStartInfo );
             }
@@ -261,9 +277,12 @@ namespace Metalama.Backstage.Telemetry
         {
             if ( !Directory.Exists( this._directories.TelemetryUploadQueueDirectory ) )
             {
-                this._logger?.Info?.Log( $"The telemetry upload queue directory '{this._directories.TelemetryUploadQueueDirectory}' doesn't exist. Assuming there's nothing to upload." );
+                this._logger.Info?.Log( $"The telemetry upload queue directory '{this._directories.TelemetryUploadQueueDirectory}' doesn't exist. Assuming there's nothing to upload." );
+
                 return;
             }
+
+            Directory.CreateDirectory( this._directories.TelemetryUploadPackagesDirectory );
 
             var packageId = Guid.NewGuid().ToString();
             var packageName = packageId + ".psf";
@@ -273,17 +292,21 @@ namespace Metalama.Backstage.Telemetry
 
             try
             {
-                // TODO: Stream the data directly to HTTP
-                this.CreatePackage( Directory.GetFiles( this._directories.TelemetryUploadQueueDirectory ), packagePath, out filesToDelete );
-
-                if ( !File.Exists( packagePath ) )
+                var files = Directory.GetFiles( this._directories.TelemetryUploadQueueDirectory );
+                
+                if ( files.Length == 0 )
                 {
-                    this._logger?.Info?.Log( $"The package '{packagePath}' has not been created. Assuming there's nothing to upload." );
+                    this._logger.Info?.Log( $"No files found to be uploaded in '{this._directories.TelemetryUploadQueueDirectory}'." );
+
                     return;
                 }
+                
+                // TODO: Stream the data directly to HTTP
+                this.CreatePackage( files, packagePath, out filesToDelete );
 
                 using var formData = new MultipartFormDataContent();
                 using var packageFile = File.OpenRead( packagePath );
+
                 var streamContent = new StreamContent( packageFile );
                 formData.Add( streamContent, packageId, packageName );
 

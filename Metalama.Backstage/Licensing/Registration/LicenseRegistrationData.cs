@@ -138,8 +138,13 @@ namespace Metalama.Backstage.Licensing.Registration
         }
 
         /// <inheritdoc />
-        public bool Equals( LicenseRegistrationData other )
+        public bool Equals( LicenseRegistrationData? other )
         {
+            if ( other == null )
+            {
+                return false;
+            }
+            
             return this.UniqueId == other.UniqueId &&
                    this.IsSelfCreated == other.IsSelfCreated &&
                    this.LicenseId == other.LicenseId &&

@@ -24,10 +24,13 @@ namespace Metalama.Backstage.Extensibility
         string TelemetryExceptionsDirectory { get; }
 
         /// <summary>
-        /// Gets the directory where files to be uploaded to the server have to be stored.
+        /// Gets the directory where files to be packed for sending to the server have to be stored.
         /// </summary>
         string TelemetryUploadQueueDirectory { get; }
 
+        /// <summary>
+        /// Gets the directory where package files to be uploaded to the server have to be stored.
+        /// </summary>
         string TelemetryUploadPackagesDirectory { get; }
     }
 }

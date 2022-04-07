@@ -22,6 +22,8 @@ namespace Metalama.Backstage.Telemetry
 
         public void EnqueueFile( string file )
         {
+            this._logger.Trace?.Log( $"Enqueuing '{file}'." );
+            
             var directory = this._directories.TelemetryUploadQueueDirectory;
 
             if ( !Directory.Exists( directory ) )
@@ -34,6 +36,8 @@ namespace Metalama.Backstage.Telemetry
 
         public void EnqueueContent( string fileName, string contents )
         {
+            this._logger.Trace?.Log( $"Enqueuing content of '{fileName}'." );
+            
             if ( !Directory.Exists( this._directories.TelemetryUploadQueueDirectory ) )
             {
                 Directory.CreateDirectory( this._directories.TelemetryUploadQueueDirectory );

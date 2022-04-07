@@ -11,17 +11,28 @@ namespace Metalama.Backstage.Extensibility
     /// <inheritdoc />
     internal class StandardDirectories : IStandardDirectories
     {
+        public StandardDirectories()
+        {
+            if ( string.IsNullOrEmpty( this.ApplicationDataDirectory ) )
+            {
+                throw new InvalidOperationException( "Failed to initialize standard directories." );
+            }
+        }
+        
         /// <inheritdoc />
         public string ApplicationDataDirectory { get; } =
-            Path.Combine( Environment.GetFolderPath( Environment.SpecialFolder.ApplicationData ), ".metalama" );
+            Path.Combine( Environment.GetFolderPath( Environment.SpecialFolder.UserProfile ), ".metalama" );
 
         /// <inheritdoc />
-        public string TempDirectory { get; } = Path.Combine( Path.GetTempPath(), "PostSharp" );
+        public string TempDirectory { get; } = Path.Combine( Path.GetTempPath(), "Metalama" );
 
+        /// <inheritdoc />
         public string TelemetryExceptionsDirectory => Path.Combine( this.ApplicationDataDirectory, "Telemetry", "Exceptions" );
 
+        /// <inheritdoc />
         public string TelemetryUploadQueueDirectory => Path.Combine( this.ApplicationDataDirectory, "Telemetry", "UploadQueue" );
 
+        /// <inheritdoc />
         public string TelemetryUploadPackagesDirectory => Path.Combine( this.ApplicationDataDirectory, "Telemetry", "Packages" );
     }
 }

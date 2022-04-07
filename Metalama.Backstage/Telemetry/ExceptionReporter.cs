@@ -187,7 +187,7 @@ internal class ExceptionReporter : IExceptionReporter
         // Compute a signature for this exception.
         var hash = this.ComputeExceptionHash(
             this._applicationInfo.Version,
-            e.GetType().FullName,
+            e.GetType().FullName!,
             ExceptionSensitiveDataHelper.Instance.RemoveSensitiveData( e.StackTrace ) );
 
         // Check if this exception has already been reported.
@@ -247,7 +247,7 @@ internal class ExceptionReporter : IExceptionReporter
             var assemblyName = assembly.GetName();
             writer.WriteStartElement( "Assembly" );
             writer.WriteElementString( "Name", ExceptionSensitiveDataHelper.Instance.RemoveSensitiveData( assemblyName.Name ) );
-            writer.WriteElementString( "Version", assemblyName.Version.ToString() );
+            writer.WriteElementString( "Version", assemblyName.Version?.ToString() ?? "<unknown>" );
 
             try
             {

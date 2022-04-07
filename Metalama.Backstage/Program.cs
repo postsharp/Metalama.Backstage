@@ -9,9 +9,9 @@ using System.Threading.Tasks;
 
 namespace Metalama.Backstage
 {
-    internal class Program
+    internal static class Program
     {
-        public static async Task Main(string[] args)
+        public static async Task Main()
         {
             IServiceProvider? services = null;
 
@@ -41,7 +41,10 @@ namespace Metalama.Backstage
                         isReported = true;
                     }
                 }
-                catch { }
+                catch
+                {
+                    // We don't want failing telemetry to disturb users.
+                }
 
                 try
                 {
@@ -53,7 +56,10 @@ namespace Metalama.Backstage
                         isReported = true;
                     }
                 }
-                catch { }
+                catch
+                {
+                    // We don't want failing telemetry to disturb users.
+                }
 
                 if ( !isReported )
                 {
@@ -66,20 +72,31 @@ namespace Metalama.Backstage
         {
             public string Name => "Metalama.Backstage";
 
-            public string Version => this.GetType().Assembly.GetName().Version.ToString();
+            public string Version
+            {
+                get
+                {
+                    var assembly = this.GetType().Assembly;
+                    var version = assembly.GetName().Version;
 
-            public bool IsPrerelease => throw new System.NotImplementedException();
+                    if ( version == null )
+                    {
+                        throw new InvalidOperationException( $"Assembly version of '{assembly.FullName}' assembly." );
+                    }
 
-            public System.DateTime BuildDate => throw new System.NotImplementedException();
+                    return version.ToString();
+                }
+            }
+
+            public bool IsPrerelease => throw new NotImplementedException();
+
+            public DateTime BuildDate => throw new NotImplementedException();
 
             public ProcessKind ProcessKind => ProcessKind.Backstage;
 
             public bool IsLongRunningProcess => false;
 
-            public bool IsUnattendedProcess( ILoggerFactory loggerFactory )
-            {
-                throw new System.NotImplementedException();
-            }
+            public bool IsUnattendedProcess( ILoggerFactory loggerFactory ) => throw new NotImplementedException();
         }
     }
 }

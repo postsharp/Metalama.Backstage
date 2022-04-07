@@ -36,7 +36,7 @@ namespace Metalama.Backstage.Licensing.Audit
 
         public override int GetHashCode()
         {
-            return (this.LicensedProduct.GetHashCode( StringComparison.Ordinal ) * 17) + this.LicenseType.GetHashCode( StringComparison.Ordinal );
+            return (this.LicensedProduct.GetHashCode() * 17) + this.LicenseType.GetHashCode();
         }
 
         public static bool operator ==( ReportedLicense left, ReportedLicense right )

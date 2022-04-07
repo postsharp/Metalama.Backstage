@@ -41,15 +41,24 @@ namespace Metalama.Backstage.Telemetry
                             {
                                 var value = array.GetValue( i );
 
-                                if ( value is Exception exception )
+                                switch ( value )
                                 {
-                                    writer.WriteStartElement( "Item" );
-                                    WriteException( writer, exception );
-                                    writer.WriteEndElement();
-                                }
-                                else
-                                {
-                                    writer.WriteElementString( "Item", ExceptionSensitiveDataHelper.Instance.RemoveSensitiveData( value.ToString() ) );
+                                    case Exception exception:
+                                        writer.WriteStartElement( "Item" );
+                                        WriteException( writer, exception );
+                                        writer.WriteEndElement();
+
+                                        break;
+
+                                    case null:
+                                        writer.WriteElementString( "Item", "<null>" );
+
+                                        break;
+
+                                    default:
+                                        writer.WriteElementString( "Item", ExceptionSensitiveDataHelper.Instance.RemoveSensitiveData( value.ToString() ) );
+
+                                        break;
                                 }
                             }
 

@@ -18,10 +18,6 @@
     </ItemGroup>
 
     <ItemGroup>
-      <EmbeddedResource Include="Telemetry\Diagnostics-Public.csp" />
-    </ItemGroup>
-
-    <ItemGroup>
         <PackageReference Include="Microsoft.Bcl.HashCode" Version="$(MicrosoftBclHashCodeVersion)" />
         <PackageReference Include="Newtonsoft.Json" Version="$(NewtonsoftJsonVersion)" />
         <PackageReference Include="System.IO.Packaging" Version="6.0.0" />
@@ -30,6 +26,11 @@
     <ItemGroup>
         <InternalsVisibleTo Include="Metalama.Backstage.Tests" />
         <InternalsVisibleTo Include="Metalama.Backstage.TestHelpers" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <None Remove="Telemetry\public.key" />
+      <EmbeddedResource Include="Telemetry\public.key" />
     </ItemGroup>
 
 </Project>
