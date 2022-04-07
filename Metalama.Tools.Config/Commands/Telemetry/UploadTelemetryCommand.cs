@@ -13,8 +13,8 @@ namespace Metalama.DotNetTools.Commands.Telemetry
         public UploadTelemetryCommand( ICommandServiceProvider commandServiceProvider )
             : base( commandServiceProvider, "upload", "Uploads the telemetry" )
         {
-            this.AddOption( new Option( new[] { "--async", "-a" }, "Run the upload asynchroneously in a background process." ) );
-            this.AddOption( new Option( new[] { "--force", "f" }, "Force the upload even if another upload has been performed recently." ) );
+            this.AddOption( new Option( new[] { "--async", "-a" }, "Run the upload asynchronously in a background process." ) );
+            this.AddOption( new Option( new[] { "--force", "-f" }, "Force the upload even if another upload has been performed recently." ) );
 
             this.Handler = CommandHandler.Create<bool, bool, bool, IConsole>( this.ExecuteAsync );
         }
