@@ -243,10 +243,10 @@ namespace Metalama.Backstage.Licensing.Licenses
             sb.Append( "<DSAKeyValue>" );
 
             // Add P, Q, G and Y
-            sb.Append( "<P>" + Convert.ToBase64String( dsaParams.P ) + "</P>" );
-            sb.Append( "<Q>" + Convert.ToBase64String( dsaParams.Q ) + "</Q>" );
-            sb.Append( "<G>" + Convert.ToBase64String( dsaParams.G ) + "</G>" );
-            sb.Append( "<Y>" + Convert.ToBase64String( dsaParams.Y ) + "</Y>" );
+            sb.Append( "<P>" + Convert.ToBase64String( dsaParams.P! ) + "</P>" );
+            sb.Append( "<Q>" + Convert.ToBase64String( dsaParams.Q! ) + "</Q>" );
+            sb.Append( "<G>" + Convert.ToBase64String( dsaParams.G! ) + "</G>" );
+            sb.Append( "<Y>" + Convert.ToBase64String( dsaParams.Y! ) + "</Y>" );
 
             // Add optional components if present
             if ( dsaParams.J != null )
@@ -271,7 +271,7 @@ namespace Metalama.Backstage.Licensing.Licenses
             if ( includePrivateParameters )
             {
                 // Add the private component
-                sb.Append( "<X>" + Convert.ToBase64String( dsaParams.X ) + "</X>" );
+                sb.Append( "<X>" + Convert.ToBase64String( dsaParams.X! ) + "</X>" );
             }
 
             sb.Append( "</DSAKeyValue>" );
@@ -345,7 +345,7 @@ namespace Metalama.Backstage.Licensing.Licenses
 
         private static byte[] GetHash( byte[] message )
         {
-            using ( SHA1 sha1 = new SHA1CryptoServiceProvider() )
+            using ( var sha1 = SHA1.Create() )
             {
                 return sha1.ComputeHash( message );
             }

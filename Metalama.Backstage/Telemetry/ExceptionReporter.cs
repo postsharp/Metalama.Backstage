@@ -92,7 +92,9 @@ internal class ExceptionReporter : IExceptionReporter
         {
             var writeStackFrame = stackFrame;
 
+#pragma warning disable CA1307
             if ( stackFrame.Contains( "#user" ) )
+#pragma warning restore CA1307
             {
                 if ( lastFrameIsUser )
                 {

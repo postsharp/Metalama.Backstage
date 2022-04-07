@@ -36,7 +36,9 @@ namespace Metalama.Backstage.Licensing.Consumption.LicenseServer
 
                 foreach ( var part in parts )
                 {
+#pragma warning disable CA1307
                     var pos = part.IndexOf( ':' );
+#pragma warning restore CA1307
 
                     if ( pos < 0 || pos == part.Length - 1 )
                     {

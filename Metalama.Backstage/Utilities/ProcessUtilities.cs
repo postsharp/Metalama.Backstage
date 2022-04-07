@@ -41,6 +41,7 @@ public static class ProcessUtilities
                 case "dotnet":
                     var commandLine = Environment.CommandLine.ToLowerInvariant();
 
+#pragma warning disable CA1307
                     if ( commandLine.Contains( "jetbrains.resharper.roslyn.worker.exe" ) )
                     {
                         return ProcessKind.Rider;
@@ -51,6 +52,7 @@ public static class ProcessUtilities
                             ? ProcessKind.Compiler
                             : ProcessKind.Other;
                     }
+#pragma warning restore CA1307
 
                 default:
                     return ProcessKind.Other;
