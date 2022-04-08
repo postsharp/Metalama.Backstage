@@ -1,0 +1,24 @@
+﻿<Project>
+
+  <PropertyGroup>
+    <MetalamaBackstageDirectory>$(MSBuildProjectDirectory)\..\Metalama.Backstage</MetalamaBackstageDirectory>
+  </PropertyGroup>
+
+  <Import Project="$(MetalamaBackstageDirectory)\Metalama.Backstage.csproj" />
+
+  <PropertyGroup>
+    <TargetFrameworks>netframework4.7.2;netcoreapp3.1</TargetFrameworks>
+		<OutputType>exe</OutputType>
+    <!-- We're going to execute the dll using dotnet command on .NET Core. -->
+		<UseAppHost>false</UseAppHost>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="$(MetalamaBackstageDirectory)\**\*.cs" Exclude="$(MetalamaBackstageDirectory)\obj\**\*;$(MetalamaBackstageDirectory)\bin\**\*" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)'=='netframework4.7.2'">
+		<Reference Include="System.Net.Http" />
+	</ItemGroup>
+
+</Project>

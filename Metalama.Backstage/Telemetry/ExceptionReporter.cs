@@ -42,11 +42,11 @@ internal class ExceptionReporter : IExceptionReporter
         this._logger = serviceProvider.GetLoggerFactory().Telemetry();
     }
 
-    public IEnumerable<string> CleanStackTrace( string stackTrace )
+    public IEnumerable<string?> CleanStackTrace( string stackTrace )
     {
-        foreach ( Match match in this._stackFrameRegex.Matches( stackTrace ) )
+        foreach ( Match? match in this._stackFrameRegex.Matches( stackTrace ) )
         {
-            yield return match.Value;
+            yield return match?.Value;
         }
     }
 
@@ -90,10 +90,10 @@ internal class ExceptionReporter : IExceptionReporter
 
         foreach ( var stackFrame in this.CleanStackTrace( stackTrace ) )
         {
-            var writeStackFrame = stackFrame;
+            var writeStackFrame = stackFrame ?? "<null>";
 
 #pragma warning disable CA1307
-            if ( stackFrame.Contains( "#user" ) )
+            if ( writeStackFrame.Contains( "#user" ) )
 #pragma warning restore CA1307
             {
                 if ( lastFrameIsUser )

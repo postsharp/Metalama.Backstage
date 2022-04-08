@@ -23,6 +23,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Metalama.Backstage.Tests", 
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Metalama.Tools.Config.Tests", "Tests\Metalama.Tools.Config.Tests\Metalama.Tools.Config.Tests.csproj", "{EDF195AE-53FD-4FD1-B560-688EB0AC548B}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Metalama.Backstage.Worker", "Metalama.Backstage.Worker\Metalama.Backstage.Worker.csproj", "{B1D5955D-CB60-4233-8C95-D0CC456C6939}"
+EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
 		Metalama.Backstage.MicrosoftLogging\Metalama.Backstage.MicrosoftLogging.projitems*{35d4322c-116d-461a-9006-b9c838631cae}*SharedItemsImports = 5
@@ -62,6 +64,10 @@ Global
 		{EDF195AE-53FD-4FD1-B560-688EB0AC548B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{EDF195AE-53FD-4FD1-B560-688EB0AC548B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{EDF195AE-53FD-4FD1-B560-688EB0AC548B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B1D5955D-CB60-4233-8C95-D0CC456C6939}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B1D5955D-CB60-4233-8C95-D0CC456C6939}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B1D5955D-CB60-4233-8C95-D0CC456C6939}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B1D5955D-CB60-4233-8C95-D0CC456C6939}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -4,7 +4,7 @@
 // ReSharper disable CheckNamespace
 // ReSharper disable RedundantAttributeUsageProperty
 
-#if NETFRAMEWORK
+#if NETFRAMEWORK || NETSTANDARD2_0
 
 #pragma warning disable SA1642, SA1028, IDE0021, SA1649, SA1623, SA1402
 

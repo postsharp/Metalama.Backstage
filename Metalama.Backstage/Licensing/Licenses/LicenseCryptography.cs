@@ -87,8 +87,13 @@ namespace Metalama.Backstage.Licensing.Licenses
 
             if ( xmlDoc.DocumentElement!.Name.Equals( "DSAKeyValue", StringComparison.Ordinal ) )
             {
-                foreach ( XmlNode node in xmlDoc.DocumentElement.ChildNodes )
+                foreach ( XmlNode? node in xmlDoc.DocumentElement.ChildNodes )
                 {
+                    if (node == null )
+                    {
+                        throw new ArgumentException( $"Invalid key. Document contains null nodes.", nameof( xmlString ) );
+                    }
+
                     switch ( node.Name )
                     {
                         case "P":

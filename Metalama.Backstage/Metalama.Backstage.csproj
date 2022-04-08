@@ -1,20 +1,18 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-		<!-- .NET Framework and .NET Core build are there so we can execute a new process. (E.g. for telemetry upload.) -->
-        <TargetFrameworks>netframework4.7.2;net6.0</TargetFrameworks>
-        <RootNamespace>Metalama.Backstage</RootNamespace>
-        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-		<OutputType>exe</OutputType>
-		<UseAppHost>false</UseAppHost>
+        <TargetFrameworks>netstandard2.0</TargetFrameworks>
+        <MetalamaBackstageDirectory Condition="'$(MetalamaBackstageDirectory)'==''">$(MSBuildProjectDirectory)</MetalamaBackstageDirectory>
     </PropertyGroup>
 
-	<ItemGroup Condition="'$(TargetFramework)'=='netframework4.7.2'">
-		<Reference Include="System.Net.Http" />
-	</ItemGroup>
+    <PropertyGroup>
+        <RootNamespace>Metalama.Backstage</RootNamespace>
+        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    </PropertyGroup>
 
     <ItemGroup>
-      <None Remove="Telemetry\Diagnostics-Public.csp" />
+      <None Remove="Telemetry\public.key" />
+      <EmbeddedResource Include="$(MetalamaBackstageDirectory)\Telemetry\public.key" />
     </ItemGroup>
 
     <ItemGroup>
@@ -23,14 +21,25 @@
         <PackageReference Include="System.IO.Packaging" Version="6.0.0" />
     </ItemGroup>
 
-    <ItemGroup>
-        <InternalsVisibleTo Include="Metalama.Backstage.Tests" />
-        <InternalsVisibleTo Include="Metalama.Backstage.TestHelpers" />
+  <ItemGroup>
+        <ProjectReference Include="..\Metalama.Backstage.Worker\Metalama.Backstage.Worker.csproj"
+                          ReferenceOutputAssembly="false"
+                          SkipGetTargetFrameworkProperties="true"
+                          SetTargetFramework="TargetFramework=netcoreapp3.1"
+                          Condition="'$(MSBuildProjectFile)'!='Metalama.Backstage.Worker.csproj'" />
+    </ItemGroup>
+
+<ItemGroup>
+        <ProjectReference Include="..\Metalama.Backstage.Worker\Metalama.Backstage.Worker.csproj"
+                          ReferenceOutputAssembly="false"
+                          SkipGetTargetFrameworkProperties="true"
+                          SetTargetFramework="TargetFramework=netframework4.7.2"
+                          Condition="'$(MSBuildProjectFile)'!='Metalama.Backstage.Worker.csproj'" />
     </ItemGroup>
 
     <ItemGroup>
-      <None Remove="Telemetry\public.key" />
-      <EmbeddedResource Include="Telemetry\public.key" />
+        <InternalsVisibleTo Include="Metalama.Backstage.Tests" />
+        <InternalsVisibleTo Include="Metalama.Backstage.TestHelpers" />
     </ItemGroup>
 
 </Project>
