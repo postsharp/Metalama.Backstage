@@ -18,7 +18,6 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Web;
 
 namespace Metalama.Backstage.Telemetry
 {
@@ -117,7 +116,7 @@ namespace Metalama.Backstage.Telemetry
             var writer = new BinaryWriter( outputStream );
 
             // Write the version.
-            // 0 = Windows-specific implementation.
+            // 0 = Windows-specific PostSharp implementation.
             // 1 = Metalama multi-platform implementation. 
             writer.Write( 1 );
 
@@ -260,7 +259,12 @@ After:
                     "Release";
 #endif
 
-                var version = this.GetType().Assembly.GetName().Version.ToString();
+                var version = this.GetType().Assembly.GetName().Version?.ToString();
+
+                if ( version == null )
+                {
+                    throw new InvalidOperationException( "Unknow assembly version." );
+                }
 
                 var workerDirectory = Path.Combine(
                     this._directories.ApplicationDataDirectory,
