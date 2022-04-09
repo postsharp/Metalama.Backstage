@@ -8,14 +8,17 @@ using Metalama.Backstage.Utilities;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Globalization;
 using System.IO;
 using System.IO.Compression;
 using System.IO.Packaging;
 using System.Net.Http;
 using System.Net.Mime;
 using System.Security.Cryptography;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Web;
 
 namespace Metalama.Backstage.Telemetry
 {
@@ -312,6 +315,20 @@ After:
             }
         }
 
+        private static string ComputeHash(string s)
+        {
+            var sha = SHA512.Create();
+            var data = sha.ComputeHash( Encoding.UTF8.GetBytes( s ) );
+            var builder = new StringBuilder();
+
+            for ( var i = 0; i < data.Length; i++ )
+            {
+                builder.Append( data[i].ToString( "x2", CultureInfo.InvariantCulture ) );
+            }
+
+            return builder.ToString();
+        }
+
         public async Task UploadAsync()
         {
             if ( !Directory.Exists( this._directories.TelemetryUploadQueueDirectory ) )
@@ -349,8 +366,16 @@ After:
                 var streamContent = new StreamContent( packageFile );
                 formData.Add( streamContent, packageId, packageName );
 
+                const string salt = @"<27e\)$a<=b9&zyVwjzaJ`!WW`rwHh~;Z5QAC.J5TQ`.NY"")]~FGA);AKSSmbV$M";
+                var check = ComputeHash( packageName + salt );
+
                 using var client = new HttpClient();
-                await client.PutAsync( this._requestUri, formData );
+                var response = await client.PutAsync( $"{this._requestUri}?check={check}", formData );
+
+                if ( !response.IsSuccessStatusCode )
+                {
+                    throw new InvalidOperationException( $"Request failed: {response.StatusCode} {response.ReasonPhrase}" );
+                }
             }
             catch ( Exception exception )
             {
