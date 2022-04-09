@@ -4,10 +4,12 @@
 using Metalama.Backstage.Configuration;
 using Metalama.Backstage.Diagnostics;
 using Metalama.Backstage.Extensibility;
+using Metalama.Backstage.Utilities;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.IO.Compression;
 using System.IO.Packaging;
 using System.Net.Http;
 using System.Net.Mime;
@@ -80,8 +82,13 @@ namespace Metalama.Backstage.Telemetry
             using (
                 var keyStream = typeof(TelemetryUploader)
                     .Assembly
-                    .GetManifestResourceStream( "Metalama.Backstage.Telemetry.public.key" )! )
+                    .GetManifestResourceStream( "Metalama.Backstage.public.key" ) )
             {
+                if ( keyStream == null )
+                {
+                    throw new InvalidOperationException( "Public key not found." );
+                }
+
                 publicKey = new byte[keyStream.Length];
                 keyStream.Read( publicKey, 0, (int) keyStream.Length );
 
@@ -239,20 +246,52 @@ After:
             {
                 this._configuration.ConfigurationManager.Update<TelemetryConfiguration>( c => c.LastUploadTime = this._time.Now );
 
-                var assemblyPath = this.GetType().Assembly.Location;
+                var targetFramework = ProcessUtilities.IsNetCore()
+                    ? "netcoreapp3.1"
+                    : "netframework4.7.2";
+
+                var configuration =
+#if DEBUG
+                    "Debug";
+#else
+                    "Release";
+#endif
+
+                var version = this.GetType().Assembly.GetName().Version.ToString();
+
+                var workerDirectory = Path.Combine(
+                    this._directories.ApplicationDataDirectory,
+                    "Worker",
+                    version,
+                    configuration,
+                    targetFramework );
+
+                var touchFile = Path.Combine( workerDirectory, "unizipped.touch" );
+
+                if ( !File.Exists( touchFile ) )
+                {
+                    Directory.CreateDirectory( workerDirectory );
+
+                    using var resourceStream = this.GetType().Assembly.GetManifestResourceStream( $"Metalama.Backstage.Metalama.Backstage.Worker.{targetFramework}.zip" );
+                    using var zipStream = new ZipArchive( resourceStream );
+                    zipStream.ExtractToDirectory( workerDirectory );
+
+                    File.WriteAllText( touchFile, "" );
+                }
 
                 string executableFileName;
                 string arguments;
 
-                if ( Path.GetExtension( assemblyPath ) == ".exe" )
+                if ( ProcessUtilities.IsNetCore() )
                 {
-                    executableFileName = assemblyPath;
-                    arguments = "";
+                    // TODO: Find the right .NET
+                    executableFileName = "dotnet";
+                    arguments = Path.Combine( workerDirectory, "Metalama.Backstage.Worker.dll" );
                 }
                 else
                 {
-                    executableFileName = "dotnet";
-                    arguments = assemblyPath;
+                    executableFileName = Path.Combine( workerDirectory, "Metalama.Backstage.Worker.exe" );
+                    arguments = "";
                 }
 
                 var processStartInfo = new ProcessStartInfo()
@@ -263,7 +302,7 @@ After:
                     WindowStyle = ProcessWindowStyle.Hidden
                 };
 
-                this._logger.Info?.Log( $"Starting '{executableFileName} {arguments}' from '{assemblyPath}'." );
+                this._logger.Info?.Log( $"Starting '{executableFileName}{(arguments == "" ? "" : " ")}{arguments}'." );
 
                 Process.Start( processStartInfo );
             }

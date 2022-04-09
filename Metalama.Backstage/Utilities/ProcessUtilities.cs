@@ -319,4 +319,11 @@ public static class ProcessUtilities
 
         return processes.ToArray();
     }
+
+    public static bool IsNetCore()
+    {
+        var frameworkDescription = RuntimeInformation.FrameworkDescription.ToLowerInvariant();
+        return !frameworkDescription.Contains( "framework" )
+            && !frameworkDescription.Contains( "native" );
+    }
 }

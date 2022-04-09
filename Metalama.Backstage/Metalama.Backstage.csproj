@@ -2,17 +2,15 @@
 
     <PropertyGroup>
         <TargetFrameworks>netstandard2.0</TargetFrameworks>
+		<RootNamespace>Metalama.Backstage</RootNamespace>
+		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
         <MetalamaBackstageDirectory Condition="'$(MetalamaBackstageDirectory)'==''">$(MSBuildProjectDirectory)</MetalamaBackstageDirectory>
-    </PropertyGroup>
-
-    <PropertyGroup>
-        <RootNamespace>Metalama.Backstage</RootNamespace>
-        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     </PropertyGroup>
 
     <ItemGroup>
       <None Remove="Telemetry\public.key" />
       <EmbeddedResource Include="$(MetalamaBackstageDirectory)\Telemetry\public.key" />
+      <EmbeddedResource Include="..\Metalama.Backstage.Worker\bin\*.zip" Condition="'$(MSBuildProjectFile)'!='Metalama.Backstage.Worker.csproj'" />
     </ItemGroup>
 
     <ItemGroup>
@@ -21,7 +19,7 @@
         <PackageReference Include="System.IO.Packaging" Version="6.0.0" />
     </ItemGroup>
 
-  <ItemGroup>
+    <ItemGroup>
         <ProjectReference Include="..\Metalama.Backstage.Worker\Metalama.Backstage.Worker.csproj"
                           ReferenceOutputAssembly="false"
                           SkipGetTargetFrameworkProperties="true"
@@ -29,7 +27,7 @@
                           Condition="'$(MSBuildProjectFile)'!='Metalama.Backstage.Worker.csproj'" />
     </ItemGroup>
 
-<ItemGroup>
+    <ItemGroup>
         <ProjectReference Include="..\Metalama.Backstage.Worker\Metalama.Backstage.Worker.csproj"
                           ReferenceOutputAssembly="false"
                           SkipGetTargetFrameworkProperties="true"
