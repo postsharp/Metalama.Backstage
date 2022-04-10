@@ -1,11 +1,8 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <!-- Keep the same as in Metalama.Backstage.csproj. -->
         <TargetFrameworks>netframework4.7.2;net6.0</TargetFrameworks>
-
         <IsPackable>false</IsPackable>
-
         <RootNamespace>Metalama.Backstage.Licensing.Tests</RootNamespace>
     </PropertyGroup>
 

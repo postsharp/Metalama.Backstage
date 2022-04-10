@@ -5,12 +5,17 @@
 		<RootNamespace>Metalama.Backstage</RootNamespace>
 		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
         <MetalamaBackstageDirectory Condition="'$(MetalamaBackstageDirectory)'==''">$(MSBuildProjectDirectory)</MetalamaBackstageDirectory>
+        <!-- Workaround for having Metalama.Backstage.Worker.runtimeconfig.json copied to the output directory.
+             TODO: Figure out why this file doesn't respect the "PrivateAssets=all" flag. -->
+        <_GetChildProjectCopyToOutputDirectoryItems>false</_GetChildProjectCopyToOutputDirectoryItems>
+        <_GetChildProjectCopyToPublishDirectoryItems>false</_GetChildProjectCopyToPublishDirectoryItems>
     </PropertyGroup>
 
     <ItemGroup>
       <None Remove="Telemetry\public.key" />
       <EmbeddedResource Include="$(MetalamaBackstageDirectory)\Telemetry\public.key" />
-      <EmbeddedResource Include="..\Metalama.Backstage.Worker\bin\*.zip" Condition="'$(MSBuildProjectFile)'!='Metalama.Backstage.Worker.csproj'" />
+      <EmbeddedResource Include="..\Metalama.Backstage.Worker\bin\Metalama.Backstage.Worker.netcoreapp3.1.zip" Condition="'$(IsWorkerBuild)'!='true'" />
+      <EmbeddedResource Include="..\Metalama.Backstage.Worker\bin\Metalama.Backstage.Worker.netframework4.7.2.zip" Condition="'$(IsWorkerBuild)'!='true'" />
     </ItemGroup>
 
     <ItemGroup>
@@ -24,15 +29,15 @@
                           ReferenceOutputAssembly="false"
                           SkipGetTargetFrameworkProperties="true"
                           SetTargetFramework="TargetFramework=netcoreapp3.1"
-                          Condition="'$(MSBuildProjectFile)'!='Metalama.Backstage.Worker.csproj'" />
-    </ItemGroup>
+                          PrivateAssets="all"
+                          Condition="'$(IsWorkerBuild)'!='true'" />
 
-    <ItemGroup>
         <ProjectReference Include="..\Metalama.Backstage.Worker\Metalama.Backstage.Worker.csproj"
                           ReferenceOutputAssembly="false"
                           SkipGetTargetFrameworkProperties="true"
                           SetTargetFramework="TargetFramework=netframework4.7.2"
-                          Condition="'$(MSBuildProjectFile)'!='Metalama.Backstage.Worker.csproj'" />
+                          PrivateAssets="all"
+                          Condition="'$(IsWorkerBuild)'!='true'" />
     </ItemGroup>
 
     <ItemGroup>

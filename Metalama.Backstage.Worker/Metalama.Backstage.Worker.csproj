@@ -2,6 +2,7 @@
 
   <PropertyGroup>
     <MetalamaBackstageDirectory>$(MSBuildProjectDirectory)\..\Metalama.Backstage</MetalamaBackstageDirectory>
+    <IsWorkerBuild>true</IsWorkerBuild>
     <OutputType>exe</OutputType>
   </PropertyGroup>
 
@@ -13,6 +14,7 @@
 		<UseAppHost>false</UseAppHost>
 	  <GenerateRuntimeConfigurationFiles>true</GenerateRuntimeConfigurationFiles>
     <OutputZipFile>bin\$(MSBuildProjectName).$(TargetFramework).zip</OutputZipFile>
+    <IsPackable>false</IsPackable>
   </PropertyGroup>
 
   <ItemGroup>
@@ -24,15 +26,13 @@
 	  <Reference Include="System.Net.Http" />
 	</ItemGroup>
 
-  <ItemGroup>
-    <ZipInputFiles Include="$(OutDir)\**\*" Condition="'$(IsCrossTargetingBuild)'!='true'" />
-  </ItemGroup>
+  <Target Name="ResolveZipInputFiles" AfterTargets="Build" Condition="'$(IsCrossTargetingBuild)'!='true'">
+    <ItemGroup>
+      <ZipInputFiles Include="$(OutDir)\**\*" />
+    </ItemGroup>
+  </Target>
 
-  <ItemGroup>
-    <Folder Include="Properties\" />
-  </ItemGroup>
-
-  <Target Name="Zip" Inputs="@(ZipInputFiles)" Outputs="$(OutputZipFile)" AfterTargets="Build" Condition="'$(IsCrossTargetingBuild)'!='true'">
+  <Target Name="Zip" Inputs="@(ZipInputFiles)" Outputs="$(OutputZipFile)" AfterTargets="Build" DependsOnTargets="ResolveZipInputFiles" Condition="'$(IsCrossTargetingBuild)'!='true'">
     <ZipDirectory SourceDirectory="$(OutDir)" Overwrite="true" DestinationFile="$(OutputZipFile)" />
     <Message Text="$(MSBuildProjectName) -&gt; $(MSBuildProjectDirector)\$(OutputZipFile)" Importance="High" />
   </Target>
