@@ -26,6 +26,7 @@ namespace Metalama.Backstage.Telemetry
         private readonly TelemetryConfiguration _configuration;
         private readonly IStandardDirectories _directories;
         private readonly IDateTimeProvider _time;
+        private readonly IPlatformInfo _platformInfo;
         private readonly ILogger _logger;
 
         private readonly Uri _requestUri = new( "https://localhost:7031/upload" );
@@ -39,6 +40,7 @@ namespace Metalama.Backstage.Telemetry
 
             this._directories = serviceProvider.GetRequiredService<IStandardDirectories>();
             this._time = serviceProvider.GetRequiredService<IDateTimeProvider>();
+            this._platformInfo = serviceProvider.GetRequiredService<IPlatformInfo>();
             this._logger = serviceProvider.GetLoggerFactory().Telemetry();
         }
 
@@ -291,9 +293,8 @@ After:
 
                 if ( ProcessUtilities.IsNetCore() )
                 {
-                    // TODO: Find the right .NET
-                    executableFileName = "dotnet";
-                    arguments = Path.Combine( workerDirectory, "Metalama.Backstage.Worker.dll" );
+                    executableFileName = PlatformUtilities.GetDotNetPath( this._logger, this._platformInfo.DotNetSdkDirectory );
+                    arguments = $"\"{Path.Combine( workerDirectory, "Metalama.Backstage.Worker.dll" )}\"";
                 }
                 else
                 {

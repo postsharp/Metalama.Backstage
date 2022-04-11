@@ -75,12 +75,22 @@ public static class RegisterServiceExtensions
     public static ServiceProviderBuilder AddConfigurationManager( this ServiceProviderBuilder serviceProviderBuilder )
         => serviceProviderBuilder.AddSingleton<IConfigurationManager>( new ConfigurationManager( serviceProviderBuilder.ServiceProvider ) );
 
+    private static ServiceProviderBuilder AddPlatformInfo(
+        this ServiceProviderBuilder serviceProviderBuilder,
+        string? dotnetSdkDirectory )
+    {
+        return serviceProviderBuilder.AddSingleton<IPlatformInfo>( new PlatformInfo( dotnetSdkDirectory ) );
+    }
+
     /// <summary>
     /// Adds the minimal backstage services, without diagnostics and telemetry.
     /// </summary>
-    public static ServiceProviderBuilder AddMinimalBackstageServices( this ServiceProviderBuilder serviceProviderBuilder )
+    public static ServiceProviderBuilder AddMinimalBackstageServices(
+        this ServiceProviderBuilder serviceProviderBuilder,
+        string? dotnetSdkDirectory = null )
     {
-        return serviceProviderBuilder.AddDiagnosticServiceRequirements();
+        return serviceProviderBuilder.AddDiagnosticServiceRequirements()
+            .AddPlatformInfo( dotnetSdkDirectory );
     }
 
     public static ServiceProviderBuilder AddLicensing(
@@ -125,12 +135,14 @@ public static class RegisterServiceExtensions
         bool considerUnattendedProcessLicense = false,
         bool ignoreUserProfileLicenses = false,
         string[]? additionalLicenses = null,
+        string? dotNetSdkDirectory = null,
         bool addSupportServices = true )
     {
         // Add base services.
         serviceProviderBuilder = serviceProviderBuilder
             .AddSingleton( applicationInfo )
-            .AddDiagnosticServiceRequirements();
+            .AddDiagnosticServiceRequirements()
+            .AddPlatformInfo( dotNetSdkDirectory );
 
         // Add diagnostics.
         if ( addSupportServices )

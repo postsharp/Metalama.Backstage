@@ -57,41 +57,30 @@ namespace Metalama.Backstage.Telemetry
         public void Flush()
         {
             // If no filename was provided, we have to write metrics to the standard reporting directory.
-            try
+
+            this.CreateUploadDirectory();
+
+            // We try 8 different files to avoid locks.
+            for ( var i = 0; i < 8; i++ )
             {
-                this.CreateUploadDirectory();
-
-                // We try 8 different files to avoid locks.
-                for ( var i = 0; i < 8; i++ )
+                try
                 {
-                    try
-                    {
-                        var fileName = Path.Combine(
-                            this._directories.TelemetryUploadQueueDirectory,
-                            string.Format( CultureInfo.InvariantCulture, "Usage-{0}.log", i ) );
+                    var fileName = Path.Combine(
+                        this._directories.TelemetryUploadQueueDirectory,
+                        string.Format( CultureInfo.InvariantCulture, "Usage-{0}.log", i ) );
 
-                        this.Flush( fileName );
-                    }
-                    catch
-                    {
-                        continue;
-                    }
-
-                    // Start the upload periodically.
-                    this._uploader.StartUpload();
-
-                    break;
+                    this.Flush( fileName );
                 }
-            }
-#if DEBUG
-
-            // ReSharper disable once RedundantEmptyFinallyBlock
-            finally { }
-#else
                 catch
                 {
+                    continue;
                 }
-#endif
+
+                // Start the upload periodically.
+                this._uploader.StartUpload();
+
+                break;
+            }
         }
 
         private void Flush( string fileName )
