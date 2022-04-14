@@ -4,8 +4,10 @@
 using Metalama.Backstage.Configuration;
 using Metalama.Backstage.Diagnostics;
 using Microsoft.Extensions.DependencyInjection;
+using System;
 using System.CommandLine;
 using System.CommandLine.Invocation;
+using System.CommandLine.IO;
 using System.Diagnostics;
 
 namespace Metalama.DotNetTools.Commands.Logging;
@@ -32,6 +34,13 @@ internal class EditLoggingCommand : CommandBase
             configurationManager.Update<DiagnosticsConfiguration>( _ => { } );
         }
 
-        Process.Start( new ProcessStartInfo( configuration.FilePath ) { UseShellExecute = true } );
+        try
+        {
+            Process.Start( new ProcessStartInfo( configuration.FilePath ) { UseShellExecute = true } );
+        }
+        catch ( Exception e )
+        {
+            console.Out.WriteLine( $"Open '{configuration.FilePath}' with your text editor." );
+        }
     }
 }
