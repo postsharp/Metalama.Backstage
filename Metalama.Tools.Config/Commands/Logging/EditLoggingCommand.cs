@@ -4,7 +4,6 @@
 using Metalama.Backstage.Configuration;
 using Metalama.Backstage.Diagnostics;
 using Microsoft.Extensions.DependencyInjection;
-using System;
 using System.CommandLine;
 using System.CommandLine.Invocation;
 using System.CommandLine.IO;
@@ -38,7 +37,7 @@ internal class EditLoggingCommand : CommandBase
         {
             Process.Start( new ProcessStartInfo( configuration.FilePath ) { UseShellExecute = true } );
         }
-        catch ( Exception e )
+        catch
         {
             console.Out.WriteLine( $"Open '{configuration.FilePath}' with your text editor." );
         }

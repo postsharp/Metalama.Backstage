@@ -14,17 +14,29 @@ namespace Metalama.Backstage.Licensing.Tests.Telemetry
     {
         [Theory]
         [InlineData( "   at MyNamespace.MyType..ctor(MyNamespace.MyType param) in :line 16707565", "   at #user(#user param) in :line 16707565" )]
-        [InlineData( "   at MyNamespace.MyType.<>c__DisplayClass11_0(MyNamespace.MyType param) in :line 16707565", "   at #user(#user param) in :line 16707565" )]
-        [InlineData( "   at MyNamespace.MyType.<MethodName>d__25.MoveNext(MyNamespace.MyType param) in :line 16707565", "   at #user(#user param) in :line 16707565" )]
+        [InlineData(
+            "   at MyNamespace.MyType.<>c__DisplayClass11_0(MyNamespace.MyType param) in :line 16707565",
+            "   at #user(#user param) in :line 16707565" )]
+        [InlineData(
+            "   at MyNamespace.MyType.<MethodName>d__25.MoveNext(MyNamespace.MyType param) in :line 16707565",
+            "   at #user(#user param) in :line 16707565" )]
         [InlineData( "   at MyNamespace.MyType.MyMethod(MyNamespace.MyType param) in :line 16707565", "   at #user(#user param) in :line 16707565" )]
         [InlineData( "   at MyNamespace.MyType.MyMethod(String param) in :line 16707565", "   at #user(String param) in :line 16707565" )]
         [InlineData( "   at MyNamespace.MyType.MyMethod(PostSharp.Type param) in :line 16707565", "   at #user(PostSharp.Type param) in :line 16707565" )]
         [InlineData( "   at MyNamespace.PostSharp.MyMethod(MyNamespace.MyType param) in :line 16707565", "   at #user(#user param) in :line 16707565" )]
-        [InlineData( "   at PostSharpMyNamespace.MyType.MyMethod(PostSharpMyNamespace.MyType param) in :line 16707565", "   at #user(#user param) in :line 16707565" )]
-        [InlineData( "   at MetalamaMyNamespace.MyType.MyMethod(MetalamaMyNamespace.MyType param) in :line 16707565", "   at #user(#user param) in :line 16707565" )]
-        [InlineData( "   at MicrosoftMyNamespace.MyType.MyMethod(MicrosoftMyNamespace.MyType param) in :line 16707565", "   at #user(#user param) in :line 16707565" )]
+        [InlineData(
+            "   at PostSharpMyNamespace.MyType.MyMethod(PostSharpMyNamespace.MyType param) in :line 16707565",
+            "   at #user(#user param) in :line 16707565" )]
+        [InlineData(
+            "   at MetalamaMyNamespace.MyType.MyMethod(MetalamaMyNamespace.MyType param) in :line 16707565",
+            "   at #user(#user param) in :line 16707565" )]
+        [InlineData(
+            "   at MicrosoftMyNamespace.MyType.MyMethod(MicrosoftMyNamespace.MyType param) in :line 16707565",
+            "   at #user(#user param) in :line 16707565" )]
         [InlineData( "   at MSMyNamespace.MyType.MyMethod(MSMyNamespace.MyType param) in :line 16707565", "   at #user(#user param) in :line 16707565" )]
-        [InlineData( "   at SystemMyNamespace.MyType.MyMethod(SystemMyNamespace.MyType param) in :line 16707565", "   at #user(#user param) in :line 16707565" )]
+        [InlineData(
+            "   at SystemMyNamespace.MyType.MyMethod(SystemMyNamespace.MyType param) in :line 16707565",
+            "   at #user(#user param) in :line 16707565" )]
         public void SensitiveDataIsRemoved( string input, string expectedOutput )
         {
             var actualOutput = ExceptionSensitiveDataHelper.Instance.RemoveSensitiveData( input );
@@ -74,7 +86,7 @@ namespace Metalama.Backstage.Licensing.Tests.Telemetry
         [InlineData( "   at MS.Type.Method(String message) in :line 16707565" )]
         [InlineData( "   at System.Type.Method(String message) in :line 16707565" )]
         [InlineData( "   at Presentation.Type.Method(String message) in :line 16707565" )]
-        [InlineData( "   at PresentationFramerok.Type.Method(String message) in :line 16707565" )]
+        [InlineData( "   at PresentationFramework.Type.Method(String message) in :line 16707565" )]
         [InlineData( "   at EnvDTE.Type.Method(String message) in :line 16707565" )]
         [InlineData( "   at EnvDTENamespace.Type.Method(String message) in :line 16707565" )]
         [InlineData( "   at Windows.Type.Method(String message) in :line 16707565" )]
@@ -90,7 +102,7 @@ namespace Metalama.Backstage.Licensing.Tests.Telemetry
         [Fact]
         public void SensitiveDataIsRemovedFromMultilineInput()
         {
-            IEnumerable<string[]> GetInlineData(string theoryMethodName)
+            IEnumerable<string[]> GetInlineData( string theoryMethodName )
             {
                 var theoryMethod = this.GetType().GetMethod( theoryMethodName )!;
 
@@ -101,22 +113,22 @@ namespace Metalama.Backstage.Licensing.Tests.Telemetry
             StringBuilder inputBuilder = new();
             StringBuilder expectedResultBuilder = new();
 
-            foreach ( var data in GetInlineData( nameof( this.SensitiveDataIsRemoved ) ) )
+            foreach ( var data in GetInlineData( nameof(this.SensitiveDataIsRemoved) ) )
             {
                 inputBuilder.AppendLine( data[0] );
                 expectedResultBuilder.AppendLine( data[1] );
             }
 
-            foreach ( var data in GetInlineData( nameof( this.NonSensitiveDataIsNotRemoved ) ) )
+            foreach ( var data in GetInlineData( nameof(this.NonSensitiveDataIsNotRemoved) ) )
             {
                 inputBuilder.AppendLine( data[0] );
                 expectedResultBuilder.AppendLine( data[0] );
             }
 
-            StringBuilder windowsInputBuilder = new(inputBuilder.ToString());
-            StringBuilder windowsExpectedResultBuilder = new(expectedResultBuilder.ToString());
+            StringBuilder windowsInputBuilder = new( inputBuilder.ToString() );
+            StringBuilder windowsExpectedResultBuilder = new( expectedResultBuilder.ToString() );
 
-            foreach ( var data in GetInlineData( nameof( this.SensitiveDataIsRemovedOnWindows ) ) )
+            foreach ( var data in GetInlineData( nameof(this.SensitiveDataIsRemovedOnWindows) ) )
             {
                 windowsInputBuilder.AppendLine( data[0] );
                 windowsExpectedResultBuilder.AppendLine( data[1] );
@@ -125,7 +137,7 @@ namespace Metalama.Backstage.Licensing.Tests.Telemetry
             StringBuilder unixInputBuilder = new( inputBuilder.ToString() );
             StringBuilder unixExpectedResultBuilder = new( expectedResultBuilder.ToString() );
 
-            foreach ( var data in GetInlineData( nameof( this.SensitiveDataIsRemovedOnUnix ) ) )
+            foreach ( var data in GetInlineData( nameof(this.SensitiveDataIsRemovedOnUnix) ) )
             {
                 unixInputBuilder.AppendLine( data[0] );
                 unixExpectedResultBuilder.AppendLine( data[1] );
