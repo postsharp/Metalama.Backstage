@@ -15,7 +15,6 @@ namespace Metalama.Backstage.Telemetry
     internal class UsageSample : IUsageSample
     {
         private readonly IStandardDirectories _directories;
-        private readonly IDateTimeProvider _time;
         private readonly TelemetryUploader _uploader;
 
         public MetricCollection Metrics { get; } = new();
@@ -23,7 +22,7 @@ namespace Metalama.Backstage.Telemetry
         internal UsageSample( IServiceProvider serviceProvider, string eventKind, TelemetryUploader uploader )
         {
             this._directories = serviceProvider.GetRequiredService<IStandardDirectories>();
-            this._time = serviceProvider.GetRequiredService<IDateTimeProvider>();
+            serviceProvider.GetRequiredService<IDateTimeProvider>();
 
             this._uploader = uploader;
 
@@ -51,7 +50,8 @@ namespace Metalama.Backstage.Telemetry
             this.Metrics.Add( new StringMetric( "Application.Version", applicationInfo.Version ) );
             this.Metrics.Add( new StringMetric( "Application.ProcessName", process.ProcessName ) );
 
-            this.Metrics.Add( new DateTimeMetric( "Time", this._time.Now ) );
+            var time = serviceProvider.GetRequiredService<IDateTimeProvider>();
+            this.Metrics.Add( new DateTimeMetric( "Time", time.Now ) );
         }
 
         public void Flush()

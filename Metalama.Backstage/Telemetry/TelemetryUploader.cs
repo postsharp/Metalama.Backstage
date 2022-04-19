@@ -265,7 +265,7 @@ After:
 
                 if ( version == null )
                 {
-                    throw new InvalidOperationException( "Unknow assembly version." );
+                    throw new InvalidOperationException( "Unknown assembly version." );
                 }
 
                 var workerDirectory = Path.Combine(
@@ -281,7 +281,15 @@ After:
                 {
                     Directory.CreateDirectory( workerDirectory );
 
-                    using var resourceStream = this.GetType().Assembly.GetManifestResourceStream( $"Metalama.Backstage.Metalama.Backstage.Worker.{targetFramework}.zip" );
+                    var zipResourceName = $"Metalama.Backstage.Metalama.Backstage.Worker.{targetFramework}.zip";
+                    var assembly = this.GetType().Assembly;
+                    using var resourceStream = assembly.GetManifestResourceStream( zipResourceName );
+
+                    if ( resourceStream == null )
+                    {
+                        throw new InvalidOperationException( $"Resource '{zipResourceName}' not found in '{assembly.Location}'." );
+                    }
+                    
                     using var zipStream = new ZipArchive( resourceStream );
                     zipStream.ExtractToDirectory( workerDirectory );
 
