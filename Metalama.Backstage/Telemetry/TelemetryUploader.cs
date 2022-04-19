@@ -29,9 +29,7 @@ namespace Metalama.Backstage.Telemetry
         private readonly IPlatformInfo _platformInfo;
         private readonly ILogger _logger;
 
-        private readonly Uri _requestUri = new( "https://localhost:7031/upload" );
-
-        // private readonly Uri _requestUri = new( "https://1729-89-177-48-245.ngrok.io/upload" );
+        private readonly Uri _requestUri = new( "https://bits.postsharp.net:44301/upload" );
 
         public TelemetryUploader( IServiceProvider serviceProvider )
         {
@@ -197,17 +195,10 @@ namespace Metalama.Backstage.Telemetry
 
                     return;
                 }
-
+                
                 package.Close();
 
                 // Encrypt the package.
-
-/* Unmerged change from project 'Metalama.Backstage'
-Before:
-                this.EncryptFile( tempPackagePath!, outputPath );
-After:
-                TelemetryUploader.EncryptFile( tempPackagePath!, outputPath );
-*/
                 EncryptFile( tempPackagePath!, outputPath );
             }
             finally
@@ -219,6 +210,14 @@ After:
             }
         }
 
+        /// <summary>
+        /// Starts the telemetry upload in a background process avoiding the current processed being blocked during the update. 
+        /// </summary>
+        /// <param name="force">Starts the upload even when it's been started recently.</param>
+        /// <remarks>
+        /// The upload is started once per day. If the upload has been started in the past 24 hours, this method has no effect,
+        /// unless the <paramref name="force"/> parameter is set to <c>true</c>.
+        /// </remarks>
         public void StartUpload( bool force = false )
         {
             var now = this._time.Now;
@@ -275,7 +274,7 @@ After:
                     configuration,
                     targetFramework );
 
-                var touchFile = Path.Combine( workerDirectory, "unizipped.touch" );
+                var touchFile = Path.Combine( workerDirectory, "unzipped.touch" );
 
                 if ( !File.Exists( touchFile ) )
                 {
@@ -319,7 +318,7 @@ After:
                 };
 
                 this._logger.Info?.Log( $"Starting '{executableFileName}{(arguments == "" ? "" : " ")}{arguments}'." );
-
+                
                 Process.Start( processStartInfo );
             }
             finally
@@ -342,6 +341,12 @@ After:
             return builder.ToString();
         }
 
+        /// <summary>
+        /// Uploads the telemetry.
+        /// </summary>
+        /// <remarks>
+        /// Use the <see cref="StartUpload"/> method to upload the telemetry without blocking the current process.
+        /// </remarks>
         public async Task UploadAsync()
         {
             if ( !Directory.Exists( this._directories.TelemetryUploadQueueDirectory ) )

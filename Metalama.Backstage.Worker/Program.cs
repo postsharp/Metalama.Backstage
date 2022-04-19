@@ -81,7 +81,7 @@ namespace Metalama.Backstage
 
                     if ( version == null )
                     {
-                        throw new InvalidOperationException( $"Assembly version of '{assembly.FullName}' assembly." );
+                        throw new InvalidOperationException( $"Failed to retrieve the assembly version of '{assembly.FullName}' assembly." );
                     }
 
                     return version.ToString();
