@@ -1,4 +1,4 @@
-﻿<Project>
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <MetalamaBackstageDirectory>$(MSBuildProjectDirectory)\..\Metalama.Backstage</MetalamaBackstageDirectory>
@@ -6,7 +6,8 @@
     <OutputType>exe</OutputType>
   </PropertyGroup>
 
-  <Import Project="$(MetalamaBackstageDirectory)\Metalama.Backstage.csproj" />
+  <!-- <Import Project="$(MetalamaBackstageDirectory)\Metalama.Backstage.csproj" /> -->
+  <Import Project="$(MetalamaBackstageDirectory)\Metalama.Backstage.Common.props" />
 
   <PropertyGroup>
     <TargetFrameworks>netframework4.7.2;netcoreapp3.1</TargetFrameworks>

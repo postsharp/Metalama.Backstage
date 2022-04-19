@@ -6,22 +6,39 @@ using System.IO;
 
 namespace Metalama.Backstage.Extensibility
 {
+    // We base this class on
     // https://enbravikov.wordpress.com/2018/09/15/special-folder-enum-values-on-windows-and-linux-ubuntu-16-04-in-net-core/
+    // but not all platforms respect this. For such platforms, we provide fallbacks.
 
     /// <inheritdoc />
     internal class StandardDirectories : IStandardDirectories
     {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="StandardDirectories"/> class.
+        /// </summary>
         public StandardDirectories()
         {
-            if ( string.IsNullOrEmpty( this.ApplicationDataDirectory ) )
+            var applicationDataParentDirectory = Environment.GetFolderPath( Environment.SpecialFolder.ApplicationData );
+
+            if ( string.IsNullOrEmpty( applicationDataParentDirectory ) )
             {
-                throw new InvalidOperationException( "Failed to initialize standard directories." );
+                // This is a fallback for Ubuntu on WSL and other platforms that don't provide
+                // the SpecialFolder.ApplicationData folder path.
+                applicationDataParentDirectory = Environment.GetFolderPath( Environment.SpecialFolder.UserProfile );
             }
+            
+            if ( string.IsNullOrEmpty( applicationDataParentDirectory ) )
+            {
+                // This will always fail on platforms which don't provide the special folders being discovered above.
+                // We need to find another locations on such platforms.
+                throw new InvalidOperationException( "Failed to find application data parent directory." );
+            }
+            
+            this.ApplicationDataDirectory = Path.Combine( applicationDataParentDirectory, ".metalama" );
         }
         
         /// <inheritdoc />
-        public string ApplicationDataDirectory { get; } =
-            Path.Combine( Environment.GetFolderPath( Environment.SpecialFolder.UserProfile ), ".metalama" );
+        public string ApplicationDataDirectory { get; }
 
         /// <inheritdoc />
         public string TempDirectory { get; } = Path.Combine( Path.GetTempPath(), "Metalama" );

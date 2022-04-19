@@ -1,0 +1,51 @@
+﻿<Project>
+
+    <!-- TODO: This could all be in Metalama.Backstage.csproj, which can then be referenced itself.
+         Hower, Rider cannot load such project. To be reported to JetBarins along with 
+         Metalama.Framework.DesignTime and Metalama.Framework.DesignTime.VisualStudio projects in Metalama repo. -->
+
+    <PropertyGroup>
+		<RootNamespace>Metalama.Backstage</RootNamespace>
+		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+        <MetalamaBackstageDirectory Condition="'$(MetalamaBackstageDirectory)'==''">$(MSBuildProjectDirectory)</MetalamaBackstageDirectory>
+        <!-- Workaround for having Metalama.Backstage.Worker.runtimeconfig.json copied to the output directory.
+             TODO: Figure out why this file doesn't respect the "PrivateAssets=all" flag. -->
+        <_GetChildProjectCopyToOutputDirectoryItems>false</_GetChildProjectCopyToOutputDirectoryItems>
+        <_GetChildProjectCopyToPublishDirectoryItems>false</_GetChildProjectCopyToPublishDirectoryItems>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <None Remove="Telemetry\public.key" />
+      <EmbeddedResource Include="$(MetalamaBackstageDirectory)\Telemetry\public.key" />
+      <EmbeddedResource Include="..\Metalama.Backstage.Worker\bin\Metalama.Backstage.Worker.netcoreapp3.1.zip" Condition="'$(IsWorkerBuild)'!='true'" />
+      <EmbeddedResource Include="..\Metalama.Backstage.Worker\bin\Metalama.Backstage.Worker.netframework4.7.2.zip" Condition="'$(IsWorkerBuild)'!='true'" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Microsoft.Bcl.HashCode" Version="$(MicrosoftBclHashCodeVersion)" />
+        <PackageReference Include="Newtonsoft.Json" Version="$(NewtonsoftJsonVersion)" />
+        <PackageReference Include="System.IO.Packaging" Version="6.0.0" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\Metalama.Backstage.Worker\Metalama.Backstage.Worker.csproj"
+                          ReferenceOutputAssembly="false"
+                          SkipGetTargetFrameworkProperties="true"
+                          SetTargetFramework="TargetFramework=netcoreapp3.1"
+                          PrivateAssets="all"
+                          Condition="'$(IsWorkerBuild)'!='true'" />
+
+        <ProjectReference Include="..\Metalama.Backstage.Worker\Metalama.Backstage.Worker.csproj"
+                          ReferenceOutputAssembly="false"
+                          SkipGetTargetFrameworkProperties="true"
+                          SetTargetFramework="TargetFramework=netframework4.7.2"
+                          PrivateAssets="all"
+                          Condition="'$(IsWorkerBuild)'!='true'" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <InternalsVisibleTo Include="Metalama.Backstage.Tests" />
+        <InternalsVisibleTo Include="Metalama.Backstage.TestHelpers" />
+    </ItemGroup>
+
+</Project>
