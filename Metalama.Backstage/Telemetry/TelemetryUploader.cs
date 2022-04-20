@@ -210,6 +210,59 @@ namespace Metalama.Backstage.Telemetry
             }
         }
 
+        private void ExtractWorker( string workerDirectory, string targetFramework )
+        {
+            var touchFile = Path.Combine( workerDirectory, "unzipped.touch" );
+
+            if ( !File.Exists( touchFile ) )
+            {
+                Directory.CreateDirectory( workerDirectory );
+
+                var zipResourceName = $"Metalama.Backstage.Metalama.Backstage.Worker.{targetFramework}.zip";
+                var assembly = this.GetType().Assembly;
+                using var resourceStream = assembly.GetManifestResourceStream( zipResourceName );
+
+                if ( resourceStream == null )
+                {
+                    throw new InvalidOperationException( $"Resource '{zipResourceName}' not found in '{assembly.Location}'." );
+                }
+
+                using var zipStream = new ZipArchive( resourceStream );
+                zipStream.ExtractToDirectory( workerDirectory );
+
+                File.WriteAllText( touchFile, "" );
+            }
+        }
+
+        private void StartWorker( string workerDirectory, string targetFramework )
+        {
+            string executableFileName;
+            string arguments;
+
+            if ( ProcessUtilities.IsNetCore() )
+            {
+                executableFileName = PlatformUtilities.GetDotNetPath( this._logger, this._platformInfo.DotNetSdkDirectory );
+                arguments = $"\"{Path.Combine( workerDirectory, "Metalama.Backstage.Worker.dll" )}\"";
+            }
+            else
+            {
+                executableFileName = Path.Combine( workerDirectory, "Metalama.Backstage.Worker.exe" );
+                arguments = "";
+            }
+
+            var processStartInfo = new ProcessStartInfo()
+            {
+                FileName = executableFileName,
+                Arguments = arguments,
+                UseShellExecute = true,
+                WindowStyle = ProcessWindowStyle.Hidden
+            };
+
+            this._logger.Info?.Log( $"Starting '{executableFileName}{(arguments == "" ? "" : " ")}{arguments}'." );
+
+            Process.Start( processStartInfo );
+        }
+
         /// <summary>
         /// Starts the telemetry upload in a background process avoiding the current processed being blocked during the update. 
         /// </summary>
@@ -232,13 +285,9 @@ namespace Metalama.Backstage.Telemetry
                 return;
             }
 
-            const string mutexName = "Global\\Metalama.Backstage.Telemetry.TelemetryUploader";
+            this._logger.Trace?.Log( "Acquiring mutex." );
 
-            this._logger.Trace?.Log( $"Acquiring '{mutexName}' mutex." );
-
-            using var m = new Mutex( false, mutexName );
-
-            if ( !m.WaitOne( 1 ) )
+            if ( !MutexHelper.WithGlobalLock( "TelemetryUploader", TimeSpan.FromMilliseconds( 1 ), out var mutex ) )
             {
                 this._logger.Info?.Log( "Another upload is already being started." );
 
@@ -274,56 +323,13 @@ namespace Metalama.Backstage.Telemetry
                     configuration,
                     targetFramework );
 
-                var touchFile = Path.Combine( workerDirectory, "unzipped.touch" );
+                this.ExtractWorker( workerDirectory, targetFramework );
 
-                if ( !File.Exists( touchFile ) )
-                {
-                    Directory.CreateDirectory( workerDirectory );
-
-                    var zipResourceName = $"Metalama.Backstage.Metalama.Backstage.Worker.{targetFramework}.zip";
-                    var assembly = this.GetType().Assembly;
-                    using var resourceStream = assembly.GetManifestResourceStream( zipResourceName );
-
-                    if ( resourceStream == null )
-                    {
-                        throw new InvalidOperationException( $"Resource '{zipResourceName}' not found in '{assembly.Location}'." );
-                    }
-                    
-                    using var zipStream = new ZipArchive( resourceStream );
-                    zipStream.ExtractToDirectory( workerDirectory );
-
-                    File.WriteAllText( touchFile, "" );
-                }
-
-                string executableFileName;
-                string arguments;
-
-                if ( ProcessUtilities.IsNetCore() )
-                {
-                    executableFileName = PlatformUtilities.GetDotNetPath( this._logger, this._platformInfo.DotNetSdkDirectory );
-                    arguments = $"\"{Path.Combine( workerDirectory, "Metalama.Backstage.Worker.dll" )}\"";
-                }
-                else
-                {
-                    executableFileName = Path.Combine( workerDirectory, "Metalama.Backstage.Worker.exe" );
-                    arguments = "";
-                }
-
-                var processStartInfo = new ProcessStartInfo()
-                {
-                    FileName = executableFileName,
-                    Arguments = arguments,
-                    UseShellExecute = true,
-                    WindowStyle = ProcessWindowStyle.Hidden
-                };
-
-                this._logger.Info?.Log( $"Starting '{executableFileName}{(arguments == "" ? "" : " ")}{arguments}'." );
-                
-                Process.Start( processStartInfo );
+                this.StartWorker( workerDirectory, targetFramework );
             }
             finally
             {
-                m.ReleaseMutex();
+                mutex.Dispose();
             }
         }
 

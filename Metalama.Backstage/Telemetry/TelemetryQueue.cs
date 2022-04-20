@@ -37,13 +37,17 @@ namespace Metalama.Backstage.Telemetry
         public void EnqueueContent( string fileName, string contents )
         {
             this._logger.Trace?.Log( $"Enqueuing content of '{fileName}'." );
-            
+
+            var tempFile = Path.GetTempFileName();
+
+            File.WriteAllText( tempFile, contents, Encoding.UTF8 );
+
             if ( !Directory.Exists( this._directories.TelemetryUploadQueueDirectory ) )
             {
                 Directory.CreateDirectory( this._directories.TelemetryUploadQueueDirectory );
             }
 
-            File.WriteAllText( Path.Combine( this._directories.TelemetryUploadQueueDirectory, fileName ), contents, Encoding.UTF8 );
+            File.Move( tempFile, Path.Combine( this._directories.TelemetryUploadQueueDirectory, fileName ) );
         }
     }
 }
