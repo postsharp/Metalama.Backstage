@@ -250,7 +250,7 @@ namespace Metalama.Backstage.Telemetry
                 this._configuration.ConfigurationManager.Update<TelemetryConfiguration>( c => c.LastUploadTime = this._time.Now );
 
                 var targetFramework = ProcessUtilities.IsNetCore()
-                    ? "netcoreapp3.1"
+                    ? "net6.0"
                     : "netframework4.7.2";
 
                 var configuration =

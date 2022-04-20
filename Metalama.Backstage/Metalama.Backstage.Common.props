@@ -17,7 +17,7 @@
     <ItemGroup>
       <None Remove="Telemetry\public.key" />
       <EmbeddedResource Include="$(MetalamaBackstageDirectory)\Telemetry\public.key" />
-      <EmbeddedResource Include="..\Metalama.Backstage.Worker\bin\Metalama.Backstage.Worker.netcoreapp3.1.zip" Condition="'$(IsWorkerBuild)'!='true'" />
+      <EmbeddedResource Include="..\Metalama.Backstage.Worker\bin\Metalama.Backstage.Worker.net6.0.zip" Condition="'$(IsWorkerBuild)'!='true'" />
       <EmbeddedResource Include="..\Metalama.Backstage.Worker\bin\Metalama.Backstage.Worker.netframework4.7.2.zip" Condition="'$(IsWorkerBuild)'!='true'" />
     </ItemGroup>
 
@@ -31,7 +31,7 @@
         <ProjectReference Include="..\Metalama.Backstage.Worker\Metalama.Backstage.Worker.csproj"
                           ReferenceOutputAssembly="false"
                           SkipGetTargetFrameworkProperties="true"
-                          SetTargetFramework="TargetFramework=netcoreapp3.1"
+                          SetTargetFramework="TargetFramework=net6.0"
                           PrivateAssets="all"
                           Condition="'$(IsWorkerBuild)'!='true'" />
 

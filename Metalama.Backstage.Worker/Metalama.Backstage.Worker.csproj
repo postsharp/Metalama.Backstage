@@ -10,7 +10,7 @@
   <Import Project="$(MetalamaBackstageDirectory)\Metalama.Backstage.Common.props" />
 
   <PropertyGroup>
-    <TargetFrameworks>netframework4.7.2;netcoreapp3.1</TargetFrameworks>
+    <TargetFrameworks>netframework4.7.2;net6.0</TargetFrameworks>
     <!-- We're going to execute the dll using dotnet command on .NET Core. -->
 		<UseAppHost>false</UseAppHost>
 	  <GenerateRuntimeConfigurationFiles>true</GenerateRuntimeConfigurationFiles>
