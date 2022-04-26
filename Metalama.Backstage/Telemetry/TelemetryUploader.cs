@@ -16,7 +16,6 @@ using System.Net.Http;
 using System.Net.Mime;
 using System.Security.Cryptography;
 using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
 
 namespace Metalama.Backstage.Telemetry

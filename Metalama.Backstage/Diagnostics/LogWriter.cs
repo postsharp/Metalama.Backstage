@@ -19,7 +19,7 @@ internal class LogWriter : ILogWriter
 
     public void Log( string message )
     {
-        this._logger.DiagnosticsService.WriteLine(
+        this._logger.LoggerFactory.WriteLine(
             FormattableString.Invariant(
                 $"{DateTime.Now}, {this._logLevel}, {this._logger.Category}, Thread {Thread.CurrentThread.ManagedThreadId}: {message}" ) );
     }

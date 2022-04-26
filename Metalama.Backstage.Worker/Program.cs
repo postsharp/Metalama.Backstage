@@ -4,7 +4,10 @@
 using Metalama.Backstage.Diagnostics;
 using Metalama.Backstage.Extensibility;
 using Metalama.Backstage.Telemetry;
+using Metalama.Backstage.Utilities;
 using System;
+using System.Globalization;
+using System.Reflection;
 using System.Threading.Tasks;
 
 namespace Metalama.Backstage
@@ -18,8 +21,7 @@ namespace Metalama.Backstage
             try
             {
                 var serviceProviderBuilder = new ServiceProviderBuilder()
-                    .AddBackstageProcessServices(
-                        applicationInfo: new MetalamaBackstageApplicationInfo() );
+                    .AddMinimalBackstageServices( applicationInfo: new ApplicationInfo(), addSupportServices: true );
 
                 services = serviceProviderBuilder.ServiceProvider;
 
@@ -48,7 +50,7 @@ namespace Metalama.Backstage
 
                 try
                 {
-                    var log = services?.GetLoggerFactory()?.Telemetry()?.Error;
+                    var log = services?.GetLoggerFactory().Telemetry().Error;
 
                     if ( log != null )
                     {
@@ -68,35 +70,74 @@ namespace Metalama.Backstage
             }
         }
 
-        private class MetalamaBackstageApplicationInfo : IApplicationInfo
+        private class ApplicationInfo : IApplicationInfo
         {
-            public string Name => "Metalama.Backstage";
-
-            public string Version
+            public ApplicationInfo()
             {
-                get
-                {
-                    var assembly = this.GetType().Assembly;
-                    var version = assembly.GetName().Version;
+                var metadataAttributes =
+                    typeof(ApplicationInfo).Assembly.GetCustomAttributes(
+                        typeof(AssemblyMetadataAttribute),
+                        inherit: false );
 
-                    if ( version == null )
+                string? version = null;
+                bool? isPrerelease = null;
+                DateTime? buildDate = null;
+
+                bool AllMetadataFound() => version != null && isPrerelease != null && buildDate != null;
+
+                foreach ( var metadataAttributeObject in metadataAttributes )
+                {
+                    var metadataAttribute = (AssemblyMetadataAttribute) metadataAttributeObject;
+
+                    switch ( metadataAttribute.Key )
                     {
-                        throw new InvalidOperationException( $"Failed to retrieve the assembly version of '{assembly.FullName}' assembly." );
+                        case "PackageVersion":
+                            if ( !string.IsNullOrEmpty( metadataAttribute.Value ) )
+                            {
+                                version = metadataAttribute.Value;
+                                isPrerelease = version.Contains( "-" );
+                            }
+
+                            break;
+
+                        case "PackageBuildDate":
+                            if ( !string.IsNullOrEmpty( metadataAttribute.Value ) )
+                            {
+                                buildDate = DateTime.Parse( metadataAttribute.Value, CultureInfo.InvariantCulture );
+                            }
+
+                            break;
                     }
 
-                    return version.ToString();
+                    if ( AllMetadataFound() )
+                    {
+                        break;
+                    }
                 }
+
+                if ( !AllMetadataFound() )
+                {
+                    throw new InvalidOperationException( $"{nameof(ApplicationInfo)} has failed to find some of the required assembly metadata." );
+                }
+
+                this.Version = version!;
+                this.IsPrerelease = isPrerelease!.Value;
+                this.BuildDate = buildDate!.Value;
             }
+            
+            public string Name => "Metalama Backstage Worker";
 
-            public bool IsPrerelease => throw new NotImplementedException();
+            public string Version { get; }
 
-            public DateTime BuildDate => throw new NotImplementedException();
+            public bool IsPrerelease { get; }
 
-            public ProcessKind ProcessKind => ProcessKind.Backstage;
+            public DateTime BuildDate { get; }
+
+            public ProcessKind ProcessKind => ProcessKind.BackstageWorker;
 
             public bool IsLongRunningProcess => false;
 
-            public bool IsUnattendedProcess( ILoggerFactory loggerFactory ) => throw new NotImplementedException();
+            public bool IsUnattendedProcess( ILoggerFactory loggerFactory ) => ProcessUtilities.IsCurrentProcessUnattended( loggerFactory );
         }
     }
 }

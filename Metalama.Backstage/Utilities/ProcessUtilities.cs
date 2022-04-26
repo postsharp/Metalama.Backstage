@@ -46,11 +46,17 @@ public static class ProcessUtilities
                     {
                         return ProcessKind.Rider;
                     }
+                    else if ( commandLine.Contains( "vbcscompiler.dll" ) || commandLine.Contains( "csc.dll" ) )
+                    {
+                        return ProcessKind.Compiler;
+                    }
+                    else if ( commandLine.Contains( "Metalama.Backstage.Worker" ) )
+                    {
+                        return ProcessKind.BackstageWorker;
+                    }
                     else
                     {
-                        return commandLine.Contains( "vbcscompiler.dll" ) || commandLine.Contains( "csc.dll" )
-                            ? ProcessKind.Compiler
-                            : ProcessKind.Other;
+                        return ProcessKind.Other;
                     }
 #pragma warning restore CA1307
 

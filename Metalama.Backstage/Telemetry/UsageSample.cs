@@ -7,6 +7,7 @@ using System;
 using System.Diagnostics;
 using System.Globalization;
 using System.IO;
+using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text;
 
@@ -28,8 +29,6 @@ namespace Metalama.Backstage.Telemetry
 
             this.Metrics.Add( new StringMetric( "MetricsEventKind", eventKind ) );
 
-            var process = Process.GetCurrentProcess();
-
             this.Metrics.Add( new Int32Metric( "Processor.Count", Environment.ProcessorCount ) );
 
             this.Metrics.Add(
@@ -47,8 +46,11 @@ namespace Metalama.Backstage.Telemetry
             this.Metrics.Add( new StringMetric( "Net.Version", Environment.Version.ToString() ) );
 
             var applicationInfo = serviceProvider.GetRequiredService<IApplicationInfo>();
+            this.Metrics.Add( new StringMetric( "Application.Name", applicationInfo.Name ) );
             this.Metrics.Add( new StringMetric( "Application.Version", applicationInfo.Version ) );
-            this.Metrics.Add( new StringMetric( "Application.ProcessName", process.ProcessName ) );
+            this.Metrics.Add( new StringMetric( "Application.ProcessName", Process.GetCurrentProcess().ProcessName ) );
+            this.Metrics.Add( new StringMetric( "Application.ProcessKing", applicationInfo.ProcessKind.ToString() ) );
+            this.Metrics.Add( new StringMetric( "Application.EntryAssembly", Path.GetFileName( Assembly.GetEntryAssembly()?.Location ) ) );
 
             var time = serviceProvider.GetRequiredService<IDateTimeProvider>();
             this.Metrics.Add( new DateTimeMetric( "Time", time.Now ) );

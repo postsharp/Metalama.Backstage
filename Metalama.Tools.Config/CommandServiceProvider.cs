@@ -1,12 +1,17 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. All rights reserved.
 // This project is not open source. Please see the LICENSE.md file in the repository root for details.
 
+using Metalama.Backstage.Diagnostics;
 using Metalama.Backstage.Extensibility;
 using Metalama.Backstage.MicrosoftLogging;
+using Metalama.Backstage.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using System;
 using System.CommandLine;
+using System.Globalization;
+using System.Reflection;
+using ILoggerFactory = Microsoft.Extensions.Logging.ILoggerFactory;
 
 namespace Metalama.DotNetTools
 {
@@ -39,16 +44,89 @@ namespace Metalama.DotNetTools
 
             serviceProviderBuilder
                 .AddSingleton<IConsole>( console )
-                .AddMinimalBackstageServices();
+                .AddMinimalBackstageServices( new ApplicationInfo() );
 
             if ( loggerFactory != null )
             {
                 serviceProviderBuilder.AddMicrosoftLoggerFactory( loggerFactory );
             }
 
+            serviceProviderBuilder.AddTelemetryServices();
+
             // ReSharper restore RedundantTypeArgumentsOfMethod
 
             return serviceCollection.BuildServiceProvider();
+        }
+
+        private sealed class ApplicationInfo : IApplicationInfo
+        {
+            public ApplicationInfo()
+            {
+                var metadataAttributes =
+                    typeof(ApplicationInfo).Assembly.GetCustomAttributes(
+                        typeof(AssemblyMetadataAttribute),
+                        inherit: false );
+
+                string? version = null;
+                bool? isPrerelease = null;
+                DateTime? buildDate = null;
+
+                bool AllMetadataFound() => version != null && isPrerelease != null && buildDate != null;
+
+                foreach ( var metadataAttributeObject in metadataAttributes )
+                {
+                    var metadataAttribute = (AssemblyMetadataAttribute) metadataAttributeObject;
+
+                    switch ( metadataAttribute.Key )
+                    {
+                        case "PackageVersion":
+                            if ( !string.IsNullOrEmpty( metadataAttribute.Value ) )
+                            {
+                                version = metadataAttribute.Value;
+                                isPrerelease = version.Contains( '-' );
+                            }
+
+                            break;
+
+                        case "PackageBuildDate":
+                            if ( !string.IsNullOrEmpty( metadataAttribute.Value ) )
+                            {
+                                buildDate = DateTime.Parse( metadataAttribute.Value, CultureInfo.InvariantCulture );
+                            }
+
+                            break;
+                    }
+
+                    if ( AllMetadataFound() )
+                    {
+                        break;
+                    }
+                }
+
+                if ( !AllMetadataFound() )
+                {
+                    throw new InvalidOperationException( $"{nameof(ApplicationInfo)} has failed to find some of the required assembly metadata." );
+                }
+
+                this.Version = version!;
+                this.IsPrerelease = isPrerelease!.Value;
+                this.BuildDate = buildDate!.Value;
+            }
+
+            public string Name => "Metalama Config";
+
+            public string Version { get; }
+
+            public bool IsPrerelease { get; }
+
+            public DateTime BuildDate { get; }
+
+            public ProcessKind ProcessKind => ProcessKind.MetalamaConfig;
+
+            public bool IsUnattendedProcess( Backstage.Diagnostics.ILoggerFactory loggerFactory )
+                => ProcessUtilities.IsCurrentProcessUnattended( loggerFactory );
+
+            public bool IsLongRunningProcess => false;
         }
     }
 }
