@@ -39,9 +39,9 @@ namespace Metalama.Backstage.Licensing.Tests
                     serviceBuilder?.Invoke( services );
                 } )
         {
-            this.LicenseFactory = new LicenseFactory( this.Services );
-            this.SelfSignedLicenseFactory = new UnsignedLicenseFactory( this.Services );
-            this.LicensingConfigurationFile = this.Services.GetRequiredService<IConfigurationManager>().GetFileName<LicensingConfiguration>();
+            this.LicenseFactory = new LicenseFactory( this.ServiceProvider );
+            this.SelfSignedLicenseFactory = new UnsignedLicenseFactory( this.ServiceProvider );
+            this.LicensingConfigurationFile = this.ServiceProvider.GetRequiredService<IConfigurationManager>().GetFileName<LicensingConfiguration>();
         }
     }
 }

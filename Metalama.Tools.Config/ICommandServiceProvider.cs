@@ -11,13 +11,14 @@ namespace Metalama.DotNetTools
     /// </summary>
     internal interface ICommandServiceProvider
     {
+        IServiceProvider? ServiceProvider { get; }
+
         /// <summary>
-        /// Creates a service provider configured to redirect output and trace to a specific
-        /// <see cref="IConsole"/>.
+        /// Initializes the <see cref="ServiceProvider"/> property with a service provider
+        /// configured to redirect output and trace to a specific <see cref="IConsole"/>.
         /// </summary>
         /// <param name="console">The target <see cref="IConsole"/> for diagnostics and tracing.</param>
         /// <param name="addTrace">Determines whether logging should be configured. Should typically be <c>true</c> for high verbosity.</param>
-        /// <returns></returns>
-        IServiceProvider CreateServiceProvider( IConsole console, bool addTrace );
+        IServiceProvider Initialize( IConsole console, bool addTrace );
     }
 }

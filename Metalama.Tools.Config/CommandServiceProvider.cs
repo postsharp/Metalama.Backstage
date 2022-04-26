@@ -4,6 +4,7 @@
 using Metalama.Backstage.Diagnostics;
 using Metalama.Backstage.Extensibility;
 using Metalama.Backstage.MicrosoftLogging;
+using Metalama.Backstage.Telemetry;
 using Metalama.Backstage.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -17,8 +18,15 @@ namespace Metalama.DotNetTools
 {
     internal class CommandServiceProvider : ICommandServiceProvider
     {
-        public IServiceProvider CreateServiceProvider( IConsole console, bool addTrace )
+        public IServiceProvider? ServiceProvider { get; private set; }
+        
+        public IServiceProvider Initialize( IConsole console, bool addTrace )
         {
+            if ( this.ServiceProvider != null )
+            {
+                throw new InvalidOperationException( "Service provider is initialized already." );
+            }
+            
             // ReSharper disable RedundantTypeArgumentsOfMethod
 
             var serviceCollection = new ServiceCollection();
@@ -53,9 +61,14 @@ namespace Metalama.DotNetTools
 
             serviceProviderBuilder.AddTelemetryServices();
 
-            // ReSharper restore RedundantTypeArgumentsOfMethod
+            var usageSample = serviceProviderBuilder.ServiceProvider.GetService<IUsageReporter>()?.CreateSample( "MetalamaConfigUsage" );
 
-            return serviceCollection.BuildServiceProvider();
+            if ( usageSample != null )
+            {
+                serviceProviderBuilder.AddSingleton<IUsageSample>( usageSample );
+            }
+
+            return this.ServiceProvider = serviceCollection.BuildServiceProvider();
         }
 
         private sealed class ApplicationInfo : IApplicationInfo
@@ -83,7 +96,7 @@ namespace Metalama.DotNetTools
                             if ( !string.IsNullOrEmpty( metadataAttribute.Value ) )
                             {
                                 version = metadataAttribute.Value;
-                                isPrerelease = version.Contains( '-' );
+                                isPrerelease = version.Contains( '-', StringComparison.Ordinal );
                             }
 
                             break;

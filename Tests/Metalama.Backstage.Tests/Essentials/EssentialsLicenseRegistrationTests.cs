@@ -18,7 +18,7 @@ namespace Metalama.Backstage.Licensing.Tests.Essentials
         public EssentialsLicenseRegistrationTests( ITestOutputHelper logger )
             : base( logger )
         {
-            this._registrar = new EssentialsLicenseRegistrar( this.Services );
+            this._registrar = new EssentialsLicenseRegistrar( this.ServiceProvider );
         }
 
         private void AssertSingleEssentialsLicenseRegistered()

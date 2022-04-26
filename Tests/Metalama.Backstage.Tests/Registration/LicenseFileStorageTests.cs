@@ -14,7 +14,7 @@ namespace Metalama.Backstage.Licensing.Tests.Registration
 
         private ParsedLicensingConfiguration OpenOrCreateStorage()
         {
-            return ParsedLicensingConfiguration.OpenOrCreate( this.Services );
+            return ParsedLicensingConfiguration.OpenOrCreate( this.ServiceProvider );
         }
 
         private void AssertFileContains( params string[] expectedLicenseStrings )

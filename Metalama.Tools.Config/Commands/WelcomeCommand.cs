@@ -20,7 +20,7 @@ internal class WelcomeCommand : CommandBase
 
     private void Execute( bool verbose, IConsole console )
     {
-        var services = this.CommandServiceProvider.CreateServiceProvider( console, verbose );
+        var services = this.CommandServiceProvider.Initialize( console, verbose );
         WelcomeService.Execute( services );
     }
 }

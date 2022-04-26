@@ -21,7 +21,7 @@ namespace Metalama.DotNetTools.Commands.Telemetry
 
         private async Task<int> ExecuteAsync( bool async, bool force, bool verbose, IConsole console )
         {
-            var services = this.CommandServiceProvider.CreateServiceProvider( console, verbose );
+            var services = this.CommandServiceProvider.Initialize( console, verbose );
 
             var uploader = new TelemetryUploader( services );
 

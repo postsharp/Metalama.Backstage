@@ -32,7 +32,7 @@ internal class RegisterCommand : CommandBase
 
     private int Execute( string licenseKey, bool verbose, IConsole console )
     {
-        var services = this.CommandServiceProvider.CreateServiceProvider( console, verbose );
+        var services = this.CommandServiceProvider.Initialize( console, verbose );
 
         var factory = new LicenseFactory( services );
 

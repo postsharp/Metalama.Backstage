@@ -20,7 +20,7 @@ namespace Metalama.DotNetTools.Commands.Licensing
 
         private int Execute( bool verbose, IConsole console )
         {
-            var services = this.CommandServiceProvider.CreateServiceProvider( console, verbose );
+            var services = this.CommandServiceProvider.Initialize( console, verbose );
             var storage = ParsedLicensingConfiguration.OpenOrCreate( services );
 
             var index = 1;

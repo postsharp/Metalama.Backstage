@@ -404,7 +404,7 @@ namespace Metalama.Backstage.Telemetry
             {
                 this._logger.Error?.Log( exception.ToString() );
 
-                return;
+                throw;
             }
             finally
             {

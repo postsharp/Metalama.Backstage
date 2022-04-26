@@ -23,7 +23,7 @@ internal class ResetDeviceIdCommand : CommandBase
 
     private void Execute( IConsole console )
     {
-        var services = this.CommandServiceProvider.CreateServiceProvider( console, false );
+        var services = this.CommandServiceProvider.Initialize( console, false );
         services.GetRequiredService<IConfigurationManager>().Update<TelemetryConfiguration>( c => c.DeviceId = Guid.NewGuid() );
         console.Out.WriteLine( "The device id has been reset." );
     }

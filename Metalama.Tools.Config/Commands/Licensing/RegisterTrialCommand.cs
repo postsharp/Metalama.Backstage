@@ -18,7 +18,7 @@ internal class RegisterTrialCommand : CommandBase
 
     private int Execute( bool verbose, IConsole console )
     {
-        var services = this.CommandServiceProvider.CreateServiceProvider( console, verbose );
+        var services = this.CommandServiceProvider.Initialize( console, verbose );
 
         var registrar = new EvaluationLicenseRegistrar( services );
 

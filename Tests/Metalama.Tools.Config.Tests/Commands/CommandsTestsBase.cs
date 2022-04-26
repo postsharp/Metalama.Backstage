@@ -35,8 +35,8 @@ namespace Metalama.Tools.Config.Tests.Commands
                 } )
         {
             this._theRootCommand = new TheRootCommand( this );
-            this._logger = this.Services.GetLoggerFactory().GetLogger( "Console" );
-            this._console = (TestConsole) this.Services.GetRequiredService<IConsole>();
+            this._logger = this.ServiceProvider.GetLoggerFactory().GetLogger( "Console" );
+            this._console = (TestConsole) this.ServiceProvider.GetRequiredService<IConsole>();
         }
 
         protected async Task TestCommandAsync(
@@ -54,9 +54,9 @@ namespace Metalama.Tools.Config.Tests.Commands
             this.Log.Clear();
         }
 
-        IServiceProvider ICommandServiceProvider.CreateServiceProvider( IConsole console, bool addTrace )
+        IServiceProvider ICommandServiceProvider.Initialize( IConsole console, bool addTrace )
         {
-            return this.Services;
+            return this.ServiceProvider;
         }
     }
 }

@@ -16,16 +16,25 @@ namespace Metalama.Backstage
     {
         public static async Task Main()
         {
-            IServiceProvider? services = null;
+            IServiceProvider? serviceProvider = null;
+            IUsageSample? usageSample = null; 
 
             try
             {
                 var serviceProviderBuilder = new ServiceProviderBuilder()
                     .AddMinimalBackstageServices( applicationInfo: new ApplicationInfo(), addSupportServices: true );
+                
+                usageSample = serviceProviderBuilder.ServiceProvider.GetService<IUsageReporter>()?.CreateSample( "MetalamaBackstageWorkerUsage" );
 
-                services = serviceProviderBuilder.ServiceProvider;
+                if ( usageSample != null )
+                {
+                    // ReSharper disable once RedundantTypeArgumentsOfMethod
+                    serviceProviderBuilder.AddSingleton<IUsageSample>( usageSample );
+                }
+                
+                serviceProvider = serviceProviderBuilder.ServiceProvider;
 
-                var uploader = new TelemetryUploader( services );
+                var uploader = new TelemetryUploader( serviceProvider );
 
                 await uploader.UploadAsync();
             }
@@ -35,7 +44,7 @@ namespace Metalama.Backstage
 
                 try
                 {
-                    var exceptionReporter = services?.GetService<IExceptionReporter>();
+                    var exceptionReporter = serviceProvider?.GetService<IExceptionReporter>();
 
                     if ( exceptionReporter != null )
                     {
@@ -50,7 +59,7 @@ namespace Metalama.Backstage
 
                 try
                 {
-                    var log = services?.GetLoggerFactory().Telemetry().Error;
+                    var log = serviceProvider?.GetLoggerFactory().Telemetry().Error;
 
                     if ( log != null )
                     {
@@ -66,6 +75,30 @@ namespace Metalama.Backstage
                 if ( !isReported )
                 {
                     throw;
+                }
+            }
+            finally
+            {
+                try
+                {
+                    // Close logs.
+                    serviceProvider?.GetLoggerFactory().Dispose();
+
+                    // Report usage.
+                    usageSample?.Flush();
+                }
+                catch ( Exception e )
+                {
+                    try
+                    {
+                        serviceProvider?.GetService<IExceptionReporter>()?.ReportException( e );
+                    }
+                    catch
+                    {
+                        // We don't want failing telemetry to disturb users.
+                    }
+
+                    // We don't re-throw here as we don't want compiler to crash because of usage reporting exceptions.
                 }
             }
         }
@@ -95,7 +128,10 @@ namespace Metalama.Backstage
                             if ( !string.IsNullOrEmpty( metadataAttribute.Value ) )
                             {
                                 version = metadataAttribute.Value;
+                                
+#pragma warning disable CA1307
                                 isPrerelease = version.Contains( "-" );
+#pragma warning restore CA1307
                             }
 
                             break;

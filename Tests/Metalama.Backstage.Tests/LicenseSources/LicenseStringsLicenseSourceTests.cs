@@ -16,7 +16,7 @@ namespace Metalama.Backstage.Licensing.Tests.LicenseSources
         [Fact]
         public void NoLicenseStringPasses()
         {
-            ExplicitLicenseSource source = new( Enumerable.Empty<string>(), this.Services );
+            ExplicitLicenseSource source = new( Enumerable.Empty<string>(), this.ServiceProvider );
 
             Assert.Empty( source.GetLicenses( _ => { } ) );
         }
@@ -24,7 +24,7 @@ namespace Metalama.Backstage.Licensing.Tests.LicenseSources
         [Fact]
         public void OneLicenseStringPasses()
         {
-            ExplicitLicenseSource source = new( new[] { TestLicenseKeys.Ultimate }, this.Services );
+            ExplicitLicenseSource source = new( new[] { TestLicenseKeys.Ultimate }, this.ServiceProvider );
 
             Assert.Equal( TestLicenseKeys.Ultimate, source.GetLicenses( _ => { } ).Single().ToString() );
         }
@@ -33,7 +33,7 @@ namespace Metalama.Backstage.Licensing.Tests.LicenseSources
         public void EmptyLicenseStringsSkipped()
         {
             ExplicitLicenseSource source =
-                new( new[] { "", TestLicenseKeys.Ultimate, "", "", TestLicenseKeys.Logging, "" }, this.Services );
+                new( new[] { "", TestLicenseKeys.Ultimate, "", "", TestLicenseKeys.Logging, "" }, this.ServiceProvider );
 
             var licenses = source.GetLicenses( _ => { } ).ToArray();
             Assert.Equal( 2, licenses.Length );

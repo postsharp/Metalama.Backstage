@@ -22,7 +22,7 @@ internal class EditLoggingCommand : CommandBase
 
     private void Execute( IConsole console )
     {
-        var services = this.CommandServiceProvider.CreateServiceProvider( console, false );
+        var services = this.CommandServiceProvider.Initialize( console, false );
         var configurationManager = services.GetRequiredService<IConfigurationManager>();
         var configuration = configurationManager.Get<DiagnosticsConfiguration>();
 

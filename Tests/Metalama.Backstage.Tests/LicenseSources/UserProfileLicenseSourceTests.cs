@@ -18,7 +18,7 @@ namespace Metalama.Backstage.Licensing.Tests.LicenseSources
         [Fact]
         public void NonexistentFileIsReported()
         {
-            UserProfileLicenseSource source = new( this.Services );
+            UserProfileLicenseSource source = new( this.ServiceProvider );
 
             Assert.Empty( source.GetLicenses( _ => { } ) );
         }
@@ -28,7 +28,7 @@ namespace Metalama.Backstage.Licensing.Tests.LicenseSources
         {
             this.FileSystem.Mock.AddFile( _licenseFilePath, new MockFileData( "" ) );
 
-            UserProfileLicenseSource source = new( this.Services );
+            UserProfileLicenseSource source = new( this.ServiceProvider );
 
             Assert.Empty( source.GetLicenses( _ => { } ) );
         }

@@ -22,7 +22,7 @@ internal class PrintLoggingCommand : CommandBase
 
     private void Execute( IConsole console )
     {
-        var services = this.CommandServiceProvider.CreateServiceProvider( console, false );
+        var services = this.CommandServiceProvider.Initialize( console, false );
         var configuration = services.GetRequiredService<IConfigurationManager>().Get<DiagnosticsConfiguration>();
 
         console.Out.WriteLine( $"The file '{configuration.FilePath}' contains the following configuration:" );

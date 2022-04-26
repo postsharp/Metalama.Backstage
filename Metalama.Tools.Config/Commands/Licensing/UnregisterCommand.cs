@@ -23,7 +23,7 @@ internal class UnregisterCommand : CommandBase
 
     private int Execute( string licenseKeyOrOrdinal, bool verbose, IConsole console )
     {
-        var services = this.CommandServiceProvider.CreateServiceProvider( console, verbose );
+        var services = this.CommandServiceProvider.Initialize( console, verbose );
         var licenseStorage = ParsedLicensingConfiguration.OpenOrCreate( services );
 
         if ( int.TryParse( licenseKeyOrOrdinal, out var ordinal ) )
