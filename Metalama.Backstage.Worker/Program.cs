@@ -24,7 +24,7 @@ namespace Metalama.Backstage
                 var serviceProviderBuilder = new ServiceProviderBuilder()
                     .AddMinimalBackstageServices( applicationInfo: new ApplicationInfo(), addSupportServices: true );
                 
-                usageSample = serviceProviderBuilder.ServiceProvider.GetService<IUsageReporter>()?.CreateSample( "MetalamaBackstageWorkerUsage" );
+                usageSample = serviceProviderBuilder.ServiceProvider.GetService<IUsageReporter>()?.CreateSample( "CompilerUsage" );
 
                 if ( usageSample != null )
                 {

@@ -61,7 +61,7 @@ namespace Metalama.DotNetTools
 
             serviceProviderBuilder.AddTelemetryServices();
 
-            var usageSample = serviceProviderBuilder.ServiceProvider.GetService<IUsageReporter>()?.CreateSample( "MetalamaConfigUsage" );
+            var usageSample = serviceProviderBuilder.ServiceProvider.GetService<IUsageReporter>()?.CreateSample( "CompilerUsage" );
 
             if ( usageSample != null )
             {
