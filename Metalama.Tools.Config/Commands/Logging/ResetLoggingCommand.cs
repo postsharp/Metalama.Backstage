@@ -11,7 +11,7 @@ namespace Metalama.DotNetTools.Commands.Logging;
 
 internal class ResetLoggingCommand : CommandBase
 {
-    public ResetLoggingCommand( ICommandServiceProvider commandServiceProvider ) : base(
+    public ResetLoggingCommand( ICommandServiceProviderProvider commandServiceProvider ) : base(
         commandServiceProvider,
         "reset",
         "Disables logging for all applications and all categories" )
@@ -21,8 +21,8 @@ internal class ResetLoggingCommand : CommandBase
 
     private void Execute( IConsole console )
     {
-        var services = this.CommandServiceProvider.Initialize( console, false );
-        var configurationManager = services.GetRequiredService<IConfigurationManager>();
+        this.CommandServices.Initialize( console, false );
+        var configurationManager = this.CommandServices.ServiceProvider.GetRequiredService<IConfigurationManager>();
         configurationManager.Update<DiagnosticsConfiguration>( c => c.Reset() );
     }
 }

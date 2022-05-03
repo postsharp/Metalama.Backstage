@@ -10,7 +10,7 @@ namespace Metalama.DotNetTools.Commands.Telemetry
 {
     internal class UploadTelemetryCommand : CommandBase
     {
-        public UploadTelemetryCommand( ICommandServiceProvider commandServiceProvider )
+        public UploadTelemetryCommand( ICommandServiceProviderProvider commandServiceProvider )
             : base( commandServiceProvider, "upload", "Uploads the telemetry" )
         {
             this.AddOption( new Option( new[] { "--async", "-a" }, "Run the upload asynchronously in a background process." ) );
@@ -21,9 +21,9 @@ namespace Metalama.DotNetTools.Commands.Telemetry
 
         private async Task<int> ExecuteAsync( bool async, bool force, bool verbose, IConsole console )
         {
-            var services = this.CommandServiceProvider.Initialize( console, verbose );
+            this.CommandServices.Initialize( console, verbose );
 
-            var uploader = new TelemetryUploader( services );
+            var uploader = new TelemetryUploader( this.CommandServices.ServiceProvider );
 
             if ( async )
             {

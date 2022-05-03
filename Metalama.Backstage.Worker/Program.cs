@@ -4,10 +4,7 @@
 using Metalama.Backstage.Diagnostics;
 using Metalama.Backstage.Extensibility;
 using Metalama.Backstage.Telemetry;
-using Metalama.Backstage.Utilities;
 using System;
-using System.Globalization;
-using System.Reflection;
 using System.Threading.Tasks;
 
 namespace Metalama.Backstage
@@ -22,7 +19,7 @@ namespace Metalama.Backstage
             try
             {
                 var serviceProviderBuilder = new ServiceProviderBuilder()
-                    .AddMinimalBackstageServices( applicationInfo: new ApplicationInfo(), addSupportServices: true );
+                    .AddMinimalBackstageServices( applicationInfo: new BackstageWorkerApplicationInfo(), addSupportServices: true );
                 
                 usageSample = serviceProviderBuilder.ServiceProvider.GetService<IUsageReporter>()?.CreateSample( "CompilerUsage" );
 
@@ -101,79 +98,6 @@ namespace Metalama.Backstage
                     // We don't re-throw here as we don't want compiler to crash because of usage reporting exceptions.
                 }
             }
-        }
-
-        private class ApplicationInfo : IApplicationInfo
-        {
-            public ApplicationInfo()
-            {
-                var metadataAttributes =
-                    typeof(ApplicationInfo).Assembly.GetCustomAttributes(
-                        typeof(AssemblyMetadataAttribute),
-                        inherit: false );
-
-                string? version = null;
-                bool? isPrerelease = null;
-                DateTime? buildDate = null;
-
-                bool AllMetadataFound() => version != null && isPrerelease != null && buildDate != null;
-
-                foreach ( var metadataAttributeObject in metadataAttributes )
-                {
-                    var metadataAttribute = (AssemblyMetadataAttribute) metadataAttributeObject;
-
-                    switch ( metadataAttribute.Key )
-                    {
-                        case "PackageVersion":
-                            if ( !string.IsNullOrEmpty( metadataAttribute.Value ) )
-                            {
-                                version = metadataAttribute.Value;
-                                
-#pragma warning disable CA1307
-                                isPrerelease = version.Contains( "-" );
-#pragma warning restore CA1307
-                            }
-
-                            break;
-
-                        case "PackageBuildDate":
-                            if ( !string.IsNullOrEmpty( metadataAttribute.Value ) )
-                            {
-                                buildDate = DateTime.Parse( metadataAttribute.Value, CultureInfo.InvariantCulture );
-                            }
-
-                            break;
-                    }
-
-                    if ( AllMetadataFound() )
-                    {
-                        break;
-                    }
-                }
-
-                if ( !AllMetadataFound() )
-                {
-                    throw new InvalidOperationException( $"{nameof(ApplicationInfo)} has failed to find some of the required assembly metadata." );
-                }
-
-                this.Version = version!;
-                this.IsPrerelease = isPrerelease!.Value;
-                this.BuildDate = buildDate!.Value;
-            }
-            
-            public string Name => "Metalama Backstage Worker";
-
-            public string Version { get; }
-
-            public bool IsPrerelease { get; }
-
-            public DateTime BuildDate { get; }
-
-            public ProcessKind ProcessKind => ProcessKind.BackstageWorker;
-
-            public bool IsLongRunningProcess => false;
-
-            public bool IsUnattendedProcess( ILoggerFactory loggerFactory ) => ProcessUtilities.IsCurrentProcessUnattended( loggerFactory );
         }
     }
 }

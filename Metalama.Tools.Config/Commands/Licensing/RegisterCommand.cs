@@ -13,7 +13,7 @@ internal class RegisterCommand : CommandBase
 {
     // TODO Reporting of license registration.
 
-    public RegisterCommand( ICommandServiceProvider commandServiceProvider )
+    public RegisterCommand( ICommandServiceProviderProvider commandServiceProvider )
         : base(
             commandServiceProvider,
             "register",
@@ -32,9 +32,9 @@ internal class RegisterCommand : CommandBase
 
     private int Execute( string licenseKey, bool verbose, IConsole console )
     {
-        var services = this.CommandServiceProvider.Initialize( console, verbose );
+        this.CommandServices.Initialize( console, verbose );
 
-        var factory = new LicenseFactory( services );
+        var factory = new LicenseFactory( this.CommandServices.ServiceProvider );
 
         if ( !factory.TryCreate( licenseKey, out var license )
              || !license.TryGetLicenseRegistrationData( out var data ) )
@@ -44,7 +44,7 @@ internal class RegisterCommand : CommandBase
             return 1;
         }
 
-        var storage = ParsedLicensingConfiguration.OpenOrCreate( services );
+        var storage = ParsedLicensingConfiguration.OpenOrCreate( this.CommandServices.ServiceProvider );
 
         storage.AddLicense( licenseKey, data );
 

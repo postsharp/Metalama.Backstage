@@ -5,7 +5,7 @@ namespace Metalama.DotNetTools.Commands.Telemetry;
 
 internal class TelemetryCommand : CommandBase
 {
-    public TelemetryCommand( ICommandServiceProvider commandServiceProvider )
+    public TelemetryCommand( ICommandServiceProviderProvider commandServiceProvider )
         : base( commandServiceProvider, "telemetry", "Manages telemetry" )
     {
         this.Add( new EnableTelemetryCommand( commandServiceProvider, "enable", "Enables telemetry", true ) );

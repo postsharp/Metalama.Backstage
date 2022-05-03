@@ -10,7 +10,7 @@ namespace Metalama.DotNetTools.Commands.Licensing;
 
 internal class RegisterEssentialsCommand : CommandBase
 {
-    public RegisterEssentialsCommand( ICommandServiceProvider commandServiceProvider )
+    public RegisterEssentialsCommand( ICommandServiceProviderProvider commandServiceProvider )
         : base( commandServiceProvider, "essentials", "Switches to Metalama Essentials" )
     {
         this.Handler = CommandHandler.Create<bool, IConsole>( this.Execute );
@@ -18,9 +18,9 @@ internal class RegisterEssentialsCommand : CommandBase
 
     private int Execute( bool verbose, IConsole console )
     {
-        var services = this.CommandServiceProvider.Initialize( console, verbose );
+        this.CommandServices.Initialize( console, verbose );
 
-        var registrar = new EssentialsLicenseRegistrar( services );
+        var registrar = new EssentialsLicenseRegistrar( this.CommandServices.ServiceProvider );
 
         if ( registrar.TryRegisterLicense() )
         {

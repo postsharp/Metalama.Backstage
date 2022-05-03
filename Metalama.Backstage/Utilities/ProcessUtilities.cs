@@ -50,10 +50,6 @@ public static class ProcessUtilities
                     {
                         return ProcessKind.Compiler;
                     }
-                    else if ( commandLine.Contains( "Metalama.Backstage.Worker" ) )
-                    {
-                        return ProcessKind.BackstageWorker;
-                    }
                     else
                     {
                         return ProcessKind.Other;

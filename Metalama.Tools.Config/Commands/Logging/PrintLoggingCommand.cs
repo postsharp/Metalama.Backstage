@@ -12,7 +12,7 @@ namespace Metalama.DotNetTools.Commands.Logging;
 
 internal class PrintLoggingCommand : CommandBase
 {
-    public PrintLoggingCommand( ICommandServiceProvider commandServiceProvider ) : base(
+    public PrintLoggingCommand( ICommandServiceProviderProvider commandServiceProvider ) : base(
         commandServiceProvider,
         "print",
         "Prints the current logging configuration" )
@@ -22,8 +22,8 @@ internal class PrintLoggingCommand : CommandBase
 
     private void Execute( IConsole console )
     {
-        var services = this.CommandServiceProvider.Initialize( console, false );
-        var configuration = services.GetRequiredService<IConfigurationManager>().Get<DiagnosticsConfiguration>();
+        this.CommandServices.Initialize( console, false );
+        var configuration = this.CommandServices.ServiceProvider.GetRequiredService<IConfigurationManager>().Get<DiagnosticsConfiguration>();
 
         console.Out.WriteLine( $"The file '{configuration.FilePath}' contains the following configuration:" );
         console.Out.WriteLine();

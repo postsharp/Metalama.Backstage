@@ -12,7 +12,7 @@ namespace Metalama.DotNetTools.Commands.Logging;
 
 internal class EditLoggingCommand : CommandBase
 {
-    public EditLoggingCommand( ICommandServiceProvider commandServiceProvider ) : base(
+    public EditLoggingCommand( ICommandServiceProviderProvider commandServiceProvider ) : base(
         commandServiceProvider,
         "edit",
         "Edits the logging configuration with the default editor for JSON files" )
@@ -22,8 +22,8 @@ internal class EditLoggingCommand : CommandBase
 
     private void Execute( IConsole console )
     {
-        var services = this.CommandServiceProvider.Initialize( console, false );
-        var configurationManager = services.GetRequiredService<IConfigurationManager>();
+        this.CommandServices.Initialize( console, false );
+        var configurationManager = this.CommandServices.ServiceProvider.GetRequiredService<IConfigurationManager>();
         var configuration = configurationManager.Get<DiagnosticsConfiguration>();
 
         if ( configuration.LastModified == null )

@@ -6,7 +6,7 @@ using System;
 
 namespace Metalama.Backstage.Diagnostics;
 
-public static class DiagnosticsService
+public static class DiagnosticServiceFactory
 {
     private static readonly object _initializeSync = new();
 
@@ -39,11 +39,11 @@ public static class DiagnosticsService
         }
     }
 
-    public static T? GetOptionalService<T>() => (T) ServiceProvider.GetService( typeof(T) );
+    public static T? GetOptionalService<T>() => (T?) ServiceProvider.GetService( typeof(T) );
 
     public static T GetRequiredService<T>()
     {
-        var service = (T) ServiceProvider.GetService( typeof(T) );
+        var service = (T?) ServiceProvider.GetService( typeof(T) );
 
         if ( service == null )
         {

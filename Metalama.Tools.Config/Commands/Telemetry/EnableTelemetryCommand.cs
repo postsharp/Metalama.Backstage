@@ -14,7 +14,7 @@ internal class EnableTelemetryCommand : CommandBase
 {
     private readonly bool _enable;
 
-    public EnableTelemetryCommand( ICommandServiceProvider commandServiceProvider, string name, string description, bool enable ) : base(
+    public EnableTelemetryCommand( ICommandServiceProviderProvider commandServiceProvider, string name, string description, bool enable ) : base(
         commandServiceProvider,
         name,
         description )
@@ -25,8 +25,8 @@ internal class EnableTelemetryCommand : CommandBase
 
     private void Execute( IConsole console )
     {
-        var services = this.CommandServiceProvider.Initialize( console, false );
-        var configurationManager = services.GetRequiredService<IConfigurationManager>();
+        this.CommandServices.Initialize( console, false );
+        var configurationManager = this.CommandServices.ServiceProvider.GetRequiredService<IConfigurationManager>();
         var reportAction = this._enable ? ReportingAction.Yes : ReportingAction.No;
 
         configurationManager.Update<TelemetryConfiguration>(

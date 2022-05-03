@@ -5,7 +5,7 @@ using System.Diagnostics;
 
 namespace Metalama.Backstage.Diagnostics
 {
-    internal static class DebuggerService
+    internal static class DebuggerHelper
     {
         private static readonly object _attachDebuggerSync = new();
         private static volatile bool _attachDebuggerRequested;

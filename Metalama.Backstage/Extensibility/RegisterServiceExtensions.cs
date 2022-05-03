@@ -60,7 +60,7 @@ public static class RegisterServiceExtensions
         
         var configuration = serviceProviderBuilder.ServiceProvider.GetDiagnosticsConfiguration();
 
-        DebuggerService.Launch( configuration, processKind );
+        DebuggerHelper.Launch( configuration, processKind );
 
         var applicationInfo = serviceProvider.GetRequiredService<IApplicationInfo>();
         var loggerFactory = new LoggerFactory( configuration, applicationInfo.ProcessKind, projectName );
