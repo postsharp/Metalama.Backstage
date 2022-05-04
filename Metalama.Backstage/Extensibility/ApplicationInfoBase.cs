@@ -13,11 +13,11 @@ namespace Metalama.Backstage.Extensibility
         public ApplicationInfoBase(Assembly metadataAssembly)
         {
             var reader = AssemblyMetadataReader.GetInstance( metadataAssembly );
-            this.Version = reader.GetPackageVersion();
+            this.Version = reader.PackageVersion;
 #pragma warning disable CA1307
             this.IsPrerelease = this.Version.Contains( "-" );
 #pragma warning restore CA1307
-            this.BuildDate = reader.GetBuildDate();
+            this.BuildDate = reader.BuildDate;
         }
 
         public abstract string Name { get; }
