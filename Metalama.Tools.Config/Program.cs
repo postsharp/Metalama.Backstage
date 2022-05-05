@@ -40,11 +40,12 @@ namespace Metalama.DotNetTools
             {
                 try
                 {
-                    // Close logs.
-                    servicesFactory.ServiceProvider?.GetLoggerFactory().Dispose();
-
                     // Report usage.
                     servicesFactory.ServiceProvider?.GetService<IUsageSample>()?.Flush();
+
+                    // Close logs.
+                    // Logging has to be disposed as the last one, so it could be used until now.
+                    servicesFactory.ServiceProvider?.GetLoggerFactory().Dispose();
                 }
                 catch ( Exception e )
                 {

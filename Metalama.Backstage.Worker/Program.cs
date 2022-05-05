@@ -78,11 +78,12 @@ namespace Metalama.Backstage
             {
                 try
                 {
-                    // Close logs.
-                    serviceProvider?.GetLoggerFactory().Dispose();
-
                     // Report usage.
                     usageSample?.Flush();
+
+                    // Close logs.
+                    // Logging has to be disposed as the last one, so it could be used until now.
+                    serviceProvider?.GetLoggerFactory().Dispose();
                 }
                 catch ( Exception e )
                 {
