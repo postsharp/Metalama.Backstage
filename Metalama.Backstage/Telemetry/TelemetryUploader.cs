@@ -308,12 +308,7 @@ namespace Metalama.Backstage.Telemetry
                     "Release";
 #endif
 
-                var version = this.GetType().Assembly.GetName().Version?.ToString();
-
-                if ( version == null )
-                {
-                    throw new InvalidOperationException( "Unknown assembly version." );
-                }
+                var version = AssemblyMetadataReader.GetInstance( typeof( TelemetryUploader ).Assembly ).PackageVersion;
 
                 var workerDirectory = Path.Combine(
                     this._directories.ApplicationDataDirectory,
