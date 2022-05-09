@@ -194,7 +194,7 @@ namespace Metalama.Backstage.Telemetry
 
                     return;
                 }
-                
+
                 package.Close();
 
                 // Encrypt the package.
@@ -251,10 +251,7 @@ namespace Metalama.Backstage.Telemetry
 
             var processStartInfo = new ProcessStartInfo()
             {
-                FileName = executableFileName,
-                Arguments = arguments,
-                UseShellExecute = true,
-                WindowStyle = ProcessWindowStyle.Hidden
+                FileName = executableFileName, Arguments = arguments, UseShellExecute = true, WindowStyle = ProcessWindowStyle.Hidden
             };
 
             this._logger.Info?.Log( $"Starting '{executableFileName}{(arguments == "" ? "" : " ")}{arguments}'." );
@@ -308,7 +305,7 @@ namespace Metalama.Backstage.Telemetry
                     "Release";
 #endif
 
-                var version = AssemblyMetadataReader.GetInstance( typeof( TelemetryUploader ).Assembly ).PackageVersion;
+                var version = AssemblyMetadataReader.GetInstance( typeof(TelemetryUploader).Assembly ).PackageVersion;
 
                 var workerDirectory = Path.Combine(
                     this._directories.ApplicationDataDirectory,
@@ -327,7 +324,7 @@ namespace Metalama.Backstage.Telemetry
             }
         }
 
-        private static string ComputeHash(string s)
+        private static string ComputeHash( string s )
         {
             var sha = SHA512.Create();
             var data = sha.ComputeHash( Encoding.UTF8.GetBytes( s ) );
@@ -351,7 +348,8 @@ namespace Metalama.Backstage.Telemetry
         {
             if ( !Directory.Exists( this._directories.TelemetryUploadQueueDirectory ) )
             {
-                this._logger.Info?.Log( $"The telemetry upload queue directory '{this._directories.TelemetryUploadQueueDirectory}' doesn't exist. Assuming there's nothing to upload." );
+                this._logger.Info?.Log(
+                    $"The telemetry upload queue directory '{this._directories.TelemetryUploadQueueDirectory}' doesn't exist. Assuming there's nothing to upload." );
 
                 return;
             }
@@ -367,14 +365,14 @@ namespace Metalama.Backstage.Telemetry
             try
             {
                 var files = Directory.GetFiles( this._directories.TelemetryUploadQueueDirectory );
-                
+
                 if ( files.Length == 0 )
                 {
                     this._logger.Info?.Log( $"No files found to be uploaded in '{this._directories.TelemetryUploadQueueDirectory}'." );
 
                     return;
                 }
-                
+
                 // TODO: Stream the data directly to HTTP
                 this.CreatePackage( files, packagePath, out filesToDelete );
 

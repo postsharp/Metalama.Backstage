@@ -24,11 +24,13 @@ namespace Metalama.Backstage.Utilities
             if ( mutex.WaitOne( timeout ) )
             {
                 mutexHandle = new MutexHandle( mutex );
+
                 return true;
             }
             else
             {
                 mutexHandle = null;
+
                 return false;
             }
         }

@@ -57,7 +57,7 @@ public static class RegisterServiceExtensions
         string? projectName = null )
     {
         var serviceProvider = serviceProviderBuilder.ServiceProvider;
-        
+
         var configuration = serviceProviderBuilder.ServiceProvider.GetDiagnosticsConfiguration();
 
         DebuggerHelper.Launch( configuration, processKind );
@@ -71,7 +71,10 @@ public static class RegisterServiceExtensions
     /// <summary>
     /// Adds the minimal set of services required by logging and telemetry.
     /// </summary>
-    private static ServiceProviderBuilder AddDiagnosticsRequirements( this ServiceProviderBuilder serviceProviderBuilder, IApplicationInfo applicationInfo, string? dotNetSdkDirectory )
+    private static ServiceProviderBuilder AddDiagnosticsRequirements(
+        this ServiceProviderBuilder serviceProviderBuilder,
+        IApplicationInfo applicationInfo,
+        string? dotNetSdkDirectory )
         => serviceProviderBuilder
             .AddSingleton<IApplicationInfo>( applicationInfo ) // TODO: remove - use IApplicationInfoProvider only
             .AddSingleton<IApplicationInfoProvider>( new ApplicationInfoProvider( applicationInfo ) )
@@ -176,7 +179,9 @@ public static class RegisterServiceExtensions
             var serviceProvider = serviceProviderBuilder.ServiceProvider;
 
             // First-run configuration. This must be done before initializing licensing and telemetry.
-            var registerEvaluationLicense = !ignoreUserProfileLicenses && !applicationInfo.IsPrerelease && !applicationInfo.IsUnattendedProcess( serviceProvider.GetLoggerFactory() );
+            var registerEvaluationLicense = !ignoreUserProfileLicenses && !applicationInfo.IsPrerelease
+                                                                       && !applicationInfo.IsUnattendedProcess( serviceProvider.GetLoggerFactory() );
+
             WelcomeService.Execute( serviceProvider, registerEvaluationLicense );
         }
 
@@ -194,8 +199,7 @@ public static class RegisterServiceExtensions
         return serviceProviderBuilder;
     }
 
-    public static ServiceProviderBuilder AddTelemetryServices(
-        this ServiceProviderBuilder serviceProviderBuilder )
+    public static ServiceProviderBuilder AddTelemetryServices( this ServiceProviderBuilder serviceProviderBuilder )
     {
         var serviceProvider = serviceProviderBuilder.ServiceProvider;
 

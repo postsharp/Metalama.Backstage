@@ -8,7 +8,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using System;
 using System.CommandLine;
-using ILoggerFactory = Microsoft.Extensions.Logging.ILoggerFactory;
 
 namespace Metalama.DotNetTools
 {
@@ -16,15 +15,16 @@ namespace Metalama.DotNetTools
     {
         private IServiceProvider? _serviceProvider;
 
-        public IServiceProvider ServiceProvider => this._serviceProvider ?? throw new InvalidOperationException( "Command services have not been initialized." );
-        
+        public IServiceProvider ServiceProvider
+            => this._serviceProvider ?? throw new InvalidOperationException( "Command services have not been initialized." );
+
         public void Initialize( IConsole console, bool addTrace )
         {
             if ( this.ServiceProvider != null )
             {
                 throw new InvalidOperationException( "Service provider is initialized already." );
             }
-            
+
             // ReSharper disable RedundantTypeArgumentsOfMethod
 
             var serviceCollection = new ServiceCollection();

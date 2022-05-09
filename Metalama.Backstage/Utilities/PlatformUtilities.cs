@@ -34,6 +34,7 @@ namespace Metalama.Backstage.Utilities
                 if ( currentProcessFileName == dotnetFileName )
                 {
                     logger.Trace?.Log( $"The current process '{currentProcessPath}' is {dotnetFileName}." );
+
                     return currentProcessPath;
                 }
                 else

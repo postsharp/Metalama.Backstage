@@ -9,9 +9,7 @@ namespace Metalama.DotNetTools
     internal class MetalamaConfigApplicationInfo : ApplicationInfoBase
     {
         public MetalamaConfigApplicationInfo()
-            : base( typeof( MetalamaConfigApplicationInfo ).Assembly )
-        {
-        }
+            : base( typeof(MetalamaConfigApplicationInfo).Assembly ) { }
 
         public override string Name => "Metalama Config";
 

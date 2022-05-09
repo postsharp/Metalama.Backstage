@@ -328,7 +328,7 @@ public static class ProcessUtilities
 
 #pragma warning disable CA1307
         return !frameworkDescription.Contains( "framework" )
-            && !frameworkDescription.Contains( "native" );
+               && !frameworkDescription.Contains( "native" );
 #pragma warning restore CA1307
     }
 }

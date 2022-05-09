@@ -38,15 +38,15 @@ namespace Metalama.Backstage.Utilities
         /// </summary>
         public DateTime BuildDate
             => this._buildDate ??= this.TryGetValue( "PackageBuildDate", out var buildDateString )
-            ? DateTime.Parse( buildDateString, CultureInfo.InvariantCulture )
-            : throw new InvalidOperationException(
+                ? DateTime.Parse( buildDateString, CultureInfo.InvariantCulture )
+                : throw new InvalidOperationException(
                     $"The AssemblyMetadataAttribute with key 'MetalamaBuildDate' is not defined in assembly '{this._assembly.GetName()}'." );
 
         private AssemblyMetadataReader( Assembly assembly )
         {
             this._assembly = assembly;
 
-            foreach ( var attribute in assembly.GetCustomAttributes( typeof( AssemblyMetadataAttribute ) ).Cast<AssemblyMetadataAttribute>() )
+            foreach ( var attribute in assembly.GetCustomAttributes( typeof(AssemblyMetadataAttribute) ).Cast<AssemblyMetadataAttribute>() )
             {
                 // In case of duplicates, we just ignore the first one. This happens with attributes describing package versions.
                 this._metadata[attribute.Key] = attribute.Value;
@@ -58,8 +58,7 @@ namespace Metalama.Backstage.Utilities
         /// </summary>
         public static AssemblyMetadataReader GetInstance( Assembly assembly ) => _instances.GetValue( assembly, a => new AssemblyMetadataReader( a ) );
 
-        public bool TryGetValue( string key, [MaybeNullWhen( false )] out string value )
-            => this._metadata.TryGetValue( key, out value ) && value != null;
+        public bool TryGetValue( string key, [MaybeNullWhen( false )] out string value ) => this._metadata.TryGetValue( key, out value ) && value != null;
 
         /// <summary>
         /// Gets the package version with which the current assembly was built.
@@ -78,7 +77,8 @@ namespace Metalama.Backstage.Utilities
         /// <summary>
         /// Gets the major, minor, build, and revision numbers of the assembly.
         /// </summary>
-        public Version AssemblyVersion => this._assembly.GetName().Version ?? throw new InvalidOperationException( $"Unknown version of assembly '{this._assembly.GetName()}'." );
+        public Version AssemblyVersion
+            => this._assembly.GetName().Version ?? throw new InvalidOperationException( $"Unknown version of assembly '{this._assembly.GetName()}'." );
 
         /// <summary>
         /// Gets the unique BuildId for the main assembly.

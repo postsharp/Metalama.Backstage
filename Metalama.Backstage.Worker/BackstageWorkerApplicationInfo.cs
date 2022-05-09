@@ -9,9 +9,7 @@ namespace Metalama.Backstage
     internal class BackstageWorkerApplicationInfo : ApplicationInfoBase
     {
         public BackstageWorkerApplicationInfo()
-            : base( typeof( BackstageWorkerApplicationInfo ).Assembly )
-        {
-        }
+            : base( typeof(BackstageWorkerApplicationInfo).Assembly ) { }
 
         public override string Name => "Metalama Backstage Worker";
 

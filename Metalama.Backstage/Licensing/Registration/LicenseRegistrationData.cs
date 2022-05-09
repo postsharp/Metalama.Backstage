@@ -144,7 +144,7 @@ namespace Metalama.Backstage.Licensing.Registration
             {
                 return false;
             }
-            
+
             return this.UniqueId == other.UniqueId &&
                    this.IsSelfCreated == other.IsSelfCreated &&
                    this.LicenseId == other.LicenseId &&

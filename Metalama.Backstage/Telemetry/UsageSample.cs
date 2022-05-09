@@ -46,7 +46,7 @@ namespace Metalama.Backstage.Telemetry
             this.Metrics.Add( new StringMetric( "Application.ProcessName", Process.GetCurrentProcess().ProcessName ) );
             this.Metrics.Add( new StringMetric( "Application.ProcessKind", applicationInfo.ProcessKind.ToString() ) );
             this.Metrics.Add( new StringMetric( "Application.EntryAssembly", Path.GetFileName( Assembly.GetEntryAssembly()?.Location ) ) );
-            
+
             this.Metrics.Add( new DateTimeMetric( "Time", time.Now ) );
         }
 

@@ -10,7 +10,7 @@ namespace Metalama.Backstage.Extensibility
 {
     public abstract class ApplicationInfoBase : IApplicationInfo
     {
-        public ApplicationInfoBase(Assembly metadataAssembly)
+        public ApplicationInfoBase( Assembly metadataAssembly )
         {
             var reader = AssemblyMetadataReader.GetInstance( metadataAssembly );
             this.Version = reader.PackageVersion;

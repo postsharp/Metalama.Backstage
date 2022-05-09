@@ -14,13 +14,13 @@ namespace Metalama.Backstage
         public static async Task Main()
         {
             IServiceProvider? serviceProvider = null;
-            IUsageSample? usageSample = null; 
+            IUsageSample? usageSample = null;
 
             try
             {
                 var serviceProviderBuilder = new ServiceProviderBuilder()
                     .AddMinimalBackstageServices( applicationInfo: new BackstageWorkerApplicationInfo(), addSupportServices: true );
-                
+
                 usageSample = serviceProviderBuilder.ServiceProvider.GetService<IUsageReporter>()?.CreateSample( "CompilerUsage" );
 
                 if ( usageSample != null )
@@ -28,7 +28,7 @@ namespace Metalama.Backstage
                     // ReSharper disable once RedundantTypeArgumentsOfMethod
                     serviceProviderBuilder.AddSingleton<IUsageSample>( usageSample );
                 }
-                
+
                 serviceProvider = serviceProviderBuilder.ServiceProvider;
 
                 var uploader = new TelemetryUploader( serviceProvider );
