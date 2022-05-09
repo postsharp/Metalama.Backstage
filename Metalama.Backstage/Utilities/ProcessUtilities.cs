@@ -41,16 +41,20 @@ public static class ProcessUtilities
                 case "dotnet":
                     var commandLine = Environment.CommandLine.ToLowerInvariant();
 
+#pragma warning disable CA1307
                     if ( commandLine.Contains( "jetbrains.resharper.roslyn.worker.exe" ) )
                     {
                         return ProcessKind.Rider;
                     }
+                    else if ( commandLine.Contains( "vbcscompiler.dll" ) || commandLine.Contains( "csc.dll" ) )
+                    {
+                        return ProcessKind.Compiler;
+                    }
                     else
                     {
-                        return commandLine.Contains( "vbcscompiler.dll" ) || commandLine.Contains( "csc.dll" )
-                            ? ProcessKind.Compiler
-                            : ProcessKind.Other;
+                        return ProcessKind.Other;
                     }
+#pragma warning restore CA1307
 
                 default:
                     return ProcessKind.Other;
@@ -316,5 +320,15 @@ public static class ProcessUtilities
         CloseHandle( hProcess );
 
         return processes.ToArray();
+    }
+
+    public static bool IsNetCore()
+    {
+        var frameworkDescription = RuntimeInformation.FrameworkDescription.ToLowerInvariant();
+
+#pragma warning disable CA1307
+        return !frameworkDescription.Contains( "framework" )
+               && !frameworkDescription.Contains( "native" );
+#pragma warning restore CA1307
     }
 }

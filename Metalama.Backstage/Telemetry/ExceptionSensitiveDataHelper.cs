@@ -14,7 +14,7 @@ namespace Metalama.Backstage.Telemetry
         // The Linux regex doesn't take words delimited by space after the path, but requires the path to have escaped spaces.
         private const string _unixPathRegex = @"/(?:(?:[^\:;\r\n"",'\]\}\ ])|(?:(?<=\\)\ ))+";
 
-        public static readonly ExceptionSensitiveDataHelper Instance = new ExceptionSensitiveDataHelper();
+        public static readonly ExceptionSensitiveDataHelper Instance = new();
 
         private static readonly Regex _userNameRegEx =
             new(
@@ -29,7 +29,7 @@ namespace Metalama.Backstage.Telemetry
                 isWindows = RuntimeInformation.IsOSPlatform( OSPlatform.Windows );
             }
 
-            this._pathRegex = new( isWindows.Value ? _windowsPathRegex : _unixPathRegex );
+            this._pathRegex = new Regex( isWindows.Value ? _windowsPathRegex : _unixPathRegex );
         }
 
         /// <exclude />

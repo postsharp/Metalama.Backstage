@@ -13,7 +13,7 @@ namespace Metalama.DotNetTools.Commands.Telemetry;
 
 internal class ResetDeviceIdCommand : CommandBase
 {
-    public ResetDeviceIdCommand( ICommandServiceProvider commandServiceProvider ) : base(
+    public ResetDeviceIdCommand( ICommandServiceProviderProvider commandServiceProvider ) : base(
         commandServiceProvider,
         "reset-device-id",
         "Resets the device ID" )
@@ -23,8 +23,8 @@ internal class ResetDeviceIdCommand : CommandBase
 
     private void Execute( IConsole console )
     {
-        var services = this.CommandServiceProvider.CreateServiceProvider( console, false );
-        services.GetRequiredService<IConfigurationManager>().Update<TelemetryConfiguration>( c => c.DeviceId = Guid.NewGuid() );
+        this.CommandServices.Initialize( console, false );
+        this.CommandServices.ServiceProvider.GetRequiredService<IConfigurationManager>().Update<TelemetryConfiguration>( c => c.DeviceId = Guid.NewGuid() );
         console.Out.WriteLine( "The device id has been reset." );
     }
 }

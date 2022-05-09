@@ -56,7 +56,9 @@ namespace Metalama.Backstage.Licensing.Licenses
 
         private static bool TryGetLicenseId( string s, out int id )
         {
+#pragma warning disable CA1307
             var firstDash = s.IndexOf( '-' );
+#pragma warning restore CA1307
 
             if ( firstDash > 0 )
             {

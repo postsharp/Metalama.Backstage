@@ -12,17 +12,17 @@ internal class UsageReporter : IUsageReporter
 {
     private readonly IServiceProvider _serviceProvider;
     private readonly TelemetryConfiguration _configuration;
-    private readonly UploadManager _uploadManager;
+    private readonly TelemetryUploader _uploader;
     private readonly IConfigurationManager _configurationManager;
     private readonly IDateTimeProvider _time;
     private readonly ILogger _logger;
 
-    public UsageReporter( UploadManager uploadManager, IServiceProvider serviceProvider )
+    public UsageReporter( TelemetryUploader uploader, IServiceProvider serviceProvider )
     {
         this._serviceProvider = serviceProvider;
         this._configurationManager = serviceProvider.GetRequiredService<IConfigurationManager>();
         this._configuration = this._configurationManager.Get<TelemetryConfiguration>();
-        this._uploadManager = uploadManager;
+        this._uploader = uploader;
         this._time = serviceProvider.GetRequiredService<IDateTimeProvider>();
         this._logger = serviceProvider.GetLoggerFactory().Telemetry();
     }
@@ -65,5 +65,5 @@ internal class UsageReporter : IUsageReporter
             } );
     }
 
-    public IUsageSample CreateSample( string kind ) => new UsageSample( this._serviceProvider, this._configuration, kind, this._uploadManager );
+    public IUsageSample CreateSample( string kind ) => new UsageSample( this._serviceProvider, kind, this._uploader );
 }

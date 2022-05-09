@@ -10,7 +10,7 @@ namespace Metalama.DotNetTools.Commands.Licensing;
 
 internal class UnregisterCommand : CommandBase
 {
-    public UnregisterCommand( ICommandServiceProvider commandServiceProvider )
+    public UnregisterCommand( ICommandServiceProviderProvider commandServiceProvider )
         : base( commandServiceProvider, "unregister", "Unregisters a license" )
     {
         this.AddArgument(
@@ -23,8 +23,9 @@ internal class UnregisterCommand : CommandBase
 
     private int Execute( string licenseKeyOrOrdinal, bool verbose, IConsole console )
     {
-        var services = this.CommandServiceProvider.CreateServiceProvider( console, verbose );
-        var licenseStorage = ParsedLicensingConfiguration.OpenOrCreate( services );
+        this.CommandServices.Initialize( console, verbose );
+
+        var licenseStorage = ParsedLicensingConfiguration.OpenOrCreate( this.CommandServices.ServiceProvider );
 
         if ( int.TryParse( licenseKeyOrOrdinal, out var ordinal ) )
         {

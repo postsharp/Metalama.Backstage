@@ -23,30 +23,30 @@ internal class ExceptionReporter : IExceptionReporter
 {
     private const string _errorContextDataSlot = "__PSErrorContext";
 
-    private readonly UploadManager _uploadManager;
+    private readonly TelemetryQueue _uploadManager;
     private readonly TelemetryConfiguration _configuration;
     private readonly IDateTimeProvider _time;
-    private readonly IApplicationInfo _applicationInfo;
+    private readonly IApplicationInfoProvider _applicationInfoProvider;
     private readonly IStandardDirectories _directories;
     private readonly ILogger _logger;
 
     private readonly Regex _stackFrameRegex = new( @"\S+\([^\)]*\)" );
 
-    public ExceptionReporter( UploadManager uploadManager, IServiceProvider serviceProvider )
+    public ExceptionReporter( TelemetryQueue uploadManager, IServiceProvider serviceProvider )
     {
         this._uploadManager = uploadManager;
         this._configuration = serviceProvider.GetRequiredService<IConfigurationManager>().Get<TelemetryConfiguration>();
         this._time = serviceProvider.GetRequiredService<IDateTimeProvider>();
-        this._applicationInfo = serviceProvider.GetRequiredService<IApplicationInfo>();
+        this._applicationInfoProvider = serviceProvider.GetRequiredService<IApplicationInfoProvider>();
         this._directories = serviceProvider.GetRequiredService<IStandardDirectories>();
         this._logger = serviceProvider.GetLoggerFactory().Telemetry();
     }
 
-    public IEnumerable<string> CleanStackTrace( string stackTrace )
+    public IEnumerable<string?> CleanStackTrace( string stackTrace )
     {
-        foreach ( Match match in this._stackFrameRegex.Matches( stackTrace ) )
+        foreach ( Match? match in this._stackFrameRegex.Matches( stackTrace ) )
         {
-            yield return match.Value;
+            yield return match?.Value;
         }
     }
 
@@ -90,9 +90,11 @@ internal class ExceptionReporter : IExceptionReporter
 
         foreach ( var stackFrame in this.CleanStackTrace( stackTrace ) )
         {
-            var writeStackFrame = stackFrame;
+            var writeStackFrame = stackFrame ?? "<null>";
 
-            if ( stackFrame.Contains( "#user" ) )
+#pragma warning disable CA1307
+            if ( writeStackFrame.Contains( "#user" ) )
+#pragma warning restore CA1307
             {
                 if ( lastFrameIsUser )
                 {
@@ -184,10 +186,12 @@ internal class ExceptionReporter : IExceptionReporter
             return;
         }
 
+        var applicationInfo = this._applicationInfoProvider.CurrentApplication;
+
         // Compute a signature for this exception.
         var hash = this.ComputeExceptionHash(
-            this._applicationInfo.Version,
-            e.GetType().FullName,
+            applicationInfo.Version,
+            e.GetType().FullName!,
             ExceptionSensitiveDataHelper.Instance.RemoveSensitiveData( e.StackTrace ) );
 
         // Check if this exception has already been reported.
@@ -214,8 +218,8 @@ internal class ExceptionReporter : IExceptionReporter
         writer.WriteElementString( "Time", XmlConvert.ToString( this._time.Now, XmlDateTimeSerializationMode.RoundtripKind ) );
         writer.WriteElementString( "ClientId", this._configuration.DeviceId.ToString() );
         writer.WriteStartElement( "Application" );
-        writer.WriteElementString( "Name", this._applicationInfo.Name );
-        writer.WriteElementString( "Version", this._applicationInfo.Version );
+        writer.WriteElementString( "Name", applicationInfo.Name );
+        writer.WriteElementString( "Version", applicationInfo.Version );
         writer.WriteEndElement();
 
         var currentProcess = Process.GetCurrentProcess();
@@ -247,7 +251,7 @@ internal class ExceptionReporter : IExceptionReporter
             var assemblyName = assembly.GetName();
             writer.WriteStartElement( "Assembly" );
             writer.WriteElementString( "Name", ExceptionSensitiveDataHelper.Instance.RemoveSensitiveData( assemblyName.Name ) );
-            writer.WriteElementString( "Version", assemblyName.Version.ToString() );
+            writer.WriteElementString( "Version", assemblyName.Version?.ToString() ?? "<unknown>" );
 
             try
             {

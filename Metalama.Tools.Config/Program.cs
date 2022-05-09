@@ -1,20 +1,66 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. All rights reserved.
 // This project is not open source. Please see the LICENSE.md file in the repository root for details.
 
+using Metalama.Backstage.Diagnostics;
+using Metalama.Backstage.Telemetry;
 using Metalama.DotNetTools.Commands;
+using Microsoft.Extensions.DependencyInjection;
+using System;
 using System.CommandLine;
 using System.Threading.Tasks;
 
 namespace Metalama.DotNetTools
 {
-    internal class Program
+    internal static class Program
     {
-        private static Task<int> Main( string[] args )
+        private static async Task<int> Main( string[] args )
         {
             var servicesFactory = new CommandServiceProvider();
-            var root = new TheRootCommand( servicesFactory );
 
-            return root.InvokeAsync( args );
+            try
+            {
+                var root = new TheRootCommand( servicesFactory );
+
+                return await root.InvokeAsync( args );
+            }
+            catch ( Exception e )
+            {
+                try
+                {
+                    servicesFactory.ServiceProvider?.GetService<IExceptionReporter>()?.ReportException( e );
+                }
+                catch ( Exception reporterException )
+                {
+                    throw new AggregateException( e, reporterException );
+                }
+
+                return -1;
+            }
+            finally
+            {
+                try
+                {
+                    // Report usage.
+                    servicesFactory.ServiceProvider?.GetService<IUsageSample>()?.Flush();
+
+                    // Close logs.
+                    // Logging has to be disposed as the last one, so it could be used until now.
+                    servicesFactory.ServiceProvider?.GetLoggerFactory().Dispose();
+                }
+                catch ( Exception e )
+                {
+                    try
+                    {
+                        servicesFactory.ServiceProvider?.GetService<IExceptionReporter>()?.ReportException( e );
+                    }
+                    catch
+                    {
+                        // We don't want failing telemetry to disturb users.
+                    }
+
+                    // We don't want failing telemetry to disturb users.
+                }
+            }
         }
     }
 }

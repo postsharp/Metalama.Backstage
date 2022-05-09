@@ -162,7 +162,7 @@ object PublicDeployment : BuildType({
         }
     }
 
-  dependencies {
+    dependencies {
 
         dependency(PublicBuild) {
             snapshot {
@@ -208,10 +208,6 @@ object VersionBump : BuildType({
             lockingProcesses = Swabra.LockingProcessPolicy.KILL
             verbose = true
         }
-    }
-
-    triggers {
-
     }
 
 })

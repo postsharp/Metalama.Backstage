@@ -12,7 +12,7 @@ namespace Metalama.DotNetTools.Commands.Licensing
 {
     internal class ListCommand : CommandBase
     {
-        public ListCommand( ICommandServiceProvider commandServiceProvider )
+        public ListCommand( ICommandServiceProviderProvider commandServiceProvider )
             : base( commandServiceProvider, "list", "Lists registered licenses" )
         {
             this.Handler = CommandHandler.Create<bool, IConsole>( this.Execute );
@@ -20,8 +20,8 @@ namespace Metalama.DotNetTools.Commands.Licensing
 
         private int Execute( bool verbose, IConsole console )
         {
-            var services = this.CommandServiceProvider.CreateServiceProvider( console, verbose );
-            var storage = ParsedLicensingConfiguration.OpenOrCreate( services );
+            this.CommandServices.Initialize( console, verbose );
+            var storage = ParsedLicensingConfiguration.OpenOrCreate( this.CommandServices.ServiceProvider );
 
             var index = 1;
 

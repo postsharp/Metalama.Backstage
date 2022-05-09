@@ -5,7 +5,7 @@ namespace Metalama.DotNetTools.Commands.Licensing;
 
 internal class LicenseCommand : CommandBase
 {
-    public LicenseCommand( ICommandServiceProvider commandServiceProvider )
+    public LicenseCommand( ICommandServiceProviderProvider commandServiceProvider )
         : base( commandServiceProvider, "license", "Manages licenses" )
     {
         this.Add( new ListCommand( commandServiceProvider ) );

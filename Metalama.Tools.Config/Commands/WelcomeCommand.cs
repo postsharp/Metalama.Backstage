@@ -9,7 +9,7 @@ namespace Metalama.DotNetTools.Commands;
 
 internal class WelcomeCommand : CommandBase
 {
-    public WelcomeCommand( ICommandServiceProvider commandServiceProvider ) : base(
+    public WelcomeCommand( ICommandServiceProviderProvider commandServiceProvider ) : base(
         commandServiceProvider,
         "welcome",
         "Executes the first-day initialization" )
@@ -20,7 +20,7 @@ internal class WelcomeCommand : CommandBase
 
     private void Execute( bool verbose, IConsole console )
     {
-        var services = this.CommandServiceProvider.CreateServiceProvider( console, verbose );
-        WelcomeService.Execute( services );
+        this.CommandServices.Initialize( console, verbose );
+        WelcomeService.Execute( this.CommandServices.ServiceProvider );
     }
 }

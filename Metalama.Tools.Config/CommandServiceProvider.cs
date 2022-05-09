@@ -3,6 +3,7 @@
 
 using Metalama.Backstage.Extensibility;
 using Metalama.Backstage.MicrosoftLogging;
+using Metalama.Backstage.Telemetry;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using System;
@@ -10,10 +11,20 @@ using System.CommandLine;
 
 namespace Metalama.DotNetTools
 {
-    internal class CommandServiceProvider : ICommandServiceProvider
+    internal class CommandServiceProvider : ICommandServiceProviderProvider
     {
-        public IServiceProvider CreateServiceProvider( IConsole console, bool addTrace )
+        private IServiceProvider? _serviceProvider;
+
+        public IServiceProvider ServiceProvider
+            => this._serviceProvider ?? throw new InvalidOperationException( "Command services have not been initialized." );
+
+        public void Initialize( IConsole console, bool addTrace )
         {
+            if ( this.ServiceProvider != null )
+            {
+                throw new InvalidOperationException( "Service provider is initialized already." );
+            }
+
             // ReSharper disable RedundantTypeArgumentsOfMethod
 
             var serviceCollection = new ServiceCollection();
@@ -39,16 +50,23 @@ namespace Metalama.DotNetTools
 
             serviceProviderBuilder
                 .AddSingleton<IConsole>( console )
-                .AddMinimalBackstageServices();
+                .AddMinimalBackstageServices( new MetalamaConfigApplicationInfo() );
 
             if ( loggerFactory != null )
             {
                 serviceProviderBuilder.AddMicrosoftLoggerFactory( loggerFactory );
             }
 
-            // ReSharper restore RedundantTypeArgumentsOfMethod
+            serviceProviderBuilder.AddTelemetryServices();
 
-            return serviceCollection.BuildServiceProvider();
+            var usageSample = serviceProviderBuilder.ServiceProvider.GetService<IUsageReporter>()?.CreateSample( "CompilerUsage" );
+
+            if ( usageSample != null )
+            {
+                serviceProviderBuilder.AddSingleton<IUsageSample>( usageSample );
+            }
+
+            this._serviceProvider = serviceCollection.BuildServiceProvider();
         }
     }
 }

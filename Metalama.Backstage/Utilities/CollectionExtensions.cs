@@ -17,6 +17,7 @@ namespace Metalama.Backstage.Utilities
         }
 
         internal static TValue GetOrAdd<TKey, TValue>( this IDictionary<TKey, TValue> dictionary, TKey key )
+            where TKey : notnull
             where TValue : new()
         {
             if ( dictionary.TryGetValue( key, out var value ) )

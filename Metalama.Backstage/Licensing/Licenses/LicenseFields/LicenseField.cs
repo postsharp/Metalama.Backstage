@@ -35,7 +35,7 @@ namespace Metalama.Backstage.Licensing.Licenses.LicenseFields
 
         public override string ToString()
         {
-            return this.Value == null ? "null" : this.Value.ToString();
+            return this.Value?.ToString() ?? "null";
         }
 
         public LicenseField Clone()

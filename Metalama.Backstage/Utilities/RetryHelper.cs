@@ -37,7 +37,7 @@ namespace Metalama.Backstage.Utilities
                 }
                 catch ( Exception e ) when ( i < maxAttempts && retryPredicate( e ) )
                 {
-                    logger?.Warning?.Log( $"Caught {e.GetType().Name} '{e.Message}'. Retrying in {delay}." );
+                    logger?.Warning?.Log( $"{nameof(RetryHelper)} caught {e.GetType().Name} '{e.Message}'. Retrying in {delay}." );
 
                     Thread.Sleep( TimeSpan.FromMilliseconds( delay ) );
                     delay *= 1.2;

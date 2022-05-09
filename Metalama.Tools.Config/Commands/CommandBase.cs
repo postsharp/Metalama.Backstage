@@ -7,12 +7,12 @@ namespace Metalama.DotNetTools.Commands
 {
     internal class CommandBase : Command
     {
-        public ICommandServiceProvider CommandServiceProvider { get; }
+        public ICommandServiceProviderProvider CommandServices { get; }
 
-        public CommandBase( ICommandServiceProvider commandServiceProvider, string name, string? description = null )
+        public CommandBase( ICommandServiceProviderProvider commandServiceProvider, string name, string? description = null )
             : base( name, description )
         {
-            this.CommandServiceProvider = commandServiceProvider;
+            this.CommandServices = commandServiceProvider;
         }
     }
 }

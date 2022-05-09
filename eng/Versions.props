@@ -10,9 +10,13 @@
 
     <!-- Versions of dependencies -->
     <PropertyGroup>
-        <PostSharpEngineeringVersion>1.0.63-preview</PostSharpEngineeringVersion>
+        <PostSharpEngineeringVersion>1.0.66-preview</PostSharpEngineeringVersion>
         <NewtonsoftJsonVersion>13.0.1</NewtonsoftJsonVersion>
         <MicrosoftBclHashCodeVersion>1.1.1</MicrosoftBclHashCodeVersion>
+        <MicrosoftNETTestSdkVersion>17.1.0</MicrosoftNETTestSdkVersion>
+        <XunitVersion>2.4.1</XunitVersion>
+        <XUnitRunnerVisualStudioVersion>2.4.3</XUnitRunnerVisualStudioVersion>
+        <CoverletCollectorVersion>1.3.0</CoverletCollectorVersion>
     </PropertyGroup>
 
     <!-- Import overrides for the local build -->

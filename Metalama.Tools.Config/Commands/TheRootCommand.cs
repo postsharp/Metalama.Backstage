@@ -10,7 +10,7 @@ namespace Metalama.DotNetTools.Commands;
 
 internal class TheRootCommand : RootCommand
 {
-    public TheRootCommand( ICommandServiceProvider commandServiceProvider )
+    public TheRootCommand( ICommandServiceProviderProvider commandServiceProvider )
         : base( "Manages user options of Metalama" )
     {
         this.Add( new LicenseCommand( commandServiceProvider ) );

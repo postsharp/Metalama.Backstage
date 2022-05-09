@@ -74,7 +74,9 @@ namespace Metalama.Backstage.Utilities
         /// </exception>
         public static byte[] FromBase32String( string str )
         {
+#pragma warning disable CA1307
             str = str.Replace( "-", "" );
+#pragma warning restore CA1307
             var numBytes = str.Length * 5 / 8;
             var bytes = new byte[numBytes];
 
@@ -83,12 +85,16 @@ namespace Metalama.Backstage.Utilities
 
             if ( str.Length < 3 )
             {
+#pragma warning disable CA1307
                 bytes[0] = (byte) (_validChars.IndexOf( str[0] ) | (_validChars.IndexOf( str[1] ) << 5));
+#pragma warning restore CA1307
 
                 return bytes;
             }
 
+#pragma warning disable CA1307
             var bitBuffer = _validChars.IndexOf( str[0] ) | (_validChars.IndexOf( str[1] ) << 5);
+#pragma warning restore CA1307
             var bitsInBuffer = 10;
             var currentCharIndex = 2;
 
@@ -100,7 +106,9 @@ namespace Metalama.Backstage.Utilities
 
                 while ( bitsInBuffer < 8 && currentCharIndex < str.Length )
                 {
+#pragma warning disable CA1307
                     bitBuffer |= _validChars.IndexOf( str[currentCharIndex++] ) << bitsInBuffer;
+#pragma warning restore CA1307
                     bitsInBuffer += 5;
                 }
             }

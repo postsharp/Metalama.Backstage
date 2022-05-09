@@ -22,48 +22,60 @@ namespace Metalama.Backstage.Telemetry
             {
                 writer.WriteStartElement( "Data" );
 
-                foreach ( DictionaryEntry data in e.Data )
+                foreach ( DictionaryEntry? data in e.Data )
                 {
                     writer.WriteStartElement( "Item" );
 
-                    if ( data.Key != null )
+                    if ( data != null )
                     {
-                        writer.WriteElementString( "Key", ExceptionSensitiveDataHelper.Instance.RemoveSensitiveData( data.Key.ToString() ) );
-                    }
-
-                    if ( data.Value != null )
-                    {
-                        if ( data.Value is Array array )
+                        if ( data.Value.Key != null )
                         {
-                            writer.WriteStartElement( "Array" );
+                            writer.WriteElementString( "Key", ExceptionSensitiveDataHelper.Instance.RemoveSensitiveData( data.Value.Key.ToString() ) );
+                        }
 
-                            for ( var i = 0; i < array.Length; i++ )
+                        if ( data.Value.Value != null )
+                        {
+                            if ( data.Value.Value is Array array )
                             {
-                                var value = array.GetValue( i );
+                                writer.WriteStartElement( "Array" );
 
-                                if ( value is Exception exception )
+                                for ( var i = 0; i < array.Length; i++ )
                                 {
-                                    writer.WriteStartElement( "Item" );
-                                    WriteException( writer, exception );
-                                    writer.WriteEndElement();
+                                    var value = array.GetValue( i );
+
+                                    switch ( value )
+                                    {
+                                        case Exception exception:
+                                            writer.WriteStartElement( "Item" );
+                                            WriteException( writer, exception );
+                                            writer.WriteEndElement();
+
+                                            break;
+
+                                        case null:
+                                            writer.WriteElementString( "Item", "<null>" );
+
+                                            break;
+
+                                        default:
+                                            writer.WriteElementString( "Item", ExceptionSensitiveDataHelper.Instance.RemoveSensitiveData( value.ToString() ) );
+
+                                            break;
+                                    }
                                 }
-                                else
-                                {
-                                    writer.WriteElementString( "Item", ExceptionSensitiveDataHelper.Instance.RemoveSensitiveData( value.ToString() ) );
-                                }
+
+                                writer.WriteEndElement();
                             }
-
-                            writer.WriteEndElement();
-                        }
-                        else if ( data.Value is Exception exception )
-                        {
-                            writer.WriteStartElement( "Value" );
-                            WriteException( writer, exception );
-                            writer.WriteEndElement();
-                        }
-                        else
-                        {
-                            writer.WriteElementString( "Value", ExceptionSensitiveDataHelper.Instance.RemoveSensitiveData( data.Value.ToString() ) );
+                            else if ( data.Value.Value is Exception exception )
+                            {
+                                writer.WriteStartElement( "Value" );
+                                WriteException( writer, exception );
+                                writer.WriteEndElement();
+                            }
+                            else
+                            {
+                                writer.WriteElementString( "Value", ExceptionSensitiveDataHelper.Instance.RemoveSensitiveData( data.Value.ToString() ) );
+                            }
                         }
                     }
 

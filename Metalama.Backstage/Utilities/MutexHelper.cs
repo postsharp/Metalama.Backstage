@@ -2,6 +2,7 @@
 // This project is not open source. Please see the LICENSE.md file in the repository root for details.
 
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Threading;
 
 namespace Metalama.Backstage.Utilities
@@ -14,6 +15,24 @@ namespace Metalama.Backstage.Utilities
             mutex.WaitOne();
 
             return new MutexHandle( mutex );
+        }
+
+        public static bool WithGlobalLock( string name, TimeSpan timeout, [NotNullWhen( true )] out IDisposable? mutexHandle )
+        {
+            var mutex = CreateGlobalMutex( name );
+
+            if ( mutex.WaitOne( timeout ) )
+            {
+                mutexHandle = new MutexHandle( mutex );
+
+                return true;
+            }
+            else
+            {
+                mutexHandle = null;
+
+                return false;
+            }
         }
 
         private static Mutex CreateGlobalMutex( string fullName )
