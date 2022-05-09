@@ -5,20 +5,20 @@ namespace Metalama.Backstage.Diagnostics;
 
 internal class Logger : ILogger
 {
-    public DiagnosticsService DiagnosticsService { get; }
+    public LoggerFactory LoggerFactory { get; }
 
     public string Category { get; }
 
-    public Logger( DiagnosticsService loggerDiagnosticsService, string category )
+    public Logger( LoggerFactory loggerDiagnosticsService, string category )
     {
-        this.DiagnosticsService = loggerDiagnosticsService;
+        this.LoggerFactory = loggerDiagnosticsService;
         this.Category = category;
         this.Error = this.CreateLogWriter( "ERROR" );
         this.Warning = this.CreateLogWriter( "WARNING" );
         this.Info = this.CreateLogWriter( "INFO" );
 
-        if ( (this.DiagnosticsService.Configuration.Logging.Categories.TryGetValue( "*", out var allEnabled ) && allEnabled) ||
-             (this.DiagnosticsService.Configuration.Logging.Categories.TryGetValue( category, out var enabled ) && enabled) )
+        if ( (this.LoggerFactory.Configuration.Logging.Categories.TryGetValue( "*", out var allEnabled ) && allEnabled) ||
+             (this.LoggerFactory.Configuration.Logging.Categories.TryGetValue( category, out var enabled ) && enabled) )
         {
             this.Trace = this.CreateLogWriter( "TRACE" );
         }

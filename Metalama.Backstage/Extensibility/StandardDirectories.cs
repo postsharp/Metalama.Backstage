@@ -26,17 +26,17 @@ namespace Metalama.Backstage.Extensibility
                 // the SpecialFolder.ApplicationData folder path.
                 applicationDataParentDirectory = Environment.GetFolderPath( Environment.SpecialFolder.UserProfile );
             }
-            
+
             if ( string.IsNullOrEmpty( applicationDataParentDirectory ) )
             {
                 // This will always fail on platforms which don't provide the special folders being discovered above.
                 // We need to find another locations on such platforms.
                 throw new InvalidOperationException( "Failed to find application data parent directory." );
             }
-            
+
             this.ApplicationDataDirectory = Path.Combine( applicationDataParentDirectory, ".metalama" );
         }
-        
+
         /// <inheritdoc />
         public string ApplicationDataDirectory { get; }
 

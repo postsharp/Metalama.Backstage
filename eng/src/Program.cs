@@ -7,7 +7,7 @@ using PostSharp.Engineering.BuildTools.Build.Solutions;
 using PostSharp.Engineering.BuildTools.Dependencies.Model;
 using Spectre.Console.Cli;
 
-var product = new Product
+var product = new Product( Dependencies.MetalamaBackstage )
 {
     ProductName = "Metalama.Backstage",
     Solutions = new Solution[]

@@ -77,7 +77,7 @@ namespace Metalama.Backstage.Configuration
 
             if ( attribute == null )
             {
-                throw new InvalidOperationException( $"'{nameof( ConfigurationFileAttribute )}' custom attribute not found for '{type.FullName}' type." );
+                throw new InvalidOperationException( $"'{nameof(ConfigurationFileAttribute)}' custom attribute not found for '{type.FullName}' type." );
             }
 
             return Path.Combine( this.ApplicationDataDirectory, attribute.FileName );

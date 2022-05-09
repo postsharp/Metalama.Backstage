@@ -23,7 +23,7 @@ namespace Metalama.Backstage.Telemetry
         public void EnqueueFile( string file )
         {
             this._logger.Trace?.Log( $"Enqueuing '{file}'." );
-            
+
             var directory = this._directories.TelemetryUploadQueueDirectory;
 
             if ( !Directory.Exists( directory ) )

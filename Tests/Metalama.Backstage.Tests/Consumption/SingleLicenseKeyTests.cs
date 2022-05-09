@@ -29,7 +29,7 @@ public class SingleLicenseKeyTests : LicenseConsumptionManagerTestsBase
     [Fact]
     public void NoLicenseAutoRegistersEvaluationLicense()
     {
-        LicenseConsumptionManager manager = new( this.Services );
+        LicenseConsumptionManager manager = new( this.ServiceProvider );
         TestConsumption( manager, LicensedFeatures.Metalama, false, true );
     }
 

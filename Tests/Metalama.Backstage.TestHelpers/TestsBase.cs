@@ -20,7 +20,7 @@ namespace Metalama.Backstage.Testing
 
         public ITestLoggerSink Log { get; }
 
-        public IServiceProvider Services { get; }
+        public IServiceProvider ServiceProvider { get; }
 
         public TestsBase( ITestOutputHelper logger, Action<ServiceProviderBuilder>? serviceBuilder = null )
         {
@@ -49,7 +49,7 @@ namespace Metalama.Backstage.Testing
 
             serviceBuilder?.Invoke( serviceCollectionAdapter );
 
-            this.Services = serviceCollection.BuildServiceProvider();
+            this.ServiceProvider = serviceCollection.BuildServiceProvider();
         }
     }
 }

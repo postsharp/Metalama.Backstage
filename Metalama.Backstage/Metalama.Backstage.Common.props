@@ -5,8 +5,8 @@
          Metalama.Framework.DesignTime and Metalama.Framework.DesignTime.VisualStudio projects in Metalama repo. -->
 
     <PropertyGroup>
-		<RootNamespace>Metalama.Backstage</RootNamespace>
-		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+        <RootNamespace>Metalama.Backstage</RootNamespace>
+        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
         <MetalamaBackstageDirectory Condition="'$(MetalamaBackstageDirectory)'==''">$(MSBuildProjectDirectory)</MetalamaBackstageDirectory>
         <!-- Workaround for having Metalama.Backstage.Worker.runtimeconfig.json copied to the output directory.
              TODO: Figure out why this file doesn't respect the "PrivateAssets=all" flag. -->
@@ -15,10 +15,12 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <None Remove="Telemetry\public.key" />
-      <EmbeddedResource Include="$(MetalamaBackstageDirectory)\Telemetry\public.key" />
-      <EmbeddedResource Include="..\Metalama.Backstage.Worker\bin\Metalama.Backstage.Worker.net6.0.zip" Condition="'$(IsWorkerBuild)'!='true'" />
-      <EmbeddedResource Include="..\Metalama.Backstage.Worker\bin\Metalama.Backstage.Worker.netframework4.7.2.zip" Condition="'$(IsWorkerBuild)'!='true'" />
+        <None Remove="Telemetry\public.key" />
+        <EmbeddedResource Include="$(MetalamaBackstageDirectory)\Telemetry\public.key" />
+        <EmbeddedResource Include="..\Metalama.Backstage.Worker\bin\Metalama.Backstage.Worker.net6.0.zip"
+                          Condition="'$(IsWorkerBuild)'!='true'" />
+        <EmbeddedResource Include="..\Metalama.Backstage.Worker\bin\Metalama.Backstage.Worker.netframework4.7.2.zip"
+                          Condition="'$(IsWorkerBuild)'!='true'" />
     </ItemGroup>
 
     <ItemGroup>

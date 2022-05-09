@@ -13,17 +13,25 @@ namespace Metalama.Backstage
     {
         public static async Task Main()
         {
-            IServiceProvider? services = null;
+            IServiceProvider? serviceProvider = null;
+            IUsageSample? usageSample = null;
 
             try
             {
                 var serviceProviderBuilder = new ServiceProviderBuilder()
-                    .AddBackstageProcessServices(
-                        applicationInfo: new MetalamaBackstageApplicationInfo() );
+                    .AddMinimalBackstageServices( applicationInfo: new BackstageWorkerApplicationInfo(), addSupportServices: true );
 
-                services = serviceProviderBuilder.ServiceProvider;
+                usageSample = serviceProviderBuilder.ServiceProvider.GetService<IUsageReporter>()?.CreateSample( "CompilerUsage" );
 
-                var uploader = new TelemetryUploader( services );
+                if ( usageSample != null )
+                {
+                    // ReSharper disable once RedundantTypeArgumentsOfMethod
+                    serviceProviderBuilder.AddSingleton<IUsageSample>( usageSample );
+                }
+
+                serviceProvider = serviceProviderBuilder.ServiceProvider;
+
+                var uploader = new TelemetryUploader( serviceProvider );
 
                 await uploader.UploadAsync();
             }
@@ -33,7 +41,7 @@ namespace Metalama.Backstage
 
                 try
                 {
-                    var exceptionReporter = services?.GetService<IExceptionReporter>();
+                    var exceptionReporter = serviceProvider?.GetService<IExceptionReporter>();
 
                     if ( exceptionReporter != null )
                     {
@@ -48,7 +56,7 @@ namespace Metalama.Backstage
 
                 try
                 {
-                    var log = services?.GetLoggerFactory()?.Telemetry()?.Error;
+                    var log = serviceProvider?.GetLoggerFactory().Telemetry().Error;
 
                     if ( log != null )
                     {
@@ -66,37 +74,31 @@ namespace Metalama.Backstage
                     throw;
                 }
             }
-        }
-
-        private class MetalamaBackstageApplicationInfo : IApplicationInfo
-        {
-            public string Name => "Metalama.Backstage";
-
-            public string Version
+            finally
             {
-                get
+                try
                 {
-                    var assembly = this.GetType().Assembly;
-                    var version = assembly.GetName().Version;
+                    // Report usage.
+                    usageSample?.Flush();
 
-                    if ( version == null )
+                    // Close logs.
+                    // Logging has to be disposed as the last one, so it could be used until now.
+                    serviceProvider?.GetLoggerFactory().Dispose();
+                }
+                catch ( Exception e )
+                {
+                    try
                     {
-                        throw new InvalidOperationException( $"Failed to retrieve the assembly version of '{assembly.FullName}' assembly." );
+                        serviceProvider?.GetService<IExceptionReporter>()?.ReportException( e );
+                    }
+                    catch
+                    {
+                        // We don't want failing telemetry to disturb users.
                     }
 
-                    return version.ToString();
+                    // We don't re-throw here as we don't want compiler to crash because of usage reporting exceptions.
                 }
             }
-
-            public bool IsPrerelease => throw new NotImplementedException();
-
-            public DateTime BuildDate => throw new NotImplementedException();
-
-            public ProcessKind ProcessKind => ProcessKind.Backstage;
-
-            public bool IsLongRunningProcess => false;
-
-            public bool IsUnattendedProcess( ILoggerFactory loggerFactory ) => throw new NotImplementedException();
         }
     }
 }

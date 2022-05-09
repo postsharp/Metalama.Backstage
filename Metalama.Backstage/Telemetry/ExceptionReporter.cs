@@ -26,7 +26,7 @@ internal class ExceptionReporter : IExceptionReporter
     private readonly TelemetryQueue _uploadManager;
     private readonly TelemetryConfiguration _configuration;
     private readonly IDateTimeProvider _time;
-    private readonly IApplicationInfo _applicationInfo;
+    private readonly IApplicationInfoProvider _applicationInfoProvider;
     private readonly IStandardDirectories _directories;
     private readonly ILogger _logger;
 
@@ -37,7 +37,7 @@ internal class ExceptionReporter : IExceptionReporter
         this._uploadManager = uploadManager;
         this._configuration = serviceProvider.GetRequiredService<IConfigurationManager>().Get<TelemetryConfiguration>();
         this._time = serviceProvider.GetRequiredService<IDateTimeProvider>();
-        this._applicationInfo = serviceProvider.GetRequiredService<IApplicationInfo>();
+        this._applicationInfoProvider = serviceProvider.GetRequiredService<IApplicationInfoProvider>();
         this._directories = serviceProvider.GetRequiredService<IStandardDirectories>();
         this._logger = serviceProvider.GetLoggerFactory().Telemetry();
     }
@@ -186,9 +186,11 @@ internal class ExceptionReporter : IExceptionReporter
             return;
         }
 
+        var applicationInfo = this._applicationInfoProvider.CurrentApplication;
+
         // Compute a signature for this exception.
         var hash = this.ComputeExceptionHash(
-            this._applicationInfo.Version,
+            applicationInfo.Version,
             e.GetType().FullName!,
             ExceptionSensitiveDataHelper.Instance.RemoveSensitiveData( e.StackTrace ) );
 
@@ -216,8 +218,8 @@ internal class ExceptionReporter : IExceptionReporter
         writer.WriteElementString( "Time", XmlConvert.ToString( this._time.Now, XmlDateTimeSerializationMode.RoundtripKind ) );
         writer.WriteElementString( "ClientId", this._configuration.DeviceId.ToString() );
         writer.WriteStartElement( "Application" );
-        writer.WriteElementString( "Name", this._applicationInfo.Name );
-        writer.WriteElementString( "Version", this._applicationInfo.Version );
+        writer.WriteElementString( "Name", applicationInfo.Name );
+        writer.WriteElementString( "Version", applicationInfo.Version );
         writer.WriteEndElement();
 
         var currentProcess = Process.GetCurrentProcess();

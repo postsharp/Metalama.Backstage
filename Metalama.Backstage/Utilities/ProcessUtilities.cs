@@ -46,11 +46,13 @@ public static class ProcessUtilities
                     {
                         return ProcessKind.Rider;
                     }
+                    else if ( commandLine.Contains( "vbcscompiler.dll" ) || commandLine.Contains( "csc.dll" ) )
+                    {
+                        return ProcessKind.Compiler;
+                    }
                     else
                     {
-                        return commandLine.Contains( "vbcscompiler.dll" ) || commandLine.Contains( "csc.dll" )
-                            ? ProcessKind.Compiler
-                            : ProcessKind.Other;
+                        return ProcessKind.Other;
                     }
 #pragma warning restore CA1307
 
@@ -326,7 +328,7 @@ public static class ProcessUtilities
 
 #pragma warning disable CA1307
         return !frameworkDescription.Contains( "framework" )
-            && !frameworkDescription.Contains( "native" );
+               && !frameworkDescription.Contains( "native" );
 #pragma warning restore CA1307
     }
 }

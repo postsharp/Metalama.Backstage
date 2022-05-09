@@ -5,7 +5,7 @@ namespace Metalama.DotNetTools.Commands.Logging;
 
 internal class DiagnosticsCommand : CommandBase
 {
-    public DiagnosticsCommand( ICommandServiceProvider commandServiceProvider ) : base(
+    public DiagnosticsCommand( ICommandServiceProviderProvider commandServiceProvider ) : base(
         commandServiceProvider,
         "diag",
         "Manages logging and debugging options" )

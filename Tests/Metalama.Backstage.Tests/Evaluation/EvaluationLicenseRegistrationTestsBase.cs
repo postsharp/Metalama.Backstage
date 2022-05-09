@@ -27,7 +27,7 @@ namespace Metalama.Backstage.Licensing.Tests.Evaluation
                 logger,
                 serviceCollection => serviceBuilder?.Invoke( serviceCollection ) )
         {
-            this.Registrar = new EvaluationLicenseRegistrar( this.Services );
+            this.Registrar = new EvaluationLicenseRegistrar( this.ServiceProvider );
         }
 
         protected void SetLicenses( params string[] licenses )
@@ -45,7 +45,7 @@ namespace Metalama.Backstage.Licensing.Tests.Evaluation
             var expectedStart = this.Time.Now;
             var expectedEnd = expectedStart + EvaluationLicenseRegistrar.EvaluationPeriod;
 
-            var licenses = ParsedLicensingConfiguration.OpenOrCreate( this.Services );
+            var licenses = ParsedLicensingConfiguration.OpenOrCreate( this.ServiceProvider );
 
             var registeredLicense = licenses.Licenses
                 .Single( x => x.LicenseData is { LicenseType: LicenseType.Evaluation } && x.LicenseData.ValidFrom == expectedStart )

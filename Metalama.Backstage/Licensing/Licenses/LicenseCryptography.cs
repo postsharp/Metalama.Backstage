@@ -89,9 +89,9 @@ namespace Metalama.Backstage.Licensing.Licenses
             {
                 foreach ( XmlNode? node in xmlDoc.DocumentElement.ChildNodes )
                 {
-                    if (node == null )
+                    if ( node == null )
                     {
-                        throw new ArgumentException( $"Invalid key. Document contains null nodes.", nameof( xmlString ) );
+                        throw new ArgumentException( $"Invalid key. Document contains null nodes.", nameof(xmlString) );
                     }
 
                     switch ( node.Name )

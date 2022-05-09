@@ -57,20 +57,32 @@ public static class RegisterServiceExtensions
         string? projectName = null )
     {
         var serviceProvider = serviceProviderBuilder.ServiceProvider;
-        var service = DiagnosticsService.GetInstance( serviceProvider, processKind, projectName );
 
-        return serviceProviderBuilder.AddSingleton<ILoggerFactory>( service );
+        var configuration = serviceProviderBuilder.ServiceProvider.GetDiagnosticsConfiguration();
+
+        DebuggerHelper.Launch( configuration, processKind );
+
+        var applicationInfo = serviceProvider.GetRequiredService<IApplicationInfo>();
+        var loggerFactory = new LoggerFactory( configuration, applicationInfo.ProcessKind, projectName );
+
+        return serviceProviderBuilder.AddSingleton<ILoggerFactory>( loggerFactory );
     }
 
     /// <summary>
-    /// Adds the minimal set of services required to run the <see cref="DiagnosticsService"/>.
+    /// Adds the minimal set of services required by logging and telemetry.
     /// </summary>
-    internal static ServiceProviderBuilder AddDiagnosticServiceRequirements( this ServiceProviderBuilder serviceProviderBuilder )
+    private static ServiceProviderBuilder AddDiagnosticsRequirements(
+        this ServiceProviderBuilder serviceProviderBuilder,
+        IApplicationInfo applicationInfo,
+        string? dotNetSdkDirectory )
         => serviceProviderBuilder
+            .AddSingleton<IApplicationInfo>( applicationInfo ) // TODO: remove - use IApplicationInfoProvider only
+            .AddSingleton<IApplicationInfoProvider>( new ApplicationInfoProvider( applicationInfo ) )
             .AddCurrentDateTimeProvider()
             .AddFileSystem()
             .AddStandardDirectories()
-            .AddConfigurationManager();
+            .AddConfigurationManager()
+            .AddPlatformInfo( dotNetSdkDirectory );
 
     public static ServiceProviderBuilder AddConfigurationManager( this ServiceProviderBuilder serviceProviderBuilder )
         => serviceProviderBuilder.AddSingleton<IConfigurationManager>( new ConfigurationManager( serviceProviderBuilder.ServiceProvider ) );
@@ -82,15 +94,30 @@ public static class RegisterServiceExtensions
         return serviceProviderBuilder.AddSingleton<IPlatformInfo>( new PlatformInfo( dotnetSdkDirectory ) );
     }
 
+    private static DiagnosticsConfiguration GetDiagnosticsConfiguration( this IServiceProvider serviceProvider )
+        => serviceProvider.GetRequiredService<IConfigurationManager>().Get<DiagnosticsConfiguration>();
+
     /// <summary>
     /// Adds the minimal backstage services, without diagnostics and telemetry.
     /// </summary>
     public static ServiceProviderBuilder AddMinimalBackstageServices(
         this ServiceProviderBuilder serviceProviderBuilder,
+        IApplicationInfo applicationInfo,
+        bool addSupportServices = false,
+        string? projectName = null,
         string? dotnetSdkDirectory = null )
     {
-        return serviceProviderBuilder.AddDiagnosticServiceRequirements()
-            .AddPlatformInfo( dotnetSdkDirectory );
+        serviceProviderBuilder = serviceProviderBuilder
+            .AddDiagnosticsRequirements( applicationInfo, dotnetSdkDirectory );
+
+        if ( addSupportServices )
+        {
+            serviceProviderBuilder = serviceProviderBuilder
+                .AddDiagnostics( applicationInfo.ProcessKind, projectName )
+                .AddTelemetryServices();
+        }
+
+        return serviceProviderBuilder;
     }
 
     public static ServiceProviderBuilder AddLicensing(
@@ -136,28 +163,33 @@ public static class RegisterServiceExtensions
         bool ignoreUserProfileLicenses = false,
         string[]? additionalLicenses = null,
         string? dotNetSdkDirectory = null,
+        bool addLicensing = true,
         bool addSupportServices = true )
     {
         // Add base services.
         serviceProviderBuilder = serviceProviderBuilder
-            .AddSingleton( applicationInfo )
-            .AddDiagnosticServiceRequirements()
-            .AddPlatformInfo( dotNetSdkDirectory );
+            .AddDiagnosticsRequirements( applicationInfo, dotNetSdkDirectory );
 
         // Add diagnostics.
         if ( addSupportServices )
         {
-            serviceProviderBuilder = serviceProviderBuilder.AddDiagnostics( applicationInfo.ProcessKind, projectName );
+            serviceProviderBuilder = serviceProviderBuilder
+                .AddDiagnostics( applicationInfo.ProcessKind, projectName );
 
             var serviceProvider = serviceProviderBuilder.ServiceProvider;
 
             // First-run configuration. This must be done before initializing licensing and telemetry.
-            var registerEvaluationLicense = !ignoreUserProfileLicenses && !applicationInfo.IsPrerelease && !applicationInfo.IsUnattendedProcess( serviceProvider.GetLoggerFactory() );
+            var registerEvaluationLicense = !ignoreUserProfileLicenses && !applicationInfo.IsPrerelease
+                                                                       && !applicationInfo.IsUnattendedProcess( serviceProvider.GetLoggerFactory() );
+
             WelcomeService.Execute( serviceProvider, registerEvaluationLicense );
         }
 
         // Add licensing.
-        serviceProviderBuilder.AddLicensing( considerUnattendedProcessLicense, ignoreUserProfileLicenses, additionalLicenses );
+        if ( addLicensing )
+        {
+            serviceProviderBuilder.AddLicensing( considerUnattendedProcessLicense, ignoreUserProfileLicenses, additionalLicenses );
+        }
 
         if ( addSupportServices )
         {
@@ -167,22 +199,7 @@ public static class RegisterServiceExtensions
         return serviceProviderBuilder;
     }
 
-    internal static ServiceProviderBuilder AddBackstageProcessServices(
-        this ServiceProviderBuilder serviceProviderBuilder,
-        IApplicationInfo applicationInfo )
-    {
-        // Add base services.
-        serviceProviderBuilder = serviceProviderBuilder
-            .AddSingleton( applicationInfo )
-            .AddDiagnosticServiceRequirements()
-            .AddDiagnostics( applicationInfo.ProcessKind, projectName: null )
-            .AddTelemetryServices();
- 
-        return serviceProviderBuilder;
-    }
-
-    private static ServiceProviderBuilder AddTelemetryServices(
-        this ServiceProviderBuilder serviceProviderBuilder )
+    public static ServiceProviderBuilder AddTelemetryServices( this ServiceProviderBuilder serviceProviderBuilder )
     {
         var serviceProvider = serviceProviderBuilder.ServiceProvider;
 

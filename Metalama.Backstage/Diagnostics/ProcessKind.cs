@@ -14,5 +14,6 @@ public enum ProcessKind
     DevEnv,
     RoslynCodeAnalysisService,
     Rider,
-    Backstage
+    BackstageWorker,
+    MetalamaConfig
 }

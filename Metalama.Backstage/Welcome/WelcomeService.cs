@@ -94,8 +94,10 @@ public static class WelcomeService
             // Open the welcome web page.
             try
             {
-                var url = applicationInfo.IsPrerelease ? "https://www.postsharp.net/links/metalama-welcome-preview" : "https://www.postsharp.net/links/metalama-welcome";
-                
+                var url = applicationInfo.IsPrerelease
+                    ? "https://www.postsharp.net/links/metalama-welcome-preview"
+                    : "https://www.postsharp.net/links/metalama-welcome";
+
                 logger.Trace?.Log( $"Opening '{url}'." );
 
                 Process.Start( new ProcessStartInfo( url ) { UseShellExecute = true } );

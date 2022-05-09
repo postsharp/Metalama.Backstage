@@ -10,7 +10,7 @@ namespace Metalama.DotNetTools.Commands.Licensing;
 
 internal class RegisterTrialCommand : CommandBase
 {
-    public RegisterTrialCommand( ICommandServiceProvider commandServiceProvider )
+    public RegisterTrialCommand( ICommandServiceProviderProvider commandServiceProvider )
         : base( commandServiceProvider, "trial", "Starts the trial period" )
     {
         this.Handler = CommandHandler.Create<bool, IConsole>( this.Execute );
@@ -18,9 +18,9 @@ internal class RegisterTrialCommand : CommandBase
 
     private int Execute( bool verbose, IConsole console )
     {
-        var services = this.CommandServiceProvider.CreateServiceProvider( console, verbose );
+        this.CommandServices.Initialize( console, verbose );
 
-        var registrar = new EvaluationLicenseRegistrar( services );
+        var registrar = new EvaluationLicenseRegistrar( this.CommandServices.ServiceProvider );
 
         if ( registrar.TryActivateLicense() )
         {
