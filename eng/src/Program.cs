@@ -9,7 +9,6 @@ using Spectre.Console.Cli;
 
 var product = new Product( Dependencies.MetalamaBackstage )
 {
-    ProductName = "Metalama.Backstage",
     Solutions = new Solution[]
     {
         new DotNetSolution( "Metalama.Backstage.sln" ) { SupportsTestCoverage = true, CanFormatCode = true } 
