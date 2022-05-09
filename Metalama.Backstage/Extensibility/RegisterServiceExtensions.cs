@@ -73,7 +73,8 @@ public static class RegisterServiceExtensions
     /// </summary>
     private static ServiceProviderBuilder AddDiagnosticsRequirements( this ServiceProviderBuilder serviceProviderBuilder, IApplicationInfo applicationInfo, string? dotNetSdkDirectory )
         => serviceProviderBuilder
-            .AddSingleton<IApplicationInfo>( applicationInfo )
+            .AddSingleton<IApplicationInfo>( applicationInfo ) // TODO: remove - use IApplicationInfoProvider only
+            .AddSingleton<IApplicationInfoProvider>( new ApplicationInfoProvider( applicationInfo ) )
             .AddCurrentDateTimeProvider()
             .AddFileSystem()
             .AddStandardDirectories()

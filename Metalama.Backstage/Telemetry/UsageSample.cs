@@ -25,7 +25,7 @@ namespace Metalama.Backstage.Telemetry
         {
             this._directories = serviceProvider.GetRequiredService<IStandardDirectories>();
             var time = serviceProvider.GetRequiredService<IDateTimeProvider>();
-            var applicationInfo = serviceProvider.GetRequiredService<IApplicationInfo>();
+            var applicationInfo = serviceProvider.GetRequiredService<IApplicationInfoProvider>().CurrentApplication;
             var loggerFactory = serviceProvider.GetLoggerFactory();
 
             this._uploader = uploader;
