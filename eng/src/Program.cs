@@ -2,6 +2,7 @@
 // This project is not open source. Please see the LICENSE.md file in the repository root for details.
 
 using PostSharp.Engineering.BuildTools;
+using PostSharp.Engineering.BuildTools.Build;
 using PostSharp.Engineering.BuildTools.Build.Model;
 using PostSharp.Engineering.BuildTools.Build.Solutions;
 using PostSharp.Engineering.BuildTools.Dependencies.Model;
@@ -11,12 +12,16 @@ var product = new Product( Dependencies.MetalamaBackstage )
 {
     Solutions = new Solution[]
     {
-        new DotNetSolution( "Metalama.Backstage.sln" ) { SupportsTestCoverage = true, CanFormatCode = true } 
+        new DotNetSolution( "Metalama.Backstage.sln" ) { SupportsTestCoverage = true, CanFormatCode = true }
     },
     PublicArtifacts = Pattern.Create(
         "Metalama.Backstage.$(PackageVersion).nupkg",
         "metalama-config.$(PackageVersion).nupkg" ),
-    Dependencies = new[] { Dependencies.PostSharpEngineering }
+    Dependencies = new[] { Dependencies.PostSharpEngineering },
+    Configurations = Product.DefaultConfigurations
+        .WithValue( BuildConfiguration.Release, new BuildConfigurationInfo(
+            MSBuildName: "Release",
+            ExportsToTeamCityBuild: true ) )
 };
 
 var commandApp = new CommandApp();
