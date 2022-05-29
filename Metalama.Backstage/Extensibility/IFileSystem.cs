@@ -4,9 +4,12 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Text;
 
 namespace Metalama.Backstage.Extensibility
 {
+    // TODO: Add missing methods.
+
     /// <summary>
     /// Provides access to file system.
     /// </summary>
@@ -165,6 +168,64 @@ namespace Metalama.Backstage.Extensibility
         void CreateDirectory( string path );
 
         /// <summary>
+        /// Creates or overwrites a file in the specified path.
+        /// </summary>
+        /// <param name="path">The path and name of the file to create.</param>
+        Stream CreateFile( string path );
+
+        /// <summary>
+        /// Creates a uniquely named, zero-byte temporary file on disk
+        /// and returns the full path of that file.
+        /// </summary>
+        /// <returns>The full path of the temporary file.</returns>
+        string GetTempFileName();
+
+        /// <summary>
+        /// Opens a file on the specified path with read/write access.
+        /// </summary>
+        /// <param name="path">The file to open.</param>
+        /// <param name="mode">
+        /// A <see cref="FileMode" /> value that specifies whether a file is created
+        /// if one does not exist, and determines whether the contents of existing files
+        /// are retained or overwritten.
+        /// </param>
+        Stream Open( string path, FileMode mode );
+
+        /// <summary>
+        /// Opens a file on the specified path with read/write access.
+        /// </summary>
+        /// <param name="path">The file to open.</param>
+        /// <param name="mode">
+        /// A <see cref="FileMode" /> value that specifies whether a file is created
+        /// if one does not exist, and determines whether the contents of existing files
+        /// are retained or overwritten.
+        /// </param>
+        /// <param name="access">
+        /// A <see cref="FileAccess" /> value that specifies the operations that
+        /// can be performed on the file.
+        /// </param>
+        Stream Open( string path, FileMode mode, FileAccess access );
+
+        /// <summary>
+        /// Opens a file on the specified path with read/write access.
+        /// </summary>
+        /// <param name="path">The file to open.</param>
+        /// <param name="mode">
+        /// A <see cref="FileMode" /> value that specifies whether a file is created
+        /// if one does not exist, and determines whether the contents of existing files
+        /// are retained or overwritten.
+        /// </param>
+        /// <param name="access">
+        /// A <see cref="FileAccess" /> value that specifies the operations
+        /// that can be performed on the file.
+        /// </param>
+        /// <param name="share">
+        /// A <see cref="FileShare" /> value specifying the type
+        /// of access other threads have to the file.
+        /// </param>
+        Stream Open( string path, FileMode mode, FileAccess access, FileShare share );
+
+        /// <summary>
         /// Opens an existing file for reading.
         /// </summary>
         /// <param name="path">The file to be opened for reading.</param>
@@ -209,6 +270,15 @@ namespace Metalama.Backstage.Extensibility
         void WriteAllText( string path, string content );
 
         /// <summary>
+        /// Creates a new file, writes the specified string to the file using the specified
+        /// encoding, and then closes the file. If the target file already exists, it is overwritten.
+        /// </summary>
+        /// <param name="path">The file to write to.</param>
+        /// <param name="content">The string to write to the file.</param>
+        /// <param name="encoding">The encoding to apply to the string.</param>
+        void WriteAllText( string path, string content, Encoding encoding );
+
+        /// <summary>
         /// Opens a text file, reads all lines of the file, and then closes the file.
         /// </summary>
         /// <param name="path">The file to read from.</param>
@@ -230,5 +300,19 @@ namespace Metalama.Backstage.Extensibility
         /// <param name="path">The file to write to.</param>
         /// <param name="content">The lines to write to the file.</param>
         void WriteAllLines( string path, IEnumerable<string> content );
+
+        /// <summary>
+        /// Moves a specified file to a new location, providing the option
+        /// to specify a new file name.
+        /// </summary>
+        /// <param name="sourceFileName">The name of the file to move. Can include a relative or absolute path.</param>
+        /// <param name="destinationFileName">The new path and name for the file.</param>
+        void MoveFile( string sourceFileName, string destinationFileName );
+
+        /// <summary>
+        /// Deletes the specified file.
+        /// </summary>
+        /// <param name="path">The name of the file to be deleted. Wildcard characters are not supported.</param>
+        void DeleteFile( string path );
     }
 }

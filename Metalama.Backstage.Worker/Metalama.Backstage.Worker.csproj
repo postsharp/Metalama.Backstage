@@ -23,9 +23,9 @@
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework)'=='netframework4.7.2'">
-	  <Reference Include="System.IO.Compression" />
-	  <Reference Include="System.Net.Http" />
-	</ItemGroup>
+    <Reference Include="System.IO.Compression" />
+    <Reference Include="System.Net.Http" />
+  </ItemGroup>
 
   <Target Name="ResolveZipInputFiles" AfterTargets="Build" Condition="'$(IsCrossTargetingBuild)'!='true'">
     <ItemGroup>

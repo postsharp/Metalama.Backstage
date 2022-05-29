@@ -2,6 +2,7 @@
 // This project is not open source. Please see the LICENSE.md file in the repository root for details.
 
 using Metalama.Backstage.Diagnostics;
+using Metalama.Backstage.Extensibility;
 using System;
 using System.Diagnostics;
 using System.IO;
@@ -11,7 +12,7 @@ namespace Metalama.Backstage.Utilities
 {
     public static class PlatformUtilities
     {
-        public static string GetDotNetPath( ILogger logger, string? dotNetSdkDirectory = null )
+        public static string GetDotNetPath( ILogger logger, IFileSystem fileSystem, string? dotNetSdkDirectory = null )
         {
             var dotnetFileName = RuntimeInformation.IsOSPlatform( OSPlatform.Windows )
                 ? "dotnet.exe"

@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text;
 
 namespace Metalama.Backstage.Extensibility
 {
@@ -100,6 +101,36 @@ namespace Metalama.Backstage.Extensibility
         }
 
         /// <inheritdoc />
+        public Stream CreateFile( string path )
+        {
+            return File.Create( path );
+        }
+
+        /// <inheritdoc />
+        string GetTempFileName()
+        {
+            return Path.GetTempFileName();
+        }
+
+        /// <inheritdoc />
+        public Stream Open( string path, FileMode mode )
+        {
+            return File.Open( path, mode );
+        }
+
+        /// <inheritdoc />
+        public Stream Open( string path, FileMode mode, FileAccess access )
+        {
+            return File.Open( path, mode, access );
+        }
+
+        /// <inheritdoc />
+        public Stream Open( string path, FileMode mode, FileAccess access, FileShare share )
+        {
+            return File.Open( path, mode, access, share );
+        }
+
+        /// <inheritdoc />
         public Stream OpenRead( string path )
         {
             return File.OpenRead( path );
@@ -136,6 +167,12 @@ namespace Metalama.Backstage.Extensibility
         }
 
         /// <inheritdoc />
+        public void WriteAllText( string path, string content, Encoding encoding )
+        {
+            File.WriteAllText( path, content, encoding );
+        }
+
+        /// <inheritdoc />
         public string[] ReadAllLines( string path )
         {
             return File.ReadAllLines( path );
@@ -151,6 +188,18 @@ namespace Metalama.Backstage.Extensibility
         public void WriteAllLines( string path, IEnumerable<string> content )
         {
             File.WriteAllLines( path, content );
+        }
+
+        /// <inheritdoc />
+        public void MoveFile( string sourceFileName, string destinationFileName )
+        {
+            File.Move( sourceFileName, destinationFileName );
+        }
+
+        /// <inheritdoc />
+        public void DeleteFile( string path )
+        {
+            File.Delete( path );
         }
     }
 }

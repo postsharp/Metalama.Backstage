@@ -160,24 +160,45 @@ namespace Metalama.Backstage.Testing.Services
             this.Mock.Directory.CreateDirectory( path );
         }
 
+        public Stream CreateFile( string path )
+        {
+            this.WaitAndThrowIfBlocked( path, true );
+            return this.Mock.File.Create( path );
+        }
+
+        public Stream Open( string path, FileMode mode )
+        {
+            this.WaitAndThrowIfBlocked( path, false );
+            return this.Mock.File.Open( path, mode );
+        }
+
+        public Stream Open( string path, FileMode mode, FileAccess access )
+        {
+            this.WaitAndThrowIfBlocked( path, false );
+            return this.Mock.File.Open( path, mode, access );
+        }
+
+        public Stream Open( string path, FileMode mode, FileAccess access, FileShare share )
+        {
+            this.WaitAndThrowIfBlocked( path, false );
+            return this.Mock.File.Open( path, mode, access, share );
+        }
+
         public Stream OpenRead( string path )
         {
             this.WaitAndThrowIfBlocked( path, false );
-
             return this.Mock.File.OpenRead( path );
         }
 
         public Stream OpenWrite( string path )
         {
             this.WaitAndThrowIfBlocked( path, true );
-
             return this.Mock.File.OpenWrite( path );
         }
 
         public byte[] ReadAllBytes( string path )
         {
             this.WaitAndThrowIfBlocked( path, false );
-
             return this.Mock.File.ReadAllBytes( path );
         }
 
@@ -190,7 +211,6 @@ namespace Metalama.Backstage.Testing.Services
         public string ReadAllText( string path )
         {
             this.WaitAndThrowIfBlocked( path, false );
-
             return this.Mock.File.ReadAllText( path );
         }
 
@@ -217,6 +237,12 @@ namespace Metalama.Backstage.Testing.Services
         {
             this.WaitAndThrowIfBlocked( path, true );
             this.Mock.File.WriteAllLines( path, content );
+        }
+
+        public void DeleteFile( string path )
+        {
+            this.WaitAndThrowIfBlocked( path, true );
+            this.Mock.File.Delete( path );
         }
     }
 }

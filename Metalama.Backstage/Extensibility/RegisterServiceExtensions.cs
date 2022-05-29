@@ -44,6 +44,23 @@ public static class RegisterServiceExtensions
         => serviceProviderBuilder.AddSingleton<IFileSystem>( new FileSystem() );
 
     /// <summary>
+    /// Adds a service used to start a new process.
+    /// </summary>
+    /// <param name="serviceProviderBuilder">The <see cref="ServiceProviderBuilder" /> to add services to.</param>
+    /// <returns>The <see cref="ServiceProviderBuilder" /> so that additional calls can be chained.</returns>
+    private static ServiceProviderBuilder AddProcessService(this ServiceProviderBuilder serviceProviderBuilder)
+        => serviceProviderBuilder.AddSingleton<IProcessService>( new ProcessService() );
+
+    /// <summary>
+    /// Adds a service sending HTTP requests and receiving HTTP responses
+    /// from a resource identified by a URI.
+    /// </summary>
+    /// <param name="serviceProviderBuilder">The <see cref="ServiceProviderBuilder" /> to add services to.</param>
+    /// <returns>The <see cref="ServiceProviderBuilder" /> so that additional calls can be chained.</returns>
+    private static ServiceProviderBuilder AddHttpService( this ServiceProviderBuilder serviceProviderBuilder )
+        => serviceProviderBuilder.AddSingleton<IHttpService>( new HttpService() );
+
+    /// <summary>
     /// Adds a service providing paths of standard directories to the specified <see cref="ServiceProviderBuilder" />.
     /// </summary>
     /// <param name="serviceProviderBuilder">The <see cref="ServiceProviderBuilder" /> to add services to.</param>
@@ -80,6 +97,8 @@ public static class RegisterServiceExtensions
             .AddSingleton<IApplicationInfoProvider>( new ApplicationInfoProvider( applicationInfo ) )
             .AddCurrentDateTimeProvider()
             .AddFileSystem()
+            .AddProcessService()
+            .AddHttpService()
             .AddStandardDirectories()
             .AddConfigurationManager()
             .AddPlatformInfo( dotNetSdkDirectory );

@@ -24,4 +24,8 @@
         <ProjectReference Include="..\..\Metalama.Tools.Config\Metalama.Tools.Config.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Folder Include="Commands\Logging\" />
+    </ItemGroup>
+
 </Project>

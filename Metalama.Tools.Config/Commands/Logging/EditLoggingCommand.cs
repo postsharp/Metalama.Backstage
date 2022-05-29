@@ -3,6 +3,7 @@
 
 using Metalama.Backstage.Configuration;
 using Metalama.Backstage.Diagnostics;
+using Metalama.Backstage.Extensibility;
 using Microsoft.Extensions.DependencyInjection;
 using System.CommandLine;
 using System.CommandLine.Invocation;
@@ -23,6 +24,7 @@ internal class EditLoggingCommand : CommandBase
     private void Execute( IConsole console )
     {
         this.CommandServices.Initialize( console, false );
+        var processService = this.CommandServices.ServiceProvider.GetRequiredService<IProcessService>();
         var configurationManager = this.CommandServices.ServiceProvider.GetRequiredService<IConfigurationManager>();
         var configuration = configurationManager.Get<DiagnosticsConfiguration>();
 
@@ -32,6 +34,6 @@ internal class EditLoggingCommand : CommandBase
             configurationManager.Update<DiagnosticsConfiguration>( _ => { } );
         }
 
-        Process.Start( new ProcessStartInfo( configuration.FilePath ) { UseShellExecute = true } );
+        processService.Start( new ProcessStartInfo( configuration.FilePath ) { UseShellExecute = true } );
     }
 }
