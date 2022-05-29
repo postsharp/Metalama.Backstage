@@ -20,7 +20,7 @@ namespace Metalama.DotNetTools
 
         public void Initialize( IConsole console, bool addTrace )
         {
-            if ( this.ServiceProvider != null )
+            if ( this._serviceProvider != null )
             {
                 throw new InvalidOperationException( "Service provider is initialized already." );
             }
