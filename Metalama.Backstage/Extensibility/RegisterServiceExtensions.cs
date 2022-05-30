@@ -163,6 +163,7 @@ public static class RegisterServiceExtensions
         bool ignoreUserProfileLicenses = false,
         string[]? additionalLicenses = null,
         string? dotNetSdkDirectory = null,
+        bool openWelcomePage = false,
         bool addLicensing = true,
         bool addSupportServices = true )
     {
@@ -182,7 +183,13 @@ public static class RegisterServiceExtensions
             var registerEvaluationLicense = !ignoreUserProfileLicenses && !applicationInfo.IsPrerelease
                                                                        && !applicationInfo.IsUnattendedProcess( serviceProvider.GetLoggerFactory() );
 
-            WelcomeService.Execute( serviceProvider, registerEvaluationLicense );
+            var welcomeService = new WelcomeService( serviceProvider );
+            welcomeService.ExecuteFirstStartSetup( registerEvaluationLicense );
+
+            if ( openWelcomePage )
+            {
+                welcomeService.OpenWelcomePage();
+            }
         }
 
         // Add licensing.
