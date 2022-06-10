@@ -2,16 +2,19 @@
 // This project is not open source. Please see the LICENSE.md file in the repository root for details.
 
 using Metalama.Backstage.Diagnostics;
+using Metalama.Backstage.Extensibility;
 using System;
+using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
+using System.Linq;
 using System.Threading;
 
 namespace Metalama.Backstage.Utilities
 {
     public static class RetryHelper
     {
-        public static void Retry( Action action, Predicate<Exception>? retryPredicate = null, ILogger? logger = null )
+        public static void Retry( Action action, Predicate<Exception>? retryPredicate = null, ILogger? logger = null, Action<Exception>? onException = null )
             => Retry(
                 () =>
                 {
@@ -20,10 +23,54 @@ namespace Metalama.Backstage.Utilities
                     return true;
                 },
                 retryPredicate,
-                logger );
+                logger,
+                onException );
+
+        public static void RetryWithLockDetection(
+            string file,
+            Action<string> action,
+            IServiceProvider serviceProvider,
+            Predicate<Exception>? retryPredicate = null,
+            ILogger? logger = null )
+            => RetryWithLockDetection( new[] { file }, action, serviceProvider, retryPredicate, logger );
+
+        public static void RetryWithLockDetection(
+            IReadOnlyList<string> files,
+            Action<string> action,
+            IServiceProvider serviceProvider,
+            Predicate<Exception>? retryPredicate = null,
+            ILogger? logger = null )
+        {
+            foreach ( var file in files )
+            {
+                Retry( () => action( file ), retryPredicate, logger, OnException );
+            }
+
+            void OnException( Exception obj )
+            {
+                var lockingDetection = serviceProvider?.GetService<ILockingProcessDetector>();
+
+                if ( lockingDetection != null && logger != null )
+                {
+                    var lockingProcesses = lockingDetection.GetProcessesUsingFiles( files );
+
+                    if ( lockingProcesses.Count > 0 )
+                    {
+                        logger.Trace?.Log( "Found process locking these files was found." );
+                    }
+                    else
+                    {
+                        logger.Warning?.Log(
+                            "The following process(es) are locking these files: " + string.Join(
+                                ", ",
+                                lockingProcesses.Select( p => $"{p.ProcessName} ({p.Id}" ) ) );
+                    }
+                }
+            }
+        }
 
         [ExcludeFromCodeCoverage]
-        public static T Retry<T>( Func<T> action, Predicate<Exception>? retryPredicate = null, ILogger? logger = null )
+        public static T Retry<T>( Func<T> action, Predicate<Exception>? retryPredicate = null, ILogger? logger = null, Action<Exception>? onException = null )
         {
             var delay = 10.0;
             const int maxAttempts = 12;
@@ -38,6 +85,8 @@ namespace Metalama.Backstage.Utilities
                 catch ( Exception e ) when ( i < maxAttempts && retryPredicate( e ) )
                 {
                     logger?.Warning?.Log( $"{nameof(RetryHelper)} caught {e.GetType().Name} '{e.Message}'. Retrying in {delay}." );
+
+                    onException?.Invoke( e );
 
                     Thread.Sleep( TimeSpan.FromMilliseconds( delay ) );
                     delay *= 1.2;
