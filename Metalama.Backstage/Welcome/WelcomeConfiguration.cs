@@ -10,9 +10,12 @@ public class WelcomeConfiguration : ConfigurationFile
 {
     public bool IsFirstStart { get; set; } = true;
 
+    public bool IsWelcomePagePending { get; set; } = true;
+
     public override void CopyFrom( ConfigurationFile configurationFile )
     {
         var source = (WelcomeConfiguration) configurationFile;
         this.IsFirstStart = source.IsFirstStart;
+        this.IsWelcomePagePending = source.IsWelcomePagePending;
     }
 }

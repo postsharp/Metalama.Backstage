@@ -21,6 +21,9 @@ internal class WelcomeCommand : CommandBase
     private void Execute( bool verbose, IConsole console )
     {
         this.CommandServices.Initialize( console, verbose );
-        WelcomeService.Execute( this.CommandServices.ServiceProvider );
+
+        var welcomeService = new WelcomeService( this.CommandServices.ServiceProvider );
+        welcomeService.ExecuteFirstStartSetup();
+        welcomeService.OpenWelcomePage();
     }
 }
