@@ -41,29 +41,53 @@ namespace Metalama.Backstage.Utilities
             Predicate<Exception>? retryPredicate = null,
             ILogger? logger = null )
         {
-            foreach ( var file in files )
+            try
             {
-                Retry( () => action( file ), retryPredicate, logger, OnException );
+                foreach ( var file in files )
+                {
+                    Retry( () => action( file ), retryPredicate, logger, OnException );
+                }
             }
-
-            void OnException( Exception obj )
+            catch ( Exception e )
             {
-                var lockingDetection = serviceProvider?.GetService<ILockingProcessDetector>();
+                var lockingDetection = serviceProvider.GetService<ILockingProcessDetector>();
 
-                if ( lockingDetection != null && logger != null )
+                if ( lockingDetection != null )
                 {
                     var lockingProcesses = lockingDetection.GetProcessesUsingFiles( files );
 
                     if ( lockingProcesses.Count > 0 )
                     {
-                        logger.Trace?.Log( "Found process locking these files was found." );
+                        var additionalMessage =
+                            $" The following process(es) are locking the file(s): {string.Join( ", ", lockingProcesses.Select( p => $"{p.ProcessName} ({p.Id})" ) )}.";
+
+                        throw new LockedFileException( e.Message + additionalMessage, e );
+                    }
+                    else
+                    {
+                        throw;
+                    }
+                }
+            }
+
+            void OnException( Exception obj )
+            {
+                var lockingDetection = serviceProvider.GetService<ILockingProcessDetector>();
+
+                if ( lockingDetection != null && logger != null )
+                {
+                    var lockingProcesses = lockingDetection.GetProcessesUsingFiles( files );
+
+                    if ( lockingProcesses.Count == 0 )
+                    {
+                        logger.Trace?.Log( "No process locking these files was found." );
                     }
                     else
                     {
                         logger.Warning?.Log(
                             "The following process(es) are locking these files: " + string.Join(
                                 ", ",
-                                lockingProcesses.Select( p => $"{p.ProcessName} ({p.Id}" ) ) );
+                                lockingProcesses.Select( p => $"{p.ProcessName} ({p.Id})" ) ) );
                     }
                 }
             }
@@ -86,7 +110,10 @@ namespace Metalama.Backstage.Utilities
                 {
                     logger?.Warning?.Log( $"{nameof(RetryHelper)} caught {e.GetType().Name} '{e.Message}'. Retrying in {delay}." );
 
-                    onException?.Invoke( e );
+                    if ( i == 0 )
+                    {
+                        onException?.Invoke( e );
+                    }
 
                     Thread.Sleep( TimeSpan.FromMilliseconds( delay ) );
                     delay *= 1.2;

@@ -4,6 +4,7 @@
 // ReSharper disable FieldCanBeMadeReadOnly.Local
 // ReSharper disable MemberCanBePrivate.Local
 // ReSharper disable InconsistentNaming
+// ReSharper disable UnusedMember.Local
 
 #pragma warning disable IDE1006 // Inconsistent naming
 #pragma warning disable SA1310
@@ -16,8 +17,6 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using FILETIME = System.Runtime.InteropServices.ComTypes.FILETIME;
-
-
 
 namespace Metalama.Backstage.Utilities;
 

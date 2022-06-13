@@ -6,6 +6,7 @@ using Metalama.Backstage.Diagnostics;
 using Metalama.Backstage.Licensing.Consumption;
 using Metalama.Backstage.Licensing.Consumption.Sources;
 using Metalama.Backstage.Telemetry;
+using Metalama.Backstage.Utilities;
 using Metalama.Backstage.Welcome;
 using System;
 using System.Collections.Generic;
@@ -190,6 +191,12 @@ public static class RegisterServiceExtensions
             {
                 welcomeService.OpenWelcomePage();
             }
+        }
+
+        // Add file locking detection.
+        if ( LockingProcessDetector.IsSupported )
+        {
+            serviceProviderBuilder.AddService( typeof(ILockingProcessDetector), new LockingProcessDetector() );
         }
 
         // Add licensing.
