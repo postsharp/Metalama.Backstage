@@ -4,7 +4,6 @@
 using Metalama.Backstage.Utilities;
 using System;
 using System.Collections.Concurrent;
-using System.Diagnostics;
 using System.IO;
 
 namespace Metalama.Backstage.Diagnostics
@@ -42,7 +41,7 @@ namespace Metalama.Backstage.Diagnostics
                     // The filename must be unique because several instances of the current assembly (of different versions) may be loaded in the process.
                     this._fileName = Path.Combine(
                         directory,
-                        $"Metalama-{Process.GetCurrentProcess().ProcessName}{projectNameWithDot}-{Guid.NewGuid()}.log" );
+                        $"Metalama-{processKind}{projectNameWithDot}-{Guid.NewGuid()}.log" );
                 }
                 catch
                 {
