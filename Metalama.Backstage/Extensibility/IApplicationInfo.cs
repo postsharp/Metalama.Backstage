@@ -42,5 +42,10 @@ namespace Metalama.Backstage.Extensibility
         bool IsUnattendedProcess( ILoggerFactory loggerFactory );
 
         bool IsLongRunningProcess { get; }
+
+        /// <summary>
+        /// Gets a value indicating whether telemetry is enabled for the application.
+        /// </summary>
+        bool IsTelemetryEnabled { get; }
     }
 }

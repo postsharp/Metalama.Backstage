@@ -8,6 +8,10 @@ using System.Reflection;
 
 namespace Metalama.Backstage.Extensibility
 {
+    /// <summary>
+    /// Implementation of <see cref="IApplicationInfo" /> interface with build information
+    /// initialized from assembly metadata using <see cref="AssemblyMetadataReader" />.
+    /// </summary>
     public abstract class ApplicationInfoBase : IApplicationInfo
     {
         public ApplicationInfoBase( Assembly metadataAssembly )
@@ -20,18 +24,28 @@ namespace Metalama.Backstage.Extensibility
             this.BuildDate = reader.BuildDate;
         }
 
+        /// <inheritdoc />
         public abstract string Name { get; }
 
+        /// <inheritdoc />
         public string Version { get; }
 
+        /// <inheritdoc />
         public bool IsPrerelease { get; }
 
+        /// <inheritdoc />
         public DateTime BuildDate { get; }
 
+        /// <inheritdoc />
         public abstract ProcessKind ProcessKind { get; }
 
+        /// <inheritdoc />
         public abstract bool IsLongRunningProcess { get; }
 
+        /// <inheritdoc />
         public abstract bool IsUnattendedProcess( ILoggerFactory loggerFactory );
+
+        /// <inheritdoc />
+        public abstract bool IsTelemetryEnabled { get; }
     }
 }
