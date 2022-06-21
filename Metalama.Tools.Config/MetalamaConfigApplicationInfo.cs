@@ -18,5 +18,12 @@ namespace Metalama.DotNetTools
         public override bool IsLongRunningProcess => false;
 
         public override bool IsUnattendedProcess( ILoggerFactory loggerFactory ) => false;
+
+        public override bool IsTelemetryEnabled =>
+#if DEBUG
+            false;
+#else
+            true;
+#endif
     }
 }

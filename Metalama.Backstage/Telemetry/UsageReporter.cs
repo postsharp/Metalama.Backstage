@@ -16,6 +16,7 @@ internal class UsageReporter : IUsageReporter
     private readonly IConfigurationManager _configurationManager;
     private readonly IDateTimeProvider _time;
     private readonly ILogger _logger;
+    private readonly IApplicationInfo _applicationInfo;
 
     public UsageReporter( TelemetryUploader uploader, IServiceProvider serviceProvider )
     {
@@ -25,11 +26,19 @@ internal class UsageReporter : IUsageReporter
         this._uploader = uploader;
         this._time = serviceProvider.GetRequiredService<IDateTimeProvider>();
         this._logger = serviceProvider.GetLoggerFactory().Telemetry();
+        this._applicationInfo = serviceProvider.GetRequiredService<IApplicationInfo>();
     }
 
     public bool ShouldReportSession( string projectName )
     {
         var now = this._time.Now;
+
+        if ( !this._applicationInfo.IsTelemetryEnabled )
+        {
+            this._logger.Trace?.Log( $"Session of project '{projectName}' should not be reported because telemetry is disabled for {this._applicationInfo.Name} {this._applicationInfo.Version}." );
+
+            return false;
+        }
 
         if ( TelemetryConfiguration.IsOptOutEnvironmentVariableSet() )
         {
