@@ -47,7 +47,7 @@ namespace Metalama.Backstage.Licensing.Tests.Essentials
 
             Assert.Single(
                 this.Log.LogEntries,
-                x => x.Message.Contains( "Failed to register Essentials license: A Essentials license is registered already." ) );
+                x => x.Message != null && x.Message.Contains( "Failed to register Essentials license: A Essentials license is registered already.", StringComparison.Ordinal ) );
         }
     }
 }
