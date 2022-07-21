@@ -156,7 +156,7 @@ namespace Metalama.Backstage.Licensing.Licenses
                 return false;
             }
 
-            var applicationInfoService = this._services.GetRequiredService<IApplicationInfo>();
+            var applicationInfoService = this._services.GetRequiredService<IApplicationInfoProvider>().CurrentApplication;
 
             if ( !data.Validate(
                     null,

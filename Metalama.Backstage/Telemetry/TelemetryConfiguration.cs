@@ -3,7 +3,7 @@
 
 using Metalama.Backstage.Configuration;
 using System;
-using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 
 namespace Metalama.Backstage.Telemetry;
@@ -21,9 +21,11 @@ public class TelemetryConfiguration : ConfigurationFile
 
     public DateTime? LastUploadTime { get; set; }
 
-    public Dictionary<string, ReportingStatus> Issues { get; private set; } = new( StringComparer.OrdinalIgnoreCase );
+    public ImmutableDictionary<string, ReportingStatus> Issues { get; set; } =
+        ImmutableDictionary<string, ReportingStatus>.Empty.WithComparers( StringComparer.OrdinalIgnoreCase );
 
-    public Dictionary<string, DateTime> Sessions { get; private set; } = new( StringComparer.OrdinalIgnoreCase );
+    public ImmutableDictionary<string, DateTime> Sessions { get; set; } =
+        ImmutableDictionary<string, DateTime>.Empty.WithComparers( StringComparer.OrdinalIgnoreCase );
 
     public ReportingAction ReportUsage { get; set; } = ReportingAction.Ask;
 
@@ -33,7 +35,7 @@ public class TelemetryConfiguration : ConfigurationFile
 
         foreach ( var sessionToRemove in sessionsToRemove )
         {
-            this.Sessions.Remove( sessionToRemove );
+            this.Sessions = this.Sessions.Remove( sessionToRemove );
         }
     }
 
@@ -45,8 +47,8 @@ public class TelemetryConfiguration : ConfigurationFile
         this.ReportUsage = source.ReportUsage;
         this.DeviceId = source.DeviceId;
         this.LastUploadTime = source.LastUploadTime;
-        this.Issues = new Dictionary<string, ReportingStatus>( source.Issues );
-        this.Sessions = new Dictionary<string, DateTime>( source.Sessions );
+        this.Issues = source.Issues;
+        this.Sessions = source.Sessions;
     }
 }
 

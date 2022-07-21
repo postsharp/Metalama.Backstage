@@ -3,6 +3,7 @@
 
 using Metalama.Backstage.Diagnostics;
 using Microsoft.Extensions.Logging;
+using System.Threading;
 using IMicrosoftLogger = Microsoft.Extensions.Logging.ILogger;
 using IPostSharpLogger = Metalama.Backstage.Diagnostics.ILogger;
 
@@ -56,7 +57,7 @@ namespace Metalama.Backstage.MicrosoftLogging
 
             public void Log( string message )
             {
-                this._logger.Log( this._logLevel, message );
+                this._logger.Log( this._logLevel, $"Thread {Thread.CurrentThread.ManagedThreadId}: {message}" );
             }
         }
     }

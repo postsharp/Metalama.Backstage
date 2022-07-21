@@ -198,6 +198,7 @@ namespace Metalama.Backstage.Testing.Services
         {
             this.WaitAndThrowIfBlocked( path, true );
             this.Mock.File.WriteAllText( path, content );
+            this.Mock.File.SetLastWriteTime( path, DateTime.Now );
         }
 
         public string[] ReadAllLines( string path )
@@ -211,12 +212,14 @@ namespace Metalama.Backstage.Testing.Services
         {
             this.WaitAndThrowIfBlocked( path, true );
             this.Mock.File.WriteAllLines( path, content );
+            this.Mock.File.SetLastWriteTime( path, DateTime.Now );
         }
 
         public void WriteAllLines( string path, IEnumerable<string> content )
         {
             this.WaitAndThrowIfBlocked( path, true );
             this.Mock.File.WriteAllLines( path, content );
+            this.Mock.File.SetLastWriteTime( path, DateTime.Now );
         }
     }
 }
