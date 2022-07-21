@@ -45,9 +45,11 @@ namespace Metalama.Backstage.Licensing.Tests.Essentials
             Assert.True( this._registrar.TryRegisterLicense() );
             this.AssertSingleEssentialsLicenseRegistered();
 
+#pragma warning disable CA1307 // Method does not exist in .NET Standard.
             Assert.Single(
                 this.Log.LogEntries,
-                x => x.Message != null && x.Message.Contains( "Failed to register Essentials license: A Essentials license is registered already.", StringComparison.Ordinal ) );
+                x => x.Message != null && x.Message.Contains( "Failed to register Essentials license: A Essentials license is registered already." ) );
+#pragma warning restore CA1307
         }
     }
 }
