@@ -63,7 +63,7 @@ public static class RegisterServiceExtensions
 
         DebuggerHelper.Launch( configuration, processKind );
 
-        var applicationInfo = serviceProvider.GetRequiredService<IApplicationInfo>();
+        var applicationInfo = serviceProvider.GetRequiredService<IApplicationInfoProvider>().CurrentApplication;
         var loggerFactory = new LoggerFactory( configuration, applicationInfo.ProcessKind, projectName );
 
         return serviceProviderBuilder.AddSingleton<ILoggerFactory>( loggerFactory );
@@ -77,7 +77,6 @@ public static class RegisterServiceExtensions
         IApplicationInfo applicationInfo,
         string? dotNetSdkDirectory )
         => serviceProviderBuilder
-            .AddSingleton<IApplicationInfo>( applicationInfo ) // TODO: remove - use IApplicationInfoProvider only
             .AddSingleton<IApplicationInfoProvider>( new ApplicationInfoProvider( applicationInfo ) )
             .AddCurrentDateTimeProvider()
             .AddFileSystem()

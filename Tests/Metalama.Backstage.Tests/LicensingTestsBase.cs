@@ -28,12 +28,13 @@ namespace Metalama.Backstage.Licensing.Tests
                 {
                     // ReSharper disable once ExplicitCallerInfoArgument
                     services
-                        .AddSingleton<IApplicationInfo>(
-                            new TestApplicationInfo(
-                                "Licensing Test App",
-                                false,
-                                "1.0",
-                                new DateTime( 2021, 1, 1 ) ) )
+                        .AddSingleton<IApplicationInfoProvider>(
+                            new ApplicationInfoProvider(
+                                new TestApplicationInfo(
+                                    "Licensing Test App",
+                                    false,
+                                    "1.0",
+                                    new DateTime( 2021, 1, 1 ) ) ) )
                         .AddConfigurationManager();
 
                     serviceBuilder?.Invoke( services );

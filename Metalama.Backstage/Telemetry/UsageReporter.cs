@@ -26,7 +26,7 @@ internal class UsageReporter : IUsageReporter
         this._uploader = uploader;
         this._time = serviceProvider.GetRequiredService<IDateTimeProvider>();
         this._logger = serviceProvider.GetLoggerFactory().Telemetry();
-        this._applicationInfo = serviceProvider.GetRequiredService<IApplicationInfo>();
+        this._applicationInfo = serviceProvider.GetRequiredService<IApplicationInfoProvider>().CurrentApplication;
     }
 
     public bool ShouldReportSession( string projectName )
@@ -35,7 +35,8 @@ internal class UsageReporter : IUsageReporter
 
         if ( !this._applicationInfo.IsTelemetryEnabled )
         {
-            this._logger.Trace?.Log( $"Session of project '{projectName}' should not be reported because telemetry is disabled for {this._applicationInfo.Name} {this._applicationInfo.Version}." );
+            this._logger.Trace?.Log(
+                $"Session of project '{projectName}' should not be reported because telemetry is disabled for {this._applicationInfo.Name} {this._applicationInfo.Version}." );
 
             return false;
         }
@@ -54,7 +55,7 @@ internal class UsageReporter : IUsageReporter
             return false;
         }
 
-        return this._configurationManager.Update<TelemetryConfiguration>(
+        return this._configurationManager.UpdateIf<TelemetryConfiguration>(
             c =>
             {
                 if ( c.Sessions.TryGetValue( projectName, out var raceReported ) && raceReported.AddDays( 1 ) < now )
@@ -65,12 +66,14 @@ internal class UsageReporter : IUsageReporter
                     return false;
                 }
 
-                c.Sessions[projectName] = now;
+                return true;
+            },
+            c =>
+            {
+                c.Sessions = c.Sessions.SetItem( projectName, now );
                 c.CleanUp( now.AddDays( -1 ) );
 
                 this._logger.Trace?.Log( $"Session of project '{projectName}' should be reported." );
-
-                return true;
             } );
     }
 

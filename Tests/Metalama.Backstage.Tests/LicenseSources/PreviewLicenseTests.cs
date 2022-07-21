@@ -23,7 +23,10 @@ public class PreviewLicenseTests
         var services = new ServiceCollection();
         var timeProvider = new TestDateTimeProvider();
         services.AddSingleton<IDateTimeProvider>( timeProvider );
-        services.AddSingleton<IApplicationInfo>( new TestApplicationInfo( "Test", isPrerelease, "<version>", timeProvider.Now.AddDays( -daysAfterBuild ) ) );
+
+        services.AddSingleton<IApplicationInfoProvider>(
+            new ApplicationInfoProvider( new TestApplicationInfo( "Test", isPrerelease, "<version>", timeProvider.Now.AddDays( -daysAfterBuild ) ) ) );
+
         var serviceProvider = services.BuildServiceProvider();
 
         return new PreviewLicenseSource( serviceProvider );

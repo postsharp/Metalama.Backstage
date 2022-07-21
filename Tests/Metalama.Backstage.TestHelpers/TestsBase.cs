@@ -14,6 +14,8 @@ namespace Metalama.Backstage.Testing
 {
     public abstract class TestsBase
     {
+        public ITestOutputHelper Logger { get; }
+
         public TestDateTimeProvider Time { get; } = new();
 
         public TestFileSystem FileSystem { get; } = new();
@@ -24,6 +26,8 @@ namespace Metalama.Backstage.Testing
 
         public TestsBase( ITestOutputHelper logger, Action<ServiceProviderBuilder>? serviceBuilder = null )
         {
+            this.Logger = logger;
+
             var loggerFactory = TestLoggerFactory
                 .Create()
                 .AddXUnit( logger );

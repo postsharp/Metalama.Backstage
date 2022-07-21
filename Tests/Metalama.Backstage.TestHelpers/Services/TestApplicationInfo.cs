@@ -18,7 +18,13 @@ namespace Metalama.Backstage.Testing.Services
         /// <param name="isPrerelease">A value indicating whether the application is a pre-release.</param>
         /// <param name="version">The version of the application.</param>
         /// <param name="buildDate">The date of build of the application.</param>
-        public TestApplicationInfo( string name, bool isPrerelease, string version, DateTime buildDate, bool isUnattendedProcess = false, bool isTelemetryEnabled = false )
+        public TestApplicationInfo(
+            string name,
+            bool isPrerelease,
+            string version,
+            DateTime buildDate,
+            bool isUnattendedProcess = false,
+            bool isTelemetryEnabled = false )
         {
             this.Name = name;
             this.IsPrerelease = isPrerelease;
@@ -27,6 +33,8 @@ namespace Metalama.Backstage.Testing.Services
             this.BuildDate = buildDate;
             this.IsTelemetryEnabled = false;
         }
+
+        public TestApplicationInfo() : this( "test", false, "0.0", DateTime.Now ) { }
 
         /// <inheritdoc />
         public string Name { get; }

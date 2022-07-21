@@ -7,5 +7,5 @@ namespace Metalama.Backstage.Telemetry;
 
 public interface IExceptionReporter
 {
-    void ReportException( Exception e, ExceptionReportingKind exceptionReportingKind = ExceptionReportingKind.Exception );
+    void ReportException( Exception reportedException, ExceptionReportingKind exceptionReportingKind = ExceptionReportingKind.Exception );
 }
