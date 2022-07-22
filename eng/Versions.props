@@ -17,6 +17,9 @@
         <XunitVersion>2.4.1</XunitVersion>
         <XUnitRunnerVisualStudioVersion>2.4.3</XUnitRunnerVisualStudioVersion>
         <CoverletCollectorVersion>1.3.0</CoverletCollectorVersion>
+        <!-- The version should not be higher than the one in Metalama.Compiler, otherwise we
+             downgrade the package. -->
+        <SystemImmutableCollectionsVersion>5.0.0</SystemImmutableCollectionsVersion>
     </PropertyGroup>
 
     <!-- Import overrides for the local build -->
