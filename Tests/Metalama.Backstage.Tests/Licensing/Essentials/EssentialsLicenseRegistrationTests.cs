@@ -3,13 +3,13 @@
 
 using Metalama.Backstage.Licensing.Licenses;
 using Metalama.Backstage.Licensing.Registration.Essentials;
-using Metalama.Backstage.Licensing.Tests.Registration;
+using Metalama.Backstage.Licensing.Tests.Licensing.Registration;
 using System;
 using System.Linq;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace Metalama.Backstage.Licensing.Tests.Essentials
+namespace Metalama.Backstage.Licensing.Tests.Licensing.Essentials
 {
     public class EssentialsLicenseRegistrationTests : LicenseRegistrationTestsBase
     {

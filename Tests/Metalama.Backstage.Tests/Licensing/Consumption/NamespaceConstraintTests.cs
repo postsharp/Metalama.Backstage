@@ -4,7 +4,7 @@
 using Metalama.Backstage.Licensing.Consumption;
 using Xunit;
 
-namespace Metalama.Backstage.Licensing.Tests.Consumption
+namespace Metalama.Backstage.Licensing.Tests.Licensing.Consumption
 {
     public class NamespaceConstraintTests
     {

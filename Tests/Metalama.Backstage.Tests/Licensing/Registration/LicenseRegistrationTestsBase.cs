@@ -9,7 +9,7 @@ using System;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace Metalama.Backstage.Licensing.Tests.Registration
+namespace Metalama.Backstage.Licensing.Tests.Licensing.Registration
 {
     public abstract class LicenseRegistrationTestsBase : LicensingTestsBase
     {

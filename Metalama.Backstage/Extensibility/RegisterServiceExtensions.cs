@@ -198,6 +198,12 @@ public static class RegisterServiceExtensions
             serviceProviderBuilder.AddService( typeof(ILockingProcessDetector), new LockingProcessDetector() );
         }
 
+        // Add mini-dump service.
+        if ( MiniDumper.IsSupported )
+        {
+            serviceProviderBuilder.AddService( typeof(IMiniDumper), new MiniDumper( serviceProviderBuilder.ServiceProvider ) );
+        }
+
         // Add licensing.
         if ( addLicensing )
         {

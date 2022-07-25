@@ -10,7 +10,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Xunit;
 
-namespace Metalama.Backstage.Licensing.Tests.LicenseSources;
+namespace Metalama.Backstage.Licensing.Tests.Licensing.LicenseSources;
 
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.

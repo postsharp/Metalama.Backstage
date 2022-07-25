@@ -5,14 +5,14 @@ using Metalama.Backstage.Extensibility;
 using Metalama.Backstage.Licensing.Licenses;
 using Metalama.Backstage.Licensing.Registration;
 using Metalama.Backstage.Licensing.Registration.Evaluation;
-using Metalama.Backstage.Licensing.Tests.Registration;
+using Metalama.Backstage.Licensing.Tests.Licensing.Registration;
 using Metalama.Backstage.Testing.Services;
 using System;
 using System.Linq;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace Metalama.Backstage.Licensing.Tests.Evaluation
+namespace Metalama.Backstage.Licensing.Tests.Licensing.Evaluation
 {
     public abstract class EvaluationLicenseRegistrationTestsBase : LicenseRegistrationTestsBase
     {

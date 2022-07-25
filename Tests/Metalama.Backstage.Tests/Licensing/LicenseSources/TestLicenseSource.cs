@@ -7,7 +7,7 @@ using Metalama.Backstage.Licensing.Licenses;
 using System;
 using System.Collections.Generic;
 
-namespace Metalama.Backstage.Licensing.Tests.LicenseSources
+namespace Metalama.Backstage.Licensing.Tests.Licensing.LicenseSources
 {
     internal class TestLicenseSource : ILicenseSource, IUsable
     {

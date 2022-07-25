@@ -17,6 +17,9 @@ public class DiagnosticsConfiguration : ConfigurationFile
     [JsonProperty( "debugger" )]
     public DebuggerConfiguration Debugger { get; private set; } = new();
 
+    [JsonProperty( "miniDump" )]
+    public MiniDumpConfiguration MiniDump { get; private set; } = new();
+
     public DiagnosticsConfiguration()
     {
         this.Reset();
@@ -29,12 +32,20 @@ public class DiagnosticsConfiguration : ConfigurationFile
             [ProcessKind.Compiler] = false, [ProcessKind.Rider] = false, [ProcessKind.DevEnv] = false, [ProcessKind.RoslynCodeAnalysisService] = false
         };
 
-        this.Logging.Categories = new Dictionary<string, bool>( StringComparer.OrdinalIgnoreCase ) { ["*"] = false, ["Licensing"] = false };
+        this.Logging.Categories = new Dictionary<string, bool>( StringComparer.OrdinalIgnoreCase ) { ["*"] = true };
 
         this.Debugger.Processes = new Dictionary<ProcessKind, bool>
         {
             [ProcessKind.Compiler] = false, [ProcessKind.Rider] = false, [ProcessKind.DevEnv] = false, [ProcessKind.RoslynCodeAnalysisService] = false
         };
+
+        this.MiniDump.Processes = new Dictionary<ProcessKind, bool>
+        {
+            [ProcessKind.Compiler] = false, [ProcessKind.Rider] = false, [ProcessKind.DevEnv] = false, [ProcessKind.RoslynCodeAnalysisService] = false
+        };
+
+        this.MiniDump.Flags = new List<string>() { nameof(MiniDumpKind.WithFullMemory) };
+        this.MiniDump.ExceptionTypes = new List<string> { "*" };
     }
 
     public override void CopyFrom( ConfigurationFile configurationFile )
