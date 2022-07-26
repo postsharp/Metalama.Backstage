@@ -16,14 +16,14 @@ namespace Metalama.Backstage.Licensing.Tests.MiniDump;
 
 public class MiniDumpTests : TestsBase
 {
-    public MiniDumpTests( ITestOutputHelper logger) : base(
-        logger, 
+    public MiniDumpTests( ITestOutputHelper logger ) : base(
+        logger,
         builder =>
         {
             builder.AddService( typeof(IConfigurationManager), new TestConfigurationManager( builder.ServiceProvider ) );
-            builder.AddService( typeof(IApplicationInfoProvider), new ApplicationInfoProvider( new TestApplicationInfo( ) ) );
+            builder.AddService( typeof(IApplicationInfoProvider), new ApplicationInfoProvider( new TestApplicationInfo() ) );
         } ) { }
-    
+
     [Fact]
     public void WhenWriteFileExists()
     {
@@ -32,17 +32,17 @@ public class MiniDumpTests : TestsBase
 
         try
         {
+#pragma warning disable CA2201
             throw new Exception();
+#pragma warning restore CA2201
         }
         catch
         {
-           var dumpFile = dumper.Write();
-           
-           this.Logger.WriteLine( $"Dump file '{dumpFile}' written." );
-           Assert.NotNull( dumpFile );
-           Assert.True( File.Exists( dumpFile ) );
+            var dumpFile = dumper.Write();
+
+            this.Logger.WriteLine( $"Dump file '{dumpFile}' written." );
+            Assert.NotNull( dumpFile );
+            Assert.True( File.Exists( dumpFile ) );
         }
     }
-
-    
 }

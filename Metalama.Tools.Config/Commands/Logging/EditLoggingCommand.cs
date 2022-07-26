@@ -31,9 +31,9 @@ internal class EditLoggingCommand : CommandBase
             // Create a default file if it does not exist.
             configurationManager.Update<DiagnosticsConfiguration>( _ => { } );
         }
-        
+
         console.Out.Write( $"Opening $'{configuration.FilePath}' in the default editor." );
-        
+
         Process.Start( new ProcessStartInfo( configuration.FilePath ) { UseShellExecute = true } );
     }
 }

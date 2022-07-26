@@ -1,4 +1,7 @@
-﻿using Metalama.Backstage.Configuration;
+﻿// Copyright (c) SharpCrafters s.r.o. All rights reserved.
+// This project is not open source. Please see the LICENSE.md file in the repository root for details.
+
+using Metalama.Backstage.Configuration;
 using Metalama.Backstage.Diagnostics;
 using System;
 using System.Collections.Generic;
@@ -7,7 +10,7 @@ namespace Metalama.Backstage.Licensing.Tests.ConfigurationManager;
 
 internal class TestConfigurationManager : IConfigurationManager
 {
-    private readonly Dictionary<Type, ConfigurationFile> _files = new Dictionary<Type, ConfigurationFile>();
+    private readonly Dictionary<Type, ConfigurationFile> _files = new();
 
     public TestConfigurationManager( IServiceProvider serviceProvider, params ConfigurationFile[] files )
     {
@@ -18,7 +21,7 @@ internal class TestConfigurationManager : IConfigurationManager
             this.Set( file );
         }
     }
-    
+
     public void Dispose() { }
 
     public ILogger Logger { get; }
@@ -31,7 +34,7 @@ internal class TestConfigurationManager : IConfigurationManager
     {
         if ( !this._files.TryGetValue( type, out var file ) )
         {
-             file = (ConfigurationFile) Activator.CreateInstance( type )!;
+            file = (ConfigurationFile) Activator.CreateInstance( type )!;
         }
 
         return file;
@@ -45,11 +48,10 @@ internal class TestConfigurationManager : IConfigurationManager
         {
             return false;
         }
-        
+
         value.LastModified = DateTime.Now;
         this._files[value.GetType()] = value;
 
         return true;
-
     }
 }
