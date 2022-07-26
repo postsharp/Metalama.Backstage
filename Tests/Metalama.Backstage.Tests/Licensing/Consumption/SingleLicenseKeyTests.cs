@@ -5,7 +5,7 @@ using Metalama.Backstage.Licensing.Consumption;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace Metalama.Backstage.Licensing.Tests.Consumption;
+namespace Metalama.Backstage.Licensing.Tests.Licensing.Consumption;
 
 public class SingleLicenseKeyTests : LicenseConsumptionManagerTestsBase
 {

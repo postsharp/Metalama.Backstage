@@ -8,7 +8,7 @@ using System;
 using System.Collections.Generic;
 using Xunit;
 
-namespace Metalama.Backstage.Licensing.Tests.Licenses
+namespace Metalama.Backstage.Licensing.Tests.Licensing.Licenses
 {
     internal class TestLicense : ILicense, IUsable
     {

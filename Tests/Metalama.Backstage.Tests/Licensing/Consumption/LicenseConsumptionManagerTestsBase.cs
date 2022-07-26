@@ -4,13 +4,13 @@
 using Metalama.Backstage.Extensibility;
 using Metalama.Backstage.Licensing.Consumption;
 using Metalama.Backstage.Licensing.Consumption.Sources;
-using Metalama.Backstage.Licensing.Tests.Licenses;
-using Metalama.Backstage.Licensing.Tests.LicenseSources;
+using Metalama.Backstage.Licensing.Tests.Licensing.Licenses;
+using Metalama.Backstage.Licensing.Tests.Licensing.LicenseSources;
 using System;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace Metalama.Backstage.Licensing.Tests.Consumption;
+namespace Metalama.Backstage.Licensing.Tests.Licensing.Consumption;
 
 public abstract class LicenseConsumptionManagerTestsBase : LicensingTestsBase
 {

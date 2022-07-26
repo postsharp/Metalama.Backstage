@@ -32,6 +32,8 @@ internal class EditLoggingCommand : CommandBase
             configurationManager.Update<DiagnosticsConfiguration>( _ => { } );
         }
 
+        console.Out.Write( $"Opening $'{configuration.FilePath}' in the default editor." );
+
         Process.Start( new ProcessStartInfo( configuration.FilePath ) { UseShellExecute = true } );
     }
 }
