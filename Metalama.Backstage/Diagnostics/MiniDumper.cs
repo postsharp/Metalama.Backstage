@@ -156,7 +156,7 @@ internal class MiniDumper : IMiniDumper
 
                 if ( !bRet )
                 {
-                    this._logger.Error?.Log( "MiniDumpWriteDump has failed." );
+                    this._logger.Error?.Log( $"MiniDumpWriteDump has failed with error code {Marshal.GetLastWin32Error()}." );
 
                     return null;
                 }
