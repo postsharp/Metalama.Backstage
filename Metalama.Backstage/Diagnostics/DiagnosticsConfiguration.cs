@@ -5,6 +5,7 @@ using Metalama.Backstage.Configuration;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Metalama.Backstage.Diagnostics;
 
@@ -44,7 +45,23 @@ public class DiagnosticsConfiguration : ConfigurationFile
             [ProcessKind.Compiler] = false, [ProcessKind.Rider] = false, [ProcessKind.DevEnv] = false, [ProcessKind.RoslynCodeAnalysisService] = false
         };
 
-        this.MiniDump.Flags = new List<string>() { nameof(MiniDumpKind.WithFullMemory) };
+        this.MiniDump.Flags.Clear();
+
+        this.MiniDump.Flags.AddRange(
+            new[]
+            {
+                MiniDumpKind.WithDataSegments,
+                MiniDumpKind.WithProcessThreadData,
+                MiniDumpKind.WithHandleData,
+                MiniDumpKind.WithPrivateReadWriteMemory,
+                MiniDumpKind.WithUnloadedModules,
+                MiniDumpKind.WithFullMemoryInfo,
+                MiniDumpKind.WithThreadInfo,
+                MiniDumpKind.FilterMemory,
+                MiniDumpKind.WithoutAuxiliaryState,
+                MiniDumpKind.IgnoreInaccessibleMemory
+            }.Select( x => x.ToString() ) );
+
         this.MiniDump.ExceptionTypes = new List<string> { "*" };
     }
 

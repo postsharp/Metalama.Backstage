@@ -5,9 +5,11 @@ using Metalama.Backstage.Configuration;
 using Metalama.Backstage.Extensibility;
 using System;
 using System.IO;
+using System.IO.Compression;
 using System.Runtime.ExceptionServices;
 using System.Runtime.InteropServices;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace Metalama.Backstage.Diagnostics;
 
@@ -42,7 +44,7 @@ internal class MiniDumper : IMiniDumper
         var applicationInfo = serviceProvider.GetRequiredService<IApplicationInfoProvider>().CurrentApplication;
         this._processKind = applicationInfo.ProcessKind;
         this._isProcessEnabled = this._configuration.Processes.TryGetValue( applicationInfo.ProcessKind, out var isEnabled ) && isEnabled;
-        
+
         foreach ( var flag in this._configuration.Flags )
         {
             if ( Enum.TryParse<MiniDumpKind>( flag, out var parsedFlag ) )
@@ -55,7 +57,7 @@ internal class MiniDumper : IMiniDumper
                 this._logger.Warning?.Log( $"Cannot parse the dump flag '{flag}'. The flag was ignored. Possible values are: {possibleValues}." );
             }
         }
-        
+
         // The MiniDumper class is instantiated for each project, but the handler must be global.
         // We will use the latest available configuration in the process.
         if ( this._isProcessEnabled )
@@ -77,7 +79,7 @@ internal class MiniDumper : IMiniDumper
         {
             return;
         }
-        
+
         if ( dumper.MustWrite( e.Exception ) )
         {
             dumper.Write();
@@ -111,6 +113,7 @@ internal class MiniDumper : IMiniDumper
 
     public bool MustWrite( Exception exception )
         => IsSupported && this._isProcessEnabled
+                       && exception is not TaskCanceledException and not OperationCanceledException
                        && (this._configuration.ExceptionTypes.Contains( exception.GetType().Name ) || this._configuration.ExceptionTypes.Contains( "*" ));
 
     public string? Write()
@@ -157,9 +160,21 @@ internal class MiniDumper : IMiniDumper
 
                     return null;
                 }
-
-                return fileName;
             }
+
+            var compressedFileName = fileName + ".gz";
+
+            this._logger.Info?.Log( $"Compressing dump to '{compressedFileName}.'" );
+
+            using ( var readStream = File.OpenRead( fileName ) )
+            using ( var writeStream = new GZipStream( File.OpenWrite( compressedFileName ), CompressionMode.Compress ) )
+            {
+                readStream.CopyTo( writeStream );
+            }
+
+            File.Delete( fileName );
+
+            return compressedFileName;
         }
         catch ( Exception e )
         {

@@ -8,7 +8,9 @@ namespace Metalama.Backstage.Diagnostics;
 [Flags]
 public enum MiniDumpKind : uint
 {
-    // From dbghelp.h:
+    // From dbghelp.h.
+    // https://docs.microsoft.com/en-us/windows/win32/api/minidumpapiset/ne-minidumpapiset-minidump_type
+
     Normal = 0x00000000,
     WithDataSegments = 0x00000001,
     WithFullMemory = 0x00000002,
