@@ -28,7 +28,10 @@ public enum MiniDumpKind : uint
     WithCodeSegments = 0x00002000,
     WithoutAuxiliaryState = 0x00004000,
     WithFullAuxiliaryState = 0x00008000,
-    WithPrivateWriteCopyMemory = 0x00010000,
-    IgnoreInaccessibleMemory = 0x00020000,
-    ValidTypeFlags = 0x0003ffff
+    
+    // The following flags have been introduced in  DbgHelp 6.1
+    
+    // WithPrivateWriteCopyMemory = 0x00010000,
+    // IgnoreInaccessibleMemory = 0x00020000,
+    // ValidTypeFlags = 0x0003ffff
 }

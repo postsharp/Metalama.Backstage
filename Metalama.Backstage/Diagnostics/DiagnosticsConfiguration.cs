@@ -58,8 +58,7 @@ public class DiagnosticsConfiguration : ConfigurationFile
                 MiniDumpKind.WithFullMemoryInfo,
                 MiniDumpKind.WithThreadInfo,
                 MiniDumpKind.FilterMemory,
-                MiniDumpKind.WithoutAuxiliaryState,
-                MiniDumpKind.IgnoreInaccessibleMemory
+                MiniDumpKind.WithoutAuxiliaryState
             }.Select( x => x.ToString() ) );
 
         this.MiniDump.ExceptionTypes = new List<string> { "*" };
