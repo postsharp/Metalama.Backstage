@@ -7,9 +7,12 @@ internal class Logger : ILogger
     public LoggerFactory LoggerFactory { get; }
 
     public string Category { get; }
+    
+    public string Prefix { get; }
 
-    public Logger( LoggerFactory loggerDiagnosticsService, string category )
+    public Logger( LoggerFactory loggerDiagnosticsService, string category, string prefix = "" )
     {
+        this.Prefix = prefix;
         this.LoggerFactory = loggerDiagnosticsService;
         this.Category = category;
         this.Error = this.CreateLogWriter( "ERROR" );
@@ -32,4 +35,7 @@ internal class Logger : ILogger
     public ILogWriter? Warning { get; }
 
     public ILogWriter? Error { get; }
+
+    public ILogger WithPrefix( string prefix )
+        => new Logger( this.LoggerFactory, this.Category, string.IsNullOrEmpty( this.Prefix ) ? prefix : this.Prefix + " - " + prefix );
 }

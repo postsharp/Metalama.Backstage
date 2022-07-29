@@ -11,5 +11,7 @@ namespace Metalama.Backstage.Diagnostics
         ILogWriter? Warning { get; }
 
         ILogWriter? Error { get; }
+
+        ILogger WithPrefix( string prefix );
     }
 }

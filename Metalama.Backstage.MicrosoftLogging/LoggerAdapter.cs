@@ -2,6 +2,7 @@
 
 using Metalama.Backstage.Diagnostics;
 using Microsoft.Extensions.Logging;
+using System;
 using System.Threading;
 using IMicrosoftLogger = Microsoft.Extensions.Logging.ILogger;
 using IPostSharpLogger = Metalama.Backstage.Diagnostics.ILogger;
@@ -42,6 +43,8 @@ namespace Metalama.Backstage.MicrosoftLogging
         public ILogWriter? Warning { get; }
 
         public ILogWriter? Error { get; }
+
+        public IPostSharpLogger WithPrefix( string prefix ) => throw new NotImplementedException();
 
         private class LogWriter : ILogWriter
         {
