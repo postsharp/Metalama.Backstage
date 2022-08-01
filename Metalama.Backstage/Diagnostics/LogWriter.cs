@@ -18,8 +18,17 @@ internal class LogWriter : ILogWriter
 
     public void Log( string message )
     {
-        this._logger.LoggerFactory.WriteLine(
-            FormattableString.Invariant(
-                $"{DateTime.Now}, {this._logLevel}, {this._logger.Category}, Thread {Thread.CurrentThread.ManagedThreadId}: {message}" ) );
+        if ( string.IsNullOrEmpty( this._logger.Prefix ) )
+        {
+            this._logger.LoggerFactory.WriteLine(
+                FormattableString.Invariant(
+                    $"{DateTime.Now}, {this._logLevel}, Thread {Thread.CurrentThread.ManagedThreadId}, {this._logger.Category}: {message}" ) );
+        }
+        else
+        {
+            this._logger.LoggerFactory.WriteLine(
+                FormattableString.Invariant(
+                    $"{DateTime.Now}, {this._logLevel},  Thread {Thread.CurrentThread.ManagedThreadId}, {this._logger.Category} - {this._logger.Prefix}: {message}" ) );
+        }
     }
 }
