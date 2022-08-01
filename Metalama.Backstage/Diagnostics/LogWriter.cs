@@ -1,4 +1,4 @@
-﻿// Copyright (c) SharpCrafters s.r.o. All rights reserved. This project is not open source. Please see the LICENSE.md file in the repository root for details.
+﻿// Copyright (c) SharpCrafters s.r.o. See the LICENSE.md file in the root directory of this rep root for details.
 
 using System;
 using System.Threading;
@@ -18,8 +18,17 @@ internal class LogWriter : ILogWriter
 
     public void Log( string message )
     {
-        this._logger.LoggerFactory.WriteLine(
-            FormattableString.Invariant(
-                $"{DateTime.Now}, {this._logLevel}, {this._logger.Category}, Thread {Thread.CurrentThread.ManagedThreadId}: {message}" ) );
+        if ( string.IsNullOrEmpty( this._logger.Prefix ) )
+        {
+            this._logger.LoggerFactory.WriteLine(
+                FormattableString.Invariant(
+                    $"{DateTime.Now}, {this._logLevel}, Thread {Thread.CurrentThread.ManagedThreadId}, {this._logger.Category}: {message}" ) );
+        }
+        else
+        {
+            this._logger.LoggerFactory.WriteLine(
+                FormattableString.Invariant(
+                    $"{DateTime.Now}, {this._logLevel},  Thread {Thread.CurrentThread.ManagedThreadId}, {this._logger.Category} - {this._logger.Prefix}: {message}" ) );
+        }
     }
 }

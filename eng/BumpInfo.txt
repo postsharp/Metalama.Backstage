@@ -1,1 +1,1 @@
-PostSharp.Engineering=1.0.70-preview
+{"Dependencies":{"PostSharp.Engineering":"1.0.83"}}
