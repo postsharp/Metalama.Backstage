@@ -86,13 +86,19 @@ public static class RegisterServiceExtensions
         this ServiceProviderBuilder serviceProviderBuilder,
         IApplicationInfo applicationInfo,
         string? dotNetSdkDirectory )
-        => serviceProviderBuilder
+    {
+        serviceProviderBuilder = serviceProviderBuilder
             .AddSingleton<IApplicationInfoProvider>( new ApplicationInfoProvider( applicationInfo ) )
             .AddCurrentDateTimeProvider()
             .AddFileSystem()
             .AddStandardDirectories()
             .AddConfigurationManager()
             .AddPlatformInfo( dotNetSdkDirectory );
+
+        serviceProviderBuilder.AddService( typeof(ITempFileManager), new TempFileManager( serviceProviderBuilder.ServiceProvider ) );
+
+        return serviceProviderBuilder;
+    }
 
     public static ServiceProviderBuilder AddConfigurationManager( this ServiceProviderBuilder serviceProviderBuilder )
         => serviceProviderBuilder.AddSingleton<IConfigurationManager>( new ConfigurationManager( serviceProviderBuilder.ServiceProvider ) );
@@ -180,9 +186,6 @@ public static class RegisterServiceExtensions
         // Add base services.
         serviceProviderBuilder = serviceProviderBuilder
             .AddDiagnosticsRequirements( applicationInfo, dotNetSdkDirectory );
-
-        // Add temporary files.
-        serviceProviderBuilder.AddService( typeof(ITempFileManager), new TempFileManager( serviceProviderBuilder.ServiceProvider ) );
 
         // Add diagnostics.
         if ( addSupportServices )
