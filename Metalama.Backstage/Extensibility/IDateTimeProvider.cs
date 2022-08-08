@@ -4,7 +4,7 @@ using System;
 
 namespace Metalama.Backstage.Extensibility
 {
-    public interface IDateTimeProvider
+    public interface IDateTimeProvider : IBackstageService
     {
         DateTime Now { get; }
     }

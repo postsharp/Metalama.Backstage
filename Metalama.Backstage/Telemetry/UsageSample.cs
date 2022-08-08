@@ -22,9 +22,9 @@ namespace Metalama.Backstage.Telemetry
 
         internal UsageSample( IServiceProvider serviceProvider, string eventKind, TelemetryUploader uploader )
         {
-            this._directories = serviceProvider.GetRequiredService<IStandardDirectories>();
-            var time = serviceProvider.GetRequiredService<IDateTimeProvider>();
-            var applicationInfo = serviceProvider.GetRequiredService<IApplicationInfoProvider>().CurrentApplication;
+            this._directories = serviceProvider.GetRequiredBackstageService<IStandardDirectories>();
+            var time = serviceProvider.GetRequiredBackstageService<IDateTimeProvider>();
+            var applicationInfo = serviceProvider.GetRequiredBackstageService<IApplicationInfoProvider>().CurrentApplication;
             var loggerFactory = serviceProvider.GetLoggerFactory();
 
             this._uploader = uploader;

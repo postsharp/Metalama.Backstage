@@ -31,12 +31,12 @@ namespace Metalama.Backstage.Telemetry
 
         public TelemetryUploader( IServiceProvider serviceProvider )
         {
-            var configurationManager = serviceProvider.GetRequiredService<IConfigurationManager>();
+            var configurationManager = serviceProvider.GetRequiredBackstageService<IConfigurationManager>();
             this._configuration = configurationManager.Get<TelemetryConfiguration>();
 
-            this._directories = serviceProvider.GetRequiredService<IStandardDirectories>();
-            this._time = serviceProvider.GetRequiredService<IDateTimeProvider>();
-            this._platformInfo = serviceProvider.GetRequiredService<IPlatformInfo>();
+            this._directories = serviceProvider.GetRequiredBackstageService<IStandardDirectories>();
+            this._time = serviceProvider.GetRequiredBackstageService<IDateTimeProvider>();
+            this._platformInfo = serviceProvider.GetRequiredBackstageService<IPlatformInfo>();
             this._logger = serviceProvider.GetLoggerFactory().Telemetry();
         }
 

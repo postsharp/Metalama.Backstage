@@ -23,6 +23,8 @@ namespace Metalama.Backstage.Utilities
         private string? _packageVersion;
         private DateTime? _buildDate;
 
+        public string? Company => this._assembly.GetCustomAttribute<AssemblyCompanyAttribute>()?.Company;
+
         /// <summary>
         /// Gets the version of the package containing the current assembly.
         /// </summary>

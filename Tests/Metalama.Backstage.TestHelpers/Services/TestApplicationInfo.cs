@@ -3,6 +3,7 @@
 using Metalama.Backstage.Diagnostics;
 using Metalama.Backstage.Extensibility;
 using System;
+using System.Collections.Immutable;
 
 namespace Metalama.Backstage.Testing.Services
 {
@@ -30,10 +31,12 @@ namespace Metalama.Backstage.Testing.Services
             this.Version = version;
             this._isUnattendedProcess = isUnattendedProcess;
             this.BuildDate = buildDate;
-            this.IsTelemetryEnabled = false;
+            this.IsTelemetryEnabled = isTelemetryEnabled;
         }
 
         public TestApplicationInfo() : this( "test", false, "0.0", DateTime.Now ) { }
+
+        public string? Company => null;
 
         /// <inheritdoc />
         public string Name { get; }
@@ -58,5 +61,9 @@ namespace Metalama.Backstage.Testing.Services
 
         /// <inheritdoc />
         public bool IsTelemetryEnabled { get; }
+
+        public bool ShouldCreateLocalCrashReports => false;
+
+        public ImmutableArray<IComponentInfo> Components => ImmutableArray<IComponentInfo>.Empty;
     }
 }

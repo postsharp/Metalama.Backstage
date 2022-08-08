@@ -39,7 +39,7 @@ public class EvaluationLicenseRegistrar
     public EvaluationLicenseRegistrar( IServiceProvider services )
     {
         this._services = services;
-        this._time = services.GetRequiredService<IDateTimeProvider>();
+        this._time = services.GetRequiredBackstageService<IDateTimeProvider>();
         this._logger = services.GetLoggerFactory().Licensing();
     }
 

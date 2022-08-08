@@ -1,5 +1,6 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. See the LICENSE.md file in the root directory of this rep root for details.
 
+using Metalama.Backstage.Extensibility;
 using System.Collections.Generic;
 
 namespace Metalama.Backstage.Licensing.Consumption
@@ -7,7 +8,7 @@ namespace Metalama.Backstage.Licensing.Consumption
     /// <summary>
     /// Manages license consumption.
     /// </summary>
-    public interface ILicenseConsumptionManager
+    public interface ILicenseConsumptionManager : IBackstageService
     {
         /// <summary>
         /// Provides information about availability of <paramref name="requiredFeatures"/>.

@@ -27,7 +27,7 @@ namespace Metalama.Tools.Config.Tests.Commands
                 serviceCollection =>
                 {
                     serviceCollection
-                        .AddSingleton<IConsole>( new TestConsole( serviceCollection.ServiceProvider ) )
+                        .AddUntypedSingleton<IConsole>( new TestConsole( serviceCollection.ServiceProvider ) )
                         .AddConfigurationManager();
 
                     serviceBuilder?.Invoke( serviceCollection );

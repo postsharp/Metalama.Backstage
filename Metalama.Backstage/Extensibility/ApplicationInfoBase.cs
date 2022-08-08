@@ -3,6 +3,7 @@
 using Metalama.Backstage.Diagnostics;
 using Metalama.Backstage.Utilities;
 using System;
+using System.Collections.Immutable;
 using System.Reflection;
 
 namespace Metalama.Backstage.Extensibility
@@ -13,7 +14,7 @@ namespace Metalama.Backstage.Extensibility
     /// </summary>
     public abstract class ApplicationInfoBase : IApplicationInfo
     {
-        public ApplicationInfoBase( Assembly metadataAssembly )
+        protected ApplicationInfoBase( Assembly metadataAssembly )
         {
             var reader = AssemblyMetadataReader.GetInstance( metadataAssembly );
             this.Version = reader.PackageVersion;
@@ -21,7 +22,13 @@ namespace Metalama.Backstage.Extensibility
             this.IsPrerelease = this.Version.Contains( "-" );
 #pragma warning restore CA1307
             this.BuildDate = reader.BuildDate;
+            this.Company = reader.Company;
+            
+            var versionParts = this.Version.Split('-');
+            this.IsTelemetryEnabled = versionParts.Length == 1 || versionParts[1] is not ("dev" or "local");
         }
+
+        public string? Company { get; }
 
         /// <inheritdoc />
         public abstract string Name { get; }
@@ -36,15 +43,20 @@ namespace Metalama.Backstage.Extensibility
         public DateTime BuildDate { get; }
 
         /// <inheritdoc />
-        public abstract ProcessKind ProcessKind { get; }
+        public virtual ProcessKind ProcessKind => ProcessUtilities.ProcessKind;
 
         /// <inheritdoc />
-        public abstract bool IsLongRunningProcess { get; }
+        public virtual bool IsLongRunningProcess => false;
 
         /// <inheritdoc />
-        public abstract bool IsUnattendedProcess( ILoggerFactory loggerFactory );
+        public virtual bool IsUnattendedProcess( ILoggerFactory loggerFactory ) => ProcessUtilities.IsCurrentProcessUnattended( loggerFactory );
 
         /// <inheritdoc />
-        public abstract bool IsTelemetryEnabled { get; }
+        public virtual bool IsTelemetryEnabled { get; }
+
+        /// <inheritdoc />
+        public virtual bool ShouldCreateLocalCrashReports => true;
+
+        public virtual ImmutableArray<IComponentInfo> Components => ImmutableArray<IComponentInfo>.Empty;
     }
 }

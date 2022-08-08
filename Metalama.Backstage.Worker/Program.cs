@@ -20,7 +20,7 @@ namespace Metalama.Backstage
                 var serviceProviderBuilder = new ServiceProviderBuilder()
                     .AddMinimalBackstageServices( applicationInfo: new BackstageWorkerApplicationInfo(), addSupportServices: true );
 
-                usageSample = serviceProviderBuilder.ServiceProvider.GetService<IUsageReporter>()?.CreateSample( "CompilerUsage" );
+                usageSample = serviceProviderBuilder.ServiceProvider.GetBackstageService<IUsageReporter>()?.CreateSample( "CompilerUsage" );
 
                 if ( usageSample != null )
                 {
@@ -40,7 +40,7 @@ namespace Metalama.Backstage
 
                 try
                 {
-                    var exceptionReporter = serviceProvider?.GetService<IExceptionReporter>();
+                    var exceptionReporter = serviceProvider?.GetBackstageService<IExceptionReporter>();
 
                     if ( exceptionReporter != null )
                     {
@@ -88,7 +88,7 @@ namespace Metalama.Backstage
                 {
                     try
                     {
-                        serviceProvider?.GetService<IExceptionReporter>()?.ReportException( e );
+                        serviceProvider?.GetBackstageService<IExceptionReporter>()?.ReportException( e );
                     }
                     catch
                     {

@@ -28,11 +28,11 @@ namespace Metalama.Backstage.Configuration
 
         public ConfigurationManager( IServiceProvider serviceProvider )
         {
-            var applicationInfo = serviceProvider.GetService<IApplicationInfoProvider>()?.CurrentApplication;
-            this._fileSystem = serviceProvider.GetRequiredService<IFileSystem>();
+            var applicationInfo = serviceProvider.GetBackstageService<IApplicationInfoProvider>()?.CurrentApplication;
+            this._fileSystem = serviceProvider.GetRequiredBackstageService<IFileSystem>();
             this.Logger = serviceProvider.GetLoggerFactory().GetLogger( "Configuration" );
 
-            this.ApplicationDataDirectory = serviceProvider.GetRequiredService<IStandardDirectories>().ApplicationDataDirectory;
+            this.ApplicationDataDirectory = serviceProvider.GetRequiredBackstageService<IStandardDirectories>().ApplicationDataDirectory;
 
             if ( !this._fileSystem.DirectoryExists( this.ApplicationDataDirectory ) )
             {

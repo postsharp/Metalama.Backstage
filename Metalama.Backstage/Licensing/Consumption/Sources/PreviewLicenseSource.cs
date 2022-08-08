@@ -25,8 +25,8 @@ internal sealed class PreviewLicenseSource : ILicenseSource, ILicense
 
     public PreviewLicenseSource( IServiceProvider serviceProvider )
     {
-        this._time = serviceProvider.GetRequiredService<IDateTimeProvider>();
-        this._applicationInfo = serviceProvider.GetRequiredService<IApplicationInfoProvider>().CurrentApplication;
+        this._time = serviceProvider.GetRequiredBackstageService<IDateTimeProvider>();
+        this._applicationInfo = serviceProvider.GetRequiredBackstageService<IApplicationInfoProvider>().CurrentApplication;
         this._logger = serviceProvider.GetLoggerFactory().Licensing();
     }
 
