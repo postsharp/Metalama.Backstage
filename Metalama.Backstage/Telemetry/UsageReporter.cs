@@ -20,12 +20,12 @@ internal class UsageReporter : IUsageReporter
     public UsageReporter( TelemetryUploader uploader, IServiceProvider serviceProvider )
     {
         this._serviceProvider = serviceProvider;
-        this._configurationManager = serviceProvider.GetRequiredService<IConfigurationManager>();
+        this._configurationManager = serviceProvider.GetRequiredBackstageService<IConfigurationManager>();
         this._configuration = this._configurationManager.Get<TelemetryConfiguration>();
         this._uploader = uploader;
-        this._time = serviceProvider.GetRequiredService<IDateTimeProvider>();
+        this._time = serviceProvider.GetRequiredBackstageService<IDateTimeProvider>();
         this._logger = serviceProvider.GetLoggerFactory().Telemetry();
-        this._applicationInfo = serviceProvider.GetRequiredService<IApplicationInfoProvider>().CurrentApplication;
+        this._applicationInfo = serviceProvider.GetRequiredBackstageService<IApplicationInfoProvider>().CurrentApplication;
     }
 
     public bool ShouldReportSession( string projectName )

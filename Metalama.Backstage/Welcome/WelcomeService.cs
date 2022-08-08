@@ -22,7 +22,7 @@ public class WelcomeService
     {
         this._serviceProvider = serviceProvider;
         this._logger = serviceProvider.GetLoggerFactory().GetLogger( "Welcome" );
-        this._configurationManager = serviceProvider.GetRequiredService<IConfigurationManager>();
+        this._configurationManager = serviceProvider.GetRequiredBackstageService<IConfigurationManager>();
         this._welcomeConfiguration = this._configurationManager.Get<WelcomeConfiguration>();
     }
 
@@ -106,7 +106,7 @@ public class WelcomeService
             {
                 try
                 {
-                    var applicationInfo = this._serviceProvider.GetRequiredService<IApplicationInfoProvider>().CurrentApplication;
+                    var applicationInfo = this._serviceProvider.GetRequiredBackstageService<IApplicationInfoProvider>().CurrentApplication;
 
                     var url = applicationInfo.IsPrerelease
                         ? "https://www.postsharp.net/links/metalama-welcome-preview"

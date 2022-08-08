@@ -1,17 +1,20 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. See the LICENSE.md file in the root directory of this rep root for details.
 
-using Metalama.Backstage.Configuration;
 using Metalama.Backstage.Diagnostics;
 using System;
 using System.Collections.Generic;
 
-namespace Metalama.Backstage.Licensing.Tests.ConfigurationManager;
+namespace Metalama.Backstage.Configuration;
 
-internal class TestConfigurationManager : IConfigurationManager
+/// <summary>
+/// An implementation of <see cref="IConfigurationManager"/> that does not store the files, but keeps them in
+/// memory. This implementation is useful to build tests.
+/// </summary>
+public class InMemoryConfigurationManager : IConfigurationManager
 {
     private readonly Dictionary<Type, ConfigurationFile> _files = new();
 
-    public TestConfigurationManager( IServiceProvider serviceProvider, params ConfigurationFile[] files )
+    public InMemoryConfigurationManager( IServiceProvider serviceProvider, params ConfigurationFile[] files )
     {
         this.Logger = serviceProvider.GetLoggerFactory().GetLogger( "TestConfigurationManager" );
 

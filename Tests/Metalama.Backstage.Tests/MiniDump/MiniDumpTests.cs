@@ -3,7 +3,6 @@
 using Metalama.Backstage.Configuration;
 using Metalama.Backstage.Diagnostics;
 using Metalama.Backstage.Extensibility;
-using Metalama.Backstage.Licensing.Tests.ConfigurationManager;
 using Metalama.Backstage.Testing;
 using Metalama.Backstage.Testing.Services;
 using System;
@@ -19,7 +18,7 @@ public class MiniDumpTests : TestsBase
         logger,
         builder =>
         {
-            builder.AddService( typeof(IConfigurationManager), new TestConfigurationManager( builder.ServiceProvider ) );
+            builder.AddService( typeof(IConfigurationManager), new InMemoryConfigurationManager( builder.ServiceProvider ) );
             builder.AddService( typeof(IApplicationInfoProvider), new ApplicationInfoProvider( new TestApplicationInfo() ) );
         } ) { }
 

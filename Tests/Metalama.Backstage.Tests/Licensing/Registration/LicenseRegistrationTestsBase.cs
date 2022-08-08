@@ -20,7 +20,7 @@ namespace Metalama.Backstage.Licensing.Tests.Licensing.Registration
                 serviceCollection => serviceBuilder?.Invoke( serviceCollection ) ) { }
 
         protected string[] ReadStoredLicenseStrings()
-            => this.ServiceProvider.GetRequiredService<IConfigurationManager>().Get<LicensingConfiguration>().Licenses;
+            => this.ServiceProvider.GetRequiredBackstageService<IConfigurationManager>().Get<LicensingConfiguration>().Licenses;
 
         protected void SetStoredLicenseStrings( params string[] licenseStrings )
         {

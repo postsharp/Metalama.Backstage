@@ -17,7 +17,7 @@ internal class UserProfileLicenseSource : LicenseSourceBase
     public UserProfileLicenseSource( IServiceProvider services )
         : base( services )
     {
-        this._licensingConfiguration = services.GetRequiredService<IConfigurationManager>().Get<LicensingConfiguration>();
+        this._licensingConfiguration = services.GetRequiredBackstageService<IConfigurationManager>().Get<LicensingConfiguration>();
     }
 
     protected override IEnumerable<string> GetLicenseStrings() => this._licensingConfiguration.Licenses;

@@ -38,9 +38,9 @@ internal class MiniDumper : IMiniDumper
     public MiniDumper( IServiceProvider serviceProvider )
     {
         this._logger = serviceProvider.GetLoggerFactory().GetLogger( "Dumper" );
-        this._configuration = serviceProvider.GetRequiredService<IConfigurationManager>().Get<DiagnosticsConfiguration>().MiniDump;
+        this._configuration = serviceProvider.GetRequiredBackstageService<IConfigurationManager>().Get<DiagnosticsConfiguration>().MiniDump;
 
-        var applicationInfo = serviceProvider.GetRequiredService<IApplicationInfoProvider>().CurrentApplication;
+        var applicationInfo = serviceProvider.GetRequiredBackstageService<IApplicationInfoProvider>().CurrentApplication;
         this._processKind = applicationInfo.ProcessKind;
         this._isProcessEnabled = this._configuration.Processes.TryGetValue( applicationInfo.ProcessKind, out var isEnabled ) && isEnabled;
 

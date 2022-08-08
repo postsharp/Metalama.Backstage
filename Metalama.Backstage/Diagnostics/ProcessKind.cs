@@ -14,5 +14,6 @@ public enum ProcessKind
     RoslynCodeAnalysisService,
     Rider,
     BackstageWorker,
-    MetalamaConfig
+    MetalamaConfig,
+    TestHost
 }

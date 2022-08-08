@@ -1,11 +1,12 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. See the LICENSE.md file in the root directory of this rep root for details.
 
 using Metalama.Backstage.Diagnostics;
+using Metalama.Backstage.Extensibility;
 using System;
 
 namespace Metalama.Backstage.Configuration
 {
-    public interface IConfigurationManager : IDisposable
+    public interface IConfigurationManager : IDisposable, IBackstageService
     {
         ILogger Logger { get; }
 

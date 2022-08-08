@@ -34,10 +34,10 @@ internal class ExceptionReporter : IExceptionReporter
     public ExceptionReporter( TelemetryQueue uploadManager, IServiceProvider serviceProvider )
     {
         this._uploadManager = uploadManager;
-        this._configuration = serviceProvider.GetRequiredService<IConfigurationManager>().Get<TelemetryConfiguration>();
-        this._time = serviceProvider.GetRequiredService<IDateTimeProvider>();
-        this._applicationInfoProvider = serviceProvider.GetRequiredService<IApplicationInfoProvider>();
-        this._directories = serviceProvider.GetRequiredService<IStandardDirectories>();
+        this._configuration = serviceProvider.GetRequiredBackstageService<IConfigurationManager>().Get<TelemetryConfiguration>();
+        this._time = serviceProvider.GetRequiredBackstageService<IDateTimeProvider>();
+        this._applicationInfoProvider = serviceProvider.GetRequiredBackstageService<IApplicationInfoProvider>();
+        this._directories = serviceProvider.GetRequiredBackstageService<IStandardDirectories>();
         this._logger = serviceProvider.GetLoggerFactory().Telemetry();
     }
 

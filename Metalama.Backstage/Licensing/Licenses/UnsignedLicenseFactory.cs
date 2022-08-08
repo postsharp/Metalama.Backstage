@@ -20,7 +20,7 @@ namespace Metalama.Backstage.Licensing.Licenses
         /// <param name="services">Services.</param>
         public UnsignedLicenseFactory( IServiceProvider services )
         {
-            this._time = services.GetRequiredService<IDateTimeProvider>();
+            this._time = services.GetRequiredBackstageService<IDateTimeProvider>();
         }
 
         /// <summary>

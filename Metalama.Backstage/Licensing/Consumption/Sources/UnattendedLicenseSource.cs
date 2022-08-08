@@ -19,7 +19,7 @@ internal class UnattendedLicenseSource : ILicenseSource, ILicense
     public UnattendedLicenseSource( IServiceProvider serviceProvider )
     {
         this._serviceProvider = serviceProvider;
-        this._applicationInfo = serviceProvider.GetRequiredService<IApplicationInfoProvider>().CurrentApplication;
+        this._applicationInfo = serviceProvider.GetRequiredBackstageService<IApplicationInfoProvider>().CurrentApplication;
         this._logger = serviceProvider.GetLoggerFactory().Licensing();
     }
 

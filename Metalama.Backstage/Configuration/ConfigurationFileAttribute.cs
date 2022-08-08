@@ -5,7 +5,7 @@ using System;
 namespace Metalama.Backstage.Configuration;
 
 [AttributeUsage( AttributeTargets.Class )]
-internal class ConfigurationFileAttribute : Attribute
+public class ConfigurationFileAttribute : Attribute
 {
     public ConfigurationFileAttribute( string fileName )
     {

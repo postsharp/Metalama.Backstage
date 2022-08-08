@@ -49,7 +49,7 @@ namespace Metalama.Backstage.Utilities
             }
             catch ( Exception e )
             {
-                var lockingDetection = serviceProvider.GetService<ILockingProcessDetector>();
+                var lockingDetection = serviceProvider.GetBackstageService<ILockingProcessDetector>();
 
                 if ( lockingDetection != null )
                 {
@@ -71,7 +71,7 @@ namespace Metalama.Backstage.Utilities
 
             void OnException( Exception obj )
             {
-                var lockingDetection = serviceProvider.GetService<ILockingProcessDetector>();
+                var lockingDetection = serviceProvider.GetBackstageService<ILockingProcessDetector>();
 
                 if ( lockingDetection != null && logger != null )
                 {

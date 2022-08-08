@@ -4,8 +4,8 @@ namespace Metalama.Backstage.Extensibility
 {
     // TODO: For licensing, we need info about all applications together.
     // TODO: Split IApplicationInfo to application, component and process info.
-    public interface IApplicationInfoProvider
+    public interface IApplicationInfoProvider : IBackstageService
     {
-        IApplicationInfo CurrentApplication { get; set; }
+        IApplicationInfo CurrentApplication { get; }
     }
 }

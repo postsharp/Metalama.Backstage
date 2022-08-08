@@ -7,7 +7,7 @@
     </PropertyGroup>
 
     <!-- <Import Project="$(MetalamaBackstageDirectory)\Metalama.Backstage.csproj" /> -->
-    <Import Project="$(MetalamaBackstageDirectory)\Metalama.Backstage.Common.props"/>
+    <Import Project="$(MetalamaBackstageDirectory)\Metalama.Backstage.Common.props" />
 
     <PropertyGroup>
         <TargetFrameworks>netframework4.7.2;net6.0</TargetFrameworks>
@@ -19,28 +19,28 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <Compile Include="$(MetalamaBackstageDirectory)\**\*.cs" Exclude="$(MetalamaBackstageDirectory)\obj\**\*;$(MetalamaBackstageDirectory)\bin\**\*"/>
+        <Compile Include="$(MetalamaBackstageDirectory)\**\*.cs" Exclude="$(MetalamaBackstageDirectory)\obj\**\*;$(MetalamaBackstageDirectory)\bin\**\*" />
     </ItemGroup>
 
     <ItemGroup Condition="'$(TargetFramework)'=='netframework4.7.2'">
-        <Reference Include="System.IO.Compression"/>
-        <Reference Include="System.Net.Http"/>
+        <Reference Include="System.IO.Compression" />
+        <Reference Include="System.Net.Http" />
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="System.Collections.Immutable" Version="$(SystemImmutableCollectionsVersion)"/>
+        <PackageReference Include="System.Collections.Immutable" Version="$(SystemImmutableCollectionsVersion)" />
     </ItemGroup>
 
 
     <Target Name="ResolveZipInputFiles" AfterTargets="Build" Condition="'$(IsCrossTargetingBuild)'!='true'">
         <ItemGroup>
-            <ZipInputFiles Include="$(OutDir)\**\*"/>
+            <ZipInputFiles Include="$(OutDir)\**\*" />
         </ItemGroup>
     </Target>
 
     <Target Name="Zip" Inputs="@(ZipInputFiles)" Outputs="$(OutputZipFile)" AfterTargets="Build" DependsOnTargets="ResolveZipInputFiles" Condition="'$(IsCrossTargetingBuild)'!='true'">
-        <ZipDirectory SourceDirectory="$(OutDir)" Overwrite="true" DestinationFile="$(OutputZipFile)"/>
-        <Message Text="$(MSBuildProjectName) -&gt; $(MSBuildProjectDirector)\$(OutputZipFile)" Importance="High"/>
+        <ZipDirectory SourceDirectory="$(OutDir)" Overwrite="true" DestinationFile="$(OutputZipFile)" />
+        <Message Text="$(MSBuildProjectName) -&gt; $(MSBuildProjectDirector)\$(OutputZipFile)" Importance="High" />
     </Target>
 
 </Project>

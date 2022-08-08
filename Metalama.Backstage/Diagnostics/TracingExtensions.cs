@@ -7,6 +7,7 @@ namespace Metalama.Backstage.Diagnostics
 {
     public static class TracingExtensions
     {
-        public static ILoggerFactory GetLoggerFactory( this IServiceProvider services ) => services.GetService<ILoggerFactory>() ?? NullLogger.Instance;
+        public static ILoggerFactory GetLoggerFactory( this IServiceProvider services )
+            => services.GetBackstageService<ILoggerFactory>() ?? NullLogger.Instance;
     }
 }

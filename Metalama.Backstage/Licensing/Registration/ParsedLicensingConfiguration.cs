@@ -69,7 +69,7 @@ namespace Metalama.Backstage.Licensing.Registration
         /// <returns></returns>
         public static ParsedLicensingConfiguration OpenOrCreate( IServiceProvider services )
         {
-            var licensingConfiguration = services.GetRequiredService<IConfigurationManager>().Get<LicensingConfiguration>();
+            var licensingConfiguration = services.GetRequiredBackstageService<IConfigurationManager>().Get<LicensingConfiguration>();
 
             var storage = new ParsedLicensingConfiguration( licensingConfiguration, services );
             var factory = new LicenseFactory( services );
@@ -135,7 +135,7 @@ namespace Metalama.Backstage.Licensing.Registration
         /// </remarks>
         private void Save()
         {
-            this._services.GetRequiredService<IConfigurationManager>()
+            this._services.GetRequiredBackstageService<IConfigurationManager>()
                 .Update<LicensingConfiguration>( c => c.Licenses = this._licenses.Select( l => l.LicenseString ).ToArray() );
         }
     }

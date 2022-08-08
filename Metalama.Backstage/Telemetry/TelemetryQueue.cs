@@ -15,7 +15,7 @@ namespace Metalama.Backstage.Telemetry
 
         public TelemetryQueue( IServiceProvider serviceProvider )
         {
-            this._directories = serviceProvider.GetRequiredService<IStandardDirectories>();
+            this._directories = serviceProvider.GetRequiredBackstageService<IStandardDirectories>();
             this._logger = serviceProvider.GetLoggerFactory().Telemetry();
         }
 

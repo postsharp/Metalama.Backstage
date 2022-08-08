@@ -49,7 +49,7 @@ namespace Metalama.Backstage.Licensing.Licenses
         {
             this._licenseKey = CleanLicenseKey( licenseKey );
             this._services = services;
-            this._dateTimeProvider = services.GetRequiredService<IDateTimeProvider>();
+            this._dateTimeProvider = services.GetRequiredBackstageService<IDateTimeProvider>();
             this._logger = services.GetLoggerFactory().Licensing();
         }
 
@@ -155,7 +155,7 @@ namespace Metalama.Backstage.Licensing.Licenses
                 return false;
             }
 
-            var applicationInfoService = this._services.GetRequiredService<IApplicationInfoProvider>().CurrentApplication;
+            var applicationInfoService = this._services.GetRequiredBackstageService<IApplicationInfoProvider>().CurrentApplication;
 
             if ( !data.Validate(
                     null,

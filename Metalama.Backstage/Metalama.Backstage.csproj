@@ -5,8 +5,8 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="System.Collections.Immutable" Version="$(SystemImmutableCollectionsVersion)"/>
+        <PackageReference Include="System.Collections.Immutable" Version="$(SystemImmutableCollectionsVersion)" />
     </ItemGroup>
 
-    <Import Project="Metalama.Backstage.Common.props"/>
+    <Import Project="Metalama.Backstage.Common.props" />
 </Project>

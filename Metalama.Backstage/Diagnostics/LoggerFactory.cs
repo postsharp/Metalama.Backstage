@@ -1,5 +1,7 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. See the LICENSE.md file in the root directory of this rep root for details.
 
+using Metalama.Backstage.Extensibility;
+using Metalama.Backstage.Maintenance;
 using Metalama.Backstage.Utilities;
 using System;
 using System.Collections.Concurrent;
@@ -16,13 +18,15 @@ namespace Metalama.Backstage.Diagnostics
 
         internal DiagnosticsConfiguration Configuration { get; }
 
-        public LoggerFactory( DiagnosticsConfiguration configuration, ProcessKind processKind, string? projectName )
+        public LoggerFactory( IServiceProvider serviceProvider, DiagnosticsConfiguration configuration, ProcessKind processKind, string? projectName )
         {
+            var tempFileManager = serviceProvider.GetRequiredBackstageService<ITempFileManager>();
+
             this.Configuration = configuration;
 
             if ( this.Configuration.Logging.Processes.TryGetValue( processKind, out var enabled ) && enabled )
             {
-                var directory = Path.Combine( Path.GetTempPath(), "Metalama", "Logs" );
+                var directory = tempFileManager.GetTempDirectory( "Logs", CleanUpStrategy.Always );
 
                 try
                 {

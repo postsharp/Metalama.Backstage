@@ -48,7 +48,7 @@ namespace Metalama.DotNetTools
                 () => serviceCollection.BuildServiceProvider() );
 
             serviceProviderBuilder
-                .AddSingleton<IConsole>( console )
+                .AddUntypedSingleton<IConsole>( console )
                 .AddMinimalBackstageServices( new MetalamaConfigApplicationInfo() );
 
             if ( loggerFactory != null )

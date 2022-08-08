@@ -4,6 +4,7 @@ using Metalama.Backstage.Configuration;
 using Metalama.Backstage.Diagnostics;
 using Metalama.Backstage.Licensing.Consumption;
 using Metalama.Backstage.Licensing.Consumption.Sources;
+using Metalama.Backstage.Maintenance;
 using Metalama.Backstage.Telemetry;
 using Metalama.Backstage.Utilities;
 using Metalama.Backstage.Welcome;
@@ -17,10 +18,20 @@ namespace Metalama.Backstage.Extensibility;
 /// </summary>
 public static class RegisterServiceExtensions
 {
-    public static ServiceProviderBuilder AddSingleton<T>(
+    public static ServiceProviderBuilder AddUntypedSingleton<T>(
         this ServiceProviderBuilder serviceProviderBuilder,
         T instance )
         where T : notnull
+    {
+        serviceProviderBuilder.AddService( typeof(T), instance );
+
+        return serviceProviderBuilder;
+    }
+
+    public static ServiceProviderBuilder AddSingleton<T>(
+        this ServiceProviderBuilder serviceProviderBuilder,
+        T instance )
+        where T : IBackstageService
     {
         serviceProviderBuilder.AddService( typeof(T), instance );
 
@@ -62,8 +73,8 @@ public static class RegisterServiceExtensions
 
         DebuggerHelper.Launch( configuration, processKind );
 
-        var applicationInfo = serviceProvider.GetRequiredService<IApplicationInfoProvider>().CurrentApplication;
-        var loggerFactory = new LoggerFactory( configuration, applicationInfo.ProcessKind, projectName );
+        var applicationInfo = serviceProvider.GetRequiredBackstageService<IApplicationInfoProvider>().CurrentApplication;
+        var loggerFactory = new LoggerFactory( serviceProvider, configuration, applicationInfo.ProcessKind, projectName );
 
         return serviceProviderBuilder.AddSingleton<ILoggerFactory>( loggerFactory );
     }
@@ -94,7 +105,7 @@ public static class RegisterServiceExtensions
     }
 
     private static DiagnosticsConfiguration GetDiagnosticsConfiguration( this IServiceProvider serviceProvider )
-        => serviceProvider.GetRequiredService<IConfigurationManager>().Get<DiagnosticsConfiguration>();
+        => serviceProvider.GetRequiredBackstageService<IConfigurationManager>().Get<DiagnosticsConfiguration>();
 
     /// <summary>
     /// Adds the minimal backstage services, without diagnostics and telemetry.
@@ -169,6 +180,9 @@ public static class RegisterServiceExtensions
         // Add base services.
         serviceProviderBuilder = serviceProviderBuilder
             .AddDiagnosticsRequirements( applicationInfo, dotNetSdkDirectory );
+
+        // Add temporary files.
+        serviceProviderBuilder.AddService( typeof(ITempFileManager), new TempFileManager( serviceProviderBuilder.ServiceProvider ) );
 
         // Add diagnostics.
         if ( addSupportServices )
