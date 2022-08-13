@@ -1,5 +1,4 @@
-﻿// Copyright (c) SharpCrafters s.r.o. All rights reserved.
-// This project is not open source. Please see the LICENSE.md file in the repository root for details.
+﻿// Copyright (c) SharpCrafters s.r.o. See the LICENSE.md file in the root directory of this rep root for details.
 
 using Metalama.Backstage.Extensibility;
 using Metalama.Backstage.MicrosoftLogging;
@@ -49,7 +48,7 @@ namespace Metalama.DotNetTools
                 () => serviceCollection.BuildServiceProvider() );
 
             serviceProviderBuilder
-                .AddSingleton<IConsole>( console )
+                .AddUntypedSingleton<IConsole>( console )
                 .AddMinimalBackstageServices( new MetalamaConfigApplicationInfo() );
 
             if ( loggerFactory != null )

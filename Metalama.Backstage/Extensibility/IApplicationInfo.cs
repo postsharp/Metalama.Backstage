@@ -1,36 +1,16 @@
-﻿// Copyright (c) SharpCrafters s.r.o. All rights reserved.
-// This project is not open source. Please see the LICENSE.md file in the repository root for details.
+﻿// Copyright (c) SharpCrafters s.r.o. See the LICENSE.md file in the root directory of this rep root for details.
 
 using Metalama.Backstage.Diagnostics;
 using System;
+using System.Collections.Immutable;
 
 namespace Metalama.Backstage.Extensibility
 {
     /// <summary>
     /// Provides version information about an application.
     /// </summary>
-    public interface IApplicationInfo
+    public interface IApplicationInfo : IComponentInfo
     {
-        /// <summary>
-        /// Gets the name of the application.
-        /// </summary>
-        string Name { get; }
-
-        /// <summary>
-        /// Gets a version of the application.
-        /// </summary>
-        string Version { get; }
-
-        /// <summary>
-        /// Gets a value indicating whether the application is a pre-release.
-        /// </summary>
-        bool IsPrerelease { get; }
-
-        /// <summary>
-        /// Gets a date of build of the application.
-        /// </summary>
-        DateTime BuildDate { get; }
-
         ProcessKind ProcessKind { get; }
 
         /// <summary>
@@ -42,5 +22,20 @@ namespace Metalama.Backstage.Extensibility
         bool IsUnattendedProcess( ILoggerFactory loggerFactory );
 
         bool IsLongRunningProcess { get; }
+
+        /// <summary>
+        /// Gets a value indicating whether telemetry is enabled for the application.
+        /// </summary>
+        bool IsTelemetryEnabled { get; }
+        
+        /// <summary>
+        /// Gets a value indicating whether crashes should be reported for the application.
+        /// </summary>
+        bool ShouldCreateLocalCrashReports { get; }
+        
+        /// <summary>
+        /// Gets the list of additional components of the application.
+        /// </summary>
+        ImmutableArray<IComponentInfo> Components { get; }
     }
 }

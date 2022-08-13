@@ -1,5 +1,4 @@
-﻿// Copyright (c) SharpCrafters s.r.o. All rights reserved.
-// This project is not open source. Please see the LICENSE.md file in the repository root for details.
+﻿// Copyright (c) SharpCrafters s.r.o. See the LICENSE.md file in the root directory of this rep root for details.
 
 using Metalama.Backstage.Configuration;
 using Metalama.Backstage.Diagnostics;
@@ -23,7 +22,7 @@ public class WelcomeService
     {
         this._serviceProvider = serviceProvider;
         this._logger = serviceProvider.GetLoggerFactory().GetLogger( "Welcome" );
-        this._configurationManager = serviceProvider.GetRequiredService<IConfigurationManager>();
+        this._configurationManager = serviceProvider.GetRequiredBackstageService<IConfigurationManager>();
         this._welcomeConfiguration = this._configurationManager.Get<WelcomeConfiguration>();
     }
 
@@ -41,22 +40,9 @@ public class WelcomeService
 
         using ( MutexHelper.WithGlobalLock( $"Welcome{actionName}" ) )
         {
-            if ( !this._configurationManager.Update<WelcomeConfiguration>(
-                    c =>
-                    {
-                        if ( getIsFirst( c ) )
-                        {
-                            setIsNotFirst( c );
-
-                            return true;
-                        }
-                        else
-                        {
-                            // Another process has won the race.
-
-                            return false;
-                        }
-                    } ) )
+            if ( !this._configurationManager.UpdateIf(
+                    c => !getIsFirst( c ),
+                    setIsNotFirst ) )
             {
                 // Another process has won the race.
 
@@ -73,42 +59,42 @@ public class WelcomeService
     {
         this.ExecuteOnce(
             () =>
-         {
-             // Start the evaluation license.
-             if ( registerEvaluationLicense )
-             {
-                 var evaluationLicenseRegistrar = new EvaluationLicenseRegistrar( this._serviceProvider );
-                 evaluationLicenseRegistrar.TryActivateLicense();
-             }
+            {
+                // Start the evaluation license.
+                if ( registerEvaluationLicense )
+                {
+                    var evaluationLicenseRegistrar = new EvaluationLicenseRegistrar( this._serviceProvider );
+                    evaluationLicenseRegistrar.TryActivateLicense();
+                }
 
-             // Activate telemetry.
-             if ( !TelemetryConfiguration.IsOptOutEnvironmentVariableSet() )
-             {
-                 this._logger.Trace?.Log( "Enabling telemetry." );
+                // Activate telemetry.
+                if ( !TelemetryConfiguration.IsOptOutEnvironmentVariableSet() )
+                {
+                    this._logger.Trace?.Log( "Enabling telemetry." );
 
-                 this._configurationManager.Update<TelemetryConfiguration>(
-                     c =>
-                     {
-                         // Enable telemetry except if it has been disabled by the command line.
+                    this._configurationManager.Update<TelemetryConfiguration>(
+                        c =>
+                        {
+                            // Enable telemetry except if it has been disabled by the command line.
 
-                         if ( c.ExceptionReportingAction == ReportingAction.Ask )
-                         {
-                             c.ExceptionReportingAction = ReportingAction.Yes;
-                         }
+                            if ( c.ExceptionReportingAction == ReportingAction.Ask )
+                            {
+                                c.ExceptionReportingAction = ReportingAction.Yes;
+                            }
 
-                         if ( c.PerformanceProblemReportingAction == ReportingAction.Ask )
-                         {
-                             c.PerformanceProblemReportingAction = ReportingAction.Yes;
-                         }
+                            if ( c.PerformanceProblemReportingAction == ReportingAction.Ask )
+                            {
+                                c.PerformanceProblemReportingAction = ReportingAction.Yes;
+                            }
 
-                         if ( c.ReportUsage == ReportingAction.Ask )
-                         {
-                             c.ReportUsage = ReportingAction.Yes;
-                         }
-                     } );
-             }
-         },
-            nameof( this.ExecuteFirstStartSetup ),
+                            if ( c.ReportUsage == ReportingAction.Ask )
+                            {
+                                c.ReportUsage = ReportingAction.Yes;
+                            }
+                        } );
+                }
+            },
+            nameof(this.ExecuteFirstStartSetup),
             c => c.IsFirstStart,
             c => c.IsFirstStart = false );
     }
@@ -120,7 +106,7 @@ public class WelcomeService
             {
                 try
                 {
-                    var applicationInfo = this._serviceProvider.GetRequiredService<IApplicationInfo>();
+                    var applicationInfo = this._serviceProvider.GetRequiredBackstageService<IApplicationInfoProvider>().CurrentApplication;
 
                     var url = applicationInfo.IsPrerelease
                         ? "https://www.postsharp.net/links/metalama-welcome-preview"
@@ -135,7 +121,7 @@ public class WelcomeService
                     this._logger.Error?.Log( $"Cannot start the welcome web page: {e.Message}" );
                 }
             },
-            nameof( this.OpenWelcomePage ),
+            nameof(this.OpenWelcomePage),
             c => c.IsWelcomePagePending,
             c => c.IsWelcomePagePending = false );
     }

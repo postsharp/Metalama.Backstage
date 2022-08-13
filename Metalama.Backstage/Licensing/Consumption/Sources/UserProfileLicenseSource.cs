@@ -1,5 +1,4 @@
-﻿// Copyright (c) SharpCrafters s.r.o. All rights reserved.
-// This project is not open source. Please see the LICENSE.md file in the repository root for details.
+﻿// Copyright (c) SharpCrafters s.r.o. See the LICENSE.md file in the root directory of this rep root for details.
 
 using Metalama.Backstage.Configuration;
 using Metalama.Backstage.Extensibility;
@@ -18,7 +17,7 @@ internal class UserProfileLicenseSource : LicenseSourceBase
     public UserProfileLicenseSource( IServiceProvider services )
         : base( services )
     {
-        this._licensingConfiguration = services.GetRequiredService<IConfigurationManager>().Get<LicensingConfiguration>();
+        this._licensingConfiguration = services.GetRequiredBackstageService<IConfigurationManager>().Get<LicensingConfiguration>();
     }
 
     protected override IEnumerable<string> GetLicenseStrings() => this._licensingConfiguration.Licenses;

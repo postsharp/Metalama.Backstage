@@ -1,5 +1,4 @@
-﻿// Copyright (c) SharpCrafters s.r.o. All rights reserved.
-// This project is not open source. Please see the LICENSE.md file in the repository root for details.
+﻿// Copyright (c) SharpCrafters s.r.o. See the LICENSE.md file in the root directory of this rep root for details.
 
 using Metalama.Backstage.Configuration;
 using Metalama.Backstage.Diagnostics;
@@ -35,10 +34,10 @@ internal class ExceptionReporter : IExceptionReporter
     public ExceptionReporter( TelemetryQueue uploadManager, IServiceProvider serviceProvider )
     {
         this._uploadManager = uploadManager;
-        this._configuration = serviceProvider.GetRequiredService<IConfigurationManager>().Get<TelemetryConfiguration>();
-        this._time = serviceProvider.GetRequiredService<IDateTimeProvider>();
-        this._applicationInfoProvider = serviceProvider.GetRequiredService<IApplicationInfoProvider>();
-        this._directories = serviceProvider.GetRequiredService<IStandardDirectories>();
+        this._configuration = serviceProvider.GetRequiredBackstageService<IConfigurationManager>().Get<TelemetryConfiguration>();
+        this._time = serviceProvider.GetRequiredBackstageService<IDateTimeProvider>();
+        this._applicationInfoProvider = serviceProvider.GetRequiredBackstageService<IApplicationInfoProvider>();
+        this._directories = serviceProvider.GetRequiredBackstageService<IStandardDirectories>();
         this._logger = serviceProvider.GetLoggerFactory().Telemetry();
     }
 
@@ -140,7 +139,7 @@ internal class ExceptionReporter : IExceptionReporter
         return hash.ToString();
     }
 
-    private bool ShouldReportIssue( string hash )
+    internal bool ShouldReportIssue( string hash )
     {
         if ( this._configuration.Issues.TryGetValue( hash, out var currentStatus ) )
         {
@@ -152,129 +151,132 @@ internal class ExceptionReporter : IExceptionReporter
             }
         }
 
-        return this._configuration.ConfigurationManager.Update<TelemetryConfiguration>(
+        return this._configuration.ConfigurationManager.UpdateIf<TelemetryConfiguration>(
             c =>
             {
-                if ( c.Issues.TryGetValue( hash, out var raceStatus ) )
+                if ( c.Issues.TryGetValue( hash, out var raceStatus ) && raceStatus is ReportingStatus.Ignored or ReportingStatus.Reported )
                 {
-                    if ( raceStatus is ReportingStatus.Ignored or ReportingStatus.Reported )
-                    {
-                        this._logger.Info?.Log( $"The issue {hash} should not be reported because another process is reporting it." );
+                    this._logger.Info?.Log( $"The issue {hash} should not be reported because another process is reporting it." );
 
-                        return false;
-                    }
+                    return false;
                 }
 
-                c.Issues[hash] = currentStatus;
-
                 return true;
+            },
+            c =>
+            {
+                c.Issues = c.Issues.SetItem( hash, ReportingStatus.Reported );
             } );
     }
 
-    public void ReportException( Exception e, ExceptionReportingKind exceptionReportingKind = ExceptionReportingKind.Exception )
+    public void ReportException( Exception reportedException, ExceptionReportingKind exceptionReportingKind = ExceptionReportingKind.Exception )
     {
-        this._logger.Trace?.Log( $"Reporting an exception of type {e.GetType().Name}." );
-
-        var reportingAction = exceptionReportingKind == ExceptionReportingKind.Exception
-            ? this._configuration.ExceptionReportingAction
-            : this._configuration.PerformanceProblemReportingAction;
-
-        if ( reportingAction != ReportingAction.Yes )
+        try
         {
-            this._logger.Trace?.Log( $"The issue will not be reported because the reporting action in the user profile is set to {reportingAction}." );
+            this._logger.Trace?.Log( $"Reporting an exception of type {reportedException.GetType().Name}." );
 
-            return;
-        }
+            var reportingAction = exceptionReportingKind == ExceptionReportingKind.Exception
+                ? this._configuration.ExceptionReportingAction
+                : this._configuration.PerformanceProblemReportingAction;
 
-        var applicationInfo = this._applicationInfoProvider.CurrentApplication;
-
-        // Compute a signature for this exception.
-        var hash = this.ComputeExceptionHash(
-            applicationInfo.Version,
-            e.GetType().FullName!,
-            ExceptionSensitiveDataHelper.Instance.RemoveSensitiveData( e.StackTrace ) );
-
-        // Check if this exception has already been reported.
-
-        if ( !this.ShouldReportIssue( hash ) )
-        {
-            return;
-        }
-
-        // Create the exception report file.
-        var directory = this._directories.TelemetryExceptionsDirectory;
-
-        if ( !Directory.Exists( directory ) )
-        {
-            Directory.CreateDirectory( directory );
-        }
-
-        var fileName = Path.Combine( directory, "exception-" + hash + "-" + Guid.NewGuid().ToString() + ".xml" );
-
-        var writer = new XmlTextWriter( fileName, Encoding.UTF8 ) { Formatting = Formatting.Indented };
-        writer.WriteStartDocument();
-        writer.WriteStartElement( "ErrorReport" );
-        writer.WriteElementString( "InvariantHash", hash );
-        writer.WriteElementString( "Time", XmlConvert.ToString( this._time.Now, XmlDateTimeSerializationMode.RoundtripKind ) );
-        writer.WriteElementString( "ClientId", this._configuration.DeviceId.ToString() );
-        writer.WriteStartElement( "Application" );
-        writer.WriteElementString( "Name", applicationInfo.Name );
-        writer.WriteElementString( "Version", applicationInfo.Version );
-        writer.WriteEndElement();
-
-        var currentProcess = Process.GetCurrentProcess();
-        writer.WriteStartElement( "Process" );
-        writer.WriteElementString( "Name", currentProcess.ProcessName );
-        writer.WriteElementString( "ProcessorArchitecture", XmlConvert.ToString( IntPtr.Size * 8 ) );
-        writer.WriteElementString( "SessionId", XmlConvert.ToString( currentProcess.SessionId ) );
-        writer.WriteElementString( "TotalProcessorTime", XmlConvert.ToString( currentProcess.TotalProcessorTime ) );
-        writer.WriteElementString( "WorkingSet", XmlConvert.ToString( currentProcess.WorkingSet64 ) );
-        writer.WriteElementString( "PeakWorkingSet", XmlConvert.ToString( currentProcess.PeakWorkingSet64 ) );
-        writer.WriteElementString( "ManagedHeap", XmlConvert.ToString( GC.GetTotalMemory( false ) ) );
-        writer.WriteEndElement();
-        writer.WriteStartElement( "Environment" );
-        writer.WriteElementString( "OSVersion", Environment.OSVersion.Version.ToString() );
-        writer.WriteElementString( "ProcessorCount", XmlConvert.ToString( Environment.ProcessorCount ) );
-        writer.WriteElementString( "Version", Environment.Version.ToString() );
-        writer.WriteEndElement();
-
-        writer.WriteStartElement( "Exception" );
-
-        ExceptionXmlFormatter.WriteException( writer, e );
-
-        writer.WriteEndElement();
-
-        writer.WriteStartElement( "Assemblies" );
-
-        foreach ( var assembly in AppDomain.CurrentDomain.GetAssemblies() )
-        {
-            var assemblyName = assembly.GetName();
-            writer.WriteStartElement( "Assembly" );
-            writer.WriteElementString( "Name", ExceptionSensitiveDataHelper.Instance.RemoveSensitiveData( assemblyName.Name ) );
-            writer.WriteElementString( "Version", assemblyName.Version?.ToString() ?? "<unknown>" );
-
-            try
+            if ( reportingAction != ReportingAction.Yes )
             {
-                if ( !assembly.IsDynamic && !string.IsNullOrEmpty( assembly.Location ) )
-                {
-                    writer.WriteElementString( "FileVersion", FileVersionInfo.GetVersionInfo( assembly.Location ).FileVersion );
-                }
+                this._logger.Trace?.Log( $"The issue will not be reported because the reporting action in the user profile is set to {reportingAction}." );
+
+                return;
             }
-            catch ( NotSupportedException ) { }
+
+            var applicationInfo = this._applicationInfoProvider.CurrentApplication;
+
+            // Compute a signature for this exception.
+            var hash = this.ComputeExceptionHash(
+                applicationInfo.Version,
+                reportedException.GetType().FullName!,
+                ExceptionSensitiveDataHelper.Instance.RemoveSensitiveData( reportedException.StackTrace ) );
+
+            // Check if this exception has already been reported.
+
+            if ( !this.ShouldReportIssue( hash ) )
+            {
+                return;
+            }
+
+            // Create the exception report file.
+            var directory = this._directories.TelemetryExceptionsDirectory;
+
+            if ( !Directory.Exists( directory ) )
+            {
+                Directory.CreateDirectory( directory );
+            }
+
+            var fileName = Path.Combine( directory, "exception-" + hash + "-" + Guid.NewGuid().ToString() + ".xml" );
+
+            var writer = new XmlTextWriter( fileName, Encoding.UTF8 ) { Formatting = Formatting.Indented };
+            writer.WriteStartDocument();
+            writer.WriteStartElement( "ErrorReport" );
+            writer.WriteElementString( "InvariantHash", hash );
+            writer.WriteElementString( "Time", XmlConvert.ToString( this._time.Now, XmlDateTimeSerializationMode.RoundtripKind ) );
+            writer.WriteElementString( "ClientId", this._configuration.DeviceId.ToString() );
+            writer.WriteStartElement( "Application" );
+            writer.WriteElementString( "Name", applicationInfo.Name );
+            writer.WriteElementString( "Version", applicationInfo.Version );
+            writer.WriteEndElement();
+
+            var currentProcess = Process.GetCurrentProcess();
+            writer.WriteStartElement( "Process" );
+            writer.WriteElementString( "Name", currentProcess.ProcessName );
+            writer.WriteElementString( "ProcessorArchitecture", XmlConvert.ToString( IntPtr.Size * 8 ) );
+            writer.WriteElementString( "SessionId", XmlConvert.ToString( currentProcess.SessionId ) );
+            writer.WriteElementString( "TotalProcessorTime", XmlConvert.ToString( currentProcess.TotalProcessorTime ) );
+            writer.WriteElementString( "WorkingSet", XmlConvert.ToString( currentProcess.WorkingSet64 ) );
+            writer.WriteElementString( "PeakWorkingSet", XmlConvert.ToString( currentProcess.PeakWorkingSet64 ) );
+            writer.WriteElementString( "ManagedHeap", XmlConvert.ToString( GC.GetTotalMemory( false ) ) );
+            writer.WriteEndElement();
+            writer.WriteStartElement( "Environment" );
+            writer.WriteElementString( "OSVersion", Environment.OSVersion.Version.ToString() );
+            writer.WriteElementString( "ProcessorCount", XmlConvert.ToString( Environment.ProcessorCount ) );
+            writer.WriteElementString( "Version", Environment.Version.ToString() );
+            writer.WriteEndElement();
+
+            writer.WriteStartElement( "Exception" );
+
+            ExceptionXmlFormatter.WriteException( writer, reportedException );
 
             writer.WriteEndElement();
-        }
 
-        writer.WriteEndElement();
-        writer.Close();
+            writer.WriteStartElement( "Assemblies" );
 
-        if ( reportingAction == ReportingAction.Yes )
-        {
+            foreach ( var assembly in AppDomain.CurrentDomain.GetAssemblies() )
+            {
+                var assemblyName = assembly.GetName();
+                writer.WriteStartElement( "Assembly" );
+                writer.WriteElementString( "Name", ExceptionSensitiveDataHelper.Instance.RemoveSensitiveData( assemblyName.Name ) );
+                writer.WriteElementString( "Version", assemblyName.Version?.ToString() ?? "<unknown>" );
+
+                try
+                {
+                    if ( !assembly.IsDynamic && !string.IsNullOrEmpty( assembly.Location ) )
+                    {
+                        writer.WriteElementString( "FileVersion", FileVersionInfo.GetVersionInfo( assembly.Location ).FileVersion );
+                    }
+                }
+                catch ( NotSupportedException ) { }
+
+                writer.WriteEndElement();
+            }
+
+            writer.WriteEndElement();
+            writer.Close();
+
             this._uploadManager.EnqueueFile( fileName );
         }
-        else
+        catch ( Exception e )
         {
-            // TODO: Open some UI?    
+            try
+            {
+                this._logger.Error?.Log( "Cannot report the exception: " + e );
+            }
+            catch { }
         }
     }
 }

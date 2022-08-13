@@ -1,11 +1,12 @@
-﻿// Copyright (c) SharpCrafters s.r.o. All rights reserved.
-// This project is not open source. Please see the LICENSE.md file in the repository root for details.
+﻿// Copyright (c) SharpCrafters s.r.o. See the LICENSE.md file in the root directory of this rep root for details.
 
 using Metalama.Backstage.Configuration;
 using Metalama.Backstage.Diagnostics;
 using Metalama.Backstage.Licensing.Consumption;
 using Metalama.Backstage.Licensing.Consumption.Sources;
+using Metalama.Backstage.Maintenance;
 using Metalama.Backstage.Telemetry;
+using Metalama.Backstage.Utilities;
 using Metalama.Backstage.Welcome;
 using System;
 using System.Collections.Generic;
@@ -17,10 +18,20 @@ namespace Metalama.Backstage.Extensibility;
 /// </summary>
 public static class RegisterServiceExtensions
 {
-    public static ServiceProviderBuilder AddSingleton<T>(
+    public static ServiceProviderBuilder AddUntypedSingleton<T>(
         this ServiceProviderBuilder serviceProviderBuilder,
         T instance )
         where T : notnull
+    {
+        serviceProviderBuilder.AddService( typeof(T), instance );
+
+        return serviceProviderBuilder;
+    }
+
+    public static ServiceProviderBuilder AddSingleton<T>(
+        this ServiceProviderBuilder serviceProviderBuilder,
+        T instance )
+        where T : IBackstageService
     {
         serviceProviderBuilder.AddService( typeof(T), instance );
 
@@ -62,8 +73,8 @@ public static class RegisterServiceExtensions
 
         DebuggerHelper.Launch( configuration, processKind );
 
-        var applicationInfo = serviceProvider.GetRequiredService<IApplicationInfo>();
-        var loggerFactory = new LoggerFactory( configuration, applicationInfo.ProcessKind, projectName );
+        var applicationInfo = serviceProvider.GetRequiredBackstageService<IApplicationInfoProvider>().CurrentApplication;
+        var loggerFactory = new LoggerFactory( serviceProvider, configuration, applicationInfo.ProcessKind, projectName );
 
         return serviceProviderBuilder.AddSingleton<ILoggerFactory>( loggerFactory );
     }
@@ -75,14 +86,19 @@ public static class RegisterServiceExtensions
         this ServiceProviderBuilder serviceProviderBuilder,
         IApplicationInfo applicationInfo,
         string? dotNetSdkDirectory )
-        => serviceProviderBuilder
-            .AddSingleton<IApplicationInfo>( applicationInfo ) // TODO: remove - use IApplicationInfoProvider only
+    {
+        serviceProviderBuilder = serviceProviderBuilder
             .AddSingleton<IApplicationInfoProvider>( new ApplicationInfoProvider( applicationInfo ) )
             .AddCurrentDateTimeProvider()
             .AddFileSystem()
             .AddStandardDirectories()
             .AddConfigurationManager()
             .AddPlatformInfo( dotNetSdkDirectory );
+
+        serviceProviderBuilder.AddService( typeof(ITempFileManager), new TempFileManager( serviceProviderBuilder.ServiceProvider ) );
+
+        return serviceProviderBuilder;
+    }
 
     public static ServiceProviderBuilder AddConfigurationManager( this ServiceProviderBuilder serviceProviderBuilder )
         => serviceProviderBuilder.AddSingleton<IConfigurationManager>( new ConfigurationManager( serviceProviderBuilder.ServiceProvider ) );
@@ -95,7 +111,7 @@ public static class RegisterServiceExtensions
     }
 
     private static DiagnosticsConfiguration GetDiagnosticsConfiguration( this IServiceProvider serviceProvider )
-        => serviceProvider.GetRequiredService<IConfigurationManager>().Get<DiagnosticsConfiguration>();
+        => serviceProvider.GetRequiredBackstageService<IConfigurationManager>().Get<DiagnosticsConfiguration>();
 
     /// <summary>
     /// Adds the minimal backstage services, without diagnostics and telemetry.
@@ -190,6 +206,18 @@ public static class RegisterServiceExtensions
             {
                 welcomeService.OpenWelcomePage();
             }
+        }
+
+        // Add file locking detection.
+        if ( LockingProcessDetector.IsSupported )
+        {
+            serviceProviderBuilder.AddService( typeof(ILockingProcessDetector), new LockingProcessDetector() );
+        }
+
+        // Add mini-dump service.
+        if ( MiniDumper.IsSupported )
+        {
+            serviceProviderBuilder.AddService( typeof(IMiniDumper), new MiniDumper( serviceProviderBuilder.ServiceProvider ) );
         }
 
         // Add licensing.

@@ -1,5 +1,4 @@
-﻿// Copyright (c) SharpCrafters s.r.o. All rights reserved.
-// This project is not open source. Please see the LICENSE.md file in the repository root for details.
+﻿// Copyright (c) SharpCrafters s.r.o. See the LICENSE.md file in the root directory of this rep root for details.
 
 using Metalama.Backstage.Configuration;
 using Metalama.Backstage.Diagnostics;
@@ -31,6 +30,8 @@ internal class EditLoggingCommand : CommandBase
             // Create a default file if it does not exist.
             configurationManager.Update<DiagnosticsConfiguration>( _ => { } );
         }
+
+        console.Out.Write( $"Opening $'{configuration.FilePath}' in the default editor." );
 
         Process.Start( new ProcessStartInfo( configuration.FilePath ) { UseShellExecute = true } );
     }

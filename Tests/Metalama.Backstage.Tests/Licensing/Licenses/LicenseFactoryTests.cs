@@ -1,0 +1,61 @@
+﻿// Copyright (c) SharpCrafters s.r.o. See the LICENSE.md file in the root directory of this rep root for details.
+
+using Metalama.Backstage.Licensing.Licenses;
+using Xunit;
+using Xunit.Abstractions;
+
+namespace Metalama.Backstage.Licensing.Tests.Licensing.Licenses
+{
+    public class LicenseFactoryTests : LicensingTestsBase
+    {
+        public LicenseFactoryTests( ITestOutputHelper logger )
+            : base( logger ) { }
+
+        [Fact]
+        public void NullLicenseStringFails()
+        {
+            Assert.False( this.LicenseFactory.TryCreate( "", out _ ) );
+        }
+
+        [Fact]
+        public void EmptyLicenseStringFails()
+        {
+            Assert.False( this.LicenseFactory.TryCreate( string.Empty, out _ ) );
+        }
+
+        [Fact]
+        public void WhitespaceLicenseStringFails()
+        {
+            Assert.False( this.LicenseFactory.TryCreate( " ", out _ ) );
+        }
+
+        [Fact]
+        public void InvalidLicenseStringCreatesInvalidLicense()
+        {
+            const string invalidLicenseString = "SomeInvalidLicenseString";
+            Assert.True( this.LicenseFactory.TryCreate( invalidLicenseString, out var license ) );
+            Assert.True( license is License );
+            Assert.False( license!.TryGetLicenseConsumptionData( out _ ) );
+        }
+
+        [Fact]
+        public void ValidLicenseKeyCreatesValidLicense()
+        {
+            Assert.True( this.LicenseFactory.TryCreate( TestLicenseKeys.PostSharpUltimate, out var license ) );
+            Assert.True( license is License );
+            Assert.True( license!.TryGetLicenseConsumptionData( out var licenseData ) );
+            Assert.NotNull( licenseData );
+        }
+
+        [Fact]
+        public void UrlCreatesLicenseLease()
+        {
+            // TODO
+
+            // Assert.True( this._licenseFactory.TryCreate( "http://hello.world", out var license ) );
+            // Assert.True( license is LicenseLease );
+
+            Assert.False( this.LicenseFactory.TryCreate( "http://hello.world", out _ ) );
+        }
+    }
+}

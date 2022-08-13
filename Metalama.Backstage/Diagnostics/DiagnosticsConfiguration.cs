@@ -1,10 +1,10 @@
-﻿// Copyright (c) SharpCrafters s.r.o. All rights reserved.
-// This project is not open source. Please see the LICENSE.md file in the repository root for details.
+﻿// Copyright (c) SharpCrafters s.r.o. See the LICENSE.md file in the root directory of this rep root for details.
 
 using Metalama.Backstage.Configuration;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Metalama.Backstage.Diagnostics;
 
@@ -16,6 +16,9 @@ public class DiagnosticsConfiguration : ConfigurationFile
 
     [JsonProperty( "debugger" )]
     public DebuggerConfiguration Debugger { get; private set; } = new();
+
+    [JsonProperty( "miniDump" )]
+    public MiniDumpConfiguration MiniDump { get; private set; } = new();
 
     public DiagnosticsConfiguration()
     {
@@ -29,12 +32,35 @@ public class DiagnosticsConfiguration : ConfigurationFile
             [ProcessKind.Compiler] = false, [ProcessKind.Rider] = false, [ProcessKind.DevEnv] = false, [ProcessKind.RoslynCodeAnalysisService] = false
         };
 
-        this.Logging.Categories = new Dictionary<string, bool>( StringComparer.OrdinalIgnoreCase ) { ["*"] = false, ["Licensing"] = false };
+        this.Logging.Categories = new Dictionary<string, bool>( StringComparer.OrdinalIgnoreCase ) { ["*"] = true };
 
         this.Debugger.Processes = new Dictionary<ProcessKind, bool>
         {
             [ProcessKind.Compiler] = false, [ProcessKind.Rider] = false, [ProcessKind.DevEnv] = false, [ProcessKind.RoslynCodeAnalysisService] = false
         };
+
+        this.MiniDump.Processes = new Dictionary<ProcessKind, bool>
+        {
+            [ProcessKind.Compiler] = false, [ProcessKind.Rider] = false, [ProcessKind.DevEnv] = false, [ProcessKind.RoslynCodeAnalysisService] = false
+        };
+
+        this.MiniDump.Flags.Clear();
+
+        this.MiniDump.Flags.AddRange(
+            new[]
+            {
+                MiniDumpKind.WithDataSegments,
+                MiniDumpKind.WithProcessThreadData,
+                MiniDumpKind.WithHandleData,
+                MiniDumpKind.WithPrivateReadWriteMemory,
+                MiniDumpKind.WithUnloadedModules,
+                MiniDumpKind.WithFullMemoryInfo,
+                MiniDumpKind.WithThreadInfo,
+                MiniDumpKind.FilterMemory,
+                MiniDumpKind.WithoutAuxiliaryState
+            }.Select( x => x.ToString() ) );
+
+        this.MiniDump.ExceptionTypes = new List<string> { "*" };
     }
 
     public override void CopyFrom( ConfigurationFile configurationFile )

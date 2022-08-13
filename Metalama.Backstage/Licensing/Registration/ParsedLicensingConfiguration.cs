@@ -1,5 +1,4 @@
-﻿// Copyright (c) SharpCrafters s.r.o. All rights reserved.
-// This project is not open source. Please see the LICENSE.md file in the repository root for details.
+﻿// Copyright (c) SharpCrafters s.r.o. See the LICENSE.md file in the root directory of this rep root for details.
 
 using Metalama.Backstage.Configuration;
 using Metalama.Backstage.Extensibility;
@@ -70,7 +69,7 @@ namespace Metalama.Backstage.Licensing.Registration
         /// <returns></returns>
         public static ParsedLicensingConfiguration OpenOrCreate( IServiceProvider services )
         {
-            var licensingConfiguration = services.GetRequiredService<IConfigurationManager>().Get<LicensingConfiguration>();
+            var licensingConfiguration = services.GetRequiredBackstageService<IConfigurationManager>().Get<LicensingConfiguration>();
 
             var storage = new ParsedLicensingConfiguration( licensingConfiguration, services );
             var factory = new LicenseFactory( services );
@@ -136,7 +135,7 @@ namespace Metalama.Backstage.Licensing.Registration
         /// </remarks>
         private void Save()
         {
-            this._services.GetRequiredService<IConfigurationManager>()
+            this._services.GetRequiredBackstageService<IConfigurationManager>()
                 .Update<LicensingConfiguration>( c => c.Licenses = this._licenses.Select( l => l.LicenseString ).ToArray() );
         }
     }

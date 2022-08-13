@@ -1,5 +1,4 @@
-﻿// Copyright (c) SharpCrafters s.r.o. All rights reserved.
-// This project is not open source. Please see the LICENSE.md file in the repository root for details.
+﻿// Copyright (c) SharpCrafters s.r.o. See the LICENSE.md file in the root directory of this rep root for details.
 
 using MELT;
 using Metalama.Backstage.Extensibility;
@@ -14,6 +13,8 @@ namespace Metalama.Backstage.Testing
 {
     public abstract class TestsBase
     {
+        public ITestOutputHelper Logger { get; }
+
         public TestDateTimeProvider Time { get; } = new();
 
         public TestFileSystem FileSystem { get; } = new();
@@ -24,6 +25,8 @@ namespace Metalama.Backstage.Testing
 
         public TestsBase( ITestOutputHelper logger, Action<ServiceProviderBuilder>? serviceBuilder = null )
         {
+            this.Logger = logger;
+
             var loggerFactory = TestLoggerFactory
                 .Create()
                 .AddXUnit( logger );

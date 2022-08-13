@@ -1,5 +1,4 @@
-﻿// Copyright (c) SharpCrafters s.r.o. All rights reserved.
-// This project is not open source. Please see the LICENSE.md file in the repository root for details.
+﻿// Copyright (c) SharpCrafters s.r.o. See the LICENSE.md file in the root directory of this rep root for details.
 
 using System;
 using System.Collections.Generic;
@@ -10,7 +9,7 @@ namespace Metalama.Backstage.Extensibility
     /// <summary>
     /// Provides access to file system.
     /// </summary>
-    public interface IFileSystem
+    public interface IFileSystem : IBackstageService
     {
         /// <summary>
         /// Returns the date and time the specified file or directory was last written to.

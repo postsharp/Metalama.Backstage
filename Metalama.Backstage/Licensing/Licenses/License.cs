@@ -1,5 +1,4 @@
-// Copyright (c) SharpCrafters s.r.o. All rights reserved.
-// This project is not open source. Please see the LICENSE.md file in the repository root for details.
+// Copyright (c) SharpCrafters s.r.o. See the LICENSE.md file in the root directory of this rep root for details.
 
 using Metalama.Backstage.Diagnostics;
 using Metalama.Backstage.Extensibility;
@@ -50,7 +49,7 @@ namespace Metalama.Backstage.Licensing.Licenses
         {
             this._licenseKey = CleanLicenseKey( licenseKey );
             this._services = services;
-            this._dateTimeProvider = services.GetRequiredService<IDateTimeProvider>();
+            this._dateTimeProvider = services.GetRequiredBackstageService<IDateTimeProvider>();
             this._logger = services.GetLoggerFactory().Licensing();
         }
 
@@ -156,7 +155,7 @@ namespace Metalama.Backstage.Licensing.Licenses
                 return false;
             }
 
-            var applicationInfoService = this._services.GetRequiredService<IApplicationInfo>();
+            var applicationInfoService = this._services.GetRequiredBackstageService<IApplicationInfoProvider>().CurrentApplication;
 
             if ( !data.Validate(
                     null,

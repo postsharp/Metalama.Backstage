@@ -1,5 +1,4 @@
-// Copyright (c) SharpCrafters s.r.o. All rights reserved.
-// This project is not open source. Please see the LICENSE.md file in the repository root for details.
+// Copyright (c) SharpCrafters s.r.o. See the LICENSE.md file in the root directory of this rep root for details.
 
 using Metalama.Backstage.Diagnostics;
 using Metalama.Backstage.Extensibility;
@@ -23,9 +22,9 @@ namespace Metalama.Backstage.Telemetry
 
         internal UsageSample( IServiceProvider serviceProvider, string eventKind, TelemetryUploader uploader )
         {
-            this._directories = serviceProvider.GetRequiredService<IStandardDirectories>();
-            var time = serviceProvider.GetRequiredService<IDateTimeProvider>();
-            var applicationInfo = serviceProvider.GetRequiredService<IApplicationInfoProvider>().CurrentApplication;
+            this._directories = serviceProvider.GetRequiredBackstageService<IStandardDirectories>();
+            var time = serviceProvider.GetRequiredBackstageService<IDateTimeProvider>();
+            var applicationInfo = serviceProvider.GetRequiredBackstageService<IApplicationInfoProvider>().CurrentApplication;
             var loggerFactory = serviceProvider.GetLoggerFactory();
 
             this._uploader = uploader;

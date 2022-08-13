@@ -1,10 +1,10 @@
-﻿// Copyright (c) SharpCrafters s.r.o. All rights reserved.
-// This project is not open source. Please see the LICENSE.md file in the repository root for details.
+﻿// Copyright (c) SharpCrafters s.r.o. See the LICENSE.md file in the root directory of this rep root for details.
 
+using Metalama.Backstage.Extensibility;
+using Metalama.Backstage.Maintenance;
 using Metalama.Backstage.Utilities;
 using System;
 using System.Collections.Concurrent;
-using System.Diagnostics;
 using System.IO;
 
 namespace Metalama.Backstage.Diagnostics
@@ -18,13 +18,15 @@ namespace Metalama.Backstage.Diagnostics
 
         internal DiagnosticsConfiguration Configuration { get; }
 
-        public LoggerFactory( DiagnosticsConfiguration configuration, ProcessKind processKind, string? projectName )
+        public LoggerFactory( IServiceProvider serviceProvider, DiagnosticsConfiguration configuration, ProcessKind processKind, string? projectName )
         {
+            var tempFileManager = serviceProvider.GetRequiredBackstageService<ITempFileManager>();
+
             this.Configuration = configuration;
 
             if ( this.Configuration.Logging.Processes.TryGetValue( processKind, out var enabled ) && enabled )
             {
-                var directory = Path.Combine( Path.GetTempPath(), "Metalama", "Logs" );
+                var directory = tempFileManager.GetTempDirectory( "Logs", CleanUpStrategy.Always );
 
                 try
                 {
@@ -42,7 +44,7 @@ namespace Metalama.Backstage.Diagnostics
                     // The filename must be unique because several instances of the current assembly (of different versions) may be loaded in the process.
                     this._fileName = Path.Combine(
                         directory,
-                        $"Metalama-{Process.GetCurrentProcess().ProcessName}{projectNameWithDot}-{Guid.NewGuid()}.log" );
+                        $"Metalama-{processKind}{projectNameWithDot}-{Guid.NewGuid()}.log" );
                 }
                 catch
                 {

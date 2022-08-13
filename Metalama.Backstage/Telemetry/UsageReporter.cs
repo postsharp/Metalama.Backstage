@@ -1,5 +1,4 @@
-﻿// Copyright (c) SharpCrafters s.r.o. All rights reserved.
-// This project is not open source. Please see the LICENSE.md file in the repository root for details.
+﻿// Copyright (c) SharpCrafters s.r.o. See the LICENSE.md file in the root directory of this rep root for details.
 
 using Metalama.Backstage.Configuration;
 using Metalama.Backstage.Diagnostics;
@@ -16,20 +15,30 @@ internal class UsageReporter : IUsageReporter
     private readonly IConfigurationManager _configurationManager;
     private readonly IDateTimeProvider _time;
     private readonly ILogger _logger;
+    private readonly IApplicationInfo _applicationInfo;
 
     public UsageReporter( TelemetryUploader uploader, IServiceProvider serviceProvider )
     {
         this._serviceProvider = serviceProvider;
-        this._configurationManager = serviceProvider.GetRequiredService<IConfigurationManager>();
+        this._configurationManager = serviceProvider.GetRequiredBackstageService<IConfigurationManager>();
         this._configuration = this._configurationManager.Get<TelemetryConfiguration>();
         this._uploader = uploader;
-        this._time = serviceProvider.GetRequiredService<IDateTimeProvider>();
+        this._time = serviceProvider.GetRequiredBackstageService<IDateTimeProvider>();
         this._logger = serviceProvider.GetLoggerFactory().Telemetry();
+        this._applicationInfo = serviceProvider.GetRequiredBackstageService<IApplicationInfoProvider>().CurrentApplication;
     }
 
     public bool ShouldReportSession( string projectName )
     {
         var now = this._time.Now;
+
+        if ( !this._applicationInfo.IsTelemetryEnabled )
+        {
+            this._logger.Trace?.Log(
+                $"Session of project '{projectName}' should not be reported because telemetry is disabled for {this._applicationInfo.Name} {this._applicationInfo.Version}." );
+
+            return false;
+        }
 
         if ( TelemetryConfiguration.IsOptOutEnvironmentVariableSet() )
         {
@@ -45,7 +54,7 @@ internal class UsageReporter : IUsageReporter
             return false;
         }
 
-        return this._configurationManager.Update<TelemetryConfiguration>(
+        return this._configurationManager.UpdateIf<TelemetryConfiguration>(
             c =>
             {
                 if ( c.Sessions.TryGetValue( projectName, out var raceReported ) && raceReported.AddDays( 1 ) < now )
@@ -56,12 +65,14 @@ internal class UsageReporter : IUsageReporter
                     return false;
                 }
 
-                c.Sessions[projectName] = now;
+                return true;
+            },
+            c =>
+            {
+                c.Sessions = c.Sessions.SetItem( projectName, now );
                 c.CleanUp( now.AddDays( -1 ) );
 
                 this._logger.Trace?.Log( $"Session of project '{projectName}' should be reported." );
-
-                return true;
             } );
     }
 

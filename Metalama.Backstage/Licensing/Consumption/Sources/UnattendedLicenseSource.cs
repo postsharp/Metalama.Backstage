@@ -1,5 +1,4 @@
-﻿// Copyright (c) SharpCrafters s.r.o. All rights reserved.
-// This project is not open source. Please see the LICENSE.md file in the repository root for details.
+﻿// Copyright (c) SharpCrafters s.r.o. See the LICENSE.md file in the root directory of this rep root for details.
 
 using Metalama.Backstage.Diagnostics;
 using Metalama.Backstage.Extensibility;
@@ -20,7 +19,7 @@ internal class UnattendedLicenseSource : ILicenseSource, ILicense
     public UnattendedLicenseSource( IServiceProvider serviceProvider )
     {
         this._serviceProvider = serviceProvider;
-        this._applicationInfo = serviceProvider.GetRequiredService<IApplicationInfo>();
+        this._applicationInfo = serviceProvider.GetRequiredBackstageService<IApplicationInfoProvider>().CurrentApplication;
         this._logger = serviceProvider.GetLoggerFactory().Licensing();
     }
 

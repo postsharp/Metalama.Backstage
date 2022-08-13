@@ -1,12 +1,11 @@
-// Copyright (c) SharpCrafters s.r.o. All rights reserved.
-// This project is not open source. Please see the LICENSE.md file in the repository root for details.
+// Copyright (c) SharpCrafters s.r.o. See the LICENSE.md file in the root directory of this rep root for details.
 
 using System;
 
 namespace Metalama.Backstage.Configuration;
 
 [AttributeUsage( AttributeTargets.Class )]
-internal class ConfigurationFileAttribute : Attribute
+public class ConfigurationFileAttribute : Attribute
 {
     public ConfigurationFileAttribute( string fileName )
     {

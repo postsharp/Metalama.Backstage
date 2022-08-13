@@ -1,5 +1,4 @@
-﻿// Copyright (c) SharpCrafters s.r.o. All rights reserved.
-// This project is not open source. Please see the LICENSE.md file in the repository root for details.
+﻿// Copyright (c) SharpCrafters s.r.o. See the LICENSE.md file in the root directory of this rep root for details.
 
 using Metalama.Backstage.Extensibility;
 using System;
@@ -198,6 +197,7 @@ namespace Metalama.Backstage.Testing.Services
         {
             this.WaitAndThrowIfBlocked( path, true );
             this.Mock.File.WriteAllText( path, content );
+            this.Mock.File.SetLastWriteTime( path, DateTime.Now );
         }
 
         public string[] ReadAllLines( string path )
@@ -211,12 +211,14 @@ namespace Metalama.Backstage.Testing.Services
         {
             this.WaitAndThrowIfBlocked( path, true );
             this.Mock.File.WriteAllLines( path, content );
+            this.Mock.File.SetLastWriteTime( path, DateTime.Now );
         }
 
         public void WriteAllLines( string path, IEnumerable<string> content )
         {
             this.WaitAndThrowIfBlocked( path, true );
             this.Mock.File.WriteAllLines( path, content );
+            this.Mock.File.SetLastWriteTime( path, DateTime.Now );
         }
     }
 }

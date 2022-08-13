@@ -1,5 +1,4 @@
-﻿// Copyright (c) SharpCrafters s.r.o. All rights reserved.
-// This project is not open source. Please see the LICENSE.md file in the repository root for details.
+﻿// Copyright (c) SharpCrafters s.r.o. See the LICENSE.md file in the root directory of this rep root for details.
 
 using Metalama.Backstage.Diagnostics;
 using Metalama.Backstage.Extensibility;
@@ -21,7 +20,7 @@ namespace Metalama.Backstage
                 var serviceProviderBuilder = new ServiceProviderBuilder()
                     .AddMinimalBackstageServices( applicationInfo: new BackstageWorkerApplicationInfo(), addSupportServices: true );
 
-                usageSample = serviceProviderBuilder.ServiceProvider.GetService<IUsageReporter>()?.CreateSample( "CompilerUsage" );
+                usageSample = serviceProviderBuilder.ServiceProvider.GetBackstageService<IUsageReporter>()?.CreateSample( "CompilerUsage" );
 
                 if ( usageSample != null )
                 {
@@ -41,7 +40,7 @@ namespace Metalama.Backstage
 
                 try
                 {
-                    var exceptionReporter = serviceProvider?.GetService<IExceptionReporter>();
+                    var exceptionReporter = serviceProvider?.GetBackstageService<IExceptionReporter>();
 
                     if ( exceptionReporter != null )
                     {
@@ -89,7 +88,7 @@ namespace Metalama.Backstage
                 {
                     try
                     {
-                        serviceProvider?.GetService<IExceptionReporter>()?.ReportException( e );
+                        serviceProvider?.GetBackstageService<IExceptionReporter>()?.ReportException( e );
                     }
                     catch
                     {

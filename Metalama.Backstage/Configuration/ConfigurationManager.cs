@@ -1,6 +1,6 @@
-﻿// Copyright (c) SharpCrafters s.r.o. All rights reserved.
-// This project is not open source. Please see the LICENSE.md file in the repository root for details.
+﻿// Copyright (c) SharpCrafters s.r.o. See the LICENSE.md file in the root directory of this rep root for details.
 
+using Metalama.Backstage.Diagnostics;
 using Metalama.Backstage.Extensibility;
 using Metalama.Backstage.Utilities;
 using Newtonsoft.Json;
@@ -28,10 +28,11 @@ namespace Metalama.Backstage.Configuration
 
         public ConfigurationManager( IServiceProvider serviceProvider )
         {
-            var applicationInfo = serviceProvider.GetService<IApplicationInfo>();
-            this._fileSystem = serviceProvider.GetRequiredService<IFileSystem>();
+            var applicationInfo = serviceProvider.GetBackstageService<IApplicationInfoProvider>()?.CurrentApplication;
+            this._fileSystem = serviceProvider.GetRequiredBackstageService<IFileSystem>();
+            this.Logger = serviceProvider.GetLoggerFactory().GetLogger( "Configuration" );
 
-            this.ApplicationDataDirectory = serviceProvider.GetRequiredService<IStandardDirectories>().ApplicationDataDirectory;
+            this.ApplicationDataDirectory = serviceProvider.GetRequiredBackstageService<IStandardDirectories>().ApplicationDataDirectory;
 
             if ( !this._fileSystem.DirectoryExists( this.ApplicationDataDirectory ) )
             {
@@ -49,6 +50,7 @@ namespace Metalama.Backstage.Configuration
 
         private void OnFileChanged( object sender, FileSystemEventArgs e )
         {
+            this.Logger.Trace?.Log( $"File has changed: '{e.FullPath}'." );
             var fileName = e.FullPath;
 
             var existingSettings = this._instances.Values.SingleOrDefault(
@@ -71,6 +73,8 @@ namespace Metalama.Backstage.Configuration
 
         public string ApplicationDataDirectory { get; }
 
+        public ILogger Logger { get; }
+
         public string GetFileName( Type type )
         {
             var attribute = type.GetCustomAttribute<ConfigurationFileAttribute>();
@@ -87,6 +91,8 @@ namespace Metalama.Backstage.Configuration
         {
             ConfigurationFile GetCore()
             {
+                this.Logger.Trace?.Log( $"Loading configuration {type.Name} from file." );
+
                 if ( this.TryLoadConfigurationFile( type, out var value, out var fileName ) )
                 {
                     return value;
@@ -132,10 +138,33 @@ namespace Metalama.Backstage.Configuration
 
             try
             {
+                var fileName = this.GetFileName( value.GetType() );
+
+                this.Logger.Trace?.Log( $"Trying to update '{fileName}'. Our last timestamp is '{lastModified}'." );
+
+                // Verify (inside the global lock) that we have a fresh copy of the file.
+                if ( lastModified == null )
+                {
+                    if ( this._fileSystem.FileExists( fileName ) )
+                    {
+                        this.Logger.Warning?.Log( $"Cannot update '{fileName}' because the file exists but it was not supposed to." );
+
+                        return false;
+                    }
+                }
+                else if ( !this._fileSystem.FileExists( fileName ) || this._fileSystem.GetLastWriteTime( fileName ) != lastModified )
+                {
+                    this.Logger.Warning?.Log( $"Cannot update '{fileName}' because the file did not exists or had a different timestamp." );
+
+                    return false;
+                }
+
                 if ( this._instances.TryGetValue( value.GetType(), out var baseValue ) )
                 {
                     if ( lastModified.HasValue && baseValue.LastModified != lastModified.Value )
                     {
+                        this.Logger.Warning?.Log( $"Cannot update '{fileName}' because our cached copy has an invalid timestamp." );
+
                         return false;
                     }
                     else
@@ -149,17 +178,23 @@ namespace Metalama.Backstage.Configuration
 
                     if ( !this._instances.TryAdd( value.GetType(), baseValue ) )
                     {
+                        this.Logger.Error?.Log( $"Cannot update '{fileName}': TryAdd returned false." );
+
                         return false;
                     }
                 }
 
                 var json = value.ToJson();
-                var fileName = this.GetFileName( value.GetType() );
+
+                // We have to wait more time than the time resolution of DateTime or the file system.
+                Thread.Sleep( 1 );
 
                 RetryHelper.Retry( () => this._fileSystem.WriteAllText( fileName, json ) );
 
                 // Intentionally update the timestamp a second time. 
                 baseValue.LastModified = this._fileSystem.GetLastWriteTime( fileName );
+
+                this.Logger.Trace?.Log( $"File '{fileName}' updated. The new timestamp is '{baseValue.LastModified}'." );
             }
             finally
             {
@@ -175,6 +210,8 @@ namespace Metalama.Backstage.Configuration
 
             if ( !this._fileSystem.FileExists( fileName ) )
             {
+                this.Logger.Trace?.Log( $"The file '{fileName}' does not exist." );
+
                 settings = null;
 
                 return false;
@@ -183,6 +220,9 @@ namespace Metalama.Backstage.Configuration
             try
             {
                 var fileNameCopy = fileName;
+
+                this.Logger.Trace?.Log( $"Reading configuration file '{fileName}'." );
+
                 var json = RetryHelper.Retry( () => this._fileSystem.ReadAllText( fileNameCopy ) );
 
                 settings = (ConfigurationFile?) JsonConvert.DeserializeObject( json, type );
@@ -196,7 +236,10 @@ namespace Metalama.Backstage.Configuration
 
                 return true;
             }
-            catch { }
+            catch ( Exception e )
+            {
+                this.Logger.Error?.Log( $"Error reading file '{fileName}': " + e );
+            }
 
             settings = default;
 

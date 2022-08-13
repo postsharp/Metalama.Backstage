@@ -1,41 +1,46 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <MetalamaBackstageDirectory>$(MSBuildProjectDirectory)\..\Metalama.Backstage</MetalamaBackstageDirectory>
-    <IsWorkerBuild>true</IsWorkerBuild>
-    <OutputType>exe</OutputType>
-  </PropertyGroup>
+    <PropertyGroup>
+        <MetalamaBackstageDirectory>$(MSBuildProjectDirectory)\..\Metalama.Backstage</MetalamaBackstageDirectory>
+        <IsWorkerBuild>true</IsWorkerBuild>
+        <OutputType>exe</OutputType>
+    </PropertyGroup>
 
-  <!-- <Import Project="$(MetalamaBackstageDirectory)\Metalama.Backstage.csproj" /> -->
-  <Import Project="$(MetalamaBackstageDirectory)\Metalama.Backstage.Common.props" />
+    <!-- <Import Project="$(MetalamaBackstageDirectory)\Metalama.Backstage.csproj" /> -->
+    <Import Project="$(MetalamaBackstageDirectory)\Metalama.Backstage.Common.props" />
 
-  <PropertyGroup>
-    <TargetFrameworks>netframework4.7.2;net6.0</TargetFrameworks>
-    <!-- We're going to execute the dll using dotnet command on .NET Core. -->
-		<UseAppHost>false</UseAppHost>
-	  <GenerateRuntimeConfigurationFiles>true</GenerateRuntimeConfigurationFiles>
-    <OutputZipFile>bin\$(MSBuildProjectName).$(TargetFramework).zip</OutputZipFile>
-    <IsPackable>false</IsPackable>
-  </PropertyGroup>
+    <PropertyGroup>
+        <TargetFrameworks>netframework4.7.2;net6.0</TargetFrameworks>
+        <!-- We're going to execute the dll using dotnet command on .NET Core. -->
+        <UseAppHost>false</UseAppHost>
+        <GenerateRuntimeConfigurationFiles>true</GenerateRuntimeConfigurationFiles>
+        <OutputZipFile>bin\$(MSBuildProjectName).$(TargetFramework).zip</OutputZipFile>
+        <IsPackable>false</IsPackable>
+    </PropertyGroup>
 
-  <ItemGroup>
-    <Compile Include="$(MetalamaBackstageDirectory)\**\*.cs" Exclude="$(MetalamaBackstageDirectory)\obj\**\*;$(MetalamaBackstageDirectory)\bin\**\*" />
-  </ItemGroup>
-
-  <ItemGroup Condition="'$(TargetFramework)'=='netframework4.7.2'">
-	  <Reference Include="System.IO.Compression" />
-	  <Reference Include="System.Net.Http" />
-	</ItemGroup>
-
-  <Target Name="ResolveZipInputFiles" AfterTargets="Build" Condition="'$(IsCrossTargetingBuild)'!='true'">
     <ItemGroup>
-      <ZipInputFiles Include="$(OutDir)\**\*" />
+        <Compile Include="$(MetalamaBackstageDirectory)\**\*.cs" Exclude="$(MetalamaBackstageDirectory)\obj\**\*;$(MetalamaBackstageDirectory)\bin\**\*" />
     </ItemGroup>
-  </Target>
 
-  <Target Name="Zip" Inputs="@(ZipInputFiles)" Outputs="$(OutputZipFile)" AfterTargets="Build" DependsOnTargets="ResolveZipInputFiles" Condition="'$(IsCrossTargetingBuild)'!='true'">
-    <ZipDirectory SourceDirectory="$(OutDir)" Overwrite="true" DestinationFile="$(OutputZipFile)" />
-    <Message Text="$(MSBuildProjectName) -&gt; $(MSBuildProjectDirector)\$(OutputZipFile)" Importance="High" />
-  </Target>
+    <ItemGroup Condition="'$(TargetFramework)'=='netframework4.7.2'">
+        <Reference Include="System.IO.Compression" />
+        <Reference Include="System.Net.Http" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include="System.Collections.Immutable" Version="$(SystemImmutableCollectionsVersion)" />
+    </ItemGroup>
+
+
+    <Target Name="ResolveZipInputFiles" AfterTargets="Build" Condition="'$(IsCrossTargetingBuild)'!='true'">
+        <ItemGroup>
+            <ZipInputFiles Include="$(OutDir)\**\*" />
+        </ItemGroup>
+    </Target>
+
+    <Target Name="Zip" Inputs="@(ZipInputFiles)" Outputs="$(OutputZipFile)" AfterTargets="Build" DependsOnTargets="ResolveZipInputFiles" Condition="'$(IsCrossTargetingBuild)'!='true'">
+        <ZipDirectory SourceDirectory="$(OutDir)" Overwrite="true" DestinationFile="$(OutputZipFile)" />
+        <Message Text="$(MSBuildProjectName) -&gt; $(MSBuildProjectDirector)\$(OutputZipFile)" Importance="High" />
+    </Target>
 
 </Project>

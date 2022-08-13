@@ -1,21 +1,21 @@
-﻿// Copyright (c) SharpCrafters s.r.o. All rights reserved.
-// This project is not open source. Please see the LICENSE.md file in the repository root for details.
+﻿// Copyright (c) SharpCrafters s.r.o. See the LICENSE.md file in the root directory of this rep root for details.
 
 using System;
 
 namespace Metalama.Backstage.Extensibility
 {
-    // Intentionally internal because the names conflict with Microsoft.Extensions.DependencyInjection.
-    internal static class ServiceProviderExtensions
+    public static class ServiceProviderExtensions
     {
-        public static TService? GetService<TService>( this IServiceProvider serviceProvider )
+        public static TService? GetBackstageService<TService>( this IServiceProvider serviceProvider )
+            where TService : class, IBackstageService
         {
             return (TService?) serviceProvider.GetService( typeof(TService) );
         }
 
-        public static TService GetRequiredService<TService>( this IServiceProvider serviceProvider )
+        public static TService GetRequiredBackstageService<TService>( this IServiceProvider serviceProvider )
+            where TService : class, IBackstageService
         {
-            var service = serviceProvider.GetService<TService>();
+            var service = serviceProvider.GetBackstageService<TService>();
 
             if ( service == null )
             {

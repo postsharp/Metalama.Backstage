@@ -1,5 +1,4 @@
-﻿// Copyright (c) SharpCrafters s.r.o. All rights reserved.
-// This project is not open source. Please see the LICENSE.md file in the repository root for details.
+﻿// Copyright (c) SharpCrafters s.r.o. See the LICENSE.md file in the root directory of this rep root for details.
 
 using Metalama.Backstage.Diagnostics;
 using Metalama.Backstage.Extensibility;
@@ -26,8 +25,8 @@ internal sealed class PreviewLicenseSource : ILicenseSource, ILicense
 
     public PreviewLicenseSource( IServiceProvider serviceProvider )
     {
-        this._time = serviceProvider.GetRequiredService<IDateTimeProvider>();
-        this._applicationInfo = serviceProvider.GetRequiredService<IApplicationInfo>();
+        this._time = serviceProvider.GetRequiredBackstageService<IDateTimeProvider>();
+        this._applicationInfo = serviceProvider.GetRequiredBackstageService<IApplicationInfoProvider>().CurrentApplication;
         this._logger = serviceProvider.GetLoggerFactory().Licensing();
     }
 
@@ -48,7 +47,7 @@ internal sealed class PreviewLicenseSource : ILicenseSource, ILicense
 
             reportMessage(
                 new LicensingMessage(
-                    $"Your preview license for this build of Metalama has expired on {this._applicationInfo.BuildDate.AddDays( PreviewLicensePeriod )}. To continue using Metalama, update it to a newer preview build, register a license key, or switch to Metalama Essentials.",
+                    $"Your preview license for this build of {this._applicationInfo.Name} {this._applicationInfo.Version} has expired on {this._applicationInfo.BuildDate.AddDays( PreviewLicensePeriod )}. To continue using {this._applicationInfo.Name}, update it to a newer preview build, register a license key, or switch to Metalama Essentials.",
                     true ) );
 
             this._messageReported = true;
@@ -62,7 +61,7 @@ internal sealed class PreviewLicenseSource : ILicenseSource, ILicense
         {
             reportMessage(
                 new LicensingMessage(
-                    $"Your preview license of Metalama will expire on {this._applicationInfo.BuildDate.AddDays( PreviewLicensePeriod )}. Please update Metalama to a newer preview, register a license key, or switch to Metalama Essentials." ) );
+                    $"Your preview license of {this._applicationInfo.Name} {this._applicationInfo.Version} will expire on {this._applicationInfo.BuildDate.AddDays( PreviewLicensePeriod )}. Please update {this._applicationInfo.Name} to a newer preview, register a license key, or switch to Metalama Essentials." ) );
 
             this._messageReported = true;
         }
