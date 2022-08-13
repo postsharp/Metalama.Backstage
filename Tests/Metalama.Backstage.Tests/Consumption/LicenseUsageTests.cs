@@ -20,8 +20,8 @@ public class LicenseUsageTests : LicenseConsumptionManagerTestsBase
     [Fact]
     public void OneOfEqualLicensesFromOneSourceUsedForAllowedFeature()
     {
-        var license1 = this.CreateLicense( TestLicenseKeys.Ultimate );
-        var license2 = this.CreateLicense( TestLicenseKeys.Ultimate );
+        var license1 = this.CreateLicense( TestLicenseKeys.PostSharpUltimate );
+        var license2 = this.CreateLicense( TestLicenseKeys.PostSharpUltimate );
         var manager = this.CreateConsumptionManager( license1, license2 );
         TestConsumption( manager, LicensedFeatures.Metalama, true );
         AssertOneUsed( license1, license2 );
@@ -50,10 +50,10 @@ public class LicenseUsageTests : LicenseConsumptionManagerTestsBase
     [Fact]
     public void OneOfEqualLicensesFromMultipleSourcesUsedForAllowedFeature()
     {
-        var license1 = this.CreateLicense( TestLicenseKeys.Ultimate );
+        var license1 = this.CreateLicense( TestLicenseKeys.PostSharpUltimate );
         var source1 = new TestLicenseSource( "source1", license1 );
 
-        var license2 = this.CreateLicense( TestLicenseKeys.Ultimate );
+        var license2 = this.CreateLicense( TestLicenseKeys.PostSharpUltimate );
         var source2 = new TestLicenseSource( "source2", license2 );
 
         var manager = this.CreateConsumptionManager( source1, source2 );
@@ -80,7 +80,7 @@ public class LicenseUsageTests : LicenseConsumptionManagerTestsBase
     [Fact]
     public void NamespaceLicenseNotPreferredForAllowedFeature()
     {
-        var license1 = this.CreateLicense( TestLicenseKeys.Ultimate );
+        var license1 = this.CreateLicense( TestLicenseKeys.PostSharpUltimate );
         var license2 = this.CreateLicense( TestLicenseKeys.OpenSource );
         var manager = this.CreateConsumptionManager( license1, license2 );
         TestConsumption( manager, LicensedFeatures.Metalama, TestLicenseKeys.OpenSourceNamespace, true );

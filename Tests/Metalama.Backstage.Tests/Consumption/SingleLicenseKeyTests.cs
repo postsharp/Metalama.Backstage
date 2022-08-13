@@ -34,7 +34,7 @@ public class SingleLicenseKeyTests : LicenseConsumptionManagerTestsBase
     }
 
     [Fact]
-    public void UltimateLicenseAllowsMetalamaFeature() => this.TestOneLicense( TestLicenseKeys.Ultimate, LicensedFeatures.Metalama, true );
+    public void UltimateLicenseAllowsMetalamaFeature() => this.TestOneLicense( TestLicenseKeys.PostSharpUltimate, LicensedFeatures.Metalama, true );
 
     [Fact]
     public void LoggingLicenseForbidsMetalamaFeature() => this.TestOneLicense( TestLicenseKeys.Logging, LicensedFeatures.Metalama, false );
@@ -51,14 +51,28 @@ public class SingleLicenseKeyTests : LicenseConsumptionManagerTestsBase
     public void OpenSourceForbidsMetalamaInDifferentNamespace() => this.TestOneLicense( TestLicenseKeys.OpenSource, LicensedFeatures.Metalama, "Foo", false );
 
     [Fact]
-    public void MetalamaLicenseAllowsMetalamaFeature() => this.TestOneLicense( TestLicenseKeys.Metalama, LicensedFeatures.Metalama, true );
+    public void MetalamaLicenseAllowsMetalamaFeature() => this.TestOneLicense( TestLicenseKeys.MetalamaUltimate, LicensedFeatures.Metalama, true );
 
     [Fact]
-    public void MetalamaLicenseAllowsEssentialsFeature() => this.TestOneLicense( TestLicenseKeys.Metalama, LicensedFeatures.Essentials, true );
+    public void MetalamaLicenseAllowsEssentialsFeature() => this.TestOneLicense( TestLicenseKeys.MetalamaUltimate, LicensedFeatures.Essentials, true );
 
     [Fact]
-    public void EssentialsLicenseForbidsMetalamaFeature() => this.TestOneLicense( TestLicenseKeys.Essentials, LicensedFeatures.Metalama, false );
+    public void PostSharpEssentialsLicenseForbidsMetalamaFeature() => this.TestOneLicense( TestLicenseKeys.PostSharpEssentials, LicensedFeatures.Metalama, false );
 
     [Fact]
-    public void EssentialsLicenseAllowsEssentialsFeature() => this.TestOneLicense( TestLicenseKeys.Essentials, LicensedFeatures.Essentials, true );
+    public void PostSharpEssentialsLicenseAllowsEssentialsFeature() => this.TestOneLicense( TestLicenseKeys.PostSharpEssentials, LicensedFeatures.Essentials, true );
+
+    [Fact]
+    public void MetalamaEssentialsLicenseForbidsMetalamaFeature() => this.TestOneLicense( TestLicenseKeys.MetalamaUltimateEssentials, LicensedFeatures.Metalama, false );
+
+    [Fact]
+    public void MetalamaEssentialsLicenseAllowsEssentialsFeature() => this.TestOneLicense( TestLicenseKeys.MetalamaUltimateEssentials, LicensedFeatures.Essentials, true );
+
+    [Fact]
+    public void SelfSignedMetalamaEssentialsLicenseForbidsMetalamaFeature()
+        => this.TestOneLicense( TestLicenseKeys.CreateMetalamaEssentialsLicense( this.ServiceProvider ), LicensedFeatures.Metalama, false );
+
+    [Fact]
+    public void SelfSignedMetalamaEssentialsLicenseAllowsEssentialsFeature()
+        => this.TestOneLicense( TestLicenseKeys.CreateMetalamaEssentialsLicense( this.ServiceProvider ), LicensedFeatures.Essentials, true );
 }

@@ -102,9 +102,10 @@ namespace Metalama.Backstage.Licensing.Licenses
             var licenseType = licenseKeyData.TransformObsoleteLicenseType();
             var product = licenseKeyData.TransformObsoleteProduct();
 
-            var licensedFeatures = product switch
+            var licensedFeatures = licenseType == LicenseType.Essentials ? LicensedProductFeatures.Essentials
+                : product switch
             {
-                LicensedProduct.Ultimate when licenseType != LicenseType.Essentials => LicensedProductFeatures.Ultimate,
+                LicensedProduct.Ultimate => LicensedProductFeatures.Ultimate,
                 LicensedProduct.Framework => LicensedProductFeatures.Framework,
                 LicensedProduct.ModelLibrary => LicensedProductFeatures.Mvvm,
                 LicensedProduct.ThreadingLibrary => LicensedProductFeatures.Threading,
