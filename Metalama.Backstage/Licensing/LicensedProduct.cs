@@ -47,6 +47,11 @@ namespace Metalama.Backstage.Licensing
         MetalamaProfessional = 6,
 
         /// <summary>
+        /// Metalama Starter.
+        /// </summary>
+        MetalamaStarter = 7,
+
+        /// <summary>
         /// Logging Library.
         /// </summary>
         DiagnosticsLibrary = 12,

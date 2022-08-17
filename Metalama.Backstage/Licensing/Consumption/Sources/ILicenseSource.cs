@@ -16,5 +16,10 @@ namespace Metalama.Backstage.Licensing.Consumption.Sources
         /// </summary>
         /// <returns>The enumerable of licenses.</returns>
         IEnumerable<ILicense> GetLicenses( Action<LicensingMessage> reportMessage );
+
+        /// <summary>
+        /// Gets a value indicating whether the license source can provide redistribution licenses to be embedded in an output assembly.
+        /// </summary>
+        bool IsRedistributionLicenseSource { get; }
     }
 }

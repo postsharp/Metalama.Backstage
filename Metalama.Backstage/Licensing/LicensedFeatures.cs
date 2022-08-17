@@ -26,7 +26,17 @@ namespace Metalama.Backstage.Licensing
         Aggregation = 1 << 6,
         Diagnostics = 1 << 7,
         Caching = 1 << 8,
-        Metalama = 1 << 9,
+
+        MetalamaAspects = 1 << 9,
+        MetalamaFabricsConfiguration = 1 << 10,
+        MetalamaFabricsAspects = 1 << 11,
+        MetalamaFabricsValidators = 1 << 12,
+        MetalamaExportTransformedCode = 1 << 13,
+        MetalamaDebugTransformedCode = 1 << 14,
+        MetalamaTestFramework = 1 << 15,
+        MetalamaSdk = 1 << 16,
+        MetalamaQuickActions = 1 << 17,
+        MetalamaAspectInheritance = 1 << 18,
 
         All = int.MaxValue
     }

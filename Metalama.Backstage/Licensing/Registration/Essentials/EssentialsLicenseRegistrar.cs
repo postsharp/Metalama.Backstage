@@ -48,7 +48,7 @@ namespace Metalama.Backstage.Licensing.Registration.Essentials
 
                 if ( userStorage.Licenses.Any( l => l.LicenseData is { LicenseType: LicenseType.Essentials } ) )
                 {
-                    TraceFailure( "A Essentials license is registered already." );
+                    TraceFailure( "An Essentials license is registered already." );
 
                     return true;
                 }

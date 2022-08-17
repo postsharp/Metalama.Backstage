@@ -20,20 +20,29 @@ namespace Metalama.Backstage.Licensing.Consumption
         public LicensedFeatures LicensedFeatures { get; set; }
 
         /// <summary>
+        /// Gets or sets the maximum number of aspects limited by this namespace constraint.
+        /// </summary>
+        public int MaxApsectsCount { get; set; }
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="LicenseNamespaceConstraint"/> class.
         /// </summary>
         /// <param name="allowedNamespace">The namespace allowed by the license.</param>
+        /// <param name="licensedFeatures">The licensed features limited by the namespace constraint.</param>
+        /// <param name="maxApsectsCount">The maximum number of aspects limited by this namespace constraint.</param>
         public LicenseNamespaceConstraint(
             string allowedNamespace,
-            LicensedFeatures licensedFeatures = LicensedFeatures.None )
+            LicensedFeatures licensedFeatures = LicensedFeatures.None,
+            int maxApsectsCount = 0 )
         {
             if ( string.IsNullOrEmpty( allowedNamespace ) )
             {
-                throw new ArgumentException( "Missing namespace.", nameof(allowedNamespace) );
+                throw new ArgumentException( "Missing namespace.", nameof( allowedNamespace ) );
             }
 
             this.AllowedNamespace = allowedNamespace;
             this.LicensedFeatures = licensedFeatures;
+            this.MaxApsectsCount = maxApsectsCount;
         }
 
         /// <summary>

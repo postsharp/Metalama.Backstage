@@ -22,5 +22,9 @@ namespace Metalama.Backstage.Licensing.Consumption
         /// Gets the list of licensing messages that have been emitted when calling <see cref="CanConsumeFeatures"/> or when initializing the component.
         /// </summary>
         IReadOnlyList<LicensingMessage> Messages { get; }
+
+        IEnumerable<string> GetRedistributionLicenseKeys();
+
+        int GetMaxAspectsCount( string? consumerNamespace = null );
     }
 }

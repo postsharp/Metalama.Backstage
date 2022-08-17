@@ -12,29 +12,7 @@ public class LicenseUsageTests : LicenseConsumptionManagerTestsBase
     public LicenseUsageTests( ITestOutputHelper logger )
         : base( logger ) { }
 
-    private static void AssertOneUsed( params IUsable[] usableObjects ) => Assert.Equal( 1, usableObjects.Count( l => l.IsUsed ) );
-
     private static void AssertAllUsed( params IUsable[] usableObjects ) => Assert.Equal( usableObjects.Length, usableObjects.Count( l => l.IsUsed ) );
-
-    [Fact]
-    public void OneOfEqualLicensesFromOneSourceUsedForAllowedFeature()
-    {
-        var license1 = this.CreateLicense( TestLicenseKeys.PostSharpUltimate );
-        var license2 = this.CreateLicense( TestLicenseKeys.PostSharpUltimate );
-        var manager = this.CreateConsumptionManager( license1, license2 );
-        TestConsumption( manager, LicensedFeatures.Metalama, true );
-        AssertOneUsed( license1, license2 );
-    }
-
-    [Fact]
-    public void OneEqualLicenseFromOneSourceUsedForForbiddenFeature()
-    {
-        var license1 = this.CreateLicense( TestLicenseKeys.Logging );
-        var license2 = this.CreateLicense( TestLicenseKeys.Logging );
-        var manager = this.CreateConsumptionManager( license1, license2 );
-        TestConsumption( manager, LicensedFeatures.Metalama, false );
-        AssertOneUsed( license1, license2 );
-    }
 
     [Fact]
     public void AllDifferentLicensesFromOneSourceUsedForForbiddenFeature()
@@ -42,49 +20,23 @@ public class LicenseUsageTests : LicenseConsumptionManagerTestsBase
         var license1 = this.CreateLicense( TestLicenseKeys.Logging );
         var license2 = this.CreateLicense( TestLicenseKeys.Caching );
         var manager = this.CreateConsumptionManager( license1, license2 );
-        TestConsumption( manager, LicensedFeatures.Metalama, false );
+        TestConsumption( manager, LicensedFeatures.MetalamaAspects, false );
         AssertAllUsed( license1, license2 );
-    }
-
-    [Fact]
-    public void OneOfEqualLicensesFromMultipleSourcesUsedForAllowedFeature()
-    {
-        var license1 = this.CreateLicense( TestLicenseKeys.PostSharpUltimate );
-        var source1 = new TestLicenseSource( "source1", license1 );
-
-        var license2 = this.CreateLicense( TestLicenseKeys.PostSharpUltimate );
-        var source2 = new TestLicenseSource( "source2", license2 );
-
-        var manager = this.CreateConsumptionManager( source1, source2 );
-        TestConsumption( manager, LicensedFeatures.Metalama, true );
-        AssertOneUsed( license1, license2 );
-        AssertOneUsed( source1, source2 );
     }
 
     [Fact]
     public void AllOfDifferentLicensesFromMultipleSourcesUsedForForbiddenFeature()
     {
         var license1 = this.CreateLicense( TestLicenseKeys.Logging );
-        var source1 = new TestLicenseSource( "source1", license1 );
+        var source1 = new TestLicenseSource( "source1", false, license1 );
 
         var license2 = this.CreateLicense( TestLicenseKeys.Caching );
-        var source2 = new TestLicenseSource( "source2", license2 );
+        var source2 = new TestLicenseSource( "source2", false, license2 );
 
         var manager = this.CreateConsumptionManager( source1, source2 );
-        TestConsumption( manager, LicensedFeatures.Metalama, false );
+        TestConsumption( manager, LicensedFeatures.MetalamaAspects, false );
         AssertAllUsed( license1, license2 );
         AssertAllUsed( source1, source2 );
-    }
-
-    [Fact]
-    public void NamespaceLicenseNotPreferredForAllowedFeature()
-    {
-        var license1 = this.CreateLicense( TestLicenseKeys.PostSharpUltimate );
-        var license2 = this.CreateLicense( TestLicenseKeys.OpenSource );
-        var manager = this.CreateConsumptionManager( license1, license2 );
-        TestConsumption( manager, LicensedFeatures.Metalama, TestLicenseKeys.OpenSourceNamespace, true );
-        Assert.True( license1.IsUsed );
-        Assert.False( license2.IsUsed );
     }
 
     [Fact]
@@ -93,7 +45,7 @@ public class LicenseUsageTests : LicenseConsumptionManagerTestsBase
         var license1 = this.CreateLicense( TestLicenseKeys.Logging );
         var license2 = this.CreateLicense( TestLicenseKeys.OpenSource );
         var manager = this.CreateConsumptionManager( license1, license2 );
-        TestConsumption( manager, LicensedFeatures.Metalama, "Foo", false );
+        TestConsumption( manager, LicensedFeatures.MetalamaAspects, "Foo", false );
         AssertAllUsed( license1, license2 );
     }
 }

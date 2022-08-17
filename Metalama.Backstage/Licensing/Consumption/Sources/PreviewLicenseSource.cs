@@ -30,6 +30,8 @@ internal sealed class PreviewLicenseSource : ILicenseSource, ILicense
         this._logger = serviceProvider.GetLoggerFactory().Licensing();
     }
 
+    public bool IsRedistributionLicenseSource => false;
+
     public IEnumerable<ILicense> GetLicenses( Action<LicensingMessage> reportMessage )
     {
         if ( !this._applicationInfo.IsPrerelease )
@@ -77,7 +79,10 @@ internal sealed class PreviewLicenseSource : ILicenseSource, ILicense
             LicensedFeatures.All,
             null,
             "Preview License",
-            new Version( 0, 0 ) );
+            new Version( 0, 0 ),
+            null,
+            false,
+            int.MaxValue );
 
         return true;
     }

@@ -157,7 +157,7 @@ public static class RegisterServiceExtensions
 
         if ( additionalLicenses is { Length: > 0 } )
         {
-            licenseSources.Add( new ExplicitLicenseSource( additionalLicenses, serviceProvider ) );
+            licenseSources.Add( new ExplicitLicenseSource( additionalLicenses, true, serviceProvider ) );
         }
 
         if ( !ignoreUserProfileLicenses )

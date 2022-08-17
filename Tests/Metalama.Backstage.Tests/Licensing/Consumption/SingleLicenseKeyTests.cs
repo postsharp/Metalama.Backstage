@@ -29,47 +29,47 @@ public class SingleLicenseKeyTests : LicenseConsumptionManagerTestsBase
     public void NoLicenseAutoRegistersEvaluationLicense()
     {
         LicenseConsumptionManager manager = new( this.ServiceProvider );
-        TestConsumption( manager, LicensedFeatures.Metalama, false, true );
+        TestConsumption( manager, LicensedFeatures.MetalamaAspects, false, true );
     }
 
     [Fact]
-    public void UltimateLicenseAllowsMetalamaFeature() => this.TestOneLicense( TestLicenseKeys.PostSharpUltimate, LicensedFeatures.Metalama, true );
+    public void UltimateLicenseAllowsMetalamaFeature() => this.TestOneLicense( TestLicenseKeys.PostSharpUltimate, LicensedFeatures.MetalamaAspects, true );
 
     [Fact]
-    public void LoggingLicenseForbidsMetalamaFeature() => this.TestOneLicense( TestLicenseKeys.Logging, LicensedFeatures.Metalama, false );
+    public void LoggingLicenseForbidsMetalamaFeature() => this.TestOneLicense( TestLicenseKeys.Logging, LicensedFeatures.MetalamaAspects, false );
 
     [Fact]
     public void OpenSourceAllowsMetalamaInSameNamespace()
         => this.TestOneLicense(
             TestLicenseKeys.OpenSource,
-            LicensedFeatures.Metalama,
+            LicensedFeatures.MetalamaAspects,
             TestLicenseKeys.OpenSourceNamespace,
             true );
 
     [Fact]
-    public void OpenSourceForbidsMetalamaInDifferentNamespace() => this.TestOneLicense( TestLicenseKeys.OpenSource, LicensedFeatures.Metalama, "Foo", false );
+    public void OpenSourceForbidsMetalamaInDifferentNamespace() => this.TestOneLicense( TestLicenseKeys.OpenSource, LicensedFeatures.MetalamaAspects, "Foo", false );
 
     [Fact]
-    public void MetalamaLicenseAllowsMetalamaFeature() => this.TestOneLicense( TestLicenseKeys.MetalamaUltimate, LicensedFeatures.Metalama, true );
+    public void MetalamaLicenseAllowsMetalamaFeature() => this.TestOneLicense( TestLicenseKeys.MetalamaUltimate, LicensedFeatures.MetalamaAspects, true );
 
     [Fact]
     public void MetalamaLicenseAllowsEssentialsFeature() => this.TestOneLicense( TestLicenseKeys.MetalamaUltimate, LicensedFeatures.Essentials, true );
 
     [Fact]
-    public void PostSharpEssentialsLicenseForbidsMetalamaFeature() => this.TestOneLicense( TestLicenseKeys.PostSharpEssentials, LicensedFeatures.Metalama, false );
+    public void PostSharpEssentialsLicenseForbidsMetalamaFeature() => this.TestOneLicense( TestLicenseKeys.PostSharpEssentials, LicensedFeatures.MetalamaAspects, false );
 
     [Fact]
     public void PostSharpEssentialsLicenseAllowsEssentialsFeature() => this.TestOneLicense( TestLicenseKeys.PostSharpEssentials, LicensedFeatures.Essentials, true );
 
     [Fact]
-    public void MetalamaEssentialsLicenseForbidsMetalamaFeature() => this.TestOneLicense( TestLicenseKeys.MetalamaUltimateEssentials, LicensedFeatures.Metalama, false );
+    public void MetalamaEssentialsLicenseForbidsMetalamaFeature() => this.TestOneLicense( TestLicenseKeys.MetalamaUltimateEssentials, LicensedFeatures.MetalamaAspects, false );
 
     [Fact]
     public void MetalamaEssentialsLicenseAllowsEssentialsFeature() => this.TestOneLicense( TestLicenseKeys.MetalamaUltimateEssentials, LicensedFeatures.Essentials, true );
 
     [Fact]
     public void SelfSignedMetalamaEssentialsLicenseForbidsMetalamaFeature()
-        => this.TestOneLicense( TestLicenseKeys.CreateMetalamaEssentialsLicense( this.ServiceProvider ), LicensedFeatures.Metalama, false );
+        => this.TestOneLicense( TestLicenseKeys.CreateMetalamaEssentialsLicense( this.ServiceProvider ), LicensedFeatures.MetalamaAspects, false );
 
     [Fact]
     public void SelfSignedMetalamaEssentialsLicenseAllowsEssentialsFeature()

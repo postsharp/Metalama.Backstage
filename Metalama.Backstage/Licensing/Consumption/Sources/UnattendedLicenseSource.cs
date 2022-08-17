@@ -23,6 +23,8 @@ internal class UnattendedLicenseSource : ILicenseSource, ILicense
         this._logger = serviceProvider.GetLoggerFactory().Licensing();
     }
 
+    public bool IsRedistributionLicenseSource => false;
+
     public IEnumerable<ILicense> GetLicenses( Action<LicensingMessage> reportMessage )
     {
         if ( this._applicationInfo.IsUnattendedProcess( this._serviceProvider.GetLoggerFactory() ) )
@@ -47,7 +49,10 @@ internal class UnattendedLicenseSource : ILicenseSource, ILicense
             LicensedFeatures.All,
             null,
             "Unattended Process License",
-            new Version( 0, 0 ) );
+            new Version( 0, 0 ),
+            null,
+            false,
+            int.MaxValue );
 
         return true;
     }

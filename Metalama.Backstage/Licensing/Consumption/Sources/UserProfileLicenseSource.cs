@@ -20,5 +20,7 @@ internal class UserProfileLicenseSource : LicenseSourceBase
         this._licensingConfiguration = services.GetRequiredBackstageService<IConfigurationManager>().Get<LicensingConfiguration>();
     }
 
+    public override bool IsRedistributionLicenseSource => false;
+
     protected override IEnumerable<string> GetLicenseStrings() => this._licensingConfiguration.Licenses;
 }

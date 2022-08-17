@@ -2,9 +2,7 @@
 
 // ReSharper disable StringLiteralTypo
 
-using Metalama.Backstage.Extensibility;
 using Metalama.Backstage.Licensing.Licenses;
-using Microsoft.Extensions.DependencyInjection;
 using System;
 
 namespace Metalama.Backstage.Licensing.Tests

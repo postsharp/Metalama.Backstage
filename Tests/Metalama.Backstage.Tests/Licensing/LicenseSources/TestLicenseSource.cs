@@ -14,12 +14,15 @@ namespace Metalama.Backstage.Licensing.Tests.Licensing.LicenseSources
 
         public string Id { get; }
 
+        public bool IsRedistributionLicenseSource { get; }
+
         public bool IsUsed { get; set; }
 
-        public TestLicenseSource( string id, params ILicense[] licenses )
+        public TestLicenseSource( string id, bool isRedistributionLicenseSource, params ILicense[] licenses )
         {
             this.Id = id;
             this._licenses = licenses;
+            this.IsRedistributionLicenseSource = isRedistributionLicenseSource;
         }
 
         public IEnumerable<ILicense> GetLicenses( Action<LicensingMessage> reportWarning )

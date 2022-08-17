@@ -9,11 +9,14 @@ internal class ExplicitLicenseSource : LicenseSourceBase
 {
     private readonly IEnumerable<string> _licenseStrings;
 
-    public ExplicitLicenseSource( IEnumerable<string> licenseKeys, IServiceProvider services )
+    public ExplicitLicenseSource( IEnumerable<string> licenseKeys, bool isRedistributionLicenseSource, IServiceProvider services )
         : base( services )
     {
         this._licenseStrings = licenseKeys;
+        this.IsRedistributionLicenseSource = isRedistributionLicenseSource;
     }
+
+    public override bool IsRedistributionLicenseSource { get; }
 
     protected override IEnumerable<string> GetLicenseStrings() => this._licenseStrings;
 }

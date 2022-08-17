@@ -36,6 +36,9 @@ namespace Metalama.Backstage.Licensing.Licenses
                 case LicenseType.Academic:
                     return "Academic License";
 
+                case LicenseType.OpenSourceRedistribution:
+                    return "Open-Source Redistribution License";
+
                 case LicenseType.CommercialRedistribution:
                     return "Commercial Redistribution License";
 

@@ -4,7 +4,9 @@ namespace Metalama.Backstage.Licensing
 {
     internal static class LicensedProductFeatures
     {
-        public const LicensedFeatures Essentials = LicensedFeatures.Essentials | LicensedFeatures.Common;
+        public const LicensedFeatures Essentials = LicensedFeatures.Essentials | LicensedFeatures.Common |
+            LicensedFeatures.MetalamaAspects |
+            LicensedFeatures.MetalamaFabricsConfiguration;
 
         public const LicensedFeatures Mvvm = LicensedFeatures.Essentials | LicensedFeatures.Common |
                                              LicensedFeatures.Model |
@@ -21,9 +23,44 @@ namespace Metalama.Backstage.Licensing
             LicensedFeatures.Essentials | LicensedFeatures.Common | LicensedFeatures.Caching;
 
         public const LicensedFeatures Framework = LicensedFeatures.Essentials | LicensedFeatures.Common |
-                                                  LicensedFeatures.Framework | LicensedFeatures.Metalama;
+                                                  LicensedFeatures.Framework | LicensedFeatures.MetalamaAspects;
 
         public const LicensedFeatures Ultimate = LicensedFeatures.All;
-        public const LicensedFeatures Metalama = LicensedFeatures.Essentials | LicensedFeatures.Metalama;
+
+        public const LicensedFeatures MetalamaStarter =
+            LicensedFeatures.Essentials |
+            LicensedFeatures.MetalamaAspects |
+            LicensedFeatures.MetalamaFabricsConfiguration |
+            LicensedFeatures.MetalamaFabricsAspects |
+            LicensedFeatures.MetalamaFabricsValidators |
+            LicensedFeatures.MetalamaExportTransformedCode |
+            LicensedFeatures.MetalamaDebugTransformedCode |
+            LicensedFeatures.MetalamaAspectInheritance;
+
+        public const LicensedFeatures MetalamaProfessional =
+            LicensedFeatures.Essentials |
+            LicensedFeatures.MetalamaAspects |
+            LicensedFeatures.MetalamaFabricsConfiguration |
+            LicensedFeatures.MetalamaFabricsAspects |
+            LicensedFeatures.MetalamaFabricsValidators |
+            LicensedFeatures.MetalamaExportTransformedCode |
+            LicensedFeatures.MetalamaDebugTransformedCode |
+            LicensedFeatures.MetalamaTestFramework |
+            LicensedFeatures.MetalamaSdk |
+            LicensedFeatures.MetalamaQuickActions |
+            LicensedFeatures.MetalamaAspectInheritance;
+
+        public const LicensedFeatures MetalamaUltimate =
+            LicensedFeatures.Essentials |
+            LicensedFeatures.MetalamaAspects |
+            LicensedFeatures.MetalamaFabricsConfiguration |
+            LicensedFeatures.MetalamaFabricsAspects |
+            LicensedFeatures.MetalamaFabricsValidators |
+            LicensedFeatures.MetalamaExportTransformedCode |
+            LicensedFeatures.MetalamaDebugTransformedCode |
+            LicensedFeatures.MetalamaTestFramework |
+            LicensedFeatures.MetalamaSdk |
+            LicensedFeatures.MetalamaQuickActions |
+            LicensedFeatures.MetalamaAspectInheritance;
     }
 }

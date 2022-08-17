@@ -28,7 +28,7 @@ public abstract class LicenseConsumptionManagerTestsBase : LicensingTestsBase
     private protected ILicenseConsumptionManager CreateConsumptionManager( params TestLicense[] licenses )
     {
         // ReSharper disable once CoVariantArrayConversion
-        var licenseSource = new TestLicenseSource( "test", licenses );
+        var licenseSource = new TestLicenseSource( "test", false, licenses );
 
         return this.CreateConsumptionManager( licenseSource );
     }
