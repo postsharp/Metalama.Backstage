@@ -23,7 +23,8 @@ namespace Metalama.Backstage.Licensing
             LicensedFeatures.Essentials | LicensedFeatures.Common | LicensedFeatures.Caching;
 
         public const LicensedFeatures Framework = LicensedFeatures.Essentials | LicensedFeatures.Common |
-                                                  LicensedFeatures.Framework | LicensedFeatures.MetalamaAspects;
+                                                  LicensedFeatures.Framework |
+                                                  MetalamaProfessional;
 
         public const LicensedFeatures Ultimate = LicensedFeatures.All;
 
