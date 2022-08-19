@@ -1,5 +1,6 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. See the LICENSE.md file in the root directory of this rep root for details.
 
+using Metalama.Backstage.Configuration;
 using Metalama.Backstage.Diagnostics;
 using Metalama.Backstage.Extensibility;
 using Metalama.Backstage.Utilities;
@@ -12,21 +13,41 @@ namespace Metalama.Backstage.Maintenance;
 
 public class TempFileManager : ITempFileManager
 {
+    private readonly CleanUpConfiguration _configuration;
     private readonly IApplicationInfoProvider _applicationInfoProvider;
-    private readonly IStandardDirectories _standardDirectories;
     private readonly ILogger _logger;
+    private readonly IStandardDirectories _standardDirectories;
+    private readonly IDateTimeProvider _time;
 
     public TempFileManager( IServiceProvider serviceProvider )
     {
-        this._standardDirectories = serviceProvider.GetRequiredBackstageService<IStandardDirectories>();
+        var configurationManager = serviceProvider.GetRequiredBackstageService<IConfigurationManager>();
+        this._configuration = configurationManager.Get<CleanUpConfiguration>();
+        
         this._applicationInfoProvider = serviceProvider.GetRequiredBackstageService<IApplicationInfoProvider>();
+        this._time = serviceProvider.GetRequiredBackstageService<IDateTimeProvider>();
+        this._standardDirectories = serviceProvider.GetRequiredBackstageService<IStandardDirectories>();
         this._logger = serviceProvider.GetLoggerFactory().Telemetry();
+        
+        // TODO: Turn on scheduling
     }
 
     public static bool IsDirectoryEmpty( string path ) => !Directory.EnumerateFileSystemEntries( path ).Any();
 
-    public void CleanDirectoriesRespectingCleanupPolicies()
+    public void CleanDirectoriesRespectingCleanupPolicies( bool force = false )
     {
+        var now = this._time.Now;
+        var lastCleanUpTime = this._configuration.LastCleanUpTime;
+
+        if ( !force &&
+             lastCleanUpTime != null &&
+             lastCleanUpTime.Value.AddDays( 1 ) >= now )
+        {
+            this._logger.Info?.Log( $"It's not time to clean up cache directories yet. Now: {now} Last upload time: {lastCleanUpTime}" );
+
+            return;
+        }
+
         foreach ( var cacheDirectory in Directory.EnumerateDirectories( this._standardDirectories.TempDirectory ) )
         {
             try
@@ -42,7 +63,7 @@ public class TempFileManager : ITempFileManager
 
                         continue;
                     }
-                
+
                     var lastWriteTime = File.GetLastWriteTime( cleanUpFilePath );
 
                     var directoryToCleanUpInfo = Directory.GetParent( cleanUpFilePath );
@@ -52,22 +73,14 @@ public class TempFileManager : ITempFileManager
                     {
                         directoryToCleanUpPath = directoryToCleanUpInfo.FullName;
                     }
-                
+
                     this._logger.Info?.Log( $"Cleaning '{directoryToCleanUpPath}'." );
 
-                    switch ( cleanUpFile.Strategy )
+                    if ( cleanUpFile.Strategy == CleanUpStrategy.Always
+                         || (cleanUpFile.Strategy == CleanUpStrategy.WhenUnused && lastWriteTime < DateTime.Now.AddDays( -7 )) )
                     {
-                        case CleanUpStrategy.WhenUnused when lastWriteTime < DateTime.Now.AddDays( -7 ):
-                            this.DeleteAllSubdirectories( directoryToCleanUpPath );
-                            this.DeleteAllFilesInDirectory( directoryToCleanUpPath );
-
-                            break;
-
-                        case CleanUpStrategy.Always:
-                            this.DeleteAllSubdirectories( directoryToCleanUpPath );
-                            this.DeleteAllFilesInDirectory( directoryToCleanUpPath );
-
-                            break;
+                        this.DeleteAllSubdirectories( directoryToCleanUpPath );
+                        this.DeleteAllFilesInDirectory( directoryToCleanUpPath );
                     }
 
                     // Delete parent directory unless it's empty.
@@ -83,6 +96,8 @@ public class TempFileManager : ITempFileManager
                 this._logger.Warning?.Log( e.Message );
             }
         }
+
+        this._configuration.ResetLastCleanUpTime();
     }
 
     public string RenameDirectory( string directory )
@@ -97,7 +112,7 @@ public class TempFileManager : ITempFileManager
         {
             this._logger.Warning?.Log( e.Message );
         }
-        
+
         return newDirectoryName;
     }
 
@@ -105,7 +120,7 @@ public class TempFileManager : ITempFileManager
     {
         var fileInfo = new FileInfo( file );
         var newFileName = string.Empty;
-        
+
         if ( fileInfo.Directory != null )
         {
             newFileName = fileInfo.Directory.FullName + "to_delete" + fileInfo.Extension;
@@ -122,7 +137,7 @@ public class TempFileManager : ITempFileManager
         {
             this._logger.Warning?.Log( e.Message );
         }
-        
+
         return newFileName;
     }
 
@@ -154,7 +169,7 @@ public class TempFileManager : ITempFileManager
         {
             this._logger.Info?.Log( $"Deleting '{fileToDelete}'." );
             var renamedFileToDelete = this.RenameFile( fileToDelete );
-            
+
             try
             {
                 File.Delete( renamedFileToDelete );
@@ -181,6 +196,10 @@ public class TempFileManager : ITempFileManager
         catch ( UnauthorizedAccessException e )
         {
             this._logger.Warning?.Log( e.Message );
+        }
+        finally
+        {
+            this._configuration.ResetLastCleanUpTime();
         }
     }
 

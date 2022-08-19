@@ -1,8 +1,6 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. See the LICENSE.md file in the root directory of this rep root for details.
 
-using Metalama.Backstage.Configuration;
 using Metalama.Backstage.Maintenance;
-using Microsoft.Extensions.DependencyInjection;
 using System.CommandLine;
 using System.CommandLine.Invocation;
 using System.CommandLine.IO;
@@ -14,20 +12,18 @@ internal class CleanUpCommand : CommandBase
     public CleanUpCommand( ICommandServiceProviderProvider commandServiceProvider ) : base(
         commandServiceProvider,
         "cleanup",
-        "Deletes folders" )
+        "Cleans up cache directory" )
     {
         this.Handler = CommandHandler.Create<bool, bool, IConsole>( this.Execute );
 
-        // TODO: Better description.
-        var allOption = new Option<bool>( "--all", "Delete everything" );
+        var allOption = new Option<bool>( "--all", "Delete all directories and files ignoring cleanup policies" );
         this.AddOption( allOption );
     }
 
     private void Execute( bool all, bool verbose, IConsole console )
     {
         this.CommandServices.Initialize( console, verbose );
-        var configurationManager = this.CommandServices.ServiceProvider.GetRequiredService<IConfigurationManager>();
-        var tempFileManager = (TempFileManager) this.CommandServices.ServiceProvider.GetRequiredService<ITempFileManager>();
+        var tempFileManager = new TempFileManager( this.CommandServices.ServiceProvider );
 
         console.Out.WriteLine( "Cleaning Metalama cache files." );
 
@@ -41,7 +37,5 @@ internal class CleanUpCommand : CommandBase
             console.Out.WriteLine( "Respecting cleanup policies." );
             tempFileManager.CleanDirectoriesRespectingCleanupPolicies();
         }
-
-        configurationManager.Update<CleanUpConfiguration>( c => c.Reset() );
     }
 }

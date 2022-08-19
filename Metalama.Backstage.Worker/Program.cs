@@ -2,6 +2,7 @@
 
 using Metalama.Backstage.Diagnostics;
 using Metalama.Backstage.Extensibility;
+using Metalama.Backstage.Maintenance;
 using Metalama.Backstage.Telemetry;
 using System;
 using System.Threading.Tasks;
@@ -13,13 +14,64 @@ namespace Metalama.Backstage
         public static async Task Main()
         {
             IServiceProvider? serviceProvider = null;
+
+            var serviceProviderBuilder = new ServiceProviderBuilder()
+                .AddMinimalBackstageServices( applicationInfo: new BackstageWorkerApplicationInfo(), addSupportServices: true );
+
+            // Clean up.
+            try
+            {
+                serviceProvider = serviceProviderBuilder.ServiceProvider;
+
+                var tempFileManager = new TempFileManager( serviceProvider );
+
+                tempFileManager.CleanDirectoriesRespectingCleanupPolicies();
+            }
+            catch ( Exception e )
+            {
+                var isReported = false;
+
+                try
+                {
+                    var exceptionReporter = serviceProvider?.GetBackstageService<IExceptionReporter>();
+
+                    if ( exceptionReporter != null )
+                    {
+                        exceptionReporter.ReportException( e );
+                        isReported = true;
+                    }
+                }
+                catch
+                {
+                    // We don't want failing telemetry to disturb users.
+                }
+
+                try
+                {
+                    var log = serviceProvider?.GetLoggerFactory().Telemetry().Error;
+
+                    if ( log != null )
+                    {
+                        log.Log( $"Unhandled exception: {e}" );
+                        isReported = true;
+                    }
+                }
+                catch
+                {
+                    // We don't want failing telemetry to disturb users.
+                }
+
+                if ( !isReported )
+                {
+                    throw;
+                }
+            }
+
+            // Telemetry.
             IUsageSample? usageSample = null;
 
             try
             {
-                var serviceProviderBuilder = new ServiceProviderBuilder()
-                    .AddMinimalBackstageServices( applicationInfo: new BackstageWorkerApplicationInfo(), addSupportServices: true );
-
                 usageSample = serviceProviderBuilder.ServiceProvider.GetBackstageService<IUsageReporter>()?.CreateSample( "CompilerUsage" );
 
                 if ( usageSample != null )
