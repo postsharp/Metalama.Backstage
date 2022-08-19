@@ -84,7 +84,7 @@ internal class LicenseConsumptionManager : ILicenseConsumptionManager
                     if ( licenseData.LicensedNamespace == null )
                     {
                         this._licensedFeatures |= licenseData.LicensedFeatures;
-                        this._maxAspectsCount |= Math.Max( this._maxAspectsCount, licenseData.MaxAspectsCount );
+                        this._maxAspectsCount = Math.Max( this._maxAspectsCount, licenseData.MaxAspectsCount );
                     }
                     else
                     {
