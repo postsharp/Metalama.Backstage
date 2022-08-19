@@ -1,6 +1,8 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. See the LICENSE.md file in the root directory of this rep root for details.
 
 using Metalama.Backstage.Extensibility;
+using Metalama.Backstage.Licensing.Consumption.Sources;
+using System;
 using System.Collections.Generic;
 
 namespace Metalama.Backstage.Licensing.Consumption
@@ -23,8 +25,22 @@ namespace Metalama.Backstage.Licensing.Consumption
         /// </summary>
         IReadOnlyList<LicensingMessage> Messages { get; }
 
+        /// <summary>
+        /// Gets all redistribution license keys from all license sources marked as <see cref="ILicenseSource.IsRedistributionLicenseSource" />.
+        /// </summary>
         IEnumerable<string> GetRedistributionLicenseKeys();
 
+        /// <summary>
+        /// Returns <c>true</c> when the provided <paramref name="redistributionLicenseKey"/> is a valid redistribution license key.
+        /// </summary>
+        bool ValidateRedistributionLicenseKey( string redistributionLicenseKey );
+
+        /// <summary>
+        /// Returns maximum aspects count linsesed for the given namespace.
+        /// </summary>
+        /// <remarks>
+        /// When namespace is not provided, namespace-restricted licenses are not considered.
+        /// </remarks>
         int GetMaxAspectsCount( string? consumerNamespace = null );
     }
 }

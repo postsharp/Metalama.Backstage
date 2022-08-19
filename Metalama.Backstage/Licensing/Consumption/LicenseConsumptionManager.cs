@@ -2,6 +2,7 @@
 
 using Metalama.Backstage.Diagnostics;
 using Metalama.Backstage.Licensing.Consumption.Sources;
+using Metalama.Backstage.Licensing.Licenses;
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
@@ -16,12 +17,14 @@ internal class LicenseConsumptionManager : ILicenseConsumptionManager
     private readonly object _initializationLock = new object();
     private readonly IEnumerable<ILicenseSource> _licenseSources;
     private readonly Dictionary<string, LicenseNamespaceConstraint> _namespaceLimitedLicensedFeatures = new();
-    private readonly List<LicensingMessage> _warnings = new();
+    private readonly List<LicensingMessage> _messages = new();
+    private readonly LicenseFactory _licenseFactory;
 
     private bool _initialized;
     private ImmutableList<string>? _redistributionLicenseKeys;
-    private LicensedFeatures _licensedFeatures;
-    private int _maxAspectsCount;
+    private LicensedFeatures _allLicensedFeatures;
+    private LicensedFeatures _namespaceUnlimitedLicensedFeatures;
+    private int _namespaceUnlimitedMaxAspectsCount;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="LicenseConsumptionManager"/> class.
@@ -39,6 +42,7 @@ internal class LicenseConsumptionManager : ILicenseConsumptionManager
     public LicenseConsumptionManager( IServiceProvider services, IEnumerable<ILicenseSource> licenseSources )
     {
         this._logger = services.GetLoggerFactory().Licensing();
+        this._licenseFactory = new( services );
         this._licenseSources = licenseSources;
     }
 
@@ -56,10 +60,18 @@ internal class LicenseConsumptionManager : ILicenseConsumptionManager
                 return;
             }
 
-            void ReportWarning( LicensingMessage message )
+            void ReportMessage( LicensingMessage message )
             {
-                this._warnings.Add( message );
-                this._logger.Warning?.Log( message.Text );
+                this._messages.Add( message );
+
+                if ( message.IsError )
+                {
+                    this._logger.Error?.Log( message.Text );
+                }
+                else
+                {
+                    this._logger.Warning?.Log( message.Text );
+                }
             }
 
             var redistributionLicenseKeys = new List<string>();
@@ -68,7 +80,7 @@ internal class LicenseConsumptionManager : ILicenseConsumptionManager
             {
                 this._logger.Trace?.Log( $"Enumerating the license source {licenseSource}." );
 
-                foreach ( var license in licenseSource.GetLicenses( ReportWarning ) )
+                foreach ( var license in licenseSource.GetLicenses( ReportMessage ) )
                 {
                     this._logger.Trace?.Log( $"{licenseSource} provided the license '{license}'." );
 
@@ -81,10 +93,12 @@ internal class LicenseConsumptionManager : ILicenseConsumptionManager
                         continue;
                     }
 
+                    this._allLicensedFeatures |= licenseData.LicensedFeatures;
+
                     if ( licenseData.LicensedNamespace == null )
                     {
-                        this._licensedFeatures |= licenseData.LicensedFeatures;
-                        this._maxAspectsCount = Math.Max( this._maxAspectsCount, licenseData.MaxAspectsCount );
+                        this._namespaceUnlimitedLicensedFeatures |= licenseData.LicensedFeatures;
+                        this._namespaceUnlimitedMaxAspectsCount = Math.Max( this._namespaceUnlimitedMaxAspectsCount, licenseData.MaxAspectsCount );
                     }
                     else
                     {
@@ -122,39 +136,75 @@ internal class LicenseConsumptionManager : ILicenseConsumptionManager
     {
         this.EnsureIsInitialized();
 
-        if ( this._licensedFeatures.HasFlag( requiredFeatures ) )
+        if ( this._namespaceUnlimitedLicensedFeatures.HasFlag( requiredFeatures ) )
         {
+            // The feature is available regardless of the feature namespace limitation.
             return true;
         }
-
-        if ( !string.IsNullOrEmpty( consumerNamespace )
+        else if ( string.IsNullOrEmpty( consumerNamespace ) && this._allLicensedFeatures.HasFlag( requiredFeatures ) )
+        {
+            // This is a global feature, so we look at all licenses, regardless of the license namespace limitation.
+            return true;
+        }
+        else if ( !string.IsNullOrEmpty( consumerNamespace )
                 && this._namespaceLimitedLicensedFeatures.Count > 0
                 && this._namespaceLimitedLicensedFeatures.Values.Any(
                     nsf => nsf.AllowsNamespace( consumerNamespace )
                         && nsf.LicensedFeatures.HasFlag( requiredFeatures ) ) )
         {
+            // The feature is available for the given namespace.
             return true;
         }
 
+        // The feature is not available.
         return false;
     }
 
+    /// <inheritdoc />
     public IEnumerable<string> GetRedistributionLicenseKeys()
     {
         this.EnsureIsInitialized();
         return this._redistributionLicenseKeys!;
     }
 
+    /// <inheritdoc />
     public int GetMaxAspectsCount( string? consumerNamespace = null )
     {
         this.EnsureIsInitialized();
 
-        return string.IsNullOrEmpty( consumerNamespace )
-            ? this._maxAspectsCount
-            : this._namespaceLimitedLicensedFeatures.Values
+        if ( string.IsNullOrEmpty( consumerNamespace ) )
+        {
+            return this._namespaceUnlimitedMaxAspectsCount;
+        }
+
+        var namespaceMaxAspectsCount =
+            this._namespaceLimitedLicensedFeatures.Values
             .Where( nsf => nsf.AllowsNamespace( consumerNamespace ) )
             .Max( nsf => nsf.MaxApsectsCount );
+
+        return Math.Max( namespaceMaxAspectsCount, this._namespaceUnlimitedMaxAspectsCount );
     }
 
-    public IReadOnlyList<LicensingMessage> Messages => this._warnings;
+    /// <inheritdoc />
+    public bool ValidateRedistributionLicenseKey( string redistributionLicenseKey )
+    {
+        if ( !this._licenseFactory.TryCreate( redistributionLicenseKey, out var license ) )
+        {
+            return false;
+        }
+
+        if ( !license.TryGetLicenseConsumptionData( out var licenseConsumptionData ) )
+        {
+            return false;
+        }
+
+        if ( !licenseConsumptionData.IsRedistributable )
+        {
+            return false;
+        }
+
+        return true;
+    }
+
+    public IReadOnlyList<LicensingMessage> Messages => this._messages;
 }
