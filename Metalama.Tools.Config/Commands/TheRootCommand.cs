@@ -2,6 +2,7 @@
 
 using Metalama.DotNetTools.Commands.Licensing;
 using Metalama.DotNetTools.Commands.Logging;
+using Metalama.DotNetTools.Commands.Maintenance;
 using Metalama.DotNetTools.Commands.Telemetry;
 using System.CommandLine;
 
@@ -15,6 +16,7 @@ internal class TheRootCommand : RootCommand
         this.Add( new LicenseCommand( commandServiceProvider ) );
         this.Add( new TelemetryCommand( commandServiceProvider ) );
         this.Add( new DiagnosticsCommand( commandServiceProvider ) );
+        this.Add( new CleanUpCommand( commandServiceProvider ) );
         this.Add( new WelcomeCommand( commandServiceProvider ) );
 
         var verboseOption = new Option<bool>( "--verbose", "Set detailed verbosity level" );
