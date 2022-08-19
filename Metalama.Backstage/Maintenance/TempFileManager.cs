@@ -6,6 +6,7 @@ using Metalama.Backstage.Utilities;
 using Newtonsoft.Json;
 using System;
 using System.IO;
+using System.Linq;
 
 namespace Metalama.Backstage.Maintenance;
 
@@ -22,116 +23,114 @@ public class TempFileManager : ITempFileManager
         this._logger = serviceProvider.GetLoggerFactory().Telemetry();
     }
 
-    public void CleanDirectories()
+    public static bool IsDirectoryEmpty( string path ) => !Directory.EnumerateFileSystemEntries( path ).Any();
+
+    public void CleanDirectoriesRespectingCleanupPolicies()
     {
-        // TODO: Rename c to cacheDirectory.
-        foreach ( var c in Directory.EnumerateDirectories( this._standardDirectories.TempDirectory ) )
+        foreach ( var cacheDirectory in Directory.EnumerateDirectories( this._standardDirectories.TempDirectory ) )
         {
-            var cacheDirectory = @"C:\Users\JanHlavac\AppData\Local\Temp\Metalama\potato - Copy";
-            Console.WriteLine( $"Cleaning {cacheDirectory}" );
-
-            foreach ( var cleanUpFilePath in Directory.EnumerateFiles( cacheDirectory, "cleanup.json", SearchOption.AllDirectories ) )
+            try
             {
-                Console.WriteLine(  );
-                Console.WriteLine( $" - Cleanup file: {cleanUpFilePath}" );
-                var jsonContents = File.ReadAllText( cleanUpFilePath );
-                Console.WriteLine( jsonContents );
-                var cleanUpFile = JsonConvert.DeserializeObject<CleanUpFile>( jsonContents );
-                var lastWriteTime = File.GetLastWriteTime( cleanUpFilePath );
-                Console.WriteLine( $"   - Strategy: {cleanUpFile.Strategy}" );
-                Console.WriteLine( $"   - LastWriteTime: {lastWriteTime}" );
-                
-                var directoryToDeleteInfo = Directory.GetParent( cleanUpFilePath );
-                var directoryToDeletePath = string.Empty;
-
-                if ( directoryToDeleteInfo != null )
+                foreach ( var cleanUpFilePath in Directory.EnumerateFiles( cacheDirectory, "cleanup.json", SearchOption.AllDirectories ) )
                 {
-                    directoryToDeletePath = directoryToDeleteInfo.FullName;
-                }
+                    var jsonContents = File.ReadAllText( cleanUpFilePath );
+                    var cleanUpFile = JsonConvert.DeserializeObject<CleanUpFile>( jsonContents );
 
-                Console.WriteLine( $"   - Directory to delete: {directoryToDeletePath}" );
-
-                // WhenUnused
-                if ( cleanUpFile.Strategy == CleanUpStrategy.WhenUnused )
-                {
-                    if ( lastWriteTime < DateTime.Now.AddDays( -7 ) )
+                    if ( cleanUpFile == null )
                     {
-                        Console.WriteLine( "   - Delete, File is older than 7 days." );
+                        this._logger.Warning?.Log( $"File '{cleanUpFilePath}' is empty." );
 
-                        if ( !string.IsNullOrEmpty( directoryToDeletePath ) )
-                        {
-                            var directoryToDelete = RenameDirectory( directoryToDeletePath );
-                            DeleteDirectory( directoryToDelete );
-
-                            var parentDirectory = Directory.GetParent( directoryToDelete );
-
-                            if ( parentDirectory != null )
-                            {
-                                var parentDirectoryPath = parentDirectory.FullName;
-
-                                if ( parentDirectoryPath != cacheDirectory )
-                                {
-                                    DeleteDirectory( parentDirectoryPath );
-                                } 
-                            }
-                        }
-
-                        // TODO: Remove later.
                         continue;
-
-                        // Delete
                     }
+                
+                    var lastWriteTime = File.GetLastWriteTime( cleanUpFilePath );
 
-                    Console.WriteLine( "   - Not older than 7 days, won't delete." );
-                }
+                    var directoryToCleanUpInfo = Directory.GetParent( cleanUpFilePath );
+                    var directoryToCleanUpPath = string.Empty;
 
-                // Always
-                else
-                {
-                    Console.WriteLine( "   - Delete always" );
-
-                    var directoryToDelete = RenameDirectory( directoryToDeletePath );
-                    DeleteDirectory( directoryToDelete );
-
-                    var parentDirectory = Directory.GetParent( directoryToDelete );
-
-                    if ( parentDirectory != null )
+                    if ( directoryToCleanUpInfo != null )
                     {
-                        var parentDirectoryPath = parentDirectory.FullName;
+                        directoryToCleanUpPath = directoryToCleanUpInfo.FullName;
+                    }
+                
+                    this._logger.Info?.Log( $"Cleaning '{directoryToCleanUpPath}'." );
 
-                        if ( parentDirectoryPath != cacheDirectory )
-                        {
-                            DeleteDirectory( parentDirectoryPath );
-                        } 
+                    switch ( cleanUpFile.Strategy )
+                    {
+                        case CleanUpStrategy.WhenUnused when lastWriteTime < DateTime.Now.AddDays( -7 ):
+                            this.DeleteAllSubdirectories( directoryToCleanUpPath );
+                            this.DeleteAllFilesInDirectory( directoryToCleanUpPath );
+
+                            break;
+
+                        case CleanUpStrategy.Always:
+                            this.DeleteAllSubdirectories( directoryToCleanUpPath );
+                            this.DeleteAllFilesInDirectory( directoryToCleanUpPath );
+
+                            break;
                     }
 
-                    // Delete
+                    // Delete parent directory unless it's empty.
+                    if ( IsDirectoryEmpty( directoryToCleanUpPath ) && directoryToCleanUpPath != cacheDirectory )
+                    {
+                        var renamedParentDirectory = this.RenameDirectory( directoryToCleanUpPath );
+                        this.DeleteDirectory( renamedParentDirectory );
+                    }
                 }
             }
-
-            break;
+            catch ( UnauthorizedAccessException e )
+            {
+                this._logger.Warning?.Log( e.Message );
+            }
         }
     }
 
-    public static string RenameDirectory( string directory )
+    public string RenameDirectory( string directory )
     {
         var newDirectoryName = directory + "_to_delete";
 
-        // TODO: Remove print.
-        Console.WriteLine( $"Renaming {directory} to {newDirectoryName}" );
-        Directory.Move( directory, newDirectoryName );
+        try
+        {
+            Directory.Move( directory, newDirectoryName );
+        }
+        catch ( Exception e )
+        {
+            this._logger.Warning?.Log( e.Message );
+        }
         
         return newDirectoryName;
     }
 
-    public void DeleteDirectory( string directory )
+    public string RenameFile( string file )
     {
-        // TODO: Remove print.;
-        Console.WriteLine( $"Deleting {directory}." );
+        var fileInfo = new FileInfo( file );
+        var newFileName = string.Empty;
+        
+        if ( fileInfo.Directory != null )
+        {
+            newFileName = fileInfo.Directory.FullName + "to_delete" + fileInfo.Extension;
+        }
 
         try
         {
-            Directory.Delete( directory, true );
+            if ( !string.IsNullOrEmpty( newFileName ) )
+            {
+                fileInfo.MoveTo( newFileName );
+            }
+        }
+        catch ( Exception e )
+        {
+            this._logger.Warning?.Log( e.Message );
+        }
+        
+        return newFileName;
+    }
+
+    public void DeleteDirectory( string directoryToDelete )
+    {
+        try
+        {
+            Directory.Delete( directoryToDelete, true );
         }
         catch ( Exception e )
         {
@@ -139,36 +138,49 @@ public class TempFileManager : ITempFileManager
         }
     }
 
-    public void DeleteFile( string file )
+    public void DeleteAllSubdirectories( string cleanUpDirectory )
     {
-        // TODO: Remove print.
-        Console.WriteLine( $"Deleting {file}." );
-
-        try
+        foreach ( var directoryToDelete in Directory.EnumerateDirectories( cleanUpDirectory ) )
         {
-            File.Delete( file );
+            this._logger.Info?.Log( $"Deleting '{directoryToDelete}'." );
+            var renamedDirectoryToDelete = this.RenameDirectory( directoryToDelete );
+            this.DeleteDirectory( renamedDirectoryToDelete );
         }
-        catch ( Exception e )
+    }
+
+    public void DeleteAllFilesInDirectory( string directoryToCleanUpPath )
+    {
+        foreach ( var fileToDelete in Directory.EnumerateFiles( directoryToCleanUpPath ) )
         {
-            this._logger.Warning?.Log( e.Message );
+            this._logger.Info?.Log( $"Deleting '{fileToDelete}'." );
+            var renamedFileToDelete = this.RenameFile( fileToDelete );
+            
+            try
+            {
+                File.Delete( renamedFileToDelete );
+            }
+            catch ( Exception e )
+            {
+                this._logger.Warning?.Log( e.Message );
+            }
         }
     }
 
     public void CleanAllDirectoriesIgnoringCleanUpPolicies()
     {
-        foreach ( var cacheDirectory in Directory.EnumerateDirectories( this._standardDirectories.TempDirectory ) )
+        try
         {
-            Console.WriteLine( $"Cleaning {cacheDirectory}." );
-
-            foreach ( var subdirectory in Directory.EnumerateDirectories( cacheDirectory ) )
+            foreach ( var cacheDirectory in Directory.EnumerateDirectories( this._standardDirectories.TempDirectory ) )
             {
-                this.DeleteDirectory( subdirectory );
-            }
+                this._logger.Info?.Log( $"Cleaning  '{cacheDirectory}'." );
 
-            foreach ( var file in Directory.EnumerateFiles( cacheDirectory ) )
-            {
-                this.DeleteFile( file );
+                this.DeleteAllSubdirectories( cacheDirectory );
+                this.DeleteAllFilesInDirectory( cacheDirectory );
             }
+        }
+        catch ( UnauthorizedAccessException e )
+        {
+            this._logger.Warning?.Log( e.Message );
         }
     }
 
