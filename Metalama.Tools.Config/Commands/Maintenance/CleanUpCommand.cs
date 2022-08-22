@@ -3,7 +3,6 @@
 using Metalama.Backstage.Maintenance;
 using System.CommandLine;
 using System.CommandLine.Invocation;
-using System.CommandLine.IO;
 
 namespace Metalama.DotNetTools.Commands.Maintenance;
 
@@ -14,28 +13,25 @@ internal class CleanUpCommand : CommandBase
         "cleanup",
         "Cleans up cache directory" )
     {
-        this.Handler = CommandHandler.Create<bool, bool, IConsole>( this.Execute );
+        this.AddOption( new Option( new[] { "--all" }, "Delete all directories and files ignoring clean-up policies" ) );
+        this.AddOption( new Option( new[] { "--force", "-f" }, "Force clean-up ignoring last clean-up time." ) );
 
-        var allOption = new Option<bool>( "--all", "Delete all directories and files ignoring cleanup policies" );
-        this.AddOption( allOption );
+        this.Handler = CommandHandler.Create<bool, bool, bool, bool, IConsole>( this.Execute );
     }
 
-    private void Execute( bool all, bool verbose, IConsole console )
+    private void Execute( bool all, bool async, bool force, bool verbose, IConsole console )
     {
         this.CommandServices.Initialize( console, verbose );
-        var tempFileManager = new TempFileManager( this.CommandServices.ServiceProvider );
 
-        console.Out.WriteLine( "Cleaning Metalama cache files." );
+        var tempFileManager = new TempFileManager( this.CommandServices.ServiceProvider );
 
         if ( all )
         {
-            console.Out.WriteLine( "Ignoring cleanup policies." );
-            tempFileManager.CleanAllDirectoriesIgnoringCleanUpPolicies();
+            tempFileManager.CleanEverythingIgnoringCleanUpPolicies();
         }
         else
         {
-            console.Out.WriteLine( "Respecting cleanup policies." );
-            tempFileManager.CleanDirectoriesRespectingCleanupPolicies();
+            tempFileManager.CleanDirectoriesRespectingCleanupPolicies( force );
         }
     }
 }

@@ -3,6 +3,7 @@
 using Metalama.Backstage.Configuration;
 using Metalama.Backstage.Diagnostics;
 using Metalama.Backstage.Extensibility;
+using Metalama.Backstage.Telemetry;
 using Metalama.Backstage.Utilities;
 using Newtonsoft.Json;
 using System;
@@ -23,27 +24,56 @@ public class TempFileManager : ITempFileManager
     {
         var configurationManager = serviceProvider.GetRequiredBackstageService<IConfigurationManager>();
         this._configuration = configurationManager.Get<CleanUpConfiguration>();
-        
         this._applicationInfoProvider = serviceProvider.GetRequiredBackstageService<IApplicationInfoProvider>();
         this._time = serviceProvider.GetRequiredBackstageService<IDateTimeProvider>();
         this._standardDirectories = serviceProvider.GetRequiredBackstageService<IStandardDirectories>();
         this._logger = serviceProvider.GetLoggerFactory().Telemetry();
-        
+
         // TODO: Turn on scheduling
     }
 
     public static bool IsDirectoryEmpty( string path ) => !Directory.EnumerateFileSystemEntries( path ).Any();
 
+    /// <summary>
+    /// Cleans everything in Metalama cache ignoring clean-up policies.
+    /// </summary>
+    public void CleanEverythingIgnoringCleanUpPolicies()
+    {
+        try
+        {
+            foreach ( var cacheDirectory in Directory.EnumerateDirectories( this._standardDirectories.TempDirectory ) )
+            {
+                this._logger.Info?.Log( $"Cleaning inside '{cacheDirectory}'." );
+
+                this.DeleteAllSubdirectories( cacheDirectory );
+                this.DeleteAllFilesInDirectory( cacheDirectory );
+            }
+        }
+        catch ( UnauthorizedAccessException e )
+        {
+            this._logger.Warning?.Log( e.Message );
+        }
+        finally
+        {
+            this._configuration.ConfigurationManager.Update<CleanUpConfiguration>( c => c.ResetLastCleanUpTime() );
+        }
+    }
+
+    /// <summary>
+    /// Cleans Metalama cache subdirectories, conforming the policies set in cleanup.json for each directory.
+    /// </summary>
+    /// <param name="force">Ignore last clean-up time.</param>
     public void CleanDirectoriesRespectingCleanupPolicies( bool force = false )
     {
         var now = this._time.Now;
         var lastCleanUpTime = this._configuration.LastCleanUpTime;
 
+        // TODO: Replace with 1 day.
         if ( !force &&
              lastCleanUpTime != null &&
-             lastCleanUpTime.Value.AddDays( 1 ) >= now )
+             lastCleanUpTime.Value.AddSeconds( 10 ) >= now )
         {
-            this._logger.Info?.Log( $"It's not time to clean up cache directories yet. Now: {now} Last upload time: {lastCleanUpTime}" );
+            this._logger.Info?.Log( $"It's not time to clean up cache directories yet. Now: {now} Last clean-up time: {lastCleanUpTime}" );
 
             return;
         }
@@ -52,6 +82,8 @@ public class TempFileManager : ITempFileManager
         {
             try
             {
+                this._logger.Info?.Log( $"Clean-up of '{cacheDirectory}' directory." );
+
                 foreach ( var cleanUpFilePath in Directory.EnumerateFiles( cacheDirectory, "cleanup.json", SearchOption.AllDirectories ) )
                 {
                     var jsonContents = File.ReadAllText( cleanUpFilePath );
@@ -83,7 +115,7 @@ public class TempFileManager : ITempFileManager
                         this.DeleteAllFilesInDirectory( directoryToCleanUpPath );
                     }
 
-                    // Delete parent directory unless it's empty.
+                    // Empty parent directory is deleted after cleaning subdirectories and files.
                     if ( IsDirectoryEmpty( directoryToCleanUpPath ) && directoryToCleanUpPath != cacheDirectory )
                     {
                         var renamedParentDirectory = this.RenameDirectory( directoryToCleanUpPath );
@@ -97,7 +129,7 @@ public class TempFileManager : ITempFileManager
             }
         }
 
-        this._configuration.ResetLastCleanUpTime();
+        this._configuration.ConfigurationManager.Update<CleanUpConfiguration>( c => c.ResetLastCleanUpTime() );
     }
 
     public string RenameDirectory( string directory )
@@ -158,6 +190,7 @@ public class TempFileManager : ITempFileManager
         foreach ( var directoryToDelete in Directory.EnumerateDirectories( cleanUpDirectory ) )
         {
             this._logger.Info?.Log( $"Deleting '{directoryToDelete}'." );
+
             var renamedDirectoryToDelete = this.RenameDirectory( directoryToDelete );
             this.DeleteDirectory( renamedDirectoryToDelete );
         }
@@ -167,8 +200,9 @@ public class TempFileManager : ITempFileManager
     {
         foreach ( var fileToDelete in Directory.EnumerateFiles( directoryToCleanUpPath ) )
         {
-            this._logger.Info?.Log( $"Deleting '{fileToDelete}'." );
             var renamedFileToDelete = this.RenameFile( fileToDelete );
+
+            this._logger.Info?.Log( $"Deleting '{fileToDelete}'." );
 
             try
             {
@@ -178,28 +212,6 @@ public class TempFileManager : ITempFileManager
             {
                 this._logger.Warning?.Log( e.Message );
             }
-        }
-    }
-
-    public void CleanAllDirectoriesIgnoringCleanUpPolicies()
-    {
-        try
-        {
-            foreach ( var cacheDirectory in Directory.EnumerateDirectories( this._standardDirectories.TempDirectory ) )
-            {
-                this._logger.Info?.Log( $"Cleaning  '{cacheDirectory}'." );
-
-                this.DeleteAllSubdirectories( cacheDirectory );
-                this.DeleteAllFilesInDirectory( cacheDirectory );
-            }
-        }
-        catch ( UnauthorizedAccessException e )
-        {
-            this._logger.Warning?.Log( e.Message );
-        }
-        finally
-        {
-            this._configuration.ResetLastCleanUpTime();
         }
     }
 
