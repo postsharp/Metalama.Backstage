@@ -3,7 +3,6 @@
 using Metalama.Backstage.Configuration;
 using Metalama.Backstage.Diagnostics;
 using Metalama.Backstage.Extensibility;
-using Metalama.Backstage.Telemetry;
 using Metalama.Backstage.Utilities;
 using Newtonsoft.Json;
 using System;
