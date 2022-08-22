@@ -242,5 +242,12 @@ internal class LicenseConsumptionManager : ILicenseConsumptionManager
         return constraints.AllowsNamespace( aspectClassNamespace );
     }
 
+    /// <inheritdoc />
+    public IEnumerable<(string LicensedNamespace, int MaxAspectsCount)> GetNamespaceLimitedMaxAspectCounts()
+    {
+        return this._namespaceLimitedConstraints.Values.Select( c => (c.AllowedNamespace, c.MaxApsectsCount) );
+    }
+
+    /// <inheritdoc />
     public IReadOnlyList<LicensingMessage> Messages => this._messages;
 }

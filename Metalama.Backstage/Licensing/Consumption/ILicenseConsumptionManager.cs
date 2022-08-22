@@ -51,5 +51,10 @@ namespace Metalama.Backstage.Licensing.Consumption
         /// is not supperted and results can be undeterministic in such case.
         /// </remarks>
         bool TryGetNamespaceLimitedMaxAspectsCount( string consumerNamespace, out int maxAspectsCount, [NotNullWhen( true )] out string? licensedNamespace );
+
+        /// <summary>
+        /// Enumerates all licensed namespaces and their respective maximum aspects counts.
+        /// </summary>
+        IEnumerable<(string LicensedNamespace, int MaxAspectsCount)> GetNamespaceLimitedMaxAspectCounts();
     }
 }
