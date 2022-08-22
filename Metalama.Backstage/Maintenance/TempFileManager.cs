@@ -28,8 +28,6 @@ public class TempFileManager : ITempFileManager
         this._time = serviceProvider.GetRequiredBackstageService<IDateTimeProvider>();
         this._standardDirectories = serviceProvider.GetRequiredBackstageService<IStandardDirectories>();
         this._logger = serviceProvider.GetLoggerFactory().Telemetry();
-
-        // TODO: Turn on scheduling
     }
 
     public static bool IsDirectoryEmpty( string path ) => !Directory.EnumerateFileSystemEntries( path ).Any();
@@ -39,6 +37,13 @@ public class TempFileManager : ITempFileManager
     /// </summary>
     public void CleanEverythingIgnoringCleanUpPolicies()
     {
+        if ( !MutexHelper.WithGlobalLock( "CleanUp", TimeSpan.FromMilliseconds( 1 ), out var mutex ) )
+        {
+            this._logger.Info?.Log( "Clean-up is already running." );
+
+            return;
+        }
+        
         try
         {
             foreach ( var cacheDirectory in Directory.EnumerateDirectories( this._standardDirectories.TempDirectory ) )
@@ -56,38 +61,47 @@ public class TempFileManager : ITempFileManager
         finally
         {
             this._configuration.ConfigurationManager.Update<CleanUpConfiguration>( c => c.ResetLastCleanUpTime() );
+            mutex.Dispose();
         }
     }
 
     /// <summary>
-    /// Cleans Metalama cache subdirectories, conforming the policies set in cleanup.json for each directory.
+    /// Cleans Metalama cache subdirectories, conforming the policies set in <c>cleanup.json</c> for each directory. This method gets automatically called from compiler as well.
     /// </summary>
     /// <param name="force">Ignore last clean-up time.</param>
     public void CleanDirectoriesRespectingCleanupPolicies( bool force = false )
     {
+        if ( !MutexHelper.WithGlobalLock( "CleanUp", TimeSpan.FromMilliseconds( 1 ), out var mutex ) )
+        {
+            this._logger.Info?.Log( "Clean-up is already running." );
+
+            return;
+        }
+
         var now = this._time.Now;
         var lastCleanUpTime = this._configuration.LastCleanUpTime;
 
-        // TODO: Replace with 1 day.
         if ( !force &&
              lastCleanUpTime != null &&
-             lastCleanUpTime.Value.AddSeconds( 10 ) >= now )
+             lastCleanUpTime.Value.AddDays( 1 ) >= now )
         {
             this._logger.Info?.Log( $"It's not time to clean up cache directories yet. Now: {now} Last clean-up time: {lastCleanUpTime}" );
 
             return;
         }
 
+        // Process all directories in temp directory.
         foreach ( var cacheDirectory in Directory.EnumerateDirectories( this._standardDirectories.TempDirectory ) )
         {
             try
             {
-                this._logger.Info?.Log( $"Clean-up of '{cacheDirectory}' directory." );
+                this._logger.Info?.Log( $"Starting clean-up of '{cacheDirectory}' directory." );
 
+                // Look for all cleanup.json files to determine what directories need to be cleaned.
                 foreach ( var cleanUpFilePath in Directory.EnumerateFiles( cacheDirectory, "cleanup.json", SearchOption.AllDirectories ) )
                 {
-                    var jsonContents = File.ReadAllText( cleanUpFilePath );
-                    var cleanUpFile = JsonConvert.DeserializeObject<CleanUpFile>( jsonContents );
+                    var jsonFileContent = File.ReadAllText( cleanUpFilePath );
+                    var cleanUpFile = JsonConvert.DeserializeObject<CleanUpFile>( jsonFileContent );
 
                     if ( cleanUpFile == null )
                     {
@@ -108,6 +122,7 @@ public class TempFileManager : ITempFileManager
 
                     this._logger.Info?.Log( $"Cleaning '{directoryToCleanUpPath}'." );
 
+                    // Always clean or clean only if the cleanup file has been modified more than 7 days ago.
                     if ( cleanUpFile.Strategy == CleanUpStrategy.Always
                          || (cleanUpFile.Strategy == CleanUpStrategy.WhenUnused && lastWriteTime < DateTime.Now.AddDays( -7 )) )
                     {
@@ -116,7 +131,7 @@ public class TempFileManager : ITempFileManager
                     }
 
                     // Empty parent directory is deleted after cleaning subdirectories and files.
-                    if ( IsDirectoryEmpty( directoryToCleanUpPath ) && directoryToCleanUpPath != cacheDirectory )
+                    if ( IsDirectoryEmpty( directoryToCleanUpPath ) )
                     {
                         var renamedParentDirectory = this.RenameDirectory( directoryToCleanUpPath );
                         this.DeleteDirectory( renamedParentDirectory );
@@ -129,6 +144,7 @@ public class TempFileManager : ITempFileManager
             }
         }
 
+        mutex.Dispose();
         this._configuration.ConfigurationManager.Update<CleanUpConfiguration>( c => c.ResetLastCleanUpTime() );
     }
 
@@ -185,9 +201,13 @@ public class TempFileManager : ITempFileManager
         }
     }
 
-    public void DeleteAllSubdirectories( string cleanUpDirectory )
+    /// <summary>
+    /// Enumerates all directories in a directory and deletes them.
+    /// </summary>
+    /// <param name="directory"></param>
+    public void DeleteAllSubdirectories( string directory )
     {
-        foreach ( var directoryToDelete in Directory.EnumerateDirectories( cleanUpDirectory ) )
+        foreach ( var directoryToDelete in Directory.EnumerateDirectories( directory ) )
         {
             this._logger.Info?.Log( $"Deleting '{directoryToDelete}'." );
 
@@ -196,9 +216,13 @@ public class TempFileManager : ITempFileManager
         }
     }
 
-    public void DeleteAllFilesInDirectory( string directoryToCleanUpPath )
+    /// <summary>
+    /// Enumerates all files in a directory and deletes them.
+    /// </summary>
+    /// <param name="directory"></param>
+    public void DeleteAllFilesInDirectory( string directory )
     {
-        foreach ( var fileToDelete in Directory.EnumerateFiles( directoryToCleanUpPath ) )
+        foreach ( var fileToDelete in Directory.EnumerateFiles( directory ) )
         {
             var renamedFileToDelete = this.RenameFile( fileToDelete );
 

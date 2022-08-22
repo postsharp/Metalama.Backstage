@@ -18,7 +18,7 @@ namespace Metalama.Backstage
             var serviceProviderBuilder = new ServiceProviderBuilder()
                 .AddMinimalBackstageServices( applicationInfo: new BackstageWorkerApplicationInfo(), addSupportServices: true );
 
-            // Clean up.
+            // Clean-up is scheduled automatically from Telemetry.
             try
             {
                 serviceProvider = serviceProviderBuilder.ServiceProvider;
@@ -29,38 +29,8 @@ namespace Metalama.Backstage
             }
             catch ( Exception e )
             {
-                var isReported = false;
-
-                try
-                {
-                    var exceptionReporter = serviceProvider?.GetBackstageService<IExceptionReporter>();
-
-                    if ( exceptionReporter != null )
-                    {
-                        exceptionReporter.ReportException( e );
-                        isReported = true;
-                    }
-                }
-                catch
-                {
-                    // We don't want failing telemetry to disturb users.
-                }
-
-                try
-                {
-                    var log = serviceProvider?.GetLoggerFactory().Telemetry().Error;
-
-                    if ( log != null )
-                    {
-                        log.Log( $"Unhandled exception: {e}" );
-                        isReported = true;
-                    }
-                }
-                catch
-                {
-                    // We don't want failing telemetry to disturb users.
-                }
-
+                ProcessCatchBlock( serviceProvider, e, out var isReported );
+                
                 if ( !isReported )
                 {
                     throw;
@@ -88,37 +58,7 @@ namespace Metalama.Backstage
             }
             catch ( Exception e )
             {
-                var isReported = false;
-
-                try
-                {
-                    var exceptionReporter = serviceProvider?.GetBackstageService<IExceptionReporter>();
-
-                    if ( exceptionReporter != null )
-                    {
-                        exceptionReporter.ReportException( e );
-                        isReported = true;
-                    }
-                }
-                catch
-                {
-                    // We don't want failing telemetry to disturb users.
-                }
-
-                try
-                {
-                    var log = serviceProvider?.GetLoggerFactory().Telemetry().Error;
-
-                    if ( log != null )
-                    {
-                        log.Log( $"Unhandled exception: {e}" );
-                        isReported = true;
-                    }
-                }
-                catch
-                {
-                    // We don't want failing telemetry to disturb users.
-                }
+                ProcessCatchBlock( serviceProvider, e, out var isReported );
 
                 if ( !isReported )
                 {
@@ -149,6 +89,41 @@ namespace Metalama.Backstage
 
                     // We don't re-throw here as we don't want compiler to crash because of usage reporting exceptions.
                 }
+            }
+        }
+
+        public static void ProcessCatchBlock( IServiceProvider? serviceProvider, Exception e, out bool isReported )
+        {
+            isReported = false;
+
+            try
+            {
+                var exceptionReporter = serviceProvider?.GetBackstageService<IExceptionReporter>();
+
+                if ( exceptionReporter != null )
+                {
+                    exceptionReporter.ReportException( e );
+                    isReported = true;
+                }
+            }
+            catch
+            {
+                // We don't want failing telemetry to disturb users.
+            }
+
+            try
+            {
+                var log = serviceProvider?.GetLoggerFactory().Telemetry().Error;
+
+                if ( log != null )
+                {
+                    log.Log( $"Unhandled exception: {e}" );
+                    isReported = true;
+                }
+            }
+            catch
+            {
+                // We don't want failing telemetry to disturb users.
             }
         }
     }
