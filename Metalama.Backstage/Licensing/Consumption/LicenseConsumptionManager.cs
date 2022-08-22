@@ -6,6 +6,7 @@ using Metalama.Backstage.Licensing.Licenses;
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 
 namespace Metalama.Backstage.Licensing.Consumption;
@@ -16,9 +17,11 @@ internal class LicenseConsumptionManager : ILicenseConsumptionManager
     private readonly ILogger _logger;
     private readonly object _initializationLock = new object();
     private readonly IEnumerable<ILicenseSource> _licenseSources;
-    private readonly Dictionary<string, LicenseNamespaceConstraint> _namespaceLimitedLicensedFeatures = new();
+    private readonly Dictionary<string, LicenseNamespaceConstraint> _namespaceLimitedConstraints = new();
     private readonly List<LicensingMessage> _messages = new();
     private readonly LicenseFactory _licenseFactory;
+    private readonly HashSet<string> _namespaceUnlimitedRedistributionLicenseKeys = new();
+    private readonly Dictionary<string, LicenseNamespaceConstraint> _redistributionLicenseKeyNamespaceConstraints = new();
 
     private bool _initialized;
     private ImmutableList<string>? _redistributionLicenseKeys;
@@ -102,11 +105,11 @@ internal class LicenseConsumptionManager : ILicenseConsumptionManager
                     }
                     else
                     {
-                        if ( !this._namespaceLimitedLicensedFeatures.TryGetValue(
+                        if ( !this._namespaceLimitedConstraints.TryGetValue(
                                 licenseData.LicensedNamespace,
                                 out var namespaceFeatures ) )
                         {
-                            this._namespaceLimitedLicensedFeatures[licenseData.LicensedNamespace] =
+                            this._namespaceLimitedConstraints[licenseData.LicensedNamespace] =
                                 new LicenseNamespaceConstraint(
                                     licenseData.LicensedNamespace,
                                     licenseData.LicensedFeatures,
@@ -132,7 +135,7 @@ internal class LicenseConsumptionManager : ILicenseConsumptionManager
     }
 
     /// <inheritdoc />
-    public bool CanConsumeFeatures( LicensedFeatures requiredFeatures, string? consumerNamespace )
+    public bool CanConsumeFeatures( LicensedFeatures requiredFeatures, string? consumerNamespace = null )
     {
         this.EnsureIsInitialized();
 
@@ -147,8 +150,8 @@ internal class LicenseConsumptionManager : ILicenseConsumptionManager
             return true;
         }
         else if ( !string.IsNullOrEmpty( consumerNamespace )
-                && this._namespaceLimitedLicensedFeatures.Count > 0
-                && this._namespaceLimitedLicensedFeatures.Values.Any(
+                && this._namespaceLimitedConstraints.Count > 0
+                && this._namespaceLimitedConstraints.Values.Any(
                     nsf => nsf.AllowsNamespace( consumerNamespace )
                         && nsf.LicensedFeatures.HasFlag( requiredFeatures ) ) )
         {
@@ -168,42 +171,75 @@ internal class LicenseConsumptionManager : ILicenseConsumptionManager
     }
 
     /// <inheritdoc />
-    public int GetMaxAspectsCount( string? consumerNamespace = null )
+    public int GetNamespaceUnlimitedMaxAspectsCount()
+    {
+        this.EnsureIsInitialized();
+
+        return this._namespaceUnlimitedMaxAspectsCount;
+    }
+
+    /// <inheritdoc />
+    public bool TryGetNamespaceLimitedMaxAspectsCount( string consumerNamespace, out int maxAspectsCount, [NotNullWhen( true )] out string? licensedNamespace )
     {
         this.EnsureIsInitialized();
 
         if ( string.IsNullOrEmpty( consumerNamespace ) )
         {
-            return this._namespaceUnlimitedMaxAspectsCount;
+            throw new ArgumentOutOfRangeException( nameof( consumerNamespace ), "The consumer namespace has not been specified." );
         }
 
-        var namespaceMaxAspectsCount =
-            this._namespaceLimitedLicensedFeatures.Values
-            .Where( nsf => nsf.AllowsNamespace( consumerNamespace ) )
-            .Max( nsf => nsf.MaxApsectsCount );
+        var allowingConstraint = this._namespaceLimitedConstraints.Values
+            .FirstOrDefault( nsf => nsf.AllowsNamespace( consumerNamespace ) );
 
-        return Math.Max( namespaceMaxAspectsCount, this._namespaceUnlimitedMaxAspectsCount );
+        if ( allowingConstraint == null )
+        {
+            maxAspectsCount = 0;
+            licensedNamespace = null;
+            return false;
+        }
+        else
+        {
+            maxAspectsCount = allowingConstraint.MaxApsectsCount;
+            licensedNamespace = allowingConstraint.AllowedNamespace;
+            return true;
+        }
     }
 
     /// <inheritdoc />
-    public bool ValidateRedistributionLicenseKey( string redistributionLicenseKey )
+    public bool ValidateRedistributionLicenseKey( string redistributionLicenseKey, string aspectClassNamespace )
     {
-        if ( !this._licenseFactory.TryCreate( redistributionLicenseKey, out var license ) )
+        if ( this._namespaceUnlimitedRedistributionLicenseKeys.Contains( redistributionLicenseKey ) )
         {
-            return false;
+            return true;
         }
 
-        if ( !license.TryGetLicenseConsumptionData( out var licenseConsumptionData ) )
+        if ( !this._redistributionLicenseKeyNamespaceConstraints.TryGetValue( redistributionLicenseKey, out var constraints ) )
         {
-            return false;
+            if ( !this._licenseFactory.TryCreate( redistributionLicenseKey, out var license ) )
+            {
+                return false;
+            }
+
+            if ( !license.TryGetLicenseConsumptionData( out var licenseConsumptionData ) )
+            {
+                return false;
+            }
+
+            if ( !licenseConsumptionData.IsRedistributable )
+            {
+                return false;
+            }
+
+            if ( licenseConsumptionData.LicensedNamespace == null )
+            {
+                this._namespaceUnlimitedRedistributionLicenseKeys.Add( redistributionLicenseKey );
+                return true;
+            }
+
+            constraints = new( licenseConsumptionData.LicensedNamespace, licenseConsumptionData.LicensedFeatures, licenseConsumptionData.MaxAspectsCount );
         }
 
-        if ( !licenseConsumptionData.IsRedistributable )
-        {
-            return false;
-        }
-
-        return true;
+        return constraints.AllowsNamespace( aspectClassNamespace );
     }
 
     public IReadOnlyList<LicensingMessage> Messages => this._messages;

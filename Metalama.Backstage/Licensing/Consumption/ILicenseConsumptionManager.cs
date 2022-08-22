@@ -2,8 +2,8 @@
 
 using Metalama.Backstage.Extensibility;
 using Metalama.Backstage.Licensing.Consumption.Sources;
-using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Metalama.Backstage.Licensing.Consumption
 {
@@ -31,16 +31,25 @@ namespace Metalama.Backstage.Licensing.Consumption
         IEnumerable<string> GetRedistributionLicenseKeys();
 
         /// <summary>
-        /// Returns <c>true</c> when the provided <paramref name="redistributionLicenseKey"/> is a valid redistribution license key.
+        /// Returns <c>true</c> when the <paramref name="redistributionLicenseKey"/> is a valid redistribution license key
+        /// and the associated license allows to use a redistributed aspect defined in the <paramref name="aspectClassNamespace"/>.
         /// </summary>
-        bool ValidateRedistributionLicenseKey( string redistributionLicenseKey );
+        bool ValidateRedistributionLicenseKey( string redistributionLicenseKey, string aspectClassNamespace );
 
         /// <summary>
-        /// Returns maximum aspects count linsesed for the given namespace.
+        /// Returns maximum aspects count linsesed without namespace restrictions.
+        /// </summary>
+        int GetNamespaceUnlimitedMaxAspectsCount();
+
+        /// <summary>
+        /// Returns <c>true</c> when the <paramref name="consumerNamespace"/> is licensed by a namespace-restricted license.
+        /// When <c>true</c> is returned, the <paramref name="maxAspectsCount"/> gives the maximum aspects count allowed
+        /// for the <paramref name="licensedNamespace"/> namespace.
         /// </summary>
         /// <remarks>
-        /// When namespace is not provided, namespace-restricted licenses are not considered.
+        /// Having two or more namespace-limited licenses where one restricts a sub-namespace of the other
+        /// is not supperted and results can be undeterministic in such case.
         /// </remarks>
-        int GetMaxAspectsCount( string? consumerNamespace = null );
+        bool TryGetNamespaceLimitedMaxAspectsCount( string consumerNamespace, out int maxAspectsCount, [NotNullWhen( true )] out string? licensedNamespace );
     }
 }
