@@ -245,6 +245,8 @@ internal class LicenseConsumptionManager : ILicenseConsumptionManager
     /// <inheritdoc />
     public IEnumerable<(string LicensedNamespace, int MaxAspectsCount)> GetNamespaceLimitedMaxAspectCounts()
     {
+        this.EnsureIsInitialized();
+
         return this._namespaceLimitedConstraints.Values.Select( c => (c.AllowedNamespace, c.MaxApsectsCount) );
     }
 

@@ -83,19 +83,19 @@ namespace Metalama.Backstage.Licensing.Tests.Licensing.Registration
         public void NonEmptyStorageCanBeCreated()
         {
             var storage = this.OpenOrCreateStorage();
-            this.Add( storage, TestLicenseKeys.PostSharpUltimate );
+            this.Add( storage, TestLicenses.PostSharpUltimate );
 
-            this.AssertFileContains( TestLicenseKeys.PostSharpUltimate );
+            this.AssertFileContains( TestLicenses.PostSharpUltimate );
         }
 
         [Fact]
         public void ValidLicenseKeyCanBeRetrieved()
         {
-            this.SetStoredLicenseStrings( TestLicenseKeys.PostSharpUltimate );
+            this.SetStoredLicenseStrings( TestLicenses.PostSharpUltimate );
 
             var storage = this.OpenOrCreateStorage();
 
-            this.AssertStorageContains( storage, TestLicenseKeys.PostSharpUltimate );
+            this.AssertStorageContains( storage, TestLicenses.PostSharpUltimate );
         }
 
         [Fact]
@@ -114,36 +114,36 @@ namespace Metalama.Backstage.Licensing.Tests.Licensing.Registration
             this.SetStoredLicenseStrings( "dummy" );
 
             var storage = this.OpenOrCreateStorage();
-            this.Add( storage, TestLicenseKeys.PostSharpUltimate );
+            this.Add( storage, TestLicenses.PostSharpUltimate );
 
-            this.AssertStorageContains( storage, "dummy", TestLicenseKeys.PostSharpUltimate );
+            this.AssertStorageContains( storage, "dummy", TestLicenses.PostSharpUltimate );
         }
 
         [Fact]
         public void ValidLicenseKeyCanBeAppended()
         {
-            this.SetStoredLicenseStrings( TestLicenseKeys.PostSharpUltimate, TestLicenseKeys.Logging );
+            this.SetStoredLicenseStrings( TestLicenses.PostSharpUltimate, TestLicenses.Logging );
 
             var storage = this.OpenOrCreateStorage();
-            this.Add( storage, TestLicenseKeys.Caching );
+            this.Add( storage, TestLicenses.Caching );
 
             this.AssertStorageContains(
                 storage,
-                TestLicenseKeys.PostSharpUltimate,
-                TestLicenseKeys.Logging,
-                TestLicenseKeys.Caching );
+                TestLicenses.PostSharpUltimate,
+                TestLicenses.Logging,
+                TestLicenses.Caching );
 
-            this.AssertFileContains( TestLicenseKeys.PostSharpUltimate, TestLicenseKeys.Logging, TestLicenseKeys.Caching );
+            this.AssertFileContains( TestLicenses.PostSharpUltimate, TestLicenses.Logging, TestLicenses.Caching );
         }
 
         [Fact]
         public void NewLinesAreSkipped()
         {
-            this.SetStoredLicenseStrings( "", TestLicenseKeys.PostSharpUltimate, "", TestLicenseKeys.Logging, "" );
+            this.SetStoredLicenseStrings( "", TestLicenses.PostSharpUltimate, "", TestLicenses.Logging, "" );
 
             var storage = this.OpenOrCreateStorage();
 
-            this.AssertStorageContains( storage, TestLicenseKeys.PostSharpUltimate, TestLicenseKeys.Logging );
+            this.AssertStorageContains( storage, TestLicenses.PostSharpUltimate, TestLicenses.Logging );
         }
     }
 }

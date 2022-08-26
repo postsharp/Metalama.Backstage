@@ -17,8 +17,8 @@ public class LicenseUsageTests : LicenseConsumptionManagerTestsBase
     [Fact]
     public void AllDifferentLicensesFromOneSourceUsedForForbiddenFeature()
     {
-        var license1 = this.CreateLicense( TestLicenseKeys.Logging );
-        var license2 = this.CreateLicense( TestLicenseKeys.Caching );
+        var license1 = this.CreateLicense( TestLicenses.Logging );
+        var license2 = this.CreateLicense( TestLicenses.Caching );
         var manager = this.CreateConsumptionManager( license1, license2 );
         TestConsumption( manager, LicensedFeatures.MetalamaAspects, false );
         AssertAllUsed( license1, license2 );
@@ -27,10 +27,10 @@ public class LicenseUsageTests : LicenseConsumptionManagerTestsBase
     [Fact]
     public void AllOfDifferentLicensesFromMultipleSourcesUsedForForbiddenFeature()
     {
-        var license1 = this.CreateLicense( TestLicenseKeys.Logging );
+        var license1 = this.CreateLicense( TestLicenses.Logging );
         var source1 = new TestLicenseSource( "source1", false, license1 );
 
-        var license2 = this.CreateLicense( TestLicenseKeys.Caching );
+        var license2 = this.CreateLicense( TestLicenses.Caching );
         var source2 = new TestLicenseSource( "source2", false, license2 );
 
         var manager = this.CreateConsumptionManager( source1, source2 );
@@ -42,8 +42,8 @@ public class LicenseUsageTests : LicenseConsumptionManagerTestsBase
     [Fact]
     public void NamespaceLicenseConsideredForForbiddenFeature()
     {
-        var license1 = this.CreateLicense( TestLicenseKeys.Logging );
-        var license2 = this.CreateLicense( TestLicenseKeys.OpenSource );
+        var license1 = this.CreateLicense( TestLicenses.Logging );
+        var license2 = this.CreateLicense( TestLicenses.NamespaceLimitedPostSharpUltimateOpenSource );
         var manager = this.CreateConsumptionManager( license1, license2 );
         TestConsumption( manager, LicensedFeatures.MetalamaAspects, "Foo", false );
         AssertAllUsed( license1, license2 );

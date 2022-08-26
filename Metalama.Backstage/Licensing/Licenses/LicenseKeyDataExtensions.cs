@@ -105,11 +105,17 @@ namespace Metalama.Backstage.Licensing.Licenses
 
             var isUnlimited = isRedistributable || product == LicensedProduct.Ultimate || product == LicensedProduct.MetalamaUltimate;
 
-            var licensedFeatures = licenseType == LicenseType.Essentials ? LicensedProductFeatures.Essentials
+            var licensedFeatures = licenseType == LicenseType.Essentials
+                ? product switch
+            {
+                LicensedProduct.Ultimate => LicensedProductFeatures.PostSharpEssentials,
+                LicensedProduct.MetalamaUltimate => LicensedProductFeatures.MetalamaEssentials,
+                _ => throw new NotSupportedException( $"License product '{product}' is not supported with essentials license." )
+            }
                 : product switch
             {
-                LicensedProduct.Ultimate => LicensedProductFeatures.Ultimate,
-                LicensedProduct.Framework => LicensedProductFeatures.Framework,
+                LicensedProduct.Ultimate => LicensedProductFeatures.PostSharpUltimate,
+                LicensedProduct.Framework => LicensedProductFeatures.PostSharpFramework,
                 LicensedProduct.ModelLibrary => LicensedProductFeatures.Mvvm,
                 LicensedProduct.ThreadingLibrary => LicensedProductFeatures.Threading,
                 LicensedProduct.DiagnosticsLibrary => LicensedProductFeatures.Logging,

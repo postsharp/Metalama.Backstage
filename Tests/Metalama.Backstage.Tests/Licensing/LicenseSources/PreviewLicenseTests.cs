@@ -1,39 +1,18 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. See the LICENSE.md file in the root directory of this rep root for details.
 
-using Metalama.Backstage.Extensibility;
 using Metalama.Backstage.Licensing.Consumption;
 using Metalama.Backstage.Licensing.Consumption.Sources;
-using Metalama.Backstage.Testing.Services;
-using Microsoft.Extensions.DependencyInjection;
 using System.Collections.Generic;
 using System.Linq;
 using Xunit;
 
 namespace Metalama.Backstage.Licensing.Tests.Licensing.LicenseSources;
 
-// Licensed to the .NET Foundation under one or more agreements.
-// The .NET Foundation licenses this file to you under the MIT license.
-// See the LICENSE file in the project root for more information.
-
 public class PreviewLicenseTests
 {
-    private static PreviewLicenseSource CreatePreviewLicense( bool isPrerelease, int daysAfterBuild )
-    {
-        var services = new ServiceCollection();
-        var timeProvider = new TestDateTimeProvider();
-        services.AddSingleton<IDateTimeProvider>( timeProvider );
-
-        services.AddSingleton<IApplicationInfoProvider>(
-            new ApplicationInfoProvider( new TestApplicationInfo( "Test", isPrerelease, "<version>", timeProvider.Now.AddDays( -daysAfterBuild ) ) ) );
-
-        var serviceProvider = services.BuildServiceProvider();
-
-        return new PreviewLicenseSource( serviceProvider );
-    }
-
     private static (bool HasLicense, bool HasMessage, LicensingMessage? Message) RunTest( bool isPrerelease, int daysAfterBuild )
     {
-        var previewLicense = CreatePreviewLicense( isPrerelease, daysAfterBuild );
+        var previewLicense = TestLicenses.CreatePreviewLicense( isPrerelease, daysAfterBuild );
         var messages = new List<LicensingMessage>();
         var licenses = previewLicense.GetLicenses( messages.Add );
 

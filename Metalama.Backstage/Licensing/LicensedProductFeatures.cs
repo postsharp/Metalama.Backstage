@@ -4,9 +4,8 @@ namespace Metalama.Backstage.Licensing
 {
     internal static class LicensedProductFeatures
     {
-        public const LicensedFeatures Essentials = LicensedFeatures.Essentials | LicensedFeatures.Common |
-            LicensedFeatures.MetalamaAspects |
-            LicensedFeatures.MetalamaFabricsConfiguration;
+        public const LicensedFeatures PostSharpEssentials = LicensedFeatures.Essentials | LicensedFeatures.Common |
+            MetalamaEssentials;
 
         public const LicensedFeatures Mvvm = LicensedFeatures.Essentials | LicensedFeatures.Common |
                                              LicensedFeatures.Model |
@@ -22,14 +21,17 @@ namespace Metalama.Backstage.Licensing
         public const LicensedFeatures Caching =
             LicensedFeatures.Essentials | LicensedFeatures.Common | LicensedFeatures.Caching;
 
-        public const LicensedFeatures Framework = LicensedFeatures.Essentials | LicensedFeatures.Common |
+        public const LicensedFeatures PostSharpFramework = LicensedFeatures.Essentials | LicensedFeatures.Common |
                                                   LicensedFeatures.Framework |
                                                   MetalamaProfessional;
 
-        public const LicensedFeatures Ultimate = LicensedFeatures.All;
+        public const LicensedFeatures PostSharpUltimate = LicensedFeatures.All;
+
+        public const LicensedFeatures MetalamaEssentials =
+            LicensedFeatures.MetalamaAspects |
+            LicensedFeatures.MetalamaFabricsConfiguration;
 
         public const LicensedFeatures MetalamaStarter =
-            LicensedFeatures.Essentials |
             LicensedFeatures.MetalamaAspects |
             LicensedFeatures.MetalamaFabricsConfiguration |
             LicensedFeatures.MetalamaFabricsAspects |
@@ -39,7 +41,6 @@ namespace Metalama.Backstage.Licensing
             LicensedFeatures.MetalamaAspectInheritance;
 
         public const LicensedFeatures MetalamaProfessional =
-            LicensedFeatures.Essentials |
             LicensedFeatures.MetalamaAspects |
             LicensedFeatures.MetalamaFabricsConfiguration |
             LicensedFeatures.MetalamaFabricsAspects |
@@ -52,7 +53,6 @@ namespace Metalama.Backstage.Licensing
             LicensedFeatures.MetalamaAspectInheritance;
 
         public const LicensedFeatures MetalamaUltimate =
-            LicensedFeatures.Essentials |
             LicensedFeatures.MetalamaAspects |
             LicensedFeatures.MetalamaFabricsConfiguration |
             LicensedFeatures.MetalamaFabricsAspects |

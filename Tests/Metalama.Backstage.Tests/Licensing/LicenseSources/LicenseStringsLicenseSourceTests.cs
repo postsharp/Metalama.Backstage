@@ -23,21 +23,21 @@ namespace Metalama.Backstage.Licensing.Tests.Licensing.LicenseSources
         [Fact]
         public void OneLicenseStringPasses()
         {
-            ExplicitLicenseSource source = new( new[] { TestLicenseKeys.PostSharpUltimate }, true, this.ServiceProvider );
+            ExplicitLicenseSource source = new( new[] { TestLicenses.PostSharpUltimate }, true, this.ServiceProvider );
 
-            Assert.Equal( TestLicenseKeys.PostSharpUltimate, source.GetLicenses( _ => { } ).Single().ToString() );
+            Assert.Equal( TestLicenses.PostSharpUltimate, source.GetLicenses( _ => { } ).Single().ToString() );
         }
 
         [Fact]
         public void EmptyLicenseStringsSkipped()
         {
             ExplicitLicenseSource source =
-                new( new[] { "", TestLicenseKeys.PostSharpUltimate, "", "", TestLicenseKeys.Logging, "" }, true, this.ServiceProvider );
+                new( new[] { "", TestLicenses.PostSharpUltimate, "", "", TestLicenses.Logging, "" }, true, this.ServiceProvider );
 
             var licenses = source.GetLicenses( _ => { } ).ToArray();
             Assert.Equal( 2, licenses.Length );
-            Assert.Equal( TestLicenseKeys.PostSharpUltimate, licenses[0].ToString() );
-            Assert.Equal( TestLicenseKeys.Logging, licenses[1].ToString() );
+            Assert.Equal( TestLicenses.PostSharpUltimate, licenses[0].ToString() );
+            Assert.Equal( TestLicenses.Logging, licenses[1].ToString() );
         }
     }
 }
