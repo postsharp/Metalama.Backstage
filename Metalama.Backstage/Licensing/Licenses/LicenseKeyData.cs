@@ -36,6 +36,11 @@ namespace Metalama.Backstage.Licensing.Licenses
                     return false;
                 }
 
+                if ( this.Product == LicensedProduct.MetalamaFree )
+                {
+                    return false;
+                }
+
                 return true;
             }
         }

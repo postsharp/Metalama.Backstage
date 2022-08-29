@@ -5,56 +5,56 @@ using Metalama.Backstage.Licensing.Licenses;
 using System;
 using System.Linq;
 
-namespace Metalama.Backstage.Licensing.Registration.Essentials
+namespace Metalama.Backstage.Licensing.Registration.Free
 {
     /// <summary>
-    /// Registers a Essentials license.
+    /// Registers a self-signed Metalama Free.
     /// </summary>
-    public class EssentialsLicenseRegistrar
+    public class FreeLicenseRegistrar
     {
         private readonly IServiceProvider _services;
         private readonly ILogger _logger;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="EssentialsLicenseRegistrar"/> class.
+        /// Initializes a new instance of the <see cref="FreeLicenseRegistrar"/> class.
         /// </summary>
         /// <param name="services">Service provider.</param>
-        public EssentialsLicenseRegistrar( IServiceProvider services )
+        public FreeLicenseRegistrar( IServiceProvider services )
         {
             this._services = services;
             this._logger = services.GetLoggerFactory().Licensing();
         }
 
         /// <summary>
-        /// Attempts to register a Essentials license.
+        /// Attempts to register a self-signed Metalama Free license.
         /// </summary>
         /// <returns>
         /// A value indicating whether the license has been registered.
-        /// Success is indicated when a new Essentials license is registered
-        /// as well as when an existing Essentials license is registered already.
+        /// Success is indicated when a new Metalama Free license is registered
+        /// as well as when an existing Metalama Free license is registered already.
         /// </returns>
         public bool TryRegisterLicense()
         {
             void TraceFailure( string message )
             {
-                this._logger.Trace?.Log( $"Failed to register Essentials license: {message}" );
+                this._logger.Trace?.Log( $"Failed to register Metalama Free license: {message}" );
             }
 
-            this._logger.Trace?.Log( "Registering Essentials license." );
+            this._logger.Trace?.Log( "Registering Metalama Free license." );
 
             try
             {
                 var userStorage = ParsedLicensingConfiguration.OpenOrCreate( this._services );
 
-                if ( userStorage.Licenses.Any( l => l.LicenseData is { LicenseType: LicenseType.Essentials } ) )
+                if ( userStorage.Licenses.Any( l => l.LicenseData is { Product: LicensedProduct.MetalamaFree } ) )
                 {
-                    TraceFailure( "An Essentials license is registered already." );
+                    TraceFailure( "A Metalama Free license is registered already." );
 
                     return true;
                 }
 
                 var factory = new UnsignedLicenseFactory( this._services );
-                var (licenseKey, data) = factory.CreateEssentialsLicense();
+                var (licenseKey, data) = factory.CreateFreeLicense();
 
                 userStorage.AddLicense( licenseKey, data );
             }

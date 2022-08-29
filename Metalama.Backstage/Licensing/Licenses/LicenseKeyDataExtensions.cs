@@ -55,6 +55,8 @@ namespace Metalama.Backstage.Licensing.Licenses
                 LicensedProduct.CachingLibrary => "PostSharp Caching",
                 LicensedProduct.MetalamaUltimate => "Metalama Ultimate",
                 LicensedProduct.MetalamaProfessional => "Metalama Professional",
+                LicensedProduct.MetalamaStarter => "Metalama Starter",
+                LicensedProduct.MetalamaFree => "Metalama Free",
                 _ => string.Format( CultureInfo.InvariantCulture, "Unknown Product ({0})", licenseKeyData.Product )
             };
 
@@ -109,7 +111,6 @@ namespace Metalama.Backstage.Licensing.Licenses
                 ? product switch
             {
                 LicensedProduct.Ultimate => LicensedProductFeatures.PostSharpEssentials,
-                LicensedProduct.MetalamaUltimate => LicensedProductFeatures.MetalamaEssentials,
                 _ => throw new NotSupportedException( $"License product '{product}' is not supported with essentials license." )
             }
                 : product switch
@@ -120,6 +121,7 @@ namespace Metalama.Backstage.Licensing.Licenses
                 LicensedProduct.ThreadingLibrary => LicensedProductFeatures.Threading,
                 LicensedProduct.DiagnosticsLibrary => LicensedProductFeatures.Logging,
                 LicensedProduct.CachingLibrary => LicensedProductFeatures.Caching,
+                LicensedProduct.MetalamaFree => LicensedProductFeatures.MetalamaFree,
                 LicensedProduct.MetalamaStarter => LicensedProductFeatures.MetalamaStarter,
                 LicensedProduct.MetalamaProfessional => LicensedProductFeatures.MetalamaProfessional,
                 LicensedProduct.MetalamaUltimate => LicensedProductFeatures.MetalamaUltimate,
@@ -131,10 +133,7 @@ namespace Metalama.Backstage.Licensing.Licenses
                 : product switch
             {
                 LicensedProduct.Framework => 10,
-                LicensedProduct.ModelLibrary => 0,
-                LicensedProduct.ThreadingLibrary => 0,
-                LicensedProduct.DiagnosticsLibrary => 0,
-                LicensedProduct.CachingLibrary => 0,
+                LicensedProduct.MetalamaFree => 3,
                 LicensedProduct.MetalamaStarter => 5,
                 LicensedProduct.MetalamaProfessional => 10,
                 _ => 0

@@ -20,7 +20,7 @@ public class LicenseUsageTests : LicenseConsumptionManagerTestsBase
         var license1 = this.CreateLicense( TestLicenses.Logging );
         var license2 = this.CreateLicense( TestLicenses.Caching );
         var manager = this.CreateConsumptionManager( license1, license2 );
-        TestConsumption( manager, LicensedFeatures.MetalamaAspects, false );
+        TestConsumption( manager, LicensedFeatures.MetalamaAspectFramework, false );
         AssertAllUsed( license1, license2 );
     }
 
@@ -34,7 +34,7 @@ public class LicenseUsageTests : LicenseConsumptionManagerTestsBase
         var source2 = new TestLicenseSource( "source2", false, license2 );
 
         var manager = this.CreateConsumptionManager( source1, source2 );
-        TestConsumption( manager, LicensedFeatures.MetalamaAspects, false );
+        TestConsumption( manager, LicensedFeatures.MetalamaAspectFramework, false );
         AssertAllUsed( license1, license2 );
         AssertAllUsed( source1, source2 );
     }
@@ -45,7 +45,7 @@ public class LicenseUsageTests : LicenseConsumptionManagerTestsBase
         var license1 = this.CreateLicense( TestLicenses.Logging );
         var license2 = this.CreateLicense( TestLicenses.NamespaceLimitedPostSharpUltimateOpenSource );
         var manager = this.CreateConsumptionManager( license1, license2 );
-        TestConsumption( manager, LicensedFeatures.MetalamaAspects, "Foo", false );
+        TestConsumption( manager, LicensedFeatures.MetalamaAspectFramework, "Foo", false );
         AssertAllUsed( license1, license2 );
     }
 }

@@ -15,6 +15,7 @@ namespace Metalama.Backstage.Licensing
     {
         None = 0,
 
+        // PostSharp
         // Some features are free in the Essentials Edition (e.g. non-semantic OnMethodBoundaryAspect), but those transformations
         // also need at least some license to be loaded. Licenses can only be loaded if a requirement is present.
         Essentials = 1,
@@ -27,16 +28,18 @@ namespace Metalama.Backstage.Licensing
         Diagnostics = 1 << 7,
         Caching = 1 << 8,
 
-        MetalamaAspects = 1 << 9,
-        MetalamaFabricsConfiguration = 1 << 10,
-        MetalamaFabricsAspects = 1 << 11,
-        MetalamaFabricsValidators = 1 << 12,
-        MetalamaExportTransformedCode = 1 << 13,
-        MetalamaDebugTransformedCode = 1 << 14,
-        MetalamaTestFramework = 1 << 15,
-        MetalamaSdk = 1 << 16,
-        MetalamaQuickActions = 1 << 17,
-        MetalamaAspectInheritance = 1 << 18,
+        // Metalama
+        MetalamaCompiler = 1 << 9,
+        MetalamaSdk = 1 << 10,
+        MetalamaAspectFramework = 1 << 11,
+        MetalamaFabricsConfiguration = 1 << 12,
+        MetalamaFabricsAspects = 1 << 13,
+        MetalamaFabricsValidators = 1 << 14,
+        MetalamaExportTransformedCode = 1 << 15,
+        MetalamaDebugTransformedCode = 1 << 16,
+        MetalamaTestFramework = 1 << 17,
+        MetalamaQuickActions = 1 << 18,
+        MetalamaAspectInheritance = 1 << 19,
 
         All = int.MaxValue
     }

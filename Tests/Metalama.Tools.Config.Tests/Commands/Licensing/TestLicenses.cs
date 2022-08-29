@@ -45,8 +45,8 @@ namespace Metalama.Tools.Config.Tests.Commands.Licensing
 
 ";
 
-        public const string EssentialsFormat = @"                 Ordinal: {0}
-             Description: Metalama Ultimate (Essentials License)
+        public const string FreeFormat = @"                 Ordinal: {0}
+             Description: Metalama Free (Personal License)
       License Expiration: Never (perpetual license)
 
 ";

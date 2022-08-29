@@ -14,6 +14,7 @@ namespace Metalama.Backstage.Licensing.Tests.Licensing.Consumption
 
         [Theory]
         [InlineData( TestLicenses.MetalamaUltimateOpenSourceRedistribution )]
+        [InlineData( TestLicenses.MetalamaUltimateCommercialRedistribution )]
         public void NamespaceUnlimitedRedistributionLicenseAllowsArbitraryNamespace( string licenseKey )
         {
             var manager = this.CreateConsumptionManager();
@@ -25,7 +26,8 @@ namespace Metalama.Backstage.Licensing.Tests.Licensing.Consumption
 
         [Theory]
         [InlineData( TestLicenses.NamespaceLimitedPostSharpUltimateOpenSource, TestLicenses.NamespaceLimitedPostSharpUltimateOpenSourceNamespace )]
-        [InlineData( TestLicenses.NamespaceLimitedMetalamaUltimateOpenSourceRedistribution, TestLicenses.NamespaceLimitedMetalamaUltimateOpenSourceRedistributionNamespace )]
+        [InlineData( TestLicenses.NamespaceLimitedMetalamaUltimateOpenSourceRedistribution, TestLicenses.NamespaceLimitedMetalamaUltimateRedistributionNamespace )]
+        [InlineData( TestLicenses.NamespaceLimitedMetalamaUltimateCommercialRedistribution, TestLicenses.NamespaceLimitedMetalamaUltimateRedistributionNamespace )]
         public void NamespaceLimitedRedistributionLicenseAllowsLicensedNamespace( string licenseKey, string requiredNamespace )
         {
             var manager = this.CreateConsumptionManager();
@@ -38,6 +40,7 @@ namespace Metalama.Backstage.Licensing.Tests.Licensing.Consumption
         [Theory]
         [InlineData( TestLicenses.NamespaceLimitedPostSharpUltimateOpenSource )]
         [InlineData( TestLicenses.NamespaceLimitedMetalamaUltimateOpenSourceRedistribution )]
+        [InlineData( TestLicenses.NamespaceLimitedMetalamaUltimateCommercialRedistribution )]
         public void NamespaceLimitedRedistributionLicenseForbidsArbitraryNamespace( string licenseKey )
         {
             var manager = this.CreateConsumptionManager();

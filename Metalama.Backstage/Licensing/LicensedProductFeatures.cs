@@ -5,7 +5,7 @@ namespace Metalama.Backstage.Licensing
     internal static class LicensedProductFeatures
     {
         public const LicensedFeatures PostSharpEssentials = LicensedFeatures.Essentials | LicensedFeatures.Common |
-            MetalamaEssentials;
+            MetalamaFree;
 
         public const LicensedFeatures Mvvm = LicensedFeatures.Essentials | LicensedFeatures.Common |
                                              LicensedFeatures.Model |
@@ -27,12 +27,14 @@ namespace Metalama.Backstage.Licensing
 
         public const LicensedFeatures PostSharpUltimate = LicensedFeatures.All;
 
-        public const LicensedFeatures MetalamaEssentials =
-            LicensedFeatures.MetalamaAspects |
+        public const LicensedFeatures MetalamaFree =
+            LicensedFeatures.MetalamaCompiler |
+            LicensedFeatures.MetalamaAspectFramework |
             LicensedFeatures.MetalamaFabricsConfiguration;
 
         public const LicensedFeatures MetalamaStarter =
-            LicensedFeatures.MetalamaAspects |
+            LicensedFeatures.MetalamaCompiler |
+            LicensedFeatures.MetalamaAspectFramework |
             LicensedFeatures.MetalamaFabricsConfiguration |
             LicensedFeatures.MetalamaFabricsAspects |
             LicensedFeatures.MetalamaFabricsValidators |
@@ -41,7 +43,8 @@ namespace Metalama.Backstage.Licensing
             LicensedFeatures.MetalamaAspectInheritance;
 
         public const LicensedFeatures MetalamaProfessional =
-            LicensedFeatures.MetalamaAspects |
+            LicensedFeatures.MetalamaCompiler |
+            LicensedFeatures.MetalamaAspectFramework |
             LicensedFeatures.MetalamaFabricsConfiguration |
             LicensedFeatures.MetalamaFabricsAspects |
             LicensedFeatures.MetalamaFabricsValidators |
@@ -53,7 +56,8 @@ namespace Metalama.Backstage.Licensing
             LicensedFeatures.MetalamaAspectInheritance;
 
         public const LicensedFeatures MetalamaUltimate =
-            LicensedFeatures.MetalamaAspects |
+            LicensedFeatures.MetalamaCompiler |
+            LicensedFeatures.MetalamaAspectFramework |
             LicensedFeatures.MetalamaFabricsConfiguration |
             LicensedFeatures.MetalamaFabricsAspects |
             LicensedFeatures.MetalamaFabricsValidators |

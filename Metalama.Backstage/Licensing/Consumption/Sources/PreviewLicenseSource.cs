@@ -49,7 +49,7 @@ internal sealed class PreviewLicenseSource : ILicenseSource, ILicense
 
             reportMessage(
                 new LicensingMessage(
-                    $"Your preview license for this build of {this._applicationInfo.Name} {this._applicationInfo.Version} has expired on {this._applicationInfo.BuildDate.AddDays( PreviewLicensePeriod )}. To continue using {this._applicationInfo.Name}, update it to a newer preview build, register a license key, or switch to Metalama Essentials.",
+                    $"Your preview license for this build of {this._applicationInfo.Name} {this._applicationInfo.Version} has expired on {this._applicationInfo.BuildDate.AddDays( PreviewLicensePeriod )}. To continue using {this._applicationInfo.Name}, update it to a newer preview build, register a license key, or switch to Metalama Free.",
                     true ) );
 
             this._messageReported = true;
@@ -63,7 +63,7 @@ internal sealed class PreviewLicenseSource : ILicenseSource, ILicense
         {
             reportMessage(
                 new LicensingMessage(
-                    $"Your preview license of {this._applicationInfo.Name} {this._applicationInfo.Version} will expire on {this._applicationInfo.BuildDate.AddDays( PreviewLicensePeriod )}. Please update {this._applicationInfo.Name} to a newer preview, register a license key, or switch to Metalama Essentials." ) );
+                    $"Your preview license of {this._applicationInfo.Name} {this._applicationInfo.Version} will expire on {this._applicationInfo.BuildDate.AddDays( PreviewLicensePeriod )}. Please update {this._applicationInfo.Name} to a newer preview, register a license key, or switch to Metalama Free." ) );
 
             this._messageReported = true;
         }

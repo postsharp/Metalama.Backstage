@@ -44,10 +44,15 @@ namespace Metalama.Backstage.Licensing.Licenses
 
                 case LicenseType.PerUsage:
                     return "Per-Usage Subscription";
+
 #pragma warning disable 618
                 case LicenseType.Anonymous:
                     return "Anonymous License";
 #pragma warning restore 618
+
+                case LicenseType.Personal:
+                    return "Personal License";
+
                 default:
 
                     // We don't want to display the license type for other licenses, because there may be

@@ -16,15 +16,15 @@ internal class RegisterCommand : CommandBase
         : base(
             commandServiceProvider,
             "register",
-            "Registers a license key, starts the trial period, switch to the Metalama Essentials" )
+            "Registers a license key, starts the trial period, switch to the Metalama Free" )
     {
         this.AddArgument(
             new Argument<string>(
                 "license-key-or-type",
-                "The license key to be registered, or 'trial' or 'essentials'" ) );
+                "The license key to be registered, or 'trial' or 'free'" ) );
 
         this.AddCommand( new RegisterTrialCommand( commandServiceProvider ) );
-        this.AddCommand( new RegisterEssentialsCommand( commandServiceProvider ) );
+        this.AddCommand( new RegisterFreeCommand( commandServiceProvider ) );
 
         this.Handler = CommandHandler.Create<string, bool, IConsole>( this.Execute );
     }
