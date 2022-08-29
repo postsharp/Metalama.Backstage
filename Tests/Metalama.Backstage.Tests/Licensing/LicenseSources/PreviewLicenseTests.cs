@@ -12,7 +12,7 @@ public class PreviewLicenseTests
 {
     private static (bool HasLicense, bool HasMessage, LicensingMessage? Message) RunTest( bool isPrerelease, int daysAfterBuild )
     {
-        var previewLicense = TestLicenses.CreatePreviewLicense( isPrerelease, daysAfterBuild );
+        var previewLicense = TestLicenses.CreatePreviewLicenseSource( isPrerelease, daysAfterBuild );
         var messages = new List<LicensingMessage>();
         var licenses = previewLicense.GetLicenses( messages.Add );
 

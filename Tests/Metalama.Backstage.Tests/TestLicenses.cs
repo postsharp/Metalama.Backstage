@@ -110,7 +110,7 @@ namespace Metalama.Backstage.Licensing.Tests
             return licenseKey;
         }
 
-        public static PreviewLicenseSource CreatePreviewLicense( bool isPrerelease, int daysAfterBuild )
+        public static PreviewLicenseSource CreatePreviewLicenseSource( bool isPrerelease, int daysAfterBuild )
         {
             var services = new ServiceCollection();
             var timeProvider = new TestDateTimeProvider();

@@ -316,5 +316,5 @@ public class SingleLicenseKeyTests : LicenseConsumptionManagerTestsBase
     [InlineData( LicensedProductFeatures.MetalamaUltimate, true )]
 #pragma warning restore xUnit1025 // InlineData should be unique within the Theory it belongs to
     public void PreviewLicenseAllowsFeatures( LicensedFeatures requiredFeatures, bool expectedCanConsume )
-        => this.TestOneLicenseSource( TestLicenses.CreatePreviewLicense( true, 0 ), requiredFeatures, expectedCanConsume );
+        => this.TestOneLicenseSource( TestLicenses.CreatePreviewLicenseSource( true, 0 ), requiredFeatures, expectedCanConsume );
 }

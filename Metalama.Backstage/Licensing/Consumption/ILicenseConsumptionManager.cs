@@ -37,7 +37,7 @@ namespace Metalama.Backstage.Licensing.Consumption
         bool ValidateRedistributionLicenseKey( string redistributionLicenseKey, string aspectClassNamespace );
 
         /// <summary>
-        /// Returns maximum aspects count linsesed without namespace restrictions.
+        /// Returns maximum aspects count licenses without namespace restrictions.
         /// </summary>
         int GetNamespaceUnlimitedMaxAspectsCount();
 
