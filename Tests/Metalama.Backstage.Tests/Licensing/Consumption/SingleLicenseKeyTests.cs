@@ -250,6 +250,13 @@ public class SingleLicenseKeyTests : LicenseConsumptionManagerTestsBase
         "Foo",
         false );
 
+    [Fact]
+    public void ProfessionalAndUltimateProvideSameFeatures()
+    {
+        // As soon as this assumption becomes false, uncomment Metalama Ultimate in the following tests.
+        Assert.Equal( LicensedProductFeatures.MetalamaUltimate, LicensedProductFeatures.MetalamaProfessional );
+    }
+
     [Theory]
     [InlineData( LicensedProductFeatures.PostSharpEssentials, false )]
     [InlineData( LicensedProductFeatures.Mvvm, false )]
@@ -261,9 +268,8 @@ public class SingleLicenseKeyTests : LicenseConsumptionManagerTestsBase
     [InlineData( LicensedProductFeatures.MetalamaFree, true )]
     [InlineData( LicensedProductFeatures.MetalamaStarter, false )]
     [InlineData( LicensedProductFeatures.MetalamaProfessional, false )]
-#pragma warning disable xUnit1025 // InlineData should be unique within the Theory it belongs to
-    [InlineData( LicensedProductFeatures.MetalamaUltimate, false )]
-#pragma warning restore xUnit1025 // InlineData should be unique within the Theory it belongs to
+
+    // [InlineData( LicensedProductFeatures.MetalamaUltimate, false )] See ProfessionalAndUltimateProvideSameFeatures test.
     public void SelfSignedMetalamaFreeLicenseAllowsFeatures( LicensedFeatures requiredFeatures, bool expectedCanConsume )
         => this.TestOneLicense( TestLicenses.CreateMetalamaFreeLicense( this.ServiceProvider ), requiredFeatures, expectedCanConsume );
 
@@ -278,9 +284,8 @@ public class SingleLicenseKeyTests : LicenseConsumptionManagerTestsBase
     [InlineData( LicensedProductFeatures.MetalamaFree, true )]
     [InlineData( LicensedProductFeatures.MetalamaStarter, true )]
     [InlineData( LicensedProductFeatures.MetalamaProfessional, true )]
-#pragma warning disable xUnit1025 // InlineData should be unique within the Theory it belongs to
-    [InlineData( LicensedProductFeatures.MetalamaUltimate, true )]
-#pragma warning restore xUnit1025 // InlineData should be unique within the Theory it belongs to
+
+    // [InlineData( LicensedProductFeatures.MetalamaUltimate, true )] See ProfessionalAndUltimateProvideSameFeatures test.
     public void SelfSignedMetalamaEvaluationLicenseAllowsFeatures( LicensedFeatures requiredFeatures, bool expectedCanConsume )
         => this.TestOneLicense( TestLicenses.CreateMetalamaEvaluationLicense( this.ServiceProvider ), requiredFeatures, expectedCanConsume );
 
@@ -295,9 +300,8 @@ public class SingleLicenseKeyTests : LicenseConsumptionManagerTestsBase
     [InlineData( LicensedProductFeatures.MetalamaFree, true )]
     [InlineData( LicensedProductFeatures.MetalamaStarter, true )]
     [InlineData( LicensedProductFeatures.MetalamaProfessional, true )]
-#pragma warning disable xUnit1025 // InlineData should be unique within the Theory it belongs to
-    [InlineData( LicensedProductFeatures.MetalamaUltimate, true )]
-#pragma warning restore xUnit1025 // InlineData should be unique within the Theory it belongs to
+
+    // [InlineData( LicensedProductFeatures.MetalamaUltimate, true )] See ProfessionalAndUltimateProvideSameFeatures test.
     public void UnattendedLicenseAllowsFeatures( LicensedFeatures requiredFeatures, bool expectedCanConsume )
         => this.TestOneLicenseSource( TestLicenses.CreateUnattendedLicenseSource(), requiredFeatures, expectedCanConsume );
 
@@ -312,9 +316,8 @@ public class SingleLicenseKeyTests : LicenseConsumptionManagerTestsBase
     [InlineData( LicensedProductFeatures.MetalamaFree, true )]
     [InlineData( LicensedProductFeatures.MetalamaStarter, true )]
     [InlineData( LicensedProductFeatures.MetalamaProfessional, true )]
-#pragma warning disable xUnit1025 // InlineData should be unique within the Theory it belongs to
-    [InlineData( LicensedProductFeatures.MetalamaUltimate, true )]
-#pragma warning restore xUnit1025 // InlineData should be unique within the Theory it belongs to
+
+    // [InlineData( LicensedProductFeatures.MetalamaUltimate, true )] See ProfessionalAndUltimateProvideSameFeatures test.
     public void PreviewLicenseAllowsFeatures( LicensedFeatures requiredFeatures, bool expectedCanConsume )
         => this.TestOneLicenseSource( TestLicenses.CreatePreviewLicenseSource( true, 0 ), requiredFeatures, expectedCanConsume );
 }
