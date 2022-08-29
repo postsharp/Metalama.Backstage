@@ -43,7 +43,7 @@ namespace Metalama.Backstage.Licensing.Tests.Licensing.Free
             Assert.True( this._registrar.TryRegisterLicense() );
             this.AssertSingleFreeLicenseRegistered();
 
-#pragma warning disable SA1111 // Closing parenthesis should be on line of last parameter
+#pragma warning disable SA1001, SA1111, SA1113, SA1115, SA1116
             Assert.Single(
                 this.Log.LogEntries,
                 x => x.Message != null && x.Message.Contains( "Failed to register Metalama Free license: A Metalama Free license is registered already."
@@ -51,7 +51,7 @@ namespace Metalama.Backstage.Licensing.Tests.Licensing.Free
                 , StringComparison.InvariantCulture
 #endif
                 ) );
-#pragma warning restore SA1111 // Closing parenthesis should be on line of last parameter
+#pragma warning restore SA1001, SA1111, SA1113, SA1115, SA1116
         }
     }
 }
