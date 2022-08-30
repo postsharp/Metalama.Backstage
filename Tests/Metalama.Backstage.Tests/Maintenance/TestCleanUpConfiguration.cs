@@ -20,5 +20,4 @@ public class TestCleanUpConfiguration : CleanUpConfiguration
     }
 
     public void SetLastCleanUpTime( DateTime lastCleanUpTime ) => this.LastCleanUpTime = lastCleanUpTime;
-
 }
