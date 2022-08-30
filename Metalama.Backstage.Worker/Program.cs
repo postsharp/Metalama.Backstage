@@ -29,9 +29,7 @@ namespace Metalama.Backstage
             }
             catch ( Exception e )
             {
-                ProcessCatchBlock( serviceProvider, e, out var isReported );
-                
-                if ( !isReported )
+                if ( !HandleException( serviceProvider, e ) )
                 {
                     throw;
                 }
@@ -58,9 +56,7 @@ namespace Metalama.Backstage
             }
             catch ( Exception e )
             {
-                ProcessCatchBlock( serviceProvider, e, out var isReported );
-
-                if ( !isReported )
+                if ( !HandleException( serviceProvider, e ) )
                 {
                     throw;
                 }
@@ -92,10 +88,8 @@ namespace Metalama.Backstage
             }
         }
 
-        public static void ProcessCatchBlock( IServiceProvider? serviceProvider, Exception e, out bool isReported )
+        public static bool HandleException( IServiceProvider? serviceProvider, Exception e )
         {
-            isReported = false;
-
             try
             {
                 var exceptionReporter = serviceProvider?.GetBackstageService<IExceptionReporter>();
@@ -103,7 +97,8 @@ namespace Metalama.Backstage
                 if ( exceptionReporter != null )
                 {
                     exceptionReporter.ReportException( e );
-                    isReported = true;
+
+                    return true;
                 }
             }
             catch
@@ -118,13 +113,16 @@ namespace Metalama.Backstage
                 if ( log != null )
                 {
                     log.Log( $"Unhandled exception: {e}" );
-                    isReported = true;
+
+                    return true;
                 }
             }
             catch
             {
                 // We don't want failing telemetry to disturb users.
             }
+
+            return false;
         }
     }
 }
