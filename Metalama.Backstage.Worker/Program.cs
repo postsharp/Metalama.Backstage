@@ -25,7 +25,7 @@ namespace Metalama.Backstage
 
                 var tempFileManager = new TempFileManager( serviceProvider );
 
-                tempFileManager.CleanDirectoriesRespectingCleanupPolicies();
+                tempFileManager.CleanTempDirectories();
             }
             catch ( Exception e )
             {
