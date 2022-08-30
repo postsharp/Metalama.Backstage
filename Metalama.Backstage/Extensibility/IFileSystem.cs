@@ -129,7 +129,6 @@ namespace Metalama.Backstage.Extensibility
         /// </returns>
         string[] GetDirectories( string path, string? searchPattern = null, SearchOption? searchOption = null );
 
-        // TODO: Fix this description
         /// <summary>
         /// Returns an enumerable collection of directory names that match a search pattern
         /// in a specified path, and optionally searches subdirectories.
@@ -161,34 +160,34 @@ namespace Metalama.Backstage.Extensibility
             SearchOption? searchOption = null );
 
         /// <summary>
-        /// Returns an array of directory names that match a search pattern
-        /// in a specified path, and optionally searches subdirectories.
+        /// Returns an array of all the file names and directory names
+        /// that match a search pattern in a specified path,
+        /// and optionally searches subdirectories.
         /// </summary>
         /// <param name="path">
         /// The relative or absolute path to the directory to search.
         /// This string is not case-sensitive.
         /// </param>
         /// <param name="searchPattern">
-        /// The search string to match against the names of directories in path.
-        /// This parameter can contain a combination of valid literal path
-        /// and wild-card (* and ?) characters.
-        /// It doesn't support regular expressions.
+        /// The search string to match against the names of files and directories in <paramref name="path" />.
+        /// This parameter can contain a combination of valid literal path and wildcard (* and ?) characters,
+        /// but it doesn't support regular expressions.
         /// </param>
         /// <param name="searchOption">
-        /// One of the enumeration values that specify whether the search operation
-        /// should include only the current directory or all subdirectories.
-        /// The default value is <see cref="SearchOption.TopDirectoryOnly" />.
+        /// One of the enumeration values that specifies whether the search operation
+        /// should include only the current directory
+        /// or should include all subdirectories.
+        /// The default value is <see cref="F:System.IO.SearchOption.TopDirectoryOnly" />.
         /// </param>
         /// <returns>
-        /// An array of the full names (including paths)
-        /// of the directories in the directory specified by <paramref name="path"/>
-        /// and that match the specified <paramref name="searchPattern"/>
-        /// and <paramref name="searchOption"/>.
+        /// An array of file the file names and directory names that match the specified search criteria,
+        /// or an empty array if no files or directories are found.
         /// </returns>
         string[] GetFileSystemEntries( string path, string? searchPattern = null, SearchOption? searchOption = null );
 
-        /// <summary>Returns an enumerable collection of file names and directory names that match a search pattern
-        /// in a specified path, and optionally searches subdirectories.
+        /// <summary>
+        /// Returns an enumerable collection of file names and directory names
+        /// that match a search pattern in a specified path, and optionally searches subdirectories.
         /// </summary>
         /// <param name="path">
         /// The relative or absolute path to the directory to search.
@@ -201,11 +200,13 @@ namespace Metalama.Backstage.Extensibility
         /// </param>
         /// <param name="searchOption">
         /// One of the enumeration values  that specifies whether the search operation
-        /// should include only the current directory or should include all subdirectories.
+        /// should include only the current directory
+        /// or should include all subdirectories.
         /// The default value is <see cref="F:System.IO.SearchOption.TopDirectoryOnly" />.
         /// </param>
         /// <returns>
-        /// An enumerable collection of file-system entries in the directory specified by <paramref name="path" />
+        /// An enumerable collection of file-system entries in the directory
+        /// specified by <paramref name="path" />
         /// and that match the specified search pattern and option.
         /// </returns>
         IEnumerable<string> EnumerateFileSystemEntries(
