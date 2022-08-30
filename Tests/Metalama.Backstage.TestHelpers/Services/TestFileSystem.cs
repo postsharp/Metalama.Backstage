@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Abstractions.TestingHelpers;
+using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading;
 
@@ -72,6 +73,11 @@ namespace Metalama.Backstage.Testing.Services
         public DateTime GetLastWriteTime( string path )
         {
             return this.Mock.File.GetLastWriteTime( path );
+        }
+
+        public void SetLastWriteTime( string path, DateTime lastWriteTime )
+        {
+            this.Mock.File.SetLastWriteTime( path, lastWriteTime );
         }
 
         public bool FileExists( string path )
@@ -153,6 +159,55 @@ namespace Metalama.Backstage.Testing.Services
             return directories;
         }
 
+        public IEnumerable<string> EnumerateFileSystemEntries(
+            string path,
+            string? searchPattern = null,
+            SearchOption? searchOption = null )
+        {
+            return this.GetFileSystemEntries( path, searchPattern, searchOption );
+        }
+
+        public string[] GetFileSystemEntries(
+            string path,
+            string? searchPattern = null,
+            SearchOption? searchOption = null )
+        {
+            string[] directories;
+            string[] files;
+
+            if ( searchOption.HasValue )
+            {
+                if ( searchPattern == null )
+                {
+                    throw new ArgumentNullException( nameof(searchPattern) );
+                }
+
+                directories = this.Mock.Directory.GetDirectories( path, searchPattern, searchOption.Value );
+                files = this.Mock.Directory.GetFiles( path, searchPattern, searchOption.Value );
+            }
+            else if ( searchPattern != null )
+            {
+                directories = this.Mock.Directory.GetDirectories( path, searchPattern );
+                files = this.Mock.Directory.GetFiles( path, searchPattern );
+            }
+            else
+            {
+                directories = this.Mock.Directory.GetDirectories( path );
+                files = this.Mock.Directory.GetFiles( path );
+            }
+
+            var fileSystemEntries = directories.Concat( files ).ToArray();
+
+            // The mock returns trailing separator, but BCL does not.
+
+            for ( var i = 0; i < fileSystemEntries.Length; i++ )
+            {
+                fileSystemEntries[i] = fileSystemEntries[i].TrimEnd( Path.DirectorySeparatorChar );
+            }
+
+            return fileSystemEntries;
+        }
+
         public void CreateDirectory( string path )
         {
             this.WaitAndThrowIfBlocked( path, true );
@@ -219,6 +274,16 @@ namespace Metalama.Backstage.Testing.Services
             this.WaitAndThrowIfBlocked( path, true );
             this.Mock.File.WriteAllLines( path, content );
             this.Mock.File.SetLastWriteTime( path, DateTime.Now );
+        }
+
+        public void DirectoryMove( string sourceDirName, string destDirName )
+        {
+            this.Mock.Directory.Move( sourceDirName, destDirName );
+        }
+
+        public void DirectoryDelete( string path, bool recursive )
+        { 
+            this.Mock.Directory.Delete( path, recursive );
         }
     }
 }
