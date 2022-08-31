@@ -73,8 +73,8 @@ public class TempFileManager : ITempFileManager
                 // Go through all subdirectories in the cache directory.
                 foreach ( var subdirectory in this._fileSystem.EnumerateDirectories( cacheDirectory ) )
                 {
-                    // --all flag or empty directory will cause the subdirectory to be deleted immediately.
-                    if ( all || this.IsDirectoryEmpty( subdirectory ) )
+                    // --all flag will cause the subdirectory to be deleted immediately.
+                    if ( all )
                     {
                         var renamedSubdirectory = this.RenameDirectory( subdirectory );
                         this.DeleteDirectory( renamedSubdirectory );
@@ -126,6 +126,12 @@ public class TempFileManager : ITempFileManager
             {
                 this.RecursivelyDeleteDirectories( dir );
             }
+        }
+
+        if ( this.IsDirectoryEmpty( directory ) )
+        {
+            var renamedDirectory = this.RenameDirectory( directory );
+            this.DeleteDirectory( renamedDirectory );
         }
     }
 
