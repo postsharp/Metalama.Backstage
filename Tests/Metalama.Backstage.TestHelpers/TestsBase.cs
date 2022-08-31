@@ -39,18 +39,18 @@ namespace Metalama.Backstage.Testing
                 .AddSingleton<IDateTimeProvider>( this.Time )
                 .AddSingleton<IFileSystem>( this.FileSystem );
 
-            var serviceCollectionAdapter =
+            var serviceProviderBuilder =
                 new ServiceProviderBuilder(
                     ( type, instance ) => serviceCollection.AddSingleton( type, instance ),
                     () => serviceCollection.BuildServiceProvider() );
 
-            serviceCollectionAdapter
+            serviceProviderBuilder
                 .AddMicrosoftLoggerFactory( loggerFactory )
                 .AddStandardDirectories();
 
             // ReSharper restore RedundantTypeArgumentsOfMethod
 
-            serviceBuilder?.Invoke( serviceCollectionAdapter );
+            serviceBuilder?.Invoke( serviceProviderBuilder );
 
             this.ServiceProvider = serviceCollection.BuildServiceProvider();
         }

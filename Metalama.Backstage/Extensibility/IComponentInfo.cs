@@ -16,22 +16,28 @@ public interface IComponentInfo
     string? Company { get; }
     
     /// <summary>
-    /// Gets the name of the application.
+    /// Gets the name of the component.
     /// </summary>
     string Name { get; }
 
     /// <summary>
-    /// Gets a version of the application.
+    /// Gets a version of the component.
     /// </summary>
-    string Version { get; }
+    string? Version { get; }
 
     /// <summary>
-    /// Gets a value indicating whether the application is a pre-release.
+    /// Gets a value indicating whether the component is a pre-release.
     /// </summary>
-    bool IsPrerelease { get; }
+    bool? IsPrerelease { get; }
 
     /// <summary>
-    /// Gets a date of build of the application.
+    /// Gets a date of build of the component.
     /// </summary>
-    DateTime BuildDate { get; }
+    DateTime? BuildDate { get; }
+
+    /// <summary>
+    /// Gets a value indicating whether the component requires a valid subscription.
+    /// For instance, Metalama.Framework requires a valid subscription, whereas custom transformers don't.
+    /// </summary>
+    bool RequiresSubscription { get; }
 }

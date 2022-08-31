@@ -4,7 +4,6 @@ using Metalama.Backstage.Extensibility;
 using Metalama.Backstage.Licensing.Licenses.LicenseFields;
 using System;
 using System.Diagnostics.CodeAnalysis;
-using System.Globalization;
 using System.Linq;
 
 namespace Metalama.Backstage.Licensing.Licenses
@@ -65,14 +64,14 @@ namespace Metalama.Backstage.Licensing.Licenses
                 }
             }
 
-            if ( !Enum.IsDefined( typeof(LicenseType), this.LicenseType ) )
+            if ( !Enum.IsDefined( typeof( LicenseType ), this.LicenseType ) )
             {
                 errorDescription = "The license type is not known.";
 
                 return false;
             }
 
-            if ( !Enum.IsDefined( typeof(LicensedProduct), this.Product ) )
+            if ( !Enum.IsDefined( typeof( LicensedProduct ), this.Product ) )
             {
                 errorDescription = "The licensed product is not known.";
 
@@ -82,24 +81,46 @@ namespace Metalama.Backstage.Licensing.Licenses
             if ( this._fields.Keys.Any(
                     i =>
                         i.IsMustUnderstand()
-                        && !Enum.IsDefined( typeof(LicenseFieldIndex), i ) ) )
+                        && !Enum.IsDefined( typeof( LicenseFieldIndex ), i ) ) )
             {
                 errorDescription = "The license contains unknown must-understand fields.";
 
                 return false;
             }
 
-            if ( this.SubscriptionEndDate.HasValue && this.SubscriptionEndDate.Value < applicationInfo.BuildDate )
+            if ( this.SubscriptionEndDate.HasValue )
             {
-                errorDescription = string.Format(
-                    CultureInfo.InvariantCulture,
-                    "The licensed product version {0} has been released on {1:d}, but the license key {2} only allows you to use versions released before {3:d}.",
-                    applicationInfo.Version,
-                    applicationInfo.BuildDate,
-                    this.LicenseId,
-                    this.SubscriptionEndDate );
+                if ( !applicationInfo.BuildDate.HasValue )
+                {
+                    throw new InvalidOperationException( $"Application '{applicationInfo.Name}' is missing build date information." );
+                }
 
-                return false;
+                IComponentInfo latestComponentRequiringSubscription = applicationInfo;
+
+                foreach ( var component in applicationInfo.Components )
+                {
+                    if ( !component.RequiresSubscription )
+                    {
+                        continue;
+                    }
+
+                    if ( !component.BuildDate.HasValue )
+                    {
+                        throw new InvalidOperationException( $"Application component '{component.Name}' is missing build date information." );
+                    }
+
+                    if ( latestComponentRequiringSubscription.BuildDate < component.BuildDate )
+                    {
+                        latestComponentRequiringSubscription = component;
+                    }
+                }
+
+                if ( this.SubscriptionEndDate < latestComponentRequiringSubscription.BuildDate )
+                {
+                    errorDescription = $"The licensed product '{latestComponentRequiringSubscription.Name}' version {latestComponentRequiringSubscription.Version} has been released on {latestComponentRequiringSubscription.BuildDate:d}, but the license key {this.LicenseId} only allows you to use versions released before {this.SubscriptionEndDate:d}.";
+
+                    return false;
+                }
             }
 
             errorDescription = null;

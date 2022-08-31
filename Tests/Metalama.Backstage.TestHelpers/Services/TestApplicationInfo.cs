@@ -3,6 +3,7 @@
 using Metalama.Backstage.Diagnostics;
 using Metalama.Backstage.Extensibility;
 using System;
+using System.Collections.Generic;
 using System.Collections.Immutable;
 
 namespace Metalama.Backstage.Testing.Services
@@ -24,7 +25,9 @@ namespace Metalama.Backstage.Testing.Services
             string version,
             DateTime buildDate,
             bool isUnattendedProcess = false,
-            bool isTelemetryEnabled = false )
+            bool isTelemetryEnabled = false,
+            string? company = null,
+            IEnumerable<IComponentInfo>? components = null )
         {
             this.Name = name;
             this.IsPrerelease = isPrerelease;
@@ -32,23 +35,25 @@ namespace Metalama.Backstage.Testing.Services
             this._isUnattendedProcess = isUnattendedProcess;
             this.BuildDate = buildDate;
             this.IsTelemetryEnabled = isTelemetryEnabled;
+            this.Company = company;
+            this.Components = components?.ToImmutableArray() ?? ImmutableArray<IComponentInfo>.Empty;
         }
 
         public TestApplicationInfo() : this( "test", false, "0.0", DateTime.Now ) { }
 
-        public string? Company => null;
+        public string? Company { get; }
 
         /// <inheritdoc />
         public string Name { get; }
 
         /// <inheritdoc />
-        public bool IsPrerelease { get; }
+        public bool? IsPrerelease { get; }
 
         /// <inheritdoc />
-        public string Version { get; }
+        public string? Version { get; }
 
         /// <inheritdoc />
-        public DateTime BuildDate { get; }
+        public DateTime? BuildDate { get; }
 
         /// <inheritdoc />
         public ProcessKind ProcessKind => ProcessKind.Other;
@@ -62,8 +67,13 @@ namespace Metalama.Backstage.Testing.Services
         /// <inheritdoc />
         public bool IsTelemetryEnabled { get; }
 
+        /// <inheritdoc />
         public bool ShouldCreateLocalCrashReports => false;
 
-        public ImmutableArray<IComponentInfo> Components => ImmutableArray<IComponentInfo>.Empty;
+        /// <inheritdoc />
+        public ImmutableArray<IComponentInfo> Components { get; }
+
+        /// <inheritdoc />
+        public bool RequiresSubscription => true;
     }
 }

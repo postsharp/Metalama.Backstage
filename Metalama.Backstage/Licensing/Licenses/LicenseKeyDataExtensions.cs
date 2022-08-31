@@ -103,11 +103,18 @@ namespace Metalama.Backstage.Licensing.Licenses
             var licenseType = licenseKeyData.TransformObsoleteLicenseType();
             var product = licenseKeyData.TransformObsoleteProduct();
 
+#pragma warning disable CS0618 // Type or member is obsolete
+            var isEmpty = licenseType == LicenseType.None || licenseType == LicenseType.Anonymous;
+#pragma warning restore CS0618 // Type or member is obsolete
+
             var isRedistributable = licenseType == LicenseType.OpenSourceRedistribution || licenseType == LicenseType.CommercialRedistribution;
 
             var isUnlimited = isRedistributable || product == LicensedProduct.Ultimate || product == LicensedProduct.MetalamaUltimate;
 
-            var licensedFeatures = licenseType == LicenseType.Essentials
+            var licensedFeatures = 
+                isEmpty
+                ? LicensedFeatures.None
+                : licenseType == LicenseType.Essentials
                 ? product switch
             {
                 LicensedProduct.Ultimate => LicensedProductFeatures.PostSharpEssentials,
@@ -128,7 +135,10 @@ namespace Metalama.Backstage.Licensing.Licenses
                 _ => throw new NotSupportedException( $"License product '{product}' is not supported." )
             };
 
-            var maxAspectsCount = licenseType == LicenseType.Essentials ? 3
+            var maxAspectsCount =
+                isEmpty
+                ? 0
+                : licenseType == LicenseType.Essentials ? 3
                 : isUnlimited ? int.MaxValue
                 : product switch
             {

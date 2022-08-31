@@ -8,7 +8,7 @@ using System.Linq;
 namespace Metalama.Backstage.Licensing.Registration.Free
 {
     /// <summary>
-    /// Registers a self-signed Metalama Free.
+    /// Registers an unsigned Metalama Free.
     /// </summary>
     public class FreeLicenseRegistrar
     {
@@ -26,7 +26,7 @@ namespace Metalama.Backstage.Licensing.Registration.Free
         }
 
         /// <summary>
-        /// Attempts to register a self-signed Metalama Free license.
+        /// Attempts to register an unsigned Metalama Free license.
         /// </summary>
         /// <returns>
         /// A value indicating whether the license has been registered.

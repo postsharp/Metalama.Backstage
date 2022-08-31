@@ -20,7 +20,9 @@ namespace Metalama.Backstage.Utilities
         private readonly Dictionary<string, string?> _metadata = new( StringComparer.OrdinalIgnoreCase );
         private static readonly ConditionalWeakTable<Assembly, AssemblyMetadataReader> _instances = new();
 
+        private bool _packageVersionRead;
         private string? _packageVersion;
+        private bool _buildDateRead;
         private DateTime? _buildDate;
 
         public string? Company => this._assembly.GetCustomAttribute<AssemblyCompanyAttribute>()?.Company;
@@ -28,20 +30,44 @@ namespace Metalama.Backstage.Utilities
         /// <summary>
         /// Gets the version of the package containing the current assembly.
         /// </summary>
-        public string PackageVersion
-            => this._packageVersion ??= this.TryGetValue( "PackageVersion", out var version )
-                ? version
-                : throw new InvalidOperationException(
-                    $"The AssemblyMetadataAttribute with key 'PackageVersion' is not defined in assembly '{this._assembly.GetName()}'." );
+        public string? PackageVersion
+        {
+            get
+            {
+                if ( !this._packageVersionRead )
+                {
+                    if ( this.TryGetValue( "PackageVersion", out var version ) )
+                    {
+                        this._packageVersion = version;
+                    }
+
+                    this._packageVersionRead = true;
+                }
+
+                return this._packageVersion;
+            }
+        }
 
         /// <summary>
         /// Gets the build date of the package containing the current assembly.
         /// </summary>
-        public DateTime BuildDate
-            => this._buildDate ??= this.TryGetValue( "PackageBuildDate", out var buildDateString )
-                ? DateTime.Parse( buildDateString, CultureInfo.InvariantCulture )
-                : throw new InvalidOperationException(
-                    $"The AssemblyMetadataAttribute with key 'MetalamaBuildDate' is not defined in assembly '{this._assembly.GetName()}'." );
+        public DateTime? BuildDate
+        {
+            get
+            {
+                if ( !this._buildDateRead )
+                {
+                    if ( this.TryGetValue( "PackageBuildDate", out var buildDateString ) )
+                    {
+                        this._buildDate = DateTime.Parse( buildDateString, CultureInfo.InvariantCulture );
+                    }
+
+                    this._buildDateRead = true;
+                }
+
+                return this._buildDate;
+            }
+        }
 
         private AssemblyMetadataReader( Assembly assembly )
         {

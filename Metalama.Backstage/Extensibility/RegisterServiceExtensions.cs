@@ -2,6 +2,7 @@
 
 using Metalama.Backstage.Configuration;
 using Metalama.Backstage.Diagnostics;
+using Metalama.Backstage.Licensing;
 using Metalama.Backstage.Licensing.Consumption;
 using Metalama.Backstage.Licensing.Consumption.Sources;
 using Metalama.Backstage.Maintenance;
@@ -196,8 +197,10 @@ public static class RegisterServiceExtensions
             var serviceProvider = serviceProviderBuilder.ServiceProvider;
 
             // First-run configuration. This must be done before initializing licensing and telemetry.
-            var registerEvaluationLicense = !ignoreUserProfileLicenses && !applicationInfo.IsPrerelease
-                                                                       && !applicationInfo.IsUnattendedProcess( serviceProvider.GetLoggerFactory() );
+            var registerEvaluationLicense =
+                !ignoreUserProfileLicenses
+                && !applicationInfo.IsPreviewLicenseEligible()
+                && !applicationInfo.IsUnattendedProcess( serviceProvider.GetLoggerFactory() );
 
             var welcomeService = new WelcomeService( serviceProvider );
             welcomeService.ExecuteFirstStartSetup( registerEvaluationLicense );

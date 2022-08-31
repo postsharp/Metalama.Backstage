@@ -19,13 +19,16 @@ namespace Metalama.Backstage.Extensibility
             var reader = AssemblyMetadataReader.GetInstance( metadataAssembly );
             this.Version = reader.PackageVersion;
 #pragma warning disable CA1307
-            this.IsPrerelease = this.Version.Contains( "-" );
+            this.IsPrerelease = this.Version?.Contains( "-" );
 #pragma warning restore CA1307
             this.BuildDate = reader.BuildDate;
             this.Company = reader.Company;
-            
-            var versionParts = this.Version.Split('-');
-            this.IsTelemetryEnabled = versionParts.Length == 1 || versionParts[1] is not ("dev" or "local");
+
+            if ( this.Version != null )
+            {
+                var versionParts = this.Version.Split( '-' );
+                this.IsTelemetryEnabled = versionParts.Length == 1 || versionParts[1] is not ("dev" or "local");
+            }
         }
 
         public string? Company { get; }
@@ -34,13 +37,16 @@ namespace Metalama.Backstage.Extensibility
         public abstract string Name { get; }
 
         /// <inheritdoc />
-        public string Version { get; }
+        public string? Version { get; }
 
         /// <inheritdoc />
-        public bool IsPrerelease { get; }
+        public bool? IsPrerelease { get; }
 
         /// <inheritdoc />
-        public DateTime BuildDate { get; }
+        public DateTime? BuildDate { get; }
+
+        /// <inheritdoc />
+        public bool RequiresSubscription => true;
 
         /// <inheritdoc />
         public virtual ProcessKind ProcessKind => ProcessUtilities.ProcessKind;

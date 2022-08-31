@@ -96,6 +96,8 @@ namespace Metalama.Backstage.Licensing.Tests
         public const string NamespaceLimitedMetalamaUltimateCommercialRedistribution
             = "16-ZQWQQQQQREAEQCRCE4UW3UFEB4URXMHRB8KQBJJSB64LX7YQ2GYCXBSF629W7YDRH29BN7JFYCJX3MFVVAHZXJ9RS29KYTHFS8KQ7TFRS6ZTZHUAE5D6EGGR7GKBRC4N4BYSAS4MX2JRFGTW3AELYYSMRX29B3S6XLBLCS4C5MG6NSQQBTWB2P7QNG4B27RXP3";
 
+        public static readonly DateTime SubscriptionExpirationDate = new DateTime( 2050, 1, 1 );
+
         public static string CreateMetalamaFreeLicense( IServiceProvider services )
         {
             var licenseFactory = new UnsignedLicenseFactory( services );
