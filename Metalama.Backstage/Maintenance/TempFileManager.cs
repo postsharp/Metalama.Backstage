@@ -85,7 +85,7 @@ public class TempFileManager : ITempFileManager
                     this.RecursivelyDeleteDirectories( subdirectory );
                 }
             }
-            catch ( UnauthorizedAccessException e )
+            catch ( Exception e )
             {
                 this._logger.Warning?.Log( e.Message );
             }
@@ -126,12 +126,12 @@ public class TempFileManager : ITempFileManager
             {
                 this.RecursivelyDeleteDirectories( dir );
             }
-        }
 
-        if ( this.IsDirectoryEmpty( directory ) )
-        {
-            var renamedDirectory = this.RenameDirectory( directory );
-            this.DeleteDirectory( renamedDirectory );
+            if ( this.IsDirectoryEmpty( directory ) )
+            {
+                var renamedDirectory = this.RenameDirectory( directory );
+                this.DeleteDirectory( renamedDirectory );
+            }
         }
     }
 
