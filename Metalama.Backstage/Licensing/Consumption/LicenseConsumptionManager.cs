@@ -78,8 +78,9 @@ internal class LicenseConsumptionManager : ILicenseConsumptionManager
     /// <inheritdoc />
     public bool CanConsume( LicenseRequirement requirement, string? consumerNamespace = null )
     {
-        if ( string.IsNullOrEmpty( consumerNamespace ) // This is a global requirement.
-            || (this._licensedNamespace != null && !this._licensedNamespace.AllowsNamespace( consumerNamespace )) )
+        if ( !string.IsNullOrEmpty( consumerNamespace )
+             && this._licensedNamespace != null
+             && !this._licensedNamespace.AllowsNamespace( consumerNamespace ) )
         {
             this._logger.Error?.Log( $"Consumer namespace '{consumerNamespace}' is not licensed." );
             return false;
