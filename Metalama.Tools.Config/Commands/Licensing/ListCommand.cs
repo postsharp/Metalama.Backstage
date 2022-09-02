@@ -12,7 +12,7 @@ namespace Metalama.DotNetTools.Commands.Licensing
     internal class ListCommand : CommandBase
     {
         public ListCommand( ICommandServiceProviderProvider commandServiceProvider )
-            : base( commandServiceProvider, "list", "Lists registered licenses" )
+            : base( commandServiceProvider, "list", "Lists registered license" )
         {
             this.Handler = CommandHandler.Create<bool, IConsole>( this.Execute );
         }
@@ -22,13 +22,10 @@ namespace Metalama.DotNetTools.Commands.Licensing
             this.CommandServices.Initialize( console, verbose );
             var storage = ParsedLicensingConfiguration.OpenOrCreate( this.CommandServices.ServiceProvider );
 
-            var index = 1;
-
-            foreach ( var license in storage.Licenses )
+            if ( storage.LicenseString != null )
             {
-                this.WriteLicense( console.Out, index, license.LicenseString, license.LicenseData );
+                this.WriteLicense( console.Out, storage.LicenseString, storage.LicenseData );
                 console.Out.WriteLine();
-                index++;
             }
 
             return 0;
@@ -37,7 +34,6 @@ namespace Metalama.DotNetTools.Commands.Licensing
 #pragma warning disable CA1822 // Member can be marked static
         private void WriteLicense(
             IStandardStreamWriter @out,
-            int ordinal,
             string licenseKey,
             LicenseRegistrationData? data )
 #pragma warning restore CA1822 // Member can be marked static
@@ -60,7 +56,6 @@ namespace Metalama.DotNetTools.Commands.Licensing
                 }
             }
 
-            Write( "Ordinal", ordinal.ToString( CultureInfo.InvariantCulture ) );
             Write( "License ID", data?.LicenseId?.ToString( CultureInfo.InvariantCulture ) );
 
             if ( data == null || data.LicenseId != null )

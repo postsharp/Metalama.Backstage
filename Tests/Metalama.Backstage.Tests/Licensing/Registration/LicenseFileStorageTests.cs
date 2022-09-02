@@ -22,39 +22,38 @@ namespace Metalama.Backstage.Licensing.Tests.Licensing.Registration
         }
 
         private void AssertStorageContains(
-            ParsedLicensingConfiguration storage,
-            params string[] expectedLicenseStrings )
+            ParsedLicensingConfiguration storage, string? expectedLicenseString )
         {
-            Assert.Equal( expectedLicenseStrings.Length, storage.Licenses.Count );
+            Assert.Equal( expectedLicenseString, storage.LicenseString );
 
-            foreach ( var expectedLicenseString in expectedLicenseStrings )
+            if ( expectedLicenseString == null )
             {
-                Assert.True(
-                    storage.TryGetRegistrationData( expectedLicenseString, out var actualData ),
-                    $"License is missing: '{expectedLicenseString}'" );
-
+                Assert.Null( storage.LicenseData );
+            }
+            else
+            {
                 if ( !this.LicenseFactory.TryCreate( expectedLicenseString, out var expectedLicense ) )
                 {
-                    Assert.Null( actualData );
+                    Assert.Null( storage.LicenseData );
 
-                    continue;
+                    return;
                 }
 
                 if ( !expectedLicense.TryGetLicenseRegistrationData( out var expectedData ) )
                 {
-                    Assert.Null( actualData );
+                    Assert.Null( storage.LicenseData );
 
-                    continue;
+                    return;
                 }
 
-                Assert.Equal( expectedData, actualData );
+                Assert.Equal( expectedData, storage.LicenseData );
             }
         }
 
         private void Add( ParsedLicensingConfiguration storage, string licenseString )
         {
             var data = this.GetLicenseRegistrationData( licenseString );
-            storage.AddLicense( licenseString, data );
+            storage.StoreLicense( licenseString, data );
         }
 
         [Fact]
@@ -68,8 +67,7 @@ namespace Metalama.Backstage.Licensing.Tests.Licensing.Registration
         public void NonExistentStorageCanBeRead()
         {
             var storage = this.OpenOrCreateStorage();
-
-            Assert.Empty( storage.Licenses );
+            this.AssertStorageContains( storage, null );
         }
 
         [Fact]
@@ -106,44 +104,41 @@ namespace Metalama.Backstage.Licensing.Tests.Licensing.Registration
             var storage = this.OpenOrCreateStorage();
 
             this.AssertStorageContains( storage, "dummy" );
+            this.AssertFileContains( "dummy" );
         }
 
         [Fact]
-        public void InvalidLicenseKeyIsPreserved()
+        public void PreviousInvalidLicenseKeyIsReplaced()
         {
             this.SetStoredLicenseStrings( "dummy" );
 
             var storage = this.OpenOrCreateStorage();
             this.Add( storage, TestLicenses.PostSharpUltimate );
 
-            this.AssertStorageContains( storage, "dummy", TestLicenses.PostSharpUltimate );
+            this.AssertStorageContains( storage, TestLicenses.PostSharpUltimate );
+            this.AssertFileContains( TestLicenses.PostSharpUltimate );
         }
 
         [Fact]
-        public void ValidLicenseKeyCanBeAppended()
+        public void PreviousValidLicenseKeysAreReplaced()
         {
-            this.SetStoredLicenseStrings( TestLicenses.PostSharpUltimate, TestLicenses.Logging );
+            this.SetStoredLicenseStrings( TestLicenses.PostSharpUltimate, TestLicenses.PostSharpFramework );
 
             var storage = this.OpenOrCreateStorage();
-            this.Add( storage, TestLicenses.Caching );
+            this.Add( storage, TestLicenses.MetalamaStarterPersonal );
 
-            this.AssertStorageContains(
-                storage,
-                TestLicenses.PostSharpUltimate,
-                TestLicenses.Logging,
-                TestLicenses.Caching );
-
-            this.AssertFileContains( TestLicenses.PostSharpUltimate, TestLicenses.Logging, TestLicenses.Caching );
+            this.AssertStorageContains( storage, TestLicenses.MetalamaStarterPersonal );
+            this.AssertFileContains( TestLicenses.MetalamaStarterPersonal );
         }
 
         [Fact]
         public void NewLinesAreSkipped()
         {
-            this.SetStoredLicenseStrings( "", TestLicenses.PostSharpUltimate, "", TestLicenses.Logging, "" );
+            this.SetStoredLicenseStrings( TestLicenses.MetalamaProfessionalBusiness, "", TestLicenses.PostSharpUltimate, "", TestLicenses.MetalamaUltimateBusiness, "" );
 
             var storage = this.OpenOrCreateStorage();
 
-            this.AssertStorageContains( storage, TestLicenses.PostSharpUltimate, TestLicenses.Logging );
+            this.AssertStorageContains( storage, TestLicenses.MetalamaProfessionalBusiness );
         }
     }
 }

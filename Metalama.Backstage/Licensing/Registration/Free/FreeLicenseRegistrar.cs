@@ -3,7 +3,6 @@
 using Metalama.Backstage.Diagnostics;
 using Metalama.Backstage.Licensing.Licenses;
 using System;
-using System.Linq;
 
 namespace Metalama.Backstage.Licensing.Registration.Free
 {
@@ -46,7 +45,7 @@ namespace Metalama.Backstage.Licensing.Registration.Free
             {
                 var userStorage = ParsedLicensingConfiguration.OpenOrCreate( this._services );
 
-                if ( userStorage.Licenses.Any( l => l.LicenseData is { Product: LicensedProduct.MetalamaFree } ) )
+                if ( userStorage.LicenseData is { Product: LicensedProduct.MetalamaFree } )
                 {
                     TraceFailure( "A Metalama Free license is registered already." );
 
@@ -56,7 +55,7 @@ namespace Metalama.Backstage.Licensing.Registration.Free
                 var factory = new UnsignedLicenseFactory( this._services );
                 var (licenseKey, data) = factory.CreateFreeLicense();
 
-                userStorage.AddLicense( licenseKey, data );
+                userStorage.StoreLicense( licenseKey, data );
             }
             catch ( Exception e )
             {

@@ -11,9 +11,9 @@ namespace Metalama.Backstage.Licensing.Consumption
     public class LicenseConsumptionData
     {
         /// <summary>
-        /// Gets features available by the license.
+        /// Gets requirement available by the license.
         /// </summary>
-        public LicensedFeatures LicensedFeatures { get; }
+        public LicenseRequirement LicensedRequirement { get; }
 
         /// <summary>
         /// Gets the namespace constraint of the license.
@@ -64,7 +64,7 @@ namespace Metalama.Backstage.Licensing.Consumption
         /// </summary>
         /// <param name="licensedProduct">The product licensed by the license.</param>
         /// <param name="licenseType">The type of the license.</param>
-        /// <param name="licensedFeatures">Features available by the license.</param>
+        /// <param name="licensedRequirement">Requirement available by the license.</param>
         /// <param name="licensedNamespace">Namespace constraint of the license. <c>null</c> if there is no namespace constraint.</param>
         /// <param name="displayName">The displayable name of the license shown in diagnostics and trace messages.</param>
         /// <param name="minPostSharpVersion">Minimal PostSharp version the license can be used with. Doesn't apply to products not based on PostSharp. (E.g. Metalama.)</param>
@@ -74,7 +74,7 @@ namespace Metalama.Backstage.Licensing.Consumption
         public LicenseConsumptionData(
             LicensedProduct licensedProduct,
             LicenseType licenseType,
-            LicensedFeatures licensedFeatures,
+            LicenseRequirement licensedRequirement,
             string? licensedNamespace,
             string displayName,
             Version minPostSharpVersion,
@@ -84,7 +84,7 @@ namespace Metalama.Backstage.Licensing.Consumption
         {
             this.LicensedProduct = licensedProduct;
             this.LicenseType = licenseType;
-            this.LicensedFeatures = licensedFeatures;
+            this.LicensedRequirement = licensedRequirement;
             this.LicensedNamespace = licensedNamespace;
             this.DisplayName = displayName;
             this.MinPostSharpVersion = minPostSharpVersion;

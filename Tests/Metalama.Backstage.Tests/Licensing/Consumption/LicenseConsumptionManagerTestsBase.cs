@@ -25,10 +25,10 @@ public abstract class LicenseConsumptionManagerTestsBase : LicensingTestsBase
         return new TestLicense( license! );
     }
 
-    private protected ILicenseConsumptionManager CreateConsumptionManager( params TestLicense[] licenses )
+    private protected ILicenseConsumptionManager CreateConsumptionManager( TestLicense license )
     {
         // ReSharper disable once CoVariantArrayConversion
-        var licenseSource = new TestLicenseSource( "test", false, licenses );
+        var licenseSource = new TestLicenseSource( "test", license );
 
         return this.CreateConsumptionManager( licenseSource );
     }
@@ -41,22 +41,22 @@ public abstract class LicenseConsumptionManagerTestsBase : LicensingTestsBase
 
     private protected static void TestConsumption(
         ILicenseConsumptionManager manager,
-        LicensedFeatures requiredFeatures,
+        LicenseRequirement requestedRequirement,
         bool expectedCanConsume,
         bool expectedLicenseAutoRegistrationAttempt = false )
         => TestConsumption(
             manager,
-            requiredFeatures,
+            requestedRequirement,
             "Foo",
             expectedCanConsume );
 
     private protected static void TestConsumption(
         ILicenseConsumptionManager manager,
-        LicensedFeatures requiredFeatures,
+        LicenseRequirement requestedRequirement,
         string requiredNamespace,
         bool expectedCanConsume )
     {
-        var actualCanConsume = manager.CanConsumeFeatures( requiredFeatures, requiredNamespace );
+        var actualCanConsume = manager.CanConsume( requestedRequirement, requiredNamespace );
         Assert.Equal( expectedCanConsume, actualCanConsume );
     }
 }

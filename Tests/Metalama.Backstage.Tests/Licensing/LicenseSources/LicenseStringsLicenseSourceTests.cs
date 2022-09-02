@@ -1,7 +1,6 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. See the LICENSE.md file in the root directory of this rep root for details.
 
 using Metalama.Backstage.Licensing.Consumption.Sources;
-using System.Linq;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -13,31 +12,16 @@ namespace Metalama.Backstage.Licensing.Tests.Licensing.LicenseSources
             : base( logger ) { }
 
         [Fact]
-        public void NoLicenseStringPasses()
-        {
-            ExplicitLicenseSource source = new( Enumerable.Empty<string>(), true, this.ServiceProvider );
-
-            Assert.Empty( source.GetLicenses( _ => { } ) );
-        }
-
-        [Fact]
         public void OneLicenseStringPasses()
         {
-            ExplicitLicenseSource source = new( new[] { TestLicenses.PostSharpUltimate }, true, this.ServiceProvider );
+            ExplicitLicenseSource source = new( TestLicenses.MetalamaUltimateBusiness, this.ServiceProvider );
 
-            Assert.Equal( TestLicenses.PostSharpUltimate, source.GetLicenses( _ => { } ).Single().ToString() );
-        }
+            var license = source.GetLicense( _ => { } );
+            Assert.NotNull( license );
 
-        [Fact]
-        public void EmptyLicenseStringsSkipped()
-        {
-            ExplicitLicenseSource source =
-                new( new[] { "", TestLicenses.PostSharpUltimate, "", "", TestLicenses.Logging, "" }, true, this.ServiceProvider );
-
-            var licenses = source.GetLicenses( _ => { } ).ToArray();
-            Assert.Equal( 2, licenses.Length );
-            Assert.Equal( TestLicenses.PostSharpUltimate, licenses[0].ToString() );
-            Assert.Equal( TestLicenses.Logging, licenses[1].ToString() );
+            var dataParsed = license!.TryGetLicenseConsumptionData( out var data );
+            Assert.True( dataParsed );
+            Assert.Equal( TestLicenses.MetalamaUltimateBusiness, data!.LicenseString );
         }
     }
 }

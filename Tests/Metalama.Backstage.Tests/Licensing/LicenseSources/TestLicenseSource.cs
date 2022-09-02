@@ -4,32 +4,28 @@ using Metalama.Backstage.Licensing.Consumption;
 using Metalama.Backstage.Licensing.Consumption.Sources;
 using Metalama.Backstage.Licensing.Licenses;
 using System;
-using System.Collections.Generic;
 
 namespace Metalama.Backstage.Licensing.Tests.Licensing.LicenseSources
 {
     internal class TestLicenseSource : ILicenseSource, IUsable
     {
-        private readonly ILicense[] _licenses;
+        private readonly ILicense? _license;
 
         public string Id { get; }
 
-        public bool IsRedistributionLicenseSource { get; }
-
         public bool IsUsed { get; set; }
 
-        public TestLicenseSource( string id, bool isRedistributionLicenseSource, params ILicense[] licenses )
+        public TestLicenseSource( string id, ILicense? license )
         {
             this.Id = id;
-            this._licenses = licenses;
-            this.IsRedistributionLicenseSource = isRedistributionLicenseSource;
+            this._license = license;
         }
 
-        public IEnumerable<ILicense> GetLicenses( Action<LicensingMessage> reportWarning )
+        public ILicense? GetLicense( Action<LicensingMessage> reportWarning )
         {
             this.IsUsed = true;
 
-            return this._licenses;
+            return this._license;
         }
     }
 }

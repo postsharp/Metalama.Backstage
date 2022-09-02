@@ -4,7 +4,6 @@ using Metalama.Backstage.Configuration;
 using Metalama.Backstage.Extensibility;
 using Metalama.Backstage.Licensing.Licenses;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 
 namespace Metalama.Backstage.Licensing.Registration
@@ -17,38 +16,20 @@ namespace Metalama.Backstage.Licensing.Registration
         private readonly IServiceProvider _services;
         private readonly LicensingConfiguration _configuration;
 
-        private readonly List<(string LicenseString, LicenseRegistrationData? LicenseData)> _licenses = new();
+        /// <summary>
+        /// Gets the license contained in the storage or to be stored to the storage.
+        /// </summary>
+        public string? LicenseString { get; private set; }
+
+        /// <summary>
+        /// Gets the registration data of the license contained in the storage or to be stored to the storage.
+        /// </summary>
+        public LicenseRegistrationData? LicenseData { get; private set; }
 
         public DateTime? LastEvaluationStartDate
         {
             get => this._configuration.LastEvaluationStartDate;
             set => this._configuration.ConfigurationManager.Update<LicensingConfiguration>( c => c.LastEvaluationStartDate = value );
-        }
-
-        /// <summary>
-        /// Gets licenses contained in the storage.
-        /// </summary>
-        /// <remarks>
-        /// Includes both the licenses loaded from a license file and licenses pending to be stored.
-        /// </remarks>
-        public IReadOnlyList<(string LicenseString, LicenseRegistrationData? LicenseData)> Licenses => this._licenses;
-
-        public bool TryGetRegistrationData( string licenseKey, out LicenseRegistrationData? registrationData )
-        {
-            var item = this._licenses.FirstOrDefault( l => l.LicenseString == licenseKey );
-
-            if ( item.LicenseString != null! )
-            {
-                registrationData = item.LicenseData;
-
-                return true;
-            }
-            else
-            {
-                registrationData = null;
-
-                return false;
-            }
         }
 
         /// <summary>
@@ -69,27 +50,35 @@ namespace Metalama.Backstage.Licensing.Registration
         /// <returns></returns>
         public static ParsedLicensingConfiguration OpenOrCreate( IServiceProvider services )
         {
-            var licensingConfiguration = services.GetRequiredBackstageService<IConfigurationManager>().Get<LicensingConfiguration>();
+            var configurationManager = services.GetRequiredBackstageService<IConfigurationManager>();
+            var licensingConfiguration = configurationManager.Get<LicensingConfiguration>();
 
             var storage = new ParsedLicensingConfiguration( licensingConfiguration, services );
             var factory = new LicenseFactory( services );
 
-            foreach ( var licenseString in licensingConfiguration.Licenses )
+            // We no longer support multiple licenses. Strip aditional licenses if the have been added before. (There is probably no such case.)
+            if ( licensingConfiguration.Licenses.Length > 1 )
             {
-                if ( string.IsNullOrWhiteSpace( licenseString ) )
-                {
-                    continue;
-                }
-
-                LicenseRegistrationData? data = null;
-
-                if ( factory.TryCreate( licenseString, out var license ) )
-                {
-                    _ = license.TryGetLicenseRegistrationData( out data );
-                }
-
-                storage._licenses.Add( (licenseString, data) );
+                configurationManager.Update<LicensingConfiguration>( c => c.Licenses = new[] { licensingConfiguration.Licenses.First() } );
+                licensingConfiguration = configurationManager.Get<LicensingConfiguration>();
             }
+
+            var licenseString = licensingConfiguration.Licenses.FirstOrDefault();
+
+            if ( string.IsNullOrWhiteSpace( licenseString ) )
+            {
+                return storage;
+            }
+
+            LicenseRegistrationData? data = null;
+
+            if ( factory.TryCreate( licenseString, out var license ) )
+            {
+                _ = license.TryGetLicenseRegistrationData( out data );
+            }
+
+            storage.LicenseString = licenseString;
+            storage.LicenseData = data;
 
             return storage;
         }
@@ -101,24 +90,26 @@ namespace Metalama.Backstage.Licensing.Registration
         }
 
         /// <summary>
-        /// Adds a license.
+        /// Stores a license.
         /// </summary>
         /// <param name="licenseString">String representing the license to be stored in the license file.</param>
         /// <param name="data">Data represented by the <paramref name="licenseString"/>.</param>
-        public void AddLicense( string licenseString, LicenseRegistrationData data )
+        public void StoreLicense( string licenseString, LicenseRegistrationData data )
         {
-            this._licenses.Add( (licenseString, data) );
+            this.LicenseString = licenseString;
+            this.LicenseData = data;
             this.Save();
         }
 
         /// <summary>
-        /// Removes a license.
+        /// Removes the stored license.
         /// </summary>
-        /// <param name="licenseString">String representing the license to be removed.</param>
-        public bool RemoveLicense( string licenseString )
+        public bool RemoveLicense()
         {
-            if ( this._licenses.RemoveAll( l => l.LicenseString == licenseString ) > 0 )
+            if ( this.LicenseString != null )
             {
+                this.LicenseString = null;
+                this.LicenseData = null;
                 this.Save();
 
                 return true;
@@ -136,7 +127,7 @@ namespace Metalama.Backstage.Licensing.Registration
         private void Save()
         {
             this._services.GetRequiredBackstageService<IConfigurationManager>()
-                .Update<LicensingConfiguration>( c => c.Licenses = this._licenses.Select( l => l.LicenseString ).ToArray() );
+                .Update<LicensingConfiguration>( c => c.Licenses = this.LicenseString == null ? Array.Empty<string>() : new[] { this.LicenseString } );
         }
     }
 }

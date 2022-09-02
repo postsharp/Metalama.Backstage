@@ -30,9 +30,7 @@ internal sealed class PreviewLicenseSource : ILicenseSource, ILicense
         this._logger = serviceProvider.GetLoggerFactory().Licensing();
     }
 
-    public bool IsRedistributionLicenseSource => false;
-
-    public IEnumerable<ILicense> GetLicenses( Action<LicensingMessage> reportMessage )
+    public ILicense? GetLicense( Action<LicensingMessage> reportMessage )
     {
         var latestPrereleaseComponent = this.GetLatestPrereleaseComponent();
 
@@ -40,7 +38,7 @@ internal sealed class PreviewLicenseSource : ILicenseSource, ILicense
         {
             this._logger.Trace?.Log( "PreviewLicenseSource skipped: there is no pre-release component." );
 
-            return Array.Empty<ILicense>();
+            return null;
         }
 
         this._logger.Trace?.Log( $"The latest prerelease component for '{this._applicationInfo.Name}' application is '{latestPrereleaseComponent.Name}'." );
@@ -58,7 +56,7 @@ internal sealed class PreviewLicenseSource : ILicenseSource, ILicense
 
             this._messageReported = true;
 
-            return Array.Empty<ILicense>();
+            return null;
         }
 
         this._logger.Trace?.Log( "PreviewLicenseSource: providing a license." );
@@ -72,7 +70,7 @@ internal sealed class PreviewLicenseSource : ILicenseSource, ILicense
             this._messageReported = true;
         }
 
-        return new ILicense[] { this };
+        return this;
     }
 
     private IComponentInfo? GetLatestPrereleaseComponent()
@@ -95,7 +93,7 @@ internal sealed class PreviewLicenseSource : ILicenseSource, ILicense
         licenseConsumptionData = new LicenseConsumptionData(
             LicensedProduct.MetalamaUltimate,
             LicenseType.Preview,
-            LicensedFeatures.All,
+            LicenseRequirement.All,
             null,
             "Preview License",
             new Version( 0, 0 ),

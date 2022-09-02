@@ -2,6 +2,7 @@
 
 using System;
 using System.Globalization;
+using System.Runtime.CompilerServices;
 using System.Text;
 
 namespace Metalama.Backstage.Licensing.Licenses
@@ -52,6 +53,11 @@ namespace Metalama.Backstage.Licensing.Licenses
 
         // TODO in Metalama
         public bool RequiresWatermark => this.LicenseType == LicenseType.Evaluation || this.LicenseType == LicenseType.Academic;
+
+        /// <summary>
+        /// Gets a value indicating whether the license is a redistribution license.
+        /// </summary>
+        public bool IsRedistribution => this.LicenseType == LicenseType.OpenSourceRedistribution || this.LicenseType == LicenseType.CommercialRedistribution;
 
         /// <summary>
         /// Gets a value indicating whether the license is limited by a namespace.

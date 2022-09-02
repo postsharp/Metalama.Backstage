@@ -99,7 +99,7 @@ namespace Metalama.Backstage.Licensing.Licenses
 
                 foreach ( var component in applicationInfo.Components )
                 {
-                    if ( !component.RequiresSubscription )
+                    if ( component.Company != "PostSharp Technologies" )
                     {
                         continue;
                     }
@@ -121,6 +121,20 @@ namespace Metalama.Backstage.Licensing.Licenses
 
                     return false;
                 }
+            }
+
+            if ( this.IsRedistribution && !this.IsLimitedByNamespace )
+            {
+                errorDescription = "The license is a redistribution license, but is not limited by a namespace.";
+
+                return false;
+            }
+
+            if ( !this.IsRedistribution && this.IsLimitedByNamespace )
+            {
+                errorDescription = "The license is limited by namespace, but it is not a redistribution license.";
+
+                return false;
             }
 
             errorDescription = null;

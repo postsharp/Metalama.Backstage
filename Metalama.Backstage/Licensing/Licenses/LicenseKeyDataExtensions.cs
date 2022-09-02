@@ -37,7 +37,7 @@ namespace Metalama.Backstage.Licensing.Licenses
 #pragma warning disable CS0618 // Type or member is obsolete
             if ( product == LicensedProduct.PostSharp30 )
             {
-                product = licenseKeyData.LicenseType == LicenseType.Professional ? LicensedProduct.Framework : LicensedProduct.Ultimate;
+                product = licenseKeyData.LicenseType == LicenseType.Professional ? LicensedProduct.PostSharpFramework : LicensedProduct.PostSharpUltimate;
             }
 #pragma warning restore CS0618 // Type or member is obsolete
 
@@ -47,12 +47,12 @@ namespace Metalama.Backstage.Licensing.Licenses
         private static string GetProductName( this LicenseKeyData licenseKeyData )
             => licenseKeyData.Product switch
             {
-                LicensedProduct.Framework => "PostSharp Framework",
-                LicensedProduct.Ultimate => licenseKeyData.LicenseType == LicenseType.Essentials ? "PostSharp Essentials" : "PostSharp Ultimate",
-                LicensedProduct.DiagnosticsLibrary => "PostSharp Logging",
-                LicensedProduct.ModelLibrary => "PostSharp MVVM",
-                LicensedProduct.ThreadingLibrary => "PostSharp Threading",
-                LicensedProduct.CachingLibrary => "PostSharp Caching",
+                LicensedProduct.PostSharpFramework => "PostSharp Framework",
+                LicensedProduct.PostSharpUltimate => licenseKeyData.LicenseType == LicenseType.Essentials ? "PostSharp Essentials" : "PostSharp Ultimate",
+                LicensedProduct.PostSharpLoggingLibrary => "PostSharp Logging",
+                LicensedProduct.PostSharpMvvmLibrary => "PostSharp MVVM",
+                LicensedProduct.PostSharpThreadingLibrary => "PostSharp Threading",
+                LicensedProduct.PostSharpCachingLibrary => "PostSharp Caching",
                 LicensedProduct.MetalamaUltimate => "Metalama Ultimate",
                 LicensedProduct.MetalamaProfessional => "Metalama Professional",
                 LicensedProduct.MetalamaStarter => "Metalama Starter",
@@ -70,7 +70,7 @@ namespace Metalama.Backstage.Licensing.Licenses
             {
                 return licenseKeyData.MinPostSharpVersion;
             }
-            else if ( licenseKeyData.LicenseType == LicenseType.PerUsage || licenseKeyData.Product == LicensedProduct.CachingLibrary )
+            else if ( licenseKeyData.LicenseType == LicenseType.PerUsage || licenseKeyData.Product == LicensedProduct.PostSharpCachingLibrary )
             {
                 return new Version( 6, 6, 0 );
             }
@@ -79,7 +79,7 @@ namespace Metalama.Backstage.Licensing.Licenses
             {
                 return new Version( 2, 0, 0 );
             }
-            else if ( (licenseKeyData.Product == LicensedProduct.Ultimate || licenseKeyData.Product == LicensedProduct.Framework)
+            else if ( (licenseKeyData.Product == LicensedProduct.PostSharpUltimate || licenseKeyData.Product == LicensedProduct.PostSharpFramework)
                       && licenseKeyData.LicenseType == LicenseType.Enterprise )
             {
                 return new Version( 5, 0, 22 );
@@ -109,29 +109,24 @@ namespace Metalama.Backstage.Licensing.Licenses
 
             var isRedistributable = licenseType == LicenseType.OpenSourceRedistribution || licenseType == LicenseType.CommercialRedistribution;
 
-            var isUnlimited = isRedistributable || product == LicensedProduct.Ultimate || product == LicensedProduct.MetalamaUltimate;
+            var isUnlimited = isRedistributable || product == LicensedProduct.PostSharpUltimate || product == LicensedProduct.MetalamaUltimate;
 
-            var licensedFeatures = 
+            var licensedRequirement = 
                 isEmpty
-                ? LicensedFeatures.None
+                ? LicenseRequirement.None
                 : licenseType == LicenseType.Essentials
                 ? product switch
             {
-                LicensedProduct.Ultimate => LicensedProductFeatures.PostSharpEssentials,
+                LicensedProduct.PostSharpUltimate => LicenseRequirement.Free,
                 _ => throw new NotSupportedException( $"License product '{product}' is not supported with essentials license." )
             }
+                : isUnlimited ? LicenseRequirement.All
                 : product switch
             {
-                LicensedProduct.Ultimate => LicensedProductFeatures.PostSharpUltimate,
-                LicensedProduct.Framework => LicensedProductFeatures.PostSharpFramework,
-                LicensedProduct.ModelLibrary => LicensedProductFeatures.Mvvm,
-                LicensedProduct.ThreadingLibrary => LicensedProductFeatures.Threading,
-                LicensedProduct.DiagnosticsLibrary => LicensedProductFeatures.Logging,
-                LicensedProduct.CachingLibrary => LicensedProductFeatures.Caching,
-                LicensedProduct.MetalamaFree => LicensedProductFeatures.MetalamaFree,
-                LicensedProduct.MetalamaStarter => LicensedProductFeatures.MetalamaStarter,
-                LicensedProduct.MetalamaProfessional => LicensedProductFeatures.MetalamaProfessional,
-                LicensedProduct.MetalamaUltimate => LicensedProductFeatures.MetalamaUltimate,
+                LicensedProduct.PostSharpFramework => LicenseRequirement.Professional,
+                LicensedProduct.MetalamaFree => LicenseRequirement.Free,
+                LicensedProduct.MetalamaStarter => LicenseRequirement.Starter,
+                LicensedProduct.MetalamaProfessional => LicenseRequirement.Professional,
                 _ => throw new NotSupportedException( $"License product '{product}' is not supported." )
             };
 
@@ -142,7 +137,7 @@ namespace Metalama.Backstage.Licensing.Licenses
                 : isUnlimited ? int.MaxValue
                 : product switch
             {
-                LicensedProduct.Framework => 10,
+                LicensedProduct.PostSharpFramework => 10,
                 LicensedProduct.MetalamaFree => 3,
                 LicensedProduct.MetalamaStarter => 5,
                 LicensedProduct.MetalamaProfessional => 10,
@@ -152,7 +147,7 @@ namespace Metalama.Backstage.Licensing.Licenses
             LicenseConsumptionData data = new(
                 product,
                 licenseType,
-                licensedFeatures,
+                licensedRequirement,
                 licenseKeyData.Namespace,
                 $"{licenseKeyData.GetProductName()} {licenseKeyData.LicenseType.GetLicenseTypeName()} ID {licenseKeyData.LicenseUniqueId}",
                 licenseKeyData.GetMinPostSharpVersion(),

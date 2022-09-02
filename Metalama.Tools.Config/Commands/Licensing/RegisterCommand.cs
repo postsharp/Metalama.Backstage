@@ -10,7 +10,7 @@ namespace Metalama.DotNetTools.Commands.Licensing;
 
 internal class RegisterCommand : CommandBase
 {
-    // TODO Reporting of license registration.
+    // TODO Reporting of license registration (#29957)
 
     public RegisterCommand( ICommandServiceProviderProvider commandServiceProvider )
         : base(
@@ -45,7 +45,7 @@ internal class RegisterCommand : CommandBase
 
         var storage = ParsedLicensingConfiguration.OpenOrCreate( this.CommandServices.ServiceProvider );
 
-        storage.AddLicense( licenseKey, data );
+        storage.StoreLicense( licenseKey, data );
 
         return 0;
     }

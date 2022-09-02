@@ -34,10 +34,4 @@ public interface IComponentInfo
     /// Gets a date of build of the component.
     /// </summary>
     DateTime? BuildDate { get; }
-
-    /// <summary>
-    /// Gets a value indicating whether the component requires a valid subscription.
-    /// For instance, Metalama.Framework requires a valid subscription, whereas custom transformers don't.
-    /// </summary>
-    bool RequiresSubscription { get; }
 }

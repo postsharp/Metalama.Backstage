@@ -2,6 +2,7 @@
 
 using Metalama.Backstage.Diagnostics;
 using Metalama.Backstage.Extensibility;
+using Metalama.Backstage.Utilities;
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
@@ -35,7 +36,7 @@ namespace Metalama.Backstage.Testing.Services
             this._isUnattendedProcess = isUnattendedProcess;
             this.BuildDate = buildDate;
             this.IsTelemetryEnabled = isTelemetryEnabled;
-            this.Company = company;
+            this.Company = company ?? AssemblyMetadataReader.GetInstance( typeof( TestApplicationInfo ).Assembly ).Company;
             this.Components = components?.ToImmutableArray() ?? ImmutableArray<IComponentInfo>.Empty;
         }
 

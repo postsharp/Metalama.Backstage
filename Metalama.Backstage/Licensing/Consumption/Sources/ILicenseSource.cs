@@ -2,7 +2,6 @@
 
 using Metalama.Backstage.Licensing.Licenses;
 using System;
-using System.Collections.Generic;
 
 namespace Metalama.Backstage.Licensing.Consumption.Sources
 {
@@ -12,14 +11,10 @@ namespace Metalama.Backstage.Licensing.Consumption.Sources
     public interface ILicenseSource
     {
         /// <summary>
-        /// Gets an enumerable of licenses.
+        /// Gets a license, if available and valid. <paramref name="reportMessage"/> is called when the license key is invalid.
         /// </summary>
-        /// <returns>The enumerable of licenses.</returns>
-        IEnumerable<ILicense> GetLicenses( Action<LicensingMessage> reportMessage );
-
-        /// <summary>
-        /// Gets a value indicating whether the license source can provide redistribution licenses to be embedded in an output assembly.
-        /// </summary>
-        bool IsRedistributionLicenseSource { get; }
+        /// <param name="reportMessage">Action to be called when the message is invalid.</param>
+        /// <returns>The license or <c>null</c>.</returns>
+        ILicense? GetLicense( Action<LicensingMessage> reportMessage );
     }
 }

@@ -20,8 +20,8 @@ namespace Metalama.Backstage.Licensing.Tests.Licensing.Consumption
         private static IApplicationInfo CreateApplicationInfo( DateTime buildDate, params IComponentInfo[] components )
             => new TestApplicationInfo( $"Subscription Validation Test App built {buildDate:d}", false, $"<ver-{buildDate:d}>", buildDate, components: components );
 
-        private static IComponentInfo CreateComponentInfo( DateTime buildDate, bool requiresSubscription )
-            => new TestComponentInfo( $"Subscription Validation Test Component built {buildDate:d} {(requiresSubscription ? "requiring" : "not requiring")} subscription", requiresSubscription, $"<ver-{buildDate:d}>", false, buildDate, null );
+        private static IComponentInfo CreateComponentInfo( DateTime buildDate, bool isThirdParty )
+            => new TestComponentInfo( $"Subscription Validation Test Component built {buildDate:d} {(isThirdParty ? "not by us" : "by us")}", $"<ver-{buildDate:d}>", false, buildDate, isThirdParty ? "The Corp" : "PostSharp Technologies" );
 
         private void Test( IApplicationInfo applicationInfo, IComponentInfo? infringingComponent = null )
         {
@@ -64,7 +64,7 @@ namespace Metalama.Backstage.Licensing.Tests.Licensing.Consumption
         [Fact]
         public void PassesWithValidSubscriptionForComponentRequiringSubscription()
         {
-            var componentInfo = CreateComponentInfo( TestLicenses.SubscriptionExpirationDate, true );
+            var componentInfo = CreateComponentInfo( TestLicenses.SubscriptionExpirationDate, false );
             var applicationInfo = CreateApplicationInfo( TestLicenses.SubscriptionExpirationDate, componentInfo );
             this.Test( applicationInfo );
         }
@@ -72,7 +72,7 @@ namespace Metalama.Backstage.Licensing.Tests.Licensing.Consumption
         [Fact]
         public void FailsWithInvalidSubscriptionForComponentRequiringSubscription()
         {
-            var componentInfo = CreateComponentInfo( TestLicenses.SubscriptionExpirationDate.AddDays( 1 ), true );
+            var componentInfo = CreateComponentInfo( TestLicenses.SubscriptionExpirationDate.AddDays( 1 ), false );
             var applicationInfo = CreateApplicationInfo( TestLicenses.SubscriptionExpirationDate, componentInfo );
             this.Test( applicationInfo, componentInfo );
         }
@@ -80,7 +80,7 @@ namespace Metalama.Backstage.Licensing.Tests.Licensing.Consumption
         [Fact]
         public void PassesWithInvalidSubcsriptionForComponentNotRequiringSubscription()
         {
-            var componentInfo = CreateComponentInfo( TestLicenses.SubscriptionExpirationDate.AddDays( 1 ), false );
+            var componentInfo = CreateComponentInfo( TestLicenses.SubscriptionExpirationDate.AddDays( 1 ), true );
             var applicationInfo = CreateApplicationInfo( TestLicenses.SubscriptionExpirationDate, componentInfo );
             this.Test( applicationInfo );
         }
@@ -88,9 +88,9 @@ namespace Metalama.Backstage.Licensing.Tests.Licensing.Consumption
         [Fact]
         public void FailsWithMultipleComponentsAndValidApplication()
         {
-            var componentInfo1 = CreateComponentInfo( TestLicenses.SubscriptionExpirationDate.AddDays( 1 ), true );
-            var componentInfo2 = CreateComponentInfo( TestLicenses.SubscriptionExpirationDate, true );
-            var componentInfo3 = CreateComponentInfo( TestLicenses.SubscriptionExpirationDate.AddDays( 1 ), false );
+            var componentInfo1 = CreateComponentInfo( TestLicenses.SubscriptionExpirationDate.AddDays( 1 ), false );
+            var componentInfo2 = CreateComponentInfo( TestLicenses.SubscriptionExpirationDate, false );
+            var componentInfo3 = CreateComponentInfo( TestLicenses.SubscriptionExpirationDate.AddDays( 1 ), true );
             var applicationInfo = CreateApplicationInfo( TestLicenses.SubscriptionExpirationDate, componentInfo1, componentInfo2, componentInfo3 );
             this.Test( applicationInfo, componentInfo1 );
         }
@@ -98,8 +98,8 @@ namespace Metalama.Backstage.Licensing.Tests.Licensing.Consumption
         [Fact]
         public void FailsWithMultipleComponentsAndInvalidApplication()
         {
-            var componentInfo1 = CreateComponentInfo( TestLicenses.SubscriptionExpirationDate, true );
-            var componentInfo2 = CreateComponentInfo( TestLicenses.SubscriptionExpirationDate.AddDays( 1 ), false );
+            var componentInfo1 = CreateComponentInfo( TestLicenses.SubscriptionExpirationDate, false );
+            var componentInfo2 = CreateComponentInfo( TestLicenses.SubscriptionExpirationDate.AddDays( 1 ), true );
             var applicationInfo = CreateApplicationInfo( TestLicenses.SubscriptionExpirationDate.AddDays( 1 ), componentInfo1, componentInfo2 );
             this.Test( applicationInfo, applicationInfo );
         }

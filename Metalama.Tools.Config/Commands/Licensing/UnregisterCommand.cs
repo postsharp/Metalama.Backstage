@@ -10,62 +10,26 @@ namespace Metalama.DotNetTools.Commands.Licensing;
 internal class UnregisterCommand : CommandBase
 {
     public UnregisterCommand( ICommandServiceProviderProvider commandServiceProvider )
-        : base( commandServiceProvider, "unregister", "Unregisters a license" )
+        : base( commandServiceProvider, "unregister", "Unregisters the registered license" )
     {
-        this.AddArgument(
-            new Argument<string>(
-                "license-key-or-ordinal",
-                "The ordinal obtained by the 'postsharp license list' command or the license key to be unregistered" ) );
-
-        this.Handler = CommandHandler.Create<string, bool, IConsole>( this.Execute );
+        this.Handler = CommandHandler.Create<bool, IConsole>( this.Execute );
     }
 
-    private int Execute( string licenseKeyOrOrdinal, bool verbose, IConsole console )
+    private int Execute( bool verbose, IConsole console )
     {
         this.CommandServices.Initialize( console, verbose );
 
         var licenseStorage = ParsedLicensingConfiguration.OpenOrCreate( this.CommandServices.ServiceProvider );
 
-        if ( int.TryParse( licenseKeyOrOrdinal, out var ordinal ) )
+        if ( string.IsNullOrEmpty( licenseStorage.LicenseString ) )
         {
-            return UnregisterOrdinal( ordinal, licenseStorage, console );
-        }
-        else
-        {
-            return UnregisterLicense( licenseKeyOrOrdinal, licenseStorage, console );
-        }
-    }
-
-    private static int UnregisterOrdinal(
-        int ordinal,
-        ParsedLicensingConfiguration licensingConfiguration,
-        IConsole console )
-    {
-        if ( ordinal <= 0 || ordinal > licensingConfiguration.Licenses.Count )
-        {
-            console.Error.WriteLine( "Invalid ordinal." );
-
-            return 1;
-        }
-
-        var license = licensingConfiguration.Licenses[ordinal - 1];
-
-        return UnregisterLicense( license.LicenseString, licensingConfiguration, console );
-    }
-
-    private static int UnregisterLicense(
-        string licenseString,
-        ParsedLicensingConfiguration licensingConfiguration,
-        IConsole console )
-    {
-        if ( !licensingConfiguration.RemoveLicense( licenseString ) )
-        {
-            console.Error.WriteLine( "This license is not registered." );
+            console.Error.WriteLine( "A license is not registered." );
 
             return 2;
         }
 
-        console.Out.WriteLine( $"{licenseString} unregistered." );
+        licenseStorage.RemoveLicense();
+        console.Out.WriteLine( $"The license has been unregistered." );
 
         return 0;
     }

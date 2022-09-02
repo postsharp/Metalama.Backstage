@@ -5,9 +5,9 @@ using System;
 namespace Metalama.Backstage.Licensing.Consumption
 {
     /// <summary>
-    /// License namespace constraint.
+    /// Represents namespace license limitation.
     /// </summary>
-    internal class LicenseNamespaceConstraint
+    public class NamespaceLicenseInfo
     {
         /// <summary>
         /// Gets the namespace allowed by the license.
@@ -15,25 +15,10 @@ namespace Metalama.Backstage.Licensing.Consumption
         public string AllowedNamespace { get; }
 
         /// <summary>
-        /// Gets or sets the licensed features limited by the namespace constraint.
-        /// </summary>
-        public LicensedFeatures LicensedFeatures { get; set; }
-
-        /// <summary>
-        /// Gets or sets the maximum number of aspects limited by this namespace constraint.
-        /// </summary>
-        public int MaxApsectsCount { get; set; }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="LicenseNamespaceConstraint"/> class.
+        /// Initializes a new instance of the <see cref="NamespaceLicenseInfo"/> class.
         /// </summary>
         /// <param name="allowedNamespace">The namespace allowed by the license.</param>
-        /// <param name="licensedFeatures">The licensed features limited by the namespace constraint.</param>
-        /// <param name="maxApsectsCount">The maximum number of aspects limited by this namespace constraint.</param>
-        public LicenseNamespaceConstraint(
-            string allowedNamespace,
-            LicensedFeatures licensedFeatures = LicensedFeatures.None,
-            int maxApsectsCount = 0 )
+        public NamespaceLicenseInfo( string allowedNamespace )
         {
             if ( string.IsNullOrEmpty( allowedNamespace ) )
             {
@@ -41,8 +26,6 @@ namespace Metalama.Backstage.Licensing.Consumption
             }
 
             this.AllowedNamespace = allowedNamespace;
-            this.LicensedFeatures = licensedFeatures;
-            this.MaxApsectsCount = maxApsectsCount;
         }
 
         /// <summary>

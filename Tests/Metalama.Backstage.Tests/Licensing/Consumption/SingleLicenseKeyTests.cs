@@ -12,38 +12,42 @@ public class SingleLicenseKeyTests : LicenseConsumptionManagerTestsBase
     public SingleLicenseKeyTests( ITestOutputHelper logger )
         : base( logger ) { }
 
-    private void TestOneLicense( string licenseKey, LicensedFeatures requiredFeatures, bool expectedCanConsume )
-        => this.TestOneLicense( licenseKey, requiredFeatures, "Foo", expectedCanConsume );
+    private void TestOneLicense( string licenseKey, LicenseRequirement requestedRequirement, bool expectedCanConsume )
+        => this.TestOneLicense( licenseKey, requestedRequirement, "Foo", expectedCanConsume );
 
     private void TestOneLicense(
         string licenseKey,
-        LicensedFeatures requiredFeatures,
+        LicenseRequirement requestedRequirement,
         string requiredNamespace,
         bool expectedCanConsume )
     {
         var license = this.CreateLicense( licenseKey );
         var manager = this.CreateConsumptionManager( license );
-        TestConsumption( manager, requiredFeatures, requiredNamespace, expectedCanConsume );
+        TestConsumption( manager, requestedRequirement, requiredNamespace, expectedCanConsume );
     }
 
-    private void TestOneLicenseSource( ILicenseSource licenseSource, LicensedFeatures requiredFeatures, bool expectedCanConsume )
-        => this.TestOneLicenseSource( licenseSource, requiredFeatures, "Foo", expectedCanConsume );
+    private void TestOneLicenseSource( ILicenseSource licenseSource, LicenseRequirement requestedRequirement, bool expectedCanConsume )
+        => this.TestOneLicenseSource( licenseSource, requestedRequirement, "Foo", expectedCanConsume );
 
     private void TestOneLicenseSource(
         ILicenseSource licenseSource,
-        LicensedFeatures requiredFeatures,
+        LicenseRequirement requestedRequirement,
         string requiredNamespace,
         bool expectedCanConsume )
     {
         var manager = this.CreateConsumptionManager( licenseSource );
-        TestConsumption( manager, requiredFeatures, requiredNamespace, expectedCanConsume );
+        TestConsumption( manager, requestedRequirement, requiredNamespace, expectedCanConsume );
     }
 
-    [Fact]
-    public void NoLicenseAutoRegistersEvaluationLicense()
+    [Theory]
+    [InlineData( LicenseRequirement.Free )]
+    [InlineData( LicenseRequirement.Starter )]
+    [InlineData( LicenseRequirement.Professional )]
+    [InlineData( LicenseRequirement.Ultimate )]
+    public void NoLicenseAutoRegistersEvaluationLicense( LicenseRequirement requestedRequirement )
     {
         LicenseConsumptionManager manager = new( this.ServiceProvider );
-        TestConsumption( manager, LicensedFeatures.MetalamaAspectFramework, false, true );
+        TestConsumption( manager, requestedRequirement, false, true );
     }
 
     [Theory]
@@ -51,11 +55,6 @@ public class SingleLicenseKeyTests : LicenseConsumptionManagerTestsBase
     [InlineData( TestLicenses.PostSharpFramework, true )]
     [InlineData( TestLicenses.PostSharpUltimate, true )]
     [InlineData( TestLicenses.PostSharpEnterprise, true )]
-    [InlineData( TestLicenses.Caching, false )]
-    [InlineData( TestLicenses.Logging, false )]
-    [InlineData( TestLicenses.Model, false )]
-    [InlineData( TestLicenses.Threading, false )]
-    [InlineData( TestLicenses.NamespaceLimitedPostSharpUltimateOpenSource, false )]
     [InlineData( TestLicenses.MetalamaStarterPersonal, true )]
     [InlineData( TestLicenses.MetalamaStarterBusiness, true )]
     [InlineData( TestLicenses.MetalamaProfessionalPersonal, true )]
@@ -64,85 +63,14 @@ public class SingleLicenseKeyTests : LicenseConsumptionManagerTestsBase
     [InlineData( TestLicenses.MetalamaUltimateBusiness, true )]
     [InlineData( TestLicenses.MetalamaFreePersonal, true )]
     [InlineData( TestLicenses.MetalamaFreeBusiness, true )]
-    [InlineData( TestLicenses.MetalamaUltimateOpenSourceRedistribution, true )]
-    [InlineData( TestLicenses.MetalamaUltimateCommercialRedistribution, true )]
-    [InlineData( TestLicenses.NamespaceLimitedMetalamaUltimatePersonal, false )]
-    [InlineData( TestLicenses.NamespaceLimitedMetalamaUltimateBusiness, false )]
-    [InlineData( TestLicenses.NamespaceLimitedMetalamaFreePersonal, false )]
-    [InlineData( TestLicenses.NamespaceLimitedMetalamaFreeBusiness, false )]
-    [InlineData( TestLicenses.NamespaceLimitedMetalamaUltimateOpenSourceRedistribution, false )]
-    [InlineData( TestLicenses.NamespaceLimitedMetalamaUltimateCommercialRedistribution, false )]
     public void NamespaceUnlimitedLicenseAllowsMetalamaFreeFeatures( string licenseKey, bool expectedCanConsume )
-        => this.TestOneLicense( licenseKey, LicensedProductFeatures.MetalamaFree, expectedCanConsume );
+        => this.TestOneLicense( licenseKey, LicenseRequirement.Free, expectedCanConsume );
 
     [Theory]
     [InlineData( TestLicenses.PostSharpEssentials, false )]
     [InlineData( TestLicenses.PostSharpFramework, true )]
     [InlineData( TestLicenses.PostSharpUltimate, true )]
     [InlineData( TestLicenses.PostSharpEnterprise, true )]
-    [InlineData( TestLicenses.Caching, false )]
-    [InlineData( TestLicenses.Logging, false )]
-    [InlineData( TestLicenses.Model, false )]
-    [InlineData( TestLicenses.Threading, false )]
-    [InlineData( TestLicenses.NamespaceLimitedPostSharpUltimateOpenSource, false )]
-    [InlineData( TestLicenses.MetalamaStarterPersonal, false )]
-    [InlineData( TestLicenses.MetalamaStarterBusiness, false )]
-    [InlineData( TestLicenses.MetalamaProfessionalPersonal, false )]
-    [InlineData( TestLicenses.MetalamaProfessionalBusiness, false )]
-    [InlineData( TestLicenses.MetalamaUltimatePersonal, false )]
-    [InlineData( TestLicenses.MetalamaUltimateBusiness, false )]
-    [InlineData( TestLicenses.MetalamaFreePersonal, false )]
-    [InlineData( TestLicenses.MetalamaFreeBusiness, false )]
-    [InlineData( TestLicenses.MetalamaUltimateOpenSourceRedistribution, false )]
-    [InlineData( TestLicenses.MetalamaUltimateCommercialRedistribution, false )]
-    [InlineData( TestLicenses.NamespaceLimitedMetalamaUltimatePersonal, false )]
-    [InlineData( TestLicenses.NamespaceLimitedMetalamaUltimateBusiness, false )]
-    [InlineData( TestLicenses.NamespaceLimitedMetalamaFreePersonal, false )]
-    [InlineData( TestLicenses.NamespaceLimitedMetalamaFreeBusiness, false )]
-    [InlineData( TestLicenses.NamespaceLimitedMetalamaUltimateOpenSourceRedistribution, false )]
-    [InlineData( TestLicenses.NamespaceLimitedMetalamaUltimateCommercialRedistribution, false )]
-    public void NamespaceUnlimitedLicenseAllowsPostSharpFrameworkFeatures( string licenseKey, bool expectedCanConsume )
-        => this.TestOneLicense( licenseKey, LicensedProductFeatures.PostSharpFramework, expectedCanConsume );
-
-    [Theory]
-    [InlineData( TestLicenses.PostSharpEssentials, false )]
-    [InlineData( TestLicenses.PostSharpFramework, false )]
-    [InlineData( TestLicenses.PostSharpUltimate, true )]
-    [InlineData( TestLicenses.PostSharpEnterprise, true )]
-    [InlineData( TestLicenses.Caching, false )]
-    [InlineData( TestLicenses.Logging, false )]
-    [InlineData( TestLicenses.Model, false )]
-    [InlineData( TestLicenses.Threading, false )]
-    [InlineData( TestLicenses.NamespaceLimitedPostSharpUltimateOpenSource, false )]
-    [InlineData( TestLicenses.MetalamaStarterPersonal, false )]
-    [InlineData( TestLicenses.MetalamaStarterBusiness, false )]
-    [InlineData( TestLicenses.MetalamaProfessionalPersonal, false )]
-    [InlineData( TestLicenses.MetalamaProfessionalBusiness, false )]
-    [InlineData( TestLicenses.MetalamaUltimatePersonal, false )]
-    [InlineData( TestLicenses.MetalamaUltimateBusiness, false )]
-    [InlineData( TestLicenses.MetalamaFreePersonal, false )]
-    [InlineData( TestLicenses.MetalamaFreeBusiness, false )]
-    [InlineData( TestLicenses.MetalamaUltimateOpenSourceRedistribution, false )]
-    [InlineData( TestLicenses.MetalamaUltimateCommercialRedistribution, false )]
-    [InlineData( TestLicenses.NamespaceLimitedMetalamaUltimatePersonal, false )]
-    [InlineData( TestLicenses.NamespaceLimitedMetalamaUltimateBusiness, false )]
-    [InlineData( TestLicenses.NamespaceLimitedMetalamaFreePersonal, false )]
-    [InlineData( TestLicenses.NamespaceLimitedMetalamaFreeBusiness, false )]
-    [InlineData( TestLicenses.NamespaceLimitedMetalamaUltimateOpenSourceRedistribution, false )]
-    [InlineData( TestLicenses.NamespaceLimitedMetalamaUltimateCommercialRedistribution, false )]
-    public void NamespaceUnlimitedLicenseAllowsPostSharpUltimateFeatures( string licenseKey, bool expectedCanConsume )
-    => this.TestOneLicense( licenseKey, LicensedProductFeatures.PostSharpUltimate, expectedCanConsume );
-
-    [Theory]
-    [InlineData( TestLicenses.PostSharpEssentials, false )]
-    [InlineData( TestLicenses.PostSharpFramework, true )]
-    [InlineData( TestLicenses.PostSharpUltimate, true )]
-    [InlineData( TestLicenses.PostSharpEnterprise, true )]
-    [InlineData( TestLicenses.Caching, false )]
-    [InlineData( TestLicenses.Logging, false )]
-    [InlineData( TestLicenses.Model, false )]
-    [InlineData( TestLicenses.Threading, false )]
-    [InlineData( TestLicenses.NamespaceLimitedPostSharpUltimateOpenSource, false )]
     [InlineData( TestLicenses.MetalamaStarterPersonal, true )]
     [InlineData( TestLicenses.MetalamaStarterBusiness, true )]
     [InlineData( TestLicenses.MetalamaProfessionalPersonal, true )]
@@ -151,27 +79,14 @@ public class SingleLicenseKeyTests : LicenseConsumptionManagerTestsBase
     [InlineData( TestLicenses.MetalamaUltimateBusiness, true )]
     [InlineData( TestLicenses.MetalamaFreePersonal, false )]
     [InlineData( TestLicenses.MetalamaFreeBusiness, false )]
-    [InlineData( TestLicenses.MetalamaUltimateOpenSourceRedistribution, true )]
-    [InlineData( TestLicenses.MetalamaUltimateCommercialRedistribution, true )]
-    [InlineData( TestLicenses.NamespaceLimitedMetalamaUltimatePersonal, false )]
-    [InlineData( TestLicenses.NamespaceLimitedMetalamaUltimateBusiness, false )]
-    [InlineData( TestLicenses.NamespaceLimitedMetalamaFreePersonal, false )]
-    [InlineData( TestLicenses.NamespaceLimitedMetalamaFreeBusiness, false )]
-    [InlineData( TestLicenses.NamespaceLimitedMetalamaUltimateOpenSourceRedistribution, false )]
-    [InlineData( TestLicenses.NamespaceLimitedMetalamaUltimateCommercialRedistribution, false )]
     public void NamespaceUnlimitedLicenseAllowsMetalamaStarterFeatures( string licenseKey, bool expectedCanConsume )
-=> this.TestOneLicense( licenseKey, LicensedProductFeatures.MetalamaStarter, expectedCanConsume );
+        => this.TestOneLicense( licenseKey, LicenseRequirement.Starter, expectedCanConsume );
 
     [Theory]
     [InlineData( TestLicenses.PostSharpEssentials, false )]
     [InlineData( TestLicenses.PostSharpFramework, true )]
     [InlineData( TestLicenses.PostSharpUltimate, true )]
     [InlineData( TestLicenses.PostSharpEnterprise, true )]
-    [InlineData( TestLicenses.Caching, false )]
-    [InlineData( TestLicenses.Logging, false )]
-    [InlineData( TestLicenses.Model, false )]
-    [InlineData( TestLicenses.Threading, false )]
-    [InlineData( TestLicenses.NamespaceLimitedPostSharpUltimateOpenSource, false )]
     [InlineData( TestLicenses.MetalamaStarterPersonal, false )]
     [InlineData( TestLicenses.MetalamaStarterBusiness, false )]
     [InlineData( TestLicenses.MetalamaProfessionalPersonal, true )]
@@ -180,144 +95,77 @@ public class SingleLicenseKeyTests : LicenseConsumptionManagerTestsBase
     [InlineData( TestLicenses.MetalamaUltimateBusiness, true )]
     [InlineData( TestLicenses.MetalamaFreePersonal, false )]
     [InlineData( TestLicenses.MetalamaFreeBusiness, false )]
-    [InlineData( TestLicenses.MetalamaUltimateOpenSourceRedistribution, true )]
-    [InlineData( TestLicenses.MetalamaUltimateCommercialRedistribution, true )]
-    [InlineData( TestLicenses.NamespaceLimitedMetalamaUltimatePersonal, false )]
-    [InlineData( TestLicenses.NamespaceLimitedMetalamaUltimateBusiness, false )]
-    [InlineData( TestLicenses.NamespaceLimitedMetalamaFreePersonal, false )]
-    [InlineData( TestLicenses.NamespaceLimitedMetalamaFreeBusiness, false )]
-    [InlineData( TestLicenses.NamespaceLimitedMetalamaUltimateOpenSourceRedistribution, false )]
-    [InlineData( TestLicenses.NamespaceLimitedMetalamaUltimateCommercialRedistribution, false )]
     public void NamespaceUnlimitedLicenseAllowsMetalamaProfessionalFeatures( string licenseKey, bool expectedCanConsume )
-=> this.TestOneLicense( licenseKey, LicensedProductFeatures.MetalamaProfessional, expectedCanConsume );
+        => this.TestOneLicense( licenseKey, LicenseRequirement.Professional, expectedCanConsume );
 
     [Theory]
     [InlineData( TestLicenses.PostSharpEssentials, false )]
-    [InlineData( TestLicenses.PostSharpFramework, true )]
+    [InlineData( TestLicenses.PostSharpFramework, false )]
     [InlineData( TestLicenses.PostSharpUltimate, true )]
     [InlineData( TestLicenses.PostSharpEnterprise, true )]
-    [InlineData( TestLicenses.Caching, false )]
-    [InlineData( TestLicenses.Logging, false )]
-    [InlineData( TestLicenses.Model, false )]
-    [InlineData( TestLicenses.Threading, false )]
-    [InlineData( TestLicenses.NamespaceLimitedPostSharpUltimateOpenSource, false )]
+    [InlineData( TestLicenses.PostSharpUltimateOpenSourceRedistribution, false )]
     [InlineData( TestLicenses.MetalamaStarterPersonal, false )]
     [InlineData( TestLicenses.MetalamaStarterBusiness, false )]
-    [InlineData( TestLicenses.MetalamaProfessionalPersonal, true )]
-    [InlineData( TestLicenses.MetalamaProfessionalBusiness, true )]
+    [InlineData( TestLicenses.MetalamaProfessionalPersonal, false )]
+    [InlineData( TestLicenses.MetalamaProfessionalBusiness, false )]
     [InlineData( TestLicenses.MetalamaUltimatePersonal, true )]
     [InlineData( TestLicenses.MetalamaUltimateBusiness, true )]
     [InlineData( TestLicenses.MetalamaFreePersonal, false )]
     [InlineData( TestLicenses.MetalamaFreeBusiness, false )]
-    [InlineData( TestLicenses.MetalamaUltimateOpenSourceRedistribution, true )]
-    [InlineData( TestLicenses.MetalamaUltimateCommercialRedistribution, true )]
-    [InlineData( TestLicenses.NamespaceLimitedMetalamaUltimatePersonal, false )]
-    [InlineData( TestLicenses.NamespaceLimitedMetalamaUltimateBusiness, false )]
-    [InlineData( TestLicenses.NamespaceLimitedMetalamaFreePersonal, false )]
-    [InlineData( TestLicenses.NamespaceLimitedMetalamaFreeBusiness, false )]
-    [InlineData( TestLicenses.NamespaceLimitedMetalamaUltimateOpenSourceRedistribution, false )]
-    [InlineData( TestLicenses.NamespaceLimitedMetalamaUltimateCommercialRedistribution, false )]
     public void NamespaceUnlimitedLicenseAllowsMetalamaUltimateFeatures( string licenseKey, bool expectedCanConsume )
-        => this.TestOneLicense( licenseKey, LicensedProductFeatures.MetalamaUltimate, expectedCanConsume );
+        => this.TestOneLicense( licenseKey, LicenseRequirement.Ultimate, expectedCanConsume );
 
     [Theory]
-    [InlineData( TestLicenses.NamespaceLimitedPostSharpUltimateOpenSource, TestLicenses.NamespaceLimitedPostSharpUltimateOpenSourceNamespace, true )]
-    [InlineData( TestLicenses.NamespaceLimitedMetalamaUltimatePersonal, TestLicenses.NamespaceLimitedMetalamaUltimateNamespace, true )]
-    [InlineData( TestLicenses.NamespaceLimitedMetalamaUltimateBusiness, TestLicenses.NamespaceLimitedMetalamaUltimateNamespace, true )]
-    [InlineData( TestLicenses.NamespaceLimitedMetalamaFreePersonal, TestLicenses.NamespaceLimitedMetalamaFreeNamespace, false )]
-    [InlineData( TestLicenses.NamespaceLimitedMetalamaFreeBusiness, TestLicenses.NamespaceLimitedMetalamaFreeNamespace, false )]
-    [InlineData( TestLicenses.NamespaceLimitedMetalamaUltimateOpenSourceRedistribution, TestLicenses.NamespaceLimitedMetalamaUltimateRedistributionNamespace, true )]
-    [InlineData( TestLicenses.NamespaceLimitedMetalamaUltimateCommercialRedistribution, TestLicenses.NamespaceLimitedMetalamaUltimateRedistributionNamespace, true )]
+    [InlineData( TestLicenses.PostSharpUltimateOpenSourceRedistribution, TestLicenses.PostSharpUltimateOpenSourceRedistributionNamespace, true )]
+    [InlineData( TestLicenses.MetalamaUltimateOpenSourceRedistribution, TestLicenses.MetalamaUltimateRedistributionNamespace, true )]
+    [InlineData( TestLicenses.MetalamaUltimateCommercialRedistribution, TestLicenses.MetalamaUltimateRedistributionNamespace, true )]
     public void NamespaceLimitedLicenseAllowsMetalamaInSameNamespace( string licenseKey, string requiredNamespace, bool expectedCanConsume )
         => this.TestOneLicense(
             licenseKey,
-            LicensedProductFeatures.MetalamaUltimate,
+            LicenseRequirement.Ultimate,
             requiredNamespace,
             expectedCanConsume );
 
     [Theory]
-    [InlineData( TestLicenses.NamespaceLimitedPostSharpUltimateOpenSource )]
-    [InlineData( TestLicenses.NamespaceLimitedMetalamaUltimatePersonal )]
-    [InlineData( TestLicenses.NamespaceLimitedMetalamaUltimateBusiness )]
-    [InlineData( TestLicenses.NamespaceLimitedMetalamaFreePersonal )]
-    [InlineData( TestLicenses.NamespaceLimitedMetalamaFreeBusiness )]
-    [InlineData( TestLicenses.NamespaceLimitedMetalamaUltimateOpenSourceRedistribution )]
-    [InlineData( TestLicenses.NamespaceLimitedMetalamaUltimateCommercialRedistribution )]
-    public void NamespaceLimitedLicenseForbidsMetalamaDifferentNamespace( string licenseKey )
-    => this.TestOneLicense(
-        licenseKey,
-        LicensedProductFeatures.MetalamaUltimate,
-        "Foo",
-        false );
-
-    [Fact]
-    public void ProfessionalAndUltimateProvideSameFeatures()
-    {
-        // As soon as this assumption becomes false, uncomment Metalama Ultimate in the following tests.
-        Assert.Equal( LicensedProductFeatures.MetalamaUltimate, LicensedProductFeatures.MetalamaProfessional );
-    }
+    [InlineData( TestLicenses.PostSharpUltimateOpenSourceRedistribution )]
+    [InlineData( TestLicenses.MetalamaUltimateOpenSourceRedistribution )]
+    [InlineData( TestLicenses.MetalamaUltimateCommercialRedistribution )]
+    public void NamespaceLimitedLicenseForbidsMetalamaInArbitraryNamespace( string licenseKey )
+        => this.TestOneLicense(
+            licenseKey,
+            LicenseRequirement.Ultimate,
+            "Foo",
+            false );
 
     [Theory]
-    [InlineData( LicensedProductFeatures.PostSharpEssentials, false )]
-    [InlineData( LicensedProductFeatures.Mvvm, false )]
-    [InlineData( LicensedProductFeatures.Threading, false )]
-    [InlineData( LicensedProductFeatures.Logging, false )]
-    [InlineData( LicensedProductFeatures.Caching, false )]
-    [InlineData( LicensedProductFeatures.PostSharpFramework, false )]
-    [InlineData( LicensedProductFeatures.PostSharpUltimate, false )]
-    [InlineData( LicensedProductFeatures.MetalamaFree, true )]
-    [InlineData( LicensedProductFeatures.MetalamaStarter, false )]
-    [InlineData( LicensedProductFeatures.MetalamaProfessional, false )]
-
-    // [InlineData( LicensedProductFeatures.MetalamaUltimate, false )] See ProfessionalAndUltimateProvideSameFeatures test.
-    public void SelfSignedMetalamaFreeLicenseAllowsFeatures( LicensedFeatures requiredFeatures, bool expectedCanConsume )
-        => this.TestOneLicense( TestLicenses.CreateMetalamaFreeLicense( this.ServiceProvider ), requiredFeatures, expectedCanConsume );
+    [InlineData( LicenseRequirement.Free, true )]
+    [InlineData( LicenseRequirement.Starter, false )]
+    [InlineData( LicenseRequirement.Professional, false )]
+    [InlineData( LicenseRequirement.Ultimate, false )]
+    public void UnsignedMetalamaFreeLicenseAllowsRequirements( LicenseRequirement requestedRequirement, bool expectedCanConsume )
+        => this.TestOneLicense( TestLicenses.CreateMetalamaFreeLicense( this.ServiceProvider ), requestedRequirement, expectedCanConsume );
 
     [Theory]
-    [InlineData( LicensedProductFeatures.PostSharpEssentials, false )]
-    [InlineData( LicensedProductFeatures.Mvvm, false )]
-    [InlineData( LicensedProductFeatures.Threading, false )]
-    [InlineData( LicensedProductFeatures.Logging, false )]
-    [InlineData( LicensedProductFeatures.Caching, false )]
-    [InlineData( LicensedProductFeatures.PostSharpFramework, false )]
-    [InlineData( LicensedProductFeatures.PostSharpUltimate, false )]
-    [InlineData( LicensedProductFeatures.MetalamaFree, true )]
-    [InlineData( LicensedProductFeatures.MetalamaStarter, true )]
-    [InlineData( LicensedProductFeatures.MetalamaProfessional, true )]
-
-    // [InlineData( LicensedProductFeatures.MetalamaUltimate, true )] See ProfessionalAndUltimateProvideSameFeatures test.
-    public void SelfSignedMetalamaEvaluationLicenseAllowsFeatures( LicensedFeatures requiredFeatures, bool expectedCanConsume )
-        => this.TestOneLicense( TestLicenses.CreateMetalamaEvaluationLicense( this.ServiceProvider ), requiredFeatures, expectedCanConsume );
+    [InlineData( LicenseRequirement.Free, true )]
+    [InlineData( LicenseRequirement.Starter, true )]
+    [InlineData( LicenseRequirement.Professional, true )]
+    [InlineData( LicenseRequirement.Ultimate, true )]
+    public void UnsignedMetalamaEvaluationLicenseAllowsRequirements( LicenseRequirement requestedRequirement, bool expectedCanConsume )
+        => this.TestOneLicense( TestLicenses.CreateMetalamaEvaluationLicense( this.ServiceProvider ), requestedRequirement, expectedCanConsume );
 
     [Theory]
-    [InlineData( LicensedProductFeatures.PostSharpEssentials, true )]
-    [InlineData( LicensedProductFeatures.Mvvm, true )]
-    [InlineData( LicensedProductFeatures.Threading, true )]
-    [InlineData( LicensedProductFeatures.Logging, true )]
-    [InlineData( LicensedProductFeatures.Caching, true )]
-    [InlineData( LicensedProductFeatures.PostSharpFramework, true )]
-    [InlineData( LicensedProductFeatures.PostSharpUltimate, true )]
-    [InlineData( LicensedProductFeatures.MetalamaFree, true )]
-    [InlineData( LicensedProductFeatures.MetalamaStarter, true )]
-    [InlineData( LicensedProductFeatures.MetalamaProfessional, true )]
-
-    // [InlineData( LicensedProductFeatures.MetalamaUltimate, true )] See ProfessionalAndUltimateProvideSameFeatures test.
-    public void UnattendedLicenseAllowsFeatures( LicensedFeatures requiredFeatures, bool expectedCanConsume )
-        => this.TestOneLicenseSource( TestLicenses.CreateUnattendedLicenseSource(), requiredFeatures, expectedCanConsume );
+    [InlineData( LicenseRequirement.Free, true )]
+    [InlineData( LicenseRequirement.Starter, true )]
+    [InlineData( LicenseRequirement.Professional, true )]
+    [InlineData( LicenseRequirement.Ultimate, true )]
+    public void UnattendedLicenseAllowsRequirements( LicenseRequirement requestedRequirement, bool expectedCanConsume )
+        => this.TestOneLicenseSource( TestLicenses.CreateUnattendedLicenseSource(), requestedRequirement, expectedCanConsume );
 
     [Theory]
-    [InlineData( LicensedProductFeatures.PostSharpEssentials, true )]
-    [InlineData( LicensedProductFeatures.Mvvm, true )]
-    [InlineData( LicensedProductFeatures.Threading, true )]
-    [InlineData( LicensedProductFeatures.Logging, true )]
-    [InlineData( LicensedProductFeatures.Caching, true )]
-    [InlineData( LicensedProductFeatures.PostSharpFramework, true )]
-    [InlineData( LicensedProductFeatures.PostSharpUltimate, true )]
-    [InlineData( LicensedProductFeatures.MetalamaFree, true )]
-    [InlineData( LicensedProductFeatures.MetalamaStarter, true )]
-    [InlineData( LicensedProductFeatures.MetalamaProfessional, true )]
-
-    // [InlineData( LicensedProductFeatures.MetalamaUltimate, true )] See ProfessionalAndUltimateProvideSameFeatures test.
-    public void PreviewLicenseAllowsFeatures( LicensedFeatures requiredFeatures, bool expectedCanConsume )
-        => this.TestOneLicenseSource( TestLicenses.CreatePreviewLicenseSource( true, 0 ), requiredFeatures, expectedCanConsume );
+    [InlineData( LicenseRequirement.Free, true )]
+    [InlineData( LicenseRequirement.Starter, true )]
+    [InlineData( LicenseRequirement.Professional, true )]
+    [InlineData( LicenseRequirement.Ultimate, true )]
+    public void PreviewLicenseAllowsRequirements( LicenseRequirement requestedRequirement, bool expectedCanConsume )
+        => this.TestOneLicenseSource( TestLicenses.CreatePreviewLicenseSource( true, 0 ), requestedRequirement, expectedCanConsume );
 }

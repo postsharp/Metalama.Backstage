@@ -3,7 +3,7 @@
 using Metalama.Backstage.Configuration;
 using Metalama.Backstage.Extensibility;
 using System;
-using System.Collections.Generic;
+using System.Linq;
 
 namespace Metalama.Backstage.Licensing.Consumption.Sources;
 
@@ -20,7 +20,7 @@ internal class UserProfileLicenseSource : LicenseSourceBase
         this._licensingConfiguration = services.GetRequiredBackstageService<IConfigurationManager>().Get<LicensingConfiguration>();
     }
 
-    public override bool IsRedistributionLicenseSource => false;
-
-    protected override IEnumerable<string> GetLicenseStrings() => this._licensingConfiguration.Licenses;
+    // Originally, the license configuration allowed for multiple license keys. We keep the array for backward compatility,
+    // but we no longer store more than one key there.
+    protected override string? GetLicenseString() => this._licensingConfiguration.Licenses.FirstOrDefault();
 }

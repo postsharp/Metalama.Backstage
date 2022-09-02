@@ -7,6 +7,9 @@ namespace Metalama.Backstage.Licensing
 {
     internal static class ApplicationInfoLicenseExtensions
     {
+        public static bool IsPreviewLicenseEligible( this IComponentInfo component )
+            => (component.IsPrerelease ?? false) && component.BuildDate.HasValue && component.Company == "PostSharp Technologies";
+
         public static bool IsPreviewLicenseEligible( this IApplicationInfo application )
             => ((IComponentInfo) application).IsPreviewLicenseEligible() || application.Components.Any( c => c.IsPreviewLicenseEligible() );
     }

@@ -17,9 +17,7 @@ namespace Metalama.Tools.Config.Tests.Commands.Licensing
         {
             await this.TestCommandAsync( "license register free", "" );
 
-            await this.TestCommandAsync(
-                "license list",
-                string.Format( CultureInfo.InvariantCulture, TestLicenses.FreeFormat, 1 ) );
+            await this.TestCommandAsync( "license list", TestLicenses.FreeOutput );
         }
 
         [Fact]
@@ -28,9 +26,7 @@ namespace Metalama.Tools.Config.Tests.Commands.Licensing
             await this.TestCommandAsync( "license register free", "" );
             await this.TestCommandAsync( "license register free", "" );
 
-            await this.TestCommandAsync(
-                "license list",
-                string.Format( CultureInfo.InvariantCulture, TestLicenses.FreeFormat, 1 ) );
+            await this.TestCommandAsync( "license list", TestLicenses.FreeOutput );
         }
     }
 }

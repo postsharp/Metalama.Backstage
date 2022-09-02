@@ -5,7 +5,6 @@ using Metalama.Backstage.Extensibility;
 using Metalama.Backstage.Licensing.Licenses;
 using Metalama.Backstage.Licensing.Registration;
 using System;
-using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 
 namespace Metalama.Backstage.Licensing.Consumption.Sources;
@@ -23,21 +22,19 @@ internal class UnattendedLicenseSource : ILicenseSource, ILicense
         this._logger = serviceProvider.GetLoggerFactory().Licensing();
     }
 
-    public bool IsRedistributionLicenseSource => false;
-
-    public IEnumerable<ILicense> GetLicenses( Action<LicensingMessage> reportMessage )
+    public ILicense? GetLicense( Action<LicensingMessage> reportMessage )
     {
         if ( this._applicationInfo.IsUnattendedProcess( this._serviceProvider.GetLoggerFactory() ) )
         {
             this._logger.Trace?.Log( "Providing an unattended process license." );
 
-            return new ILicense[] { this };
+            return this;
         }
         else
         {
             this._logger.Trace?.Log( "The process is attended. Not providing an unattended process license." );
 
-            return Array.Empty<ILicense>();
+            return null;
         }
     }
 
@@ -46,7 +43,7 @@ internal class UnattendedLicenseSource : ILicenseSource, ILicense
         licenseConsumptionData = new LicenseConsumptionData(
             LicensedProduct.MetalamaUltimate,
             LicenseType.Unattended,
-            LicensedFeatures.All,
+            LicenseRequirement.All,
             null,
             "Unattended Process License",
             new Version( 0, 0 ),

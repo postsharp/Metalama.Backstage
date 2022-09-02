@@ -1,22 +1,18 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. See the LICENSE.md file in the root directory of this rep root for details.
 
 using System;
-using System.Collections.Generic;
 
 namespace Metalama.Backstage.Licensing.Consumption.Sources;
 
 internal class ExplicitLicenseSource : LicenseSourceBase
 {
-    private readonly IEnumerable<string> _licenseStrings;
+    private readonly string _licenseString;
 
-    public ExplicitLicenseSource( IEnumerable<string> licenseKeys, bool isRedistributionLicenseSource, IServiceProvider services )
+    public ExplicitLicenseSource( string licenseKey, IServiceProvider services )
         : base( services )
     {
-        this._licenseStrings = licenseKeys;
-        this.IsRedistributionLicenseSource = isRedistributionLicenseSource;
+        this._licenseString = licenseKey;
     }
 
-    public override bool IsRedistributionLicenseSource { get; }
-
-    protected override IEnumerable<string> GetLicenseStrings() => this._licenseStrings;
+    protected override string? GetLicenseString() => this._licenseString;
 }

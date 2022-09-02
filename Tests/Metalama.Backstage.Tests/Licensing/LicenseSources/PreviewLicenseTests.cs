@@ -14,9 +14,9 @@ public class PreviewLicenseTests
     {
         var previewLicense = TestLicenses.CreatePreviewLicenseSource( isPrerelease, daysAfterBuild );
         var messages = new List<LicensingMessage>();
-        var licenses = previewLicense.GetLicenses( messages.Add );
+        var license = previewLicense.GetLicense( messages.Add );
 
-        return (licenses.Any(), messages.Any(), messages.SingleOrDefault());
+        return (license != null, messages.Any(), messages.SingleOrDefault());
     }
 
     [Theory]

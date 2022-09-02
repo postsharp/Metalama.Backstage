@@ -19,7 +19,7 @@ namespace Metalama.Backstage.Licensing.Tests.Licensing.LicenseSources
         {
             UserProfileLicenseSource source = new( this.ServiceProvider );
 
-            Assert.Empty( source.GetLicenses( _ => { } ) );
+            Assert.Null( source.GetLicense( _ => { } ) );
         }
 
         [Fact]
@@ -29,7 +29,7 @@ namespace Metalama.Backstage.Licensing.Tests.Licensing.LicenseSources
 
             UserProfileLicenseSource source = new( this.ServiceProvider );
 
-            Assert.Empty( source.GetLicenses( _ => { } ) );
+            Assert.Null( source.GetLicense( _ => { } ) );
         }
     }
 }
