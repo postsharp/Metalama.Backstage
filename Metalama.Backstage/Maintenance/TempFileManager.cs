@@ -7,7 +7,6 @@ using Metalama.Backstage.Utilities;
 using Newtonsoft.Json;
 using System;
 using System.IO;
-using System.Linq;
 
 namespace Metalama.Backstage.Maintenance;
 
@@ -32,13 +31,6 @@ public class TempFileManager : ITempFileManager
     }
 
     /// <summary>
-    /// Checks whether directory on <paramref name="directoryPath"/> is empty.
-    /// </summary>
-    /// <param name="directoryPath">Specified directory.</param>
-    /// <returns>Value indicating whether <paramref name="directoryPath"/> has any subdirectories and files.</returns>
-    private bool IsDirectoryEmpty( string directoryPath ) => !this._fileSystem.GetFileSystemEntries( directoryPath ).Any();
-
-    /// <summary>
     /// Cleans Metalama cache subdirectories, conforming the policies set in <c>cleanup.json</c> for each directory. This method gets automatically called from compiler as well.
     /// </summary>
     /// <param name="force">Ignore last clean-up time.</param>
@@ -51,51 +43,56 @@ public class TempFileManager : ITempFileManager
             return;
         }
 
-        var now = this._time.Now;
-        var lastCleanUpTime = this._configuration.LastCleanUpTime;
-
-        if ( !force &&
-             lastCleanUpTime != null &&
-             lastCleanUpTime.Value.AddDays( 1 ) >= now )
+        try
         {
-            this._logger.Info?.Log( $"It's not time to clean up cache directories yet. Now: {now} Last clean-up time: {lastCleanUpTime}" );
+            var now = this._time.Now;
+            var lastCleanUpTime = this._configuration.LastCleanUpTime;
 
-            return;
-        }
-
-        // Go through all cache directories in temp directory (i.e. CrashReports, ExtractExceptions, Logs etc.)
-        foreach ( var cacheDirectory in this._fileSystem.EnumerateDirectories( this._standardDirectories.TempDirectory ) )
-        {
-            try
+            if ( !force &&
+                 lastCleanUpTime != null &&
+                 lastCleanUpTime.Value.AddDays( 1 ) >= now )
             {
-                this._logger.Info?.Log( $"Starting clean-up of '{cacheDirectory}' directory." );
+                this._logger.Info?.Log( $"It's not time to clean up cache directories yet. Now: {now} Last clean-up time: {lastCleanUpTime}" );
 
-                // Go through all subdirectories in the cache directory.
-                foreach ( var subdirectory in this._fileSystem.EnumerateDirectories( cacheDirectory ) )
+                return;
+            }
+
+            // Go through all cache directories in temp directory (i.e. CrashReports, ExtractExceptions, Logs etc.)
+            foreach ( var cacheDirectory in this._fileSystem.EnumerateDirectories( this._standardDirectories.TempDirectory ) )
+            {
+                try
                 {
-                    // --all flag will cause the subdirectory to be deleted immediately.
-                    if ( all )
-                    {
-                        var renamedSubdirectory = this.RenameDirectory( subdirectory );
-                        this.DeleteDirectory( renamedSubdirectory );
-                    
-                        continue;
-                    }
+                    this._logger.Info?.Log( $"Starting clean-up of '{cacheDirectory}' directory." );
 
-                    this.RecursivelyDeleteDirectories( subdirectory );
+                    // Go through all subdirectories in the cache directory.
+                    foreach ( var subdirectory in this._fileSystem.EnumerateDirectories( cacheDirectory ) )
+                    {
+                        // --all flag will cause the subdirectory to be deleted immediately.
+                        if ( all )
+                        {
+                            var renamedSubdirectory = this.RenameDirectory( subdirectory );
+                            this.DeleteDirectory( renamedSubdirectory );
+
+                            continue;
+                        }
+
+                        this.DeleteDirectoryRecursive( subdirectory );
+                    }
+                }
+                catch ( Exception e )
+                {
+                    this._logger.Warning?.Log( e.Message );
                 }
             }
-            catch ( Exception e )
-            {
-                this._logger.Warning?.Log( e.Message );
-            }
         }
-
-        mutex.Dispose();
-        this._configuration.ConfigurationManager.Update<CleanUpConfiguration>( c => c.ResetLastCleanUpTime() );
+        finally
+        {
+            mutex.Dispose();
+            this._configuration.ConfigurationManager.Update<CleanUpConfiguration>( c => c.ResetLastCleanUpTime() );
+        }
     }
 
-    public void RecursivelyDeleteDirectories( string directory )
+    public void DeleteDirectoryRecursive( string directory )
     {
         var cleanUpFileCandidate = Path.Combine( directory, "cleanup.json" );
         
@@ -124,10 +121,10 @@ public class TempFileManager : ITempFileManager
             // If no cleanup file is found, we proceed deeper in the directory tree.
             foreach ( var dir in this._fileSystem.GetDirectories( directory ) )
             {
-                this.RecursivelyDeleteDirectories( dir );
+                this.DeleteDirectoryRecursive( dir );
             }
 
-            if ( this.IsDirectoryEmpty( directory ) )
+            if ( this._fileSystem.IsDirectoryEmpty( directory ) )
             {
                 var renamedDirectory = this.RenameDirectory( directory );
                 this.DeleteDirectory( renamedDirectory );
@@ -137,11 +134,21 @@ public class TempFileManager : ITempFileManager
 
     public string RenameDirectory( string directory )
     {
-        var newDirectoryName = directory + "_to_delete";
+        var newDirectoryName = directory;
+
+        for ( var i = 0; i < 100; i++ )
+        {
+            newDirectoryName = directory + i;
+
+            if ( !this._fileSystem.DirectoryExists( newDirectoryName ) )
+            {
+                break;
+            }
+        }
 
         try
         {
-            this._fileSystem.DirectoryMove( directory, newDirectoryName );
+            this._fileSystem.MoveDirectory( directory, newDirectoryName );
         }
         catch ( Exception e )
         {
@@ -155,7 +162,7 @@ public class TempFileManager : ITempFileManager
     {
         try
         {
-            this._fileSystem.DirectoryDelete( directory, true );
+            this._fileSystem.DeleteDirectory( directory, true );
         }
         catch ( Exception e )
         {
