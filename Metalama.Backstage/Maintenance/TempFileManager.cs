@@ -134,28 +134,26 @@ public class TempFileManager : ITempFileManager
 
     public string RenameDirectory( string directory )
     {
-        var newDirectoryName = directory;
-
         for ( var i = 0; i < 100; i++ )
         {
-            newDirectoryName = directory + i;
+            var newDirectoryName = directory + i;
 
             if ( !this._fileSystem.DirectoryExists( newDirectoryName ) )
             {
-                break;
+                try
+                {
+                    this._fileSystem.MoveDirectory( directory, newDirectoryName );
+                }
+                catch ( Exception e )
+                {
+                    this._logger.Warning?.Log( e.Message );
+                }
+
+                return newDirectoryName;
             }
         }
 
-        try
-        {
-            this._fileSystem.MoveDirectory( directory, newDirectoryName );
-        }
-        catch ( Exception e )
-        {
-            this._logger.Warning?.Log( e.Message );
-        }
-
-        return newDirectoryName;
+        throw new InvalidOperationException( $"Directory '{directory}' could not be renamed, this is likely caused by another directory with same name exists in the same location." );
     }
 
     public void DeleteDirectory( string directory )
