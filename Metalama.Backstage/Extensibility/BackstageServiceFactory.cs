@@ -1,4 +1,4 @@
-﻿// Copyright (c) SharpCrafters s.r.o. See the LICENSE.md file in the root directory of this rep root for details.
+﻿// Copyright (c) SharpCrafters s.r.o. See the LICENSE.md file in the root directory of this repository root for details.
 
 using Metalama.Backstage.Diagnostics;
 using System;
@@ -11,7 +11,8 @@ public static class BackstageServiceFactory
 
     private static IServiceProvider? _serviceProvider;
 
-    public static IServiceProvider ServiceProvider => _serviceProvider ?? throw new InvalidOperationException( "BackstageServiceFactory has not been initialized." );
+    public static IServiceProvider ServiceProvider
+        => _serviceProvider ?? throw new InvalidOperationException( "BackstageServiceFactory has not been initialized." );
 
     public static bool Initialize( Func<IApplicationInfo> applicationInfoFactory, string caller, string? projectName = null )
     {
@@ -19,7 +20,9 @@ public static class BackstageServiceFactory
         {
             if ( _serviceProvider != null )
             {
-                _serviceProvider.GetLoggerFactory().GetLogger( "BackstageServiceFactory" ).Trace?.Log( $"Support services initialization requested from {caller}. The services are initialized already." );
+                _serviceProvider.GetLoggerFactory()
+                    .GetLogger( "BackstageServiceFactory" )
+                    .Trace?.Log( $"Support services initialization requested from {caller}. The services are initialized already." );
 
                 return false;
             }
@@ -28,7 +31,9 @@ public static class BackstageServiceFactory
                 .AddBackstageServices( applicationInfo: applicationInfoFactory(), projectName: projectName, addLicensing: false )
                 .ServiceProvider;
 
-            _serviceProvider.GetLoggerFactory().GetLogger( "BackstageServiceFactory" ).Trace?.Log( $"Support services initialized upon a request from {caller}." );
+            _serviceProvider.GetLoggerFactory()
+                .GetLogger( "BackstageServiceFactory" )
+                .Trace?.Log( $"Support services initialized upon a request from {caller}." );
 
             return true;
         }

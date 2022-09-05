@@ -1,4 +1,4 @@
-// Copyright (c) SharpCrafters s.r.o. See the LICENSE.md file in the root directory of this rep root for details.
+// Copyright (c) SharpCrafters s.r.o. See the LICENSE.md file in the root directory of this repository root for details.
 
 using System;
 
@@ -14,7 +14,7 @@ public interface IComponentInfo
     /// Gets the name of the author who published the component.
     /// </summary>
     string? Company { get; }
-    
+
     /// <summary>
     /// Gets the name of the application.
     /// </summary>

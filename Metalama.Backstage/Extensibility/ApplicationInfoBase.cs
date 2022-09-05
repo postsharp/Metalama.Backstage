@@ -1,4 +1,4 @@
-﻿// Copyright (c) SharpCrafters s.r.o. See the LICENSE.md file in the root directory of this rep root for details.
+﻿// Copyright (c) SharpCrafters s.r.o. See the LICENSE.md file in the root directory of this repository root for details.
 
 using Metalama.Backstage.Diagnostics;
 using Metalama.Backstage.Utilities;
@@ -23,8 +23,8 @@ namespace Metalama.Backstage.Extensibility
 #pragma warning restore CA1307
             this.BuildDate = reader.BuildDate;
             this.Company = reader.Company;
-            
-            var versionParts = this.Version.Split('-');
+
+            var versionParts = this.Version.Split( '-' );
             this.IsTelemetryEnabled = versionParts.Length == 1 || versionParts[1] is not ("dev" or "local");
         }
 

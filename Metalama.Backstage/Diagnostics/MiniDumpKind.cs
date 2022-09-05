@@ -1,4 +1,4 @@
-﻿// Copyright (c) SharpCrafters s.r.o. See the LICENSE.md file in the root directory of this rep root for details.
+﻿// Copyright (c) SharpCrafters s.r.o. See the LICENSE.md file in the root directory of this repository root for details.
 
 using System;
 
@@ -26,10 +26,10 @@ public enum MiniDumpKind : uint
     WithThreadInfo = 0x00001000,
     WithCodeSegments = 0x00002000,
     WithoutAuxiliaryState = 0x00004000,
-    WithFullAuxiliaryState = 0x00008000,
-    
+    WithFullAuxiliaryState = 0x00008000
+
     // The following flags have been introduced in  DbgHelp 6.1
-    
+
     // WithPrivateWriteCopyMemory = 0x00010000,
     // IgnoreInaccessibleMemory = 0x00020000,
     // ValidTypeFlags = 0x0003ffff

@@ -1,4 +1,4 @@
-﻿// Copyright (c) SharpCrafters s.r.o. See the LICENSE.md file in the root directory of this rep root for details.
+﻿// Copyright (c) SharpCrafters s.r.o. See the LICENSE.md file in the root directory of this repository root for details.
 
 using Metalama.Backstage.Configuration;
 using Metalama.Backstage.Extensibility;
@@ -29,7 +29,7 @@ public class CleanUpTests : TestsBase
         { "Extract", CleanUpStrategy.None },
         { "Logs", CleanUpStrategy.Always },
         { "Preview", CleanUpStrategy.WhenUnused },
-        { "Tests", CleanUpStrategy.WhenUnused },
+        { "Tests", CleanUpStrategy.WhenUnused }
     }.ToImmutableDictionary();
 
     public CleanUpTests( ITestOutputHelper logger ) : base(
@@ -55,7 +55,7 @@ public class CleanUpTests : TestsBase
         foreach ( var pair in this._cleanUpStrategyByDirectory )
         {
             var cacheDirectoryPath = Path.Combine( tempDirectoryPath, pair.Key );
-            
+
             this.FileSystem.CreateDirectory( cacheDirectoryPath );
             this.Logger.WriteLine( $"Populating '{cacheDirectoryPath}'." );
 
@@ -117,8 +117,7 @@ public class CleanUpTests : TestsBase
         // Assert every cache directory is empty.
         foreach ( var cacheDirectory in this.FileSystem.EnumerateDirectories( this._standardDirectories.TempDirectory ) )
         {
-            Assert.Empty(
-                this.FileSystem.EnumerateDirectories( cacheDirectory ) );
+            Assert.Empty( this.FileSystem.EnumerateDirectories( cacheDirectory ) );
         }
     }
 
@@ -127,7 +126,7 @@ public class CleanUpTests : TestsBase
     {
         // Make all cleanup.json files with recent last write time.
         this.SetLastWriteTimeOfCleanUpFile( this._standardDirectories.TempDirectory, DateTime.Now );
-        
+
         // Clean-up command should skip directories with WhenUnused, as those files are recently created.
         var tempFileManager = new TempFileManager( this.ServiceProvider );
         tempFileManager.CleanTempDirectories( true );
@@ -164,7 +163,7 @@ public class CleanUpTests : TestsBase
     {
         // Make all cleanup files outdated.
         this.SetLastWriteTimeOfCleanUpFile( this._standardDirectories.TempDirectory, DateTime.Now.AddDays( -10 ) );
-        
+
         // Clean-up command should clean directories with WhenUnused, as those files are outdated.
         var tempFileManager = new TempFileManager( this.ServiceProvider );
         tempFileManager.CleanTempDirectories( true );
@@ -201,7 +200,7 @@ public class CleanUpTests : TestsBase
         // Clean-up command should begin cleaning as the last clean-up was more than a day ago.
         var tempFileManager = new TempFileManager( this.ServiceProvider );
         tempFileManager.CleanTempDirectories();
-        
+
         foreach ( var cacheDirectory in this._cleanUpStrategyByDirectory )
         {
             var cacheDirectoryPath = Path.Combine( this._standardDirectories.TempDirectory, cacheDirectory.Key );
@@ -235,7 +234,7 @@ public class CleanUpTests : TestsBase
         // Create cleanup.json with LastCleanUp property that will not start clean.
         var configurationManager = this.ServiceProvider.GetRequiredBackstageService<IConfigurationManager>();
         configurationManager.Update<CleanUpConfiguration>( c => c.ResetLastCleanUpTime() );
-        
+
         // Clean-up command should skip cleaning as it was attempted too early.
         var tempFileManager = new TempFileManager( this.ServiceProvider );
         tempFileManager.CleanTempDirectories();
@@ -243,7 +242,7 @@ public class CleanUpTests : TestsBase
         foreach ( var cacheDirectory in this._cleanUpStrategyByDirectory )
         {
             var cacheDirectoryPath = Path.Combine( this._standardDirectories.TempDirectory, cacheDirectory.Key );
-            
+
             // Directories should not be cleaned as there last clean-up was less than a day ago.
             Assert.NotEmpty( this.FileSystem.EnumerateDirectories( cacheDirectoryPath ) );
         }
