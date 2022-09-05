@@ -46,9 +46,6 @@ namespace Metalama.Backstage.Extensibility
         public DateTime? BuildDate { get; }
 
         /// <inheritdoc />
-        public bool RequiresSubscription => true;
-
-        /// <inheritdoc />
         public virtual ProcessKind ProcessKind => ProcessUtilities.ProcessKind;
 
         /// <inheritdoc />

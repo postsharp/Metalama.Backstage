@@ -24,7 +24,8 @@ internal class TempFileManager : ITempFileManager
         var directory = Path.Combine(
             this._standardDirectories.TempDirectory,
             subdirectory,
-            this._applicationInfoProvider.CurrentApplication.Version,
+            this._applicationInfoProvider.CurrentApplication.Version
+            ?? throw new InvalidOperationException( $"Unknown version of '{this._applicationInfoProvider.CurrentApplication.Name}' application." ),
             guid?.ToString() ?? "" );
 
         var cleanUpFilePath = Path.Combine( directory, "cleanup.json" );

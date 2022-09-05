@@ -10,7 +10,7 @@ namespace Metalama.Backstage.Licensing
     {
         private readonly string _name;
 
-        private ImmutableArray<LicensedProduct> _eligibleProducts;
+        private readonly ImmutableArray<LicensedProduct> _eligibleProducts;
 
         public bool IsFullfilledBy( LicenseConsumptionData license )
             => license.LicenseType switch

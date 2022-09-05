@@ -306,6 +306,11 @@ namespace Metalama.Backstage.Telemetry
 
                 var version = AssemblyMetadataReader.GetInstance( typeof(TelemetryUploader).Assembly ).PackageVersion;
 
+                if ( version == null )
+                {
+                    throw new InvalidOperationException( $"Unknown version of '{typeof( TelemetryUploader ).Assembly}' assembly package." );
+                }
+
                 var workerDirectory = Path.Combine(
                     this._directories.ApplicationDataDirectory,
                     "Worker",

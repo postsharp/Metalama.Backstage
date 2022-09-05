@@ -73,8 +73,5 @@ namespace Metalama.Backstage.Testing.Services
 
         /// <inheritdoc />
         public ImmutableArray<IComponentInfo> Components { get; }
-
-        /// <inheritdoc />
-        public bool RequiresSubscription => true;
     }
 }
