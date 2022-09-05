@@ -97,7 +97,7 @@ public class TempFileManager : ITempFileManager
     public void DeleteDirectoryRecursive( string directory )
     {
         var cleanUpFileCandidate = Path.Combine( directory, "cleanup.json" );
-        
+
         // If we find the cleanup file in directory, the directory will be deleted.
         if ( this._fileSystem.FileExists( cleanUpFileCandidate ) )
         {
@@ -157,7 +157,8 @@ public class TempFileManager : ITempFileManager
             }
         }
 
-        throw new InvalidOperationException( $"Directory '{directory}' could not be renamed, this is likely caused by another directory with same name exists in the same location." );
+        throw new InvalidOperationException(
+            $"Directory '{directory}' could not be renamed, this is likely caused by another directory with same name exists in the same location." );
     }
 
     public void DeleteDirectory( string directory )

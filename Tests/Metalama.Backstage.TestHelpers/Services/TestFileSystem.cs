@@ -233,7 +233,7 @@ namespace Metalama.Backstage.Testing.Services
         }
 
         public void DeleteDirectory( string path, bool recursive )
-        { 
+        {
             this.Mock.Directory.Delete( path, recursive );
         }
 
