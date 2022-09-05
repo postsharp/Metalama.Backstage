@@ -82,6 +82,8 @@ public class TempFileManager : ITempFileManager
                 catch ( Exception e )
                 {
                     this._logger.Warning?.Log( e.Message );
+
+                    throw;
                 }
             }
         }
@@ -147,6 +149,8 @@ public class TempFileManager : ITempFileManager
                 catch ( Exception e )
                 {
                     this._logger.Warning?.Log( e.Message );
+
+                    throw;
                 }
 
                 return newDirectoryName;
@@ -165,6 +169,8 @@ public class TempFileManager : ITempFileManager
         catch ( Exception e )
         {
             this._logger.Warning?.Log( e.Message );
+
+            throw;
         }
     }
 
