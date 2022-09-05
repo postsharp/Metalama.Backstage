@@ -11,11 +11,6 @@ namespace Metalama.Backstage.Licensing.Consumption
     public class LicenseConsumptionData
     {
         /// <summary>
-        /// Gets requirement available by the license.
-        /// </summary>
-        public LicenseRequirement LicensedRequirement { get; }
-
-        /// <summary>
         /// Gets the namespace constraint of the license.
         /// Gets <c>null</c> if there is no namespace constraint.
         /// </summary>
@@ -50,11 +45,6 @@ namespace Metalama.Backstage.Licensing.Consumption
         public bool IsRedistributable { get; }
 
         /// <summary>
-        /// Gets the number of aspects allowed to be used.
-        /// </summary>
-        public int MaxAspectsCount { get; }
-
-        /// <summary>
         /// Gets the string representation of the license if the license has it.
         /// </summary>
         public string? LicenseString { get; }
@@ -74,23 +64,19 @@ namespace Metalama.Backstage.Licensing.Consumption
         public LicenseConsumptionData(
             LicensedProduct licensedProduct,
             LicenseType licenseType,
-            LicenseRequirement licensedRequirement,
             string? licensedNamespace,
             string displayName,
             Version minPostSharpVersion,
             string? licenseString,
-            bool isRedistributable,
-            int maxAspectsCount )
+            bool isRedistributable )
         {
             this.LicensedProduct = licensedProduct;
             this.LicenseType = licenseType;
-            this.LicensedRequirement = licensedRequirement;
             this.LicensedNamespace = licensedNamespace;
             this.DisplayName = displayName;
             this.MinPostSharpVersion = minPostSharpVersion;
             this.LicenseString = licenseString;
             this.IsRedistributable = isRedistributable;
-            this.MaxAspectsCount = maxAspectsCount;
         }
 
         /// <summary>

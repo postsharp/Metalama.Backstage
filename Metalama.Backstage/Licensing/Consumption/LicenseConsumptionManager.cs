@@ -15,7 +15,7 @@ internal class LicenseConsumptionManager : ILicenseConsumptionManager
     private readonly List<LicensingMessage> _messages = new();
     private readonly LicenseFactory _licenseFactory;
     private readonly Dictionary<string, NamespaceLicenseInfo> _embeddedRedistributionLicensesCache = new();
-    private readonly LicenseRequirement _licensedRequirement;
+    private readonly LicenseConsumptionData? _license;
     private readonly NamespaceLicenseInfo? _licensedNamespace;
 
     /// <summary>
@@ -60,16 +60,15 @@ internal class LicenseConsumptionManager : ILicenseConsumptionManager
                 continue;
             }
 
-            if (!license.TryGetLicenseConsumptionData( out var data ) )
+            if ( !license.TryGetLicenseConsumptionData( out var data ) )
             {
                 var licenseUniqueId = license.TryGetLicenseRegistrationData( out var registrationData ) ? registrationData.UniqueId : "<invalid>";
                 this._logger.Info?.Log( $"License '{licenseUniqueId}' provided by '{source.GetType().Name}' license source is invalid." );
                 continue;
             }
-            
-            this._licensedRequirement = data.LicensedRequirement;
+
+            this._license = data;
             this._licensedNamespace = string.IsNullOrEmpty( data.LicensedNamespace ) ? null : new( data.LicensedNamespace! );
-            this.MaxAspectsCount = data.MaxAspectsCount;
             this.RedistributionLicenseKey = data.IsRedistributable ? data.LicenseString : null;
             return;
         }
@@ -78,6 +77,13 @@ internal class LicenseConsumptionManager : ILicenseConsumptionManager
     /// <inheritdoc />
     public bool CanConsume( LicenseRequirement requirement, string? consumerNamespace = null )
     {
+        if ( this._license == null )
+        {
+            this._logger.Error?.Log( "No license provided." );
+
+            return false;
+        }
+
         if ( !string.IsNullOrEmpty( consumerNamespace )
              && this._licensedNamespace != null
              && !this._licensedNamespace.AllowsNamespace( consumerNamespace ) )
@@ -89,9 +95,10 @@ internal class LicenseConsumptionManager : ILicenseConsumptionManager
             return false;
         }
 
-        if ( !this._licensedRequirement.HasFlag( requirement ) )
+        if ( !requirement.IsFullfilledBy( this._license ) )
         {
             this._logger.Error?.Log( $"License requirement '{requirement}' is not licensed." );
+
             return false;
         }
 
@@ -128,9 +135,6 @@ internal class LicenseConsumptionManager : ILicenseConsumptionManager
 
         return licensedNamespace.AllowsNamespace( aspectClassNamespace );
     }
-
-    /// <inheritdoc />
-    public int MaxAspectsCount { get; }
 
     /// <inheritdoc />
     public string? RedistributionLicenseKey { get; }

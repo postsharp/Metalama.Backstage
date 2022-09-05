@@ -41,7 +41,7 @@ public abstract class LicenseConsumptionManagerTestsBase : LicensingTestsBase
 
     private protected static void TestConsumption(
         ILicenseConsumptionManager manager,
-        LicenseRequirement requestedRequirement,
+        LicenseRequirementTestEnum requestedRequirement,
         bool expectedCanConsume,
         bool expectedLicenseAutoRegistrationAttempt = false )
         => TestConsumption(
@@ -52,11 +52,11 @@ public abstract class LicenseConsumptionManagerTestsBase : LicensingTestsBase
 
     private protected static void TestConsumption(
         ILicenseConsumptionManager manager,
-        LicenseRequirement requestedRequirement,
+        LicenseRequirementTestEnum requestedRequirement,
         string requiredNamespace,
         bool expectedCanConsume )
     {
-        var actualCanConsume = manager.CanConsume( requestedRequirement, requiredNamespace );
+        var actualCanConsume = manager.CanConsume( LicenseRequirementHelper.GetRequirement( requestedRequirement ), requiredNamespace );
         Assert.Equal( expectedCanConsume, actualCanConsume );
     }
 }

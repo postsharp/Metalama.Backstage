@@ -24,7 +24,7 @@ public class LicenseUsageTests : LicenseConsumptionManagerTestsBase
         var source2 = new TestLicenseSource( "source2", license2 );
 
         var manager = this.CreateConsumptionManager( source1, source2 );
-        TestConsumption( manager, LicenseRequirement.Free, true );
+        TestConsumption( manager, LicenseRequirementTestEnum.Free, true );
         Assert.True( license1.IsUsed );
         Assert.False( license2.IsUsed );
         Assert.True( source1.IsUsed );
@@ -41,7 +41,7 @@ public class LicenseUsageTests : LicenseConsumptionManagerTestsBase
         var source2 = new TestLicenseSource( "source2", license2 );
 
         var manager = this.CreateConsumptionManager( source1, source2 );
-        TestConsumption( manager, LicenseRequirement.Ultimate, false );
+        TestConsumption( manager, LicenseRequirementTestEnum.Ultimate, false );
         Assert.True( license1.IsUsed );
         Assert.False( license2.IsUsed );
         Assert.True( source1.IsUsed );
@@ -53,7 +53,7 @@ public class LicenseUsageTests : LicenseConsumptionManagerTestsBase
     {
         var license = this.CreateLicense( TestLicenses.MetalamaUltimateOpenSourceRedistribution );
         var manager = this.CreateConsumptionManager( license );
-        TestConsumption( manager, LicenseRequirement.Ultimate, "Foo", false );
+        TestConsumption( manager, LicenseRequirementTestEnum.Ultimate, "Foo", false );
         AssertAllUsed( license );
     }
 }

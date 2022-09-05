@@ -93,13 +93,11 @@ internal sealed class PreviewLicenseSource : ILicenseSource, ILicense
         licenseConsumptionData = new LicenseConsumptionData(
             LicensedProduct.MetalamaUltimate,
             LicenseType.Preview,
-            LicenseRequirement.All,
             null,
             "Preview License",
             new Version( 0, 0 ),
             null,
-            false,
-            int.MaxValue );
+            false );
 
         return true;
     }

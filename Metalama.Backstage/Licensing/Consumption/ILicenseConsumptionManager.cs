@@ -11,14 +11,6 @@ namespace Metalama.Backstage.Licensing.Consumption
     public interface ILicenseConsumptionManager : IBackstageService
     {
         /// <summary>
-        /// Gets the licensed maximum aspects count.
-        /// </summary>
-        /// <remarks>
-        /// Use <see cref="CanConsume(LicenseRequirement, string?)"/> method to check for namespace limitation.
-        /// </remarks>
-        int MaxAspectsCount { get; }
-
-        /// <summary>
         /// Gets redistribution license key if available.
         /// </summary>
         /// <remarks>

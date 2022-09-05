@@ -43,13 +43,11 @@ internal class UnattendedLicenseSource : ILicenseSource, ILicense
         licenseConsumptionData = new LicenseConsumptionData(
             LicensedProduct.MetalamaUltimate,
             LicenseType.Unattended,
-            LicenseRequirement.All,
             null,
             "Unattended Process License",
             new Version( 0, 0 ),
             null,
-            false,
-            int.MaxValue );
+            false );
 
         return true;
     }

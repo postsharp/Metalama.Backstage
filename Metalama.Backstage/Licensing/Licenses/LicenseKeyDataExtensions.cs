@@ -102,58 +102,16 @@ namespace Metalama.Backstage.Licensing.Licenses
         {
             var licenseType = licenseKeyData.TransformObsoleteLicenseType();
             var product = licenseKeyData.TransformObsoleteProduct();
-
-#pragma warning disable CS0618 // Type or member is obsolete
-            var isEmpty = licenseType == LicenseType.None || licenseType == LicenseType.Anonymous;
-#pragma warning restore CS0618 // Type or member is obsolete
-
             var isRedistributable = licenseType == LicenseType.OpenSourceRedistribution || licenseType == LicenseType.CommercialRedistribution;
-
-            var isUnlimited = isRedistributable || product == LicensedProduct.PostSharpUltimate || product == LicensedProduct.MetalamaUltimate;
-
-            var licensedRequirement = 
-                isEmpty
-                ? LicenseRequirement.None
-                : licenseType == LicenseType.Essentials
-                ? product switch
-            {
-                LicensedProduct.PostSharpUltimate => LicenseRequirement.Free,
-                _ => throw new NotSupportedException( $"License product '{product}' is not supported with essentials license." )
-            }
-                : isUnlimited ? LicenseRequirement.All
-                : product switch
-            {
-                LicensedProduct.PostSharpFramework => LicenseRequirement.Professional,
-                LicensedProduct.MetalamaFree => LicenseRequirement.Free,
-                LicensedProduct.MetalamaStarter => LicenseRequirement.Starter,
-                LicensedProduct.MetalamaProfessional => LicenseRequirement.Professional,
-                _ => throw new NotSupportedException( $"License product '{product}' is not supported." )
-            };
-
-            var maxAspectsCount =
-                isEmpty
-                ? 0
-                : licenseType == LicenseType.Essentials ? 3
-                : isUnlimited ? int.MaxValue
-                : product switch
-            {
-                LicensedProduct.PostSharpFramework => 10,
-                LicensedProduct.MetalamaFree => 3,
-                LicensedProduct.MetalamaStarter => 5,
-                LicensedProduct.MetalamaProfessional => 10,
-                _ => 0
-            };
 
             LicenseConsumptionData data = new(
                 product,
                 licenseType,
-                licensedRequirement,
                 licenseKeyData.Namespace,
                 $"{licenseKeyData.GetProductName()} {licenseKeyData.LicenseType.GetLicenseTypeName()} ID {licenseKeyData.LicenseUniqueId}",
                 licenseKeyData.GetMinPostSharpVersion(),
                 licenseKeyData.LicenseString,
-                isRedistributable,
-                maxAspectsCount );
+                isRedistributable );
 
             return data;
         }
