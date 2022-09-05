@@ -2,7 +2,7 @@
 
 namespace Metalama.Backstage.Maintenance;
 
-internal class CleanUpFile
+public class CleanUpFile
 {
     public CleanUpStrategy Strategy { get; set; }
 }

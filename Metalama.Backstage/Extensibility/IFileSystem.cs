@@ -21,6 +21,8 @@ namespace Metalama.Backstage.Extensibility
         /// </returns>
         DateTime GetLastWriteTime( string path );
 
+        void SetLastWriteTime( string path, DateTime lastWriteTime );
+
         /// <summary>
         /// Determines whether the specified file exists.
         /// </summary>
@@ -229,5 +231,23 @@ namespace Metalama.Backstage.Extensibility
         /// <param name="path">The file to write to.</param>
         /// <param name="content">The lines to write to the file.</param>
         void WriteAllLines( string path, IEnumerable<string> content );
+
+        /// <summary>Moves a file or a directory and its contents to a new location.</summary>
+        /// <param name="sourceDirName">The path of the file or directory to move.</param>
+        /// <param name="destDirName">The path to the new location for <paramref name="sourceDirName" />. If <paramref name="sourceDirName" /> is a file, then <paramref name="destDirName" /> must also be a file name.</param>
+        void MoveDirectory( string sourceDirName, string destDirName );
+
+        /// <summary>Deletes the specified directory and, if indicated, any subdirectories and files in the directory.</summary>
+        /// <param name="path">The name of the directory to remove.</param>
+        /// <param name="recursive">
+        /// <see langword="true" /> to remove directories, subdirectories, and files in <paramref name="path" />; otherwise, <see langword="false" />.</param>
+        void DeleteDirectory( string path, bool recursive );
+
+        /// <summary>
+        /// Checks whether directory on <paramref name="path"/> is empty.
+        /// </summary>
+        /// <param name="path">The name of the directory to check.</param>
+        /// <returns>Value indicating whether <paramref name="path"/> has any subdirectories or files.</returns>
+        bool IsDirectoryEmpty( string path );
     }
 }
