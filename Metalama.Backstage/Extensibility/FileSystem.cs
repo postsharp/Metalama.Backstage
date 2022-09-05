@@ -18,6 +18,11 @@ namespace Metalama.Backstage.Extensibility
             return File.GetLastWriteTime( path );
         }
 
+        public void SetLastWriteTime( string path, DateTime lastWriteTime )
+        {
+            File.SetLastWriteTime( path, lastWriteTime );
+        }
+
         /// <inheritdoc />
         public bool FileExists( string path )
         {
@@ -151,5 +156,20 @@ namespace Metalama.Backstage.Extensibility
         {
             File.WriteAllLines( path, content );
         }
+
+        /// <inheritdoc />
+        public void MoveDirectory( string sourceDirName, string destDirName )
+        {
+            Directory.Move( sourceDirName, destDirName );
+        }
+
+        /// <inheritdoc />
+        public void DeleteDirectory( string path, bool recursive )
+        {
+            Directory.Delete( path, recursive );
+        }
+
+        /// <inheritdoc />
+        public bool IsDirectoryEmpty( string path ) => !Directory.EnumerateFileSystemEntries( path ).Any();
     }
 }
