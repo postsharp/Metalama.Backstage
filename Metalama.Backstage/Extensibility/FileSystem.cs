@@ -97,46 +97,6 @@ namespace Metalama.Backstage.Extensibility
             }
         }
 
-        public string[] GetFileSystemEntries(
-            string path,
-            string? searchPattern = null,
-            SearchOption? searchOption = null )
-        {
-            return this.EnumerateFileSystemEntries( path, searchPattern, searchOption ).ToArray();
-        }
-
-        public IEnumerable<string> EnumerateFileSystemEntries(
-            string path,
-            string? searchPattern = null,
-            SearchOption? searchOption = null )
-        {
-            string[] directories;
-            string[] files;
-
-            if ( searchOption.HasValue )
-            {
-                if ( searchPattern == null )
-                {
-                    throw new ArgumentNullException( nameof(searchPattern) );
-                }
-
-                directories = Directory.GetDirectories( path, searchPattern, searchOption.Value );
-                files = Directory.GetFiles( path, searchPattern, searchOption.Value );
-            }
-            else if ( searchPattern != null )
-            {
-                directories = Directory.GetDirectories( path, searchPattern );
-                files = Directory.GetFiles( path, searchPattern );
-            }
-            else
-            {
-                directories = Directory.GetDirectories( path );
-                files = Directory.GetFiles( path );
-            }
-
-            return directories.Concat( files ).ToArray();
-        }
-
         /// <inheritdoc />
         public void CreateDirectory( string path )
         {
@@ -198,15 +158,18 @@ namespace Metalama.Backstage.Extensibility
         }
 
         /// <inheritdoc />
-        public void DirectoryMove( string sourceDirName, string destDirName )
+        public void MoveDirectory( string sourceDirName, string destDirName )
         {
             Directory.Move( sourceDirName, destDirName );
         }
 
         /// <inheritdoc />
-        public void DirectoryDelete( string path, bool recursive )
+        public void DeleteDirectory( string path, bool recursive )
         {
             Directory.Delete( path, recursive );
         }
+
+        /// <inheritdoc />
+        public bool IsDirectoryEmpty( string path ) => !Directory.EnumerateFileSystemEntries( path ).Any();
     }
 }

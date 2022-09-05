@@ -160,61 +160,6 @@ namespace Metalama.Backstage.Extensibility
             SearchOption? searchOption = null );
 
         /// <summary>
-        /// Returns an array of all the file names and directory names
-        /// that match a search pattern in a specified path,
-        /// and optionally searches subdirectories.
-        /// </summary>
-        /// <param name="path">
-        /// The relative or absolute path to the directory to search.
-        /// This string is not case-sensitive.
-        /// </param>
-        /// <param name="searchPattern">
-        /// The search string to match against the names of files and directories in <paramref name="path" />.
-        /// This parameter can contain a combination of valid literal path and wildcard (* and ?) characters,
-        /// but it doesn't support regular expressions.
-        /// </param>
-        /// <param name="searchOption">
-        /// One of the enumeration values that specifies whether the search operation
-        /// should include only the current directory
-        /// or should include all subdirectories.
-        /// The default value is <see cref="F:System.IO.SearchOption.TopDirectoryOnly" />.
-        /// </param>
-        /// <returns>
-        /// An array of file the file names and directory names that match the specified search criteria,
-        /// or an empty array if no files or directories are found.
-        /// </returns>
-        string[] GetFileSystemEntries( string path, string? searchPattern = null, SearchOption? searchOption = null );
-
-        /// <summary>
-        /// Returns an enumerable collection of file names and directory names
-        /// that match a search pattern in a specified path, and optionally searches subdirectories.
-        /// </summary>
-        /// <param name="path">
-        /// The relative or absolute path to the directory to search.
-        /// This string is not case-sensitive.
-        /// </param>
-        /// <param name="searchPattern">
-        /// The search string to match against file-system entries in <paramref name="path" />.
-        /// This parameter can contain a combination of valid literal path and wildcard (* and ?) characters,
-        /// but it doesn't support regular expressions.
-        /// </param>
-        /// <param name="searchOption">
-        /// One of the enumeration values  that specifies whether the search operation
-        /// should include only the current directory
-        /// or should include all subdirectories.
-        /// The default value is <see cref="F:System.IO.SearchOption.TopDirectoryOnly" />.
-        /// </param>
-        /// <returns>
-        /// An enumerable collection of file-system entries in the directory
-        /// specified by <paramref name="path" />
-        /// and that match the specified search pattern and option.
-        /// </returns>
-        IEnumerable<string> EnumerateFileSystemEntries(
-            string path,
-            string? searchPattern = null,
-            SearchOption? searchOption = null );
-
-        /// <summary>
         /// Creates all directories and subdirectories in the specified path unless they already exist.
         /// </summary>
         /// <param name="path">The directory to create.</param>
@@ -290,12 +235,19 @@ namespace Metalama.Backstage.Extensibility
         /// <summary>Moves a file or a directory and its contents to a new location.</summary>
         /// <param name="sourceDirName">The path of the file or directory to move.</param>
         /// <param name="destDirName">The path to the new location for <paramref name="sourceDirName" />. If <paramref name="sourceDirName" /> is a file, then <paramref name="destDirName" /> must also be a file name.</param>
-        void DirectoryMove( string sourceDirName, string destDirName );
+        void MoveDirectory( string sourceDirName, string destDirName );
 
         /// <summary>Deletes the specified directory and, if indicated, any subdirectories and files in the directory.</summary>
         /// <param name="path">The name of the directory to remove.</param>
         /// <param name="recursive">
         /// <see langword="true" /> to remove directories, subdirectories, and files in <paramref name="path" />; otherwise, <see langword="false" />.</param>
-        void DirectoryDelete( string path, bool recursive );
+        void DeleteDirectory( string path, bool recursive );
+
+        /// <summary>
+        /// Checks whether directory on <paramref name="path"/> is empty.
+        /// </summary>
+        /// <param name="path">The name of the directory to check.</param>
+        /// <returns>Value indicating whether <paramref name="path"/> has any subdirectories or files.</returns>
+        bool IsDirectoryEmpty( string path );
     }
 }
