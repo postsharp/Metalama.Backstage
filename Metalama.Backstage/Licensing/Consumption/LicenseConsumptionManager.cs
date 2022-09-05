@@ -26,6 +26,20 @@ internal class LicenseConsumptionManager : ILicenseConsumptionManager
     public LicenseConsumptionManager( IServiceProvider services, params ILicenseSource[] licenseSources )
         : this( services, (IEnumerable<ILicenseSource>) licenseSources ) { }
 
+    private void ReportMessage( LicensingMessage message )
+    {
+        this._messages.Add( message );
+
+        if ( message.IsError )
+        {
+            this._logger.Error?.Log( message.Text );
+        }
+        else
+        {
+            this._logger.Warning?.Log( message.Text );
+        }
+    }
+
     /// <summary>
     /// Initializes a new instance of the <see cref="LicenseConsumptionManager"/> class.
     /// </summary>
@@ -33,26 +47,12 @@ internal class LicenseConsumptionManager : ILicenseConsumptionManager
     /// <param name="licenseSources">License sources.</param>
     public LicenseConsumptionManager( IServiceProvider services, IEnumerable<ILicenseSource> licenseSources )
     {
-        void ReportMessage( LicensingMessage message )
-        {
-            this._messages.Add( message );
-
-            if ( message.IsError )
-            {
-                this._logger.Error?.Log( message.Text );
-            }
-            else
-            {
-                this._logger.Warning?.Log( message.Text );
-            }
-        }
-
         this._logger = services.GetLoggerFactory().Licensing();
         this._licenseFactory = new( services );
 
         foreach ( var source in licenseSources )
         {
-            var license = source.GetLicense( ReportMessage );
+            var license = source.GetLicense( this.ReportMessage );
 
             if ( license == null )
             {
@@ -82,7 +82,10 @@ internal class LicenseConsumptionManager : ILicenseConsumptionManager
              && this._licensedNamespace != null
              && !this._licensedNamespace.AllowsNamespace( consumerNamespace ) )
         {
-            this._logger.Error?.Log( $"Consumer namespace '{consumerNamespace}' is not licensed." );
+            this.ReportMessage( new LicensingMessage(
+                $"Namespace '{consumerNamespace}' is not licensed. Your license is limited to '{this._licensedNamespace.AllowedNamespace}' namespace.",
+                true ) );
+
             return false;
         }
 
