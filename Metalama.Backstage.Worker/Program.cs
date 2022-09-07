@@ -1,7 +1,8 @@
-﻿// Copyright (c) SharpCrafters s.r.o. See the LICENSE.md file in the root directory of this rep root for details.
+﻿// Copyright (c) SharpCrafters s.r.o. See the LICENSE.md file in the root directory of this repository root for details.
 
 using Metalama.Backstage.Diagnostics;
 using Metalama.Backstage.Extensibility;
+using Metalama.Backstage.Maintenance;
 using Metalama.Backstage.Telemetry;
 using System;
 using System.Threading.Tasks;
@@ -13,13 +14,32 @@ namespace Metalama.Backstage
         public static async Task Main()
         {
             IServiceProvider? serviceProvider = null;
+
+            var serviceProviderBuilder = new ServiceProviderBuilder()
+                .AddMinimalBackstageServices( applicationInfo: new BackstageWorkerApplicationInfo(), addSupportServices: true );
+
+            // Clean-up is scheduled automatically from Telemetry.
+            try
+            {
+                serviceProvider = serviceProviderBuilder.ServiceProvider;
+
+                var tempFileManager = new TempFileManager( serviceProvider );
+
+                tempFileManager.CleanTempDirectories();
+            }
+            catch ( Exception e )
+            {
+                if ( !HandleException( serviceProvider, e ) )
+                {
+                    throw;
+                }
+            }
+
+            // Telemetry.
             IUsageSample? usageSample = null;
 
             try
             {
-                var serviceProviderBuilder = new ServiceProviderBuilder()
-                    .AddMinimalBackstageServices( applicationInfo: new BackstageWorkerApplicationInfo(), addSupportServices: true );
-
                 usageSample = serviceProviderBuilder.ServiceProvider.GetBackstageService<IUsageReporter>()?.CreateSample( "CompilerUsage" );
 
                 if ( usageSample != null )
@@ -36,39 +56,7 @@ namespace Metalama.Backstage
             }
             catch ( Exception e )
             {
-                var isReported = false;
-
-                try
-                {
-                    var exceptionReporter = serviceProvider?.GetBackstageService<IExceptionReporter>();
-
-                    if ( exceptionReporter != null )
-                    {
-                        exceptionReporter.ReportException( e );
-                        isReported = true;
-                    }
-                }
-                catch
-                {
-                    // We don't want failing telemetry to disturb users.
-                }
-
-                try
-                {
-                    var log = serviceProvider?.GetLoggerFactory().Telemetry().Error;
-
-                    if ( log != null )
-                    {
-                        log.Log( $"Unhandled exception: {e}" );
-                        isReported = true;
-                    }
-                }
-                catch
-                {
-                    // We don't want failing telemetry to disturb users.
-                }
-
-                if ( !isReported )
+                if ( !HandleException( serviceProvider, e ) )
                 {
                     throw;
                 }
@@ -98,6 +86,43 @@ namespace Metalama.Backstage
                     // We don't re-throw here as we don't want compiler to crash because of usage reporting exceptions.
                 }
             }
+        }
+
+        public static bool HandleException( IServiceProvider? serviceProvider, Exception e )
+        {
+            try
+            {
+                var exceptionReporter = serviceProvider?.GetBackstageService<IExceptionReporter>();
+
+                if ( exceptionReporter != null )
+                {
+                    exceptionReporter.ReportException( e );
+
+                    return true;
+                }
+            }
+            catch
+            {
+                // We don't want failing telemetry to disturb users.
+            }
+
+            try
+            {
+                var log = serviceProvider?.GetLoggerFactory().Telemetry().Error;
+
+                if ( log != null )
+                {
+                    log.Log( $"Unhandled exception: {e}" );
+
+                    return true;
+                }
+            }
+            catch
+            {
+                // We don't want failing telemetry to disturb users.
+            }
+
+            return false;
         }
     }
 }

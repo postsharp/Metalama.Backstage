@@ -1,10 +1,11 @@
-﻿// Copyright (c) SharpCrafters s.r.o. See the LICENSE.md file in the root directory of this rep root for details.
+﻿// Copyright (c) SharpCrafters s.r.o. See the LICENSE.md file in the root directory of this repository root for details.
 
 using Metalama.Backstage.Extensibility;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Abstractions.TestingHelpers;
+using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading;
 
@@ -72,6 +73,11 @@ namespace Metalama.Backstage.Testing.Services
         public DateTime GetLastWriteTime( string path )
         {
             return this.Mock.File.GetLastWriteTime( path );
+        }
+
+        public void SetLastWriteTime( string path, DateTime lastWriteTime )
+        {
+            this.Mock.File.SetLastWriteTime( path, lastWriteTime );
         }
 
         public bool FileExists( string path )
@@ -220,5 +226,17 @@ namespace Metalama.Backstage.Testing.Services
             this.Mock.File.WriteAllLines( path, content );
             this.Mock.File.SetLastWriteTime( path, DateTime.Now );
         }
+
+        public void MoveDirectory( string sourceDirName, string destDirName )
+        {
+            this.Mock.Directory.Move( sourceDirName, destDirName );
+        }
+
+        public void DeleteDirectory( string path, bool recursive )
+        {
+            this.Mock.Directory.Delete( path, recursive );
+        }
+
+        public bool IsDirectoryEmpty( string path ) => !this.Mock.Directory.EnumerateFileSystemEntries( path ).Any();
     }
 }

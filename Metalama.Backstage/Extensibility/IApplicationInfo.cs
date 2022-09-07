@@ -1,4 +1,4 @@
-﻿// Copyright (c) SharpCrafters s.r.o. See the LICENSE.md file in the root directory of this rep root for details.
+﻿// Copyright (c) SharpCrafters s.r.o. See the LICENSE.md file in the root directory of this repository root for details.
 
 using Metalama.Backstage.Diagnostics;
 using System;
@@ -27,12 +27,12 @@ namespace Metalama.Backstage.Extensibility
         /// Gets a value indicating whether telemetry is enabled for the application.
         /// </summary>
         bool IsTelemetryEnabled { get; }
-        
+
         /// <summary>
         /// Gets a value indicating whether crashes should be reported for the application.
         /// </summary>
         bool ShouldCreateLocalCrashReports { get; }
-        
+
         /// <summary>
         /// Gets the list of additional components of the application.
         /// </summary>

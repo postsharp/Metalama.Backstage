@@ -1,4 +1,4 @@
-﻿// Copyright (c) SharpCrafters s.r.o. See the LICENSE.md file in the root directory of this rep root for details.
+﻿// Copyright (c) SharpCrafters s.r.o. See the LICENSE.md file in the root directory of this repository root for details.
 
 using System;
 using System.Collections.Generic;
@@ -16,6 +16,11 @@ namespace Metalama.Backstage.Extensibility
         public DateTime GetLastWriteTime( string path )
         {
             return File.GetLastWriteTime( path );
+        }
+
+        public void SetLastWriteTime( string path, DateTime lastWriteTime )
+        {
+            File.SetLastWriteTime( path, lastWriteTime );
         }
 
         /// <inheritdoc />
@@ -151,5 +156,20 @@ namespace Metalama.Backstage.Extensibility
         {
             File.WriteAllLines( path, content );
         }
+
+        /// <inheritdoc />
+        public void MoveDirectory( string sourceDirName, string destDirName )
+        {
+            Directory.Move( sourceDirName, destDirName );
+        }
+
+        /// <inheritdoc />
+        public void DeleteDirectory( string path, bool recursive )
+        {
+            Directory.Delete( path, recursive );
+        }
+
+        /// <inheritdoc />
+        public bool IsDirectoryEmpty( string path ) => !Directory.EnumerateFileSystemEntries( path ).Any();
     }
 }

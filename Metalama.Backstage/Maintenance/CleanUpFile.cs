@@ -1,8 +1,8 @@
-﻿// Copyright (c) SharpCrafters s.r.o. See the LICENSE.md file in the root directory of this rep root for details.
+﻿// Copyright (c) SharpCrafters s.r.o. See the LICENSE.md file in the root directory of this repository root for details.
 
 namespace Metalama.Backstage.Maintenance;
 
-internal class CleanUpFile
+public class CleanUpFile
 {
     public CleanUpStrategy Strategy { get; set; }
 }
