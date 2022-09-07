@@ -2,7 +2,6 @@
 
 using Metalama.Backstage.Licensing.Licenses;
 using System;
-using System.Collections.Generic;
 
 namespace Metalama.Backstage.Licensing.Consumption.Sources
 {
@@ -15,24 +14,25 @@ namespace Metalama.Backstage.Licensing.Consumption.Sources
             this._services = services;
         }
 
-        protected abstract IEnumerable<string> GetLicenseStrings();
+        protected abstract string? GetLicenseString();
 
-        public IEnumerable<ILicense> GetLicenses( Action<LicensingMessage> reportMessage )
+        public ILicense? GetLicense( Action<LicensingMessage> reportMessage )
         {
             var licenseFactory = new LicenseFactory( this._services );
 
-            foreach ( var licenseString in this.GetLicenseStrings() )
-            {
-                if ( string.IsNullOrWhiteSpace( licenseString ) )
-                {
-                    continue;
-                }
+            var licenseString = this.GetLicenseString();
 
-                if ( licenseFactory.TryCreate( licenseString, out var license ) )
-                {
-                    yield return license;
-                }
+            if ( string.IsNullOrWhiteSpace( licenseString ) )
+            {
+                return null;
             }
+
+            if ( !licenseFactory.TryCreate( licenseString, out var license ) )
+            {
+                return null;
+            }
+
+            return license;
         }
 
         public override string ToString() => this.GetType().Name;

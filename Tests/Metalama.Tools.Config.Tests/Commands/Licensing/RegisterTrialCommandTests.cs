@@ -1,7 +1,6 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. See the LICENSE.md file in the root directory of this repository root for details.
 
 using System;
-using System.Globalization;
 using System.Threading.Tasks;
 using Xunit;
 using Xunit.Abstractions;
@@ -21,9 +20,7 @@ namespace Metalama.Tools.Config.Tests.Commands.Licensing
         {
             await this.TestCommandAsync( "license register trial", "" );
 
-            await this.TestCommandAsync(
-                "license list",
-                string.Format( CultureInfo.InvariantCulture, TestLicenses.EvaluationFormat, 1 ) );
+            await this.TestCommandAsync( "license list", TestLicenses.EvaluationOutput );
         }
 
         [Fact]
@@ -39,9 +36,7 @@ namespace Metalama.Tools.Config.Tests.Commands.Licensing
                 "Cannot start the trial period. Use --verbose (-v) flag for details." + Environment.NewLine,
                 1 );
 
-            await this.TestCommandAsync(
-                "license list",
-                string.Format( CultureInfo.InvariantCulture, TestLicenses.EvaluationFormat, 1 ) );
+            await this.TestCommandAsync( "license list", TestLicenses.EvaluationOutput );
         }
 
         [Fact]
@@ -52,12 +47,7 @@ namespace Metalama.Tools.Config.Tests.Commands.Licensing
             this.Time.Set( TestLicenses.ValidNextEvaluationStart );
             await this.TestCommandAsync( "license register trial", "" );
 
-            await this.TestCommandAsync(
-                "license list",
-                string.Format( CultureInfo.InvariantCulture, TestLicenses.EvaluationFormat, 1 ) + string.Format(
-                    CultureInfo.InvariantCulture,
-                    TestLicenses.NextEvaluationFormat,
-                    2 ) );
+            await this.TestCommandAsync( "license list", TestLicenses.NextEvaluationOutput );
         }
     }
 }

@@ -6,60 +6,54 @@ namespace Metalama.Tools.Config.Tests.Commands.Licensing
 {
     internal static class TestLicenses
     {
-        public const string Key1 =
-            "2-ZTQQQQQQQT2ZTQQQQQQQQQQQQQAEGDAFA6KQ7ADVA6JE7BDV62EX37EVVJ8KZSQSKCLTQFGSFVSM8Y4RHVASNSYYC2GXGBB82AEG5YD6HEH2Z5Y8QBFP2HZPXQGKLTET4QQWANS3P3";
+        public const string MetalamaStarterBusinessKey =
+            "3-ZUQQQQQQZUAEQCRCE4UW3UFEB4URXMHRB8KQBJJSB64LX7EAED3WYKF9V8KYEUMGXKBYPRQNNUVQDV3BHMGEHNJHLBKGSD57EEJQRD4F3SWWEA42CUZQQDEZJGP4Q8USJG4X6P2";
 
-        public const string Format1 = @"                 Ordinal: {0}
-              License ID: 2
-             License Key: 2-ZTQQQQQQQT2ZTQQQQQQQQQQQQQAEGDAFA6KQ7ADVA6JE7BDV62EX37EVVJ8KZSQSKCLTQFGSFVSM8Y4RHVASNSYYC2GXGBB82AEG5YD6HEH2Z5Y8QBFP2HZPXQGKLTET4QQWANS3P3
-             Description: PostSharp Threading (License)
+        public const string MetalamaStarterBusinessOutput = @"              License ID: 3
+             License Key: 3-ZUQQQQQQZUAEQCRCE4UW3UFEB4URXMHRB8KQBJJSB64LX7EAED3WYKF9V8KYEUMGXKBYPRQNNUVQDV3BHMGEHNJHLBKGSD57EEJQRD4F3SWWEA42CUZQQDEZJGP4Q8USJG4X6P2
+             Description: Metalama Starter (Per-Developer Subscription)
                 Licensee: SharpCrafters s.r.o.
       License Expiration: Never (perpetual license)
-  Maintenance Expiration: Friday, 01 April 2050
+  Maintenance Expiration: Saturday, 01 January 2050
 
 ";
 
-        public const string Key2 =
-            "2-ZTQQQQQQZE2EQCRCE4UW3UFEB4URXMHRB8KQBJJSB64LX7EAEG26YXHZG7MR59XBTN4M26LZTC6GQ5LUMAZQSHKJ2QYBWHN6AD6RCEAH6R4WCJP2GUZQQDTFJJPA";
+        public const string MetalamaProfessionalPersonalKey =
+            "11-ZUZQQQQQ6TAEQCRCE4UW3UFEB4URXMHRB8KQBJJSB64LX7EAEGQM4FBBD3KBB3JBXWAS9UBFLGGN7WJWBF9TXKVTWH2PWUB5HE52LBPVQ2LJQNK5YKZQQDEZJGP4Q8USJG4X6P2";
 
-        public const string Format2 = @"                 Ordinal: {0}
-              License ID: 2
-             License Key: 2-ZTQQQQQQZE2EQCRCE4UW3UFEB4URXMHRB8KQBJJSB64LX7EAEG26YXHZG7MR59XBTN4M26LZTC6GQ5LUMAZQSHKJ2QYBWHN6AD6RCEAH6R4WCJP2GUZQQDTFJJPA
-             Description: PostSharp MVVM (Per-Developer Subscription)
+        public const string MetalamaProfessionalPersonalOutput = @"              License ID: 11
+             License Key: 11-ZUZQQQQQ6TAEQCRCE4UW3UFEB4URXMHRB8KQBJJSB64LX7EAEGQM4FBBD3KBB3JBXWAS9UBFLGGN7WJWBF9TXKVTWH2PWUB5HE52LBPVQ2LJQNK5YKZQQDEZJGP4Q8USJG4X6P2
+             Description: Metalama Professional (Personal License)
                 Licensee: SharpCrafters s.r.o.
       License Expiration: Never (perpetual license)
-  Maintenance Expiration: Friday, 01 April 2050
+  Maintenance Expiration: Saturday, 01 January 2050
 
 ";
 
-        public const string Key3 =
-            "2-ZTQQQQQQQE2ZTQQQQQQQQQQQQQAEGDAFA6KQ7ADVA6JE7BDV62EX37EVVJ8KZSQSHBZDWDEZX22E68YNRTE7USY94T2FGS353TZ9JGPA6ERTXYTE4JUK9UY8GH6WA6RA4QQWANS3P3";
+        public const string MetalamaUltimateOpenSourceRedistributionKey =
+            "8-ZQZQQQQQXEAEQCRCE4UW3UFEB4URXMHRB8KQBJJSB64LX7YQ2GYCXBSF629W7YDRH29BN7JFYCJX3MFVVAHZXJ9RS29KYTHFS8KQ7TFRS6ZTBVWZLKJVF3HZZHWA4ZKSX3DXZYBKR4MWCZF4AW43L2DLEPB5T8HFVMFKBYLUG2X78SQQBTWB2P7QNG4B27RXP3";
 
-        public const string Format3 = @"                 Ordinal: {0}
-              License ID: 2
-             License Key: 2-ZTQQQQQQQE2ZTQQQQQQQQQQQQQAEGDAFA6KQ7ADVA6JE7BDV62EX37EVVJ8KZSQSHBZDWDEZX22E68YNRTE7USY94T2FGS353TZ9JGPA6ERTXYTE4JUK9UY8GH6WA6RA4QQWANS3P3
-             Description: PostSharp MVVM (License)
+        public const string MetalamaUltimateOpenSourceRedistributionOutput = @"              License ID: 8
+             License Key: 8-ZQZQQQQQXEAEQCRCE4UW3UFEB4URXMHRB8KQBJJSB64LX7YQ2GYCXBSF629W7YDRH29BN7JFYCJX3MFVVAHZXJ9RS29KYTHFS8KQ7TFRS6ZTBVWZLKJVF3HZZHWA4ZKSX3DXZYBKR4MWCZF4AW43L2DLEPB5T8HFVMFKBYLUG2X78SQQBTWB2P7QNG4B27RXP3
+             Description: Metalama Ultimate (Open-Source Redistribution License)
                 Licensee: SharpCrafters s.r.o.
       License Expiration: Never (perpetual license)
-  Maintenance Expiration: Friday, 01 April 2050
+  Maintenance Expiration: Saturday, 01 January 2050
 
 ";
 
-        public const string EssentialsFormat = @"                 Ordinal: {0}
-             Description: Metalama Ultimate (Essentials License)
+        public const string FreeOutput = @"             Description: Metalama Free (Personal License)
       License Expiration: Never (perpetual license)
 
 ";
 
-        public const string EvaluationFormat = @"                 Ordinal: {0}
-             Description: Metalama Ultimate (Evaluation License)
+        public const string EvaluationOutput = @"             Description: Metalama Ultimate (Evaluation License)
       License Expiration: Saturday, 15 February 2020
   Maintenance Expiration: Saturday, 15 February 2020
 
 ";
 
-        public const string NextEvaluationFormat = @"                 Ordinal: {0}
-             Description: Metalama Ultimate (Evaluation License)
+        public const string NextEvaluationOutput = @"             Description: Metalama Ultimate (Evaluation License)
       License Expiration: Monday, 15 February 2021
   Maintenance Expiration: Monday, 15 February 2021
 

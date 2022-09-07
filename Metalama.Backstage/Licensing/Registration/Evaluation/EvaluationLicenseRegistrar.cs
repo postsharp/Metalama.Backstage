@@ -5,7 +5,6 @@ using Metalama.Backstage.Extensibility;
 using Metalama.Backstage.Licensing.Licenses;
 using Metalama.Backstage.Utilities;
 using System;
-using System.Linq;
 
 namespace Metalama.Backstage.Licensing.Registration.Evaluation;
 
@@ -59,10 +58,8 @@ public class EvaluationLicenseRegistrar
 
             // If the configuration file contains an evaluation license created today, this may be a race condition with
             // another process also trying to activate the evaluation mode. In this case, we just pretend we have succeeded.
-            if ( configuration.Licenses.Any(
-                    l =>
-                        l.LicenseData is { LicenseType: LicenseType.Evaluation } &&
-                        l.LicenseData.ValidFrom == this._time.Now.Date ) )
+            if ( configuration.LicenseData is { LicenseType: LicenseType.Evaluation } &&
+                 configuration.LicenseData?.ValidFrom == this._time.Now.Date )
             {
                 this._logger.Trace?.Log( "Another process started the evaluation period today." );
 
@@ -70,7 +67,8 @@ public class EvaluationLicenseRegistrar
             }
 
             // If the configuration file contains any license, we won't register the evaluation license.
-            if ( configuration.Licenses.Any( l => l.LicenseData != null && (l.LicenseData.ValidTo == null || l.LicenseData.ValidTo.Value >= this._time.Now) ) )
+            if ( configuration.LicenseData != null &&
+                 (configuration.LicenseData.ValidTo == null || configuration.LicenseData.ValidTo.Value >= this._time.Now) )
             {
                 this._logger.Warning?.Log( "You cannot start the evaluation mode because another license key is registered in the user profile." );
 
@@ -93,7 +91,7 @@ public class EvaluationLicenseRegistrar
             var factory = new UnsignedLicenseFactory( this._services );
             var (licenseKey, data) = factory.CreateEvaluationLicense();
 
-            configuration.AddLicense( licenseKey, data );
+            configuration.StoreLicense( licenseKey, data );
             configuration.LastEvaluationStartDate = this._time.Now;
         }
 

@@ -29,12 +29,12 @@ namespace Metalama.Backstage.Licensing
         /// <summary>
         /// PostSharp Ultimate.
         /// </summary>
-        Ultimate = 3,
+        PostSharpUltimate = 3,
 
         /// <summary>
         /// PostSharp Framework.
         /// </summary>
-        Framework = 4,
+        PostSharpFramework = 4,
 
         /// <summary>
         /// Metalama Ultimate.
@@ -47,24 +47,34 @@ namespace Metalama.Backstage.Licensing
         MetalamaProfessional = 6,
 
         /// <summary>
-        /// Logging Library.
+        /// Metalama Starter.
         /// </summary>
-        DiagnosticsLibrary = 12,
+        MetalamaStarter = 7,
 
         /// <summary>
-        /// MVVM Library (former XAML/Model Library).
+        /// Metalama Free.
         /// </summary>
-        ModelLibrary = 13,
+        MetalamaFree = 8,
 
         /// <summary>
-        /// Threading Library.
+        /// PostSharp Logging Library.
         /// </summary>
-        ThreadingLibrary = 14,
+        PostSharpLoggingLibrary = 12,
 
         /// <summary>
-        /// Caching Library.
+        /// PostSharp MVVM Library (former XAML/Model Library).
         /// </summary>
-        CachingLibrary = 15
+        PostSharpMvvmLibrary = 13,
+
+        /// <summary>
+        /// PostSharp Threading Library.
+        /// </summary>
+        PostSharpThreadingLibrary = 14,
+
+        /// <summary>
+        /// PostSharp Caching Library.
+        /// </summary>
+        PostSharpCachingLibrary = 15
 
         // 255 is reserved as unknown for testing purposes
     }

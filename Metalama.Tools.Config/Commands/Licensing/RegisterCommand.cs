@@ -10,21 +10,21 @@ namespace Metalama.DotNetTools.Commands.Licensing;
 
 internal class RegisterCommand : CommandBase
 {
-    // TODO Reporting of license registration.
+    // TODO Reporting of license registration (#29957)
 
     public RegisterCommand( ICommandServiceProviderProvider commandServiceProvider )
         : base(
             commandServiceProvider,
             "register",
-            "Registers a license key, starts the trial period, switch to the Metalama Essentials" )
+            "Registers a license key, starts the trial period, switch to the Metalama Free" )
     {
         this.AddArgument(
             new Argument<string>(
                 "license-key-or-type",
-                "The license key to be registered, or 'trial' or 'essentials'" ) );
+                "The license key to be registered, or 'trial' or 'free'" ) );
 
         this.AddCommand( new RegisterTrialCommand( commandServiceProvider ) );
-        this.AddCommand( new RegisterEssentialsCommand( commandServiceProvider ) );
+        this.AddCommand( new RegisterFreeCommand( commandServiceProvider ) );
 
         this.Handler = CommandHandler.Create<string, bool, IConsole>( this.Execute );
     }
@@ -45,7 +45,7 @@ internal class RegisterCommand : CommandBase
 
         var storage = ParsedLicensingConfiguration.OpenOrCreate( this.CommandServices.ServiceProvider );
 
-        storage.AddLicense( licenseKey, data );
+        storage.StoreLicense( licenseKey, data );
 
         return 0;
     }

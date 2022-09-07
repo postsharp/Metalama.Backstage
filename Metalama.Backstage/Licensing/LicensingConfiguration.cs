@@ -15,6 +15,8 @@ internal class LicensingConfiguration : ConfigurationFile
     [JsonProperty( "lastEvaluationStartDate" )]
     public DateTime? LastEvaluationStartDate { get; set; }
 
+    // Originally, the license configuration allowed for multiple license keys. We keep the array for backward compatility,
+    // but we no longer store more than one key there.
     [JsonProperty( "licenses" )]
     public string[] Licenses { get; set; } = Array.Empty<string>();
 

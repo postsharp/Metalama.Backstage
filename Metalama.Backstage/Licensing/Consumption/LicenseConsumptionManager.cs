@@ -5,7 +5,6 @@ using Metalama.Backstage.Licensing.Consumption.Sources;
 using Metalama.Backstage.Licensing.Licenses;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace Metalama.Backstage.Licensing.Consumption;
 
@@ -13,15 +12,11 @@ namespace Metalama.Backstage.Licensing.Consumption;
 internal class LicenseConsumptionManager : ILicenseConsumptionManager
 {
     private readonly ILogger _logger;
-    private readonly List<ILicenseSource> _unusedLicenseSources = new();
-    private readonly HashSet<ILicense> _unusedLicenses = new();
-
-    // ReSharper disable once CollectionNeverQueried.Local (should be used in license audit).
-    private readonly HashSet<ILicense> _usedLicenses = new();
-    private readonly Dictionary<string, LicenseNamespaceConstraint> _namespaceLimitedLicensedFeatures = new();
-    private readonly List<LicensingMessage> _warnings = new();
-
-    private LicensedFeatures _licensedFeatures;
+    private readonly List<LicensingMessage> _messages = new();
+    private readonly LicenseFactory _licenseFactory;
+    private readonly Dictionary<string, NamespaceLicenseInfo> _embeddedRedistributionLicensesCache = new();
+    private readonly LicenseConsumptionData? _license;
+    private readonly NamespaceLicenseInfo? _licensedNamespace;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="LicenseConsumptionManager"/> class.
@@ -31,6 +26,20 @@ internal class LicenseConsumptionManager : ILicenseConsumptionManager
     public LicenseConsumptionManager( IServiceProvider services, params ILicenseSource[] licenseSources )
         : this( services, (IEnumerable<ILicenseSource>) licenseSources ) { }
 
+    private void ReportMessage( LicensingMessage message )
+    {
+        this._messages.Add( message );
+
+        if ( message.IsError )
+        {
+            this._logger.Error?.Log( message.Text );
+        }
+        else
+        {
+            this._logger.Warning?.Log( message.Text );
+        }
+    }
+
     /// <summary>
     /// Initializes a new instance of the <see cref="LicenseConsumptionManager"/> class.
     /// </summary>
@@ -39,109 +48,97 @@ internal class LicenseConsumptionManager : ILicenseConsumptionManager
     public LicenseConsumptionManager( IServiceProvider services, IEnumerable<ILicenseSource> licenseSources )
     {
         this._logger = services.GetLoggerFactory().Licensing();
+        this._licenseFactory = new( services );
 
-        this._unusedLicenseSources.AddRange( licenseSources );
+        foreach ( var source in licenseSources )
+        {
+            var license = source.GetLicense( this.ReportMessage );
+
+            if ( license == null )
+            {
+                this._logger.Info?.Log( $"'{source.GetType().Name}' license source provided no license." );
+                continue;
+            }
+
+            if ( !license.TryGetLicenseConsumptionData( out var data ) )
+            {
+                var licenseUniqueId = license.TryGetLicenseRegistrationData( out var registrationData ) ? registrationData.UniqueId : "<invalid>";
+                this._logger.Info?.Log( $"License '{licenseUniqueId}' provided by '{source.GetType().Name}' license source is invalid." );
+                continue;
+            }
+
+            this._license = data;
+            this._licensedNamespace = string.IsNullOrEmpty( data.LicensedNamespace ) ? null : new( data.LicensedNamespace! );
+            this.RedistributionLicenseKey = data.IsRedistributable ? data.LicenseString : null;
+            return;
+        }
     }
 
-    private bool TryLoadNextLicenseSource( Action<LicensingMessage> reportMessage )
+    /// <inheritdoc />
+    public bool CanConsume( LicenseRequirement requirement, string? consumerNamespace = null )
     {
-        if ( this._unusedLicenseSources.Count == 0 )
+        if ( this._license == null )
         {
+            this._logger.Error?.Log( "No license provided." );
+
             return false;
         }
 
-        var licenseSource = this._unusedLicenseSources.First();
-
-        this._logger.Trace?.Log( $"Enumerating the license source {licenseSource}." );
-
-        this._unusedLicenseSources.Remove( licenseSource );
-
-        foreach ( var license in licenseSource.GetLicenses( reportMessage ) )
+        if ( !string.IsNullOrEmpty( consumerNamespace )
+             && this._licensedNamespace != null
+             && !this._licensedNamespace.AllowsNamespace( consumerNamespace ) )
         {
-            this._logger.Trace?.Log( $"{licenseSource} provided the license '{license}'." );
-            this._unusedLicenses.Add( license );
-        }
+            this.ReportMessage( new LicensingMessage(
+                $"Namespace '{consumerNamespace}' is not licensed. Your license is limited to '{this._licensedNamespace.AllowedNamespace}' namespace.",
+                true ) );
 
-        return true;
-    }
-
-    private bool TryLoadNextLicense()
-    {
-        if ( this._unusedLicenses.Count == 0 )
-        {
             return false;
         }
 
-        var license = this._unusedLicenses.First();
-
-        this._logger.Trace?.Log( $"Loading the license '{license}'." );
-        this._unusedLicenses.Remove( license );
-        this._usedLicenses.Add( license );
-
-        // TODO: license audit
-
-        if ( !license.TryGetLicenseConsumptionData( out var licenseData ) )
+        if ( !requirement.IsFullfilledBy( this._license ) )
         {
+            this._logger.Error?.Log( $"License requirement '{requirement}' is not licensed." );
+
             return false;
-        }
-
-        if ( licenseData.LicensedNamespace == null )
-        {
-            this._licensedFeatures |= licenseData.LicensedFeatures;
-        }
-        else
-        {
-            if ( !this._namespaceLimitedLicensedFeatures.TryGetValue(
-                    licenseData.LicensedNamespace,
-                    out var namespaceFeatures ) )
-            {
-                this._namespaceLimitedLicensedFeatures[licenseData.LicensedNamespace] =
-                    new LicenseNamespaceConstraint(
-                        licenseData.LicensedNamespace,
-                        licenseData.LicensedFeatures );
-            }
-            else
-            {
-                namespaceFeatures.LicensedFeatures |= licenseData.LicensedFeatures;
-            }
         }
 
         return true;
     }
 
     /// <inheritdoc />
-    public bool CanConsumeFeatures( LicensedFeatures requiredFeatures, string? consumerNamespace )
+    public bool ValidateRedistributionLicenseKey( string redistributionLicenseKey, string aspectClassNamespace )
     {
-        void ReportWarning( LicensingMessage message )
+        if ( !this._embeddedRedistributionLicensesCache.TryGetValue( redistributionLicenseKey, out var licensedNamespace ) )
         {
-            this._warnings.Add( message );
-            this._logger.Warning?.Log( message.Text );
-        }
-
-        do
-        {
-            do
+            if ( !this._licenseFactory.TryCreate( redistributionLicenseKey, out var license ) )
             {
-                if ( this._licensedFeatures.HasFlag( requiredFeatures ) )
-                {
-                    return true;
-                }
-
-                if ( !string.IsNullOrEmpty( consumerNamespace )
-                     && this._namespaceLimitedLicensedFeatures.Count > 0
-                     && this._namespaceLimitedLicensedFeatures.Values.Any(
-                         nsf => nsf.AllowsNamespace( consumerNamespace )
-                                && nsf.LicensedFeatures.HasFlag( requiredFeatures ) ) )
-                {
-                    return true;
-                }
+                return false;
             }
-            while ( this.TryLoadNextLicense() );
-        }
-        while ( this.TryLoadNextLicenseSource( ReportWarning ) );
 
-        return false;
+            if ( !license.TryGetLicenseConsumptionData( out var licenseConsumptionData ) )
+            {
+                return false;
+            }
+
+            if ( !licenseConsumptionData.IsRedistributable )
+            {
+                return false;
+            }
+
+            if ( string.IsNullOrEmpty( licenseConsumptionData.LicensedNamespace ) )
+            {
+                return false;
+            }
+
+            licensedNamespace = new( licenseConsumptionData.LicensedNamespace! );
+        }
+
+        return licensedNamespace.AllowsNamespace( aspectClassNamespace );
     }
 
-    public IReadOnlyList<LicensingMessage> Messages => this._warnings;
+    /// <inheritdoc />
+    public string? RedistributionLicenseKey { get; }
+
+    /// <inheritdoc />
+    public IReadOnlyList<LicensingMessage> Messages => this._messages;
 }

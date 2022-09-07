@@ -2,6 +2,7 @@
 
 using Metalama.Backstage.Configuration;
 using Metalama.Backstage.Diagnostics;
+using Metalama.Backstage.Licensing;
 using Metalama.Backstage.Licensing.Consumption;
 using Metalama.Backstage.Licensing.Consumption.Sources;
 using Metalama.Backstage.Maintenance;
@@ -140,7 +141,7 @@ public static class RegisterServiceExtensions
         this ServiceProviderBuilder serviceProviderBuilder,
         bool considerUnattendedLicense = false,
         bool ignoreUserProfileLicenses = false,
-        string[]? additionalLicenses = null )
+        string? additionalLicense = null )
     {
         var licenseSources = new List<ILicenseSource>();
         var serviceProvider = serviceProviderBuilder.ServiceProvider;
@@ -155,9 +156,9 @@ public static class RegisterServiceExtensions
             licenseSources.Add( new UserProfileLicenseSource( serviceProvider ) );
         }
 
-        if ( additionalLicenses is { Length: > 0 } )
+        if ( !string.IsNullOrWhiteSpace( additionalLicense ) )
         {
-            licenseSources.Add( new ExplicitLicenseSource( additionalLicenses, serviceProvider ) );
+            licenseSources.Add( new ExplicitLicenseSource( additionalLicense!, serviceProvider ) );
         }
 
         if ( !ignoreUserProfileLicenses )
@@ -177,7 +178,7 @@ public static class RegisterServiceExtensions
         string? projectName = null,
         bool considerUnattendedProcessLicense = false,
         bool ignoreUserProfileLicenses = false,
-        string[]? additionalLicenses = null,
+        string? additionalLicense = null,
         string? dotNetSdkDirectory = null,
         bool openWelcomePage = false,
         bool addLicensing = true,
@@ -196,8 +197,10 @@ public static class RegisterServiceExtensions
             var serviceProvider = serviceProviderBuilder.ServiceProvider;
 
             // First-run configuration. This must be done before initializing licensing and telemetry.
-            var registerEvaluationLicense = !ignoreUserProfileLicenses && !applicationInfo.IsPrerelease
-                                                                       && !applicationInfo.IsUnattendedProcess( serviceProvider.GetLoggerFactory() );
+            var registerEvaluationLicense =
+                !ignoreUserProfileLicenses
+                && !applicationInfo.IsPreviewLicenseEligible()
+                && !applicationInfo.IsUnattendedProcess( serviceProvider.GetLoggerFactory() );
 
             var welcomeService = new WelcomeService( serviceProvider );
             welcomeService.ExecuteFirstStartSetup( registerEvaluationLicense );
@@ -223,7 +226,7 @@ public static class RegisterServiceExtensions
         // Add licensing.
         if ( addLicensing )
         {
-            serviceProviderBuilder.AddLicensing( considerUnattendedProcessLicense, ignoreUserProfileLicenses, additionalLicenses );
+            serviceProviderBuilder.AddLicensing( considerUnattendedProcessLicense, ignoreUserProfileLicenses, additionalLicense );
         }
 
         if ( addSupportServices )

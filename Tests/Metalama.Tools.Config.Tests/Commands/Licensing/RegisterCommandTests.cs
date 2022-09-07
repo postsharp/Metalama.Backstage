@@ -1,6 +1,5 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. See the LICENSE.md file in the root directory of this repository root for details.
 
-using System.Globalization;
 using System.Threading.Tasks;
 using Xunit;
 using Xunit.Abstractions;
@@ -21,25 +20,19 @@ namespace Metalama.Tools.Config.Tests.Commands.Licensing
         [Fact]
         public async Task OneLicenseKeyListedAfterRegistration()
         {
-            await this.TestCommandAsync( $"license register {TestLicenses.Key1}", "" );
+            await this.TestCommandAsync( $"license register {TestLicenses.MetalamaStarterBusinessKey}", "" );
 
-            await this.TestCommandAsync(
-                "license list",
-                string.Format( CultureInfo.InvariantCulture, TestLicenses.Format1, 1 ) );
+            await this.TestCommandAsync( "license list", TestLicenses.MetalamaStarterBusinessOutput );
         }
 
         [Fact]
         public async Task MultipleLicenseKeysListedAfterRegistration()
         {
-            await this.TestCommandAsync( $"license register {TestLicenses.Key1}", "" );
-            await this.TestCommandAsync( $"license register {TestLicenses.Key2}", "" );
-            await this.TestCommandAsync( $"license register {TestLicenses.Key3}", "" );
+            await this.TestCommandAsync( $"license register {TestLicenses.MetalamaStarterBusinessKey}", "" );
+            await this.TestCommandAsync( $"license register {TestLicenses.MetalamaProfessionalPersonalKey}", "" );
+            await this.TestCommandAsync( $"license register {TestLicenses.MetalamaUltimateOpenSourceRedistributionKey}", "" );
 
-            await this.TestCommandAsync(
-                "license list",
-                string.Format( CultureInfo.InvariantCulture, TestLicenses.Format1, 1 )
-                + string.Format( CultureInfo.InvariantCulture, TestLicenses.Format2, 2 )
-                + string.Format( CultureInfo.InvariantCulture, TestLicenses.Format3, 3 ) );
+            await this.TestCommandAsync( "license list", TestLicenses.MetalamaUltimateOpenSourceRedistributionOutput );
         }
     }
 }

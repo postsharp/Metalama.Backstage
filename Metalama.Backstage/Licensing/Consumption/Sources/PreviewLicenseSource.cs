@@ -5,7 +5,6 @@ using Metalama.Backstage.Extensibility;
 using Metalama.Backstage.Licensing.Licenses;
 using Metalama.Backstage.Licensing.Registration;
 using System;
-using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 
 namespace Metalama.Backstage.Licensing.Consumption.Sources;
@@ -30,16 +29,20 @@ internal sealed class PreviewLicenseSource : ILicenseSource, ILicense
         this._logger = serviceProvider.GetLoggerFactory().Licensing();
     }
 
-    public IEnumerable<ILicense> GetLicenses( Action<LicensingMessage> reportMessage )
+    public ILicense? GetLicense( Action<LicensingMessage> reportMessage )
     {
-        if ( !this._applicationInfo.IsPrerelease )
-        {
-            this._logger.Trace?.Log( "PreviewLicenseSource skipped: the build is not pre-release." );
+        var latestPrereleaseComponent = this.GetLatestPrereleaseComponent();
 
-            return Array.Empty<ILicense>();
+        if ( latestPrereleaseComponent == null )
+        {
+            this._logger.Trace?.Log( "PreviewLicenseSource skipped: there is no pre-release component." );
+
+            return null;
         }
 
-        var age = (int) (this._time.Now - this._applicationInfo.BuildDate).TotalDays;
+        this._logger.Trace?.Log( $"The latest prerelease component for '{this._applicationInfo.Name}' application is '{latestPrereleaseComponent.Name}'." );
+
+        var age = (int) (this._time.Now - latestPrereleaseComponent.BuildDate!.Value).TotalDays;
 
         if ( age > PreviewLicensePeriod )
         {
@@ -47,12 +50,12 @@ internal sealed class PreviewLicenseSource : ILicenseSource, ILicense
 
             reportMessage(
                 new LicensingMessage(
-                    $"Your preview license for this build of {this._applicationInfo.Name} {this._applicationInfo.Version} has expired on {this._applicationInfo.BuildDate.AddDays( PreviewLicensePeriod )}. To continue using {this._applicationInfo.Name}, update it to a newer preview build, register a license key, or switch to Metalama Essentials.",
+                    $"Your preview license for this build of {latestPrereleaseComponent.Name} {latestPrereleaseComponent.Version} has expired on {latestPrereleaseComponent.BuildDate!.Value.AddDays( PreviewLicensePeriod )}. To continue using {latestPrereleaseComponent.Name}, update it to a newer preview build, register a license key, or switch to Metalama Free.",
                     true ) );
 
             this._messageReported = true;
 
-            return Array.Empty<ILicense>();
+            return null;
         }
 
         this._logger.Trace?.Log( "PreviewLicenseSource: providing a license." );
@@ -61,12 +64,27 @@ internal sealed class PreviewLicenseSource : ILicenseSource, ILicense
         {
             reportMessage(
                 new LicensingMessage(
-                    $"Your preview license of {this._applicationInfo.Name} {this._applicationInfo.Version} will expire on {this._applicationInfo.BuildDate.AddDays( PreviewLicensePeriod )}. Please update {this._applicationInfo.Name} to a newer preview, register a license key, or switch to Metalama Essentials." ) );
+                    $"Your preview license of {latestPrereleaseComponent.Name} {latestPrereleaseComponent.Version} will expire on {latestPrereleaseComponent.BuildDate!.Value.AddDays( PreviewLicensePeriod )}. Please update {latestPrereleaseComponent.Name} to a newer preview, register a license key, or switch to Metalama Free." ) );
 
             this._messageReported = true;
         }
 
-        return new ILicense[] { this };
+        return this;
+    }
+
+    private IComponentInfo? GetLatestPrereleaseComponent()
+    {
+        IComponentInfo latestComponent = this._applicationInfo;
+
+        foreach ( var component in this._applicationInfo.Components )
+        {
+            if ( !component.IsPreviewLicenseEligible() && component.BuildDate <= latestComponent.BuildDate )
+            {
+                latestComponent = component;
+            }
+        }
+
+        return latestComponent.IsPreviewLicenseEligible() ? latestComponent : null;
     }
 
     bool ILicense.TryGetLicenseConsumptionData( [MaybeNullWhen( false )] out LicenseConsumptionData licenseConsumptionData )
@@ -74,10 +92,11 @@ internal sealed class PreviewLicenseSource : ILicenseSource, ILicense
         licenseConsumptionData = new LicenseConsumptionData(
             LicensedProduct.MetalamaUltimate,
             LicenseType.Preview,
-            LicensedFeatures.All,
             null,
             "Preview License",
-            new Version( 0, 0 ) );
+            new Version( 0, 0 ),
+            null,
+            false );
 
         return true;
     }

@@ -1,16 +1,16 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. See the LICENSE.md file in the root directory of this repository root for details.
 
-using Metalama.Backstage.Licensing.Registration.Essentials;
+using Metalama.Backstage.Licensing.Registration.Free;
 using System.CommandLine;
 using System.CommandLine.Invocation;
 using System.CommandLine.IO;
 
 namespace Metalama.DotNetTools.Commands.Licensing;
 
-internal class RegisterEssentialsCommand : CommandBase
+internal class RegisterFreeCommand : CommandBase
 {
-    public RegisterEssentialsCommand( ICommandServiceProviderProvider commandServiceProvider )
-        : base( commandServiceProvider, "essentials", "Switches to Metalama Essentials" )
+    public RegisterFreeCommand( ICommandServiceProviderProvider commandServiceProvider )
+        : base( commandServiceProvider, "free", "Switches to Metalama Free" )
     {
         this.Handler = CommandHandler.Create<bool, IConsole>( this.Execute );
     }
@@ -19,7 +19,7 @@ internal class RegisterEssentialsCommand : CommandBase
     {
         this.CommandServices.Initialize( console, verbose );
 
-        var registrar = new EssentialsLicenseRegistrar( this.CommandServices.ServiceProvider );
+        var registrar = new FreeLicenseRegistrar( this.CommandServices.ServiceProvider );
 
         if ( registrar.TryRegisterLicense() )
         {
@@ -27,7 +27,7 @@ internal class RegisterEssentialsCommand : CommandBase
         }
         else
         {
-            console.Error.WriteLine( "Cannot switch to the Essentials edition. Use --verbose (-v) flag for details." );
+            console.Error.WriteLine( "Cannot switch to the Metalama Free. Use --verbose (-v) flag for details." );
 
             return 1;
         }

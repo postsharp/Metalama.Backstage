@@ -36,6 +36,11 @@ namespace Metalama.Backstage.Licensing.Licenses
                     return false;
                 }
 
+                if ( this.Product == LicensedProduct.MetalamaFree )
+                {
+                    return false;
+                }
+
                 return true;
             }
         }
@@ -47,6 +52,11 @@ namespace Metalama.Backstage.Licensing.Licenses
 
         // TODO in Metalama
         public bool RequiresWatermark => this.LicenseType == LicenseType.Evaluation || this.LicenseType == LicenseType.Academic;
+
+        /// <summary>
+        /// Gets a value indicating whether the license is a redistribution license.
+        /// </summary>
+        public bool IsRedistribution => this.LicenseType == LicenseType.OpenSourceRedistribution || this.LicenseType == LicenseType.CommercialRedistribution;
 
         /// <summary>
         /// Gets a value indicating whether the license is limited by a namespace.

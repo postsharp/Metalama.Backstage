@@ -25,10 +25,10 @@ public abstract class LicenseConsumptionManagerTestsBase : LicensingTestsBase
         return new TestLicense( license! );
     }
 
-    private protected ILicenseConsumptionManager CreateConsumptionManager( params TestLicense[] licenses )
+    private protected ILicenseConsumptionManager CreateConsumptionManager( TestLicense license )
     {
         // ReSharper disable once CoVariantArrayConversion
-        var licenseSource = new TestLicenseSource( "test", licenses );
+        var licenseSource = new TestLicenseSource( "test", license );
 
         return this.CreateConsumptionManager( licenseSource );
     }
@@ -36,24 +36,27 @@ public abstract class LicenseConsumptionManagerTestsBase : LicensingTestsBase
     private protected ILicenseConsumptionManager CreateConsumptionManager( params ILicenseSource[] licenseSources )
         => new LicenseConsumptionManager( this.ServiceProvider, licenseSources );
 
+    private protected ILicenseConsumptionManager CreateConsumptionManager()
+       => new LicenseConsumptionManager( this.ServiceProvider );
+
     private protected static void TestConsumption(
         ILicenseConsumptionManager manager,
-        LicensedFeatures requiredFeatures,
+        LicenseRequirementTestEnum requestedRequirement,
         bool expectedCanConsume,
         bool expectedLicenseAutoRegistrationAttempt = false )
         => TestConsumption(
             manager,
-            requiredFeatures,
+            requestedRequirement,
             "Foo",
             expectedCanConsume );
 
     private protected static void TestConsumption(
         ILicenseConsumptionManager manager,
-        LicensedFeatures requiredFeatures,
+        LicenseRequirementTestEnum requestedRequirement,
         string requiredNamespace,
         bool expectedCanConsume )
     {
-        var actualCanConsume = manager.CanConsumeFeatures( requiredFeatures, requiredNamespace );
+        var actualCanConsume = manager.CanConsume( LicenseRequirementHelper.GetRequirement( requestedRequirement ), requiredNamespace );
         Assert.Equal( expectedCanConsume, actualCanConsume );
     }
 }

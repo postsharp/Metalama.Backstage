@@ -3,6 +3,7 @@
 using Metalama.Backstage.Configuration;
 using Metalama.Backstage.Diagnostics;
 using Metalama.Backstage.Extensibility;
+using Metalama.Backstage.Licensing;
 using Metalama.Backstage.Licensing.Registration.Evaluation;
 using Metalama.Backstage.Telemetry;
 using Metalama.Backstage.Utilities;
@@ -108,7 +109,7 @@ public class WelcomeService
                 {
                     var applicationInfo = this._serviceProvider.GetRequiredBackstageService<IApplicationInfoProvider>().CurrentApplication;
 
-                    var url = applicationInfo.IsPrerelease
+                    var url = applicationInfo.IsPreviewLicenseEligible()
                         ? "https://www.postsharp.net/links/metalama-welcome-preview"
                         : "https://www.postsharp.net/links/metalama-welcome";
 

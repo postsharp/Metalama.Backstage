@@ -7,7 +7,6 @@ using Metalama.Backstage.Licensing.Registration.Evaluation;
 using Metalama.Backstage.Licensing.Tests.Licensing.Registration;
 using Metalama.Backstage.Testing.Services;
 using System;
-using System.Linq;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -46,12 +45,11 @@ namespace Metalama.Backstage.Licensing.Tests.Licensing.Evaluation
 
             var licenses = ParsedLicensingConfiguration.OpenOrCreate( this.ServiceProvider );
 
-            var registeredLicense = licenses.Licenses
-                .Single( x => x.LicenseData is { LicenseType: LicenseType.Evaluation } && x.LicenseData.ValidFrom == expectedStart )
-                .LicenseData!;
-
-            Assert.Equal( expectedEnd, registeredLicense.ValidTo );
-            Assert.Equal( expectedEnd, registeredLicense.SubscriptionEndDate );
+            Assert.NotNull( licenses.LicenseData );
+            Assert.Equal( LicenseType.Evaluation, licenses.LicenseData!.LicenseType );
+            Assert.Equal( expectedStart, licenses.LicenseData!.ValidFrom );
+            Assert.Equal( expectedEnd, licenses.LicenseData!.ValidTo );
+            Assert.Equal( expectedEnd, licenses.LicenseData!.SubscriptionEndDate );
         }
 
         protected void AssertEvaluationNotEligible( string reason )

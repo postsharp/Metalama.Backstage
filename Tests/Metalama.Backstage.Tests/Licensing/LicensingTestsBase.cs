@@ -16,7 +16,7 @@ namespace Metalama.Backstage.Licensing.Tests.Licensing
 
         protected string LicensingConfigurationFile { get; }
 
-        private protected UnsignedLicenseFactory SelfSignedLicenseFactory { get; }
+        private protected UnsignedLicenseFactory UnsignedLicenseFactory { get; }
 
         private protected LicensingTestsBase(
             ITestOutputHelper logger,
@@ -40,7 +40,7 @@ namespace Metalama.Backstage.Licensing.Tests.Licensing
                 } )
         {
             this.LicenseFactory = new LicenseFactory( this.ServiceProvider );
-            this.SelfSignedLicenseFactory = new UnsignedLicenseFactory( this.ServiceProvider );
+            this.UnsignedLicenseFactory = new UnsignedLicenseFactory( this.ServiceProvider );
             this.LicensingConfigurationFile = this.ServiceProvider.GetRequiredBackstageService<IConfigurationManager>().GetFileName<LicensingConfiguration>();
         }
     }

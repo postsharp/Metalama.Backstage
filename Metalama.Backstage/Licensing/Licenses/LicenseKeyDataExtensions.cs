@@ -37,7 +37,7 @@ namespace Metalama.Backstage.Licensing.Licenses
 #pragma warning disable CS0618 // Type or member is obsolete
             if ( product == LicensedProduct.PostSharp30 )
             {
-                product = licenseKeyData.LicenseType == LicenseType.Professional ? LicensedProduct.Framework : LicensedProduct.Ultimate;
+                product = licenseKeyData.LicenseType == LicenseType.Professional ? LicensedProduct.PostSharpFramework : LicensedProduct.PostSharpUltimate;
             }
 #pragma warning restore CS0618 // Type or member is obsolete
 
@@ -47,14 +47,16 @@ namespace Metalama.Backstage.Licensing.Licenses
         private static string GetProductName( this LicenseKeyData licenseKeyData )
             => licenseKeyData.Product switch
             {
-                LicensedProduct.Framework => "PostSharp Framework",
-                LicensedProduct.Ultimate => licenseKeyData.LicenseType == LicenseType.Essentials ? "PostSharp Essentials" : "PostSharp Ultimate",
-                LicensedProduct.DiagnosticsLibrary => "PostSharp Logging",
-                LicensedProduct.ModelLibrary => "PostSharp MVVM",
-                LicensedProduct.ThreadingLibrary => "PostSharp Threading",
-                LicensedProduct.CachingLibrary => "PostSharp Caching",
+                LicensedProduct.PostSharpFramework => "PostSharp Framework",
+                LicensedProduct.PostSharpUltimate => licenseKeyData.LicenseType == LicenseType.Essentials ? "PostSharp Essentials" : "PostSharp Ultimate",
+                LicensedProduct.PostSharpLoggingLibrary => "PostSharp Logging",
+                LicensedProduct.PostSharpMvvmLibrary => "PostSharp MVVM",
+                LicensedProduct.PostSharpThreadingLibrary => "PostSharp Threading",
+                LicensedProduct.PostSharpCachingLibrary => "PostSharp Caching",
                 LicensedProduct.MetalamaUltimate => "Metalama Ultimate",
                 LicensedProduct.MetalamaProfessional => "Metalama Professional",
+                LicensedProduct.MetalamaStarter => "Metalama Starter",
+                LicensedProduct.MetalamaFree => "Metalama Free",
                 _ => string.Format( CultureInfo.InvariantCulture, "Unknown Product ({0})", licenseKeyData.Product )
             };
 
@@ -68,7 +70,7 @@ namespace Metalama.Backstage.Licensing.Licenses
             {
                 return licenseKeyData.MinPostSharpVersion;
             }
-            else if ( licenseKeyData.LicenseType == LicenseType.PerUsage || licenseKeyData.Product == LicensedProduct.CachingLibrary )
+            else if ( licenseKeyData.LicenseType == LicenseType.PerUsage || licenseKeyData.Product == LicensedProduct.PostSharpCachingLibrary )
             {
                 return new Version( 6, 6, 0 );
             }
@@ -77,7 +79,7 @@ namespace Metalama.Backstage.Licensing.Licenses
             {
                 return new Version( 2, 0, 0 );
             }
-            else if ( (licenseKeyData.Product == LicensedProduct.Ultimate || licenseKeyData.Product == LicensedProduct.Framework)
+            else if ( (licenseKeyData.Product == LicensedProduct.PostSharpUltimate || licenseKeyData.Product == LicensedProduct.PostSharpFramework)
                       && licenseKeyData.LicenseType == LicenseType.Enterprise )
             {
                 return new Version( 5, 0, 22 );
@@ -100,27 +102,16 @@ namespace Metalama.Backstage.Licensing.Licenses
         {
             var licenseType = licenseKeyData.TransformObsoleteLicenseType();
             var product = licenseKeyData.TransformObsoleteProduct();
-
-            var licensedFeatures = product switch
-            {
-                LicensedProduct.Ultimate when licenseType != LicenseType.Essentials => LicensedProductFeatures.Ultimate,
-                LicensedProduct.Framework => LicensedProductFeatures.Framework,
-                LicensedProduct.ModelLibrary => LicensedProductFeatures.Mvvm,
-                LicensedProduct.ThreadingLibrary => LicensedProductFeatures.Threading,
-                LicensedProduct.DiagnosticsLibrary => LicensedProductFeatures.Logging,
-                LicensedProduct.CachingLibrary => LicensedProductFeatures.Caching,
-                LicensedProduct.MetalamaProfessional => LicensedProductFeatures.Metalama,
-                LicensedProduct.MetalamaUltimate => LicensedProductFeatures.Metalama,
-                _ => LicensedProductFeatures.Essentials
-            };
+            var isRedistributable = licenseType == LicenseType.OpenSourceRedistribution || licenseType == LicenseType.CommercialRedistribution;
 
             LicenseConsumptionData data = new(
                 product,
                 licenseType,
-                licensedFeatures,
                 licenseKeyData.Namespace,
                 $"{licenseKeyData.GetProductName()} {licenseKeyData.LicenseType.GetLicenseTypeName()} ID {licenseKeyData.LicenseUniqueId}",
-                licenseKeyData.GetMinPostSharpVersion() );
+                licenseKeyData.GetMinPostSharpVersion(),
+                licenseKeyData.LicenseString,
+                isRedistributable );
 
             return data;
         }
