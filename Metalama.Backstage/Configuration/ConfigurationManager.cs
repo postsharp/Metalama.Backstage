@@ -18,6 +18,9 @@ namespace Metalama.Backstage.Configuration
     {
         private static readonly TimeSpan _lastModifiedTolerance = TimeSpan.FromSeconds( 0.2 );
 
+        // Stores the in-memory configuration object. Note that ConfigurationFile can be implemented in a different assembly, and that
+        // there may be several copies of this assembly in the current AppDomain. Therefore, this dictionary may contain several objects
+        // that represent the same file.
         private readonly ConcurrentDictionary<Type, ConfigurationFile> _instances = new();
 
         private readonly FileSystemWatcher? _fileSystemWatcher;
@@ -53,20 +56,20 @@ namespace Metalama.Backstage.Configuration
             this.Logger.Trace?.Log( $"File has changed: '{e.FullPath}'." );
             var fileName = e.FullPath;
 
-            var existingSettings = this._instances.Values.SingleOrDefault(
+            var existingFiles = this._instances.Values.Where(
                 s =>
                     string.Equals( this.GetFileName( s.GetType() ), fileName, StringComparison.OrdinalIgnoreCase ) );
 
-            if ( existingSettings != null )
+            foreach ( var existingFile in existingFiles )
             {
                 // To frequent avoid file locks, wait. There is another wait cycle in TryLoadSettings but not
                 // waiting here is annoying for debugging.
                 Thread.Sleep( 100 );
 
-                if ( this.TryLoadConfigurationFile( existingSettings.GetType(), out var newSettings, out _ ) &&
-                     newSettings.LastModified > existingSettings.LastModified + _lastModifiedTolerance )
+                if ( this.TryLoadConfigurationFile( existingFile.GetType(), out var newSettings, out _ ) &&
+                     newSettings.LastModified > existingFile.LastModified + _lastModifiedTolerance )
                 {
-                    existingSettings.CopyFrom( newSettings );
+                    existingFile.CopyFrom( newSettings );
                 }
             }
         }
