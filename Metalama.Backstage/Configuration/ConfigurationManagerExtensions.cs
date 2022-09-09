@@ -32,7 +32,7 @@ namespace Metalama.Backstage.Configuration
 
                 if ( attempts > _maxUpdateAttempts )
                 {
-                    throw new InvalidOperationException( "Too many attempts to update the configuration. There must be an unaddressed race condition." );
+                    throw new InvalidOperationException( $"Too many attempts to update the configuration {typeof(T).Name}. There must be an unaddressed race condition." );
                 }
 
                 originalSettings = configurationManager.Get<T>( true );
@@ -69,7 +69,7 @@ namespace Metalama.Backstage.Configuration
 
                 if ( attempts > _maxUpdateAttempts )
                 {
-                    throw new InvalidOperationException( "Too many attempts to update the configuration. There must be an unaddressed race condition." );
+                    throw new InvalidOperationException( $"Too many attempts to update the configuration {typeof(T).Name}. There must be an unaddressed race condition." );
                 }
 
                 originalSettings = configurationManager.Get<T>( true );
