@@ -90,12 +90,14 @@ internal sealed class PreviewLicenseSource : ILicenseSource, ILicense
     bool ILicense.TryGetLicenseConsumptionData( [MaybeNullWhen( false )] out LicenseConsumptionData licenseConsumptionData )
     {
         licenseConsumptionData = new LicenseConsumptionData(
+            -1,
             LicensedProduct.MetalamaUltimate,
             LicenseType.Preview,
             null,
             "Preview License",
             new Version( 0, 0 ),
             null,
+            false,
             false );
 
         return true;

@@ -1,5 +1,6 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. See the LICENSE.md file in the root directory of this repository root for details.
 
+using Metalama.Backstage.Extensibility;
 using Metalama.Backstage.Telemetry;
 using System.CommandLine;
 using System.CommandLine.Invocation;
@@ -22,7 +23,7 @@ namespace Metalama.DotNetTools.Commands.Telemetry
         {
             this.CommandServices.Initialize( console, verbose );
 
-            var uploader = new TelemetryUploader( this.CommandServices.ServiceProvider );
+            var uploader = this.CommandServices.ServiceProvider.GetRequiredBackstageService<ITelemetryUploader>();
 
             if ( async )
             {

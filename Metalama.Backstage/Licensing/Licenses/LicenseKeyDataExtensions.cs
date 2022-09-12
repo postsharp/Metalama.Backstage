@@ -105,13 +105,15 @@ namespace Metalama.Backstage.Licensing.Licenses
             var isRedistributable = licenseType == LicenseType.OpenSourceRedistribution || licenseType == LicenseType.CommercialRedistribution;
 
             LicenseConsumptionData data = new(
+                licenseKeyData.LicenseId,
                 product,
                 licenseType,
                 licenseKeyData.Namespace,
                 $"{licenseKeyData.GetProductName()} {licenseKeyData.LicenseType.GetLicenseTypeName()} ID {licenseKeyData.LicenseUniqueId}",
                 licenseKeyData.GetMinPostSharpVersion(),
                 licenseKeyData.LicenseString,
-                isRedistributable );
+                isRedistributable,
+                licenseKeyData.Auditable ?? true );
 
             return data;
         }

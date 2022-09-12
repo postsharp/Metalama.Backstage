@@ -19,7 +19,7 @@ using System.Threading.Tasks;
 
 namespace Metalama.Backstage.Telemetry
 {
-    public sealed class TelemetryUploader
+    internal sealed class TelemetryUploader : ITelemetryUploader
     {
         private readonly TelemetryConfiguration _configuration;
         private readonly IStandardDirectories _directories;
@@ -258,14 +258,7 @@ namespace Metalama.Backstage.Telemetry
             Process.Start( processStartInfo );
         }
 
-        /// <summary>
-        /// Starts the telemetry upload in a background process avoiding the current processed being blocked during the update. 
-        /// </summary>
-        /// <param name="force">Starts the upload even when it's been started recently.</param>
-        /// <remarks>
-        /// The upload is started once per day. If the upload has been started in the past 24 hours, this method has no effect,
-        /// unless the <paramref name="force"/> parameter is set to <c>true</c>.
-        /// </remarks>
+        /// <inheritdoc />
         public void StartUpload( bool force = false )
         {
             var now = this._time.Now;
@@ -342,12 +335,7 @@ namespace Metalama.Backstage.Telemetry
             return builder.ToString();
         }
 
-        /// <summary>
-        /// Uploads the telemetry.
-        /// </summary>
-        /// <remarks>
-        /// Use the <see cref="StartUpload"/> method to upload the telemetry without blocking the current process.
-        /// </remarks>
+        /// <inheritdoc />
         public async Task UploadAsync()
         {
             if ( !Directory.Exists( this._directories.TelemetryUploadQueueDirectory ) )

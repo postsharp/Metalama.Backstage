@@ -11,39 +11,47 @@ internal class UsageReporter : IUsageReporter
 {
     private readonly IServiceProvider _serviceProvider;
     private readonly TelemetryConfiguration _configuration;
-    private readonly TelemetryUploader _uploader;
     private readonly IConfigurationManager _configurationManager;
     private readonly IDateTimeProvider _time;
     private readonly ILogger _logger;
     private readonly IApplicationInfo _applicationInfo;
 
-    public UsageReporter( TelemetryUploader uploader, IServiceProvider serviceProvider )
+    public UsageReporter( IServiceProvider serviceProvider )
     {
         this._serviceProvider = serviceProvider;
         this._configurationManager = serviceProvider.GetRequiredBackstageService<IConfigurationManager>();
         this._configuration = this._configurationManager.Get<TelemetryConfiguration>();
-        this._uploader = uploader;
         this._time = serviceProvider.GetRequiredBackstageService<IDateTimeProvider>();
         this._logger = serviceProvider.GetLoggerFactory().Telemetry();
         this._applicationInfo = serviceProvider.GetRequiredBackstageService<IApplicationInfoProvider>().CurrentApplication;
     }
 
-    public bool ShouldReportSession( string projectName )
+    public bool IsUsageReportingEnabled()
     {
-        var now = this._time.Now;
-
         if ( !this._applicationInfo.IsTelemetryEnabled )
         {
             this._logger.Trace?.Log(
-                $"Session of project '{projectName}' should not be reported because telemetry is disabled for {this._applicationInfo.Name} {this._applicationInfo.Version}." );
+                $"Usage should not be reported because telemetry is disabled for {this._applicationInfo.Name} {this._applicationInfo.Version}." );
 
             return false;
         }
 
         if ( TelemetryConfiguration.IsOptOutEnvironmentVariableSet() )
         {
-            this._logger.Trace?.Log( $"Session of project '{projectName}' should not be reported because the opt-out environment variable is set." );
+            this._logger.Trace?.Log( $"Usage should not be reported because the opt-out environment variable is set." );
 
+            return false;
+        }
+
+        return true;
+    }
+
+    public bool ShouldReportSession( string projectName )
+    {
+        var now = this._time.Now;
+
+        if ( !this.IsUsageReportingEnabled() )
+        {
             return false;
         }
 
@@ -76,5 +84,5 @@ internal class UsageReporter : IUsageReporter
             } );
     }
 
-    public IUsageSample CreateSample( string kind ) => new UsageSample( this._serviceProvider, kind, this._uploader );
+    public IUsageSample CreateSample( string kind ) => new UsageSample( this._serviceProvider, kind );
 }

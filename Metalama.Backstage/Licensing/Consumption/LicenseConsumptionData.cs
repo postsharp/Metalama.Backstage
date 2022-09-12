@@ -11,6 +11,11 @@ namespace Metalama.Backstage.Licensing.Consumption
     public class LicenseConsumptionData
     {
         /// <summary>
+        /// Gets the identifier of the current license.
+        /// </summary>
+        public int LicenseId { get; }
+        
+        /// <summary>
         /// Gets the namespace constraint of the license.
         /// Gets <c>null</c> if there is no namespace constraint.
         /// </summary>
@@ -48,6 +53,11 @@ namespace Metalama.Backstage.Licensing.Consumption
         /// Gets the string representation of the license if the license has it.
         /// </summary>
         public string? LicenseString { get; }
+        
+        /// <summary>
+        /// Gets a value indicating whether the license usage can be audited.
+        /// </summary>
+        public bool IsAuditable { get; }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="LicenseConsumptionData"/> class.
@@ -62,14 +72,17 @@ namespace Metalama.Backstage.Licensing.Consumption
         /// <param name="isRedistributable">Indicates whether the license is redistributable.</param>
         /// <param name="maxAspectsCount">The number of aspects allowed to be used.</param>
         public LicenseConsumptionData(
+            int licenseId,
             LicensedProduct licensedProduct,
             LicenseType licenseType,
             string? licensedNamespace,
             string displayName,
             Version minPostSharpVersion,
             string? licenseString,
-            bool isRedistributable )
+            bool isRedistributable,
+            bool isAuditable )
         {
+            this.LicenseId = licenseId;
             this.LicensedProduct = licensedProduct;
             this.LicenseType = licenseType;
             this.LicensedNamespace = licensedNamespace;
@@ -77,6 +90,7 @@ namespace Metalama.Backstage.Licensing.Consumption
             this.MinPostSharpVersion = minPostSharpVersion;
             this.LicenseString = licenseString;
             this.IsRedistributable = isRedistributable;
+            this.IsAuditable = isAuditable;
         }
 
         /// <summary>
