@@ -41,7 +41,6 @@ internal class UnattendedLicenseSource : ILicenseSource, ILicense
     bool ILicense.TryGetLicenseConsumptionData( [MaybeNullWhen( false )] out LicenseConsumptionData licenseConsumptionData )
     {
         licenseConsumptionData = new LicenseConsumptionData(
-            -1,
             LicensedProduct.MetalamaUltimate,
             LicenseType.Unattended,
             null,

@@ -95,7 +95,7 @@ namespace Metalama.Backstage.Licensing.Licenses
                     throw new InvalidOperationException( $"Application '{applicationInfo.Name}' is missing build date information." );
                 }
 
-                var latestComponentLicensedByBuildDate = applicationInfo.GetLatestComponentLicensedByBuildDate();
+                var latestComponentLicensedByBuildDate = applicationInfo.GetLatestComponentMadeByPostSharp();
 
                 if ( this.SubscriptionEndDate < latestComponentLicensedByBuildDate.BuildDate )
                 {

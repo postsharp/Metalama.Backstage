@@ -4,7 +4,6 @@ using Metalama.Backstage.Configuration;
 using Metalama.Backstage.Diagnostics;
 using Metalama.Backstage.Extensibility;
 using Metalama.Backstage.Licensing.Consumption;
-using Metalama.Backstage.Licensing.Licenses;
 using Metalama.Backstage.Utilities;
 using System;
 
@@ -43,31 +42,10 @@ internal class LicenseAuditManager
             return;
         }
 
-        if ( license.LicensedProduct == LicensedProduct.MetalamaFree || license.LicenseType == LicenseType.Essentials )
-        {
-            LogDisabledAudit( "is a free license" );
-
-            return;
-        }
-        
-        if ( license.LicenseType == LicenseType.Evaluation )
-        {
-            LogDisabledAudit( "is an evaluation license" );
-            
-            return;
-        }
-        
         if ( string.IsNullOrEmpty( license.LicenseString ) )
         {
             LogDisabledAudit( "has no license string" );
 
-            return;
-        }
-
-        if ( license.LicenseId <= 0 )
-        {
-            LogDisabledAudit( "has no license ID" );
-            
             return;
         }
 
@@ -79,6 +57,20 @@ internal class LicenseAuditManager
         }
         
         var report = new LicenseAuditReport( this._serviceProvider, license.LicenseString! );
+
+        if ( report.ReportedComponent.Version == null )
+        {
+            throw new InvalidOperationException( $"Version of '{report.ReportedComponent.Name}' application is unknown." );
+        }
+
+        if ( VersionExtensions.IsDevelopmentVersion( report.ReportedComponent.Version ) )
+        {
+            this._logger.Info?.Log(
+                $"License audit disabled because the '{report.ReportedComponent.Name}' application version '{report.ReportedComponent.Version}' is a development version." );
+        
+            return;
+        }
+
         var reportHashCode = report.GetHashCode();
         
         bool HasBeenReportedRecently()

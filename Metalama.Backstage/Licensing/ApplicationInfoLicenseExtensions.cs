@@ -14,7 +14,7 @@ namespace Metalama.Backstage.Licensing
         public static bool IsPreviewLicenseEligible( this IApplicationInfo application )
             => ((IComponentInfo) application).IsPreviewLicenseEligible() || application.Components.Any( c => c.IsPreviewLicenseEligible() );
 
-        public static IComponentInfo GetLatestComponentLicensedByBuildDate( this IApplicationInfo application )
+        public static IComponentInfo GetLatestComponentMadeByPostSharp( this IApplicationInfo application )
         {
             IComponentInfo latestComponentLicensedByBuildDate = application;
 
@@ -30,7 +30,8 @@ namespace Metalama.Backstage.Licensing
                     throw new InvalidOperationException( $"Application component '{component.Name}' is missing build date information." );
                 }
 
-                if ( latestComponentLicensedByBuildDate.BuildDate < component.BuildDate )
+                // If a component is built the same day as the application, we prefer the component.
+                if ( latestComponentLicensedByBuildDate.BuildDate <= component.BuildDate )
                 {
                     latestComponentLicensedByBuildDate = component;
                 }

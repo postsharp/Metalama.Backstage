@@ -10,6 +10,7 @@ namespace Metalama.Backstage.Telemetry;
 internal abstract class MetricsBase
 {
     private readonly IStandardDirectories _directories;
+    private readonly IFileSystem _fileSystem;
     private readonly ITelemetryUploader _uploader;
     private readonly string _feedbackKind;
 
@@ -18,6 +19,7 @@ internal abstract class MetricsBase
     protected MetricsBase( IServiceProvider serviceProvider, string feedbackKind )
     {
         this._directories = serviceProvider.GetRequiredBackstageService<IStandardDirectories>();
+        this._fileSystem = serviceProvider.GetRequiredBackstageService<IFileSystem>();
         this._uploader = serviceProvider.GetRequiredBackstageService<ITelemetryUploader>();
         this._feedbackKind = feedbackKind;
     }
@@ -54,10 +56,10 @@ internal abstract class MetricsBase
 
         if ( directory != null )
         {
-            Directory.CreateDirectory( directory );
+            this._fileSystem.CreateDirectory( directory );
         }
 
-        using ( Stream stream = new FileStream( fileName, FileMode.Append, FileAccess.Write, FileShare.None ) )
+        using ( var stream = this._fileSystem.Open( fileName, FileMode.Append, FileAccess.Write, FileShare.None ) )
         using ( var writer = new StreamWriter( stream, Encoding.UTF8 ) )
         {
             this.Metrics.Write( writer );
@@ -67,9 +69,9 @@ internal abstract class MetricsBase
 
     private void CreateUploadDirectory()
     {
-        if ( !Directory.Exists( this._directories.TelemetryUploadQueueDirectory ) )
+        if ( !this._fileSystem.DirectoryExists( this._directories.TelemetryUploadQueueDirectory ) )
         {
-            Directory.CreateDirectory( this._directories.TelemetryUploadQueueDirectory );
+            this._fileSystem.CreateDirectory( this._directories.TelemetryUploadQueueDirectory );
         }
     }
 }

@@ -34,7 +34,5 @@ namespace Metalama.Backstage.Telemetry.Metrics
         {
             throw new NotSupportedException();
         }
-
-        protected override void BuildHashCode( HashCode hashCode ) => hashCode.Add( this.Value );
     }
 }

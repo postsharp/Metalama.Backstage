@@ -4,6 +4,8 @@ using System;
 
 namespace Metalama.Backstage.Licensing
 {
+    // The names are used in telemetry and changing them can make the telemetry data ambiguous.
+    
     /// <summary>
     /// Enumeration of licensed products.
     /// </summary>
@@ -29,12 +31,12 @@ namespace Metalama.Backstage.Licensing
         /// <summary>
         /// PostSharp Ultimate.
         /// </summary>
-        PostSharpUltimate = 3,
+        Ultimate = 3,
 
         /// <summary>
         /// PostSharp Framework.
         /// </summary>
-        PostSharpFramework = 4,
+        Framework = 4,
 
         /// <summary>
         /// Metalama Ultimate.
@@ -57,24 +59,24 @@ namespace Metalama.Backstage.Licensing
         MetalamaFree = 8,
 
         /// <summary>
-        /// PostSharp Logging Library.
+        /// Logging Library.
         /// </summary>
-        PostSharpLoggingLibrary = 12,
+        DiagnosticsLibrary = 12,
 
         /// <summary>
-        /// PostSharp MVVM Library (former XAML/Model Library).
+        /// MVVM Library (former XAML/Model Library).
         /// </summary>
-        PostSharpMvvmLibrary = 13,
+        ModelLibrary = 13,
 
         /// <summary>
-        /// PostSharp Threading Library.
+        /// Threading Library.
         /// </summary>
-        PostSharpThreadingLibrary = 14,
+        ThreadingLibrary = 14,
 
         /// <summary>
-        /// PostSharp Caching Library.
+        /// Caching Library.
         /// </summary>
-        PostSharpCachingLibrary = 15
+        CachingLibrary = 15
 
         // 255 is reserved as unknown for testing purposes
     }

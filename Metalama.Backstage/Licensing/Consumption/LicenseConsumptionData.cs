@@ -11,11 +11,6 @@ namespace Metalama.Backstage.Licensing.Consumption
     public class LicenseConsumptionData
     {
         /// <summary>
-        /// Gets the identifier of the current license.
-        /// </summary>
-        public int LicenseId { get; }
-        
-        /// <summary>
         /// Gets the namespace constraint of the license.
         /// Gets <c>null</c> if there is no namespace constraint.
         /// </summary>
@@ -72,7 +67,6 @@ namespace Metalama.Backstage.Licensing.Consumption
         /// <param name="isRedistributable">Indicates whether the license is redistributable.</param>
         /// <param name="maxAspectsCount">The number of aspects allowed to be used.</param>
         public LicenseConsumptionData(
-            int licenseId,
             LicensedProduct licensedProduct,
             LicenseType licenseType,
             string? licensedNamespace,
@@ -82,7 +76,6 @@ namespace Metalama.Backstage.Licensing.Consumption
             bool isRedistributable,
             bool isAuditable )
         {
-            this.LicenseId = licenseId;
             this.LicensedProduct = licensedProduct;
             this.LicenseType = licenseType;
             this.LicensedNamespace = licensedNamespace;

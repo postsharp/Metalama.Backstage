@@ -6,11 +6,16 @@ using Metalama.Backstage.Licensing.Licenses;
 using Metalama.Backstage.Telemetry;
 using Metalama.Backstage.Telemetry.Metrics;
 using System;
+using System.Globalization;
 
 namespace Metalama.Backstage.Licensing.Audit;
 
 internal class LicenseAuditReport : MetricsBase
 {
+    private readonly int _hashCode;
+    
+    public IComponentInfo ReportedComponent { get; }
+
     public LicenseAuditReport(
         IServiceProvider serviceProvider,
         string licenseString )
@@ -18,26 +23,38 @@ internal class LicenseAuditReport : MetricsBase
     {
         var time = serviceProvider.GetRequiredBackstageService<IDateTimeProvider>();
 
-        var application = serviceProvider
+        this.ReportedComponent = serviceProvider
             .GetRequiredBackstageService<IApplicationInfoProvider>()
             .CurrentApplication
-            .GetLatestComponentLicensedByBuildDate();
+            .GetLatestComponentMadeByPostSharp();
 
         var usageReporter = serviceProvider.GetRequiredBackstageService<IUsageReporter>();
-        var buildDate = application.BuildDate ?? throw new InvalidOperationException( $"Build date of '{application.Name}' application is unknown." );
+        var buildDate = this.ReportedComponent.BuildDate ?? throw new InvalidOperationException( $"Build date of '{this.ReportedComponent.Name}' application is unknown." );
         var telemetryConfiguration = serviceProvider.GetRequiredBackstageService<IConfigurationManager>().Get<TelemetryConfiguration>();
         var userHash = LicenseCryptography.ComputeStringHash64( Environment.UserName );
         var machineHash = LicenseCryptography.ComputeStringHash64( telemetryConfiguration.DeviceId.ToString() );
 
-        this.Metrics.Add( new LicenseAuditDateMetric( "Date", time.Now ) );
-        this.Metrics.Add( new StringMetric( "Version", application.Version ) );
-        this.Metrics.Add( new LicenseAuditDateMetric( "BuildDate", buildDate ) );
-        this.Metrics.Add( new StringMetric( "License", licenseString ) );
-        this.Metrics.Add( new LicenseAuditHashMetric( "User", userHash ) );
-        this.Metrics.Add( new LicenseAuditHashMetric( "Machine", machineHash ) );
-        this.Metrics.Add( new BoolMetric( "CEIP", usageReporter.IsUsageReportingEnabled() ) );
-        this.Metrics.Add( new StringMetric( "ApplicationName", application.Name ) );
+        HashCode hashCode = default;
+
+        void Add( Metric metric )
+        {
+            this.Metrics.Add( metric );
+            hashCode.Add( metric.ToString() );
+        }
+
+        Add( new LicenseAuditDateMetric( "Date", time.Now.Date ) );
+        Add( new StringMetric( "Version", this.ReportedComponent.Version ) );
+        Add( new LicenseAuditDateMetric( "BuildDate", buildDate ) );
+        Add( new StringMetric( "License", licenseString ) );
+        Add( new LicenseAuditHashMetric( "User", userHash ) );
+        Add( new LicenseAuditHashMetric( "Machine", machineHash ) );
+        Add( new BoolMetric( "CEIP", usageReporter.IsUsageReportingEnabled() ) );
+        Add( new StringMetric( "ApplicationName", this.ReportedComponent.Name ) );
+
+        this._hashCode = hashCode.ToHashCode();
     }
+
+    public override int GetHashCode() => this._hashCode;
 
     /// <summary>
     /// Date metric implementation based on
@@ -55,11 +72,9 @@ internal class LicenseAuditReport : MetricsBase
 
         public DateTime Value { get; set; }
 
-        public override string ToString() => $"{this.Value:d}";
+        public override string ToString() => this.Value.ToString( "d", CultureInfo.InvariantCulture );
 
         public override bool SetValue( object? value ) => throw new NotImplementedException();
-
-        protected override void BuildHashCode( HashCode hashCode ) => hashCode.Add( this.Value );
     }
 
     /// <summary>
@@ -78,10 +93,8 @@ internal class LicenseAuditReport : MetricsBase
 
         public long Value { get; set; }
 
-        public override string ToString() => $"{this.Value:x}";
+        public override string ToString() => this.Value.ToString( "x", CultureInfo.InvariantCulture );
 
         public override bool SetValue( object? value ) => throw new NotImplementedException();
-
-        protected override void BuildHashCode( HashCode hashCode ) => hashCode.Add( this.Value );
     }
 }

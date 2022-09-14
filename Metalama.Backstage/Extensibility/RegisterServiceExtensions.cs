@@ -223,15 +223,22 @@ public static class RegisterServiceExtensions
             serviceProviderBuilder.AddService( typeof(IMiniDumper), new MiniDumper( serviceProviderBuilder.ServiceProvider ) );
         }
 
-        // Add licensing.
-        if ( addLicensing )
-        {
-            serviceProviderBuilder.AddLicensing( considerUnattendedProcessLicense, ignoreUserProfileLicenses, additionalLicense );
-        }
-
+        // Add support services.
         if ( addSupportServices )
         {
             serviceProviderBuilder = serviceProviderBuilder.AddTelemetryServices();
+        }
+        
+        // Add licensing.
+        if ( addLicensing )
+        {
+            if ( !addSupportServices )
+            {
+                // Telemetry is required for license audit.
+                throw new ArgumentException( "Licensing services require support services.", nameof(addSupportServices) );
+            }
+
+            serviceProviderBuilder.AddLicensing( considerUnattendedProcessLicense, ignoreUserProfileLicenses, additionalLicense );
         }
 
         return serviceProviderBuilder;

@@ -2,6 +2,7 @@
 
 using Metalama.Backstage.Diagnostics;
 using Metalama.Backstage.Extensibility;
+using Metalama.Backstage.Licensing;
 using Metalama.Backstage.Telemetry.Metrics;
 using System;
 using System.Diagnostics;
@@ -19,9 +20,12 @@ namespace Metalama.Backstage.Telemetry
             : base( serviceProvider, "Usage" )
         {
             var time = serviceProvider.GetRequiredBackstageService<IDateTimeProvider>();
+
             var applicationInfo = serviceProvider.GetRequiredBackstageService<IApplicationInfoProvider>().CurrentApplication;
+            var reportedComponent = applicationInfo.GetLatestComponentMadeByPostSharp();
+
             var loggerFactory = serviceProvider.GetLoggerFactory();
-            
+
             this.Metrics.Add( new StringMetric( "MetricsEventKind", eventKind ) );
 
             this.Metrics.Add( new Int32Metric( "Processor.Count", Environment.ProcessorCount ) );
@@ -32,8 +36,8 @@ namespace Metalama.Backstage.Telemetry
             this.Metrics.Add( new StringMetric( "Net.Architecture", RuntimeInformation.ProcessArchitecture.ToString() ) );
             this.Metrics.Add( new StringMetric( "Net.Version", Environment.Version.ToString() ) );
 
-            this.Metrics.Add( new StringMetric( "Application.Name", applicationInfo.Name ) );
-            this.Metrics.Add( new StringMetric( "Application.Version", applicationInfo.Version ) );
+            this.Metrics.Add( new StringMetric( "Application.Name", reportedComponent.Name ) );
+            this.Metrics.Add( new StringMetric( "Application.Version", reportedComponent.Version ) );
             this.Metrics.Add( new BoolMetric( "Application.IsUnattended", applicationInfo.IsUnattendedProcess( loggerFactory ) ) );
             this.Metrics.Add( new StringMetric( "Application.ProcessName", Process.GetCurrentProcess().ProcessName ) );
             this.Metrics.Add( new StringMetric( "Application.ProcessKind", applicationInfo.ProcessKind.ToString() ) );

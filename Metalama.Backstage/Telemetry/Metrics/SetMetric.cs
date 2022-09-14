@@ -3,7 +3,6 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 
 namespace Metalama.Backstage.Telemetry.Metrics
 {
@@ -60,16 +59,5 @@ namespace Metalama.Backstage.Telemetry.Metrics
 
             return true;
         }
-
-        protected override void BuildHashCode( HashCode hashCode )
-            => this._set.Aggregate(
-                hashCode,
-                ( h, i ) =>
-                {
-                    h.Add( i );
-
-                    return h;
-                },
-                h => h.ToHashCode() );
     }
 }

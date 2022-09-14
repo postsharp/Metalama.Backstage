@@ -19,7 +19,7 @@ namespace Metalama.Backstage.Telemetry
         /// <summary>
         /// Gets the metric name.
         /// </summary>
-        public string Name { get; }
+        public string Name { get; private set; }
 
         /// <summary>
         /// Writes the value of the current metric to a <see cref="TextWriter"/>.
@@ -32,15 +32,6 @@ namespace Metalama.Backstage.Telemetry
 
         public abstract bool SetValue( object? value );
 
-        public sealed override int GetHashCode()
-        {
-            HashCode hashCode = default;
-            hashCode.Add( this.Name );
-            this.BuildHashCode( hashCode );
-
-            return hashCode.ToHashCode();
-        }
-
-        protected abstract void BuildHashCode( HashCode hashCode );
+        public abstract override string ToString();
     }
 }

@@ -38,27 +38,27 @@ namespace Metalama.Backstage.Licensing
             LicensedProduct.MetalamaStarter,
             LicensedProduct.MetalamaProfessional,
             LicensedProduct.MetalamaUltimate,
-            LicensedProduct.PostSharpFramework,
-            LicensedProduct.PostSharpUltimate );
+            LicensedProduct.Framework,
+            LicensedProduct.Ultimate );
 
         public static readonly LicenseRequirement Starter = new(
             "Starter",
             LicensedProduct.MetalamaStarter,
             LicensedProduct.MetalamaProfessional,
             LicensedProduct.MetalamaUltimate,
-            LicensedProduct.PostSharpFramework,
-            LicensedProduct.PostSharpUltimate );
+            LicensedProduct.Framework,
+            LicensedProduct.Ultimate );
 
         public static readonly LicenseRequirement Professional = new(
             "Professional",
             LicensedProduct.MetalamaProfessional,
             LicensedProduct.MetalamaUltimate,
-            LicensedProduct.PostSharpFramework,
-            LicensedProduct.PostSharpUltimate );
+            LicensedProduct.Framework,
+            LicensedProduct.Ultimate );
 
         public static readonly LicenseRequirement Ultimate = new(
             "Ultimate",
             LicensedProduct.MetalamaUltimate,
-            LicensedProduct.PostSharpUltimate );
+            LicensedProduct.Ultimate );
     }
 }

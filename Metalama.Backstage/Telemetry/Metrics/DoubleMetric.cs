@@ -63,7 +63,5 @@ namespace Metalama.Backstage.Telemetry.Metrics
 
             return true;
         }
-        
-        protected override void BuildHashCode( HashCode hashCode ) => hashCode.Add( this.Value );
     }
 }
