@@ -45,7 +45,7 @@ namespace Metalama.Backstage.Licensing.Licenses
         }
 
         private static string GetProductName( this LicenseKeyData licenseKeyData )
-            => licenseKeyData.Product switch
+            => TransformObsoleteProduct( licenseKeyData ) switch
             {
                 LicensedProduct.Framework => "PostSharp Framework",
                 LicensedProduct.Ultimate => licenseKeyData.LicenseType == LicenseType.Essentials ? "PostSharp Essentials" : "PostSharp Ultimate",

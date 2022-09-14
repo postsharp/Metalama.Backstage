@@ -95,12 +95,12 @@ namespace Metalama.Backstage.Licensing.Licenses
                     throw new InvalidOperationException( $"Application '{applicationInfo.Name}' is missing build date information." );
                 }
 
-                var latestComponentLicensedByBuildDate = applicationInfo.GetLatestComponentMadeByPostSharp();
+                var latestComponentMadeByPostSharp = applicationInfo.GetLatestComponentMadeByPostSharp();
 
-                if ( this.SubscriptionEndDate < latestComponentLicensedByBuildDate.BuildDate )
+                if ( this.SubscriptionEndDate < latestComponentMadeByPostSharp.BuildDate )
                 {
                     errorDescription =
-                        $"The licensed product '{latestComponentLicensedByBuildDate.Name}' version {latestComponentLicensedByBuildDate.Version} has been released on {latestComponentLicensedByBuildDate.BuildDate:d}, but the license key {this.LicenseId} only allows you to use versions released before {this.SubscriptionEndDate:d}.";
+                        $"The licensed product '{latestComponentMadeByPostSharp.Name}' version {latestComponentMadeByPostSharp.Version} has been released on {latestComponentMadeByPostSharp.BuildDate:d}, but the license key {this.LicenseId} only allows you to use versions released before {this.SubscriptionEndDate:d}.";
 
                     return false;
                 }

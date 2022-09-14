@@ -18,7 +18,7 @@ namespace Metalama.Tools.Config.Tests.Commands.Licensing
         }
 
         [Fact]
-        public async Task OneLicenseKeyListedAfterRegistration()
+        public async Task OneLicenseKeyListedAfterOneRegistration()
         {
             await this.TestCommandAsync( $"license register {TestLicenses.MetalamaStarterBusinessKey}", "" );
 
@@ -26,7 +26,7 @@ namespace Metalama.Tools.Config.Tests.Commands.Licensing
         }
 
         [Fact]
-        public async Task MultipleLicenseKeysListedAfterRegistration()
+        public async Task OneLicenseKeyListedAfterMultipleLicenseKeysRegistered()
         {
             await this.TestCommandAsync( $"license register {TestLicenses.MetalamaStarterBusinessKey}", "" );
             await this.TestCommandAsync( $"license register {TestLicenses.MetalamaProfessionalPersonalKey}", "" );
