@@ -9,8 +9,8 @@ namespace Metalama.Backstage.Licensing.Audit;
 [ConfigurationFile( "audit.json" )]
 public class LicenseAuditConfiguration : ConfigurationFile
 {
-    public ImmutableDictionary<string, DateTime> LastAuditTimes { get; set; } =
-        ImmutableDictionary<string, DateTime>.Empty.WithComparers( StringComparer.OrdinalIgnoreCase );
+    public ImmutableDictionary<int, DateTime> LastAuditTimes { get; set; } =
+        ImmutableDictionary<int, DateTime>.Empty;
     
     public override void CopyFrom( ConfigurationFile configurationFile )
     {

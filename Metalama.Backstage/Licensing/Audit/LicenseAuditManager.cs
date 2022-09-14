@@ -78,11 +78,14 @@ internal class LicenseAuditManager
             return;
         }
         
+        var report = new LicenseAuditReport( this._serviceProvider, license.LicenseString! );
+        var reportHashCode = report.GetHashCode();
+        
         bool HasBeenReportedRecently()
         {
             var configuration = this._configurationManager.Get<LicenseAuditConfiguration>();
 
-            if ( configuration.LastAuditTimes.TryGetValue( license.LicenseString!, out var lastReportTime )
+            if ( configuration.LastAuditTimes.TryGetValue( reportHashCode, out var lastReportTime )
                  && lastReportTime >= this._time.Now.AddDays( -1 ) )
             {
                 LogDisabledAudit( "has been reported recently" );
@@ -100,9 +103,9 @@ internal class LicenseAuditManager
             return;
         }
 
-        if ( !MutexHelper.WithGlobalLock( $"LicenseAuditManager-{license.LicenseId}", TimeSpan.FromMilliseconds( 1 ), out var mutex ) )
+        if ( !MutexHelper.WithGlobalLock( $"LicenseAuditManager-{reportHashCode}", TimeSpan.FromMilliseconds( 1 ), out var mutex ) )
         {
-            LogDisabledAudit( "is just being audited at another build" );
+            LogDisabledAudit( "is just being audited by another audit manager" );
 
             return;
         }
@@ -114,11 +117,10 @@ internal class LicenseAuditManager
                 return;
             }
 
-            var report = new LicenseAuditReport( this._serviceProvider, license.LicenseString! );
             report.Flush();
 
             this._configurationManager.Update<LicenseAuditConfiguration>(
-                c => c.LastAuditTimes = c.LastAuditTimes.SetItem( license.LicenseString!, this._time.Now ) );
+                c => c.LastAuditTimes = c.LastAuditTimes.SetItem( reportHashCode, this._time.Now ) );
         }
     }
 }

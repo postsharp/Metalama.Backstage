@@ -3,6 +3,7 @@
 using System;
 using System.Collections.ObjectModel;
 using System.IO;
+using System.Linq;
 
 namespace Metalama.Backstage.Telemetry
 {
@@ -41,6 +42,21 @@ namespace Metalama.Backstage.Telemetry
                 writer.Write( '=' );
                 metric.WriteValue( writer );
             }
+        }
+
+        public override int GetHashCode()
+        {
+            HashCode seed = default;
+
+            return this.Items.Aggregate(
+                seed,
+                ( h, i ) =>
+                {
+                    h.Add( i );
+
+                    return h;
+                },
+                h => h.ToHashCode() );
         }
     }
 }

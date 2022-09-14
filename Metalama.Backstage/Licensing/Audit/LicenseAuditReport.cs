@@ -17,7 +17,12 @@ internal class LicenseAuditReport : MetricsBase
         : base( serviceProvider, "LicenseAudit" )
     {
         var time = serviceProvider.GetRequiredBackstageService<IDateTimeProvider>();
-        var application = serviceProvider.GetRequiredBackstageService<IApplicationInfoProvider>().CurrentApplication;
+
+        var application = serviceProvider
+            .GetRequiredBackstageService<IApplicationInfoProvider>()
+            .CurrentApplication
+            .GetLatestComponentLicensedByBuildDate();
+
         var usageReporter = serviceProvider.GetRequiredBackstageService<IUsageReporter>();
         var buildDate = application.BuildDate ?? throw new InvalidOperationException( $"Build date of '{application.Name}' application is unknown." );
         var telemetryConfiguration = serviceProvider.GetRequiredBackstageService<IConfigurationManager>().Get<TelemetryConfiguration>();
@@ -30,12 +35,10 @@ internal class LicenseAuditReport : MetricsBase
         this.Metrics.Add( new StringMetric( "License", licenseString ) );
         this.Metrics.Add( new LicenseAuditHashMetric( "User", userHash ) );
         this.Metrics.Add( new LicenseAuditHashMetric( "Machine", machineHash ) );
-        
-        // We don't use BoolMetric here based on PostSharp.Hosting.Program.WriteLicenseAudit method.
-        this.Metrics.Add( new StringMetric( "CEIP", usageReporter.IsUsageReportingEnabled().ToString() ) );
+        this.Metrics.Add( new BoolMetric( "CEIP", usageReporter.IsUsageReportingEnabled() ) );
         this.Metrics.Add( new StringMetric( "ApplicationName", application.Name ) );
     }
-    
+
     /// <summary>
     /// Date metric implementation based on
     /// PostSharp.Hosting.Program.WriteLicenseAudit method.
@@ -55,6 +58,8 @@ internal class LicenseAuditReport : MetricsBase
         public override string ToString() => $"{this.Value:d}";
 
         public override bool SetValue( object? value ) => throw new NotImplementedException();
+
+        protected override void BuildHashCode( HashCode hashCode ) => hashCode.Add( this.Value );
     }
 
     /// <summary>
@@ -70,11 +75,13 @@ internal class LicenseAuditReport : MetricsBase
         {
             this.Value = value;
         }
-        
+
         public long Value { get; set; }
 
         public override string ToString() => $"{this.Value:x}";
 
         public override bool SetValue( object? value ) => throw new NotImplementedException();
+
+        protected override void BuildHashCode( HashCode hashCode ) => hashCode.Add( this.Value );
     }
 }
