@@ -12,7 +12,7 @@ namespace Metalama.Backstage.Licensing.Audit;
 
 internal class LicenseAuditReport : MetricsBase
 {
-    private readonly int _hashCode;
+    public int AuditHashCode { get; }
     
     public IComponentInfo ReportedComponent { get; }
 
@@ -34,27 +34,26 @@ internal class LicenseAuditReport : MetricsBase
         var userHash = LicenseCryptography.ComputeStringHash64( Environment.UserName );
         var machineHash = LicenseCryptography.ComputeStringHash64( telemetryConfiguration.DeviceId.ToString() );
 
-        HashCode hashCode = default;
+        HashCode auditHashCodeBuilder = default;
 
-        void Add( Metric metric )
+        void AddToMetricsAndHashCode( Metric metric )
         {
             this.Metrics.Add( metric );
-            hashCode.Add( metric.ToString() );
+            auditHashCodeBuilder.Add( metric.ToString() );
         }
 
-        Add( new LicenseAuditDateMetric( "Date", time.Now.Date ) );
-        Add( new StringMetric( "Version", this.ReportedComponent.Version ) );
-        Add( new LicenseAuditDateMetric( "BuildDate", buildDate ) );
-        Add( new StringMetric( "License", licenseString ) );
-        Add( new LicenseAuditHashMetric( "User", userHash ) );
-        Add( new LicenseAuditHashMetric( "Machine", machineHash ) );
-        Add( new BoolMetric( "CEIP", usageReporter.IsUsageReportingEnabled() ) );
-        Add( new StringMetric( "ApplicationName", this.ReportedComponent.Name ) );
+        // Audit date is not part of the audit hash code. 
+        this.Metrics.Add( new LicenseAuditDateMetric( "Date", time.Now.Date ) );
+        AddToMetricsAndHashCode( new StringMetric( "Version", this.ReportedComponent.Version ) );
+        AddToMetricsAndHashCode( new LicenseAuditDateMetric( "BuildDate", buildDate ) );
+        AddToMetricsAndHashCode( new StringMetric( "License", licenseString ) );
+        AddToMetricsAndHashCode( new LicenseAuditHashMetric( "User", userHash ) );
+        AddToMetricsAndHashCode( new LicenseAuditHashMetric( "Machine", machineHash ) );
+        AddToMetricsAndHashCode( new BoolMetric( "CEIP", usageReporter.IsUsageReportingEnabled() ) );
+        AddToMetricsAndHashCode( new StringMetric( "ApplicationName", this.ReportedComponent.Name ) );
 
-        this._hashCode = hashCode.ToHashCode();
+        this.AuditHashCode = auditHashCodeBuilder.ToHashCode();
     }
-
-    public override int GetHashCode() => this._hashCode;
 
     /// <summary>
     /// Date metric implementation based on
