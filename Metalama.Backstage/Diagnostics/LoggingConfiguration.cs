@@ -21,6 +21,14 @@ public class LoggingConfiguration
 
     public Dictionary<string, bool> Categories { get; set; } = new( StringComparer.OrdinalIgnoreCase );
 
+    [JsonProperty( "stopLoggingAfterHours" )]
+    public int StopLoggingAfterHours { get; set; } = 2;
+
     public LoggingConfiguration Clone()
-        => new() { Processes = new Dictionary<ProcessKind, bool>( this.Processes ), Categories = new Dictionary<string, bool>( this.Categories ) };
+        => new()
+        {
+            Processes = new Dictionary<ProcessKind, bool>( this.Processes ),
+            Categories = new Dictionary<string, bool>( this.Categories ),
+            StopLoggingAfterHours = this.StopLoggingAfterHours
+        };
 }

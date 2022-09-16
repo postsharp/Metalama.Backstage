@@ -12,5 +12,6 @@ internal class DiagnosticsCommand : CommandBase
         this.AddCommand( new ResetLoggingCommand( commandServiceProvider ) );
         this.AddCommand( new PrintLoggingCommand( commandServiceProvider ) );
         this.AddCommand( new EditLoggingCommand( commandServiceProvider ) );
+        this.AddCommand( new SetLoggingHoursCommand( commandServiceProvider ) );
     }
 }

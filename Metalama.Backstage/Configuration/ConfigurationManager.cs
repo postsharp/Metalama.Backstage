@@ -116,25 +116,26 @@ namespace Metalama.Backstage.Configuration
                 return settings;
             }
 
-            // Diagnostics configuration set by process environment variable is always used by default, if it exists.
+            // Diagnostics configuration set by process environment variable always overrides local configuration, if it exists.
             if ( type == typeof(DiagnosticsConfiguration) )
             {
-                if ( this._environmentVariableProvider.IsEnvironmentVariableSet( "METALAMA_DIAGNOSTICS" ) )
+                if ( !string.IsNullOrEmpty( this._environmentVariableProvider.GetEnvironmentVariable( "METALAMA_DIAGNOSTICS" ) ) )
                 {
-                    return this._environmentVariableProvider.GetDiagnosticsConfigurationFromEnvironmentVariable(
+                    var environmentDiagnosticsConfiguration = this._environmentVariableProvider.GetDiagnosticsConfigurationFromEnvironmentVariable(
                         "METALAMA_DIAGNOSTICS" );
+
+                    if ( environmentDiagnosticsConfiguration != null )
+                    {
+                        return environmentDiagnosticsConfiguration;
+                    }
                 }
             }
 
+            ConfigurationFile settings;
+            
             if ( ignoreCache )
             {
-                var settings = GetCore();
-
-                if ( type == typeof(DiagnosticsConfiguration) && settings.LastModified < DateTime.Now.AddDays( -7 ) )
-                {
-                    var diagnostics = (DiagnosticsConfiguration) settings;
-                    diagnostics.DisableLogging();
-                }
+                settings = GetCore();
 
                 if ( this._instances.TryGetValue( type, out var existing ) )
                 {
@@ -144,13 +145,25 @@ namespace Metalama.Backstage.Configuration
                 {
                     this._instances.TryAdd( type, settings );
                 }
-
-                return settings;
             }
             else
             {
-                return this._instances.GetOrAdd( type, _ => GetCore() );
+                settings = this._instances.GetOrAdd( type, _ => GetCore() );
             }
+
+            if ( type == typeof(DiagnosticsConfiguration) )
+            {
+                var diagnostics = (DiagnosticsConfiguration) settings;
+
+                if ( diagnostics.LastModified < DateTime.Now.AddHours( diagnostics.Logging.StopLoggingAfterHours * -1 ) )
+                {
+                    diagnostics.DisableLogging();
+
+                    return diagnostics;
+                }
+            }
+            
+            return settings;
         }
 
         public bool TryUpdate( ConfigurationFile value, DateTime? lastModified )
