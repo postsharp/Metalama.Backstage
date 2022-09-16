@@ -25,6 +25,7 @@ namespace Metalama.Backstage.Configuration
 
         private readonly FileSystemWatcher? _fileSystemWatcher;
         private readonly IFileSystem _fileSystem;
+        private readonly IEnvironmentVariableProvider _environmentVariableProvider;
 
         // Named semaphore to handle many instances.
         private readonly Mutex _mutex = new( false, "Global\\Metalama.Configuration" );
@@ -33,6 +34,7 @@ namespace Metalama.Backstage.Configuration
         {
             var applicationInfo = serviceProvider.GetBackstageService<IApplicationInfoProvider>()?.CurrentApplication;
             this._fileSystem = serviceProvider.GetRequiredBackstageService<IFileSystem>();
+            this._environmentVariableProvider = serviceProvider.GetRequiredBackstageService<IEnvironmentVariableProvider>();
             this.Logger = serviceProvider.GetLoggerFactory().GetLogger( "Configuration" );
 
             this.ApplicationDataDirectory = serviceProvider.GetRequiredBackstageService<IStandardDirectories>().ApplicationDataDirectory;
@@ -114,9 +116,25 @@ namespace Metalama.Backstage.Configuration
                 return settings;
             }
 
+            // Diagnostics configuration set by process environment variable is always used by default, if it exists.
+            if ( type == typeof(DiagnosticsConfiguration) )
+            {
+                if ( this._environmentVariableProvider.IsEnvironmentVariableSet( "METALAMA_DIAGNOSTICS" ) )
+                {
+                    return this._environmentVariableProvider.GetDiagnosticsConfigurationFromEnvironmentVariable(
+                        "METALAMA_DIAGNOSTICS" );
+                }
+            }
+
             if ( ignoreCache )
             {
                 var settings = GetCore();
+
+                if ( type == typeof(DiagnosticsConfiguration) && settings.LastModified < DateTime.Now.AddDays( -7 ) )
+                {
+                    var diagnostics = (DiagnosticsConfiguration) settings;
+                    diagnostics.DisableLogging();
+                }
 
                 if ( this._instances.TryGetValue( type, out var existing ) )
                 {

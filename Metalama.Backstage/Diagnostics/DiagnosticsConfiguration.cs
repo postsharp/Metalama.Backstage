@@ -1,6 +1,7 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. See the LICENSE.md file in the root directory of this repository root for details.
 
 using Metalama.Backstage.Configuration;
+using Metalama.Backstage.Extensibility;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -44,23 +45,31 @@ public class DiagnosticsConfiguration : ConfigurationFile
             [ProcessKind.Compiler] = false, [ProcessKind.Rider] = false, [ProcessKind.DevEnv] = false, [ProcessKind.RoslynCodeAnalysisService] = false
         };
 
-        this.MiniDump.Flags.Clear();
+        // this.MiniDump.Flags.Clear();
+        //
+        // this.MiniDump.Flags.AddRange(
+        //     new[]
+        //     {
+        //         MiniDumpKind.WithDataSegments,
+        //         MiniDumpKind.WithProcessThreadData,
+        //         MiniDumpKind.WithHandleData,
+        //         MiniDumpKind.WithPrivateReadWriteMemory,
+        //         MiniDumpKind.WithUnloadedModules,
+        //         MiniDumpKind.WithFullMemoryInfo,
+        //         MiniDumpKind.WithThreadInfo,
+        //         MiniDumpKind.FilterMemory,
+        //         MiniDumpKind.WithoutAuxiliaryState
+        //     }.Select( x => x.ToString() ) );
+        //
+        // this.MiniDump.ExceptionTypes = new List<string> { "*" };
+    }
 
-        this.MiniDump.Flags.AddRange(
-            new[]
-            {
-                MiniDumpKind.WithDataSegments,
-                MiniDumpKind.WithProcessThreadData,
-                MiniDumpKind.WithHandleData,
-                MiniDumpKind.WithPrivateReadWriteMemory,
-                MiniDumpKind.WithUnloadedModules,
-                MiniDumpKind.WithFullMemoryInfo,
-                MiniDumpKind.WithThreadInfo,
-                MiniDumpKind.FilterMemory,
-                MiniDumpKind.WithoutAuxiliaryState
-            }.Select( x => x.ToString() ) );
-
-        this.MiniDump.ExceptionTypes = new List<string> { "*" };
+    public void DisableLogging()
+    {
+        this.Logging.Processes = new Dictionary<ProcessKind, bool>
+        {
+            [ProcessKind.Compiler] = false, [ProcessKind.Rider] = false, [ProcessKind.DevEnv] = false, [ProcessKind.RoslynCodeAnalysisService] = false
+        };
     }
 
     public override void CopyFrom( ConfigurationFile configurationFile )

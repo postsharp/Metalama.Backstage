@@ -56,6 +56,14 @@ public static class RegisterServiceExtensions
         => serviceProviderBuilder.AddSingleton<IFileSystem>( new FileSystem() );
 
     /// <summary>
+    /// Adds a service providing access to environment using API in <see cref="System" /> namespace to the specified <see cref="ServiceProviderBuilder" />.
+    /// </summary>
+    /// <param name="serviceProviderBuilder">The <see cref="ServiceProviderBuilder" /> to add services to.</param>
+    /// <returns>The <see cref="ServiceProviderBuilder" /> so that additional calls can be chained.</returns>
+    private static ServiceProviderBuilder AddEnvironmentVariableProvider( this ServiceProviderBuilder serviceProviderBuilder )
+        => serviceProviderBuilder.AddSingleton<IEnvironmentVariableProvider>( new EnvironmentVariableProvider() );
+
+    /// <summary>
     /// Adds a service providing paths of standard directories to the specified <see cref="ServiceProviderBuilder" />.
     /// </summary>
     /// <param name="serviceProviderBuilder">The <see cref="ServiceProviderBuilder" /> to add services to.</param>
@@ -92,6 +100,7 @@ public static class RegisterServiceExtensions
             .AddSingleton<IApplicationInfoProvider>( new ApplicationInfoProvider( applicationInfo ) )
             .AddCurrentDateTimeProvider()
             .AddFileSystem()
+            .AddEnvironmentVariableProvider()
             .AddStandardDirectories()
             .AddConfigurationManager()
             .AddPlatformInfo( dotNetSdkDirectory );
