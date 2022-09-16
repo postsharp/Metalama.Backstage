@@ -50,7 +50,7 @@ namespace Metalama.Backstage
 
                 serviceProvider = serviceProviderBuilder.ServiceProvider;
 
-                var uploader = new TelemetryUploader( serviceProvider );
+                var uploader = serviceProvider.GetRequiredBackstageService<ITelemetryUploader>();
 
                 await uploader.UploadAsync();
             }

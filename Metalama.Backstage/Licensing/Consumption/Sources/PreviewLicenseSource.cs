@@ -96,6 +96,7 @@ internal sealed class PreviewLicenseSource : ILicenseSource, ILicense
             "Preview License",
             new Version( 0, 0 ),
             null,
+            false,
             false );
 
         return true;

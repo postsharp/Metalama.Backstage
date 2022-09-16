@@ -47,6 +47,7 @@ internal class UnattendedLicenseSource : ILicenseSource, ILicense
             "Unattended Process License",
             new Version( 0, 0 ),
             null,
+            false,
             false );
 
         return true;

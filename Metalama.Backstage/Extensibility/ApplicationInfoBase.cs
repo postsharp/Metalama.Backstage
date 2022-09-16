@@ -26,8 +26,7 @@ namespace Metalama.Backstage.Extensibility
 
             if ( this.Version != null )
             {
-                var versionParts = this.Version.Split( '-' );
-                this.IsTelemetryEnabled = versionParts.Length == 1 || versionParts[1] is not ("dev" or "local");
+                this.IsTelemetryEnabled = !VersionExtensions.IsDevelopmentVersion( this.Version );
             }
         }
 

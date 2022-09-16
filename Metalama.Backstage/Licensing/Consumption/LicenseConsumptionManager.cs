@@ -1,6 +1,8 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. See the LICENSE.md file in the root directory of this repository root for details.
 
 using Metalama.Backstage.Diagnostics;
+using Metalama.Backstage.Extensibility;
+using Metalama.Backstage.Licensing.Audit;
 using Metalama.Backstage.Licensing.Consumption.Sources;
 using Metalama.Backstage.Licensing.Licenses;
 using System;
@@ -57,6 +59,7 @@ internal class LicenseConsumptionManager : ILicenseConsumptionManager
             if ( license == null )
             {
                 this._logger.Info?.Log( $"'{source.GetType().Name}' license source provided no license." );
+
                 continue;
             }
 
@@ -64,12 +67,17 @@ internal class LicenseConsumptionManager : ILicenseConsumptionManager
             {
                 var licenseUniqueId = license.TryGetLicenseRegistrationData( out var registrationData ) ? registrationData.UniqueId : "<invalid>";
                 this._logger.Info?.Log( $"License '{licenseUniqueId}' provided by '{source.GetType().Name}' license source is invalid." );
+
                 continue;
             }
 
             this._license = data;
             this._licensedNamespace = string.IsNullOrEmpty( data.LicensedNamespace ) ? null : new( data.LicensedNamespace! );
             this.RedistributionLicenseKey = data.IsRedistributable ? data.LicenseString : null;
+
+            var licenseAuditManager = services.GetBackstageService<ILicenseAuditManager>();
+            licenseAuditManager?.ReportLicense( data );
+
             return;
         }
     }
@@ -88,9 +96,10 @@ internal class LicenseConsumptionManager : ILicenseConsumptionManager
              && this._licensedNamespace != null
              && !this._licensedNamespace.AllowsNamespace( consumerNamespace ) )
         {
-            this.ReportMessage( new LicensingMessage(
-                $"Namespace '{consumerNamespace}' is not licensed. Your license is limited to '{this._licensedNamespace.AllowedNamespace}' namespace.",
-                true ) );
+            this.ReportMessage(
+                new LicensingMessage(
+                    $"Namespace '{consumerNamespace}' is not licensed. Your license is limited to '{this._licensedNamespace.AllowedNamespace}' namespace.",
+                    true ) );
 
             return false;
         }
@@ -131,6 +140,7 @@ internal class LicenseConsumptionManager : ILicenseConsumptionManager
             }
 
             licensedNamespace = new( licenseConsumptionData.LicensedNamespace! );
+            this._embeddedRedistributionLicensesCache.Add( redistributionLicenseKey, licensedNamespace );
         }
 
         return licensedNamespace.AllowsNamespace( aspectClassNamespace );

@@ -6,6 +6,8 @@ namespace Metalama.Backstage.Telemetry;
 
 public interface IUsageReporter : IBackstageService
 {
+    bool IsUsageReportingEnabled { get; }
+    
     bool ShouldReportSession( string projectName );
 
     IUsageSample CreateSample( string kind );
