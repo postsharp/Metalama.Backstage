@@ -49,7 +49,7 @@ internal class LicenseAuditReport : MetricsBase
         AddToMetricsAndHashCode( new StringMetric( "License", licenseString ) );
         AddToMetricsAndHashCode( new LicenseAuditHashMetric( "User", userHash ) );
         AddToMetricsAndHashCode( new LicenseAuditHashMetric( "Machine", machineHash ) );
-        AddToMetricsAndHashCode( new BoolMetric( "CEIP", usageReporter.IsUsageReportingEnabled() ) );
+        AddToMetricsAndHashCode( new BoolMetric( "CEIP", usageReporter.IsUsageReportingEnabled ) );
         AddToMetricsAndHashCode( new StringMetric( "ApplicationName", this.ReportedComponent.Name ) );
 
         this.AuditHashCode = auditHashCodeBuilder.ToHashCode();

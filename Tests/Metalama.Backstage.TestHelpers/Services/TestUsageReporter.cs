@@ -7,7 +7,7 @@ namespace Metalama.Backstage.Testing.Services;
 // TODO: Unit tests for usage reporting.
 public class TestUsageReporter : IUsageReporter
 {
-    public bool IsUsageReportingEnabled() => false;
+    public bool IsUsageReportingEnabled { get; }
 
     public bool ShouldReportSession( string projectName ) => false;
 

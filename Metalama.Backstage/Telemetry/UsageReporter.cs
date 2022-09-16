@@ -14,7 +14,8 @@ internal class UsageReporter : IUsageReporter
     private readonly IConfigurationManager _configurationManager;
     private readonly IDateTimeProvider _time;
     private readonly ILogger _logger;
-    private readonly IApplicationInfo _applicationInfo;
+
+    public bool IsUsageReportingEnabled { get; }
 
     public UsageReporter( IServiceProvider serviceProvider )
     {
@@ -23,34 +24,28 @@ internal class UsageReporter : IUsageReporter
         this._configuration = this._configurationManager.Get<TelemetryConfiguration>();
         this._time = serviceProvider.GetRequiredBackstageService<IDateTimeProvider>();
         this._logger = serviceProvider.GetLoggerFactory().Telemetry();
-        this._applicationInfo = serviceProvider.GetRequiredBackstageService<IApplicationInfoProvider>().CurrentApplication;
-    }
 
-    public bool IsUsageReportingEnabled()
-    {
-        if ( !this._applicationInfo.IsTelemetryEnabled )
+        var applicationInfo = serviceProvider.GetRequiredBackstageService<IApplicationInfoProvider>().CurrentApplication;
+
+        if ( !applicationInfo.IsTelemetryEnabled )
         {
-            this._logger.Trace?.Log(
-                $"Usage should not be reported because telemetry is disabled for {this._applicationInfo.Name} {this._applicationInfo.Version}." );
-
-            return false;
+            this._logger.Trace?.Log( $"Usage should not be reported because telemetry is disabled for {applicationInfo.Name} {applicationInfo.Version}." );
         }
-
-        if ( TelemetryConfiguration.IsOptOutEnvironmentVariableSet() )
+        else if ( TelemetryConfiguration.IsOptOutEnvironmentVariableSet() )
         {
             this._logger.Trace?.Log( $"Usage should not be reported because the opt-out environment variable is set." );
-
-            return false;
         }
-
-        return true;
+        else
+        {
+            this.IsUsageReportingEnabled = true;
+        }
     }
 
     public bool ShouldReportSession( string projectName )
     {
         var now = this._time.Now;
 
-        if ( !this.IsUsageReportingEnabled() )
+        if ( !this.IsUsageReportingEnabled )
         {
             return false;
         }

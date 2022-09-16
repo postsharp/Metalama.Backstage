@@ -31,7 +31,5 @@ namespace Metalama.Backstage.Telemetry
         }
 
         public abstract bool SetValue( object? value );
-
-        public abstract override string ToString();
     }
 }
