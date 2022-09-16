@@ -9,7 +9,7 @@ using System;
 
 namespace Metalama.Backstage.Licensing.Audit;
 
-internal class LicenseAuditManager
+internal class LicenseAuditManager : ILicenseAuditManager
 {
     private readonly IServiceProvider _serviceProvider;
     private readonly IConfigurationManager _configurationManager;

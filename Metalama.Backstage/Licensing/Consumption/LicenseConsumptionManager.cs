@@ -1,6 +1,7 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. See the LICENSE.md file in the root directory of this repository root for details.
 
 using Metalama.Backstage.Diagnostics;
+using Metalama.Backstage.Extensibility;
 using Metalama.Backstage.Licensing.Audit;
 using Metalama.Backstage.Licensing.Consumption.Sources;
 using Metalama.Backstage.Licensing.Licenses;
@@ -74,7 +75,8 @@ internal class LicenseConsumptionManager : ILicenseConsumptionManager
             this._licensedNamespace = string.IsNullOrEmpty( data.LicensedNamespace ) ? null : new( data.LicensedNamespace! );
             this.RedistributionLicenseKey = data.IsRedistributable ? data.LicenseString : null;
 
-            new LicenseAuditManager( services ).ReportLicense( data );
+            var licenseAuditManager = services.GetBackstageService<ILicenseAuditManager>();
+            licenseAuditManager?.ReportLicense( data );
 
             return;
         }

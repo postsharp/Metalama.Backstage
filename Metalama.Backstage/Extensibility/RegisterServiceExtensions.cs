@@ -3,6 +3,7 @@
 using Metalama.Backstage.Configuration;
 using Metalama.Backstage.Diagnostics;
 using Metalama.Backstage.Licensing;
+using Metalama.Backstage.Licensing.Audit;
 using Metalama.Backstage.Licensing.Consumption;
 using Metalama.Backstage.Licensing.Consumption.Sources;
 using Metalama.Backstage.Maintenance;
@@ -141,7 +142,8 @@ public static class RegisterServiceExtensions
         this ServiceProviderBuilder serviceProviderBuilder,
         bool considerUnattendedLicense = false,
         bool ignoreUserProfileLicenses = false,
-        string? additionalLicense = null )
+        string? additionalLicense = null,
+        bool addLicenseAudit = true )
     {
         var licenseSources = new List<ILicenseSource>();
         var serviceProvider = serviceProviderBuilder.ServiceProvider;
@@ -165,6 +167,12 @@ public static class RegisterServiceExtensions
         {
             // Must be added last.
             licenseSources.Add( new PreviewLicenseSource( serviceProvider ) );
+        }
+
+        if ( addLicenseAudit )
+        {
+            // License audit requires support services. 
+            serviceProviderBuilder.AddSingleton<ILicenseAuditManager>( new LicenseAuditManager( serviceProvider ) );
         }
 
         serviceProviderBuilder.AddSingleton<ILicenseConsumptionManager>( new LicenseConsumptionManager( serviceProvider, licenseSources ) );
@@ -232,13 +240,7 @@ public static class RegisterServiceExtensions
         // Add licensing.
         if ( addLicensing )
         {
-            if ( !addSupportServices )
-            {
-                // Telemetry is required for license audit.
-                throw new ArgumentException( "Licensing services require support services.", nameof(addSupportServices) );
-            }
-
-            serviceProviderBuilder.AddLicensing( considerUnattendedProcessLicense, ignoreUserProfileLicenses, additionalLicense );
+            serviceProviderBuilder.AddLicensing( considerUnattendedProcessLicense, ignoreUserProfileLicenses, additionalLicense, addSupportServices );
         }
 
         return serviceProviderBuilder;
