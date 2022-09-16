@@ -1,7 +1,6 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. See the LICENSE.md file in the root directory of this repository root for details.
 
 using Metalama.Backstage.Configuration;
-using Metalama.Backstage.Extensibility;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -26,12 +25,22 @@ public class DiagnosticsConfiguration : ConfigurationFile
         this.Reset();
     }
 
+    [JsonConstructor]
+    public DiagnosticsConfiguration( LoggingConfiguration logging, DebuggerConfiguration debugger, MiniDumpConfiguration miniDump )
+    {
+        this.Logging = logging;
+        this.Debugger = debugger;
+        this.MiniDump = miniDump;
+    }
+
     public void Reset()
     {
         this.Logging.Processes = new Dictionary<ProcessKind, bool>
         {
             [ProcessKind.Compiler] = false, [ProcessKind.Rider] = false, [ProcessKind.DevEnv] = false, [ProcessKind.RoslynCodeAnalysisService] = false
         };
+
+        this.Logging.StopLoggingAfterHours = 2;
 
         this.Logging.Categories = new Dictionary<string, bool>( StringComparer.OrdinalIgnoreCase ) { ["*"] = true };
 
@@ -45,23 +54,23 @@ public class DiagnosticsConfiguration : ConfigurationFile
             [ProcessKind.Compiler] = false, [ProcessKind.Rider] = false, [ProcessKind.DevEnv] = false, [ProcessKind.RoslynCodeAnalysisService] = false
         };
 
-        // this.MiniDump.Flags.Clear();
-        //
-        // this.MiniDump.Flags.AddRange(
-        //     new[]
-        //     {
-        //         MiniDumpKind.WithDataSegments,
-        //         MiniDumpKind.WithProcessThreadData,
-        //         MiniDumpKind.WithHandleData,
-        //         MiniDumpKind.WithPrivateReadWriteMemory,
-        //         MiniDumpKind.WithUnloadedModules,
-        //         MiniDumpKind.WithFullMemoryInfo,
-        //         MiniDumpKind.WithThreadInfo,
-        //         MiniDumpKind.FilterMemory,
-        //         MiniDumpKind.WithoutAuxiliaryState
-        //     }.Select( x => x.ToString() ) );
-        //
-        // this.MiniDump.ExceptionTypes = new List<string> { "*" };
+        this.MiniDump.Flags.Clear();
+
+        this.MiniDump.Flags.AddRange(
+            new[]
+            {
+                MiniDumpKind.WithDataSegments,
+                MiniDumpKind.WithProcessThreadData,
+                MiniDumpKind.WithHandleData,
+                MiniDumpKind.WithPrivateReadWriteMemory,
+                MiniDumpKind.WithUnloadedModules,
+                MiniDumpKind.WithFullMemoryInfo,
+                MiniDumpKind.WithThreadInfo,
+                MiniDumpKind.FilterMemory,
+                MiniDumpKind.WithoutAuxiliaryState
+            }.Select( x => x.ToString() ) );
+
+        this.MiniDump.ExceptionTypes = new List<string> { "*" };
     }
 
     public void DisableLogging()
@@ -71,6 +80,8 @@ public class DiagnosticsConfiguration : ConfigurationFile
             [ProcessKind.Compiler] = false, [ProcessKind.Rider] = false, [ProcessKind.DevEnv] = false, [ProcessKind.RoslynCodeAnalysisService] = false
         };
     }
+
+    public void SetStopLoggingAfterHours( int hours ) => this.Logging.StopLoggingAfterHours = hours;
 
     public override void CopyFrom( ConfigurationFile configurationFile )
     {
