@@ -5,6 +5,7 @@ using Metalama.Backstage.Diagnostics;
 using Metalama.Backstage.Extensibility;
 using Metalama.Backstage.Testing;
 using Metalama.Backstage.Testing.Services;
+using System;
 using System.IO;
 using Xunit;
 using Xunit.Abstractions;
@@ -24,7 +25,8 @@ public class EnvironmentVariableConfigurationTests : TestsBase
     },
     ""categories"": {
       ""*"": true
-    }
+    },
+    ""stopLoggingAfterHours"": 2
   },
   ""debugger"": {
     ""processes"": {
@@ -69,7 +71,8 @@ public class EnvironmentVariableConfigurationTests : TestsBase
     },
     ""categories"": {
       ""*"": true
-    }
+    },
+    ""StopLoggingAfterHours"": 2
   },
   ""debugger"": {
     ""processes"": {
@@ -103,6 +106,7 @@ public class EnvironmentVariableConfigurationTests : TestsBase
   }
 }";
 
+    private readonly string _environmentVariableName;
     private readonly IConfigurationManager _configurationManager;
 
     public EnvironmentVariableConfigurationTests( ITestOutputHelper logger ) : base(
@@ -117,30 +121,27 @@ public class EnvironmentVariableConfigurationTests : TestsBase
         this._configurationManager = this.ServiceProvider.GetRequiredBackstageService<IConfigurationManager>();
         var standardDirectories = this.ServiceProvider.GetRequiredBackstageService<IStandardDirectories>();
 
+        this._environmentVariableName = "METALAMA_DIAGNOSTICS";
+
         this.FileSystem.CreateDirectory( standardDirectories.ApplicationDataDirectory );
         var diagnosticsJsonFilePath = Path.Combine( standardDirectories.ApplicationDataDirectory, "diagnostics.json" );
         this.FileSystem.WriteAllText( diagnosticsJsonFilePath, this._localJsonContent );
 
-        this.SetUpEnvironmentVariable();
-    }
-
-    private void SetUpEnvironmentVariable()
-    {
-        this.EnvironmentVariableProvider.SetEnvironmentVariable( this.EnvironmentVariableProvider.EnvironmentVariableName, this._environmentVariableJsonContent );
+        this.EnvironmentVariableProvider.SetEnvironmentVariable( this._environmentVariableName, this._environmentVariableJsonContent );
     }
 
     [Fact]
-    public void EnvironmentVariableExists()
+    public void EnvironmentVariable_Exists()
     {
-        var environmentVariableValue = this.EnvironmentVariableProvider.GetEnvironmentVariable( this.EnvironmentVariableProvider.EnvironmentVariableName );
+        var environmentVariableValue = this.EnvironmentVariableProvider.GetEnvironmentVariable( this._environmentVariableName );
 
         Assert.NotNull( environmentVariableValue );
     }
 
     [Fact]
-    public void EnvironmentVariableHasCorrectValue()
+    public void EnvironmentVariable_HasCorrectValue()
     {
-        var environmentVariableValue = this.EnvironmentVariableProvider.GetEnvironmentVariable( this.EnvironmentVariableProvider.EnvironmentVariableName );
+        var environmentVariableValue = this.EnvironmentVariableProvider.GetEnvironmentVariable( this._environmentVariableName );
 
         Assert.Equal( this._environmentVariableJsonContent, environmentVariableValue );
     }
@@ -148,22 +149,18 @@ public class EnvironmentVariableConfigurationTests : TestsBase
     [Fact]
     public void UpdateEnvironmentVariable()
     {
-        this.EnvironmentVariableProvider.SetEnvironmentVariable( this.EnvironmentVariableProvider.EnvironmentVariableName, "newValue" );
-        var environmentVariableValue = this.EnvironmentVariableProvider.GetEnvironmentVariable( this.EnvironmentVariableProvider.EnvironmentVariableName );
+        this.EnvironmentVariableProvider.SetEnvironmentVariable( this._environmentVariableName, "newValue" );
+        var environmentVariableValue = this.EnvironmentVariableProvider.GetEnvironmentVariable( this._environmentVariableName );
 
         Assert.Equal( "newValue", environmentVariableValue );
     }
 
     [Fact]
-    public void ExistingEnvironmentVariableIsUsedAsConfiguration()
+    public void ExistingEnvironmentVariable_OverridesConfiguration()
     {
-        var updatedConfiguration = this._configurationManager.Get<DiagnosticsConfiguration>( false );
-        
-        // TODO: Remove.
-        this.Logger.WriteLine( this._environmentVariableJsonContent );
-        this.Logger.WriteLine( "======" );
-        this.Logger.WriteLine( updatedConfiguration.ToJson() );
-        
-        Assert.Equal( this._environmentVariableJsonContent, updatedConfiguration.ToJson() );
+        var diagnosticsConfiguration = this._configurationManager.Get( typeof(DiagnosticsConfiguration), true );
+        var diagnosticsFileContents = diagnosticsConfiguration.ToJson();
+
+        Assert.Equal( this._environmentVariableJsonContent, diagnosticsFileContents );
     }
 }

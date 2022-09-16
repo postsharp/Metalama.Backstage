@@ -10,7 +10,7 @@ namespace Metalama.Backstage.Testing.Services;
 
 public class TestEnvironmentVariableProvider : IEnvironmentVariableProvider
 {
-    public class MockEnvironment
+    private class MockEnvironment
     {
         public Dictionary<string, string?> Environment { get; }
 
@@ -20,16 +20,9 @@ public class TestEnvironmentVariableProvider : IEnvironmentVariableProvider
         }
     }
 
-    public MockEnvironment Mock { get; } = new();
+    private MockEnvironment Mock { get; } = new();
 
-    public string EnvironmentVariableName => "METALAMA_DIAGNOSTICS";
-
-    public bool IsEnvironmentVariableSet( string variable )
-    {
-        return this.Mock.Environment.ContainsKey( variable );
-    }
-
-    public string? GetEnvironmentVariable( string variable ) => this.Mock.Environment[variable];
+    public string? GetEnvironmentVariable( string variable ) => this.Mock.Environment.ContainsKey( variable ) ? this.Mock.Environment[variable] : null;
 
     public void SetEnvironmentVariable( string variable, string? value )
     {
@@ -43,8 +36,15 @@ public class TestEnvironmentVariableProvider : IEnvironmentVariableProvider
         }
     }
 
-    public DiagnosticsConfiguration GetDiagnosticsConfigurationFromEnvironmentVariable( string variable )
+    public DiagnosticsConfiguration? GetDiagnosticsConfigurationFromEnvironmentVariable( string variable )
     {
-        return JsonConvert.DeserializeObject<DiagnosticsConfiguration>( this.GetEnvironmentVariable( variable ) );
+        var environmentVariableValue = this.GetEnvironmentVariable( variable );
+
+        if ( string.IsNullOrEmpty( environmentVariableValue ) )
+        {
+            throw new InvalidOperationException( $"Environment variable '{variable}' is not set." );
+        }
+
+        return JsonConvert.DeserializeObject<DiagnosticsConfiguration>( environmentVariableValue! );
     }
 }
