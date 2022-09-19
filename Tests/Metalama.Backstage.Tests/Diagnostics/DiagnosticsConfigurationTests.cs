@@ -120,7 +120,10 @@ public class DiagnosticsConfigurationTests : TestsBase
     [Fact]
     public void DisablingLogging_UpdatesLocalFile()
     {
-        this._configurationManager.Update<DiagnosticsConfiguration>( c => c.DisableLogging() );
+        // Manually make the diagnostics.json to be older than specified amount of time.
+        this.FileSystem.SetLastWriteTime( this._diagnosticsJsonFilePath, DateTime.Now.AddHours( -3 ) );
+
+        this._configurationManager.Update<DiagnosticsConfiguration>( c => c.DisableLoggingForOutdatedSettings() );
         var diagnosticsFileContents = this.FileSystem.ReadAllText( this._diagnosticsJsonFilePath );
 
         Assert.DoesNotContain(
@@ -205,7 +208,7 @@ public class DiagnosticsConfigurationTests : TestsBase
     }
 
     [Fact]
-    public void JsonPropertyAttribute_SerializesPropertiesCorrectly()
+    public void CreatingConfigurationFrom_JsonPropertyAttribute_SerializesPropertiesCorrectly()
     {
         var diagnosticsConfiguration = (DiagnosticsConfiguration) this._configurationManager.Get( typeof(DiagnosticsConfiguration), true );
 
@@ -255,5 +258,4 @@ public class DiagnosticsConfigurationTests : TestsBase
         // Finally test if both files are identical.
         Assert.Equal( diagnosticsConfiguration.ToJson(), deserializedDiagnosticsConfiguration.ToJson() );
     }
-
 }

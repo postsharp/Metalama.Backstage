@@ -73,12 +73,15 @@ public class DiagnosticsConfiguration : ConfigurationFile
         this.MiniDump.ExceptionTypes = new List<string> { "*" };
     }
 
-    public void DisableLogging()
+    public void DisableLoggingForOutdatedSettings()
     {
-        this.Logging.Processes = new Dictionary<ProcessKind, bool>
+        if ( this.LastModified < DateTime.Now.AddHours( this.Logging.StopLoggingAfterHours * -1 ) )
         {
-            [ProcessKind.Compiler] = false, [ProcessKind.Rider] = false, [ProcessKind.DevEnv] = false, [ProcessKind.RoslynCodeAnalysisService] = false
-        };
+            this.Logging.Processes = new Dictionary<ProcessKind, bool>
+            {
+                [ProcessKind.Compiler] = false, [ProcessKind.Rider] = false, [ProcessKind.DevEnv] = false, [ProcessKind.RoslynCodeAnalysisService] = false
+            };
+        }
     }
 
     public void SetStopLoggingAfterHours( int hours ) => this.Logging.StopLoggingAfterHours = hours;

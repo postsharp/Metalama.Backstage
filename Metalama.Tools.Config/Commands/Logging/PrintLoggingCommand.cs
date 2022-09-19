@@ -22,7 +22,9 @@ internal class PrintLoggingCommand : CommandBase
     private void Execute( IConsole console )
     {
         this.CommandServices.Initialize( console, false );
-        var configuration = this.CommandServices.ServiceProvider.GetRequiredService<IConfigurationManager>().Get<DiagnosticsConfiguration>();
+        var configurationManager = this.CommandServices.ServiceProvider.GetRequiredService<IConfigurationManager>();
+        configurationManager.Update<DiagnosticsConfiguration>( c => c.DisableLoggingForOutdatedSettings() );
+        var configuration = configurationManager.Get<DiagnosticsConfiguration>();
 
         console.Out.WriteLine( $"The file '{configuration.FilePath}' contains the following configuration:" );
         console.Out.WriteLine();

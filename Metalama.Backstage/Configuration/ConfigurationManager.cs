@@ -154,13 +154,8 @@ namespace Metalama.Backstage.Configuration
             if ( type == typeof(DiagnosticsConfiguration) )
             {
                 var diagnostics = (DiagnosticsConfiguration) settings;
-
-                if ( diagnostics.LastModified < DateTime.Now.AddHours( diagnostics.Logging.StopLoggingAfterHours * -1 ) )
-                {
-                    diagnostics.DisableLogging();
-
-                    return diagnostics;
-                }
+                diagnostics.DisableLoggingForOutdatedSettings();
+                settings = diagnostics;
             }
             
             return settings;
