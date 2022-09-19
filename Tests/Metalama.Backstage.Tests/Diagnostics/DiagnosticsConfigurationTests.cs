@@ -31,7 +31,8 @@ public class DiagnosticsConfigurationTests : TestsBase
     },
     ""categories"": {
       ""*"": true
-    }
+    },
+    ""stopLoggingAfterHours"": 2
   },
   ""debugger"": {
     ""processes"": {
@@ -88,21 +89,19 @@ public class DiagnosticsConfigurationTests : TestsBase
     public void LocalDiagnosticsJsonFile_Exists()
     {
         Assert.NotNull( this.FileSystem.ReadAllText( this._diagnosticsJsonFilePath ) );
-        var diagnosticsFileContents = this._configurationManager.Get( typeof(DiagnosticsConfiguration), false ).ToJson();
+        var diagnosticsFileContents = this._configurationManager.Get( typeof(DiagnosticsConfiguration) ).ToJson();
 
-        Assert.Contains( "\"Compiler\": true", diagnosticsFileContents, StringComparison.OrdinalIgnoreCase );
-        Assert.Contains( "\"Rider\": true", diagnosticsFileContents, StringComparison.OrdinalIgnoreCase );
-        Assert.Contains( "\"DevEnv\": true", diagnosticsFileContents, StringComparison.OrdinalIgnoreCase );
-        Assert.Contains( "\"RoslynCodeAnalysisService\": true", diagnosticsFileContents, StringComparison.OrdinalIgnoreCase );
+        Assert.Equal( this._diagnosticsJsonFileContent, diagnosticsFileContents, StringComparer.OrdinalIgnoreCase );
     }
 
     [Fact]
     public void ChangingLoggingHours_UpdatesConfiguration()
     {
-        this._configurationManager.Update<DiagnosticsConfiguration>( c => c.SetStopLoggingAfterHours( 10 ) );
-        var diagnosticsConfiguration = (DiagnosticsConfiguration) this._configurationManager.Get( typeof(DiagnosticsConfiguration), true );
+        var hours = 10;
+        this._configurationManager.Update<DiagnosticsConfiguration>( c => c.SetStopLoggingAfterHours( hours ) );
+        var diagnosticsConfiguration = (DiagnosticsConfiguration) this._configurationManager.Get( typeof(DiagnosticsConfiguration) );
 
-        Assert.Equal( 10, diagnosticsConfiguration.Logging.StopLoggingAfterHours );
+        Assert.Equal( hours, diagnosticsConfiguration.Logging.StopLoggingAfterHours );
     }
 
     [Fact]
@@ -112,13 +111,13 @@ public class DiagnosticsConfigurationTests : TestsBase
         this._configurationManager.Update<DiagnosticsConfiguration>( c => c.SetStopLoggingAfterHours( 10 ) );
 
         this._configurationManager.Update<DiagnosticsConfiguration>( c => c.Reset() );
-        var diagnosticsConfiguration = (DiagnosticsConfiguration) this._configurationManager.Get( typeof(DiagnosticsConfiguration), true );
+        var diagnosticsConfiguration = (DiagnosticsConfiguration) this._configurationManager.Get( typeof(DiagnosticsConfiguration) );
 
         Assert.Equal( 2, diagnosticsConfiguration.Logging.StopLoggingAfterHours );
     }
 
     [Fact]
-    public void DisablingLogging_UpdatesLocalFile()
+    public void UpdatingOutdatedDiagnosticsConfiguration_DisablesLogging()
     {
         // Manually make the diagnostics.json to be older than specified amount of time.
         this.FileSystem.SetLastWriteTime( this._diagnosticsJsonFilePath, DateTime.Now.AddHours( -3 ) );
@@ -150,9 +149,9 @@ public class DiagnosticsConfigurationTests : TestsBase
             diagnosticsFileContents,
             StringComparison.OrdinalIgnoreCase );
     }
-
+    
     [Fact]
-    public void DisableLogging_AfterPeriodOfTime()
+    public void GetOutdatedDiagnosticsConfiguration_DisablesLogging()
     {
         // Manually make the diagnostics.json to be older than specified amount of time.
         this.FileSystem.SetLastWriteTime( this._diagnosticsJsonFilePath, DateTime.Now.AddHours( -3 ) );
@@ -186,11 +185,33 @@ public class DiagnosticsConfigurationTests : TestsBase
     }
 
     [Fact]
-    public void DoNotDisableLogging_BeforePeriodOfTime()
+    public void UpdatingNotOutdatedDiagnosticsConfiguration_KeepsLoggingSettings()
     {
         // Manually make the diagnostics.json to be older than specified amount of time.
         this.FileSystem.SetLastWriteTime( this._diagnosticsJsonFilePath, DateTime.Now.AddHours( -1 ) );
         
+        this._configurationManager.Update<DiagnosticsConfiguration>( c => c.DisableLoggingForOutdatedSettings() );
+        var diagnosticsFileContents = this.FileSystem.ReadAllText( this._diagnosticsJsonFilePath );
+
+        Assert.Contains(
+            @"{
+  ""logging"": {
+    ""processes"": {
+      ""Compiler"": true,
+      ""Rider"": true,
+      ""DevEnv"": true,
+      ""RoslynCodeAnalysisService"": true
+    }",
+            diagnosticsFileContents,
+            StringComparison.OrdinalIgnoreCase );
+    }
+
+    [Fact]
+    public void GetNoOutdatedDiagnosticsConfiguration_KeepsLoggingSettings()
+    {
+        // Manually make the diagnostics.json to be older than specified amount of time.
+        this.FileSystem.SetLastWriteTime( this._diagnosticsJsonFilePath, DateTime.Now.AddHours( -1 ) );
+
         var diagnosticsConfiguration = this._configurationManager.Get( typeof(DiagnosticsConfiguration), true );
         var diagnosticsFileContents = diagnosticsConfiguration.ToJson();
 
@@ -238,7 +259,6 @@ public class DiagnosticsConfigurationTests : TestsBase
             Assert.Equal( diagnosticsConfiguration.Debugger.Processes[key], deserializedDiagnosticsConfiguration.Debugger.Processes[key] );
         }
         
-        // TODO: Maybe better test with actual positions being the same.
         // MiniDump
         foreach ( var flag in diagnosticsConfiguration.MiniDump.Flags )
         {

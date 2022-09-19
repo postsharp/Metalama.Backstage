@@ -19,7 +19,7 @@ namespace Metalama.Backstage
             var serviceProviderBuilder = new ServiceProviderBuilder()
                 .AddMinimalBackstageServices( applicationInfo: new BackstageWorkerApplicationInfo(), addSupportServices: true );
 
-            // Attempt to disable logging if the diagnostics file has not been modified recently.
+            // Disable logging if the diagnostics.json file has been modified long time ago (i.e. more than X hours before set hours)
             try
             {
                 serviceProvider = serviceProviderBuilder.ServiceProvider;

@@ -9,7 +9,7 @@ using System.IO;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace Metalama.Backstage.Licensing.Tests.ConfigurationManager;
+namespace Metalama.Backstage.Licensing.Tests.Diagnostics;
 
 public class EnvironmentVariableConfigurationTests : TestsBase
 {
@@ -105,7 +105,6 @@ public class EnvironmentVariableConfigurationTests : TestsBase
   }
 }";
 
-    private readonly string _environmentVariableName;
     private readonly IConfigurationManager _configurationManager;
 
     public EnvironmentVariableConfigurationTests( ITestOutputHelper logger ) : base(
@@ -119,20 +118,17 @@ public class EnvironmentVariableConfigurationTests : TestsBase
     {
         this._configurationManager = this.ServiceProvider.GetRequiredBackstageService<IConfigurationManager>();
         var standardDirectories = this.ServiceProvider.GetRequiredBackstageService<IStandardDirectories>();
-
-        this._environmentVariableName = "METALAMA_DIAGNOSTICS";
-
         this.FileSystem.CreateDirectory( standardDirectories.ApplicationDataDirectory );
         var diagnosticsJsonFilePath = Path.Combine( standardDirectories.ApplicationDataDirectory, "diagnostics.json" );
         this.FileSystem.WriteAllText( diagnosticsJsonFilePath, this._localJsonContent );
 
-        this.EnvironmentVariableProvider.SetEnvironmentVariable( this._environmentVariableName, this._environmentVariableJsonContent );
+        this.EnvironmentVariableProvider.SetEnvironmentVariable( this.EnvironmentVariableProvider.DefaultDiagnosticsEnvironmentVariableName, this._environmentVariableJsonContent );
     }
 
     [Fact]
     public void EnvironmentVariable_Exists()
     {
-        var environmentVariableValue = this.EnvironmentVariableProvider.GetEnvironmentVariable( this._environmentVariableName );
+        var environmentVariableValue = this.EnvironmentVariableProvider.GetEnvironmentVariable( this.EnvironmentVariableProvider.DefaultDiagnosticsEnvironmentVariableName );
 
         Assert.NotNull( environmentVariableValue );
     }
@@ -140,7 +136,7 @@ public class EnvironmentVariableConfigurationTests : TestsBase
     [Fact]
     public void EnvironmentVariable_HasCorrectValue()
     {
-        var environmentVariableValue = this.EnvironmentVariableProvider.GetEnvironmentVariable( this._environmentVariableName );
+        var environmentVariableValue = this.EnvironmentVariableProvider.GetEnvironmentVariable( this.EnvironmentVariableProvider.DefaultDiagnosticsEnvironmentVariableName );
 
         Assert.Equal( this._environmentVariableJsonContent, environmentVariableValue );
     }
@@ -148,8 +144,8 @@ public class EnvironmentVariableConfigurationTests : TestsBase
     [Fact]
     public void UpdateEnvironmentVariable()
     {
-        this.EnvironmentVariableProvider.SetEnvironmentVariable( this._environmentVariableName, "newValue" );
-        var environmentVariableValue = this.EnvironmentVariableProvider.GetEnvironmentVariable( this._environmentVariableName );
+        this.EnvironmentVariableProvider.SetEnvironmentVariable( this.EnvironmentVariableProvider.DefaultDiagnosticsEnvironmentVariableName, "newValue" );
+        var environmentVariableValue = this.EnvironmentVariableProvider.GetEnvironmentVariable( this.EnvironmentVariableProvider.DefaultDiagnosticsEnvironmentVariableName );
 
         Assert.Equal( "newValue", environmentVariableValue );
     }

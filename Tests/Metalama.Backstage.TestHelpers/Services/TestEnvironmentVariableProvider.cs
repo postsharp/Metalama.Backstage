@@ -22,6 +22,8 @@ public class TestEnvironmentVariableProvider : IEnvironmentVariableProvider
 
     private MockEnvironment Mock { get; } = new();
 
+    public string DefaultDiagnosticsEnvironmentVariableName { get; } = "METALAMA_DIAGNOSTICS";
+
     public string? GetEnvironmentVariable( string variable ) => this.Mock.Environment.ContainsKey( variable ) ? this.Mock.Environment[variable] : null;
 
     public void SetEnvironmentVariable( string variable, string? value )

@@ -119,10 +119,10 @@ namespace Metalama.Backstage.Configuration
             // Diagnostics configuration set by process environment variable always overrides local configuration, if it exists.
             if ( type == typeof(DiagnosticsConfiguration) )
             {
-                if ( !string.IsNullOrEmpty( this._environmentVariableProvider.GetEnvironmentVariable( "METALAMA_DIAGNOSTICS" ) ) )
+                if ( !string.IsNullOrEmpty( this._environmentVariableProvider.GetEnvironmentVariable( this._environmentVariableProvider.DefaultDiagnosticsEnvironmentVariableName ) ) )
                 {
                     var environmentDiagnosticsConfiguration = this._environmentVariableProvider.GetDiagnosticsConfigurationFromEnvironmentVariable(
-                        "METALAMA_DIAGNOSTICS" );
+                        this._environmentVariableProvider.DefaultDiagnosticsEnvironmentVariableName );
 
                     if ( environmentDiagnosticsConfiguration != null )
                     {
@@ -132,7 +132,7 @@ namespace Metalama.Backstage.Configuration
             }
 
             ConfigurationFile settings;
-            
+
             if ( ignoreCache )
             {
                 settings = GetCore();
@@ -157,7 +157,7 @@ namespace Metalama.Backstage.Configuration
                 diagnostics.DisableLoggingForOutdatedSettings();
                 settings = diagnostics;
             }
-            
+
             return settings;
         }
 
