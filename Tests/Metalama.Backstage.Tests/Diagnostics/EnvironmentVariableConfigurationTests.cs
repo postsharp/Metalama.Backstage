@@ -13,97 +13,6 @@ namespace Metalama.Backstage.Licensing.Tests.Diagnostics;
 
 public class EnvironmentVariableConfigurationTests : TestsBase
 {
-    private readonly string _environmentVariableJsonContent =
-        @"{
-  ""logging"": {
-    ""processes"": {
-      ""Compiler"": true,
-      ""Rider"": true,
-      ""DevEnv"": true,
-      ""RoslynCodeAnalysisService"": true
-    },
-    ""categories"": {
-      ""*"": true
-    },
-    ""stopLoggingAfterHours"": 2
-  },
-  ""debugger"": {
-    ""processes"": {
-      ""Compiler"": false,
-      ""Rider"": false,
-      ""DevEnv"": false,
-      ""RoslynCodeAnalysisService"": false
-    }
-  },
-  ""miniDump"": {
-    ""processes"": {
-      ""Compiler"": false,
-      ""Rider"": false,
-      ""DevEnv"": false,
-      ""RoslynCodeAnalysisService"": false
-    },
-    ""flags"": [
-      ""WithDataSegments"",
-      ""WithProcessThreadData"",
-      ""WithHandleData"",
-      ""WithPrivateReadWriteMemory"",
-      ""WithUnloadedModules"",
-      ""WithFullMemoryInfo"",
-      ""WithThreadInfo"",
-      ""FilterMemory"",
-      ""WithoutAuxiliaryState""
-    ],
-    ""ExceptionTypes"": [
-      ""*""
-    ]
-  }
-}";
-
-    private readonly string _localJsonContent =
-        @"{
-  ""logging"": {
-    ""processes"": {
-      ""Compiler"": false,
-      ""Rider"": false,
-      ""DevEnv"": false,
-      ""RoslynCodeAnalysisService"": false
-    },
-    ""categories"": {
-      ""*"": true
-    },
-    ""StopLoggingAfterHours"": 2
-  },
-  ""debugger"": {
-    ""processes"": {
-      ""Compiler"": false,
-      ""Rider"": false,
-      ""DevEnv"": false,
-      ""RoslynCodeAnalysisService"": false
-    }
-  },
-  ""miniDump"": {
-    ""processes"": {
-      ""Compiler"": false,
-      ""Rider"": false,
-      ""DevEnv"": false,
-      ""RoslynCodeAnalysisService"": false
-    },
-    ""flags"": [
-      ""WithDataSegments"",
-      ""WithProcessThreadData"",
-      ""WithHandleData"",
-      ""WithPrivateReadWriteMemory"",
-      ""WithUnloadedModules"",
-      ""WithFullMemoryInfo"",
-      ""WithThreadInfo"",
-      ""FilterMemory"",
-      ""WithoutAuxiliaryState""
-    ],
-    ""ExceptionTypes"": [
-      ""*""
-    ]
-  }
-}";
 
     private readonly IConfigurationManager _configurationManager;
 
@@ -111,51 +20,31 @@ public class EnvironmentVariableConfigurationTests : TestsBase
         logger,
         builder =>
         {
+            builder.AddService( typeof(IEnvironmentVariableProvider), new TestEnvironmentVariableProvider() );
             builder.AddService( typeof(IConfigurationManager), new Configuration.ConfigurationManager( builder.ServiceProvider ) );
             builder.AddService( typeof(IApplicationInfoProvider), new ApplicationInfoProvider( new TestApplicationInfo() ) );
-            builder.AddService( typeof(IEnvironmentVariableProvider), new TestEnvironmentVariableProvider() );
+            
         } )
     {
         this._configurationManager = this.ServiceProvider.GetRequiredBackstageService<IConfigurationManager>();
         var standardDirectories = this.ServiceProvider.GetRequiredBackstageService<IStandardDirectories>();
         this.FileSystem.CreateDirectory( standardDirectories.ApplicationDataDirectory );
         var diagnosticsJsonFilePath = Path.Combine( standardDirectories.ApplicationDataDirectory, "diagnostics.json" );
-        this.FileSystem.WriteAllText( diagnosticsJsonFilePath, this._localJsonContent );
+        this.FileSystem.WriteAllText( diagnosticsJsonFilePath, new DiagnosticsConfiguration().ToJson() );
 
-        this.EnvironmentVariableProvider.SetEnvironmentVariable( this.EnvironmentVariableProvider.DefaultDiagnosticsEnvironmentVariableName, this._environmentVariableJsonContent );
+        var environmentConfiguration = new DiagnosticsConfiguration();
+        environmentConfiguration.Logging.Processes[ProcessKind.Compiler] = true;
+
+
+        this.EnvironmentVariableProvider.Environment[DiagnosticsConfiguration.EnvironmentVariableName] = environmentConfiguration.ToJson();
     }
 
-    [Fact]
-    public void EnvironmentVariable_Exists()
-    {
-        var environmentVariableValue = this.EnvironmentVariableProvider.GetEnvironmentVariable( this.EnvironmentVariableProvider.DefaultDiagnosticsEnvironmentVariableName );
-
-        Assert.NotNull( environmentVariableValue );
-    }
-
-    [Fact]
-    public void EnvironmentVariable_HasCorrectValue()
-    {
-        var environmentVariableValue = this.EnvironmentVariableProvider.GetEnvironmentVariable( this.EnvironmentVariableProvider.DefaultDiagnosticsEnvironmentVariableName );
-
-        Assert.Equal( this._environmentVariableJsonContent, environmentVariableValue );
-    }
-
-    [Fact]
-    public void UpdateEnvironmentVariable()
-    {
-        this.EnvironmentVariableProvider.SetEnvironmentVariable( this.EnvironmentVariableProvider.DefaultDiagnosticsEnvironmentVariableName, "newValue" );
-        var environmentVariableValue = this.EnvironmentVariableProvider.GetEnvironmentVariable( this.EnvironmentVariableProvider.DefaultDiagnosticsEnvironmentVariableName );
-
-        Assert.Equal( "newValue", environmentVariableValue );
-    }
 
     [Fact]
     public void ExistingEnvironmentVariable_OverridesConfiguration()
     {
-        var diagnosticsConfiguration = this._configurationManager.Get( typeof(DiagnosticsConfiguration), true );
-        var diagnosticsFileContents = diagnosticsConfiguration.ToJson();
-
-        Assert.Equal( this._environmentVariableJsonContent, diagnosticsFileContents );
+        var diagnosticsConfiguration = this._configurationManager.Get<DiagnosticsConfiguration>();
+        
+        Assert.True( diagnosticsConfiguration.Logging.Processes[ProcessKind.Compiler] );
     }
 }

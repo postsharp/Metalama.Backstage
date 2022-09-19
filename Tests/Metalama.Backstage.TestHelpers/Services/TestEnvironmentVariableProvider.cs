@@ -10,43 +10,7 @@ namespace Metalama.Backstage.Testing.Services;
 
 public class TestEnvironmentVariableProvider : IEnvironmentVariableProvider
 {
-    private class MockEnvironment
-    {
-        public Dictionary<string, string?> Environment { get; }
+    public Dictionary<string, string?> Environment { get; } = new( StringComparer.OrdinalIgnoreCase );
 
-        public MockEnvironment()
-        {
-            this.Environment = new Dictionary<string, string?>();
-        }
-    }
-
-    private MockEnvironment Mock { get; } = new();
-
-    public string DefaultDiagnosticsEnvironmentVariableName { get; } = "METALAMA_DIAGNOSTICS";
-
-    public string? GetEnvironmentVariable( string variable ) => this.Mock.Environment.ContainsKey( variable ) ? this.Mock.Environment[variable] : null;
-
-    public void SetEnvironmentVariable( string variable, string? value )
-    {
-        if ( this.Mock.Environment.ContainsKey( variable ) )
-        {
-            this.Mock.Environment[variable] = value;
-        }
-        else
-        {
-            this.Mock.Environment.Add( variable, value );
-        }
-    }
-
-    public DiagnosticsConfiguration? GetDiagnosticsConfigurationFromEnvironmentVariable( string variable )
-    {
-        var environmentVariableValue = this.GetEnvironmentVariable( variable );
-
-        if ( string.IsNullOrEmpty( environmentVariableValue ) )
-        {
-            throw new InvalidOperationException( $"Environment variable '{variable}' is not set." );
-        }
-
-        return JsonConvert.DeserializeObject<DiagnosticsConfiguration>( environmentVariableValue! );
-    }
+    public string? GetEnvironmentVariable( string variable ) => this.Environment.ContainsKey( variable ) ? this.Environment[variable] : null;
 }
