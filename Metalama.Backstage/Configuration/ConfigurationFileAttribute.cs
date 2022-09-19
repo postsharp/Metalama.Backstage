@@ -13,4 +13,6 @@ public class ConfigurationFileAttribute : Attribute
     }
 
     public string FileName { get; }
+
+    public string? EnvironmentVariableName { get; set; }
 }

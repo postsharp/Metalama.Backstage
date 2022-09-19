@@ -8,7 +8,7 @@ using System.Linq;
 
 namespace Metalama.Backstage.Diagnostics;
 
-[ConfigurationFile( "diagnostics.json" )]
+[ConfigurationFile( "diagnostics.json", EnvironmentVariableName = "METALAMA_DIAGNOSTICS")]
 public class DiagnosticsConfiguration : ConfigurationFile
 {
     [JsonProperty( "logging" )]

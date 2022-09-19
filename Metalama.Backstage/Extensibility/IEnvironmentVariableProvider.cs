@@ -6,11 +6,5 @@ namespace Metalama.Backstage.Extensibility;
 
 public interface IEnvironmentVariableProvider : IBackstageService
 {
-    string DefaultDiagnosticsEnvironmentVariableName { get; }
-    
     string? GetEnvironmentVariable( string variable );
-
-    void SetEnvironmentVariable( string variable, string? value );
-
-    DiagnosticsConfiguration? GetDiagnosticsConfigurationFromEnvironmentVariable( string variable );
 }
