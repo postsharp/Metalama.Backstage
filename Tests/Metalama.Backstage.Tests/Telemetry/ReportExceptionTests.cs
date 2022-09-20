@@ -33,7 +33,7 @@ public class ReportExceptionTests : TestsBase
             }
 
             this.Logger.WriteLine( $"------------------- {i + 1} ---------------- " );
-            var tasks = new[] { Task.Run( ShouldReportIssue ), Task.Run( ShouldReportIssue ) };
+            var tasks = Enumerable.Range( 0, 10 ).Select( _ => Task.Run( ShouldReportIssue ) ).ToList();
             await Task.WhenAll( tasks );
 
             var trueCount = tasks.Count( t => t.Result );

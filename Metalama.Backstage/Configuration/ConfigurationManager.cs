@@ -137,7 +137,12 @@ namespace Metalama.Backstage.Configuration
 
         public bool TryUpdate( ConfigurationFile value, DateTime? lastModified )
         {
-            this._mutex.WaitOne();
+            if ( !this._mutex.WaitOne( 0 ) )
+            {
+                this.Logger.Trace?.Log( $"Waiting for the configuration mutex." );
+                this._mutex.WaitOne();
+                this.Logger.Trace?.Log( $"Finished waiting for the configuration mutex." );
+            }
 
             try
             {
