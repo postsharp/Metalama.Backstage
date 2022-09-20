@@ -25,6 +25,7 @@ namespace Metalama.Backstage.Configuration
 
         private readonly FileSystemWatcher? _fileSystemWatcher;
         private readonly IFileSystem _fileSystem;
+        private readonly IDateTimeProvider _dateTimeProvider;
 
         // Named semaphore to handle many instances.
         private readonly Mutex _mutex = new( false, "Global\\Metalama.Configuration" );
@@ -33,6 +34,7 @@ namespace Metalama.Backstage.Configuration
         {
             var applicationInfo = serviceProvider.GetBackstageService<IApplicationInfoProvider>()?.CurrentApplication;
             this._fileSystem = serviceProvider.GetRequiredBackstageService<IFileSystem>();
+            this._dateTimeProvider = serviceProvider.GetRequiredBackstageService<IDateTimeProvider>();
             this.Logger = serviceProvider.GetLoggerFactory().GetLogger( "Configuration" );
 
             this.ApplicationDataDirectory = serviceProvider.GetRequiredBackstageService<IStandardDirectories>().ApplicationDataDirectory;
@@ -148,7 +150,7 @@ namespace Metalama.Backstage.Configuration
             {
                 var fileName = this.GetFileName( value.GetType() );
 
-                this.Logger.Trace?.Log( $"Trying to update '{fileName}'. Our last timestamp is '{lastModified}'." );
+                this.Logger.Trace?.Log( $"Trying to update '{fileName}'. Our last timestamp is '{lastModified:O}'." );
 
                 // Verify (inside the global lock) that we have a fresh copy of the file.
                 if ( lastModified == null )
@@ -194,15 +196,23 @@ namespace Metalama.Backstage.Configuration
 
                 var json = value.ToJson();
 
-                // We have to wait more time than the time resolution of DateTime or the file system.
-                Thread.Sleep( 1 );
-
                 RetryHelper.Retry( () => this._fileSystem.WriteAllText( fileName, json ) );
 
                 // Intentionally update the timestamp a second time. 
                 baseValue.LastModified = this._fileSystem.GetLastWriteTime( fileName );
 
-                this.Logger.Trace?.Log( $"File '{fileName}' updated. The new timestamp is '{baseValue.LastModified}'." );
+                while ( baseValue.LastModified == lastModified )
+                {
+                    // The new filesystem timestamp is identical to the previous one, so we have to wait until there is an observable
+                    // difference in the timestamp.
+                    
+                    this.Logger.Trace?.Log( "Waiting for " );
+                    Thread.Sleep( 10 );
+                    this._fileSystem.SetLastWriteTime( fileName, this._dateTimeProvider.Now );
+                    baseValue.LastModified = this._fileSystem.GetLastWriteTime( fileName );
+                }
+
+                this.Logger.Trace?.Log( $"File '{fileName}' updated. The new timestamp is '{baseValue.LastModified:O}'." );
             }
             finally
             {
