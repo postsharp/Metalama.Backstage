@@ -5,7 +5,6 @@ using Metalama.Backstage.Licensing.Licenses;
 using Metalama.Backstage.Licensing.Registration;
 using Metalama.Backstage.Licensing.Registration.Evaluation;
 using Metalama.Backstage.Licensing.Tests.Licensing.Registration;
-using Metalama.Backstage.Testing.Services;
 using System;
 using Xunit;
 using Xunit.Abstractions;
@@ -16,7 +15,7 @@ namespace Metalama.Backstage.Licensing.Tests.Licensing.Evaluation
     {
         protected static readonly DateTime TestStart = new( 2020, 1, 1 );
 
-        private protected EvaluationLicenseRegistrar Registrar { get; }
+        private EvaluationLicenseRegistrar Registrar { get; }
 
         private protected EvaluationLicenseRegistrationTestsBase(
             ITestOutputHelper logger,
@@ -28,27 +27,18 @@ namespace Metalama.Backstage.Licensing.Tests.Licensing.Evaluation
             this.Registrar = new EvaluationLicenseRegistrar( this.ServiceProvider );
         }
 
-        protected void SetLicenses( params string[] licenses )
-        {
-            LicensingConfiguration configuration = new() { Licenses = licenses };
-
-            this.FileSystem.Mock.AddFile(
-                this.LicensingConfigurationFile,
-                new MockFileDataEx( configuration.ToJson() ) );
-        }
-
         protected void AssertEvaluationEligible()
         {
             Assert.True( this.Registrar.TryActivateLicense() );
-            var expectedStart = this.Time.Now;
+            var expectedStart = this.Time.Now.Date;
             var expectedEnd = expectedStart + EvaluationLicenseRegistrar.EvaluationPeriod;
 
             var licenses = ParsedLicensingConfiguration.OpenOrCreate( this.ServiceProvider );
 
             Assert.NotNull( licenses.LicenseData );
             Assert.Equal( LicenseType.Evaluation, licenses.LicenseData!.LicenseType );
-            Assert.Equal( expectedStart, licenses.LicenseData!.ValidFrom );
-            Assert.Equal( expectedEnd, licenses.LicenseData!.ValidTo );
+            Assert.Equal( expectedStart, licenses.LicenseData!.ValidFrom!.Value.Date );
+            Assert.Equal( expectedEnd, licenses.LicenseData!.ValidTo!.Value.Date );
             Assert.Equal( expectedEnd, licenses.LicenseData!.SubscriptionEndDate );
         }
 

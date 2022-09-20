@@ -20,13 +20,13 @@ public class ConfigurationManagerTests : TestsBase
         {
             this.Logger.WriteLine( $"------------ {i + 1} ------------- " );
             var configurationManager = new Configuration.ConfigurationManager( this.ServiceProvider );
-            configurationManager.Update<TestConfigurationFile>( f => f.IsModified = false );
+            configurationManager.Update<TestConfigurationFile>( f => f with { IsModified = false } );
 
             bool UpdateImpl()
             {
                 var myConfigurationManager = new Configuration.ConfigurationManager( this.ServiceProvider );
 
-                return myConfigurationManager.UpdateIf<TestConfigurationFile>( f => !f.IsModified, f => f.IsModified = true );
+                return myConfigurationManager.UpdateIf<TestConfigurationFile>( f => !f.IsModified, f => f with { IsModified = true } );
             }
 
             var tasks = new[] { Task.Run( UpdateImpl ), Task.Run( UpdateImpl ) };

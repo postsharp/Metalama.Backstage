@@ -13,7 +13,7 @@ namespace Metalama.Backstage.Licensing.Audit;
 internal class LicenseAuditReport : MetricsBase
 {
     public int AuditHashCode { get; }
-    
+
     public IComponentInfo ReportedComponent { get; }
 
     public LicenseAuditReport(
@@ -29,7 +29,10 @@ internal class LicenseAuditReport : MetricsBase
             .GetLatestComponentMadeByPostSharp();
 
         var usageReporter = serviceProvider.GetRequiredBackstageService<IUsageReporter>();
-        var buildDate = this.ReportedComponent.BuildDate ?? throw new InvalidOperationException( $"Build date of '{this.ReportedComponent.Name}' application is unknown." );
+
+        var buildDate = this.ReportedComponent.BuildDate
+                        ?? throw new InvalidOperationException( $"Build date of '{this.ReportedComponent.Name}' application is unknown." );
+
         var telemetryConfiguration = serviceProvider.GetRequiredBackstageService<IConfigurationManager>().Get<TelemetryConfiguration>();
         var userHash = LicenseCryptography.ComputeStringHash64( Environment.UserName );
         var machineHash = LicenseCryptography.ComputeStringHash64( telemetryConfiguration.DeviceId.ToString() );
@@ -61,17 +64,15 @@ internal class LicenseAuditReport : MetricsBase
     /// </summary>
     private class LicenseAuditDateMetric : Metric
     {
-        public LicenseAuditDateMetric( string name ) : base( name ) { }
+        private readonly DateTime _value;
 
         public LicenseAuditDateMetric( string name, DateTime value )
             : base( name )
         {
-            this.Value = value;
+            this._value = value;
         }
 
-        public DateTime Value { get; set; }
-
-        public override string ToString() => this.Value.ToString( "d", CultureInfo.InvariantCulture );
+        public override string ToString() => this._value.ToString( "d", CultureInfo.InvariantCulture );
 
         public override bool SetValue( object? value ) => throw new NotImplementedException();
     }
@@ -82,17 +83,15 @@ internal class LicenseAuditReport : MetricsBase
     /// </summary>
     private class LicenseAuditHashMetric : Metric
     {
-        public LicenseAuditHashMetric( string name ) : base( name ) { }
+        private readonly long _value;
 
         public LicenseAuditHashMetric( string name, long value )
             : base( name )
         {
-            this.Value = value;
+            this._value = value;
         }
 
-        public long Value { get; set; }
-
-        public override string ToString() => this.Value.ToString( "x", CultureInfo.InvariantCulture );
+        public override string ToString() => this._value.ToString( "x", CultureInfo.InvariantCulture );
 
         public override bool SetValue( object? value ) => throw new NotImplementedException();
     }

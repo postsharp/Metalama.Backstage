@@ -38,6 +38,8 @@ public class ReportExceptionTests : TestsBase
 
             var trueCount = tasks.Count( t => t.Result );
 
+            this.Logger.WriteLine( $"Tasks that managed to report the issue: {trueCount}" );
+
             Assert.Equal( 1, trueCount );
         }
     }

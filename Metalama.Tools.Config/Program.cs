@@ -26,7 +26,7 @@ namespace Metalama.DotNetTools
             {
                 try
                 {
-                    servicesFactory.ServiceProvider?.GetService<IExceptionReporter>()?.ReportException( e );
+                    servicesFactory.ServiceProvider.GetService<IExceptionReporter>()?.ReportException( e );
                 }
                 catch ( Exception reporterException )
                 {
@@ -40,17 +40,17 @@ namespace Metalama.DotNetTools
                 try
                 {
                     // Report usage.
-                    servicesFactory.ServiceProvider?.GetService<IUsageSample>()?.Flush();
+                    servicesFactory.ServiceProvider.GetService<IUsageSample>()?.Flush();
 
                     // Close logs.
                     // Logging has to be disposed as the last one, so it could be used until now.
-                    servicesFactory.ServiceProvider?.GetLoggerFactory().Dispose();
+                    servicesFactory.ServiceProvider.GetLoggerFactory().Dispose();
                 }
                 catch ( Exception e )
                 {
                     try
                     {
-                        servicesFactory.ServiceProvider?.GetService<IExceptionReporter>()?.ReportException( e );
+                        servicesFactory.ServiceProvider.GetService<IExceptionReporter>()?.ReportException( e );
                     }
                     catch
                     {

@@ -8,9 +8,7 @@ namespace Metalama.Backstage.Licensing.Tests.Licensing.Consumption
     public class RedistributionLicenseKeyValidationTests : LicenseConsumptionManagerTestsBase
     {
         public RedistributionLicenseKeyValidationTests( ITestOutputHelper logger )
-            : base( logger )
-        {
-        }
+            : base( logger ) { }
 
         [Theory]
         [InlineData( TestLicenses.PostSharpUltimateOpenSourceRedistribution, TestLicenses.PostSharpUltimateOpenSourceRedistributionNamespace )]

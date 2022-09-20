@@ -9,23 +9,18 @@ using System.Linq;
 namespace Metalama.Backstage.Diagnostics;
 
 [ConfigurationFile( "diagnostics.json" )]
-public class DiagnosticsConfiguration : ConfigurationFile
+public record DiagnosticsConfiguration : ConfigurationFile
 {
     [JsonProperty( "logging" )]
-    public LoggingConfiguration Logging { get; private set; } = new();
+    public LoggingConfiguration Logging { get; } = new();
 
     [JsonProperty( "debugger" )]
-    public DebuggerConfiguration Debugger { get; private set; } = new();
+    public DebuggerConfiguration Debugger { get; } = new();
 
     [JsonProperty( "miniDump" )]
-    public MiniDumpConfiguration MiniDump { get; private set; } = new();
+    public MiniDumpConfiguration MiniDump { get; } = new();
 
     public DiagnosticsConfiguration()
-    {
-        this.Reset();
-    }
-
-    public void Reset()
     {
         this.Logging.Processes = new Dictionary<ProcessKind, bool>
         {
@@ -61,12 +56,5 @@ public class DiagnosticsConfiguration : ConfigurationFile
             }.Select( x => x.ToString() ) );
 
         this.MiniDump.ExceptionTypes = new List<string> { "*" };
-    }
-
-    public override void CopyFrom( ConfigurationFile configurationFile )
-    {
-        var source = (DiagnosticsConfiguration) configurationFile;
-        this.Logging = source.Logging.Clone();
-        this.Debugger = source.Debugger.Clone();
     }
 }

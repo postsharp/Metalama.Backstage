@@ -144,10 +144,13 @@ internal class MiniDumper : IMiniDumper
                     exp.ExceptionPointers = (IntPtr) getExceptionPointers.Invoke( null, Array.Empty<object>() )!;
                 }
 
+                // ReSharper disable once PossibleNullReferenceException
+                var hFile = file.SafeFileHandle.DangerousGetHandle();
+
                 var bRet = MiniDumpWriteDump(
                     GetCurrentProcess(),
                     GetCurrentProcessId(),
-                    file.SafeFileHandle!.DangerousGetHandle(),
+                    hFile,
                     (uint) this._flags,
                     ref exp,
                     IntPtr.Zero,

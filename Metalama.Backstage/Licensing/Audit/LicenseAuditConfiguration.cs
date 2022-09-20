@@ -7,14 +7,8 @@ using System.Collections.Immutable;
 namespace Metalama.Backstage.Licensing.Audit;
 
 [ConfigurationFile( "audit.json" )]
-public class LicenseAuditConfiguration : ConfigurationFile
+public record LicenseAuditConfiguration : ConfigurationFile
 {
-    public ImmutableDictionary<int, DateTime> LastAuditTimes { get; set; } =
+    public ImmutableDictionary<int, DateTime> LastAuditTimes { get; init; } =
         ImmutableDictionary<int, DateTime>.Empty;
-    
-    public override void CopyFrom( ConfigurationFile configurationFile )
-    {
-        var source = (LicenseAuditConfiguration) configurationFile;
-        this.LastAuditTimes = source.LastAuditTimes;
-    }
 }

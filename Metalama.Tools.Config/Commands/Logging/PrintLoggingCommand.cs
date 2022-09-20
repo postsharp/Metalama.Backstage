@@ -22,9 +22,11 @@ internal class PrintLoggingCommand : CommandBase
     private void Execute( IConsole console )
     {
         this.CommandServices.Initialize( console, false );
-        var configuration = this.CommandServices.ServiceProvider.GetRequiredService<IConfigurationManager>().Get<DiagnosticsConfiguration>();
+        var configurationManager = this.CommandServices.ServiceProvider.GetRequiredService<IConfigurationManager>();
+        var configuration = configurationManager.Get<DiagnosticsConfiguration>();
+        var fileName = configurationManager.GetFileName( typeof(DiagnosticsConfiguration) );
 
-        console.Out.WriteLine( $"The file '{configuration.FilePath}' contains the following configuration:" );
+        console.Out.WriteLine( $"The file '{fileName}' contains the following configuration:" );
         console.Out.WriteLine();
         console.Out.WriteLine( configuration.ToJson() );
     }

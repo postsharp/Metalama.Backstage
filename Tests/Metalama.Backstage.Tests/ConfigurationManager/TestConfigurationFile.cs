@@ -5,12 +5,7 @@ using Metalama.Backstage.Configuration;
 namespace Metalama.Backstage.Licensing.Tests.ConfigurationManager;
 
 [ConfigurationFile( "test.json" )]
-internal class TestConfigurationFile : ConfigurationFile
+internal record TestConfigurationFile : ConfigurationFile
 {
-    public bool IsModified { get; set; }
-
-    public override void CopyFrom( ConfigurationFile configurationFile )
-    {
-        this.IsModified = ((TestConfigurationFile) configurationFile).IsModified;
-    }
+    public bool IsModified { get; init; }
 }

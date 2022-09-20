@@ -72,10 +72,9 @@ internal class UsageReporter : IUsageReporter
             },
             c =>
             {
-                c.Sessions = c.Sessions.SetItem( projectName, now );
-                c.CleanUp( now.AddDays( -1 ) );
-
                 this._logger.Trace?.Log( $"Session of project '{projectName}' should be reported." );
+
+                return c.CleanUp( now.AddDays( -1 ) ) with { Sessions = c.Sessions.SetItem( projectName, now ) };
             } );
     }
 
