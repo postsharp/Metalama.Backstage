@@ -48,7 +48,7 @@ namespace Metalama.Backstage.Licensing.Consumption
         /// Gets the string representation of the license if the license has it.
         /// </summary>
         public string? LicenseString { get; }
-        
+
         /// <summary>
         /// Gets a value indicating whether the license usage can be audited.
         /// </summary>

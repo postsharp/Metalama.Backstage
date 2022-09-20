@@ -288,7 +288,7 @@ namespace Metalama.Backstage.Licensing.Licenses
         /// </summary>
         /// <param name="s">A string.</param>
         /// <returns>An invariant 32-bit hash of <paramref name="s"/>.</returns>
-        public static int ComputeStringHash( string s )
+        public static int ComputeStringHash( string? s )
         {
             if ( s == null )
             {
@@ -311,7 +311,7 @@ namespace Metalama.Backstage.Licensing.Licenses
         /// </summary>
         /// <param name="s">A string.</param>
         /// <returns>An invariant 64-bit hash of <paramref name="s"/>.</returns>
-        public static long ComputeStringHash64( string s )
+        public static long ComputeStringHash64( string? s )
         {
             if ( s == null )
             {

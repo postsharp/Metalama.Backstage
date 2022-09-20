@@ -5,16 +5,9 @@ using Metalama.Backstage.Configuration;
 namespace Metalama.Backstage.Welcome;
 
 [ConfigurationFile( "welcome.json" )]
-public class WelcomeConfiguration : ConfigurationFile
+public record WelcomeConfiguration : ConfigurationFile
 {
-    public bool IsFirstStart { get; set; } = true;
+    public bool IsFirstStart { get; init; } = true;
 
-    public bool IsWelcomePagePending { get; set; } = true;
-
-    public override void CopyFrom( ConfigurationFile configurationFile )
-    {
-        var source = (WelcomeConfiguration) configurationFile;
-        this.IsFirstStart = source.IsFirstStart;
-        this.IsWelcomePagePending = source.IsWelcomePagePending;
-    }
+    public bool IsWelcomePagePending { get; init; } = true;
 }

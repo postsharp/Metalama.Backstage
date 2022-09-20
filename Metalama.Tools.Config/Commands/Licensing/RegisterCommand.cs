@@ -45,7 +45,7 @@ internal class RegisterCommand : CommandBase
 
         var storage = ParsedLicensingConfiguration.OpenOrCreate( this.CommandServices.ServiceProvider );
 
-        storage.StoreLicense( licenseKey, data );
+        storage.SetLicense( licenseKey, data );
 
         return 0;
     }

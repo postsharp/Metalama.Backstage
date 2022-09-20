@@ -55,7 +55,7 @@ namespace Metalama.Backstage.Licensing.Registration.Free
                 var factory = new UnsignedLicenseFactory( this._services );
                 var (licenseKey, data) = factory.CreateFreeLicense();
 
-                userStorage.StoreLicense( licenseKey, data );
+                userStorage.SetLicense( licenseKey, data );
             }
             catch ( Exception e )
             {

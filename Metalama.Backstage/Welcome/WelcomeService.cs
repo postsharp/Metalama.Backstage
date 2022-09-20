@@ -27,7 +27,11 @@ public class WelcomeService
         this._welcomeConfiguration = this._configurationManager.Get<WelcomeConfiguration>();
     }
 
-    private void ExecuteOnce( Action action, string actionName, Func<WelcomeConfiguration, bool> getIsFirst, Action<WelcomeConfiguration> setIsNotFirst )
+    private void ExecuteOnce(
+        Action action,
+        string actionName,
+        Func<WelcomeConfiguration, bool> getIsFirst,
+        Func<WelcomeConfiguration, WelcomeConfiguration> setIsNotFirst )
     {
         if ( !getIsFirst( this._welcomeConfiguration ) )
         {
@@ -74,30 +78,19 @@ public class WelcomeService
                     this._logger.Trace?.Log( "Enabling telemetry." );
 
                     this._configurationManager.Update<TelemetryConfiguration>(
-                        c =>
+                        c => c with
                         {
                             // Enable telemetry except if it has been disabled by the command line.
-
-                            if ( c.ExceptionReportingAction == ReportingAction.Ask )
-                            {
-                                c.ExceptionReportingAction = ReportingAction.Yes;
-                            }
-
-                            if ( c.PerformanceProblemReportingAction == ReportingAction.Ask )
-                            {
-                                c.PerformanceProblemReportingAction = ReportingAction.Yes;
-                            }
-
-                            if ( c.ReportUsage == ReportingAction.Ask )
-                            {
-                                c.ReportUsage = ReportingAction.Yes;
-                            }
+                            ExceptionReportingAction = c.ExceptionReportingAction == ReportingAction.Ask ? ReportingAction.Yes : c.ExceptionReportingAction,
+                            PerformanceProblemReportingAction =
+                            c.PerformanceProblemReportingAction == ReportingAction.Yes ? ReportingAction.Yes : c.PerformanceProblemReportingAction,
+                            ReportUsage = c.ReportUsage == ReportingAction.Ask ? ReportingAction.Yes : c.ReportUsage
                         } );
                 }
             },
             nameof(this.ExecuteFirstStartSetup),
             c => c.IsFirstStart,
-            c => c.IsFirstStart = false );
+            c => c with { IsFirstStart = false } );
     }
 
     public void OpenWelcomePage()
@@ -124,6 +117,6 @@ public class WelcomeService
             },
             nameof(this.OpenWelcomePage),
             c => c.IsWelcomePagePending,
-            c => c.IsWelcomePagePending = false );
+            c => c with { IsWelcomePagePending = false } );
     }
 }

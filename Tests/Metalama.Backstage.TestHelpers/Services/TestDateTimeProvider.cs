@@ -2,23 +2,26 @@
 
 using Metalama.Backstage.Extensibility;
 using System;
+using System.Diagnostics;
 
 namespace Metalama.Backstage.Testing.Services
 {
     public class TestDateTimeProvider : IDateTimeProvider
     {
-        private DateTime? _now;
+        private DateTime? _lastResetTime;
+        private Stopwatch? _stopwatch;
 
-        public DateTime Now => this._now ?? DateTime.Now;
+        public DateTime Now => this._lastResetTime?.AddMilliseconds( this._stopwatch!.ElapsedMilliseconds ) ?? DateTime.Now;
 
         public void Set( DateTime now )
         {
-            this._now = now;
+            this._lastResetTime = now;
+            this._stopwatch = Stopwatch.StartNew();
         }
 
         public void Reset()
         {
-            this._now = null;
+            this._lastResetTime = null;
         }
     }
 }

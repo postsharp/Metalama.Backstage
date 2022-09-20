@@ -160,6 +160,7 @@ public static class RegisterServiceExtensions
 
         if ( !string.IsNullOrWhiteSpace( additionalLicense ) )
         {
+            // ReSharper disable once RedundantSuppressNullableWarningExpression
             licenseSources.Add( new ExplicitLicenseSource( additionalLicense!, serviceProvider ) );
         }
 
@@ -236,7 +237,7 @@ public static class RegisterServiceExtensions
         {
             serviceProviderBuilder = serviceProviderBuilder.AddTelemetryServices();
         }
-        
+
         // Add licensing.
         if ( addLicensing )
         {

@@ -91,7 +91,7 @@ public class EvaluationLicenseRegistrar
             var factory = new UnsignedLicenseFactory( this._services );
             var (licenseKey, data) = factory.CreateEvaluationLicense();
 
-            configuration.StoreLicense( licenseKey, data );
+            configuration.SetLicense( licenseKey, data );
             configuration.LastEvaluationStartDate = this._time.Now;
         }
 

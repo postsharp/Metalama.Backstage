@@ -36,8 +36,7 @@ public abstract class LicenseConsumptionManagerTestsBase : LicensingTestsBase
     private protected ILicenseConsumptionManager CreateConsumptionManager( params ILicenseSource[] licenseSources )
         => new LicenseConsumptionManager( this.ServiceProvider, licenseSources );
 
-    private protected ILicenseConsumptionManager CreateConsumptionManager()
-       => new LicenseConsumptionManager( this.ServiceProvider );
+    private protected ILicenseConsumptionManager CreateConsumptionManager() => new LicenseConsumptionManager( this.ServiceProvider );
 
     private protected static void TestConsumption(
         ILicenseConsumptionManager manager,

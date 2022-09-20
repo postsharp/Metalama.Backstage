@@ -14,6 +14,8 @@ namespace Metalama.Backstage.Configuration
 
         ConfigurationFile Get( Type type, bool ignoreCache = false );
 
+        event Action<ConfigurationFile> ConfigurationFileChanged;
+
         /// <summary>
         /// Try to update a settings file if the base revision matches the expected value.
         /// </summary>
