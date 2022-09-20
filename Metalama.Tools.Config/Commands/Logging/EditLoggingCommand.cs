@@ -29,11 +29,12 @@ internal class EditLoggingCommand : CommandBase
         if ( configuration.LastModified == null )
         {
             // Create a default file if it does not exist.
-            configurationManager.Update<DiagnosticsConfiguration>( _ => { } );
+            configurationManager.Update<DiagnosticsConfiguration>( c => c );
         }
 
-        console.Out.Write( $"Opening $'{configuration.FilePath}' in the default editor." );
+        var fileName = configurationManager.GetFileName( typeof(DiagnosticsConfiguration) );
+        console.Out.Write( $"Opening $'{fileName}' in the default editor." );
 
-        Process.Start( new ProcessStartInfo( configuration.FilePath ) { UseShellExecute = true } );
+        Process.Start( new ProcessStartInfo( fileName ) { UseShellExecute = true } );
     }
 }

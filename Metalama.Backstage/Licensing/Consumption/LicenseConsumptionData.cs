@@ -50,6 +50,11 @@ namespace Metalama.Backstage.Licensing.Consumption
         public string? LicenseString { get; }
 
         /// <summary>
+        /// Gets a value indicating whether the license usage can be audited.
+        /// </summary>
+        public bool IsAuditable { get; }
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="LicenseConsumptionData"/> class.
         /// </summary>
         /// <param name="licensedProduct">The product licensed by the license.</param>
@@ -68,7 +73,8 @@ namespace Metalama.Backstage.Licensing.Consumption
             string displayName,
             Version minPostSharpVersion,
             string? licenseString,
-            bool isRedistributable )
+            bool isRedistributable,
+            bool isAuditable )
         {
             this.LicensedProduct = licensedProduct;
             this.LicenseType = licenseType;
@@ -77,6 +83,7 @@ namespace Metalama.Backstage.Licensing.Consumption
             this.MinPostSharpVersion = minPostSharpVersion;
             this.LicenseString = licenseString;
             this.IsRedistributable = isRedistributable;
+            this.IsAuditable = isAuditable;
         }
 
         /// <summary>

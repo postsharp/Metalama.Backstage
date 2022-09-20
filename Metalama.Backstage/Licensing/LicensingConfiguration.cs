@@ -7,23 +7,16 @@ using System;
 namespace Metalama.Backstage.Licensing;
 
 [ConfigurationFile( "licensing.json" )]
-internal class LicensingConfiguration : ConfigurationFile
+internal record LicensingConfiguration : ConfigurationFile
 {
     /// <summary>
-    /// Gets or sets the date of the last evaluation period.
+    /// Gets the date of the last evaluation period.
     /// </summary>
     [JsonProperty( "lastEvaluationStartDate" )]
-    public DateTime? LastEvaluationStartDate { get; set; }
+    public DateTime? LastEvaluationStartDate { get; init; }
 
-    // Originally, the license configuration allowed for multiple license keys. We keep the array for backward compatility,
+    // Originally, the license configuration allowed for multiple license keys. We keep the array for backward compatibility,
     // but we no longer store more than one key there.
-    [JsonProperty( "licenses" )]
-    public string[] Licenses { get; set; } = Array.Empty<string>();
-
-    public override void CopyFrom( ConfigurationFile configurationFile )
-    {
-        var source = (LicensingConfiguration) configurationFile;
-        this.LastEvaluationStartDate = source.LastEvaluationStartDate;
-        this.Licenses = (string[]) source.Licenses.Clone();
-    }
+    [JsonProperty( "license" )]
+    public string? License { get; init; }
 }

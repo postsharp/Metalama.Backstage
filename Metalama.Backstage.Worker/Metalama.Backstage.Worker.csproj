@@ -6,6 +6,9 @@
         <OutputType>exe</OutputType>
     </PropertyGroup>
 
+    <Import Sdk="PostSharp.Engineering.Sdk" Project="SystemTypes.props"/>
+
+
     <!-- <Import Project="$(MetalamaBackstageDirectory)\Metalama.Backstage.csproj" /> -->
     <Import Project="$(MetalamaBackstageDirectory)\Metalama.Backstage.Common.props" />
 

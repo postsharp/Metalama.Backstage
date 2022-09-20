@@ -18,11 +18,12 @@ public class TempFileManager : ITempFileManager
     private readonly ILogger _logger;
     private readonly IStandardDirectories _standardDirectories;
     private readonly IDateTimeProvider _time;
+    private readonly IConfigurationManager _configurationManager;
 
     public TempFileManager( IServiceProvider serviceProvider )
     {
-        var configurationManager = serviceProvider.GetRequiredBackstageService<IConfigurationManager>();
-        this._configuration = configurationManager.Get<CleanUpConfiguration>();
+        this._configurationManager = serviceProvider.GetRequiredBackstageService<IConfigurationManager>();
+        this._configuration = this._configurationManager.Get<CleanUpConfiguration>();
         this._applicationInfoProvider = serviceProvider.GetRequiredBackstageService<IApplicationInfoProvider>();
         this._fileSystem = serviceProvider.GetRequiredBackstageService<IFileSystem>();
         this._logger = serviceProvider.GetLoggerFactory().Telemetry();
@@ -90,11 +91,11 @@ public class TempFileManager : ITempFileManager
         finally
         {
             mutex.Dispose();
-            this._configuration.ConfigurationManager.Update<CleanUpConfiguration>( c => c.ResetLastCleanUpTime() );
+            this._configurationManager.Update<CleanUpConfiguration>( c => c with { LastCleanUpTime = this._time.Now } );
         }
     }
 
-    public void DeleteDirectoryRecursive( string directory )
+    private void DeleteDirectoryRecursive( string directory )
     {
         var cleanUpFileCandidate = Path.Combine( directory, "cleanup.json" );
 

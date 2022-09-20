@@ -3,6 +3,7 @@
 using Metalama.Backstage.Configuration;
 using Metalama.Backstage.Diagnostics;
 using Metalama.Backstage.Licensing;
+using Metalama.Backstage.Licensing.Audit;
 using Metalama.Backstage.Licensing.Consumption;
 using Metalama.Backstage.Licensing.Consumption.Sources;
 using Metalama.Backstage.Maintenance;
@@ -166,7 +167,8 @@ public static class RegisterServiceExtensions
         this ServiceProviderBuilder serviceProviderBuilder,
         bool considerUnattendedLicense = false,
         bool ignoreUserProfileLicenses = false,
-        string? additionalLicense = null )
+        string? additionalLicense = null,
+        bool addLicenseAudit = true )
     {
         var licenseSources = new List<ILicenseSource>();
         var serviceProvider = serviceProviderBuilder.ServiceProvider;
@@ -183,6 +185,7 @@ public static class RegisterServiceExtensions
 
         if ( !string.IsNullOrWhiteSpace( additionalLicense ) )
         {
+            // ReSharper disable once RedundantSuppressNullableWarningExpression
             licenseSources.Add( new ExplicitLicenseSource( additionalLicense!, serviceProvider ) );
         }
 
@@ -190,6 +193,12 @@ public static class RegisterServiceExtensions
         {
             // Must be added last.
             licenseSources.Add( new PreviewLicenseSource( serviceProvider ) );
+        }
+
+        if ( addLicenseAudit )
+        {
+            // License audit requires support services. 
+            serviceProviderBuilder.AddSingleton<ILicenseAuditManager>( new LicenseAuditManager( serviceProvider ) );
         }
 
         serviceProviderBuilder.AddSingleton<ILicenseConsumptionManager>( new LicenseConsumptionManager( serviceProvider, licenseSources ) );
@@ -248,15 +257,16 @@ public static class RegisterServiceExtensions
             serviceProviderBuilder.AddService( typeof(IMiniDumper), new MiniDumper( serviceProviderBuilder.ServiceProvider ) );
         }
 
-        // Add licensing.
-        if ( addLicensing )
-        {
-            serviceProviderBuilder.AddLicensing( considerUnattendedProcessLicense, ignoreUserProfileLicenses, additionalLicense );
-        }
-
+        // Add support services.
         if ( addSupportServices )
         {
             serviceProviderBuilder = serviceProviderBuilder.AddTelemetryServices();
+        }
+
+        // Add licensing.
+        if ( addLicensing )
+        {
+            serviceProviderBuilder.AddLicensing( considerUnattendedProcessLicense, ignoreUserProfileLicenses, additionalLicense, addSupportServices );
         }
 
         return serviceProviderBuilder;
@@ -268,11 +278,11 @@ public static class RegisterServiceExtensions
 
         // Add telemetry.
         var queue = new TelemetryQueue( serviceProviderBuilder.ServiceProvider );
-        var uploader = new TelemetryUploader( serviceProviderBuilder.ServiceProvider );
 
         serviceProviderBuilder = serviceProviderBuilder
+            .AddSingleton<ITelemetryUploader>( new TelemetryUploader( serviceProvider ) )
             .AddSingleton<IExceptionReporter>( new ExceptionReporter( queue, serviceProvider ) )
-            .AddSingleton<IUsageReporter>( new UsageReporter( uploader, serviceProvider ) );
+            .AddSingleton<IUsageReporter>( new UsageReporter( serviceProvider ) );
 
         return serviceProviderBuilder;
     }

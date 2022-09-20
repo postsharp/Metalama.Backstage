@@ -42,18 +42,24 @@ public class InMemoryConfigurationManager : IConfigurationManager
         return file;
     }
 
+    public event Action<ConfigurationFile>? ConfigurationFileChanged;
+
     public bool TryUpdate( ConfigurationFile value, DateTime? lastModified )
     {
-        var oldFile = this.Get( value.GetType() );
-
-        if ( oldFile.LastModified != lastModified )
+        lock ( this )
         {
-            return false;
+            var oldFile = this.Get( value.GetType() );
+
+            if ( oldFile.LastModified != lastModified )
+            {
+                return false;
+            }
+
+            value = value with { LastModified = DateTime.Now };
+            this._files[value.GetType()] = value;
+            this.ConfigurationFileChanged?.Invoke( value );
+
+            return true;
         }
-
-        value.LastModified = DateTime.Now;
-        this._files[value.GetType()] = value;
-
-        return true;
     }
 }

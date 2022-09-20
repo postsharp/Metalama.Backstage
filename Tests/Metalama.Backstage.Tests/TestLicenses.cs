@@ -80,12 +80,13 @@ namespace Metalama.Backstage.Licensing.Tests
         public const string MetalamaUltimateOpenSourceRedistributionForIntegrationTests
             = "17-ZEWQQQQQXEAXQDW3WQSXSYSRB2KXWJSRX29CXJFVQJKKZJJS564CTFTRS2KCX7GRS68XNK94UZNTSRA4UZNTSRA4UZNTSRA4UBZTZNJZRRFV8N7F9FGWNDF2ZV9Z558VHNDEFCZ94H86VJRXG8JHH5YWXZWGUX6MJK3K8SQQL5AR27W3VJRL5";
 
-        public static readonly DateTime SubscriptionExpirationDate = new DateTime( 2050, 1, 1 );
+        public static readonly DateTime SubscriptionExpirationDate = new( 2050, 1, 1 );
 
         public static string CreateMetalamaFreeLicense( IServiceProvider services )
         {
             var licenseFactory = new UnsignedLicenseFactory( services );
             var licenseKey = licenseFactory.CreateFreeLicense().LicenseKey;
+
             return licenseKey;
         }
 
@@ -93,6 +94,7 @@ namespace Metalama.Backstage.Licensing.Tests
         {
             var licenseFactory = new UnsignedLicenseFactory( services );
             var licenseKey = licenseFactory.CreateEvaluationLicense().LicenseKey;
+
             return licenseKey;
         }
 
@@ -113,6 +115,7 @@ namespace Metalama.Backstage.Licensing.Tests
         public static UnattendedLicenseSource CreateUnattendedLicenseSource()
         {
             var services = new ServiceCollection();
+
             services.AddSingleton<IApplicationInfoProvider>(
                 new ApplicationInfoProvider( new TestApplicationInfo( "Test", false, "<version>", DateTime.Now, true ) ) );
 

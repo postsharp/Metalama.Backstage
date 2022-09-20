@@ -12,300 +12,265 @@ using System.Linq;
 using System.Reflection;
 using System.Threading;
 
-namespace Metalama.Backstage.Configuration;
-
-internal sealed class ConfigurationManager : IConfigurationManager
+namespace Metalama.Backstage.Configuration
 {
-    private static readonly TimeSpan _lastModifiedTolerance = TimeSpan.FromSeconds( 0.2 );
-
-    // Stores the in-memory configuration object. Note that ConfigurationFile can be implemented in a different assembly, and that
-    // there may be several copies of this assembly in the current AppDomain. Therefore, this dictionary may contain several objects
-    // that represent the same file.
-    private readonly ConcurrentDictionary<Type, ConfigurationFile> _instances = new();
-
-    private readonly FileSystemWatcher? _fileSystemWatcher;
-    private readonly IFileSystem _fileSystem;
-    private readonly IEnvironmentVariableProvider _environmentVariableProvider;
-
-    // Named semaphore to handle many instances.
-    private readonly Mutex _mutex = new( false, "Global\\Metalama.Configuration" );
-
-    public ConfigurationManager( IServiceProvider serviceProvider )
+    internal sealed class ConfigurationManager : IConfigurationManager
     {
-        var applicationInfo = serviceProvider.GetBackstageService<IApplicationInfoProvider>()?.CurrentApplication;
-        this._fileSystem = serviceProvider.GetRequiredBackstageService<IFileSystem>();
-        this._environmentVariableProvider = serviceProvider.GetRequiredBackstageService<IEnvironmentVariableProvider>();
-        this.Logger = serviceProvider.GetLoggerFactory().GetLogger( "Configuration" );
+        private static readonly TimeSpan _lastModifiedTolerance = TimeSpan.FromSeconds( 0.2 );
 
-        this.ApplicationDataDirectory = serviceProvider.GetRequiredBackstageService<IStandardDirectories>().ApplicationDataDirectory;
+        // Stores the in-memory configuration object. Note that ConfigurationFile can be implemented in a different assembly, and that
+        // there may be several copies of this assembly in the current AppDomain. Therefore, this dictionary may contain several objects
+        // that represent the same file.
+        private readonly ConcurrentDictionary<Type, ConfigurationFile> _instances = new();
 
-        if ( !this._fileSystem.DirectoryExists( this.ApplicationDataDirectory ) )
+        private readonly FileSystemWatcher? _fileSystemWatcher;
+        private readonly IFileSystem _fileSystem;
+        private readonly IDateTimeProvider _dateTimeProvider;
+
+        // Named semaphore to handle many instances.
+        private readonly Mutex _mutex = new( false, "Global\\Metalama.Configuration" );
+
+        public ConfigurationManager( IServiceProvider serviceProvider )
         {
-            this._fileSystem.CreateDirectory( this.ApplicationDataDirectory );
-        }
+            var applicationInfo = serviceProvider.GetBackstageService<IApplicationInfoProvider>()?.CurrentApplication;
+            this._fileSystem = serviceProvider.GetRequiredBackstageService<IFileSystem>();
+            this._dateTimeProvider = serviceProvider.GetRequiredBackstageService<IDateTimeProvider>();
+            this.Logger = serviceProvider.GetLoggerFactory().GetLogger( "Configuration" );
 
-        if ( applicationInfo is { IsLongRunningProcess: true } )
-        {
-            this._fileSystemWatcher = new FileSystemWatcher( this.ApplicationDataDirectory, "*.json" );
-            this._fileSystemWatcher.Created += this.OnFileChanged;
-            this._fileSystemWatcher.Changed += this.OnFileChanged;
-            this._fileSystemWatcher.EnableRaisingEvents = true;
-        }
-    }
+            this.ApplicationDataDirectory = serviceProvider.GetRequiredBackstageService<IStandardDirectories>().ApplicationDataDirectory;
 
-    private void OnFileChanged( object sender, FileSystemEventArgs e )
-    {
-        this.Logger.Trace?.Log( $"File has changed: '{e.FullPath}'." );
-        var fileName = e.FullPath;
-
-        var existingFiles = this._instances.Values.Where(
-            s =>
-                string.Equals( this.GetFileName( s.GetType() ), fileName, StringComparison.OrdinalIgnoreCase ) );
-
-        foreach ( var existingFile in existingFiles )
-        {
-            // To frequent avoid file locks, wait. There is another wait cycle in TryLoadSettings but not
-            // waiting here is annoying for debugging.
-            Thread.Sleep( 100 );
-
-            if ( this.TryLoadConfigurationFile( existingFile.GetType(), out var newSettings, out _ ) &&
-                 newSettings.LastModified > existingFile.LastModified + _lastModifiedTolerance )
+            if ( !this._fileSystem.DirectoryExists( this.ApplicationDataDirectory ) )
             {
-                existingFile.CopyFrom( newSettings );
-            }
-        }
-    }
-
-    public string ApplicationDataDirectory { get; }
-
-    public ILogger Logger { get; }
-
-    public string GetFileName( Type type )
-    {
-        var attribute = type.GetCustomAttribute<ConfigurationFileAttribute>();
-
-        if ( attribute == null )
-        {
-            throw new InvalidOperationException( $"'{nameof(ConfigurationFileAttribute)}' custom attribute not found for '{type.FullName}' type." );
-        }
-
-        return Path.Combine( this.ApplicationDataDirectory, attribute.FileName );
-    }
-
-    private string? GetEnvironmentVariableName( Type type )
-    {
-        var attribute = type.GetCustomAttribute<ConfigurationFileAttribute>();
-
-        if ( attribute == null )
-        {
-            throw new InvalidOperationException( $"'{nameof(ConfigurationFileAttribute)}' custom attribute not found for '{type.FullName}' type." );
-        }
-
-        return attribute.EnvironmentVariableName;
-    }
-
-    public ConfigurationFile Get( Type type, bool ignoreCache = false )
-    {
-        ConfigurationFile GetCore()
-        {
-            this.Logger.Trace?.Log( $"Loading configuration {type.Name} from file." );
-
-            if ( this.TryLoadConfigurationFile( type, out var value, out var fileName ) )
-            {
-                return value;
+                this._fileSystem.CreateDirectory( this.ApplicationDataDirectory );
             }
 
-            var settingsObject = Activator.CreateInstance( type );
-
-            if ( settingsObject == null )
+            if ( applicationInfo is { IsLongRunningProcess: true } )
             {
-                throw new InvalidOperationException( $"Failed to create instance of '{type.FullName}' type." );
+                this._fileSystemWatcher = new FileSystemWatcher( this.ApplicationDataDirectory, "*.json" );
+                this._fileSystemWatcher.Created += this.OnFileChanged;
+                this._fileSystemWatcher.Changed += this.OnFileChanged;
+                this._fileSystemWatcher.EnableRaisingEvents = true;
             }
-
-            var settings = (ConfigurationFile) settingsObject;
-            settings.Initialize( this, fileName, null );
-
-            return settings;
         }
 
-        ConfigurationFile settings;
-
-        if ( ignoreCache )
+        private void OnFileChanged( object sender, FileSystemEventArgs e )
         {
-            settings = GetCore();
+            this.Logger.Trace?.Log( $"File has changed: '{e.FullPath}'." );
+            var fileName = e.FullPath;
 
-            if ( this._instances.TryGetValue( type, out var existing ) )
+            var changedSettings = this._instances.Values.Where(
+                s =>
+                    string.Equals( this.GetFileName( s.GetType() ), fileName, StringComparison.OrdinalIgnoreCase ) );
+
+            using ( this.WithMutex() )
             {
-                existing.CopyFrom( settings );
+                foreach ( var changedSetting in changedSettings )
+                {
+                    // To frequent avoid file locks, wait. There is another wait cycle in TryLoadSettings but not
+                    // waiting here is annoying for debugging.
+                    Thread.Sleep( 100 );
+
+                    if ( this.TryLoadConfigurationFile( changedSetting.GetType(), out var cachedSettings ) &&
+                         cachedSettings.LastModified > changedSetting.LastModified + _lastModifiedTolerance )
+                    {
+                        this.AddToCache( changedSetting );
+                    }
+                }
+            }
+        }
+
+        public string ApplicationDataDirectory { get; }
+
+        public ILogger Logger { get; }
+
+        public string GetFileName( Type type )
+        {
+            var attribute = type.GetCustomAttribute<ConfigurationFileAttribute>();
+
+            if ( attribute == null )
+            {
+                throw new InvalidOperationException( $"'{nameof(ConfigurationFileAttribute)}' custom attribute not found for '{type.FullName}' type." );
+            }
+
+            return Path.Combine( this.ApplicationDataDirectory, attribute.FileName );
+        }
+
+        public ConfigurationFile Get( Type type, bool ignoreCache = false )
+        {
+            ConfigurationFile GetCore()
+            {
+                using ( this.WithMutex() )
+                {
+                    this.Logger.Trace?.Log( $"Loading configuration {type.Name} from file." );
+
+                    if ( this.TryLoadConfigurationFile( type, out var value ) )
+                    {
+                        return value;
+                    }
+
+                    var settingsObject = Activator.CreateInstance( type );
+
+                    if ( settingsObject == null )
+                    {
+                        throw new InvalidOperationException( $"Failed to create instance of '{type.FullName}' type." );
+                    }
+
+                    var settings = (ConfigurationFile) settingsObject;
+
+                    return settings;
+                }
+            }
+
+            if ( ignoreCache )
+            {
+                var settings = GetCore();
+                this.AddToCache( settings );
+
+                return settings;
             }
             else
             {
-                this._instances.TryAdd( type, settings );
+                return this._instances.GetOrAdd( type, _ => GetCore() );
             }
         }
-        else
+
+        public event Action<ConfigurationFile>? ConfigurationFileChanged;
+
+        private void AddToCache( ConfigurationFile settings )
         {
-            settings = this._instances.GetOrAdd( type, _ => GetCore() );
+            this._instances.AddOrUpdate( settings.GetType(), settings, ( _, _ ) => settings );
+            this.ConfigurationFileChanged?.Invoke( settings );
         }
 
-        return settings;
-    }
-
-    public bool TryUpdate( ConfigurationFile value, DateTime? lastModified )
-    {
-        this._mutex.WaitOne();
-
-        try
+        public bool TryUpdate( ConfigurationFile value, DateTime? lastModified )
         {
-            var fileName = this.GetFileName( value.GetType() );
-
-            this.Logger.Trace?.Log( $"Trying to update '{fileName}'. Our last timestamp is '{lastModified}'." );
-
-            // Verify (inside the global lock) that we have a fresh copy of the file.
-            if ( lastModified == null )
+            using ( this.WithMutex() )
             {
-                if ( this._fileSystem.FileExists( fileName ) )
+                var type = value.GetType();
+                var fileName = this.GetFileName( type );
+
+                this.Logger.Trace?.Log( $"Trying to update '{fileName}'. Our last timestamp is '{lastModified:O}'." );
+
+                // Verify (inside the global lock) that we have a fresh copy of the file.
+                if ( lastModified == null )
                 {
-                    this.Logger.Warning?.Log( $"Cannot update '{fileName}' because the file exists but it was not supposed to." );
+                    if ( this._fileSystem.FileExists( fileName ) )
+                    {
+                        this.Logger.Warning?.Log( $"Cannot update '{fileName}' because the file exists but it was not supposed to." );
+
+                        return false;
+                    }
+                }
+                else if ( !this._fileSystem.FileExists( fileName ) || this._fileSystem.GetLastWriteTime( fileName ) != lastModified )
+                {
+                    this.Logger.Warning?.Log( $"Cannot update '{fileName}' because the file did not exists or had a different timestamp." );
 
                     return false;
                 }
+
+                if ( this._instances.TryGetValue( type, out var originalSettings ) )
+                {
+                    if ( lastModified.HasValue && originalSettings.LastModified != lastModified.Value )
+                    {
+                        this.Logger.Warning?.Log( $"Cannot update '{fileName}' because our cached copy does not have the latest timestamp." );
+
+                        return false;
+                    }
+                }
+
+                var json = value.ToJson();
+
+                RetryHelper.Retry( () => this._fileSystem.WriteAllText( fileName, json ) );
+
+                var newLastModified = this._fileSystem.GetLastWriteTime( fileName );
+
+                while ( newLastModified == lastModified )
+                {
+                    // The new filesystem timestamp is identical to the previous one, so we have to wait until there is an observable
+                    // difference in the timestamp.
+
+                    this.Logger.Trace?.Log( "Waiting for " );
+                    Thread.Sleep( 10 );
+                    this._fileSystem.SetLastWriteTime( fileName, this._dateTimeProvider.Now );
+                    newLastModified = this._fileSystem.GetLastWriteTime( fileName );
+                }
+
+                value = value with { LastModified = newLastModified };
+
+                this.AddToCache( value );
+
+                this.Logger.Trace?.Log( $"File '{fileName}' updated. The new timestamp is '{newLastModified:O}'." );
             }
-            else if ( !this._fileSystem.FileExists( fileName ) || this._fileSystem.GetLastWriteTime( fileName ) != lastModified )
+
+            return true;
+        }
+
+        private bool TryLoadConfigurationFile( Type type, [NotNullWhen( true )] out ConfigurationFile? settings )
+        {
+            var fileName = this.GetFileName( type );
+
+            if ( !this._fileSystem.FileExists( fileName ) )
             {
-                this.Logger.Warning?.Log( $"Cannot update '{fileName}' because the file did not exists or had a different timestamp." );
+                this.Logger.Trace?.Log( $"The file '{fileName}' does not exist." );
+
+                settings = null;
 
                 return false;
             }
 
-            if ( this._instances.TryGetValue( value.GetType(), out var baseValue ) )
+            try
             {
-                if ( lastModified.HasValue && baseValue.LastModified != lastModified.Value )
-                {
-                    this.Logger.Warning?.Log( $"Cannot update '{fileName}' because our cached copy has an invalid timestamp." );
+                var fileNameCopy = fileName;
 
+                var lastModified = this._fileSystem.GetLastWriteTime( fileName );
+
+                this.Logger.Trace?.Log( $"Reading configuration file '{fileName}' with timestamp '{lastModified:O}'." );
+
+                var json = RetryHelper.Retry( () => this._fileSystem.ReadAllText( fileNameCopy ) );
+
+                settings = (ConfigurationFile?) JsonConvert.DeserializeObject( json, type );
+
+                if ( settings == null )
+                {
                     return false;
                 }
-                else
-                {
-                    baseValue.CopyFrom( value );
-                }
-            }
-            else
-            {
-                baseValue = value.Clone();
 
-                if ( !this._instances.TryAdd( value.GetType(), baseValue ) )
-                {
-                    this.Logger.Error?.Log( $"Cannot update '{fileName}': TryAdd returned false." );
+                settings = settings with { LastModified = lastModified };
 
-                    return false;
-                }
-            }
-
-            var json = value.ToJson();
-
-            // We have to wait more time than the time resolution of DateTime or the file system.
-            Thread.Sleep( 1 );
-
-            RetryHelper.Retry( () => this._fileSystem.WriteAllText( fileName, json ) );
-
-            // Intentionally update the timestamp a second time. 
-            baseValue.LastModified = this._fileSystem.GetLastWriteTime( fileName );
-
-            this.Logger.Trace?.Log( $"File '{fileName}' updated. The new timestamp is '{baseValue.LastModified}'." );
-        }
-        finally
-        {
-            this._mutex.ReleaseMutex();
-        }
-
-        return true;
-    }
-
-    private bool TryLoadConfigurationContent( Type type, string fileName, [NotNullWhen( true )] out string? json )
-    {
-        // Try to load the json from the environment variable.
-        var environmentVariableName = this.GetEnvironmentVariableName( type );
-
-        if ( environmentVariableName != null )
-        {
-            json = this._environmentVariableProvider.GetEnvironmentVariable( environmentVariableName );
-
-            if ( !string.IsNullOrWhiteSpace( json ) )
-            {
-                this.Logger.Trace?.Log( $"Configuration for {type.Name} loaded from the environment variable '{environmentVariableName}'." );
                 return true;
             }
-        }
-
-        // Try to load form the file.
-        if ( !this._fileSystem.FileExists( fileName ) )
-        {
-            this.Logger.Trace?.Log( $"The file '{fileName}' does not exist." );
-
-            json = null;
-            return false;
-        }
-
-        try
-        {
-            var fileNameCopy = fileName;
-
-            this.Logger.Trace?.Log( $"Reading configuration file '{fileName}'." );
-
-            json = RetryHelper.Retry( () => this._fileSystem.ReadAllText( fileNameCopy ) );
-
-            return true;
-        }
-        catch ( Exception e )
-        {
-            this.Logger.Error?.Log( $"Error reading file '{fileName}': " + e );
-        }
-
-        // Could not be loaded.
-        json = null;
-
-        return false;
-    }
-
-    private bool TryLoadConfigurationFile( Type type, [NotNullWhen( true )] out ConfigurationFile? settings, out string fileName )
-    {
-        fileName = this.GetFileName( type );
-
-        if ( !this.TryLoadConfigurationContent( type, fileName, out var json ) )
-        {
-            settings = null;
-
-            return false;
-        }
-
-        try
-        {
-            settings = (ConfigurationFile?) JsonConvert.DeserializeObject( json, type );
-
-            if ( settings == null )
+            catch ( Exception e )
             {
-                return false;
+                this.Logger.Error?.Log( $"Error reading file '{fileName}': " + e );
             }
 
-            settings.Initialize( this, fileName, this._fileSystem.GetLastWriteTime( fileName ) );
+            settings = default;
 
-            return true;
+            return false;
         }
-        catch ( Exception e )
+
+        private DisposableAction WithMutex()
         {
-            this.Logger.Error?.Log( $"Error deserializing file '{fileName}': " + e );
+            if ( !this._mutex.WaitOne( 0 ) )
+            {
+                this.Logger.Trace?.Log( $"Waiting for the configuration mutex." );
+                this._mutex.WaitOne();
+            }
+
+            this.Logger.Trace?.Log( $"Configuration mutex acquired." );
+
+            return new DisposableAction(
+                () =>
+                {
+                    this.Logger.Trace?.Log( $"Releasing configuration mutex." );
+                    this._mutex.ReleaseMutex();
+                } );
         }
 
-        settings = default;
-
-        return false;
-    }
-
-    public void Dispose()
-    {
-        this._mutex.Dispose();
-        this._fileSystemWatcher?.Dispose();
+        public void Dispose()
+        {
+            this._mutex.Dispose();
+            this._fileSystemWatcher?.Dispose();
+        }
     }
 }

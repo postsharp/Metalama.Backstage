@@ -2,6 +2,7 @@
 
 using Metalama.Backstage.Extensibility;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Abstractions.TestingHelpers;
@@ -13,10 +14,10 @@ namespace Metalama.Backstage.Testing.Services
 {
     public class TestFileSystem : IFileSystem
     {
-        private readonly Dictionary<string, (ManualResetEventSlim Callee, ManualResetEventSlim Caller)> _blockedReads =
+        private readonly ConcurrentDictionary<string, (ManualResetEventSlim Callee, ManualResetEventSlim Caller)> _blockedReads =
             new();
 
-        private readonly Dictionary<string, (ManualResetEventSlim Callee, ManualResetEventSlim Caller)> _blockedWrites =
+        private readonly ConcurrentDictionary<string, (ManualResetEventSlim Callee, ManualResetEventSlim Caller)> _blockedWrites =
             new();
 
         private readonly List<string> _failedAccesses = new();
@@ -28,7 +29,11 @@ namespace Metalama.Backstage.Testing.Services
         public ManualResetEventSlim BlockRead( string path )
         {
             ManualResetEventSlim readEvent = new();
-            this._blockedReads.Add( path, (new ManualResetEventSlim(), readEvent) );
+
+            if ( !this._blockedReads.TryAdd( path, (new ManualResetEventSlim(), readEvent) ) )
+            {
+                throw new InvalidOperationException();
+            }
 
             return readEvent;
         }
@@ -36,19 +41,27 @@ namespace Metalama.Backstage.Testing.Services
         public ManualResetEventSlim BlockWrite( string path )
         {
             ManualResetEventSlim writeEvent = new();
-            this._blockedWrites.Add( path, (new ManualResetEventSlim(), writeEvent) );
+
+            if ( !this._blockedWrites.TryAdd( path, (new ManualResetEventSlim(), writeEvent) ) )
+            {
+                throw new InvalidOperationException();
+            }
 
             return writeEvent;
         }
 
         public void Unblock( string path )
         {
-            void UnblockEvents( Dictionary<string, (ManualResetEventSlim Callee, ManualResetEventSlim Caller)> blockingEvents )
+            void UnblockEvents( ConcurrentDictionary<string, (ManualResetEventSlim Callee, ManualResetEventSlim Caller)> blockingEvents )
             {
                 if ( blockingEvents.TryGetValue( path, out var events ) )
                 {
                     events.Callee.Set();
-                    blockingEvents.Remove( path );
+
+                    if ( !blockingEvents.TryRemove( path, out _ ) )
+                    {
+                        throw new InvalidOperationException();
+                    }
                 }
             }
 
@@ -72,22 +85,34 @@ namespace Metalama.Backstage.Testing.Services
 
         public DateTime GetLastWriteTime( string path )
         {
-            return this.Mock.File.GetLastWriteTime( path );
+            lock ( this.Mock )
+            {
+                return this.Mock.File.GetLastWriteTime( path );
+            }
         }
 
         public void SetLastWriteTime( string path, DateTime lastWriteTime )
         {
-            this.Mock.File.SetLastWriteTime( path, lastWriteTime );
+            lock ( this.Mock )
+            {
+                this.Mock.File.SetLastWriteTime( path, lastWriteTime );
+            }
         }
 
         public bool FileExists( string path )
         {
-            return this.Mock.File.Exists( path );
+            lock ( this.Mock )
+            {
+                return this.Mock.File.Exists( path );
+            }
         }
 
         public bool DirectoryExists( string path )
         {
-            return this.Mock.Directory.Exists( path );
+            lock ( this.Mock )
+            {
+                return this.Mock.Directory.Exists( path );
+            }
         }
 
         public IEnumerable<string> EnumerateFiles(
@@ -95,27 +120,33 @@ namespace Metalama.Backstage.Testing.Services
             string? searchPattern = null,
             SearchOption? searchOption = null )
         {
-            return this.GetFiles( path, searchPattern, searchOption );
+            lock ( this.Mock )
+            {
+                return this.GetFiles( path, searchPattern, searchOption ).ToList();
+            }
         }
 
         public string[] GetFiles( string path, string? searchPattern = null, SearchOption? searchOption = null )
         {
-            if ( searchOption.HasValue )
+            lock ( this.Mock )
             {
-                if ( searchPattern == null )
+                if ( searchOption.HasValue )
                 {
-                    throw new ArgumentNullException( nameof(searchPattern) );
-                }
+                    if ( searchPattern == null )
+                    {
+                        throw new ArgumentNullException( nameof(searchPattern) );
+                    }
 
-                return this.Mock.Directory.GetFiles( path, searchPattern, searchOption.Value );
-            }
-            else if ( searchPattern != null )
-            {
-                return this.Mock.Directory.GetFiles( path, searchPattern );
-            }
-            else
-            {
-                return this.Mock.Directory.GetFiles( path );
+                    return this.Mock.Directory.GetFiles( path, searchPattern, searchOption.Value );
+                }
+                else if ( searchPattern != null )
+                {
+                    return this.Mock.Directory.GetFiles( path, searchPattern );
+                }
+                else
+                {
+                    return this.Mock.Directory.GetFiles( path );
+                }
             }
         }
 
@@ -124,117 +155,189 @@ namespace Metalama.Backstage.Testing.Services
             string? searchPattern = null,
             SearchOption? searchOption = null )
         {
-            return this.GetDirectories( path, searchPattern, searchOption );
+            lock ( this.Mock )
+            {
+                return this.GetDirectories( path, searchPattern, searchOption );
+            }
         }
 
         public string[] GetDirectories( string path, string? searchPattern = null, SearchOption? searchOption = null )
         {
-            string[] directories;
-
-            if ( searchOption.HasValue )
+            lock ( this.Mock )
             {
-                if ( searchPattern == null )
+                string[] directories;
+
+                if ( searchOption.HasValue )
                 {
-                    throw new ArgumentNullException( nameof(searchPattern) );
+                    if ( searchPattern == null )
+                    {
+                        throw new ArgumentNullException( nameof(searchPattern) );
+                    }
+
+                    directories = this.Mock.Directory.GetDirectories( path, searchPattern, searchOption.Value );
+                }
+                else if ( searchPattern != null )
+                {
+                    directories = this.Mock.Directory.GetDirectories( path, searchPattern );
+                }
+                else
+                {
+                    directories = this.Mock.Directory.GetDirectories( path );
                 }
 
-                directories = this.Mock.Directory.GetDirectories( path, searchPattern, searchOption.Value );
-            }
-            else if ( searchPattern != null )
-            {
-                directories = this.Mock.Directory.GetDirectories( path, searchPattern );
-            }
-            else
-            {
-                directories = this.Mock.Directory.GetDirectories( path );
-            }
+                // The mock returns trailing separator, but BCL does not.
 
-            // The mock returns trailing separator, but BCL does not.
+                for ( var i = 0; i < directories.Length; i++ )
+                {
+                    directories[i] = directories[i].TrimEnd( Path.DirectorySeparatorChar );
+                }
 
-            for ( var i = 0; i < directories.Length; i++ )
-            {
-                directories[i] = directories[i].TrimEnd( Path.DirectorySeparatorChar );
+                return directories;
             }
-
-            return directories;
         }
 
         public void CreateDirectory( string path )
         {
-            this.WaitAndThrowIfBlocked( path, true );
-            this.Mock.Directory.CreateDirectory( path );
+            lock ( this.Mock )
+            {
+                this.WaitAndThrowIfBlocked( path, true );
+                this.Mock.Directory.CreateDirectory( path );
+            }
+        }
+
+        public Stream Open( string path, FileMode mode )
+        {
+            lock ( this.Mock )
+            {
+                this.WaitAndThrowIfBlocked( path, false );
+
+                return this.Mock.File.Open( path, mode );
+            }
+        }
+
+        public Stream Open( string path, FileMode mode, FileAccess access )
+        {
+            lock ( this.Mock )
+            {
+                this.WaitAndThrowIfBlocked( path, false );
+
+                return this.Mock.File.Open( path, mode, access );
+            }
+        }
+
+        public Stream Open( string path, FileMode mode, FileAccess access, FileShare share )
+        {
+            lock ( this.Mock )
+            {
+                this.WaitAndThrowIfBlocked( path, false );
+
+                return this.Mock.File.Open( path, mode, access, share );
+            }
         }
 
         public Stream OpenRead( string path )
         {
-            this.WaitAndThrowIfBlocked( path, false );
+            lock ( this.Mock )
+            {
+                this.WaitAndThrowIfBlocked( path, false );
 
-            return this.Mock.File.OpenRead( path );
+                return this.Mock.File.OpenRead( path );
+            }
         }
 
         public Stream OpenWrite( string path )
         {
-            this.WaitAndThrowIfBlocked( path, true );
+            lock ( this.Mock )
+            {
+                this.WaitAndThrowIfBlocked( path, true );
 
-            return this.Mock.File.OpenWrite( path );
+                return this.Mock.File.OpenWrite( path );
+            }
         }
 
         public byte[] ReadAllBytes( string path )
         {
-            this.WaitAndThrowIfBlocked( path, false );
+            lock ( this.Mock )
+            {
+                this.WaitAndThrowIfBlocked( path, false );
 
-            return this.Mock.File.ReadAllBytes( path );
+                return this.Mock.File.ReadAllBytes( path );
+            }
         }
 
         public void WriteAllBytes( string path, byte[] bytes )
         {
-            this.WaitAndThrowIfBlocked( path, true );
-            this.Mock.File.WriteAllBytes( path, bytes );
+            lock ( this.Mock )
+            {
+                this.WaitAndThrowIfBlocked( path, true );
+                this.Mock.File.WriteAllBytes( path, bytes );
+            }
         }
 
         public string ReadAllText( string path )
         {
-            this.WaitAndThrowIfBlocked( path, false );
+            lock ( this.Mock )
+            {
+                this.WaitAndThrowIfBlocked( path, false );
 
-            return this.Mock.File.ReadAllText( path );
+                return this.Mock.File.ReadAllText( path );
+            }
         }
 
         public void WriteAllText( string path, string content )
         {
-            this.WaitAndThrowIfBlocked( path, true );
-            this.Mock.File.WriteAllText( path, content );
-            this.Mock.File.SetLastWriteTime( path, DateTime.Now );
+            lock ( this.Mock )
+            {
+                this.WaitAndThrowIfBlocked( path, true );
+                this.Mock.File.WriteAllText( path, content );
+                this.Mock.File.SetLastWriteTime( path, DateTime.Now );
+            }
         }
 
         public string[] ReadAllLines( string path )
         {
-            this.WaitAndThrowIfBlocked( path, false );
+            lock ( this.Mock )
+            {
+                this.WaitAndThrowIfBlocked( path, false );
 
-            return this.Mock.File.ReadAllLines( path );
+                return this.Mock.File.ReadAllLines( path );
+            }
         }
 
         public void WriteAllLines( string path, string[] content )
         {
-            this.WaitAndThrowIfBlocked( path, true );
-            this.Mock.File.WriteAllLines( path, content );
-            this.Mock.File.SetLastWriteTime( path, DateTime.Now );
+            lock ( this.Mock )
+            {
+                this.WaitAndThrowIfBlocked( path, true );
+                this.Mock.File.WriteAllLines( path, content );
+                this.Mock.File.SetLastWriteTime( path, DateTime.Now );
+            }
         }
 
         public void WriteAllLines( string path, IEnumerable<string> content )
         {
-            this.WaitAndThrowIfBlocked( path, true );
-            this.Mock.File.WriteAllLines( path, content );
-            this.Mock.File.SetLastWriteTime( path, DateTime.Now );
+            lock ( this.Mock )
+            {
+                this.WaitAndThrowIfBlocked( path, true );
+                this.Mock.File.WriteAllLines( path, content );
+                this.Mock.File.SetLastWriteTime( path, DateTime.Now );
+            }
         }
 
         public void MoveDirectory( string sourceDirName, string destDirName )
         {
-            this.Mock.Directory.Move( sourceDirName, destDirName );
+            lock ( this.Mock )
+            {
+                this.Mock.Directory.Move( sourceDirName, destDirName );
+            }
         }
 
         public void DeleteDirectory( string path, bool recursive )
         {
-            this.Mock.Directory.Delete( path, recursive );
+            lock ( this.Mock )
+            {
+                this.Mock.Directory.Delete( path, recursive );
+            }
         }
 
         public bool IsDirectoryEmpty( string path ) => !this.Mock.Directory.EnumerateFileSystemEntries( path ).Any();

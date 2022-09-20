@@ -3,6 +3,7 @@
 using MELT;
 using Metalama.Backstage.Extensibility;
 using Metalama.Backstage.MicrosoftLogging;
+using Metalama.Backstage.Telemetry;
 using Metalama.Backstage.Testing.Services;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -22,6 +23,10 @@ namespace Metalama.Backstage.Testing
         public TestEnvironmentVariableProvider EnvironmentVariableProvider { get; } = new();
 
         public ITestLoggerSink Log { get; }
+
+        public TestTelemetryUploader TelemetryUploader { get; } = new();
+
+        public TestUsageReporter UsageReporter { get; } = new();
 
         public IServiceProvider ServiceProvider { get; }
 
@@ -50,6 +55,9 @@ namespace Metalama.Backstage.Testing
             serviceProviderBuilder
                 .AddMicrosoftLoggerFactory( loggerFactory )
                 .AddStandardDirectories();
+
+            serviceCollection.AddSingleton<ITelemetryUploader>( this.TelemetryUploader );
+            serviceCollection.AddSingleton<IUsageReporter>( this.UsageReporter );
 
             // ReSharper restore RedundantTypeArgumentsOfMethod
 

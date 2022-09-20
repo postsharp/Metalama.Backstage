@@ -6,23 +6,10 @@ using System.IO;
 
 namespace Metalama.Backstage.Configuration;
 
-public abstract class ConfigurationFile
+public abstract record ConfigurationFile
 {
     [JsonIgnore]
-    internal ConfigurationManager ConfigurationManager { get; private set; } = null!;
-
-    [JsonIgnore]
-    public DateTime? LastModified { get; internal set; }
-
-    [JsonIgnore]
-    public string FilePath { get; private set; } = null!;
-
-    internal void Initialize( ConfigurationManager configurationManager, string filePath, DateTime? lastModified )
-    {
-        this.ConfigurationManager = configurationManager;
-        this.FilePath = filePath;
-        this.LastModified = lastModified;
-    }
+    public DateTime? LastModified { get; init; }
 
     public string ToJson()
     {
@@ -33,15 +20,5 @@ public abstract class ConfigurationFile
         serializer.Serialize( textWriter, this );
 
         return textWriter.ToString();
-    }
-
-    public abstract void CopyFrom( ConfigurationFile configurationFile );
-
-    public ConfigurationFile Clone()
-    {
-        var clone = (ConfigurationFile) this.MemberwiseClone();
-        clone.CopyFrom( this );
-
-        return clone;
     }
 }

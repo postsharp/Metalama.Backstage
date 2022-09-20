@@ -9,4 +9,6 @@
     </ItemGroup>
 
     <Import Project="Metalama.Backstage.Common.props" />
+    <Import Sdk="PostSharp.Engineering.Sdk" Project="SystemTypes.props" />
+
 </Project>

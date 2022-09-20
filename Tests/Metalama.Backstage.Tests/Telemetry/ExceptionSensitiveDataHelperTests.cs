@@ -85,7 +85,7 @@ namespace Metalama.Backstage.Licensing.Tests.Telemetry
         [InlineData( "   at MS.Type.Method(String message) in :line 16707565" )]
         [InlineData( "   at System.Type.Method(String message) in :line 16707565" )]
         [InlineData( "   at Presentation.Type.Method(String message) in :line 16707565" )]
-        [InlineData( "   at PresentationFramerok.Type.Method(String message) in :line 16707565" )]
+        [InlineData( "   at PresentationFramework.Type.Method(String message) in :line 16707565" )]
         [InlineData( "   at EnvDTE.Type.Method(String message) in :line 16707565" )]
         [InlineData( "   at EnvDTENamespace.Type.Method(String message) in :line 16707565" )]
         [InlineData( "   at Windows.Type.Method(String message) in :line 16707565" )]

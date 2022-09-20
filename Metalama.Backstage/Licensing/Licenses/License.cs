@@ -73,7 +73,7 @@ namespace Metalama.Backstage.Licensing.Licenses
                     {
                         var guidBytes = Base32.FromBase32String( prefix );
 
-                        if ( guidBytes != null && guidBytes.Length == 16 )
+                        if ( guidBytes is { Length: 16 } )
                         {
                             id = 0;
 

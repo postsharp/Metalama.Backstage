@@ -166,6 +166,48 @@ namespace Metalama.Backstage.Extensibility
         void CreateDirectory( string path );
 
         /// <summary>
+        /// Opens an existing file.
+        /// </summary>
+        /// <param name="path">The file to be opened.</param>
+        /// <param name="mode">
+        /// A <see cref="FileMode"/> value that specifies whether a file is created if one does not exist,
+        /// and determines whether the contents of existing files are retained or overwritten.
+        /// </param>
+        /// <returns>A <see cref="Stream"/> on the specified path, having the specified mode.</returns>
+        Stream Open( string path, FileMode mode );
+
+        /// <summary>
+        /// Opens an existing file.
+        /// </summary>
+        /// <param name="path">The file to be opened.</param>
+        /// <param name="mode">
+        /// A <see cref="FileMode"/> value that specifies whether a file is created if one does not exist,
+        /// and determines whether the contents of existing files are retained or overwritten.
+        /// </param>
+        /// <param name="access">A <see cref="FileAccess"/> value that specifies the operations that can be performed on the file.</param>
+        /// <returns>
+        /// A <see cref="Stream"/> on the specified path, having the specified mode
+        /// with read, write, or read/write access.
+        /// </returns>
+        Stream Open( string path, FileMode mode, FileAccess access );
+
+        /// <summary>
+        /// Opens an existing file.
+        /// </summary>
+        /// <param name="path">The file to be opened.</param>
+        /// <param name="mode">
+        /// A <see cref="FileMode"/> value that specifies whether a file is created if one does not exist,
+        /// and determines whether the contents of existing files are retained or overwritten.
+        /// </param>
+        /// <param name="access">A <see cref="FileAccess"/> value that specifies the operations that can be performed on the file.</param>
+        /// <param name="share">A <see cref="FileShare"/> value specifying the type of access other threads have to the file.</param>
+        /// <returns>
+        /// A <see cref="Stream"/> on the specified path, having the specified mode
+        /// with read, write, or read/write access and the specified sharing option.
+        /// </returns>
+        Stream Open( string path, FileMode mode, FileAccess access, FileShare share );
+
+        /// <summary>
         /// Opens an existing file for reading.
         /// </summary>
         /// <param name="path">The file to be opened for reading.</param>

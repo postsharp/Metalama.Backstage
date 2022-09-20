@@ -17,72 +17,75 @@ namespace Metalama.Backstage.Telemetry
             writer.WriteElementString( "Message", ExceptionSensitiveDataHelper.Instance.RemoveSensitiveData( e.Message ) );
             writer.WriteElementString( "Source", ExceptionSensitiveDataHelper.Instance.RemoveSensitiveData( e.Source ) );
 
-            if ( e.Data != null )
+            writer.WriteStartElement( "Data" );
+
+            foreach ( DictionaryEntry? data in e.Data )
             {
-                writer.WriteStartElement( "Data" );
+                writer.WriteStartElement( "Item" );
 
-                foreach ( DictionaryEntry? data in e.Data )
+                if ( data != null )
                 {
-                    writer.WriteStartElement( "Item" );
+                    writer.WriteElementString( "Key", ExceptionSensitiveDataHelper.Instance.RemoveSensitiveData( data.Value.Key.ToString() ) );
 
-                    if ( data != null )
+                    if ( data.Value.Value != null )
                     {
-                        if ( data.Value.Key != null )
+                        switch ( data.Value.Value )
                         {
-                            writer.WriteElementString( "Key", ExceptionSensitiveDataHelper.Instance.RemoveSensitiveData( data.Value.Key.ToString() ) );
-                        }
-
-                        if ( data.Value.Value != null )
-                        {
-                            if ( data.Value.Value is Array array )
-                            {
-                                writer.WriteStartElement( "Array" );
-
-                                for ( var i = 0; i < array.Length; i++ )
+                            case Array array:
                                 {
-                                    var value = array.GetValue( i );
+                                    writer.WriteStartElement( "Array" );
 
-                                    switch ( value )
+                                    for ( var i = 0; i < array.Length; i++ )
                                     {
-                                        case Exception exception:
-                                            writer.WriteStartElement( "Item" );
-                                            WriteException( writer, exception );
-                                            writer.WriteEndElement();
+                                        var value = array.GetValue( i );
 
-                                            break;
+                                        switch ( value )
+                                        {
+                                            case Exception exception:
+                                                writer.WriteStartElement( "Item" );
+                                                WriteException( writer, exception );
+                                                writer.WriteEndElement();
 
-                                        case null:
-                                            writer.WriteElementString( "Item", "<null>" );
+                                                break;
 
-                                            break;
+                                            case null:
+                                                writer.WriteElementString( "Item", "<null>" );
 
-                                        default:
-                                            writer.WriteElementString( "Item", ExceptionSensitiveDataHelper.Instance.RemoveSensitiveData( value.ToString() ) );
+                                                break;
 
-                                            break;
+                                            default:
+                                                writer.WriteElementString(
+                                                    "Item",
+                                                    ExceptionSensitiveDataHelper.Instance.RemoveSensitiveData( value.ToString() ) );
+
+                                                break;
+                                        }
                                     }
+
+                                    writer.WriteEndElement();
+
+                                    break;
                                 }
 
-                                writer.WriteEndElement();
-                            }
-                            else if ( data.Value.Value is Exception exception )
-                            {
+                            case Exception exception:
                                 writer.WriteStartElement( "Value" );
                                 WriteException( writer, exception );
                                 writer.WriteEndElement();
-                            }
-                            else
-                            {
+
+                                break;
+
+                            default:
                                 writer.WriteElementString( "Value", ExceptionSensitiveDataHelper.Instance.RemoveSensitiveData( data.Value.ToString() ) );
-                            }
+
+                                break;
                         }
                     }
-
-                    writer.WriteEndElement();
                 }
 
                 writer.WriteEndElement();
             }
+
+            writer.WriteEndElement();
 
             writer.WriteElementString(
                 "StackTrace",
@@ -101,11 +104,6 @@ namespace Metalama.Backstage.Telemetry
 
                 foreach ( var innerException in aggregate.InnerExceptions )
                 {
-                    if ( innerException == null )
-                    {
-                        continue;
-                    }
-
                     writer.WriteStartElement( "Exception" );
                     WriteException( writer, innerException );
                     writer.WriteEndElement();

@@ -19,7 +19,7 @@ using System.Threading.Tasks;
 
 namespace Metalama.Backstage.Telemetry
 {
-    public sealed class TelemetryUploader
+    internal sealed class TelemetryUploader : ITelemetryUploader
     {
         private readonly TelemetryConfiguration _configuration;
         private readonly IStandardDirectories _directories;
@@ -28,11 +28,12 @@ namespace Metalama.Backstage.Telemetry
         private readonly ILogger _logger;
 
         private readonly Uri _requestUri = new( "https://bits.postsharp.net:44301/upload" );
+        private readonly IConfigurationManager _configurationManager;
 
         public TelemetryUploader( IServiceProvider serviceProvider )
         {
-            var configurationManager = serviceProvider.GetRequiredBackstageService<IConfigurationManager>();
-            this._configuration = configurationManager.Get<TelemetryConfiguration>();
+            this._configurationManager = serviceProvider.GetRequiredBackstageService<IConfigurationManager>();
+            this._configuration = this._configurationManager.Get<TelemetryConfiguration>();
 
             this._directories = serviceProvider.GetRequiredBackstageService<IStandardDirectories>();
             this._time = serviceProvider.GetRequiredBackstageService<IDateTimeProvider>();
@@ -90,7 +91,12 @@ namespace Metalama.Backstage.Telemetry
                 }
 
                 publicKey = new byte[keyStream.Length];
-                keyStream.Read( publicKey, 0, (int) keyStream.Length );
+                var totalBytesRead = 0;
+
+                while ( totalBytesRead < keyStream.Length )
+                {
+                    totalBytesRead += keyStream.Read( publicKey, totalBytesRead, (int) keyStream.Length - totalBytesRead );
+                }
 
                 keyStream.Position = 0;
 
@@ -232,7 +238,7 @@ namespace Metalama.Backstage.Telemetry
             }
         }
 
-        private void StartWorker( string workerDirectory, string targetFramework )
+        private void StartWorker( string workerDirectory )
         {
             string executableFileName;
             string arguments;
@@ -258,14 +264,7 @@ namespace Metalama.Backstage.Telemetry
             Process.Start( processStartInfo );
         }
 
-        /// <summary>
-        /// Starts the telemetry upload in a background process avoiding the current processed being blocked during the update. 
-        /// </summary>
-        /// <param name="force">Starts the upload even when it's been started recently.</param>
-        /// <remarks>
-        /// The upload is started once per day. If the upload has been started in the past 24 hours, this method has no effect,
-        /// unless the <paramref name="force"/> parameter is set to <c>true</c>.
-        /// </remarks>
+        /// <inheritdoc />
         public void StartUpload( bool force = false )
         {
             var now = this._time.Now;
@@ -291,7 +290,7 @@ namespace Metalama.Backstage.Telemetry
 
             try
             {
-                this._configuration.ConfigurationManager.Update<TelemetryConfiguration>( c => c.LastUploadTime = this._time.Now );
+                this._configurationManager.Update<TelemetryConfiguration>( c => c with { LastUploadTime = this._time.Now } );
 
                 var targetFramework = ProcessUtilities.IsNetCore()
                     ? "net6.0"
@@ -308,7 +307,7 @@ namespace Metalama.Backstage.Telemetry
 
                 if ( version == null )
                 {
-                    throw new InvalidOperationException( $"Unknown version of '{typeof( TelemetryUploader ).Assembly}' assembly package." );
+                    throw new InvalidOperationException( $"Unknown version of '{typeof(TelemetryUploader).Assembly}' assembly package." );
                 }
 
                 var workerDirectory = Path.Combine(
@@ -320,7 +319,7 @@ namespace Metalama.Backstage.Telemetry
 
                 this.ExtractWorker( workerDirectory, targetFramework );
 
-                this.StartWorker( workerDirectory, targetFramework );
+                this.StartWorker( workerDirectory );
             }
             finally
             {
@@ -334,20 +333,15 @@ namespace Metalama.Backstage.Telemetry
             var data = sha.ComputeHash( Encoding.UTF8.GetBytes( s ) );
             var builder = new StringBuilder();
 
-            for ( var i = 0; i < data.Length; i++ )
+            foreach ( var t in data )
             {
-                builder.Append( data[i].ToString( "x2", CultureInfo.InvariantCulture ) );
+                builder.Append( t.ToString( "x2", CultureInfo.InvariantCulture ) );
             }
 
             return builder.ToString();
         }
 
-        /// <summary>
-        /// Uploads the telemetry.
-        /// </summary>
-        /// <remarks>
-        /// Use the <see cref="StartUpload"/> method to upload the telemetry without blocking the current process.
-        /// </remarks>
+        /// <inheritdoc />
         public async Task UploadAsync()
         {
             if ( !Directory.Exists( this._directories.TelemetryUploadQueueDirectory ) )
@@ -381,11 +375,14 @@ namespace Metalama.Backstage.Telemetry
                 this.CreatePackage( files, packagePath, out filesToDelete );
 
                 using var formData = new MultipartFormDataContent();
+
+                // ReSharper disable once UseAwaitUsing
                 using var packageFile = File.OpenRead( packagePath );
 
                 var streamContent = new StreamContent( packageFile );
                 formData.Add( streamContent, packageId, packageName );
 
+                // ReSharper disable once StringLiteralTypo
                 const string salt = @"<27e\)$a<=b9&zyVwjzaJ`!WW`rwHh~;Z5QAC.J5TQ`.NY"")]~FGA);AKSSmbV$M";
                 var check = ComputeHash( packageName + salt );
 
