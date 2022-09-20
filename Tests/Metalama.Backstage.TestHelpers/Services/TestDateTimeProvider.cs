@@ -9,7 +9,7 @@ namespace Metalama.Backstage.Testing.Services
     public class TestDateTimeProvider : IDateTimeProvider
     {
         private DateTime? _lastResetTime;
-        private Stopwatch? _stopwatch; 
+        private Stopwatch? _stopwatch;
 
         public DateTime Now => this._lastResetTime?.AddMilliseconds( this._stopwatch!.ElapsedMilliseconds ) ?? DateTime.Now;
 

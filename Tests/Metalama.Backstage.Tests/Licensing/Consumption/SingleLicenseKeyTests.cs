@@ -40,13 +40,8 @@ public class SingleLicenseKeyTests : LicenseConsumptionManagerTestsBase
         TestConsumption( manager, requestedRequirement, requiredNamespace, expectedCanConsume );
     }
 
-    public static IEnumerable<LicenseRequirement> GetAllRequirements() => new[]
-    {
-        LicenseRequirement.Free,
-        LicenseRequirement.Starter,
-        LicenseRequirement.Professional,
-        LicenseRequirement.Ultimate
-    };
+    public static IEnumerable<LicenseRequirement> GetAllRequirements()
+        => new[] { LicenseRequirement.Free, LicenseRequirement.Starter, LicenseRequirement.Professional, LicenseRequirement.Ultimate };
 
     [Theory]
     [InlineData( LicenseRequirementTestEnum.Free )]

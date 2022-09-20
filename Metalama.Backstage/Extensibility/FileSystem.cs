@@ -102,19 +102,19 @@ namespace Metalama.Backstage.Extensibility
         {
             Directory.CreateDirectory( path );
         }
-        
+
         /// <inheritdoc />
         public Stream Open( string path, FileMode mode )
         {
             return File.Open( path, mode );
         }
-        
+
         /// <inheritdoc />
         public Stream Open( string path, FileMode mode, FileAccess access )
         {
             return File.Open( path, mode, access );
         }
-        
+
         /// <inheritdoc />
         public Stream Open( string path, FileMode mode, FileAccess access, FileShare share )
         {
