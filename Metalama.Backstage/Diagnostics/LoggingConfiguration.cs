@@ -22,7 +22,7 @@ public class LoggingConfiguration
     public Dictionary<string, bool> Categories { get; set; } = new( StringComparer.OrdinalIgnoreCase );
 
     [JsonProperty( "stopLoggingAfterHours" )]
-    public int StopLoggingAfterHours { get; set; } = 2;
+    public double StopLoggingAfterHours { get; set; } = 2;
 
     public LoggingConfiguration Clone()
         => new()

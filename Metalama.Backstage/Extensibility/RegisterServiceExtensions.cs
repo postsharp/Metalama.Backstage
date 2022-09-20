@@ -11,6 +11,7 @@ using Metalama.Backstage.Utilities;
 using Metalama.Backstage.Welcome;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Metalama.Backstage.Extensibility;
 
@@ -78,9 +79,27 @@ public static class RegisterServiceExtensions
     {
         var serviceProvider = serviceProviderBuilder.ServiceProvider;
 
-        var configuration = serviceProviderBuilder.ServiceProvider.GetDiagnosticsConfiguration();
+        var dateTimeProvider = serviceProvider.GetRequiredBackstageService<IDateTimeProvider>();
+
+        var configurationManager = serviceProvider.GetRequiredBackstageService<IConfigurationManager>();
+        var configuration = configurationManager.Get<DiagnosticsConfiguration>();
 
         DebuggerHelper.Launch( configuration, processKind );
+
+        // Automatically stop logging after a while.
+        if ( configuration.LastModified != null &&
+             configuration.LastModified < dateTimeProvider.Now.AddHours( -configuration.Logging.StopLoggingAfterHours ) )
+        {
+            configurationManager.UpdateIf<DiagnosticsConfiguration>(
+                c => c.Logging.Processes.Any( p => p.Value ),
+                c =>
+                {
+                    foreach ( var process in c.Logging.Processes.Keys )
+                    {
+                        c.Logging.Processes[process] = false;
+                    }
+                } );
+        }
 
         var applicationInfo = serviceProvider.GetRequiredBackstageService<IApplicationInfoProvider>().CurrentApplication;
         var loggerFactory = new LoggerFactory( serviceProvider, configuration, applicationInfo.ProcessKind, projectName );
@@ -119,9 +138,6 @@ public static class RegisterServiceExtensions
     {
         return serviceProviderBuilder.AddSingleton<IPlatformInfo>( new PlatformInfo( dotnetSdkDirectory ) );
     }
-
-    private static DiagnosticsConfiguration GetDiagnosticsConfiguration( this IServiceProvider serviceProvider )
-        => serviceProvider.GetRequiredBackstageService<IConfigurationManager>().Get<DiagnosticsConfiguration>();
 
     /// <summary>
     /// Adds the minimal backstage services, without diagnostics and telemetry.
