@@ -142,40 +142,15 @@ public static class RegisterServiceExtensions
         this ServiceProviderBuilder serviceProviderBuilder,
         bool considerUnattendedLicense = false,
         bool ignoreUserProfileLicenses = false,
-        string? additionalLicense = null,
-        bool addLicenseAudit = true )
+        string? additionalLicense = null )
     {
-        var licenseSources = new List<ILicenseSource>();
-        var serviceProvider = serviceProviderBuilder.ServiceProvider;
+        var licenseConsumptionManager = LicenseConsumptionManagerFactory.Create(
+            serviceProviderBuilder.ServiceProvider,
+            considerUnattendedLicense,
+            ignoreUserProfileLicenses,
+            additionalLicense );
 
-        if ( considerUnattendedLicense )
-        {
-            licenseSources.Add( new UnattendedLicenseSource( serviceProvider ) );
-        }
-
-        if ( !ignoreUserProfileLicenses )
-        {
-            licenseSources.Add( new UserProfileLicenseSource( serviceProvider ) );
-        }
-
-        if ( !string.IsNullOrWhiteSpace( additionalLicense ) )
-        {
-            licenseSources.Add( new ExplicitLicenseSource( additionalLicense!, serviceProvider ) );
-        }
-
-        if ( !ignoreUserProfileLicenses )
-        {
-            // Must be added last.
-            licenseSources.Add( new PreviewLicenseSource( serviceProvider ) );
-        }
-
-        if ( addLicenseAudit )
-        {
-            // License audit requires support services. 
-            serviceProviderBuilder.AddSingleton<ILicenseAuditManager>( new LicenseAuditManager( serviceProvider ) );
-        }
-
-        serviceProviderBuilder.AddSingleton<ILicenseConsumptionManager>( new LicenseConsumptionManager( serviceProvider, licenseSources ) );
+        serviceProviderBuilder.AddSingleton<ILicenseConsumptionManager>( licenseConsumptionManager );
 
         return serviceProviderBuilder;
     }
@@ -189,8 +164,9 @@ public static class RegisterServiceExtensions
         string? additionalLicense = null,
         string? dotNetSdkDirectory = null,
         bool openWelcomePage = false,
-        bool addLicensing = true,
-        bool addSupportServices = true )
+        bool addLicenseConsumption = true,
+        bool addSupportServices = true,
+        bool addLicenseAudit = true )
     {
         // Add base services.
         serviceProviderBuilder = serviceProviderBuilder
@@ -234,13 +210,25 @@ public static class RegisterServiceExtensions
         // Add support services.
         if ( addSupportServices )
         {
-            serviceProviderBuilder = serviceProviderBuilder.AddTelemetryServices();
+            serviceProviderBuilder.AddTelemetryServices();
         }
-        
-        // Add licensing.
-        if ( addLicensing )
+
+        // Add license audit
+        if ( addLicenseAudit )
         {
-            serviceProviderBuilder.AddLicensing( considerUnattendedProcessLicense, ignoreUserProfileLicenses, additionalLicense, addSupportServices );
+            if ( !addSupportServices )
+            {
+                throw new ArgumentException( "Support services are required for license audit.", nameof(addSupportServices) );
+            }
+
+            // License audit requires support services. 
+            serviceProviderBuilder.AddSingleton<ILicenseAuditManager>( new LicenseAuditManager( serviceProviderBuilder.ServiceProvider ) );
+        }
+
+        // Add licensing.
+        if ( addLicenseConsumption )
+        {
+            serviceProviderBuilder.AddLicensing( considerUnattendedProcessLicense, ignoreUserProfileLicenses, additionalLicense );
         }
 
         return serviceProviderBuilder;

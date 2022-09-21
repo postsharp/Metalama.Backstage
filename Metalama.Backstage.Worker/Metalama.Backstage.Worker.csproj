@@ -20,6 +20,9 @@
 
     <ItemGroup>
         <Compile Include="$(MetalamaBackstageDirectory)\**\*.cs" Exclude="$(MetalamaBackstageDirectory)\obj\**\*;$(MetalamaBackstageDirectory)\bin\**\*" />
+        <Compile Update="..\Metalama.Backstage\Licensing\Consumption\LicenseConsumptionManagerFactory.cs">
+          <Link>Licensing\Consumption\LicenseConsumptionManagerFactory.cs</Link>
+        </Compile>
     </ItemGroup>
 
     <ItemGroup Condition="'$(TargetFramework)'=='netframework4.7.2'">

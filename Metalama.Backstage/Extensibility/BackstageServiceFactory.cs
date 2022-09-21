@@ -1,6 +1,7 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. See the LICENSE.md file in the root directory of this repository root for details.
 
 using Metalama.Backstage.Diagnostics;
+using Metalama.Backstage.Licensing.Consumption;
 using System;
 
 namespace Metalama.Backstage.Extensibility;
@@ -28,7 +29,7 @@ public static class BackstageServiceFactory
             }
 
             _serviceProvider = new ServiceProviderBuilder()
-                .AddBackstageServices( applicationInfo: applicationInfoFactory(), projectName: projectName, addLicensing: false )
+                .AddBackstageServices( applicationInfo: applicationInfoFactory(), projectName: projectName, addLicenseConsumption: false )
                 .ServiceProvider;
 
             _serviceProvider.GetLoggerFactory()
@@ -38,4 +39,10 @@ public static class BackstageServiceFactory
             return true;
         }
     }
+
+    public static ILicenseConsumptionManager CreateLicenseConsumptionManager(
+        bool considerUnattendedLicense = false,
+        bool ignoreUserProfileLicenses = false,
+        string? additionalLicense = null )
+        => LicenseConsumptionManagerFactory.Create( ServiceProvider, considerUnattendedLicense, ignoreUserProfileLicenses, additionalLicense );
 }
