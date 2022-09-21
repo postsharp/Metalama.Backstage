@@ -233,9 +233,7 @@ namespace Metalama.Backstage.Configuration
             
             if ( environmentVariableName != null )
             {
-                File.WriteAllText( "C:\\Users\\JanHlavac\\Desktop\\myprint.txt", $"{type.Name}\n{environmentVariableName}\n{this._environmentVariableProvider.GetEnvironmentVariable( environmentVariableName )}\n{string.IsNullOrWhiteSpace( this._environmentVariableProvider.GetEnvironmentVariable( environmentVariableName ) )}" );
-
-                json = this._environmentVariableProvider.GetEnvironmentVariable( environmentVariableName );
+                json = this._environmentVariableProvider.GetEnvironmentVariable( environmentVariableName )!;
 
                 if ( !string.IsNullOrWhiteSpace( json ) )
                 {
