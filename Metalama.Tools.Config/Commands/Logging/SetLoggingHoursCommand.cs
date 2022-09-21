@@ -26,10 +26,6 @@ internal class SetLoggingHoursCommand : CommandBase
 
         configurationManager.Update<DiagnosticsConfiguration>(
             c =>
-            {
-                c.Logging.StopLoggingAfterHours = hours;
-
-                return new DiagnosticsConfiguration( c.Logging, c.Debugger, c.MiniDump );
-            } );
+                c with { Logging = c.Logging with { StopLoggingAfterHours = hours } } );
     }
 }

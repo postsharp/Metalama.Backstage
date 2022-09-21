@@ -10,5 +10,5 @@ public class TestEnvironmentVariableProvider : IEnvironmentVariableProvider
 {
     public Dictionary<string, string> Environment { get; } = new( StringComparer.OrdinalIgnoreCase );
 
-    public string GetEnvironmentVariable( string variable ) => this.Environment.ContainsKey( variable ) ? this.Environment[variable] : string.Empty;
+    public string? GetEnvironmentVariable( string variable ) => this.Environment.ContainsKey( variable ) ? this.Environment[variable] : string.Empty;
 }

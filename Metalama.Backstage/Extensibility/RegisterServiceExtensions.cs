@@ -12,6 +12,7 @@ using Metalama.Backstage.Utilities;
 using Metalama.Backstage.Welcome;
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 
 namespace Metalama.Backstage.Extensibility;
@@ -73,7 +74,8 @@ public static class RegisterServiceExtensions
     internal static ServiceProviderBuilder AddStandardDirectories( this ServiceProviderBuilder serviceProviderBuilder )
         => serviceProviderBuilder.AddSingleton<IStandardDirectories>( new StandardDirectories() );
 
-    private static ServiceProviderBuilder AddDiagnostics(
+    // Internal for test only.
+    internal static ServiceProviderBuilder AddDiagnostics(
         this ServiceProviderBuilder serviceProviderBuilder,
         ProcessKind processKind,
         string? projectName = null )
@@ -95,13 +97,10 @@ public static class RegisterServiceExtensions
                 c => c.Logging.Processes.Any( p => p.Value ),
                 c =>
                 {
-                    foreach ( var process in c.Logging.Processes.Keys )
-                    {
-                        c.Logging.Processes[process] = false;
-                    }
-
-                    return c;
+                    return c with { Logging = c.Logging with { Processes = c.Logging.Processes.ToImmutableDictionary( x => x.Key, x => false ) } };
                 } );
+
+            configuration = configurationManager.Get<DiagnosticsConfiguration>();
         }
 
         var applicationInfo = serviceProvider.GetRequiredBackstageService<IApplicationInfoProvider>().CurrentApplication;

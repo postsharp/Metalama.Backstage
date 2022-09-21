@@ -4,5 +4,5 @@ namespace Metalama.Backstage.Extensibility;
 
 public interface IEnvironmentVariableProvider : IBackstageService
 {
-    string GetEnvironmentVariable( string variable );
+    string? GetEnvironmentVariable( string variable );
 }

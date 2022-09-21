@@ -2,9 +2,8 @@
 
 using Metalama.Backstage.Configuration;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Serialization;
 using System;
-using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 
 namespace Metalama.Backstage.Diagnostics;
@@ -13,7 +12,7 @@ namespace Metalama.Backstage.Diagnostics;
 public record DiagnosticsConfiguration : ConfigurationFile
 {
     public const string EnvironmentVariableName = "METALAMA_DIAGNOSTICS";
-    
+
     [JsonProperty( "logging" )]
     public LoggingConfiguration Logging { get; init; } = new();
 
@@ -25,40 +24,37 @@ public record DiagnosticsConfiguration : ConfigurationFile
 
     public DiagnosticsConfiguration()
     {
-        this.Logging.Processes = new Dictionary<ProcessKind, bool>
+        var processes = Enum.GetValues( typeof(ProcessKind) ).Cast<ProcessKind>().ToImmutableDictionary( x => x, x => false );
+
+        this.Logging = new LoggingConfiguration
         {
-            [ProcessKind.Compiler] = false, [ProcessKind.Rider] = false, [ProcessKind.DevEnv] = false, [ProcessKind.RoslynCodeAnalysisService] = false
+            Processes = processes,
+            Categories = ImmutableDictionary<string, bool>.Empty.WithComparers( StringComparer.OrdinalIgnoreCase ).Add( "*", false ),
         };
 
-        this.Logging.Categories = new Dictionary<string, bool>( StringComparer.OrdinalIgnoreCase ) { ["*"] = true };
-
-        this.Debugger.Processes = new Dictionary<ProcessKind, bool>
+        this.Debugger = new DebuggerConfiguration()
         {
-            [ProcessKind.Compiler] = false, [ProcessKind.Rider] = false, [ProcessKind.DevEnv] = false, [ProcessKind.RoslynCodeAnalysisService] = false
+            Processes = processes,
         };
 
-        this.MiniDump.Processes = new Dictionary<ProcessKind, bool>
+        this.MiniDump = new MiniDumpConfiguration()
         {
-            [ProcessKind.Compiler] = false, [ProcessKind.Rider] = false, [ProcessKind.DevEnv] = false, [ProcessKind.RoslynCodeAnalysisService] = false
+            Processes = processes,
+            Flags = new[]
+                {
+                    MiniDumpKind.WithDataSegments,
+                    MiniDumpKind.WithProcessThreadData,
+                    MiniDumpKind.WithHandleData,
+                    MiniDumpKind.WithPrivateReadWriteMemory,
+                    MiniDumpKind.WithUnloadedModules,
+                    MiniDumpKind.WithFullMemoryInfo,
+                    MiniDumpKind.WithThreadInfo,
+                    MiniDumpKind.FilterMemory,
+                    MiniDumpKind.WithoutAuxiliaryState
+                }.Select( x => x.ToString() )
+                .ToImmutableArray(),
+            ExceptionTypes = ImmutableArray.Create( "*" )
         };
-
-        this.MiniDump.Flags.Clear();
-
-        this.MiniDump.Flags.AddRange(
-            new[]
-            {
-                MiniDumpKind.WithDataSegments,
-                MiniDumpKind.WithProcessThreadData,
-                MiniDumpKind.WithHandleData,
-                MiniDumpKind.WithPrivateReadWriteMemory,
-                MiniDumpKind.WithUnloadedModules,
-                MiniDumpKind.WithFullMemoryInfo,
-                MiniDumpKind.WithThreadInfo,
-                MiniDumpKind.FilterMemory,
-                MiniDumpKind.WithoutAuxiliaryState
-            }.Select( x => x.ToString() ) );
-
-        this.MiniDump.ExceptionTypes = new List<string> { "*" };
     }
 
     /// <summary>

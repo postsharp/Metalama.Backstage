@@ -5,6 +5,7 @@ using Metalama.Backstage.Diagnostics;
 using Metalama.Backstage.Extensibility;
 using Metalama.Backstage.Testing;
 using Metalama.Backstage.Testing.Services;
+using System.Collections.Immutable;
 using System.IO;
 using Xunit;
 using Xunit.Abstractions;
@@ -32,8 +33,11 @@ public class EnvironmentVariableConfigurationTests : TestsBase
         this.FileSystem.WriteAllText( diagnosticsJsonFilePath, new DiagnosticsConfiguration().ToJson() );
 
         // Set up environment variable DiagnosticsConfiguration.
-        var environmentConfiguration = new DiagnosticsConfiguration();
-        environmentConfiguration.Logging.Processes[ProcessKind.Compiler] = true;
+        var environmentConfiguration = new DiagnosticsConfiguration() with
+        {
+            Logging = new LoggingConfiguration() { Processes = ImmutableDictionary<ProcessKind, bool>.Empty.Add( ProcessKind.Compiler, true ) }
+        };
+
         this.EnvironmentVariableProvider.Environment.Add( DiagnosticsConfiguration.EnvironmentVariableName, environmentConfiguration.ToJson() );
     }
 

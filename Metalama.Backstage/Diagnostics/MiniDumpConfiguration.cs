@@ -1,20 +1,20 @@
 // Copyright (c) SharpCrafters s.r.o. See the LICENSE.md file in the root directory of this repository root for details.
 
 using Newtonsoft.Json;
-using System.Collections.Generic;
+using System.Collections.Immutable;
 
 namespace Metalama.Backstage.Diagnostics;
 
-public class MiniDumpConfiguration
+public record MiniDumpConfiguration
 {
     /// <summary>
-    /// Gets or sets a value indicating whether logging is enabled at all.
+    /// Gets a value indicating whether logging is enabled at all.
     /// </summary>
     [JsonProperty( "processes" )]
-    public Dictionary<ProcessKind, bool> Processes { get; set; } = new();
+    public ImmutableDictionary<ProcessKind, bool> Processes { get; init; } = ImmutableDictionary<ProcessKind, bool>.Empty;
 
     [JsonProperty( "flags" )]
-    public List<string> Flags { get; set; } = new();
+    public ImmutableArray<string> Flags { get; init; } = ImmutableArray<string>.Empty;
 
-    public List<string> ExceptionTypes { get; set; } = new();
+    public ImmutableArray<string> ExceptionTypes { get; init; } = ImmutableArray<string>.Empty;
 }

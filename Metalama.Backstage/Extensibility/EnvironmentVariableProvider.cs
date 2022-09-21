@@ -6,5 +6,5 @@ namespace Metalama.Backstage.Extensibility;
 
 public class EnvironmentVariableProvider : IEnvironmentVariableProvider
 {
-    public string GetEnvironmentVariable( string variable ) => Environment.GetEnvironmentVariable( variable, EnvironmentVariableTarget.Process ) ?? string.Empty;
+    public string? GetEnvironmentVariable( string variable ) => Environment.GetEnvironmentVariable( variable, EnvironmentVariableTarget.Process );
 }
