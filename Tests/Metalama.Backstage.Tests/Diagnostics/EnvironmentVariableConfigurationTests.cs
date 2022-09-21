@@ -20,16 +20,18 @@ public class EnvironmentVariableConfigurationTests : TestsBase
         builder =>
         {
             builder.AddService( typeof(IConfigurationManager), new Configuration.ConfigurationManager( builder.ServiceProvider ) );
-            builder.AddService( typeof(IEnvironmentVariableProvider), new TestEnvironmentVariableProvider() );
             builder.AddService( typeof(IApplicationInfoProvider), new ApplicationInfoProvider( new TestApplicationInfo() ) );
         } )
     {
         this._configurationManager = this.ServiceProvider.GetRequiredBackstageService<IConfigurationManager>();
         var standardDirectories = this.ServiceProvider.GetRequiredBackstageService<IStandardDirectories>();
+
+        // Initialize local DiagnosticsConfiguration.
         this.FileSystem.CreateDirectory( standardDirectories.ApplicationDataDirectory );
         var diagnosticsJsonFilePath = Path.Combine( standardDirectories.ApplicationDataDirectory, "diagnostics.json" );
         this.FileSystem.WriteAllText( diagnosticsJsonFilePath, new DiagnosticsConfiguration().ToJson() );
 
+        // Set up environment variable DiagnosticsConfiguration.
         var environmentConfiguration = new DiagnosticsConfiguration();
         environmentConfiguration.Logging.Processes[ProcessKind.Compiler] = true;
         this.EnvironmentVariableProvider.Environment.Add( DiagnosticsConfiguration.EnvironmentVariableName, environmentConfiguration.ToJson() );

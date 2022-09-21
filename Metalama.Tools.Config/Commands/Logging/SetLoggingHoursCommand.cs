@@ -23,13 +23,13 @@ internal class SetLoggingHoursCommand : CommandBase
     {
         this.CommandServices.Initialize( console, false );
         var configurationManager = this.CommandServices.ServiceProvider.GetRequiredService<IConfigurationManager>();
-       
+
         configurationManager.Update<DiagnosticsConfiguration>(
             c =>
             {
                 c.Logging.StopLoggingAfterHours = hours;
 
-                return c;
+                return new DiagnosticsConfiguration( c.Logging, c.Debugger, c.MiniDump );
             } );
     }
 }

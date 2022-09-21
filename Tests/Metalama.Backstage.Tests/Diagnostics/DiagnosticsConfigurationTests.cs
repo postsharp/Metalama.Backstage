@@ -29,13 +29,17 @@ public class DiagnosticsConfigurationTests : TestsBase
         {
             builder.AddService( typeof(IConfigurationManager), new Configuration.ConfigurationManager( builder.ServiceProvider ) );
             builder.AddService( typeof(IApplicationInfoProvider), new ApplicationInfoProvider( new TestApplicationInfo() ) );
-            builder.AddService( typeof(IEnvironmentVariableProvider), new TestEnvironmentVariableProvider() );
         } )
     {
         var standardDirectories = this.ServiceProvider.GetRequiredBackstageService<IStandardDirectories>();
         this._configurationManager = this.ServiceProvider.GetRequiredBackstageService<IConfigurationManager>();
 
+        // Initialize local DiagnosticsConfiguration with logging active.
         var diagnosticsConfiguration = new DiagnosticsConfiguration();
+
+        this.FileSystem.CreateDirectory( standardDirectories.ApplicationDataDirectory );
+        this._diagnosticsJsonFilePath = Path.Combine( standardDirectories.ApplicationDataDirectory, "diagnostics.json" );
+        this.FileSystem.WriteAllText( this._diagnosticsJsonFilePath, diagnosticsConfiguration.ToJson() );
 
         this._configurationManager.Update<DiagnosticsConfiguration>(
             c =>
@@ -45,12 +49,8 @@ public class DiagnosticsConfigurationTests : TestsBase
                     c.Logging.Processes[process] = true;
                 }
 
-                return c;
+                return new DiagnosticsConfiguration( c.Logging, c.Debugger, c.MiniDump );
             } );
-
-        this.FileSystem.CreateDirectory( standardDirectories.ApplicationDataDirectory );
-        this._diagnosticsJsonFilePath = Path.Combine( standardDirectories.ApplicationDataDirectory, "diagnostics.json" );
-        this.FileSystem.WriteAllText( this._diagnosticsJsonFilePath, diagnosticsConfiguration.ToJson() );
     }
 
     [Fact]
@@ -79,7 +79,7 @@ public class DiagnosticsConfigurationTests : TestsBase
                 return c;
             } );
 
-        var diagnosticsConfiguration = (DiagnosticsConfiguration) this._configurationManager.Get( typeof(DiagnosticsConfiguration) );
+        var diagnosticsConfiguration = this._configurationManager.Get<DiagnosticsConfiguration>();
 
         Assert.Equal( hours, diagnosticsConfiguration.Logging.StopLoggingAfterHours );
     }
@@ -87,7 +87,7 @@ public class DiagnosticsConfigurationTests : TestsBase
     [Fact]
     public void ResettingConfiguration_ChangesLoggingHours()
     {
-        // Manually set the hours to more than default.
+        // Manually set the hours to more than default before resetting.
         var hours = 10;
 
         this._configurationManager.Update<DiagnosticsConfiguration>(
@@ -104,13 +104,34 @@ public class DiagnosticsConfigurationTests : TestsBase
         Assert.Equal( 2, diagnosticsConfiguration.Logging.StopLoggingAfterHours );
     }
 
-    [Fact( Skip = "Can't be tested now." )]
-    public void SimulateLaunchingWith_OutdatedDiagnosticsConfiguration()
+    [Fact]
+    public void OutdatedConfiguration_DisablesLogging()
     {
-        // Manually make the diagnostics.json to be older than specified amount of time.
+        var configurationManager = this.ServiceProvider.GetRequiredBackstageService<IConfigurationManager>();
+
+        // Manually simulate the last modification of configuration happened before 3 hours.
         this.FileSystem.SetLastWriteTime( this._diagnosticsJsonFilePath, DateTime.Now.AddHours( -3 ) );
+        configurationManager.Update<DiagnosticsConfiguration>( c => c );
 
         var diagnosticsConfiguration = this._configurationManager.Get<DiagnosticsConfiguration>();
+        
+        if ( diagnosticsConfiguration.LastModified != null &&
+             diagnosticsConfiguration.LastModified < this.Time.Now.AddHours( -diagnosticsConfiguration.Logging.StopLoggingAfterHours ) )
+        {
+            configurationManager.UpdateIf<DiagnosticsConfiguration>(
+                c => c.Logging.Processes.Any( p => p.Value ),
+                c =>
+                {
+                    foreach ( var process in c.Logging.Processes.Keys )
+                    {
+                        c.Logging.Processes[process] = false;
+                    }
+
+                    return c;
+                } );
+        }
+
+        diagnosticsConfiguration = this._configurationManager.Get<DiagnosticsConfiguration>();
 
         foreach ( var processName in diagnosticsConfiguration.Logging.Processes.Keys.ToArray() )
         {
@@ -118,15 +139,34 @@ public class DiagnosticsConfigurationTests : TestsBase
         }
     }
 
-    [Fact( Skip = "Can't be tested now." )]
-    public void SimulateLaunchingWith_NotOutdatedDiagnosticsConfiguration()
+    [Fact]
+    public void NotOutdatedConfiguration_KeepsLogging()
     {
-        // Manually make the diagnostics.json to be older than specified amount of time.
-        this.FileSystem.SetLastWriteTime( this._diagnosticsJsonFilePath, DateTime.Now.AddHours( -1 ) );
-        
-        // this._configurationManager.Update<DiagnosticsConfiguration>( c => c.DisableLoggingForOutdatedSettings() );
+        var configurationManager = this.ServiceProvider.GetRequiredBackstageService<IConfigurationManager>();
 
-        var diagnosticsConfiguration = (DiagnosticsConfiguration) this._configurationManager.Get( typeof(DiagnosticsConfiguration), true );
+        // Manually simulate the last modification of configuration happened before 1 hours.
+        this.FileSystem.SetLastWriteTime( this._diagnosticsJsonFilePath, DateTime.Now.AddHours( -1 ) );
+        configurationManager.Update<DiagnosticsConfiguration>( c => c );
+
+        var diagnosticsConfiguration = this._configurationManager.Get<DiagnosticsConfiguration>();
+
+        if ( diagnosticsConfiguration.LastModified != null &&
+             diagnosticsConfiguration.LastModified < this.Time.Now.AddHours( -diagnosticsConfiguration.Logging.StopLoggingAfterHours ) )
+        {
+            configurationManager.UpdateIf<DiagnosticsConfiguration>(
+                c => c.Logging.Processes.Any( p => p.Value ),
+                c =>
+                {
+                    foreach ( var process in c.Logging.Processes.Keys )
+                    {
+                        c.Logging.Processes[process] = false;
+                    }
+
+                    return c;
+                } );
+        }
+
+        diagnosticsConfiguration = this._configurationManager.Get<DiagnosticsConfiguration>();
 
         foreach ( var processName in diagnosticsConfiguration.Logging.Processes.Keys.ToArray() )
         {
@@ -134,8 +174,8 @@ public class DiagnosticsConfigurationTests : TestsBase
         }
     }
 
-    [Fact( Skip = "Can't be tested now." )]
-    public void CreatingConfigurationFrom_JsonPropertyAttribute_SerializesPropertiesCorrectly()
+    [Fact]
+    public void InitializingConfiguration_ByPassingValues_IsCorrect()
     {
         var diagnosticsConfiguration = (DiagnosticsConfiguration) this._configurationManager.Get( typeof(DiagnosticsConfiguration), true );
         var diagnosticsConfigurationJsonContent = diagnosticsConfiguration.ToJson();

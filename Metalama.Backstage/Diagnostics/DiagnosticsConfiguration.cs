@@ -61,14 +61,17 @@ public record DiagnosticsConfiguration : ConfigurationFile
         this.MiniDump.ExceptionTypes = new List<string> { "*" };
     }
 
-    public void DisableLoggingForOutdatedSettings()
+    /// <summary>
+    /// Initializes a new instance of the <see cref="DiagnosticsConfiguration"/> class from existing properties values.
+    /// </summary>
+    /// <param name="logging"></param>
+    /// <param name="debugger"></param>
+    /// <param name="miniDump"></param>
+    [JsonConstructor]
+    public DiagnosticsConfiguration( LoggingConfiguration logging, DebuggerConfiguration debugger, MiniDumpConfiguration miniDump )
     {
-        if ( this.LastModified < DateTime.Now.AddHours( this.Logging.StopLoggingAfterHours * -1 ) )
-        {
-            foreach ( var processName in this.Logging.Processes.Keys )
-            {
-                this.Logging.Processes[processName] = false;
-            }
-        }
+        this.Logging = logging;
+        this.Debugger = debugger;
+        this.MiniDump = miniDump;
     }
 }
