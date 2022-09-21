@@ -1,6 +1,5 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. See the LICENSE.md file in the root directory of this repository root for details.
 
-using Metalama.Backstage.Configuration;
 using Metalama.Backstage.Diagnostics;
 using Metalama.Backstage.Extensibility;
 using Metalama.Backstage.Maintenance;
@@ -19,22 +18,6 @@ namespace Metalama.Backstage
             var serviceProviderBuilder = new ServiceProviderBuilder()
                 .AddMinimalBackstageServices( applicationInfo: new BackstageWorkerApplicationInfo(), addSupportServices: true );
 
-            // Disable logging if the diagnostics.json file has been modified long time ago (i.e. more than X hours before set hours)
-            try
-            {
-                serviceProvider = serviceProviderBuilder.ServiceProvider;
-                var configurationManager = serviceProvider.GetRequiredBackstageService<IConfigurationManager>();
-
-                configurationManager.Update<DiagnosticsConfiguration>( c => c.DisableLoggingForOutdatedSettings() );
-            }
-            catch ( Exception e )
-            {
-                if ( !HandleException( serviceProvider, e ) )
-                {
-                    throw;
-                }
-            }
-            
             // Clean-up is scheduled automatically from Telemetry.
             try
             {

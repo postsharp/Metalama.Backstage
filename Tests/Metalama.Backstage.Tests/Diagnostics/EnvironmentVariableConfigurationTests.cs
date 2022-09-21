@@ -13,17 +13,15 @@ namespace Metalama.Backstage.Licensing.Tests.Diagnostics;
 
 public class EnvironmentVariableConfigurationTests : TestsBase
 {
-
     private readonly IConfigurationManager _configurationManager;
 
     public EnvironmentVariableConfigurationTests( ITestOutputHelper logger ) : base(
         logger,
         builder =>
         {
-            builder.AddService( typeof(IEnvironmentVariableProvider), new TestEnvironmentVariableProvider() );
             builder.AddService( typeof(IConfigurationManager), new Configuration.ConfigurationManager( builder.ServiceProvider ) );
+            builder.AddService( typeof(IEnvironmentVariableProvider), new TestEnvironmentVariableProvider() );
             builder.AddService( typeof(IApplicationInfoProvider), new ApplicationInfoProvider( new TestApplicationInfo() ) );
-            
         } )
     {
         this._configurationManager = this.ServiceProvider.GetRequiredBackstageService<IConfigurationManager>();
@@ -34,17 +32,14 @@ public class EnvironmentVariableConfigurationTests : TestsBase
 
         var environmentConfiguration = new DiagnosticsConfiguration();
         environmentConfiguration.Logging.Processes[ProcessKind.Compiler] = true;
-
-
-        this.EnvironmentVariableProvider.Environment[DiagnosticsConfiguration.EnvironmentVariableName] = environmentConfiguration.ToJson();
+        this.EnvironmentVariableProvider.Environment.Add( DiagnosticsConfiguration.EnvironmentVariableName, environmentConfiguration.ToJson() );
     }
-
 
     [Fact]
     public void ExistingEnvironmentVariable_OverridesConfiguration()
     {
         var diagnosticsConfiguration = this._configurationManager.Get<DiagnosticsConfiguration>();
-        
+
         Assert.True( diagnosticsConfiguration.Logging.Processes[ProcessKind.Compiler] );
     }
 }

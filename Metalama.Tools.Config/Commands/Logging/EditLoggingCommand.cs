@@ -23,7 +23,6 @@ internal class EditLoggingCommand : CommandBase
     {
         this.CommandServices.Initialize( console, false );
         var configurationManager = this.CommandServices.ServiceProvider.GetRequiredService<IConfigurationManager>();
-        configurationManager.Update<DiagnosticsConfiguration>( c => c.DisableLoggingForOutdatedSettings() );
         var configuration = configurationManager.Get<DiagnosticsConfiguration>();
 
         if ( configuration.LastModified == null )

@@ -21,6 +21,9 @@ public class LoggingConfiguration
 
     public Dictionary<string, bool> Categories { get; set; } = new( StringComparer.OrdinalIgnoreCase );
 
+    /// <summary>
+    /// Gets or sets the logging duration in hours before it is automatically disabled.
+    /// </summary>
     [JsonProperty( "stopLoggingAfterHours" )]
     public double StopLoggingAfterHours { get; set; } = 2;
 

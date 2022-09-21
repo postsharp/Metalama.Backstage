@@ -2,19 +2,20 @@
 
 using Metalama.Backstage.Configuration;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 
 namespace Metalama.Backstage.Diagnostics;
 
-[ConfigurationFile( "diagnostics.json", EnvironmentVariableName = EnvironmentVariableName)]
+[ConfigurationFile( "diagnostics.json", EnvironmentVariableName = EnvironmentVariableName )]
 public record DiagnosticsConfiguration : ConfigurationFile
 {
     public const string EnvironmentVariableName = "METALAMA_DIAGNOSTICS";
     
     [JsonProperty( "logging" )]
-    public LoggingConfiguration Logging { get; } = new();
+    public LoggingConfiguration Logging { get; init; } = new();
 
     [JsonProperty( "debugger" )]
     public DebuggerConfiguration Debugger { get; } = new();
@@ -60,15 +61,14 @@ public record DiagnosticsConfiguration : ConfigurationFile
         this.MiniDump.ExceptionTypes = new List<string> { "*" };
     }
 
-
     public void DisableLoggingForOutdatedSettings()
     {
         if ( this.LastModified < DateTime.Now.AddHours( this.Logging.StopLoggingAfterHours * -1 ) )
         {
-            this.Logging.Processes = new Dictionary<ProcessKind, bool>
+            foreach ( var processName in this.Logging.Processes.Keys )
             {
-                [ProcessKind.Compiler] = false, [ProcessKind.Rider] = false, [ProcessKind.DevEnv] = false, [ProcessKind.RoslynCodeAnalysisService] = false
-            };
+                this.Logging.Processes[processName] = false;
+            }
         }
     }
 }

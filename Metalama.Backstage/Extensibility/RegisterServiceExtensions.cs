@@ -99,6 +99,8 @@ public static class RegisterServiceExtensions
                     {
                         c.Logging.Processes[process] = false;
                     }
+
+                    return c;
                 } );
         }
 

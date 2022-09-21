@@ -15,14 +15,21 @@ internal class SetLoggingHoursCommand : CommandBase
         "log",
         "Sets the time before logging is automatically disabled" )
     {
-        this.AddArgument( new Argument<int>( "hours", "Hours after last modification of the configuration file before logging is automatically disabled" ) );
-        this.Handler = CommandHandler.Create<int, IConsole>( this.Execute );
+        this.AddArgument( new Argument<double>( "hours", "Hours after last modification of the configuration file before logging is automatically disabled" ) );
+        this.Handler = CommandHandler.Create<double, IConsole>( this.Execute );
     }
 
-    private void Execute( int hours, IConsole console )
+    private void Execute( double hours, IConsole console )
     {
         this.CommandServices.Initialize( console, false );
         var configurationManager = this.CommandServices.ServiceProvider.GetRequiredService<IConfigurationManager>();
-        configurationManager.Update<DiagnosticsConfiguration>( c => c.SetStopLoggingAfterHours( hours ) );
+       
+        configurationManager.Update<DiagnosticsConfiguration>(
+            c =>
+            {
+                c.Logging.StopLoggingAfterHours = hours;
+
+                return c;
+            } );
     }
 }
