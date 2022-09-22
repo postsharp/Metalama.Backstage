@@ -56,18 +56,4 @@ public record DiagnosticsConfiguration : ConfigurationFile
             ExceptionTypes = ImmutableArray.Create( "*" )
         };
     }
-
-    /// <summary>
-    /// Initializes a new instance of the <see cref="DiagnosticsConfiguration"/> class from existing properties values.
-    /// </summary>
-    /// <param name="logging"></param>
-    /// <param name="debugger"></param>
-    /// <param name="miniDump"></param>
-    [JsonConstructor]
-    public DiagnosticsConfiguration( LoggingConfiguration logging, DebuggerConfiguration debugger, MiniDumpConfiguration miniDump )
-    {
-        this.Logging = logging;
-        this.Debugger = debugger;
-        this.MiniDump = miniDump;
-    }
 }
