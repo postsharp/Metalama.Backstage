@@ -28,8 +28,7 @@ public class EnvironmentVariableConfigurationTests : TestsBase
 
         // Initialize local DiagnosticsConfiguration.
         this.FileSystem.CreateDirectory( standardDirectories.ApplicationDataDirectory );
-        var diagnosticsJsonFilePath = this._configurationManager.GetFileName( typeof(DiagnosticsConfiguration) );
-        this.FileSystem.WriteAllText( diagnosticsJsonFilePath, new DiagnosticsConfiguration().ToJson() );
+        this.FileSystem.WriteAllText( this._configurationManager.GetFileName( typeof(DiagnosticsConfiguration) ), new DiagnosticsConfiguration().ToJson() );
 
         // Set up environment variable DiagnosticsConfiguration.
         var environmentConfiguration = new DiagnosticsConfiguration() with
