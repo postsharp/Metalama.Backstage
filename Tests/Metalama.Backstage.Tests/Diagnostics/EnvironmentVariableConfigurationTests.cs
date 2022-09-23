@@ -6,7 +6,6 @@ using Metalama.Backstage.Extensibility;
 using Metalama.Backstage.Testing;
 using Metalama.Backstage.Testing.Services;
 using System.Collections.Immutable;
-using System.IO;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -29,7 +28,7 @@ public class EnvironmentVariableConfigurationTests : TestsBase
 
         // Initialize local DiagnosticsConfiguration.
         this.FileSystem.CreateDirectory( standardDirectories.ApplicationDataDirectory );
-        var diagnosticsJsonFilePath = Path.Combine( standardDirectories.ApplicationDataDirectory, "diagnostics.json" );
+        var diagnosticsJsonFilePath = this._configurationManager.GetFileName( typeof(DiagnosticsConfiguration) );
         this.FileSystem.WriteAllText( diagnosticsJsonFilePath, new DiagnosticsConfiguration().ToJson() );
 
         // Set up environment variable DiagnosticsConfiguration.
