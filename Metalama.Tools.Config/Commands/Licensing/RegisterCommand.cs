@@ -20,7 +20,7 @@ internal class RegisterCommand : CommandBase
     {
         this.AddArgument(
             new Argument<string>(
-                "license-key-or-type",
+                "license-key | trial | free",
                 "The license key to be registered, or 'trial' or 'free'" ) );
 
         this.AddCommand( new RegisterTrialCommand( commandServiceProvider ) );
