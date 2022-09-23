@@ -125,12 +125,12 @@ public static class RegisterServiceExtensions
         string? projectName = null,
         string? dotnetSdkDirectory = null )
     {
-        serviceProviderBuilder = serviceProviderBuilder
+        serviceProviderBuilder
             .AddDiagnosticsRequirements( applicationInfo, dotnetSdkDirectory );
 
         if ( addSupportServices )
         {
-            serviceProviderBuilder = serviceProviderBuilder
+            serviceProviderBuilder
                 .AddDiagnostics( applicationInfo.ProcessKind, projectName )
                 .AddTelemetryServices();
         }
@@ -176,7 +176,8 @@ public static class RegisterServiceExtensions
             serviceProviderBuilder.AddSingleton<ILicenseAuditManager>( new LicenseAuditManager( serviceProvider ) );
         }
 
-        serviceProviderBuilder.AddSingleton<ILicenseConsumptionManager>( new LicenseConsumptionManager( serviceProvider, licenseSources ) );
+        serviceProviderBuilder.AddSingleton<ILicenseConsumptionManager>(
+            new LicenseConsumptionManager( serviceProviderBuilder.ServiceProvider, licenseSources ) );
 
         return serviceProviderBuilder;
     }
@@ -249,15 +250,13 @@ public static class RegisterServiceExtensions
 
     public static ServiceProviderBuilder AddTelemetryServices( this ServiceProviderBuilder serviceProviderBuilder )
     {
-        var serviceProvider = serviceProviderBuilder.ServiceProvider;
-
         // Add telemetry.
         var queue = new TelemetryQueue( serviceProviderBuilder.ServiceProvider );
 
-        serviceProviderBuilder = serviceProviderBuilder
-            .AddSingleton<ITelemetryUploader>( new TelemetryUploader( serviceProvider ) )
-            .AddSingleton<IExceptionReporter>( new ExceptionReporter( queue, serviceProvider ) )
-            .AddSingleton<IUsageReporter>( new UsageReporter( serviceProvider ) );
+        serviceProviderBuilder
+            .AddSingleton<ITelemetryUploader>( new TelemetryUploader( serviceProviderBuilder.ServiceProvider ) )
+            .AddSingleton<IExceptionReporter>( new ExceptionReporter( queue, serviceProviderBuilder.ServiceProvider ) )
+            .AddSingleton<IUsageReporter>( new UsageReporter( serviceProviderBuilder.ServiceProvider ) );
 
         return serviceProviderBuilder;
     }
