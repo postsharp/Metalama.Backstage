@@ -26,6 +26,7 @@ namespace Metalama.Backstage.Configuration
         private readonly FileSystemWatcher? _fileSystemWatcher;
         private readonly IFileSystem _fileSystem;
         private readonly IDateTimeProvider _dateTimeProvider;
+        private readonly IEnvironmentVariableProvider _environmentVariableProvider;
 
         // Named semaphore to handle many instances.
         private readonly Mutex _mutex = new( false, "Global\\Metalama.Configuration" );
@@ -35,6 +36,10 @@ namespace Metalama.Backstage.Configuration
             var applicationInfo = serviceProvider.GetBackstageService<IApplicationInfoProvider>()?.CurrentApplication;
             this._fileSystem = serviceProvider.GetRequiredBackstageService<IFileSystem>();
             this._dateTimeProvider = serviceProvider.GetRequiredBackstageService<IDateTimeProvider>();
+            this._environmentVariableProvider = serviceProvider.GetRequiredBackstageService<IEnvironmentVariableProvider>();
+            
+            // In a production use, the logger factory is created after the configuration manager, so we will not have any log for
+            // this class. However, tests may have their own logging.
             this.Logger = serviceProvider.GetLoggerFactory().GetLogger( "Configuration" );
 
             this.ApplicationDataDirectory = serviceProvider.GetRequiredBackstageService<IStandardDirectories>().ApplicationDataDirectory;
@@ -95,6 +100,18 @@ namespace Metalama.Backstage.Configuration
             return Path.Combine( this.ApplicationDataDirectory, attribute.FileName );
         }
 
+        private string? GetEnvironmentVariableName( Type type )
+        {
+            var attribute = type.GetCustomAttribute<ConfigurationFileAttribute>();
+
+            if ( attribute == null )
+            {
+                throw new InvalidOperationException( $"'{nameof(ConfigurationFileAttribute)}' custom attribute not found for '{type.FullName}' type." );
+            }
+
+            return attribute.EnvironmentVariableName;
+        }
+
         public ConfigurationFile Get( Type type, bool ignoreCache = false )
         {
             ConfigurationFile GetCore()
@@ -121,17 +138,21 @@ namespace Metalama.Backstage.Configuration
                 }
             }
 
+            ConfigurationFile settings;
+
             if ( ignoreCache )
             {
-                var settings = GetCore();
+                settings = GetCore();
                 this.AddToCache( settings );
 
                 return settings;
             }
             else
             {
-                return this._instances.GetOrAdd( type, _ => GetCore() );
+                settings = this._instances.GetOrAdd( type, _ => GetCore() );
             }
+
+            return settings;
         }
 
         public event Action<ConfigurationFile>? ConfigurationFileChanged;
@@ -205,15 +226,29 @@ namespace Metalama.Backstage.Configuration
             return true;
         }
 
-        private bool TryLoadConfigurationFile( Type type, [NotNullWhen( true )] out ConfigurationFile? settings )
+        private bool TryLoadConfigurationContent( Type type, string fileName, DateTime lastModified, [NotNullWhen( true )] out string? json )
         {
-            var fileName = this.GetFileName( type );
+            // Try to load the json from the environment variable.
+            var environmentVariableName = this.GetEnvironmentVariableName( type );
+            
+            if ( environmentVariableName != null )
+            {
+                json = this._environmentVariableProvider.GetEnvironmentVariable( environmentVariableName )!;
 
+                if ( !string.IsNullOrWhiteSpace( json ) )
+                {
+                    this.Logger.Trace?.Log( $"Configuration for {type.Name} loaded from the environment variable '{environmentVariableName}'." );
+
+                    return true;
+                }
+            }
+
+            // Try to load form the file.
             if ( !this._fileSystem.FileExists( fileName ) )
             {
                 this.Logger.Trace?.Log( $"The file '{fileName}' does not exist." );
 
-                settings = null;
+                json = null;
 
                 return false;
             }
@@ -222,12 +257,38 @@ namespace Metalama.Backstage.Configuration
             {
                 var fileNameCopy = fileName;
 
-                var lastModified = this._fileSystem.GetLastWriteTime( fileName );
-
                 this.Logger.Trace?.Log( $"Reading configuration file '{fileName}' with timestamp '{lastModified:O}'." );
 
-                var json = RetryHelper.Retry( () => this._fileSystem.ReadAllText( fileNameCopy ) );
+                json = RetryHelper.Retry( () => this._fileSystem.ReadAllText( fileNameCopy ) );
 
+                return true;
+            }
+            catch ( Exception e )
+            {
+                this.Logger.Error?.Log( $"Error reading file '{fileName}': " + e );
+            }
+
+            // Could not be loaded.
+            json = null;
+
+            return false;
+        }
+
+        private bool TryLoadConfigurationFile( Type type, [NotNullWhen( true )] out ConfigurationFile? settings )
+        {
+            var fileName = this.GetFileName( type );
+
+            var lastModified = this._fileSystem.GetLastWriteTime( fileName );
+
+            if ( !this.TryLoadConfigurationContent( type, fileName, lastModified, out var json ) )
+            {
+                settings = null;
+
+                return false;
+            }
+
+            try
+            {
                 settings = (ConfigurationFile?) JsonConvert.DeserializeObject( json, type );
 
                 if ( settings == null )
@@ -265,6 +326,11 @@ namespace Metalama.Backstage.Configuration
                     this.Logger.Trace?.Log( $"Releasing configuration mutex." );
                     this._mutex.ReleaseMutex();
                 } );
+        }
+
+        public void ClearCache()
+        {
+            this._instances.Clear();
         }
 
         public void Dispose()

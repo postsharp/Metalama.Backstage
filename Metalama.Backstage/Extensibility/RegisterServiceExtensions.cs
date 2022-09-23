@@ -12,6 +12,8 @@ using Metalama.Backstage.Utilities;
 using Metalama.Backstage.Welcome;
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
+using System.Linq;
 
 namespace Metalama.Backstage.Extensibility;
 
@@ -57,6 +59,14 @@ public static class RegisterServiceExtensions
         => serviceProviderBuilder.AddSingleton<IFileSystem>( new FileSystem() );
 
     /// <summary>
+    /// Adds a service providing access to environment using API in <see cref="System" /> namespace to the specified <see cref="ServiceProviderBuilder" />.
+    /// </summary>
+    /// <param name="serviceProviderBuilder">The <see cref="ServiceProviderBuilder" /> to add services to.</param>
+    /// <returns>The <see cref="ServiceProviderBuilder" /> so that additional calls can be chained.</returns>
+    private static ServiceProviderBuilder AddEnvironmentVariableProvider( this ServiceProviderBuilder serviceProviderBuilder )
+        => serviceProviderBuilder.AddSingleton<IEnvironmentVariableProvider>( new EnvironmentVariableProvider() );
+
+    /// <summary>
     /// Adds a service providing paths of standard directories to the specified <see cref="ServiceProviderBuilder" />.
     /// </summary>
     /// <param name="serviceProviderBuilder">The <see cref="ServiceProviderBuilder" /> to add services to.</param>
@@ -64,16 +74,34 @@ public static class RegisterServiceExtensions
     internal static ServiceProviderBuilder AddStandardDirectories( this ServiceProviderBuilder serviceProviderBuilder )
         => serviceProviderBuilder.AddSingleton<IStandardDirectories>( new StandardDirectories() );
 
-    private static ServiceProviderBuilder AddDiagnostics(
+    // Internal for test only.
+    internal static ServiceProviderBuilder AddDiagnostics(
         this ServiceProviderBuilder serviceProviderBuilder,
         ProcessKind processKind,
         string? projectName = null )
     {
         var serviceProvider = serviceProviderBuilder.ServiceProvider;
 
-        var configuration = serviceProviderBuilder.ServiceProvider.GetDiagnosticsConfiguration();
+        var dateTimeProvider = serviceProvider.GetRequiredBackstageService<IDateTimeProvider>();
+
+        var configurationManager = serviceProvider.GetRequiredBackstageService<IConfigurationManager>();
+        var configuration = configurationManager.Get<DiagnosticsConfiguration>();
 
         DebuggerHelper.Launch( configuration, processKind );
+
+        // Automatically stop logging after a while.
+        if ( configuration.LastModified != null &&
+             configuration.LastModified < dateTimeProvider.Now.AddHours( -configuration.Logging.StopLoggingAfterHours ) )
+        {
+            configurationManager.UpdateIf<DiagnosticsConfiguration>(
+                c => c.Logging.Processes.Any( p => p.Value ),
+                c =>
+                {
+                    return c with { Logging = c.Logging with { Processes = c.Logging.Processes.ToImmutableDictionary( x => x.Key, x => false ) } };
+                } );
+
+            configuration = configurationManager.Get<DiagnosticsConfiguration>();
+        }
 
         var applicationInfo = serviceProvider.GetRequiredBackstageService<IApplicationInfoProvider>().CurrentApplication;
         var loggerFactory = new LoggerFactory( serviceProvider, configuration, applicationInfo.ProcessKind, projectName );
@@ -93,6 +121,7 @@ public static class RegisterServiceExtensions
             .AddSingleton<IApplicationInfoProvider>( new ApplicationInfoProvider( applicationInfo ) )
             .AddCurrentDateTimeProvider()
             .AddFileSystem()
+            .AddEnvironmentVariableProvider()
             .AddStandardDirectories()
             .AddConfigurationManager()
             .AddPlatformInfo( dotNetSdkDirectory );
@@ -111,9 +140,6 @@ public static class RegisterServiceExtensions
     {
         return serviceProviderBuilder.AddSingleton<IPlatformInfo>( new PlatformInfo( dotnetSdkDirectory ) );
     }
-
-    private static DiagnosticsConfiguration GetDiagnosticsConfiguration( this IServiceProvider serviceProvider )
-        => serviceProvider.GetRequiredBackstageService<IConfigurationManager>().Get<DiagnosticsConfiguration>();
 
     /// <summary>
     /// Adds the minimal backstage services, without diagnostics and telemetry.
