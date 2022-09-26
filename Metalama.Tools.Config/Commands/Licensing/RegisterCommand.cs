@@ -20,7 +20,7 @@ internal class RegisterCommand : CommandBase
     {
         this.AddArgument(
             new Argument<string>(
-                "license-key-or-type",
+                "license-key | trial | free",
                 "The license key to be registered, or 'trial' or 'free'" ) );
 
         this.AddCommand( new RegisterTrialCommand( commandServiceProvider ) );
@@ -45,7 +45,7 @@ internal class RegisterCommand : CommandBase
 
         var storage = ParsedLicensingConfiguration.OpenOrCreate( this.CommandServices.ServiceProvider );
 
-        storage.StoreLicense( licenseKey, data );
+        storage.SetLicense( licenseKey, data );
 
         return 0;
     }

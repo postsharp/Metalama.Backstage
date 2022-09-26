@@ -13,4 +13,6 @@ public class LicensingMessage
         this.Text = text;
         this.IsError = isError;
     }
+
+    public override string ToString() => $"{(this.IsError ? "Error" : "Warning")}: {this.Text}";
 }

@@ -24,7 +24,7 @@ namespace Metalama.Backstage.Utilities
 
             if ( currentProcessPath == null )
             {
-                logger.Trace?.Log( $"We don't know if the current process is {dotnetFileName} because the current process'es main module path is unknown." );
+                logger.Trace?.Log( $"We don't know if the current process is {dotnetFileName} because the current processes main module path is unknown." );
             }
             else
             {

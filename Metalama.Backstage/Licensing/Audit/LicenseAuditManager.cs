@@ -17,24 +17,24 @@ internal class LicenseAuditManager : ILicenseAuditManager
     private readonly IDateTimeProvider _time;
     private readonly ILoggerFactory _loggerFactory;
     private readonly ILogger _logger;
-    
+
     public LicenseAuditManager( IServiceProvider serviceProvider )
     {
         this._serviceProvider = serviceProvider;
         this._configurationManager = serviceProvider.GetRequiredBackstageService<IConfigurationManager>();
         this._applicationInfo = serviceProvider.GetRequiredBackstageService<IApplicationInfoProvider>().CurrentApplication;
         this._time = serviceProvider.GetRequiredBackstageService<IDateTimeProvider>();
-        this._loggerFactory = serviceProvider.GetLoggerFactory(); 
+        this._loggerFactory = serviceProvider.GetLoggerFactory();
         this._logger = this._loggerFactory.Licensing();
     }
-    
+
     public void ReportLicense( LicenseConsumptionData license )
     {
         void LogDisabledAudit( string reason )
         {
             this._logger.Info?.Log( $"License audit disabled because the license '{license.DisplayName}' {reason}." );
         }
-        
+
         if ( !license.IsAuditable )
         {
             LogDisabledAudit( "is not auditable" );
@@ -52,10 +52,10 @@ internal class LicenseAuditManager : ILicenseAuditManager
         if ( this._applicationInfo.IsUnattendedProcess( this._loggerFactory ) )
         {
             this._logger.Info?.Log( "License audit disabled because the current process is unattended." );
-            
+
             return;
         }
-        
+
         var report = new LicenseAuditReport( this._serviceProvider, license.LicenseString! );
 
         if ( report.ReportedComponent.Version == null )
@@ -67,7 +67,7 @@ internal class LicenseAuditManager : ILicenseAuditManager
         {
             this._logger.Info?.Log(
                 $"License audit disabled because the '{report.ReportedComponent.Name}' application version '{report.ReportedComponent.Version}' is a development version." );
-        
+
             return;
         }
 
@@ -79,7 +79,7 @@ internal class LicenseAuditManager : ILicenseAuditManager
                  && lastReportTime >= this._time.Now.AddDays( -1 ) )
             {
                 LogDisabledAudit( "has been reported recently" );
-                
+
                 return true;
             }
             else
@@ -110,7 +110,7 @@ internal class LicenseAuditManager : ILicenseAuditManager
             report.Flush();
 
             this._configurationManager.Update<LicenseAuditConfiguration>(
-                c => c.LastAuditTimes = c.LastAuditTimes.SetItem( report.AuditHashCode, this._time.Now ) );
+                c => c with { LastAuditTimes = c.LastAuditTimes.SetItem( report.AuditHashCode, this._time.Now ) } );
         }
     }
 }

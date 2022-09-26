@@ -4,7 +4,6 @@ using Metalama.Backstage.Configuration;
 using Metalama.Backstage.Extensibility;
 using Metalama.Backstage.Licensing.Licenses;
 using System;
-using System.Linq;
 
 namespace Metalama.Backstage.Licensing.Registration
 {
@@ -13,8 +12,14 @@ namespace Metalama.Backstage.Licensing.Registration
     /// </summary>
     public class ParsedLicensingConfiguration
     {
-        private readonly IServiceProvider _services;
+        private readonly IConfigurationManager _configurationManager;
         private readonly LicensingConfiguration _configuration;
+
+        private ParsedLicensingConfiguration( LicensingConfiguration configuration, IServiceProvider services )
+        {
+            this._configurationManager = services.GetRequiredBackstageService<IConfigurationManager>();
+            this._configuration = configuration;
+        }
 
         /// <summary>
         /// Gets the license contained in the storage or to be stored to the storage.
@@ -29,7 +34,7 @@ namespace Metalama.Backstage.Licensing.Registration
         public DateTime? LastEvaluationStartDate
         {
             get => this._configuration.LastEvaluationStartDate;
-            set => this._configuration.ConfigurationManager.Update<LicensingConfiguration>( c => c.LastEvaluationStartDate = value );
+            set => this._configurationManager.Update<LicensingConfiguration>( c => c with { LastEvaluationStartDate = value } );
         }
 
         /// <summary>
@@ -52,41 +57,32 @@ namespace Metalama.Backstage.Licensing.Registration
         {
             var configurationManager = services.GetRequiredBackstageService<IConfigurationManager>();
             var licensingConfiguration = configurationManager.Get<LicensingConfiguration>();
-
-            var storage = new ParsedLicensingConfiguration( licensingConfiguration, services );
-            var factory = new LicenseFactory( services );
-
-            // We no longer support multiple licenses. Strip aditional licenses if the have been added before. (There is probably no such case.)
-            if ( licensingConfiguration.Licenses.Length > 1 )
-            {
-                configurationManager.Update<LicensingConfiguration>( c => c.Licenses = new[] { licensingConfiguration.Licenses.First() } );
-                licensingConfiguration = configurationManager.Get<LicensingConfiguration>();
-            }
-
-            var licenseString = licensingConfiguration.Licenses.FirstOrDefault();
+            var licenseString = licensingConfiguration.License;
 
             if ( string.IsNullOrWhiteSpace( licenseString ) )
             {
-                return storage;
+                return CreateEmpty( services );
             }
 
-            LicenseRegistrationData? data = null;
+            var licenseFactory = new LicenseFactory( services );
 
-            if ( factory.TryCreate( licenseString, out var license ) )
+            LicenseRegistrationData? licenseRegistrationData;
+
+            if ( licenseFactory.TryCreate( licenseString, out var license ) )
             {
-                _ = license.TryGetLicenseRegistrationData( out data );
+                _ = license.TryGetLicenseRegistrationData( out licenseRegistrationData );
+            }
+            else
+            {
+                licenseRegistrationData = null;
             }
 
-            storage.LicenseString = licenseString;
-            storage.LicenseData = data;
+            var parsedLicensingConfiguration = new ParsedLicensingConfiguration( licensingConfiguration, services )
+            {
+                LicenseString = licenseString, LicenseData = licenseRegistrationData
+            };
 
-            return storage;
-        }
-
-        private ParsedLicensingConfiguration( LicensingConfiguration configuration, IServiceProvider services )
-        {
-            this._services = services;
-            this._configuration = configuration;
+            return parsedLicensingConfiguration;
         }
 
         /// <summary>
@@ -94,7 +90,7 @@ namespace Metalama.Backstage.Licensing.Registration
         /// </summary>
         /// <param name="licenseString">String representing the license to be stored in the license file.</param>
         /// <param name="data">Data represented by the <paramref name="licenseString"/>.</param>
-        public void StoreLicense( string licenseString, LicenseRegistrationData data )
+        public void SetLicense( string licenseString, LicenseRegistrationData data )
         {
             this.LicenseString = licenseString;
             this.LicenseData = data;
@@ -126,8 +122,8 @@ namespace Metalama.Backstage.Licensing.Registration
         /// </remarks>
         private void Save()
         {
-            this._services.GetRequiredBackstageService<IConfigurationManager>()
-                .Update<LicensingConfiguration>( c => c.Licenses = this.LicenseString == null ? Array.Empty<string>() : new[] { this.LicenseString } );
+            this._configurationManager
+                .Update<LicensingConfiguration>( c => c with { License = this.LicenseString } );
         }
     }
 }

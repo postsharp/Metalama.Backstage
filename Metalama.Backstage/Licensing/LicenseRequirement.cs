@@ -12,7 +12,7 @@ namespace Metalama.Backstage.Licensing
 
         private readonly ImmutableArray<LicensedProduct> _eligibleProducts;
 
-        public bool IsFullfilledBy( LicenseConsumptionData license )
+        public bool IsFulfilledBy( LicenseConsumptionData license )
             => license.LicenseType switch
             {
                 LicenseType.Essentials => false, // This is for PostSharp Essentials only

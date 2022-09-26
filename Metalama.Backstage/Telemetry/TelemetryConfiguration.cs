@@ -8,46 +8,32 @@ using System.Linq;
 namespace Metalama.Backstage.Telemetry;
 
 [ConfigurationFile( "telemetry.json" )]
-public class TelemetryConfiguration : ConfigurationFile
+public record TelemetryConfiguration : ConfigurationFile
 {
     public static bool IsOptOutEnvironmentVariableSet() => !string.IsNullOrEmpty( Environment.GetEnvironmentVariable( "METALAMA_TELEMETRY_OPT_OUT" ) );
 
-    public ReportingAction ExceptionReportingAction { get; set; } = ReportingAction.Ask;
+    public ReportingAction ExceptionReportingAction { get; init; } = ReportingAction.Ask;
 
-    public ReportingAction PerformanceProblemReportingAction { get; set; } = ReportingAction.Ask;
+    public ReportingAction PerformanceProblemReportingAction { get; init; } = ReportingAction.Ask;
 
-    public Guid DeviceId { get; set; } = Guid.NewGuid();
+    public Guid DeviceId { get; init; } = Guid.NewGuid();
 
-    public DateTime? LastUploadTime { get; set; }
+    public DateTime? LastUploadTime { get; init; }
 
-    public ImmutableDictionary<string, ReportingStatus> Issues { get; set; } =
+    public ImmutableDictionary<string, ReportingStatus> Issues { get; init; } =
         ImmutableDictionary<string, ReportingStatus>.Empty.WithComparers( StringComparer.OrdinalIgnoreCase );
 
-    public ImmutableDictionary<string, DateTime> Sessions { get; set; } =
+    public ImmutableDictionary<string, DateTime> Sessions { get; init; } =
         ImmutableDictionary<string, DateTime>.Empty.WithComparers( StringComparer.OrdinalIgnoreCase );
 
-    public ReportingAction ReportUsage { get; set; } = ReportingAction.Ask;
+    public ReportingAction ReportUsage { get; init; } = ReportingAction.Ask;
 
-    public void CleanUp( DateTime threshold )
+    public TelemetryConfiguration CleanUp( DateTime threshold )
     {
-        var sessionsToRemove = this.Sessions.Where( s => s.Value < threshold ).Select( s => s.Key );
-
-        foreach ( var sessionToRemove in sessionsToRemove )
+        return this with
         {
-            this.Sessions = this.Sessions.Remove( sessionToRemove );
-        }
-    }
-
-    public override void CopyFrom( ConfigurationFile configurationFile )
-    {
-        var source = (TelemetryConfiguration) configurationFile;
-        this.ExceptionReportingAction = source.ExceptionReportingAction;
-        this.PerformanceProblemReportingAction = source.PerformanceProblemReportingAction;
-        this.ReportUsage = source.ReportUsage;
-        this.DeviceId = source.DeviceId;
-        this.LastUploadTime = source.LastUploadTime;
-        this.Issues = source.Issues;
-        this.Sessions = source.Sessions;
+            Sessions = this.Sessions.Where( s => s.Value.Date >= threshold ).ToImmutableDictionary( k => k.Key, k => k.Value, this.Sessions.KeyComparer )
+        };
     }
 }
 

@@ -2,25 +2,29 @@
 
 using Newtonsoft.Json;
 using System;
-using System.Collections.Generic;
+using System.Collections.Immutable;
 
 namespace Metalama.Backstage.Diagnostics;
 
-public class LoggingConfiguration
+public record LoggingConfiguration
 {
     /// <summary>
-    /// Gets or sets a value indicating whether logging is enabled at all.
+    /// Gets a value indicating whether logging is enabled at all.
     /// </summary>
     [JsonProperty( "processes" )]
-    public Dictionary<ProcessKind, bool> Processes { get; set; } = new();
+    public ImmutableDictionary<ProcessKind, bool> Processes { get; init; } = ImmutableDictionary<ProcessKind, bool>.Empty;
 
     /// <summary>
-    /// Gets or sets the list of categories that are enabled for trace-level logging.
+    /// Gets the list of categories that are enabled for trace-level logging.
     /// </summary>
     [JsonProperty( "categories" )]
 
-    public Dictionary<string, bool> Categories { get; set; } = new( StringComparer.OrdinalIgnoreCase );
+    public ImmutableDictionary<string, bool> Categories { get; init; } =
+        ImmutableDictionary<string, bool>.Empty.WithComparers( StringComparer.OrdinalIgnoreCase );
 
-    public LoggingConfiguration Clone()
-        => new() { Processes = new Dictionary<ProcessKind, bool>( this.Processes ), Categories = new Dictionary<string, bool>( this.Categories ) };
+    /// <summary>
+    /// Gets the logging duration in hours before it is automatically disabled.
+    /// </summary>
+    [JsonProperty( "stopLoggingAfterHours" )]
+    public double StopLoggingAfterHours { get; init; } = 2;
 }

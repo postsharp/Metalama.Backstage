@@ -3,70 +3,57 @@
 using Metalama.Backstage.Configuration;
 using Newtonsoft.Json;
 using System;
-using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 
 namespace Metalama.Backstage.Diagnostics;
 
-[ConfigurationFile( "diagnostics.json" )]
-public class DiagnosticsConfiguration : ConfigurationFile
+[ConfigurationFile( "diagnostics.json", EnvironmentVariableName = EnvironmentVariableName )]
+public record DiagnosticsConfiguration : ConfigurationFile
 {
+    public const string EnvironmentVariableName = "METALAMA_DIAGNOSTICS";
+
     [JsonProperty( "logging" )]
-    public LoggingConfiguration Logging { get; private set; } = new();
+    public LoggingConfiguration Logging { get; init; } = new();
 
     [JsonProperty( "debugger" )]
-    public DebuggerConfiguration Debugger { get; private set; } = new();
+    public DebuggerConfiguration Debugger { get; } = new();
 
     [JsonProperty( "miniDump" )]
-    public MiniDumpConfiguration MiniDump { get; private set; } = new();
+    public MiniDumpConfiguration MiniDump { get; } = new();
 
     public DiagnosticsConfiguration()
     {
-        this.Reset();
-    }
+        var processes = Enum.GetValues( typeof(ProcessKind) ).Cast<ProcessKind>().ToImmutableDictionary( x => x, x => false );
 
-    public void Reset()
-    {
-        this.Logging.Processes = new Dictionary<ProcessKind, bool>
+        this.Logging = new LoggingConfiguration
         {
-            [ProcessKind.Compiler] = false, [ProcessKind.Rider] = false, [ProcessKind.DevEnv] = false, [ProcessKind.RoslynCodeAnalysisService] = false
+            Processes = processes,
+            Categories = ImmutableDictionary<string, bool>.Empty.WithComparers( StringComparer.OrdinalIgnoreCase ).Add( "*", false ),
         };
 
-        this.Logging.Categories = new Dictionary<string, bool>( StringComparer.OrdinalIgnoreCase ) { ["*"] = true };
-
-        this.Debugger.Processes = new Dictionary<ProcessKind, bool>
+        this.Debugger = new DebuggerConfiguration()
         {
-            [ProcessKind.Compiler] = false, [ProcessKind.Rider] = false, [ProcessKind.DevEnv] = false, [ProcessKind.RoslynCodeAnalysisService] = false
+            Processes = processes,
         };
 
-        this.MiniDump.Processes = new Dictionary<ProcessKind, bool>
+        this.MiniDump = new MiniDumpConfiguration()
         {
-            [ProcessKind.Compiler] = false, [ProcessKind.Rider] = false, [ProcessKind.DevEnv] = false, [ProcessKind.RoslynCodeAnalysisService] = false
+            Processes = processes,
+            Flags = new[]
+                {
+                    MiniDumpKind.WithDataSegments,
+                    MiniDumpKind.WithProcessThreadData,
+                    MiniDumpKind.WithHandleData,
+                    MiniDumpKind.WithPrivateReadWriteMemory,
+                    MiniDumpKind.WithUnloadedModules,
+                    MiniDumpKind.WithFullMemoryInfo,
+                    MiniDumpKind.WithThreadInfo,
+                    MiniDumpKind.FilterMemory,
+                    MiniDumpKind.WithoutAuxiliaryState
+                }.Select( x => x.ToString() )
+                .ToImmutableArray(),
+            ExceptionTypes = ImmutableArray.Create( "*" )
         };
-
-        this.MiniDump.Flags.Clear();
-
-        this.MiniDump.Flags.AddRange(
-            new[]
-            {
-                MiniDumpKind.WithDataSegments,
-                MiniDumpKind.WithProcessThreadData,
-                MiniDumpKind.WithHandleData,
-                MiniDumpKind.WithPrivateReadWriteMemory,
-                MiniDumpKind.WithUnloadedModules,
-                MiniDumpKind.WithFullMemoryInfo,
-                MiniDumpKind.WithThreadInfo,
-                MiniDumpKind.FilterMemory,
-                MiniDumpKind.WithoutAuxiliaryState
-            }.Select( x => x.ToString() ) );
-
-        this.MiniDump.ExceptionTypes = new List<string> { "*" };
-    }
-
-    public override void CopyFrom( ConfigurationFile configurationFile )
-    {
-        var source = (DiagnosticsConfiguration) configurationFile;
-        this.Logging = source.Logging.Clone();
-        this.Debugger = source.Debugger.Clone();
     }
 }

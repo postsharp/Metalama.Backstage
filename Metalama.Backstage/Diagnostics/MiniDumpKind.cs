@@ -32,5 +32,6 @@ public enum MiniDumpKind : uint
 
     // WithPrivateWriteCopyMemory = 0x00010000,
     // IgnoreInaccessibleMemory = 0x00020000,
+    // ReSharper disable once CommentTypo
     // ValidTypeFlags = 0x0003ffff
 }

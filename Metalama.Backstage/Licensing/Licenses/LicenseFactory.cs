@@ -52,6 +52,7 @@ namespace Metalama.Backstage.Licensing.Licenses
             }
             else
             {
+                // ReSharper disable once RedundantSuppressNullableWarningExpression
                 license = new License( licenseString!, this._services );
 
                 return true;

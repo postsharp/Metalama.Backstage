@@ -46,7 +46,7 @@ namespace Metalama.Backstage.Utilities
         /// <param name="builder">The <see cref="StringBuilder"/> into which the string has to be written.</param>
         public static void FormatBytes( byte[] bytes, StringBuilder builder )
         {
-            if ( bytes != null && bytes.Length > 0 )
+            if ( bytes is { Length: > 0 } )
             {
                 var finalSize = builder.Length + (bytes.Length * 2);
 
@@ -74,7 +74,7 @@ namespace Metalama.Backstage.Utilities
         /// <returns>The hexadecimal string corresponding to <paramref name="bytes"/>.</returns>
         public static string FormatBytes( byte[] bytes, string nullString = "null" )
         {
-            if ( bytes == null || bytes.Length == 0 )
+            if ( bytes.Length == 0 )
             {
                 return nullString;
             }

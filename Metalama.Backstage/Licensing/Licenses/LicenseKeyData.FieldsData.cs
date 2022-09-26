@@ -12,24 +12,24 @@ namespace Metalama.Backstage.Licensing.Licenses
         /// <summary>
         /// Gets the license version.
         /// </summary>
-        public byte Version { get; private set; }
+        public byte Version { get; private init; }
 
         public Guid? LicenseGuid { get; set; }
 
         /// <summary>
-        /// Gets or sets the type of license.
+        /// Gets the type of license.
         /// </summary>
-        public LicenseType LicenseType { get; set; }
+        public LicenseType LicenseType { get; init; }
 
         /// <summary>
-        /// Gets or sets the licensed product.
+        /// Gets the licensed product.
         /// </summary>
-        public LicensedProduct Product { get; set; }
+        public LicensedProduct Product { get; init; }
 
         /// <summary>
-        /// Gets or sets the identifier of the current license.
+        /// Gets the identifier of the current license.
         /// </summary>
-        public int LicenseId { get; set; }
+        public int LicenseId { get; init; }
 
         /// <summary>
         /// Gets or sets the licensed namespace.

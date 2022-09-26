@@ -29,12 +29,7 @@ internal class EnableTelemetryCommand : CommandBase
         var reportAction = this._enable ? ReportingAction.Yes : ReportingAction.No;
 
         configurationManager.Update<TelemetryConfiguration>(
-            c =>
-            {
-                c.ReportUsage = reportAction;
-                c.ExceptionReportingAction = reportAction;
-                c.PerformanceProblemReportingAction = reportAction;
-            } );
+            c => c with { ReportUsage = reportAction, ExceptionReportingAction = reportAction, PerformanceProblemReportingAction = reportAction } );
 
         var state = this._enable ? "enabled" : "disabled";
         console.Out.WriteLine( $"Telemetry has been {state}." );

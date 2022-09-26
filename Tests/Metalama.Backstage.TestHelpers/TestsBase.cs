@@ -20,6 +20,8 @@ namespace Metalama.Backstage.Testing
 
         public TestFileSystem FileSystem { get; } = new();
 
+        public TestEnvironmentVariableProvider EnvironmentVariableProvider { get; } = new();
+
         public ITestLoggerSink Log { get; }
 
         public TestTelemetryUploader TelemetryUploader { get; } = new();
@@ -42,7 +44,8 @@ namespace Metalama.Backstage.Testing
 
             var serviceCollection = new ServiceCollection()
                 .AddSingleton<IDateTimeProvider>( this.Time )
-                .AddSingleton<IFileSystem>( this.FileSystem );
+                .AddSingleton<IFileSystem>( this.FileSystem )
+                .AddSingleton<IEnvironmentVariableProvider>( this.EnvironmentVariableProvider );
 
             var serviceProviderBuilder =
                 new ServiceProviderBuilder(

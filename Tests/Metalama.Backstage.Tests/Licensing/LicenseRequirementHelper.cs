@@ -13,7 +13,7 @@ namespace Metalama.Backstage.Licensing.Tests.Licensing
                 LicenseRequirementTestEnum.Starter => LicenseRequirement.Starter,
                 LicenseRequirementTestEnum.Professional => LicenseRequirement.Professional,
                 LicenseRequirementTestEnum.Ultimate => LicenseRequirement.Ultimate,
-                _ => throw new ArgumentException( nameof( requirement ) )
+                _ => throw new ArgumentException( nameof(requirement) )
             };
     }
 }

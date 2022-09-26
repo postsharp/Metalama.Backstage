@@ -19,12 +19,12 @@ namespace Metalama.Backstage.Licensing.Tests.Licensing.Registration
                 logger,
                 serviceCollection => serviceBuilder?.Invoke( serviceCollection ) ) { }
 
-        protected string[] ReadStoredLicenseStrings()
-            => this.ServiceProvider.GetRequiredBackstageService<IConfigurationManager>().Get<LicensingConfiguration>().Licenses;
+        protected string? ReadStoredLicenseString()
+            => this.ServiceProvider.GetRequiredBackstageService<IConfigurationManager>().Get<LicensingConfiguration>().License;
 
-        protected void SetStoredLicenseStrings( params string[] licenseStrings )
+        protected void SetStoredLicenseString( string licenseString )
         {
-            var configuration = new LicensingConfiguration { Licenses = licenseStrings };
+            var configuration = new LicensingConfiguration { License = licenseString };
 
             this.FileSystem.Mock.AddFile(
                 this.LicensingConfigurationFile,

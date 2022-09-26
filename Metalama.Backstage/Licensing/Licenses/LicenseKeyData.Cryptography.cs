@@ -19,11 +19,6 @@ namespace Metalama.Backstage.Licensing.Licenses
 
             var publicKey = LicenseCryptography.GetPublicKey( this.SignatureKeyId.Value );
 
-            if ( publicKey == null )
-            {
-                return false;
-            }
-
             try
             {
                 return this.VerifySignature( publicKey );
@@ -34,7 +29,7 @@ namespace Metalama.Backstage.Licensing.Licenses
             }
         }
 
-        private static bool ComparePublicKeyToken( byte[] key1, byte[] key2 )
+        private static bool ComparePublicKeyToken( byte[]? key1, byte[]? key2 )
         {
             if ( key1 == null )
             {

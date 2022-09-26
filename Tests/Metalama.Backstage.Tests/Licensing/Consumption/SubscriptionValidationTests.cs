@@ -13,15 +13,23 @@ namespace Metalama.Backstage.Licensing.Tests.Licensing.Consumption
     public class SubscriptionValidationTests : TestsBase
     {
         public SubscriptionValidationTests( ITestOutputHelper logger )
-            : base( logger )
-        {
-        }
+            : base( logger ) { }
 
         private static IApplicationInfo CreateApplicationInfo( DateTime buildDate, params IComponentInfo[] components )
-            => new TestApplicationInfo( $"Subscription Validation Test App built {buildDate:d}", false, $"<ver-{buildDate:d}>", buildDate, components: components );
+            => new TestApplicationInfo(
+                $"Subscription Validation Test App built {buildDate:d}",
+                false,
+                $"<ver-{buildDate:d}>",
+                buildDate,
+                components: components );
 
         private static IComponentInfo CreateComponentInfo( DateTime buildDate, bool isThirdParty )
-            => new TestComponentInfo( $"Subscription Validation Test Component built {buildDate:d} {(isThirdParty ? "not by us" : "by us")}", $"<ver-{buildDate:d}>", false, buildDate, isThirdParty ? "The Corp" : "PostSharp Technologies" );
+            => new TestComponentInfo(
+                $"Subscription Validation Test Component built {buildDate:d} {(isThirdParty ? "not by us" : "by us")}",
+                $"<ver-{buildDate:d}>",
+                false,
+                buildDate,
+                isThirdParty ? "The Corp" : "PostSharp Technologies" );
 
         private void Test( IApplicationInfo applicationInfo, IComponentInfo? infringingComponent = null )
         {
@@ -33,7 +41,7 @@ namespace Metalama.Backstage.Licensing.Tests.Licensing.Consumption
 
             var isValid = data!.Validate( null, this.Time, applicationInfo, out var actualErrorDescription );
 
-            if (infringingComponent == null)
+            if ( infringingComponent == null )
             {
                 Assert.True( isValid );
                 Assert.Null( actualErrorDescription );

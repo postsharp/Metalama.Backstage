@@ -59,7 +59,9 @@ namespace Metalama.Backstage.Licensing.Tests.Licensing.Evaluation
         [Fact]
         public void EvaluationLicenseRegistrationAtTheEndOfNoEvaluationPeriodFails()
         {
-            this.TestRepetitiveRegistration( EvaluationLicenseRegistrar.EvaluationPeriod + EvaluationLicenseRegistrar.NoEvaluationPeriod, false );
+            this.TestRepetitiveRegistration(
+                EvaluationLicenseRegistrar.EvaluationPeriod + EvaluationLicenseRegistrar.NoEvaluationPeriod.Subtract( TimeSpan.FromMinutes( 1 ) ),
+                false );
         }
 
         [Fact]

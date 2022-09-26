@@ -50,7 +50,7 @@ internal class LicenseConsumptionManager : ILicenseConsumptionManager
     public LicenseConsumptionManager( IServiceProvider services, IEnumerable<ILicenseSource> licenseSources )
     {
         this._logger = services.GetLoggerFactory().Licensing();
-        this._licenseFactory = new( services );
+        this._licenseFactory = new LicenseFactory( services );
 
         foreach ( var source in licenseSources )
         {
@@ -72,7 +72,7 @@ internal class LicenseConsumptionManager : ILicenseConsumptionManager
             }
 
             this._license = data;
-            this._licensedNamespace = string.IsNullOrEmpty( data.LicensedNamespace ) ? null : new( data.LicensedNamespace! );
+            this._licensedNamespace = string.IsNullOrEmpty( data.LicensedNamespace ) ? null : new NamespaceLicenseInfo( data.LicensedNamespace! );
             this.RedistributionLicenseKey = data.IsRedistributable ? data.LicenseString : null;
 
             var licenseAuditManager = services.GetBackstageService<ILicenseAuditManager>();
@@ -104,7 +104,7 @@ internal class LicenseConsumptionManager : ILicenseConsumptionManager
             return false;
         }
 
-        if ( !requirement.IsFullfilledBy( this._license ) )
+        if ( !requirement.IsFulfilledBy( this._license ) )
         {
             this._logger.Error?.Log( $"License requirement '{requirement}' is not licensed." );
 
@@ -139,7 +139,7 @@ internal class LicenseConsumptionManager : ILicenseConsumptionManager
                 return false;
             }
 
-            licensedNamespace = new( licenseConsumptionData.LicensedNamespace! );
+            licensedNamespace = new NamespaceLicenseInfo( licenseConsumptionData.LicensedNamespace! );
             this._embeddedRedistributionLicensesCache.Add( redistributionLicenseKey, licensedNamespace );
         }
 

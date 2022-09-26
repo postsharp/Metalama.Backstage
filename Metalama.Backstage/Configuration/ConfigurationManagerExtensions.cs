@@ -16,10 +16,10 @@ namespace Metalama.Backstage.Configuration
             where T : ConfigurationFile
             => configurationManager.GetFileName( typeof(T) );
 
-        public static bool UpdateIf<T>( this IConfigurationManager configurationManager, Predicate<T> condition, Action<T> action )
+        public static bool UpdateIf<T>( this IConfigurationManager configurationManager, Predicate<T> condition, Func<T, T> updateFunc )
             where T : ConfigurationFile
         {
-            T editableCopy;
+            T newSettings;
             T originalSettings;
 
             var attempts = 0;
@@ -32,13 +32,13 @@ namespace Metalama.Backstage.Configuration
 
                 if ( attempts > _maxUpdateAttempts )
                 {
-                    throw new InvalidOperationException( $"Too many attempts to update the configuration {typeof(T).Name}. There must be an unaddressed race condition." );
+                    throw new InvalidOperationException(
+                        $"Too many attempts to update the configuration {typeof(T).Name}. There must be an unaddressed race condition." );
                 }
 
                 originalSettings = configurationManager.Get<T>( true );
-                editableCopy = (T) originalSettings.Clone();
 
-                if ( !condition( editableCopy ) )
+                if ( !condition( originalSettings ) )
                 {
                     configurationManager.Logger.Trace?.Log(
                         $"Update of {typeof(T).Name} skipped because the configuration setting was already in the desired state." );
@@ -46,17 +46,24 @@ namespace Metalama.Backstage.Configuration
                     return false;
                 }
 
-                action( editableCopy );
+                newSettings = updateFunc( originalSettings );
+
+                if ( newSettings.Equals( originalSettings ) )
+                {
+                    configurationManager.Logger.Trace?.Log( $"Update of {typeof(T).Name} skipped because no change was required." );
+
+                    return false;
+                }
             }
-            while ( !configurationManager.TryUpdate( editableCopy, originalSettings.LastModified ) );
+            while ( !configurationManager.TryUpdate( newSettings, originalSettings.LastModified ) );
 
             return true;
         }
 
-        public static bool Update<T>( this IConfigurationManager configurationManager, Action<T> action )
+        public static bool Update<T>( this IConfigurationManager configurationManager, Func<T, T> updateFunc )
             where T : ConfigurationFile, new()
         {
-            T editableCopy;
+            T newSettings;
             T originalSettings;
 
             var attempts = 0;
@@ -69,14 +76,22 @@ namespace Metalama.Backstage.Configuration
 
                 if ( attempts > _maxUpdateAttempts )
                 {
-                    throw new InvalidOperationException( $"Too many attempts to update the configuration {typeof(T).Name}. There must be an unaddressed race condition." );
+                    throw new InvalidOperationException(
+                        $"Too many attempts to update the configuration {typeof(T).Name}. There must be an unaddressed race condition." );
                 }
 
                 originalSettings = configurationManager.Get<T>( true );
-                editableCopy = (T) originalSettings.Clone();
-                action( editableCopy );
+
+                newSettings = updateFunc( originalSettings );
+
+                if ( newSettings.Equals( originalSettings ) )
+                {
+                    configurationManager.Logger.Trace?.Log( $"Update of {typeof(T).Name} skipped because no change was required." );
+
+                    return false;
+                }
             }
-            while ( !configurationManager.TryUpdate( editableCopy, originalSettings.LastModified ) );
+            while ( !configurationManager.TryUpdate( newSettings, originalSettings.LastModified ) );
 
             return true;
         }

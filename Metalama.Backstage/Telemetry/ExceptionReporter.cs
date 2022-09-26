@@ -20,8 +20,6 @@ namespace Metalama.Backstage.Telemetry;
 
 internal class ExceptionReporter : IExceptionReporter
 {
-    private const string _errorContextDataSlot = "__PSErrorContext";
-
     private readonly TelemetryQueue _uploadManager;
     private readonly TelemetryConfiguration _configuration;
     private readonly IDateTimeProvider _time;
@@ -30,26 +28,26 @@ internal class ExceptionReporter : IExceptionReporter
     private readonly ILogger _logger;
 
     private readonly Regex _stackFrameRegex = new( @"\S+\([^\)]*\)" );
+    private readonly IConfigurationManager _configurationManager;
 
     public ExceptionReporter( TelemetryQueue uploadManager, IServiceProvider serviceProvider )
     {
         this._uploadManager = uploadManager;
-        this._configuration = serviceProvider.GetRequiredBackstageService<IConfigurationManager>().Get<TelemetryConfiguration>();
+        this._configurationManager = serviceProvider.GetRequiredBackstageService<IConfigurationManager>();
+        this._configuration = this._configurationManager.Get<TelemetryConfiguration>();
         this._time = serviceProvider.GetRequiredBackstageService<IDateTimeProvider>();
         this._applicationInfoProvider = serviceProvider.GetRequiredBackstageService<IApplicationInfoProvider>();
         this._directories = serviceProvider.GetRequiredBackstageService<IStandardDirectories>();
         this._logger = serviceProvider.GetLoggerFactory().Telemetry();
     }
 
-    public IEnumerable<string?> CleanStackTrace( string stackTrace )
+    private IEnumerable<string?> CleanStackTrace( string stackTrace )
     {
         foreach ( Match? match in this._stackFrameRegex.Matches( stackTrace ) )
         {
             yield return match?.Value;
         }
     }
-
-    public static void SetContext( Exception exception, object contextInfo ) => exception.Data[_errorContextDataSlot] = contextInfo;
 
     public bool ShouldReportException( Exception exception )
     {
@@ -141,17 +139,14 @@ internal class ExceptionReporter : IExceptionReporter
 
     internal bool ShouldReportIssue( string hash )
     {
-        if ( this._configuration.Issues.TryGetValue( hash, out var currentStatus ) )
+        if ( this._configuration.Issues.TryGetValue( hash, out var currentStatus ) && currentStatus is ReportingStatus.Ignored or ReportingStatus.Reported )
         {
-            if ( currentStatus is ReportingStatus.Ignored or ReportingStatus.Reported )
-            {
-                this._logger.Info?.Log( $"The issue {hash} should not be reported because its status is {currentStatus}." );
+            this._logger.Info?.Log( $"The issue {hash} should not be reported because its status is {currentStatus}." );
 
-                return false;
-            }
+            return false;
         }
 
-        return this._configuration.ConfigurationManager.UpdateIf<TelemetryConfiguration>(
+        return this._configurationManager.UpdateIf<TelemetryConfiguration>(
             c =>
             {
                 if ( c.Issues.TryGetValue( hash, out var raceStatus ) && raceStatus is ReportingStatus.Ignored or ReportingStatus.Reported )
@@ -165,7 +160,9 @@ internal class ExceptionReporter : IExceptionReporter
             },
             c =>
             {
-                c.Issues = c.Issues.SetItem( hash, ReportingStatus.Reported );
+                this._logger.Info?.Log( $"The issue {hash} should be reported." );
+
+                return c with { Issues = c.Issues.SetItem( hash, ReportingStatus.Reported ) };
             } );
     }
 
@@ -173,6 +170,13 @@ internal class ExceptionReporter : IExceptionReporter
     {
         try
         {
+            if ( this.ShouldReportException( reportedException ) )
+            {
+                this._logger.Trace?.Log( $"The exception {reportedException.GetType().Name} should not be reported. " );
+
+                return;
+            }
+
             this._logger.Trace?.Log( $"Reporting an exception of type {reportedException.GetType().Name}." );
 
             var reportingAction = exceptionReportingKind == ExceptionReportingKind.Exception
@@ -272,11 +276,7 @@ internal class ExceptionReporter : IExceptionReporter
         }
         catch ( Exception e )
         {
-            try
-            {
-                this._logger.Error?.Log( "Cannot report the exception: " + e );
-            }
-            catch { }
+            this._logger.Error?.Log( "Cannot report the exception: " + e );
         }
     }
 }

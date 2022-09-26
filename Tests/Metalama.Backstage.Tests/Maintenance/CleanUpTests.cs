@@ -10,6 +10,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.IO;
+using System.Linq;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -195,7 +196,7 @@ public class CleanUpTests : TestsBase
     {
         // Create cleanup.json and update its LastCleanUp property to a week days ago.
         var configurationManager = this.ServiceProvider.GetRequiredBackstageService<IConfigurationManager>();
-        configurationManager.Update<TestCleanUpConfiguration>( c => c.SetLastCleanUpTime( DateTime.Now.AddDays( -7 ) ) );
+        configurationManager.Update<CleanUpConfiguration>( c => c with { LastCleanUpTime = DateTime.Now.AddDays( -7 ) } );
 
         // Clean-up command should begin cleaning as the last clean-up was more than a day ago.
         var tempFileManager = new TempFileManager( this.ServiceProvider );
@@ -233,7 +234,7 @@ public class CleanUpTests : TestsBase
     {
         // Create cleanup.json with LastCleanUp property that will not start clean.
         var configurationManager = this.ServiceProvider.GetRequiredBackstageService<IConfigurationManager>();
-        configurationManager.Update<CleanUpConfiguration>( c => c.ResetLastCleanUpTime() );
+        configurationManager.Update<CleanUpConfiguration>( c => c with { LastCleanUpTime = DateTime.Now } );
 
         // Clean-up command should skip cleaning as it was attempted too early.
         var tempFileManager = new TempFileManager( this.ServiceProvider );
@@ -244,7 +245,8 @@ public class CleanUpTests : TestsBase
             var cacheDirectoryPath = Path.Combine( this._standardDirectories.TempDirectory, cacheDirectory.Key );
 
             // Directories should not be cleaned as there last clean-up was less than a day ago.
-            Assert.NotEmpty( this.FileSystem.EnumerateDirectories( cacheDirectoryPath ) );
+            var directories = this.FileSystem.EnumerateDirectories( cacheDirectoryPath ).ToList();
+            Assert.NotEmpty( directories );
         }
     }
 

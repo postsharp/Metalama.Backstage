@@ -16,13 +16,12 @@ namespace Metalama.Backstage.Licensing.Tests.Licensing.Registration
             return ParsedLicensingConfiguration.OpenOrCreate( this.ServiceProvider );
         }
 
-        private void AssertFileContains( params string[] expectedLicenseStrings )
+        private void AssertFileContains( string? expectedLicenseString )
         {
-            Assert.Equal( expectedLicenseStrings, this.ReadStoredLicenseStrings() );
+            Assert.Equal( expectedLicenseString, this.ReadStoredLicenseString() );
         }
 
-        private void AssertStorageContains(
-            ParsedLicensingConfiguration storage, string? expectedLicenseString )
+        private void AssertStorageContains( ParsedLicensingConfiguration storage, string? expectedLicenseString )
         {
             Assert.Equal( expectedLicenseString, storage.LicenseString );
 
@@ -53,13 +52,13 @@ namespace Metalama.Backstage.Licensing.Tests.Licensing.Registration
         private void Add( ParsedLicensingConfiguration storage, string licenseString )
         {
             var data = this.GetLicenseRegistrationData( licenseString );
-            storage.StoreLicense( licenseString, data );
+            storage.SetLicense( licenseString, data );
         }
 
         [Fact]
         public void ExistingStorageSucceedsToRead()
         {
-            this.SetStoredLicenseStrings( "dummy" );
+            this.SetStoredLicenseString( "dummy" );
             this.AssertFileContains( "dummy" );
         }
 
@@ -74,7 +73,7 @@ namespace Metalama.Backstage.Licensing.Tests.Licensing.Registration
         public void EmptyStorageCanBeCreated()
         {
             this.OpenOrCreateStorage();
-            this.AssertFileContains();
+            this.AssertFileContains( null );
         }
 
         [Fact]
@@ -89,7 +88,7 @@ namespace Metalama.Backstage.Licensing.Tests.Licensing.Registration
         [Fact]
         public void ValidLicenseKeyCanBeRetrieved()
         {
-            this.SetStoredLicenseStrings( TestLicenses.PostSharpUltimate );
+            this.SetStoredLicenseString( TestLicenses.PostSharpUltimate );
 
             var storage = this.OpenOrCreateStorage();
 
@@ -99,7 +98,7 @@ namespace Metalama.Backstage.Licensing.Tests.Licensing.Registration
         [Fact]
         public void InvalidLicenseKeyCanBeRetrieved()
         {
-            this.SetStoredLicenseStrings( "dummy" );
+            this.SetStoredLicenseString( "dummy" );
 
             var storage = this.OpenOrCreateStorage();
 
@@ -110,7 +109,7 @@ namespace Metalama.Backstage.Licensing.Tests.Licensing.Registration
         [Fact]
         public void PreviousInvalidLicenseKeyIsReplaced()
         {
-            this.SetStoredLicenseStrings( "dummy" );
+            this.SetStoredLicenseString( "dummy" );
 
             var storage = this.OpenOrCreateStorage();
             this.Add( storage, TestLicenses.PostSharpUltimate );
@@ -122,23 +121,13 @@ namespace Metalama.Backstage.Licensing.Tests.Licensing.Registration
         [Fact]
         public void PreviousValidLicenseKeysAreReplaced()
         {
-            this.SetStoredLicenseStrings( TestLicenses.PostSharpUltimate, TestLicenses.PostSharpFramework );
+            this.SetStoredLicenseString( TestLicenses.PostSharpUltimate );
 
             var storage = this.OpenOrCreateStorage();
             this.Add( storage, TestLicenses.MetalamaStarterPersonal );
 
             this.AssertStorageContains( storage, TestLicenses.MetalamaStarterPersonal );
             this.AssertFileContains( TestLicenses.MetalamaStarterPersonal );
-        }
-
-        [Fact]
-        public void NewLinesAreSkipped()
-        {
-            this.SetStoredLicenseStrings( TestLicenses.MetalamaProfessionalBusiness, "", TestLicenses.PostSharpUltimate, "", TestLicenses.MetalamaUltimateBusiness, "" );
-
-            var storage = this.OpenOrCreateStorage();
-
-            this.AssertStorageContains( storage, TestLicenses.MetalamaProfessionalBusiness );
         }
     }
 }

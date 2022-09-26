@@ -5,7 +5,7 @@ using System;
 namespace Metalama.Backstage.Licensing
 {
     // The names are used in telemetry and changing them can make the telemetry data ambiguous.
-    
+
     /// <summary>
     /// Enumeration of licensed products.
     /// </summary>

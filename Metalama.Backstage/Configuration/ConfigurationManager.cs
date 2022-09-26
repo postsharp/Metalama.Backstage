@@ -25,6 +25,8 @@ namespace Metalama.Backstage.Configuration
 
         private readonly FileSystemWatcher? _fileSystemWatcher;
         private readonly IFileSystem _fileSystem;
+        private readonly IDateTimeProvider _dateTimeProvider;
+        private readonly IEnvironmentVariableProvider _environmentVariableProvider;
 
         // Named semaphore to handle many instances.
         private readonly Mutex _mutex = new( false, "Global\\Metalama.Configuration" );
@@ -33,6 +35,11 @@ namespace Metalama.Backstage.Configuration
         {
             var applicationInfo = serviceProvider.GetBackstageService<IApplicationInfoProvider>()?.CurrentApplication;
             this._fileSystem = serviceProvider.GetRequiredBackstageService<IFileSystem>();
+            this._dateTimeProvider = serviceProvider.GetRequiredBackstageService<IDateTimeProvider>();
+            this._environmentVariableProvider = serviceProvider.GetRequiredBackstageService<IEnvironmentVariableProvider>();
+            
+            // In a production use, the logger factory is created after the configuration manager, so we will not have any log for
+            // this class. However, tests may have their own logging.
             this.Logger = serviceProvider.GetLoggerFactory().GetLogger( "Configuration" );
 
             this.ApplicationDataDirectory = serviceProvider.GetRequiredBackstageService<IStandardDirectories>().ApplicationDataDirectory;
@@ -56,20 +63,23 @@ namespace Metalama.Backstage.Configuration
             this.Logger.Trace?.Log( $"File has changed: '{e.FullPath}'." );
             var fileName = e.FullPath;
 
-            var existingFiles = this._instances.Values.Where(
+            var changedSettings = this._instances.Values.Where(
                 s =>
                     string.Equals( this.GetFileName( s.GetType() ), fileName, StringComparison.OrdinalIgnoreCase ) );
 
-            foreach ( var existingFile in existingFiles )
+            using ( this.WithMutex() )
             {
-                // To frequent avoid file locks, wait. There is another wait cycle in TryLoadSettings but not
-                // waiting here is annoying for debugging.
-                Thread.Sleep( 100 );
-
-                if ( this.TryLoadConfigurationFile( existingFile.GetType(), out var newSettings, out _ ) &&
-                     newSettings.LastModified > existingFile.LastModified + _lastModifiedTolerance )
+                foreach ( var changedSetting in changedSettings )
                 {
-                    existingFile.CopyFrom( newSettings );
+                    // To frequent avoid file locks, wait. There is another wait cycle in TryLoadSettings but not
+                    // waiting here is annoying for debugging.
+                    Thread.Sleep( 100 );
+
+                    if ( this.TryLoadConfigurationFile( changedSetting.GetType(), out var cachedSettings ) &&
+                         cachedSettings.LastModified > changedSetting.LastModified + _lastModifiedTolerance )
+                    {
+                        this.AddToCache( changedSetting );
+                    }
                 }
             }
         }
@@ -90,60 +100,77 @@ namespace Metalama.Backstage.Configuration
             return Path.Combine( this.ApplicationDataDirectory, attribute.FileName );
         }
 
+        private string? GetEnvironmentVariableName( Type type )
+        {
+            var attribute = type.GetCustomAttribute<ConfigurationFileAttribute>();
+
+            if ( attribute == null )
+            {
+                throw new InvalidOperationException( $"'{nameof(ConfigurationFileAttribute)}' custom attribute not found for '{type.FullName}' type." );
+            }
+
+            return attribute.EnvironmentVariableName;
+        }
+
         public ConfigurationFile Get( Type type, bool ignoreCache = false )
         {
             ConfigurationFile GetCore()
             {
-                this.Logger.Trace?.Log( $"Loading configuration {type.Name} from file." );
-
-                if ( this.TryLoadConfigurationFile( type, out var value, out var fileName ) )
+                using ( this.WithMutex() )
                 {
-                    return value;
+                    this.Logger.Trace?.Log( $"Loading configuration {type.Name} from file." );
+
+                    if ( this.TryLoadConfigurationFile( type, out var value ) )
+                    {
+                        return value;
+                    }
+
+                    var settingsObject = Activator.CreateInstance( type );
+
+                    if ( settingsObject == null )
+                    {
+                        throw new InvalidOperationException( $"Failed to create instance of '{type.FullName}' type." );
+                    }
+
+                    var settings = (ConfigurationFile) settingsObject;
+
+                    return settings;
                 }
-
-                var settingsObject = Activator.CreateInstance( type );
-
-                if ( settingsObject == null )
-                {
-                    throw new InvalidOperationException( $"Failed to create instance of '{type.FullName}' type." );
-                }
-
-                var settings = (ConfigurationFile) settingsObject;
-                settings.Initialize( this, fileName, null );
-
-                return settings;
             }
+
+            ConfigurationFile settings;
 
             if ( ignoreCache )
             {
-                var settings = GetCore();
-
-                if ( this._instances.TryGetValue( type, out var existing ) )
-                {
-                    existing.CopyFrom( settings );
-                }
-                else
-                {
-                    this._instances.TryAdd( type, settings );
-                }
+                settings = GetCore();
+                this.AddToCache( settings );
 
                 return settings;
             }
             else
             {
-                return this._instances.GetOrAdd( type, _ => GetCore() );
+                settings = this._instances.GetOrAdd( type, _ => GetCore() );
             }
+
+            return settings;
+        }
+
+        public event Action<ConfigurationFile>? ConfigurationFileChanged;
+
+        private void AddToCache( ConfigurationFile settings )
+        {
+            this._instances.AddOrUpdate( settings.GetType(), settings, ( _, _ ) => settings );
+            this.ConfigurationFileChanged?.Invoke( settings );
         }
 
         public bool TryUpdate( ConfigurationFile value, DateTime? lastModified )
         {
-            this._mutex.WaitOne();
-
-            try
+            using ( this.WithMutex() )
             {
-                var fileName = this.GetFileName( value.GetType() );
+                var type = value.GetType();
+                var fileName = this.GetFileName( type );
 
-                this.Logger.Trace?.Log( $"Trying to update '{fileName}'. Our last timestamp is '{lastModified}'." );
+                this.Logger.Trace?.Log( $"Trying to update '{fileName}'. Our last timestamp is '{lastModified:O}'." );
 
                 // Verify (inside the global lock) that we have a fresh copy of the file.
                 if ( lastModified == null )
@@ -162,26 +189,11 @@ namespace Metalama.Backstage.Configuration
                     return false;
                 }
 
-                if ( this._instances.TryGetValue( value.GetType(), out var baseValue ) )
+                if ( this._instances.TryGetValue( type, out var originalSettings ) )
                 {
-                    if ( lastModified.HasValue && baseValue.LastModified != lastModified.Value )
+                    if ( lastModified.HasValue && originalSettings.LastModified != lastModified.Value )
                     {
-                        this.Logger.Warning?.Log( $"Cannot update '{fileName}' because our cached copy has an invalid timestamp." );
-
-                        return false;
-                    }
-                    else
-                    {
-                        baseValue.CopyFrom( value );
-                    }
-                }
-                else
-                {
-                    baseValue = value.Clone();
-
-                    if ( !this._instances.TryAdd( value.GetType(), baseValue ) )
-                    {
-                        this.Logger.Error?.Log( $"Cannot update '{fileName}': TryAdd returned false." );
+                        this.Logger.Warning?.Log( $"Cannot update '{fileName}' because our cached copy does not have the latest timestamp." );
 
                         return false;
                     }
@@ -189,33 +201,54 @@ namespace Metalama.Backstage.Configuration
 
                 var json = value.ToJson();
 
-                // We have to wait more time than the time resolution of DateTime or the file system.
-                Thread.Sleep( 1 );
-
                 RetryHelper.Retry( () => this._fileSystem.WriteAllText( fileName, json ) );
 
-                // Intentionally update the timestamp a second time. 
-                baseValue.LastModified = this._fileSystem.GetLastWriteTime( fileName );
+                var newLastModified = this._fileSystem.GetLastWriteTime( fileName );
 
-                this.Logger.Trace?.Log( $"File '{fileName}' updated. The new timestamp is '{baseValue.LastModified}'." );
-            }
-            finally
-            {
-                this._mutex.ReleaseMutex();
+                while ( newLastModified == lastModified )
+                {
+                    // The new filesystem timestamp is identical to the previous one, so we have to wait until there is an observable
+                    // difference in the timestamp.
+
+                    this.Logger.Trace?.Log( "Waiting for " );
+                    Thread.Sleep( 10 );
+                    this._fileSystem.SetLastWriteTime( fileName, this._dateTimeProvider.Now );
+                    newLastModified = this._fileSystem.GetLastWriteTime( fileName );
+                }
+
+                value = value with { LastModified = newLastModified };
+
+                this.AddToCache( value );
+
+                this.Logger.Trace?.Log( $"File '{fileName}' updated. The new timestamp is '{newLastModified:O}'." );
             }
 
             return true;
         }
 
-        private bool TryLoadConfigurationFile( Type type, [NotNullWhen( true )] out ConfigurationFile? settings, out string fileName )
+        private bool TryLoadConfigurationContent( Type type, string fileName, DateTime lastModified, [NotNullWhen( true )] out string? json )
         {
-            fileName = this.GetFileName( type );
+            // Try to load the json from the environment variable.
+            var environmentVariableName = this.GetEnvironmentVariableName( type );
+            
+            if ( environmentVariableName != null )
+            {
+                json = this._environmentVariableProvider.GetEnvironmentVariable( environmentVariableName )!;
 
+                if ( !string.IsNullOrWhiteSpace( json ) )
+                {
+                    this.Logger.Trace?.Log( $"Configuration for {type.Name} loaded from the environment variable '{environmentVariableName}'." );
+
+                    return true;
+                }
+            }
+
+            // Try to load form the file.
             if ( !this._fileSystem.FileExists( fileName ) )
             {
                 this.Logger.Trace?.Log( $"The file '{fileName}' does not exist." );
 
-                settings = null;
+                json = null;
 
                 return false;
             }
@@ -224,10 +257,38 @@ namespace Metalama.Backstage.Configuration
             {
                 var fileNameCopy = fileName;
 
-                this.Logger.Trace?.Log( $"Reading configuration file '{fileName}'." );
+                this.Logger.Trace?.Log( $"Reading configuration file '{fileName}' with timestamp '{lastModified:O}'." );
 
-                var json = RetryHelper.Retry( () => this._fileSystem.ReadAllText( fileNameCopy ) );
+                json = RetryHelper.Retry( () => this._fileSystem.ReadAllText( fileNameCopy ) );
 
+                return true;
+            }
+            catch ( Exception e )
+            {
+                this.Logger.Error?.Log( $"Error reading file '{fileName}': " + e );
+            }
+
+            // Could not be loaded.
+            json = null;
+
+            return false;
+        }
+
+        private bool TryLoadConfigurationFile( Type type, [NotNullWhen( true )] out ConfigurationFile? settings )
+        {
+            var fileName = this.GetFileName( type );
+
+            var lastModified = this._fileSystem.GetLastWriteTime( fileName );
+
+            if ( !this.TryLoadConfigurationContent( type, fileName, lastModified, out var json ) )
+            {
+                settings = null;
+
+                return false;
+            }
+
+            try
+            {
                 settings = (ConfigurationFile?) JsonConvert.DeserializeObject( json, type );
 
                 if ( settings == null )
@@ -235,7 +296,7 @@ namespace Metalama.Backstage.Configuration
                     return false;
                 }
 
-                settings.Initialize( this, fileName, this._fileSystem.GetLastWriteTime( fileName ) );
+                settings = settings with { LastModified = lastModified };
 
                 return true;
             }
@@ -247,6 +308,29 @@ namespace Metalama.Backstage.Configuration
             settings = default;
 
             return false;
+        }
+
+        private DisposableAction WithMutex()
+        {
+            if ( !this._mutex.WaitOne( 0 ) )
+            {
+                this.Logger.Trace?.Log( $"Waiting for the configuration mutex." );
+                this._mutex.WaitOne();
+            }
+
+            this.Logger.Trace?.Log( $"Configuration mutex acquired." );
+
+            return new DisposableAction(
+                () =>
+                {
+                    this.Logger.Trace?.Log( $"Releasing configuration mutex." );
+                    this._mutex.ReleaseMutex();
+                } );
+        }
+
+        public void ClearCache()
+        {
+            this._instances.Clear();
         }
 
         public void Dispose()

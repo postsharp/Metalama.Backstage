@@ -36,7 +36,7 @@ namespace Metalama.Backstage.Testing.Services
             this._isUnattendedProcess = isUnattendedProcess;
             this.BuildDate = buildDate;
             this.IsTelemetryEnabled = isTelemetryEnabled;
-            this.Company = company ?? AssemblyMetadataReader.GetInstance( typeof( TestApplicationInfo ).Assembly ).Company;
+            this.Company = company ?? AssemblyMetadataReader.GetInstance( typeof(TestApplicationInfo).Assembly ).Company;
             this.Components = components?.ToImmutableArray() ?? ImmutableArray<IComponentInfo>.Empty;
         }
 
