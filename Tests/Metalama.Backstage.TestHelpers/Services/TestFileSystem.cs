@@ -324,6 +324,22 @@ namespace Metalama.Backstage.Testing.Services
             }
         }
 
+        public void MoveFile( string sourceFileName, string destFileName )
+        {
+            lock ( this.Mock )
+            {
+                this.Mock.File.Move( sourceFileName, destFileName );
+            }
+        }
+
+        public void DeleteFile( string path )
+        {
+            lock ( this.Mock )
+            {
+                this.Mock.File.Delete( path );
+            }
+        }
+
         public void MoveDirectory( string sourceDirName, string destDirName )
         {
             lock ( this.Mock )

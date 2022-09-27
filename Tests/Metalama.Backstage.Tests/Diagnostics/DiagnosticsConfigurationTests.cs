@@ -46,7 +46,7 @@ public class DiagnosticsConfigurationTests
 
             serviceProviderBuilder.AddDiagnostics( ProcessKind.Other );
 
-            return (serviceCollection.BuildServiceProvider(), configurationManager.GetFileName( typeof(DiagnosticsConfiguration) ));
+            return (serviceCollection.BuildServiceProvider(), configurationManager.GetFilePath( typeof(DiagnosticsConfiguration) ));
         }
 
         // First: configure the logging.

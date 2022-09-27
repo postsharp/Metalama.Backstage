@@ -5,13 +5,11 @@ using Metalama.Backstage.Diagnostics;
 using Metalama.Backstage.Licensing;
 using Metalama.Backstage.Licensing.Audit;
 using Metalama.Backstage.Licensing.Consumption;
-using Metalama.Backstage.Licensing.Consumption.Sources;
 using Metalama.Backstage.Maintenance;
 using Metalama.Backstage.Telemetry;
 using Metalama.Backstage.Utilities;
 using Metalama.Backstage.Welcome;
 using System;
-using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 
@@ -265,11 +263,9 @@ public static class RegisterServiceExtensions
         // Add telemetry.
         var queue = new TelemetryQueue( serviceProviderBuilder.ServiceProvider );
 
-        serviceProviderBuilder
+        return serviceProviderBuilder
             .AddSingleton<ITelemetryUploader>( new TelemetryUploader( serviceProviderBuilder.ServiceProvider ) )
             .AddSingleton<IExceptionReporter>( new ExceptionReporter( queue, serviceProviderBuilder.ServiceProvider ) )
             .AddSingleton<IUsageReporter>( new UsageReporter( serviceProviderBuilder.ServiceProvider ) );
-
-        return serviceProviderBuilder;
     }
 }

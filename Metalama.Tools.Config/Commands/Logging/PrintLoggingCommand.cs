@@ -24,9 +24,9 @@ internal class PrintLoggingCommand : CommandBase
         this.CommandServices.Initialize( console, false );
         var configurationManager = this.CommandServices.ServiceProvider.GetRequiredService<IConfigurationManager>();
         var configuration = configurationManager.Get<DiagnosticsConfiguration>();
-        var fileName = configurationManager.GetFileName( typeof(DiagnosticsConfiguration) );
+        var filePath = configurationManager.GetFilePath( typeof(DiagnosticsConfiguration) );
 
-        console.Out.WriteLine( $"The file '{fileName}' contains the following configuration:" );
+        console.Out.WriteLine( $"The file '{filePath}' contains the following configuration:" );
         console.Out.WriteLine();
         console.Out.WriteLine( configuration.ToJson() );
     }
