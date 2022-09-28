@@ -3,6 +3,7 @@
     <PropertyGroup>
         <RepoDirectory>$(MSBuildThisFileDirectory)</RepoDirectory>
         <RepoKind>AzureRepos</RepoKind>
+        <GenerateDocumentationFile>true</GenerateDocumentationFile>
     </PropertyGroup>
 
     <Import Project="eng\Versions.props"/>
@@ -10,7 +11,7 @@
     <Import Project="eng\Packaging.props"/>
 
     <Import Sdk="PostSharp.Engineering.Sdk" Project="BuildOptions.props"/>
-    <Import Sdk="PostSharp.Engineering.Sdk" Project="CodeQuality.props"/>
     <Import Sdk="PostSharp.Engineering.Sdk" Project="SourceLink.props"/>
+    <Import Sdk="PostSharp.Engineering.Sdk" Project="TeamCity.props"/>
 
 </Project>
