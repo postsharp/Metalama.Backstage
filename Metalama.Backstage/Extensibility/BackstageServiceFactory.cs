@@ -43,6 +43,6 @@ public static class BackstageServiceFactory
     public static ILicenseConsumptionManager CreateLicenseConsumptionManager(
         bool considerUnattendedLicense = false,
         bool ignoreUserProfileLicenses = false,
-        string? additionalLicense = null )
-        => LicenseConsumptionManagerFactory.Create( ServiceProvider, considerUnattendedLicense, ignoreUserProfileLicenses, additionalLicense );
+        string? projectLicense = null )
+        => LicenseConsumptionManagerFactory.Create( ServiceProvider, considerUnattendedLicense, ignoreUserProfileLicenses, projectLicense );
 }

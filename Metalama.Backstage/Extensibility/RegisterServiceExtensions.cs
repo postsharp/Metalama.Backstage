@@ -166,13 +166,13 @@ public static class RegisterServiceExtensions
         this ServiceProviderBuilder serviceProviderBuilder,
         bool considerUnattendedLicense = false,
         bool ignoreUserProfileLicenses = false,
-        string? additionalLicense = null )
+        string? projectLicense = null )
     {
         var licenseConsumptionManager = LicenseConsumptionManagerFactory.Create(
             serviceProviderBuilder.ServiceProvider,
             considerUnattendedLicense,
             ignoreUserProfileLicenses,
-            additionalLicense );
+            projectLicense );
 
         serviceProviderBuilder.AddSingleton<ILicenseConsumptionManager>( licenseConsumptionManager );
 
@@ -185,7 +185,7 @@ public static class RegisterServiceExtensions
         string? projectName = null,
         bool considerUnattendedProcessLicense = false,
         bool ignoreUserProfileLicenses = false,
-        string? additionalLicense = null,
+        string? projectLicense = null,
         string? dotNetSdkDirectory = null,
         bool openWelcomePage = false,
         bool addLicenseConsumption = true,
@@ -252,7 +252,7 @@ public static class RegisterServiceExtensions
         // Add licensing.
         if ( addLicenseConsumption )
         {
-            serviceProviderBuilder.AddLicensing( considerUnattendedProcessLicense, ignoreUserProfileLicenses, additionalLicense );
+            serviceProviderBuilder.AddLicensing( considerUnattendedProcessLicense, ignoreUserProfileLicenses, projectLicense );
         }
 
         return serviceProviderBuilder;

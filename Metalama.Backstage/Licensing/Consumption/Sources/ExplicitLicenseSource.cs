@@ -8,10 +8,10 @@ internal class ExplicitLicenseSource : LicenseSourceBase
 {
     private readonly string _licenseString;
 
-    public ExplicitLicenseSource( string licenseKey, IServiceProvider services )
+    public ExplicitLicenseSource( string licenseString, IServiceProvider services )
         : base( services )
     {
-        this._licenseString = licenseKey;
+        this._licenseString = licenseString;
     }
 
     protected override string? GetLicenseString() => this._licenseString;

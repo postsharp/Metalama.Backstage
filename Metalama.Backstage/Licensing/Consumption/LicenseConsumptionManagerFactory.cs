@@ -12,7 +12,7 @@ internal static class LicenseConsumptionManagerFactory
         IServiceProvider serviceProvider,
         bool considerUnattendedLicense = false,
         bool ignoreUserProfileLicenses = false,
-        string? additionalLicense = null )
+        string? projectLicense = null )
     {
         var licenseSources = new List<ILicenseSource>();
 
@@ -26,9 +26,9 @@ internal static class LicenseConsumptionManagerFactory
             licenseSources.Add( new UserProfileLicenseSource( serviceProvider ) );
         }
 
-        if ( !string.IsNullOrWhiteSpace( additionalLicense ) )
+        if ( !string.IsNullOrWhiteSpace( projectLicense ) )
         {
-            licenseSources.Add( new ExplicitLicenseSource( additionalLicense!, serviceProvider ) );
+            licenseSources.Add( new ExplicitLicenseSource( projectLicense!, serviceProvider ) );
         }
 
         if ( !ignoreUserProfileLicenses )
