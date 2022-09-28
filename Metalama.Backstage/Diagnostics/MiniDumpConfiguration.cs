@@ -16,5 +16,6 @@ public record MiniDumpConfiguration
     [JsonProperty( "flags" )]
     public ImmutableArray<string> Flags { get; init; } = ImmutableArray<string>.Empty;
 
+    [JsonProperty( "exceptionTypes" )]
     public ImmutableArray<string> ExceptionTypes { get; init; } = ImmutableArray<string>.Empty;
 }

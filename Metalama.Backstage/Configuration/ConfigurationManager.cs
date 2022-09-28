@@ -312,10 +312,17 @@ namespace Metalama.Backstage.Configuration
 
         private DisposableAction WithMutex()
         {
-            if ( !this._mutex.WaitOne( 0 ) )
+            try
             {
-                this.Logger.Trace?.Log( $"Waiting for the configuration mutex." );
-                this._mutex.WaitOne();
+                if ( !this._mutex.WaitOne( 0 ) )
+                {
+                    this.Logger.Trace?.Log( $"Waiting for the configuration mutex." );
+                    this._mutex.WaitOne();
+                }
+            }
+            catch ( AbandonedMutexException )
+            {
+                this.Logger.Trace?.Log( $"The mutex has been abandoned by another process." );
             }
 
             this.Logger.Trace?.Log( $"Configuration mutex acquired." );
