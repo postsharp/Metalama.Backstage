@@ -31,6 +31,15 @@ internal sealed class PreviewLicenseSource : ILicenseSource, ILicense
 
     public ILicense? GetLicense( Action<LicensingMessage> reportMessage )
     {
+        const string disablePreviewLicenseEnvironmentVariableName = "METALAMA_DISABLE_PREVIEW_LICENSE"; 
+        
+        if ( Environment.GetEnvironmentVariable( disablePreviewLicenseEnvironmentVariableName ) != null )
+        {
+            this._logger.Trace?.Log( $"PreviewLicenseSource skipped: disabled using '{disablePreviewLicenseEnvironmentVariableName}' environment variable." );
+
+            return null;
+        }
+        
         var latestPrereleaseComponent = this.GetLatestPrereleaseComponent();
 
         if ( latestPrereleaseComponent == null )

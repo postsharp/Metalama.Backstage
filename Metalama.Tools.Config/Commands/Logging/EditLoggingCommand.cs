@@ -23,17 +23,11 @@ internal class EditLoggingCommand : CommandBase
     {
         this.CommandServices.Initialize( console, false );
         var configurationManager = this.CommandServices.ServiceProvider.GetRequiredService<IConfigurationManager>();
-        var configuration = configurationManager.Get<DiagnosticsConfiguration>();
+        configurationManager.CreateIfMissing<DiagnosticsConfiguration>();
 
-        if ( configuration.LastModified == null )
-        {
-            // Create a default file if it does not exist.
-            configurationManager.Update<DiagnosticsConfiguration>( c => c );
-        }
+        var filePath = configurationManager.GetFilePath( typeof(DiagnosticsConfiguration) );
+        console.Out.Write( $"Opening '{filePath}' in the default editor." );
 
-        var fileName = configurationManager.GetFileName( typeof(DiagnosticsConfiguration) );
-        console.Out.Write( $"Opening $'{fileName}' in the default editor." );
-
-        Process.Start( new ProcessStartInfo( fileName ) { UseShellExecute = true } );
+        Process.Start( new ProcessStartInfo( filePath ) { UseShellExecute = true } );
     }
 }

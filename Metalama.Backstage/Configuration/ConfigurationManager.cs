@@ -65,7 +65,7 @@ namespace Metalama.Backstage.Configuration
 
             var changedSettings = this._instances.Values.Where(
                 s =>
-                    string.Equals( this.GetFileName( s.GetType() ), fileName, StringComparison.OrdinalIgnoreCase ) );
+                    string.Equals( this.GetFilePath( s.GetType() ), fileName, StringComparison.OrdinalIgnoreCase ) );
 
             using ( this.WithMutex() )
             {
@@ -88,7 +88,9 @@ namespace Metalama.Backstage.Configuration
 
         public ILogger Logger { get; }
 
-        public string GetFileName( Type type )
+        public string GetFilePath( string fileName ) => Path.Combine( this.ApplicationDataDirectory, fileName );
+
+        public string GetFilePath( Type type )
         {
             var attribute = type.GetCustomAttribute<ConfigurationFileAttribute>();
 
@@ -97,7 +99,7 @@ namespace Metalama.Backstage.Configuration
                 throw new InvalidOperationException( $"'{nameof(ConfigurationFileAttribute)}' custom attribute not found for '{type.FullName}' type." );
             }
 
-            return Path.Combine( this.ApplicationDataDirectory, attribute.FileName );
+            return this.GetFilePath( attribute.FileName );
         }
 
         private string? GetEnvironmentVariableName( Type type )
@@ -168,7 +170,7 @@ namespace Metalama.Backstage.Configuration
             using ( this.WithMutex() )
             {
                 var type = value.GetType();
-                var fileName = this.GetFileName( type );
+                var fileName = this.GetFilePath( type );
 
                 this.Logger.Trace?.Log( $"Trying to update '{fileName}'. Our last timestamp is '{lastModified:O}'." );
 
@@ -276,7 +278,7 @@ namespace Metalama.Backstage.Configuration
 
         private bool TryLoadConfigurationFile( Type type, [NotNullWhen( true )] out ConfigurationFile? settings )
         {
-            var fileName = this.GetFileName( type );
+            var fileName = this.GetFilePath( type );
 
             var lastModified = this._fileSystem.GetLastWriteTime( fileName );
 

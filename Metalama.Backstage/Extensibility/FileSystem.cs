@@ -176,6 +176,18 @@ namespace Metalama.Backstage.Extensibility
         }
 
         /// <inheritdoc />
+        public void MoveFile( string sourceFileName, string destFileName )
+        {
+            File.Move( sourceFileName, destFileName );
+        }
+        
+        /// <inheritdoc />
+        public void DeleteFile( string path )
+        {
+            File.Delete( path );
+        }
+        
+        /// <inheritdoc />
         public void MoveDirectory( string sourceDirName, string destDirName )
         {
             Directory.Move( sourceDirName, destDirName );

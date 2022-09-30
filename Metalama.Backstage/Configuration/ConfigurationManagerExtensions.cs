@@ -12,9 +12,13 @@ namespace Metalama.Backstage.Configuration
             where T : ConfigurationFile
             => (T) configurationManager.Get( typeof(T), ignoreCache );
 
-        public static string GetFileName<T>( this IConfigurationManager configurationManager )
+        public static string GetFilePath<T>( this IConfigurationManager configurationManager )
             where T : ConfigurationFile
-            => configurationManager.GetFileName( typeof(T) );
+            => configurationManager.GetFilePath( typeof(T) );
+
+        public static bool CreateIfMissing<T>( this IConfigurationManager configurationManager )
+            where T : ConfigurationFile
+            => configurationManager.UpdateIf<T>( c => !c.LastModified.HasValue, c => c );
 
         public static bool UpdateIf<T>( this IConfigurationManager configurationManager, Predicate<T> condition, Func<T, T> updateFunc )
             where T : ConfigurationFile
@@ -48,7 +52,7 @@ namespace Metalama.Backstage.Configuration
 
                 newSettings = updateFunc( originalSettings );
 
-                if ( newSettings.Equals( originalSettings ) )
+                if ( originalSettings.LastModified.HasValue && newSettings.Equals( originalSettings ) )
                 {
                     configurationManager.Logger.Trace?.Log( $"Update of {typeof(T).Name} skipped because no change was required." );
 
@@ -84,7 +88,7 @@ namespace Metalama.Backstage.Configuration
 
                 newSettings = updateFunc( originalSettings );
 
-                if ( newSettings.Equals( originalSettings ) )
+                if ( originalSettings.LastModified.HasValue && newSettings.Equals( originalSettings ) )
                 {
                     configurationManager.Logger.Trace?.Log( $"Update of {typeof(T).Name} skipped because no change was required." );
 
