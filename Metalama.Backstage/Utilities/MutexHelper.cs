@@ -11,7 +11,12 @@ namespace Metalama.Backstage.Utilities
         public static IDisposable WithGlobalLock( string name )
         {
             var mutex = CreateGlobalMutex( name );
-            mutex.WaitOne();
+
+            try
+            {
+                mutex.WaitOne();
+            }
+            catch ( AbandonedMutexException ) { }
 
             return new MutexHandle( mutex );
         }
