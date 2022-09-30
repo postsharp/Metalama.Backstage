@@ -25,7 +25,18 @@ namespace Metalama.Backstage.Utilities
         {
             var mutex = CreateGlobalMutex( name );
 
-            if ( mutex.WaitOne( timeout ) )
+            bool acquired;
+
+            try
+            {
+                acquired = mutex.WaitOne( timeout );
+            }
+            catch ( AbandonedMutexException )
+            {
+                acquired = true;
+            }
+
+            if ( acquired )
             {
                 mutexHandle = new MutexHandle( mutex );
 
