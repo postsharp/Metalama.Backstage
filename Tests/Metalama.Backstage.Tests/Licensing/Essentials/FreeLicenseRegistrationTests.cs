@@ -6,7 +6,7 @@ using System;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace Metalama.Backstage.Licensing.Tests.Licensing.Free
+namespace Metalama.Backstage.Licensing.Tests.Licensing.Essentials
 {
     public class FreeLicenseRegistrationTests : LicenseRegistrationTestsBase
     {
@@ -48,7 +48,7 @@ namespace Metalama.Backstage.Licensing.Tests.Licensing.Free
                 x => x.Message != null && x.Message.Contains(
                     "Failed to register Metalama Free license: A Metalama Free license is registered already."
 #if NET
-                 ,
+                   ,
                     StringComparison.InvariantCulture
 #endif
                 ) );

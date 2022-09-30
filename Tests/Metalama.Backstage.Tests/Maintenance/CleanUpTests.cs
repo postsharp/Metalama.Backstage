@@ -255,7 +255,7 @@ public class CleanUpTests : TestsBase
     {
         // Clean-up command should clean be able to clean the deep structured directories.
         var tempFileManager = new TempFileManager( this.ServiceProvider );
-        tempFileManager.CleanTempDirectories( true, false );
+        tempFileManager.CleanTempDirectories( true );
 
         // Assert cleanup leaves no leftover cleanup files in deep directory structure.
         Assert.Empty(

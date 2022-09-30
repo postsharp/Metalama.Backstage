@@ -31,10 +31,7 @@ public class EnvironmentVariableConfigurationTests : TestsBase
         this.FileSystem.WriteAllText( this._configurationManager.GetFilePath( typeof(DiagnosticsConfiguration) ), new DiagnosticsConfiguration().ToJson() );
 
         // Set up environment variable DiagnosticsConfiguration.
-        var environmentConfiguration = new DiagnosticsConfiguration() with
-        {
-            Logging = new LoggingConfiguration() { Processes = ImmutableDictionary<ProcessKind, bool>.Empty.Add( ProcessKind.Compiler, true ) }
-        };
+        var environmentConfiguration = new DiagnosticsConfiguration { Logging = new LoggingConfiguration() { Processes = ImmutableDictionary<ProcessKind, bool>.Empty.Add( ProcessKind.Compiler, true ) } };
 
         this.EnvironmentVariableProvider.Environment.Add( DiagnosticsConfiguration.EnvironmentVariableName, environmentConfiguration.ToJson() );
     }

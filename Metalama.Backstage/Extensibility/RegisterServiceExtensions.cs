@@ -95,7 +95,7 @@ public static class RegisterServiceExtensions
                 c => c.Logging.Processes.Any( p => p.Value ),
                 c =>
                 {
-                    return c with { Logging = c.Logging with { Processes = c.Logging.Processes.ToImmutableDictionary( x => x.Key, x => false ) } };
+                    return c with { Logging = c.Logging with { Processes = c.Logging.Processes.ToImmutableDictionary( x => x.Key, _ => false ) } };
                 } );
 
             configuration = configurationManager.Get<DiagnosticsConfiguration>();
@@ -174,7 +174,7 @@ public static class RegisterServiceExtensions
             ignoreUserProfileLicenses,
             projectLicense );
 
-        serviceProviderBuilder.AddSingleton<ILicenseConsumptionManager>( licenseConsumptionManager );
+        serviceProviderBuilder.AddSingleton( licenseConsumptionManager );
 
         return serviceProviderBuilder;
     }

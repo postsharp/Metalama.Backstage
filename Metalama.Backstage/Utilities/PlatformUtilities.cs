@@ -10,6 +10,20 @@ namespace Metalama.Backstage.Utilities
 {
     public static class PlatformUtilities
     {
+        private const string _dotNetSdkDirectoryEnvironmentVariableName = "MSBuildExtensionsPath";
+
+        public static string GetDotNetSdkVersion( string? dotNetSdkDirectory = null )
+        {
+            dotNetSdkDirectory ??= Environment.GetEnvironmentVariable( _dotNetSdkDirectoryEnvironmentVariableName );
+
+            if ( string.IsNullOrEmpty( dotNetSdkDirectory ) )
+            {
+                throw new InvalidOperationException( "Cannot get the .NET SDK Directory." );
+            }
+
+            return Path.GetFileName( dotNetSdkDirectory );
+        }
+        
         public static string GetDotNetPath( ILogger logger, string? dotNetSdkDirectory = null )
         {
             var dotnetFileName = RuntimeInformation.IsOSPlatform( OSPlatform.Windows )
@@ -19,7 +33,6 @@ namespace Metalama.Backstage.Utilities
             logger.Trace?.Log( $"Looking for {dotnetFileName} path." );
 
             // See if the current process is dotnet.exe.
-
             var currentProcessPath = Process.GetCurrentProcess().MainModule?.FileName;
 
             if ( currentProcessPath == null )
@@ -42,38 +55,8 @@ namespace Metalama.Backstage.Utilities
                 }
             }
 
-            if ( RuntimeInformation.IsOSPlatform( OSPlatform.Windows ) )
-            {
-                // Find dotnet.exe at well-known locations.
-
-                var dotnetPath = Environment.ExpandEnvironmentVariables( "%ProgramFiles%\\dotnet\\dotnet.exe" );
-
-                if ( File.Exists( dotnetPath ) )
-                {
-                    logger.Trace?.Log( $"dotnet.exe found in '{dotnetPath}'." );
-
-                    return dotnetPath;
-                }
-                else
-                {
-                    logger.Trace?.Log( $"Looked for dotnet.exe in '{dotnetPath}' but it did not exist." );
-                }
-
-                dotnetPath = Environment.ExpandEnvironmentVariables( "%ProgramFiles(x86)%\\dotnet\\dotnet.exe" );
-
-                if ( File.Exists( dotnetPath ) )
-                {
-                    logger.Trace?.Log( $"dotnet.exe found in '{dotnetPath}'." );
-
-                    return dotnetPath;
-                }
-                else
-                {
-                    logger.Trace?.Log( $"Looked for dotnet.exe in '{dotnetPath}' but it did not exist." );
-                }
-            }
-
             // Look in the DotNetSdkDirectory, if we know it.
+            dotNetSdkDirectory ??= Environment.GetEnvironmentVariable( _dotNetSdkDirectoryEnvironmentVariableName );
 
             if ( dotNetSdkDirectory != null )
             {
@@ -94,8 +77,27 @@ namespace Metalama.Backstage.Utilities
                 }
             }
 
+            // Search dotnet.exe in well-known locations.
+            if ( RuntimeInformation.IsOSPlatform( OSPlatform.Windows ) )
+            {
+                // %ProgramFiles% is expanded to the correct directory according to the current processor architecture.
+                // This is good because we always want to get dotnet.exe for the current processor architecture.
+                var dotnetPath = Environment.ExpandEnvironmentVariables( "%ProgramFiles%\\dotnet\\dotnet.exe" );
+                
+                if ( File.Exists( dotnetPath ) )
+                {
+                    logger.Trace?.Log( $"dotnet.exe found in '{dotnetPath}'." );
+
+                    return dotnetPath;
+                }
+                else
+                {
+                    logger.Trace?.Log( $"Looked for dotnet.exe in '{dotnetPath}' but it did not exist." );
+                }
+            }
+
             // The file was not found.
-            logger.Trace?.Log( $"{dotnetFileName} was found nowhere. We hope it will be in the path." );
+            logger.Warning?.Log( $"{dotnetFileName} was found nowhere. We hope it will be in the PATH." );
 
             return "dotnet";
         }
