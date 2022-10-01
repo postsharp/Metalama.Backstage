@@ -5,5 +5,9 @@ namespace Metalama.Backstage.Extensibility
     public interface IPlatformInfo : IBackstageService
     {
         string? DotNetSdkDirectory { get; }
+
+        string DotNetExePath { get; }
+
+        string? DotNetSdkVersion { get; }
     }
 }

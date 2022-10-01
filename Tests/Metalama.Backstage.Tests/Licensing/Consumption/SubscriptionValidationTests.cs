@@ -50,7 +50,7 @@ namespace Metalama.Backstage.Licensing.Tests.Licensing.Consumption
             {
                 Assert.False( isValid );
 #pragma warning disable CA1307 // Specify StringComparison for clarity
-                Assert.Contains( infringingComponent.Name, actualErrorDescription );
+                Assert.Contains( infringingComponent.Name, actualErrorDescription! );
 #pragma warning restore CA1307 // Specify StringComparison for clarity
             }
         }
@@ -86,7 +86,7 @@ namespace Metalama.Backstage.Licensing.Tests.Licensing.Consumption
         }
 
         [Fact]
-        public void PassesWithInvalidSubcsriptionForComponentNotRequiringSubscription()
+        public void PassesWithInvalidSubscriptionForComponentNotRequiringSubscription()
         {
             var componentInfo = CreateComponentInfo( TestLicenses.SubscriptionExpirationDate.AddDays( 1 ), true );
             var applicationInfo = CreateApplicationInfo( TestLicenses.SubscriptionExpirationDate, componentInfo );
