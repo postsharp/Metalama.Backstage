@@ -245,7 +245,7 @@ namespace Metalama.Backstage.Telemetry
 
             if ( ProcessUtilities.IsNetCore() )
             {
-                executableFileName = PlatformUtilities.GetDotNetPath( this._logger, this._platformInfo.DotNetSdkDirectory );
+                executableFileName = this._platformInfo.DotNetExePath;
                 arguments = $"\"{Path.Combine( workerDirectory, "Metalama.Backstage.Worker.dll" )}\"";
             }
             else

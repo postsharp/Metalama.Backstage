@@ -112,8 +112,7 @@ public static class RegisterServiceExtensions
     /// </summary>
     private static ServiceProviderBuilder AddDiagnosticsRequirements(
         this ServiceProviderBuilder serviceProviderBuilder,
-        IApplicationInfo applicationInfo,
-        string? dotNetSdkDirectory )
+        IApplicationInfo applicationInfo )
     {
         serviceProviderBuilder = serviceProviderBuilder
             .AddSingleton<IApplicationInfoProvider>( new ApplicationInfoProvider( applicationInfo ) )
@@ -121,8 +120,7 @@ public static class RegisterServiceExtensions
             .AddFileSystem()
             .AddEnvironmentVariableProvider()
             .AddStandardDirectories()
-            .AddConfigurationManager()
-            .AddPlatformInfo( dotNetSdkDirectory );
+            .AddConfigurationManager();
 
         serviceProviderBuilder.AddService( typeof(ITempFileManager), new TempFileManager( serviceProviderBuilder.ServiceProvider ) );
 
@@ -136,7 +134,7 @@ public static class RegisterServiceExtensions
         this ServiceProviderBuilder serviceProviderBuilder,
         string? dotnetSdkDirectory )
     {
-        return serviceProviderBuilder.AddSingleton<IPlatformInfo>( new PlatformInfo( dotnetSdkDirectory ) );
+        return serviceProviderBuilder.AddSingleton<IPlatformInfo>( new PlatformInfo( serviceProviderBuilder.ServiceProvider, dotnetSdkDirectory ) );
     }
 
     /// <summary>
@@ -150,12 +148,13 @@ public static class RegisterServiceExtensions
         string? dotnetSdkDirectory = null )
     {
         serviceProviderBuilder
-            .AddDiagnosticsRequirements( applicationInfo, dotnetSdkDirectory );
+            .AddDiagnosticsRequirements( applicationInfo );
 
         if ( addSupportServices )
         {
             serviceProviderBuilder
                 .AddDiagnostics( applicationInfo.ProcessKind, projectName )
+                .AddPlatformInfo( dotnetSdkDirectory )
                 .AddTelemetryServices();
         }
 
@@ -194,7 +193,7 @@ public static class RegisterServiceExtensions
     {
         // Add base services.
         serviceProviderBuilder = serviceProviderBuilder
-            .AddDiagnosticsRequirements( applicationInfo, dotNetSdkDirectory );
+            .AddDiagnosticsRequirements( applicationInfo );
 
         // Add diagnostics.
         if ( addSupportServices )
@@ -218,6 +217,9 @@ public static class RegisterServiceExtensions
                 welcomeService.OpenWelcomePage();
             }
         }
+
+        // Add platform info.
+        serviceProviderBuilder.AddPlatformInfo( dotNetSdkDirectory );
 
         // Add file locking detection.
         if ( LockingProcessDetector.IsSupported )

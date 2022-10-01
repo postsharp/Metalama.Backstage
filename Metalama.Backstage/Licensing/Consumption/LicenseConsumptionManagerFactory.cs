@@ -28,7 +28,7 @@ internal static class LicenseConsumptionManagerFactory
 
         if ( !string.IsNullOrWhiteSpace( projectLicense ) )
         {
-            licenseSources.Add( new ExplicitLicenseSource( projectLicense, serviceProvider ) );
+            licenseSources.Add( new ExplicitLicenseSource( projectLicense!, serviceProvider ) );
         }
 
         if ( !ignoreUserProfileLicenses )
