@@ -17,6 +17,7 @@ var product = new Product( Dependencies.MetalamaBackstage )
         "Metalama.Backstage.$(PackageVersion).nupkg",
         "metalama-config.$(PackageVersion).nupkg" ),
     Dependencies = new[] { Dependencies.PostSharpEngineering },
+    BuildAgentType = "caravela03",
     Configurations = Product.DefaultConfigurations
         .WithValue( BuildConfiguration.Release, new BuildConfigurationInfo(
             MSBuildName: "Release",
