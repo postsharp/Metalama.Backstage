@@ -40,7 +40,7 @@ namespace Metalama.DotNetTools
                 try
                 {
                     // Report usage.
-                    servicesFactory.ServiceProvider.GetService<IUsageSample>()?.Flush();
+                    servicesFactory.ServiceProvider.GetService<IUsageReporter>()?.StopSession();
 
                     // Close logs.
                     // Logging has to be disposed as the last one, so it could be used until now.

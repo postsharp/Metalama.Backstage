@@ -36,17 +36,11 @@ namespace Metalama.Backstage
             }
 
             // Telemetry.
-            IUsageSample? usageSample = null;
+            var usageReporter = serviceProviderBuilder.ServiceProvider.GetBackstageService<IUsageReporter>();
 
             try
             {
-                usageSample = serviceProviderBuilder.ServiceProvider.GetBackstageService<IUsageReporter>()?.CreateSample( "CompilerUsage" );
-
-                if ( usageSample != null )
-                {
-                    // ReSharper disable once RedundantTypeArgumentsOfMethod
-                    serviceProviderBuilder.AddSingleton<IUsageSample>( usageSample );
-                }
+                usageReporter?.StartSession( "CompilerUsage" );
 
                 serviceProvider = serviceProviderBuilder.ServiceProvider;
 
@@ -66,7 +60,7 @@ namespace Metalama.Backstage
                 try
                 {
                     // Report usage.
-                    usageSample?.Flush();
+                    usageReporter?.StopSession();
 
                     // Close logs.
                     // Logging has to be disposed as the last one, so it could be used until now.

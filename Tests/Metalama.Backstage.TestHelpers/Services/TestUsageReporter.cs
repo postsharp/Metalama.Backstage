@@ -1,7 +1,6 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. See the LICENSE.md file in the root directory of this repository root for details.
 
 using Metalama.Backstage.Telemetry;
-using System;
 
 namespace Metalama.Backstage.Testing.Services;
 
@@ -12,5 +11,9 @@ public class TestUsageReporter : IUsageReporter
 
     public bool ShouldReportSession( string projectName ) => false;
 
-    public IUsageSample CreateSample( string kind ) => throw new NotImplementedException();
+    public void StartSession( string kind ) { }
+
+    public MetricCollection Metrics { get; } = new();
+
+    public void StopSession() { }
 }

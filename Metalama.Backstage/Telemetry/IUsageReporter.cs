@@ -10,5 +10,9 @@ public interface IUsageReporter : IBackstageService
 
     bool ShouldReportSession( string projectName );
 
-    IUsageSample CreateSample( string kind );
+    void StartSession( string kind );
+
+    MetricCollection Metrics { get; }
+
+    void StopSession();
 }

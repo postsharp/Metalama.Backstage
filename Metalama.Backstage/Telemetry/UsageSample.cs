@@ -12,9 +12,9 @@ using System.Runtime.InteropServices;
 
 namespace Metalama.Backstage.Telemetry
 {
-    internal class UsageSample : MetricsBase, IUsageSample
+    internal class UsageSample : MetricsBase
     {
-        MetricCollection IUsageSample.Metrics => this.Metrics;
+        public new MetricCollection Metrics => base.Metrics;
 
         internal UsageSample( IServiceProvider serviceProvider, string eventKind )
             : base( serviceProvider, "Usage" )
