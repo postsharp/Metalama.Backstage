@@ -13,22 +13,29 @@ namespace Metalama.Backstage.Maintenance;
 public class TempFileManager : ITempFileManager
 {
     private readonly CleanUpConfiguration _configuration;
-    private readonly IApplicationInfoProvider _applicationInfoProvider;
     private readonly IFileSystem _fileSystem;
     private readonly ILogger _logger;
     private readonly IStandardDirectories _standardDirectories;
     private readonly IDateTimeProvider _time;
     private readonly IConfigurationManager _configurationManager;
+    private readonly string _version;
 
     public TempFileManager( IServiceProvider serviceProvider )
     {
         this._configurationManager = serviceProvider.GetRequiredBackstageService<IConfigurationManager>();
         this._configuration = this._configurationManager.Get<CleanUpConfiguration>();
-        this._applicationInfoProvider = serviceProvider.GetRequiredBackstageService<IApplicationInfoProvider>();
         this._fileSystem = serviceProvider.GetRequiredBackstageService<IFileSystem>();
         this._logger = serviceProvider.GetLoggerFactory().Telemetry();
         this._time = serviceProvider.GetRequiredBackstageService<IDateTimeProvider>();
         this._standardDirectories = serviceProvider.GetRequiredBackstageService<IStandardDirectories>();
+
+        var applicationInfoProvider = serviceProvider.GetRequiredBackstageService<IApplicationInfoProvider>();
+
+        this._version =
+            (!applicationInfoProvider.CurrentApplication.Components.IsDefaultOrEmpty
+                ? applicationInfoProvider.CurrentApplication.Components[0].Version
+                : null) ?? applicationInfoProvider.CurrentApplication.Version ??
+            throw new InvalidOperationException( "The application version is not set." );
     }
 
     /// <summary>
@@ -181,8 +188,7 @@ public class TempFileManager : ITempFileManager
         var directory = Path.Combine(
             this._standardDirectories.TempDirectory,
             subdirectory,
-            this._applicationInfoProvider.CurrentApplication.Version
-            ?? throw new InvalidOperationException( $"Unknown version of '{this._applicationInfoProvider.CurrentApplication.Name}' application." ),
+            this._version,
             guid?.ToString() ?? "" );
 
         var cleanUpFilePath = Path.Combine( directory, "cleanup.json" );
