@@ -12,4 +12,9 @@ public record LicensingInitializationOptions
     /// Gets the license key that stems from the MSBuild project file.
     /// </summary>
     public string? ProjectLicense { get; init; }
+
+    /// <summary>
+    /// Gets a value indicating whether license audit should be disabled. It is convenient to disable it during tests to avoid poisoning of the server.
+    /// </summary>
+    public bool DisableLicenseAudit { get; init; }
 }

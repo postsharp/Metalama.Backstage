@@ -28,11 +28,13 @@ public class RegisterServiceExtensionsTests
     [InlineData( true, true )]
     [InlineData( false, true )]
     [InlineData( false, false )]
-    public void AddBackstageServices( bool addLicensing, bool addSupportServices )
+    [InlineData( true, false, true )]
+    public void AddBackstageServices( bool addLicensing, bool addSupportServices, bool disableLicenseAudit = false )
     {
         var options = new BackstageInitializationOptions( new TestApplicationInfo( "Test", true, "1.0", DateTime.Today ) )
         {
-            AddLicensing = addLicensing, AddSupportServices = addSupportServices
+            AddLicensing = addLicensing, AddSupportServices = addSupportServices,
+            LicensingOptions = new LicensingInitializationOptions() { DisableLicenseAudit = disableLicenseAudit }
         };
 
         var serviceProviderBuilder = CreateServiceProviderBuilder().AddBackstageServices( options );
@@ -42,7 +44,16 @@ public class RegisterServiceExtensionsTests
         if ( addLicensing )
         {
             Assert.NotNull( serviceProvider.GetBackstageService<ILicenseConsumptionManager>() );
-            Assert.NotNull( serviceProvider.GetBackstageService<ILicenseAuditManager>() );
+
+            if ( disableLicenseAudit )
+            {
+                Assert.Null( serviceProvider.GetBackstageService<ILicenseAuditManager>() );
+            }
+            else
+            {
+
+                Assert.NotNull( serviceProvider.GetBackstageService<ILicenseAuditManager>() );
+            }
         }
         else
         {
@@ -60,9 +71,13 @@ public class RegisterServiceExtensionsTests
         else
         {
             Assert.Null( serviceProvider.GetBackstageService<ILoggerFactory>() );
-            Assert.Null( serviceProvider.GetBackstageService<ITelemetryUploader>() );
             Assert.Null( serviceProvider.GetBackstageService<IExceptionReporter>() );
             Assert.Null( serviceProvider.GetBackstageService<IUsageReporter>() );
+
+            if ( !addLicensing )
+            {
+                Assert.Null( serviceProvider.GetBackstageService<ITelemetryUploader>() );
+            }
         }
     }
 }

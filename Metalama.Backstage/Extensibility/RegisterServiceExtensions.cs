@@ -141,6 +141,11 @@ public static class RegisterServiceExtensions
         this ServiceProviderBuilder serviceProviderBuilder,
         LicensingInitializationOptions options )
     {
+        if ( !options.DisableLicenseAudit )
+        {
+            serviceProviderBuilder.AddSingleton<ILicenseAuditManager>( new LicenseAuditManager( serviceProviderBuilder.ServiceProvider ) );
+        }
+
         var licenseConsumptionManager = LicenseConsumptionManagerFactory.Create(
             serviceProviderBuilder.ServiceProvider,
             options );
@@ -213,18 +218,11 @@ public static class RegisterServiceExtensions
         // Add license audit
         if ( options.AddLicensing )
         {
-            if ( !options.AddSupportServices )
+            if ( !options.LicensingOptions.DisableLicenseAudit && !options.AddSupportServices )
             {
-                throw new InvalidOperationException( "Support services are required for license audit." );
+                throw new InvalidOperationException( "License audit requires support services." );
             }
 
-            // License audit requires support services. 
-            serviceProviderBuilder.AddSingleton<ILicenseAuditManager>( new LicenseAuditManager( serviceProviderBuilder.ServiceProvider ) );
-        }
-
-        // Add licensing.
-        if ( options.AddLicensing )
-        {
             serviceProviderBuilder.AddLicensing( options.LicensingOptions );
         }
 
