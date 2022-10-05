@@ -46,15 +46,20 @@ namespace Metalama.DotNetTools
                 ( type, instance ) => serviceCollection.AddSingleton( type, instance ),
                 () => serviceCollection.BuildServiceProvider() );
 
-            serviceProviderBuilder.AddBackstageServices(
-                new MetalamaConfigApplicationInfo(),
-                addLoggerFactoryAction: builder =>
+            var initializationOptions = new BackstageInitializationOptions( new MetalamaConfigApplicationInfo() )
+            {
+                AddLicensing = true,
+                AddSupportServices = true,
+                AddLoggerFactoryAction = builder =>
                 {
                     if ( loggerFactory != null )
                     {
                         builder.AddMicrosoftLoggerFactory( loggerFactory );
                     }
-                } );
+                }
+            };
+
+            serviceProviderBuilder.AddBackstageServices( initializationOptions );
 
             this._serviceProvider = serviceCollection.BuildServiceProvider();
         }

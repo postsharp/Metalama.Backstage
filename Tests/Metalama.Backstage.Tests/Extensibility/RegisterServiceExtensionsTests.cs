@@ -1,6 +1,10 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. See the LICENSE.md file in the root directory of this repository root for details.
 
+using Metalama.Backstage.Diagnostics;
 using Metalama.Backstage.Extensibility;
+using Metalama.Backstage.Licensing.Audit;
+using Metalama.Backstage.Licensing.Consumption;
+using Metalama.Backstage.Telemetry;
 using Metalama.Backstage.Testing.Services;
 using Microsoft.Extensions.DependencyInjection;
 using System;
@@ -20,10 +24,45 @@ public class RegisterServiceExtensionsTests
                 () => serviceCollection.BuildServiceProvider() );
     }
 
-    [Fact]
-    public void AddBackstageServices()
+    [Theory]
+    [InlineData( true, true )]
+    [InlineData( false, true )]
+    [InlineData( false, false )]
+    public void AddBackstageServices( bool addLicensing, bool addSupportServices )
     {
-        var serviceProviderBuilder = CreateServiceProviderBuilder().AddBackstageServices( new TestApplicationInfo( "Test", true, "1.0", DateTime.Today ) );
-        serviceProviderBuilder.ServiceProvider.GetRequiredBackstageService<IPlatformInfo>();
+        var options = new BackstageInitializationOptions( new TestApplicationInfo( "Test", true, "1.0", DateTime.Today ) )
+        {
+            AddLicensing = addLicensing, AddSupportServices = addSupportServices
+        };
+
+        var serviceProviderBuilder = CreateServiceProviderBuilder().AddBackstageServices( options );
+        var serviceProvider = serviceProviderBuilder.ServiceProvider;
+        Assert.NotNull( serviceProvider.GetBackstageService<IPlatformInfo>() );
+
+        if ( addLicensing )
+        {
+            Assert.NotNull( serviceProvider.GetBackstageService<ILicenseConsumptionManager>() );
+            Assert.NotNull( serviceProvider.GetBackstageService<ILicenseAuditManager>() );
+        }
+        else
+        {
+            Assert.Null( serviceProvider.GetBackstageService<ILicenseConsumptionManager>() );
+            Assert.Null( serviceProvider.GetBackstageService<ILicenseAuditManager>() );
+        }
+
+        if ( addSupportServices )
+        {
+            Assert.NotNull( serviceProvider.GetBackstageService<ILoggerFactory>() );
+            Assert.NotNull( serviceProvider.GetBackstageService<ITelemetryUploader>() );
+            Assert.NotNull( serviceProvider.GetBackstageService<IExceptionReporter>() );
+            Assert.NotNull( serviceProvider.GetBackstageService<IUsageReporter>() );
+        }
+        else
+        {
+            Assert.Null( serviceProvider.GetBackstageService<ILoggerFactory>() );
+            Assert.Null( serviceProvider.GetBackstageService<ITelemetryUploader>() );
+            Assert.Null( serviceProvider.GetBackstageService<IExceptionReporter>() );
+            Assert.Null( serviceProvider.GetBackstageService<IUsageReporter>() );
+        }
     }
 }

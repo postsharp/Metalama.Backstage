@@ -15,8 +15,13 @@ namespace Metalama.Backstage
         {
             IServiceProvider? serviceProvider = null;
 
+            var initializationOptions = new BackstageInitializationOptions( new BackstageWorkerApplicationInfo() )
+            {
+                AddLicensing = true, AddSupportServices = true
+            };
+
             var serviceProviderBuilder = new ServiceProviderBuilder()
-                .AddBackstageServices( applicationInfo: new BackstageWorkerApplicationInfo(), addSupportServices: true );
+                .AddBackstageServices( initializationOptions );
 
             // Clean-up is scheduled automatically from Telemetry.
             try

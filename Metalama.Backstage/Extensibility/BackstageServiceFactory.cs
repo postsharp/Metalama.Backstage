@@ -15,7 +15,7 @@ public static class BackstageServiceFactory
     public static IServiceProvider ServiceProvider
         => _serviceProvider ?? throw new InvalidOperationException( "BackstageServiceFactory has not been initialized." );
 
-    public static bool Initialize( Func<IApplicationInfo> applicationInfoFactory, string caller, string? projectName = null )
+    public static bool Initialize( BackstageInitializationOptions options, string caller )
     {
         lock ( _initializeSync )
         {
@@ -29,7 +29,7 @@ public static class BackstageServiceFactory
             }
 
             _serviceProvider = new ServiceProviderBuilder()
-                .AddBackstageServices( applicationInfo: applicationInfoFactory(), projectName: projectName, addLicenseConsumption: false )
+                .AddBackstageServices( options )
                 .ServiceProvider;
 
             _serviceProvider.GetLoggerFactory()
@@ -40,9 +40,6 @@ public static class BackstageServiceFactory
         }
     }
 
-    public static ILicenseConsumptionManager CreateLicenseConsumptionManager(
-        bool considerUnattendedLicense = false,
-        bool ignoreUserProfileLicenses = false,
-        string? projectLicense = null )
-        => LicenseConsumptionManagerFactory.Create( ServiceProvider, considerUnattendedLicense, ignoreUserProfileLicenses, projectLicense );
+    public static ILicenseConsumptionManager CreateLicenseConsumptionManager( LicensingInitializationOptions options )
+        => LicenseConsumptionManagerFactory.Create( ServiceProvider, options );
 }

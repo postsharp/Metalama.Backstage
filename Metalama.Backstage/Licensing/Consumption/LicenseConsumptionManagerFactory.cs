@@ -10,28 +10,26 @@ internal static class LicenseConsumptionManagerFactory
 {
     public static ILicenseConsumptionManager Create(
         IServiceProvider serviceProvider,
-        bool considerUnattendedLicense = false,
-        bool ignoreUserProfileLicenses = false,
-        string? projectLicense = null )
+        LicensingInitializationOptions options )
     {
         var licenseSources = new List<ILicenseSource>();
 
-        if ( considerUnattendedLicense )
+        if ( !options.IgnoreUnattendedProcessLicense )
         {
             licenseSources.Add( new UnattendedLicenseSource( serviceProvider ) );
         }
 
-        if ( !ignoreUserProfileLicenses )
+        if ( !options.IgnoreUserProfileLicenses )
         {
             licenseSources.Add( new UserProfileLicenseSource( serviceProvider ) );
         }
 
-        if ( !string.IsNullOrWhiteSpace( projectLicense ) )
+        if ( !string.IsNullOrWhiteSpace( options.ProjectLicense ) )
         {
-            licenseSources.Add( new ExplicitLicenseSource( projectLicense!, serviceProvider ) );
+            licenseSources.Add( new ExplicitLicenseSource( options.ProjectLicense!, serviceProvider ) );
         }
 
-        if ( !ignoreUserProfileLicenses )
+        if ( !options.IgnoreUserProfileLicenses )
         {
             // Must be added last.
             licenseSources.Add( new PreviewLicenseSource( serviceProvider ) );
