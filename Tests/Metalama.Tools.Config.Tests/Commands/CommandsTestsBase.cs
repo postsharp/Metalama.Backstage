@@ -6,7 +6,6 @@ using Metalama.Backstage.Testing;
 using Metalama.DotNetTools;
 using Metalama.DotNetTools.Commands;
 using Metalama.Tools.Config.Tests.Console;
-using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.CommandLine;
 using System.Threading.Tasks;
