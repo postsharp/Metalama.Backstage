@@ -20,7 +20,7 @@ namespace Metalama.Backstage.Extensibility;
 /// </summary>
 public static class RegisterServiceExtensions
 {
-    public static ServiceProviderBuilder AddUntypedSingleton<T>(
+    internal static ServiceProviderBuilder AddUntypedSingleton<T>(
         this ServiceProviderBuilder serviceProviderBuilder,
         T instance )
         where T : notnull
@@ -30,7 +30,7 @@ public static class RegisterServiceExtensions
         return serviceProviderBuilder;
     }
 
-    public static ServiceProviderBuilder AddSingleton<T>(
+    internal static ServiceProviderBuilder AddSingleton<T>(
         this ServiceProviderBuilder serviceProviderBuilder,
         T instance )
         where T : IBackstageService
@@ -127,7 +127,7 @@ public static class RegisterServiceExtensions
         return serviceProviderBuilder;
     }
 
-    public static ServiceProviderBuilder AddConfigurationManager( this ServiceProviderBuilder serviceProviderBuilder )
+    internal static ServiceProviderBuilder AddConfigurationManager( this ServiceProviderBuilder serviceProviderBuilder )
         => serviceProviderBuilder.AddSingleton<IConfigurationManager>( new ConfigurationManager( serviceProviderBuilder.ServiceProvider ) );
 
     private static ServiceProviderBuilder AddPlatformInfo(
@@ -137,31 +137,7 @@ public static class RegisterServiceExtensions
         return serviceProviderBuilder.AddSingleton<IPlatformInfo>( new PlatformInfo( serviceProviderBuilder.ServiceProvider, dotnetSdkDirectory ) );
     }
 
-    /// <summary>
-    /// Adds the minimal backstage services, without diagnostics and telemetry.
-    /// </summary>
-    public static ServiceProviderBuilder AddMinimalBackstageServices(
-        this ServiceProviderBuilder serviceProviderBuilder,
-        IApplicationInfo applicationInfo,
-        bool addSupportServices = false,
-        string? projectName = null,
-        string? dotnetSdkDirectory = null )
-    {
-        serviceProviderBuilder
-            .AddDiagnosticsRequirements( applicationInfo );
-
-        if ( addSupportServices )
-        {
-            serviceProviderBuilder
-                .AddDiagnostics( applicationInfo.ProcessKind, projectName )
-                .AddPlatformInfo( dotnetSdkDirectory )
-                .AddTelemetryServices();
-        }
-
-        return serviceProviderBuilder;
-    }
-
-    public static ServiceProviderBuilder AddLicensing(
+    private static ServiceProviderBuilder AddLicensing(
         this ServiceProviderBuilder serviceProviderBuilder,
         bool considerUnattendedLicense = false,
         bool ignoreUserProfileLicenses = false,
@@ -189,7 +165,8 @@ public static class RegisterServiceExtensions
         bool openWelcomePage = false,
         bool addLicenseConsumption = true,
         bool addSupportServices = true,
-        bool addLicenseAudit = true )
+        bool addLicenseAudit = true,
+        Action<ServiceProviderBuilder>? addLoggerFactoryAction = null )
     {
         // Add base services.
         serviceProviderBuilder = serviceProviderBuilder
@@ -198,23 +175,30 @@ public static class RegisterServiceExtensions
         // Add diagnostics.
         if ( addSupportServices )
         {
-            serviceProviderBuilder = serviceProviderBuilder
-                .AddDiagnostics( applicationInfo.ProcessKind, projectName );
-
-            var serviceProvider = serviceProviderBuilder.ServiceProvider;
-
-            // First-run configuration. This must be done before initializing licensing and telemetry.
-            var registerEvaluationLicense =
-                !ignoreUserProfileLicenses
-                && !applicationInfo.IsPreviewLicenseEligible()
-                && !applicationInfo.IsUnattendedProcess( serviceProvider.GetLoggerFactory() );
-
-            var welcomeService = new WelcomeService( serviceProvider );
-            welcomeService.ExecuteFirstStartSetup( registerEvaluationLicense );
-
-            if ( openWelcomePage )
+            if ( addLoggerFactoryAction == null )
             {
-                welcomeService.OpenWelcomePage();
+                serviceProviderBuilder = serviceProviderBuilder
+                    .AddDiagnostics( applicationInfo.ProcessKind, projectName );
+
+                var serviceProvider = serviceProviderBuilder.ServiceProvider;
+
+                // First-run configuration. This must be done before initializing licensing and telemetry.
+                var registerEvaluationLicense =
+                    !ignoreUserProfileLicenses
+                    && !applicationInfo.IsPreviewLicenseEligible()
+                    && !applicationInfo.IsUnattendedProcess( serviceProvider.GetLoggerFactory() );
+
+                var welcomeService = new WelcomeService( serviceProvider );
+                welcomeService.ExecuteFirstStartSetup( registerEvaluationLicense );
+
+                if ( openWelcomePage )
+                {
+                    welcomeService.OpenWelcomePage();
+                }
+            }
+            else
+            {
+                addLoggerFactoryAction( serviceProviderBuilder );
             }
         }
 
@@ -260,7 +244,7 @@ public static class RegisterServiceExtensions
         return serviceProviderBuilder;
     }
 
-    public static ServiceProviderBuilder AddTelemetryServices( this ServiceProviderBuilder serviceProviderBuilder )
+    private static ServiceProviderBuilder AddTelemetryServices( this ServiceProviderBuilder serviceProviderBuilder )
     {
         // Add telemetry.
         var queue = new TelemetryQueue( serviceProviderBuilder.ServiceProvider );

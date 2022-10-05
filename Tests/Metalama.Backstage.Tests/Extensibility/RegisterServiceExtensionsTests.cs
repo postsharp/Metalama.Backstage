@@ -21,12 +21,6 @@ public class RegisterServiceExtensionsTests
     }
 
     [Fact]
-    public void AddMinimalBackstageServices()
-    {
-        CreateServiceProviderBuilder().AddMinimalBackstageServices( new TestApplicationInfo( "Test", true, "1.0", DateTime.Today ) );
-    }
-
-    [Fact]
     public void AddBackstageServices()
     {
         var serviceProviderBuilder = CreateServiceProviderBuilder().AddBackstageServices( new TestApplicationInfo( "Test", true, "1.0", DateTime.Today ) );

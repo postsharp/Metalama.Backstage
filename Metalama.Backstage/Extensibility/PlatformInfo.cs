@@ -19,6 +19,7 @@ namespace Metalama.Backstage.Extensibility
         public PlatformInfo( IServiceProvider serviceProvider, string? dotNetSdkDirectory )
         {
             var environmentVariableProvider = serviceProvider.GetRequiredBackstageService<IEnvironmentVariableProvider>();
+
             this.DotNetSdkDirectory = dotNetSdkDirectory
                                       ?? environmentVariableProvider.GetEnvironmentVariable( _dotNetSdkDirectoryEnvironmentVariableName );
 

@@ -16,7 +16,7 @@ namespace Metalama.Backstage
             IServiceProvider? serviceProvider = null;
 
             var serviceProviderBuilder = new ServiceProviderBuilder()
-                .AddMinimalBackstageServices( applicationInfo: new BackstageWorkerApplicationInfo(), addSupportServices: true );
+                .AddBackstageServices( applicationInfo: new BackstageWorkerApplicationInfo(), addSupportServices: true );
 
             // Clean-up is scheduled automatically from Telemetry.
             try
@@ -88,7 +88,7 @@ namespace Metalama.Backstage
             }
         }
 
-        public static bool HandleException( IServiceProvider? serviceProvider, Exception e )
+        private static bool HandleException( IServiceProvider? serviceProvider, Exception e )
         {
             try
             {
