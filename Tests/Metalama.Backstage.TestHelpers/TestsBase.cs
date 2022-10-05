@@ -1,6 +1,7 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. See the LICENSE.md file in the root directory of this repository root for details.
 
 using MELT;
+using Metalama.Backstage.Configuration;
 using Metalama.Backstage.Extensibility;
 using Metalama.Backstage.MicrosoftLogging;
 using Metalama.Backstage.Telemetry;
@@ -30,6 +31,8 @@ namespace Metalama.Backstage.Testing
 
         public IServiceProvider ServiceProvider { get; }
 
+        public InMemoryConfigurationManager ConfigurationManager { get; }
+
         public TestsBase( ITestOutputHelper logger, Action<ServiceProviderBuilder>? serviceBuilder = null )
         {
             this.Logger = logger;
@@ -58,6 +61,10 @@ namespace Metalama.Backstage.Testing
 
             serviceCollection.AddSingleton<ITelemetryUploader>( this.TelemetryUploader );
             serviceCollection.AddSingleton<IUsageReporter>( this.UsageReporter );
+
+            this.ConfigurationManager = new InMemoryConfigurationManager( serviceCollection.BuildServiceProvider() );
+
+            serviceCollection.AddSingleton<IConfigurationManager>( this.ConfigurationManager );
 
             // ReSharper restore RedundantTypeArgumentsOfMethod
 

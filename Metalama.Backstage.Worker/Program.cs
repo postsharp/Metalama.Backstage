@@ -15,8 +15,13 @@ namespace Metalama.Backstage
         {
             IServiceProvider? serviceProvider = null;
 
+            var initializationOptions = new BackstageInitializationOptions( new BackstageWorkerApplicationInfo() )
+            {
+                AddLicensing = true, AddSupportServices = true
+            };
+
             var serviceProviderBuilder = new ServiceProviderBuilder()
-                .AddMinimalBackstageServices( applicationInfo: new BackstageWorkerApplicationInfo(), addSupportServices: true );
+                .AddBackstageServices( initializationOptions );
 
             // Clean-up is scheduled automatically from Telemetry.
             try
@@ -36,17 +41,11 @@ namespace Metalama.Backstage
             }
 
             // Telemetry.
-            IUsageSample? usageSample = null;
+            var usageReporter = serviceProviderBuilder.ServiceProvider.GetBackstageService<IUsageReporter>();
 
             try
             {
-                usageSample = serviceProviderBuilder.ServiceProvider.GetBackstageService<IUsageReporter>()?.CreateSample( "CompilerUsage" );
-
-                if ( usageSample != null )
-                {
-                    // ReSharper disable once RedundantTypeArgumentsOfMethod
-                    serviceProviderBuilder.AddSingleton<IUsageSample>( usageSample );
-                }
+                usageReporter?.StartSession( "CompilerUsage" );
 
                 serviceProvider = serviceProviderBuilder.ServiceProvider;
 
@@ -66,7 +65,7 @@ namespace Metalama.Backstage
                 try
                 {
                     // Report usage.
-                    usageSample?.Flush();
+                    usageReporter?.StopSession();
 
                     // Close logs.
                     // Logging has to be disposed as the last one, so it could be used until now.
@@ -88,7 +87,7 @@ namespace Metalama.Backstage
             }
         }
 
-        public static bool HandleException( IServiceProvider? serviceProvider, Exception e )
+        private static bool HandleException( IServiceProvider? serviceProvider, Exception e )
         {
             try
             {

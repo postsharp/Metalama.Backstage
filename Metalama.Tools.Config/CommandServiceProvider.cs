@@ -2,7 +2,6 @@
 
 using Metalama.Backstage.Extensibility;
 using Metalama.Backstage.MicrosoftLogging;
-using Metalama.Backstage.Telemetry;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using System;
@@ -47,23 +46,20 @@ namespace Metalama.DotNetTools
                 ( type, instance ) => serviceCollection.AddSingleton( type, instance ),
                 () => serviceCollection.BuildServiceProvider() );
 
-            serviceProviderBuilder
-                .AddUntypedSingleton<IConsole>( console )
-                .AddMinimalBackstageServices( new MetalamaConfigApplicationInfo() );
-
-            if ( loggerFactory != null )
+            var initializationOptions = new BackstageInitializationOptions( new MetalamaConfigApplicationInfo() )
             {
-                serviceProviderBuilder.AddMicrosoftLoggerFactory( loggerFactory );
-            }
+                AddLicensing = true,
+                AddSupportServices = true,
+                AddLoggerFactoryAction = builder =>
+                {
+                    if ( loggerFactory != null )
+                    {
+                        builder.AddMicrosoftLoggerFactory( loggerFactory );
+                    }
+                }
+            };
 
-            serviceProviderBuilder.AddTelemetryServices();
-
-            var usageSample = serviceProviderBuilder.ServiceProvider.GetService<IUsageReporter>()?.CreateSample( "CompilerUsage" );
-
-            if ( usageSample != null )
-            {
-                serviceProviderBuilder.AddSingleton<IUsageSample>( usageSample );
-            }
+            serviceProviderBuilder.AddBackstageServices( initializationOptions );
 
             this._serviceProvider = serviceCollection.BuildServiceProvider();
         }
