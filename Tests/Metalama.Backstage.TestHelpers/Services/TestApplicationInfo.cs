@@ -12,8 +12,6 @@ namespace Metalama.Backstage.Testing.Services
     /// <inheritdoc />
     public class TestApplicationInfo : IApplicationInfo
     {
-        private readonly bool _isUnattendedProcess;
-
         /// <summary>
         /// Initializes a new instance of the <see cref="TestApplicationInfo"/> class.
         /// </summary>
@@ -24,31 +22,24 @@ namespace Metalama.Backstage.Testing.Services
             string name,
             bool isPrerelease,
             string version,
-            DateTime buildDate,
-            bool isUnattendedProcess = false,
-            bool isTelemetryEnabled = false,
-            string? company = null,
-            IEnumerable<IComponentInfo>? components = null )
+            DateTime buildDate )
         {
             this.Name = name;
             this.IsPrerelease = isPrerelease;
             this.Version = version;
-            this._isUnattendedProcess = isUnattendedProcess;
             this.BuildDate = buildDate;
-            this.IsTelemetryEnabled = isTelemetryEnabled;
-            this.Company = company ?? AssemblyMetadataReader.GetInstance( typeof(TestApplicationInfo).Assembly ).Company;
-            this.Components = components?.ToImmutableArray() ?? ImmutableArray<IComponentInfo>.Empty;
+            this.Company = AssemblyMetadataReader.GetInstance( typeof(TestApplicationInfo).Assembly ).Company;
         }
 
         public TestApplicationInfo() : this( "test", false, "0.0", DateTime.Now ) { }
 
-        public string? Company { get; }
+        public string? Company { get; init; }
 
         /// <inheritdoc />
         public string Name { get; }
 
         /// <inheritdoc />
-        public bool? IsPrerelease { get; }
+        public bool? IsPrerelease { get; init; }
 
         /// <inheritdoc />
         public string? Version { get; }
@@ -59,19 +50,21 @@ namespace Metalama.Backstage.Testing.Services
         /// <inheritdoc />
         public ProcessKind ProcessKind => ProcessKind.Other;
 
+        public bool IsUnattendedProcess { get; init; }
+
         /// <inheritdoc />
-        public bool IsUnattendedProcess( ILoggerFactory loggerFactory ) => this._isUnattendedProcess;
+        bool IApplicationInfo.IsUnattendedProcess( ILoggerFactory loggerFactory ) => this.IsUnattendedProcess;
 
         /// <inheritdoc />
         public bool IsLongRunningProcess => false;
 
         /// <inheritdoc />
-        public bool IsTelemetryEnabled { get; }
+        public bool IsTelemetryEnabled { get; init; }
 
         /// <inheritdoc />
         public bool ShouldCreateLocalCrashReports => false;
 
         /// <inheritdoc />
-        public ImmutableArray<IComponentInfo> Components { get; }
+        public ImmutableArray<IComponentInfo> Components { get; init; } = ImmutableArray<IComponentInfo>.Empty;
     }
 }
