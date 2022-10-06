@@ -9,6 +9,7 @@ namespace Metalama.Backstage.Telemetry;
 
 internal class UsageReporter : IUsageReporter
 {
+    private readonly IServiceProvider _serviceProvider;
     private readonly TelemetryConfiguration _configuration;
     private readonly IConfigurationManager _configurationManager;
     private readonly IDateTimeProvider _time;
@@ -19,6 +20,7 @@ internal class UsageReporter : IUsageReporter
 
     public UsageReporter( IServiceProvider serviceProvider )
     {
+        this._serviceProvider = serviceProvider;
         this._configurationManager = serviceProvider.GetRequiredBackstageService<IConfigurationManager>();
         this._configuration = this._configurationManager.Get<TelemetryConfiguration>();
         this._time = serviceProvider.GetRequiredBackstageService<IDateTimeProvider>();
@@ -77,15 +79,24 @@ internal class UsageReporter : IUsageReporter
             } );
     }
 
-    public void StartSession( string kind )
+    public bool StartSession( string kind )
     {
         if ( this._currentSample != null )
         {
             throw new InvalidOperationException();
         }
+
+        if ( !this.IsUsageReportingEnabled )
+        {
+            return false;
+        }
+
+        this._currentSample = new UsageSample( this._serviceProvider, kind );
+
+        return true;
     }
 
-    public MetricCollection Metrics => this._currentSample?.Metrics ?? throw new InvalidOperationException();
+    public MetricCollection? Metrics => this._currentSample?.Metrics;
 
     public void StopSession()
     {

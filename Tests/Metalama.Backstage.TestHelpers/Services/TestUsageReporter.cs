@@ -11,9 +11,9 @@ public class TestUsageReporter : IUsageReporter
 
     public bool ShouldReportSession( string projectName ) => false;
 
-    public void StartSession( string kind ) { }
+    public bool StartSession( string kind ) => false;
 
-    public MetricCollection Metrics { get; } = new();
+    public MetricCollection? Metrics => null;
 
     public void StopSession() { }
 }
