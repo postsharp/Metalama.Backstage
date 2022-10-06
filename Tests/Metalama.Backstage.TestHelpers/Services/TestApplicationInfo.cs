@@ -4,7 +4,6 @@ using Metalama.Backstage.Diagnostics;
 using Metalama.Backstage.Extensibility;
 using Metalama.Backstage.Utilities;
 using System;
-using System.Collections.Generic;
 using System.Collections.Immutable;
 
 namespace Metalama.Backstage.Testing.Services
