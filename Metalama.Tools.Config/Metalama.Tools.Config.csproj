@@ -21,6 +21,7 @@
         <PackAsTool>true</PackAsTool>
         <PackageType>DotNetCliTool</PackageType>
         <ToolCommandName>metalama-config</ToolCommandName>
+		<PackageDescription>A Metalama command line tool. Used for registering a license key or accessing some configuration settings.</PackageDescription>
     </PropertyGroup>
 
     <ItemGroup>

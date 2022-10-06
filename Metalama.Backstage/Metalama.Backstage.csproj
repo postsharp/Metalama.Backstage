@@ -2,6 +2,8 @@
 
     <PropertyGroup>
         <TargetFramework>netstandard2.0</TargetFramework>
+		<!-- Packaging -->
+		<PackageDescription>A Metalama package providing licensing, telemetry and other configuration settings.</PackageDescription>
     </PropertyGroup>
 
     <ItemGroup>
