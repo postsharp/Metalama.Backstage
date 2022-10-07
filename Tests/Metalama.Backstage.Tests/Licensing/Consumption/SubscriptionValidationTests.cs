@@ -5,6 +5,7 @@ using Metalama.Backstage.Licensing.Licenses;
 using Metalama.Backstage.Testing;
 using Metalama.Backstage.Testing.Services;
 using System;
+using System.Collections.Immutable;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -20,8 +21,7 @@ namespace Metalama.Backstage.Licensing.Tests.Licensing.Consumption
                 $"Subscription Validation Test App built {buildDate:d}",
                 false,
                 $"<ver-{buildDate:d}>",
-                buildDate,
-                components: components );
+                buildDate ) { Components = components.ToImmutableArray() };
 
         private static IComponentInfo CreateComponentInfo( DateTime buildDate, bool isThirdParty )
             => new TestComponentInfo(

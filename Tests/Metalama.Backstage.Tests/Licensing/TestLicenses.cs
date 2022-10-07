@@ -117,7 +117,7 @@ namespace Metalama.Backstage.Licensing.Tests
             var services = new ServiceCollection();
 
             services.AddSingleton<IApplicationInfoProvider>(
-                new ApplicationInfoProvider( new TestApplicationInfo( "Test", false, "<version>", DateTime.Now, true ) ) );
+                new ApplicationInfoProvider( new TestApplicationInfo( "Test", false, "<version>", DateTime.Now ) { IsUnattendedProcess = true } ) );
 
             var servicesProvider = services.BuildServiceProvider();
 
