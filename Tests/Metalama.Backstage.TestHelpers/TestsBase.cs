@@ -7,6 +7,7 @@ using Metalama.Backstage.MicrosoftLogging;
 using Metalama.Backstage.Telemetry;
 using Metalama.Backstage.Testing.Services;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Logging;
 using System;
 using Xunit.Abstractions;
@@ -15,6 +16,8 @@ namespace Metalama.Backstage.Testing
 {
     public abstract class TestsBase
     {
+        private readonly IServiceCollection _serviceCollection;
+
         public ITestOutputHelper Logger { get; }
 
         public TestDateTimeProvider Time { get; } = new();
@@ -33,6 +36,18 @@ namespace Metalama.Backstage.Testing
 
         public InMemoryConfigurationManager ConfigurationManager { get; }
 
+        protected IServiceCollection CreateServiceCollectionClone()
+        {
+            var services = new ServiceCollection();
+
+            foreach ( var service in this._serviceCollection )
+            {
+                services.Add( service );
+            }
+
+            return services;
+        }
+
         public TestsBase( ITestOutputHelper logger, Action<ServiceProviderBuilder>? serviceBuilder = null )
         {
             this.Logger = logger;
@@ -45,32 +60,32 @@ namespace Metalama.Backstage.Testing
 
             // ReSharper disable RedundantTypeArgumentsOfMethod
 
-            var serviceCollection = new ServiceCollection()
+            this._serviceCollection = new ServiceCollection()
                 .AddSingleton<IDateTimeProvider>( this.Time )
                 .AddSingleton<IFileSystem>( this.FileSystem )
                 .AddSingleton<IEnvironmentVariableProvider>( this.EnvironmentVariableProvider );
 
             var serviceProviderBuilder =
                 new ServiceProviderBuilder(
-                    ( type, instance ) => serviceCollection.AddSingleton( type, instance ),
-                    () => serviceCollection.BuildServiceProvider() );
+                    ( type, instance ) => this._serviceCollection.AddSingleton( type, instance ),
+                    () => this._serviceCollection.BuildServiceProvider() );
 
             serviceProviderBuilder
                 .AddMicrosoftLoggerFactory( loggerFactory )
                 .AddStandardDirectories();
 
-            serviceCollection.AddSingleton<ITelemetryUploader>( this.TelemetryUploader );
-            serviceCollection.AddSingleton<IUsageReporter>( this.UsageReporter );
+            this._serviceCollection.AddSingleton<ITelemetryUploader>( this.TelemetryUploader );
+            this._serviceCollection.AddSingleton<IUsageReporter>( this.UsageReporter );
 
-            this.ConfigurationManager = new InMemoryConfigurationManager( serviceCollection.BuildServiceProvider() );
+            this.ConfigurationManager = new InMemoryConfigurationManager( this._serviceCollection.BuildServiceProvider() );
 
-            serviceCollection.AddSingleton<IConfigurationManager>( this.ConfigurationManager );
+            this._serviceCollection.AddSingleton<IConfigurationManager>( this.ConfigurationManager );
 
             // ReSharper restore RedundantTypeArgumentsOfMethod
 
             serviceBuilder?.Invoke( serviceProviderBuilder );
 
-            this.ServiceProvider = serviceCollection.BuildServiceProvider();
+            this.ServiceProvider = this._serviceCollection.BuildServiceProvider();
         }
     }
 }

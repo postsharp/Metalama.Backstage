@@ -18,27 +18,37 @@ using System.Xml;
 
 namespace Metalama.Backstage.Telemetry;
 
-internal class ExceptionReporter : IExceptionReporter
+internal class ExceptionReporter : IExceptionReporter, IDisposable
 {
     private readonly TelemetryQueue _uploadManager;
-    private readonly TelemetryConfiguration _configuration;
     private readonly IDateTimeProvider _time;
     private readonly IApplicationInfoProvider _applicationInfoProvider;
     private readonly IStandardDirectories _directories;
     private readonly ILogger _logger;
-
     private readonly Regex _stackFrameRegex = new( @"\S+\([^\)]*\)" );
     private readonly IConfigurationManager _configurationManager;
+    private readonly IFileSystem _fileSystem;
+    private TelemetryConfiguration _configuration;
 
     public ExceptionReporter( TelemetryQueue uploadManager, IServiceProvider serviceProvider )
     {
         this._uploadManager = uploadManager;
         this._configurationManager = serviceProvider.GetRequiredBackstageService<IConfigurationManager>();
         this._configuration = this._configurationManager.Get<TelemetryConfiguration>();
+        this._configurationManager.ConfigurationFileChanged += this.OnConfigurationChanged;
         this._time = serviceProvider.GetRequiredBackstageService<IDateTimeProvider>();
         this._applicationInfoProvider = serviceProvider.GetRequiredBackstageService<IApplicationInfoProvider>();
         this._directories = serviceProvider.GetRequiredBackstageService<IStandardDirectories>();
         this._logger = serviceProvider.GetLoggerFactory().Telemetry();
+        this._fileSystem = serviceProvider.GetRequiredBackstageService<IFileSystem>();
+    }
+
+    private void OnConfigurationChanged( ConfigurationFile configuration )
+    {
+        if ( configuration is TelemetryConfiguration telemetryConfiguration )
+        {
+            this._configuration = telemetryConfiguration;
+        }
     }
 
     private IEnumerable<string?> CleanStackTrace( string stackTrace )
@@ -58,16 +68,22 @@ internal class ExceptionReporter : IExceptionReporter
             case UnauthorizedAccessException _:
             case WebException _:
             case OperationCanceledException _:
+                this._logger.Trace?.Log( $"The exception '{exception.GetType().Name}' should not reported because the exception type shows a user reason." );
+
                 return false;
         }
 
         if ( exception.InnerException != null && !this.ShouldReportException( exception.InnerException ) )
         {
+            this._logger.Trace?.Log( $"The exception '{exception.GetType().Name}' should not reported because the inner exception should not be reported." );
+
             return false;
         }
 
         if ( exception is AggregateException aggregateException && aggregateException.InnerExceptions.Any( e => !this.ShouldReportException( e ) ) )
         {
+            this._logger.Trace?.Log( $"The exception '{exception.GetType().Name}' should not reported because some inner exception should not be reported." );
+
             return false;
         }
 
@@ -170,10 +186,8 @@ internal class ExceptionReporter : IExceptionReporter
     {
         try
         {
-            if ( this.ShouldReportException( reportedException ) )
+            if ( !this.ShouldReportException( reportedException ) )
             {
-                this._logger.Trace?.Log( $"The exception {reportedException.GetType().Name} should not be reported. " );
-
                 return;
             }
 
@@ -208,69 +222,73 @@ internal class ExceptionReporter : IExceptionReporter
             // Create the exception report file.
             var directory = this._directories.TelemetryExceptionsDirectory;
 
-            if ( !Directory.Exists( directory ) )
+            if ( !this._fileSystem.DirectoryExists( directory ) )
             {
-                Directory.CreateDirectory( directory );
+                this._fileSystem.CreateDirectory( directory );
             }
 
             var fileName = Path.Combine( directory, "exception-" + hash + "-" + Guid.NewGuid().ToString() + ".xml" );
 
-            var writer = new XmlTextWriter( fileName, Encoding.UTF8 ) { Formatting = Formatting.Indented };
-            writer.WriteStartDocument();
-            writer.WriteStartElement( "ErrorReport" );
-            writer.WriteElementString( "InvariantHash", hash );
-            writer.WriteElementString( "Time", XmlConvert.ToString( this._time.Now, XmlDateTimeSerializationMode.RoundtripKind ) );
-            writer.WriteElementString( "ClientId", this._configuration.DeviceId.ToString() );
-            writer.WriteStartElement( "Application" );
-            writer.WriteElementString( "Name", applicationInfo.Name );
-            writer.WriteElementString( "Version", applicationInfo.Version );
-            writer.WriteEndElement();
+            var stringWriter = new StringWriter();
+
+            var xmlWriter = new XmlTextWriter( stringWriter ) { Formatting = Formatting.Indented };
+            xmlWriter.WriteStartDocument();
+            xmlWriter.WriteStartElement( "ErrorReport" );
+            xmlWriter.WriteElementString( "InvariantHash", hash );
+            xmlWriter.WriteElementString( "Time", XmlConvert.ToString( this._time.Now, XmlDateTimeSerializationMode.RoundtripKind ) );
+            xmlWriter.WriteElementString( "ClientId", this._configuration.DeviceId.ToString() );
+            xmlWriter.WriteStartElement( "Application" );
+            xmlWriter.WriteElementString( "Name", applicationInfo.Name );
+            xmlWriter.WriteElementString( "Version", applicationInfo.Version );
+            xmlWriter.WriteEndElement();
 
             var currentProcess = Process.GetCurrentProcess();
-            writer.WriteStartElement( "Process" );
-            writer.WriteElementString( "Name", currentProcess.ProcessName );
-            writer.WriteElementString( "ProcessorArchitecture", XmlConvert.ToString( IntPtr.Size * 8 ) );
-            writer.WriteElementString( "SessionId", XmlConvert.ToString( currentProcess.SessionId ) );
-            writer.WriteElementString( "TotalProcessorTime", XmlConvert.ToString( currentProcess.TotalProcessorTime ) );
-            writer.WriteElementString( "WorkingSet", XmlConvert.ToString( currentProcess.WorkingSet64 ) );
-            writer.WriteElementString( "PeakWorkingSet", XmlConvert.ToString( currentProcess.PeakWorkingSet64 ) );
-            writer.WriteElementString( "ManagedHeap", XmlConvert.ToString( GC.GetTotalMemory( false ) ) );
-            writer.WriteEndElement();
-            writer.WriteStartElement( "Environment" );
-            writer.WriteElementString( "OSVersion", Environment.OSVersion.Version.ToString() );
-            writer.WriteElementString( "ProcessorCount", XmlConvert.ToString( Environment.ProcessorCount ) );
-            writer.WriteElementString( "Version", Environment.Version.ToString() );
-            writer.WriteEndElement();
+            xmlWriter.WriteStartElement( "Process" );
+            xmlWriter.WriteElementString( "Name", currentProcess.ProcessName );
+            xmlWriter.WriteElementString( "ProcessorArchitecture", XmlConvert.ToString( IntPtr.Size * 8 ) );
+            xmlWriter.WriteElementString( "SessionId", XmlConvert.ToString( currentProcess.SessionId ) );
+            xmlWriter.WriteElementString( "TotalProcessorTime", XmlConvert.ToString( currentProcess.TotalProcessorTime ) );
+            xmlWriter.WriteElementString( "WorkingSet", XmlConvert.ToString( currentProcess.WorkingSet64 ) );
+            xmlWriter.WriteElementString( "PeakWorkingSet", XmlConvert.ToString( currentProcess.PeakWorkingSet64 ) );
+            xmlWriter.WriteElementString( "ManagedHeap", XmlConvert.ToString( GC.GetTotalMemory( false ) ) );
+            xmlWriter.WriteEndElement();
+            xmlWriter.WriteStartElement( "Environment" );
+            xmlWriter.WriteElementString( "OSVersion", Environment.OSVersion.Version.ToString() );
+            xmlWriter.WriteElementString( "ProcessorCount", XmlConvert.ToString( Environment.ProcessorCount ) );
+            xmlWriter.WriteElementString( "Version", Environment.Version.ToString() );
+            xmlWriter.WriteEndElement();
 
-            writer.WriteStartElement( "Exception" );
+            xmlWriter.WriteStartElement( "Exception" );
 
-            ExceptionXmlFormatter.WriteException( writer, reportedException );
+            ExceptionXmlFormatter.WriteException( xmlWriter, reportedException );
 
-            writer.WriteEndElement();
+            xmlWriter.WriteEndElement();
 
-            writer.WriteStartElement( "Assemblies" );
+            xmlWriter.WriteStartElement( "Assemblies" );
 
             foreach ( var assembly in AppDomain.CurrentDomain.GetAssemblies() )
             {
                 var assemblyName = assembly.GetName();
-                writer.WriteStartElement( "Assembly" );
-                writer.WriteElementString( "Name", ExceptionSensitiveDataHelper.Instance.RemoveSensitiveData( assemblyName.Name ) );
-                writer.WriteElementString( "Version", assemblyName.Version?.ToString() ?? "<unknown>" );
+                xmlWriter.WriteStartElement( "Assembly" );
+                xmlWriter.WriteElementString( "Name", ExceptionSensitiveDataHelper.Instance.RemoveSensitiveData( assemblyName.Name ) );
+                xmlWriter.WriteElementString( "Version", assemblyName.Version?.ToString() ?? "<unknown>" );
 
                 try
                 {
                     if ( !assembly.IsDynamic && !string.IsNullOrEmpty( assembly.Location ) )
                     {
-                        writer.WriteElementString( "FileVersion", FileVersionInfo.GetVersionInfo( assembly.Location ).FileVersion );
+                        xmlWriter.WriteElementString( "FileVersion", FileVersionInfo.GetVersionInfo( assembly.Location ).FileVersion );
                     }
                 }
                 catch ( NotSupportedException ) { }
 
-                writer.WriteEndElement();
+                xmlWriter.WriteEndElement();
             }
 
-            writer.WriteEndElement();
-            writer.Close();
+            xmlWriter.WriteEndElement();
+            xmlWriter.Close();
+
+            this._fileSystem.WriteAllText( fileName, stringWriter.ToString() );
 
             this._uploadManager.EnqueueFile( fileName );
         }
@@ -279,4 +297,6 @@ internal class ExceptionReporter : IExceptionReporter
             this._logger.Error?.Log( "Cannot report the exception: " + e );
         }
     }
+
+    public void Dispose() => this._configurationManager.ConfigurationFileChanged -= this.OnConfigurationChanged;
 }

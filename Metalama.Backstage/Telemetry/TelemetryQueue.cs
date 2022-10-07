@@ -4,7 +4,6 @@ using Metalama.Backstage.Diagnostics;
 using Metalama.Backstage.Extensibility;
 using System;
 using System.IO;
-using System.Text;
 
 namespace Metalama.Backstage.Telemetry
 {
@@ -12,11 +11,13 @@ namespace Metalama.Backstage.Telemetry
     {
         private readonly IStandardDirectories _directories;
         private readonly ILogger _logger;
+        private readonly IFileSystem _fileSystem;
 
         public TelemetryQueue( IServiceProvider serviceProvider )
         {
             this._directories = serviceProvider.GetRequiredBackstageService<IStandardDirectories>();
             this._logger = serviceProvider.GetLoggerFactory().Telemetry();
+            this._fileSystem = serviceProvider.GetRequiredBackstageService<IFileSystem>();
         }
 
         public void EnqueueFile( string file )
@@ -25,12 +26,12 @@ namespace Metalama.Backstage.Telemetry
 
             var directory = this._directories.TelemetryUploadQueueDirectory;
 
-            if ( !Directory.Exists( directory ) )
+            if ( !this._fileSystem.DirectoryExists( directory ) )
             {
-                Directory.CreateDirectory( directory );
+                this._fileSystem.CreateDirectory( directory );
             }
 
-            File.Move( file, Path.Combine( directory, Path.GetFileName( file ) ) );
+            this._fileSystem.MoveFile( file, Path.Combine( directory, Path.GetFileName( file ) ) );
         }
 
         public void EnqueueContent( string fileName, string contents )
@@ -39,14 +40,14 @@ namespace Metalama.Backstage.Telemetry
 
             var tempFile = Path.GetTempFileName();
 
-            File.WriteAllText( tempFile, contents, Encoding.UTF8 );
+            this._fileSystem.WriteAllText( tempFile, contents );
 
-            if ( !Directory.Exists( this._directories.TelemetryUploadQueueDirectory ) )
+            if ( !this._fileSystem.DirectoryExists( this._directories.TelemetryUploadQueueDirectory ) )
             {
-                Directory.CreateDirectory( this._directories.TelemetryUploadQueueDirectory );
+                this._fileSystem.CreateDirectory( this._directories.TelemetryUploadQueueDirectory );
             }
 
-            File.Move( tempFile, Path.Combine( this._directories.TelemetryUploadQueueDirectory, fileName ) );
+            this._fileSystem.MoveFile( tempFile, Path.Combine( this._directories.TelemetryUploadQueueDirectory, fileName ) );
         }
     }
 }
