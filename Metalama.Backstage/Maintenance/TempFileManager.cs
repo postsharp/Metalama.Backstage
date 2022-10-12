@@ -219,7 +219,7 @@ public class TempFileManager : ITempFileManager
         {
             using ( MutexHelper.WithGlobalLock( cleanUpFilePath ) )
             {
-                File.SetLastWriteTime( cleanUpFilePath, DateTime.Now );
+                RetryHelper.Retry( () => File.SetLastWriteTime( cleanUpFilePath, DateTime.Now ) );
             }
         }
 
