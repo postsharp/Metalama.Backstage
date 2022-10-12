@@ -14,7 +14,9 @@ internal static class LicenseConsumptionManagerFactory
     {
         var licenseSources = new List<ILicenseSource>();
 
-        if ( !options.IgnoreUnattendedProcessLicense )
+        // We ignore the unattended license if we have a license key in the csproj because it allows to test licensing on build servers.
+        // If we choose to take into account the unattended license regardless, we would need another way to disable the unattended license.
+        if ( !options.IgnoreUnattendedProcessLicense && string.IsNullOrWhiteSpace( options.ProjectLicense ) )
         {
             licenseSources.Add( new UnattendedLicenseSource( serviceProvider ) );
         }
