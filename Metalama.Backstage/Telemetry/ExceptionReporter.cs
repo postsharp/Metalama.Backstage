@@ -68,21 +68,21 @@ internal class ExceptionReporter : IExceptionReporter, IDisposable
             case UnauthorizedAccessException _:
             case WebException _:
             case OperationCanceledException _:
-                this._logger.Trace?.Log( $"The exception '{exception.GetType().Name}' should not reported because the exception type shows a user reason." );
+                this._logger.Trace?.Log( $"The exception '{exception.GetType().Name}' should not be reported because the exception type shows a user reason." );
 
                 return false;
         }
 
         if ( exception.InnerException != null && !this.ShouldReportException( exception.InnerException ) )
         {
-            this._logger.Trace?.Log( $"The exception '{exception.GetType().Name}' should not reported because the inner exception should not be reported." );
+            this._logger.Trace?.Log( $"The exception '{exception.GetType().Name}' should not be reported because the inner exception should not be reported." );
 
             return false;
         }
 
         if ( exception is AggregateException aggregateException && aggregateException.InnerExceptions.Any( e => !this.ShouldReportException( e ) ) )
         {
-            this._logger.Trace?.Log( $"The exception '{exception.GetType().Name}' should not reported because some inner exception should not be reported." );
+            this._logger.Trace?.Log( $"The exception '{exception.GetType().Name}' should not be reported because some inner exception should not be reported." );
 
             return false;
         }
