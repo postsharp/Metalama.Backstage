@@ -29,14 +29,16 @@ namespace Metalama.Backstage.Licensing.Licenses
         /// </summary>
         /// <param name="licenseString">The license string. E.g. license key or license server URL.</param>
         /// <param name="license">The <see cref="ILicense" /> object represented by the <paramref name="licenseString"/>.</param>
+        /// <param name="errorMessage">Description of a failure when the return value is <c>false</c>.</param>
         /// <returns>A value indicating if the <paramref name="licenseString"/> represents a license.</returns>
-        public bool TryCreate( string? licenseString, [MaybeNullWhen( false )] out ILicense license )
+        public bool TryCreate( string? licenseString, [MaybeNullWhen( false )] out ILicense license, [MaybeNullWhen( true )] out string errorMessage )
         {
             licenseString = licenseString?.Trim();
 
             if ( string.IsNullOrEmpty( licenseString ) )
             {
-                this._logger.Error?.Log( "Empty license string provided." );
+                errorMessage = "Empty license string provided.";
+                this._logger.Error?.Log( errorMessage );
                 license = null;
 
                 return false;
@@ -45,7 +47,8 @@ namespace Metalama.Backstage.Licensing.Licenses
             if ( Uri.IsWellFormedUriString( licenseString, UriKind.Absolute ) )
             {
                 // TODO License Server Support
-                this._logger.Error?.Log( "License server is not yet supported." );
+                errorMessage = "License server is not yet supported.";
+                this._logger.Error?.Log( errorMessage );
                 license = null;
 
                 return false;
@@ -54,6 +57,7 @@ namespace Metalama.Backstage.Licensing.Licenses
             {
                 // ReSharper disable once RedundantSuppressNullableWarningExpression
                 license = new License( licenseString!, this._services );
+                errorMessage = null;
 
                 return true;
             }

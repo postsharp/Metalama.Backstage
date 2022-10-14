@@ -8,7 +8,7 @@ using Xunit.Abstractions;
 
 namespace Metalama.Backstage.Licensing.Tests.Licensing.Essentials
 {
-    public class FreeLicenseRegistrationTests : LicenseRegistrationTestsBase
+    public class FreeLicenseRegistrationTests : LicensingTestsBase
     {
         private readonly FreeLicenseRegistrar _registrar;
 
@@ -21,8 +21,10 @@ namespace Metalama.Backstage.Licensing.Tests.Licensing.Essentials
         private void AssertSingleFreeLicenseRegistered()
         {
             var registeredLicenseString = this.ReadStoredLicenseString();
-            Assert.True( this.LicenseFactory.TryCreate( registeredLicenseString, out var registeredLicense ) );
-            Assert.True( registeredLicense!.TryGetLicenseRegistrationData( out var data ) );
+            Assert.True( this.LicenseFactory.TryCreate( registeredLicenseString, out var registeredLicense, out var errorMessage ) );
+            Assert.Null( errorMessage );
+            Assert.True( registeredLicense!.TryGetLicenseRegistrationData( out var data, out errorMessage ) );
+            Assert.Null( errorMessage );
             Assert.True( Guid.TryParse( data!.UniqueId, out var id ) );
             Assert.NotEqual( Guid.Empty, id );
             Assert.Equal( LicensedProduct.MetalamaFree, data.Product );

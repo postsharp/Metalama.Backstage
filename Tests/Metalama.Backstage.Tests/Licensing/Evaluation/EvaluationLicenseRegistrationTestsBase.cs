@@ -11,7 +11,7 @@ using Xunit.Abstractions;
 
 namespace Metalama.Backstage.Licensing.Tests.Licensing.Evaluation
 {
-    public abstract class EvaluationLicenseRegistrationTestsBase : LicenseRegistrationTestsBase
+    public abstract class EvaluationLicenseRegistrationTestsBase : LicensingTestsBase
     {
         protected static readonly DateTime TestStart = new( 2020, 1, 1 );
 

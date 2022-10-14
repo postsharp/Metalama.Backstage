@@ -33,7 +33,8 @@ public class RegisterServiceExtensionsTests
     {
         var options = new BackstageInitializationOptions( new TestApplicationInfo( "Test", true, "1.0", DateTime.Today ) )
         {
-            AddLicensing = addLicensing, AddSupportServices = addSupportServices,
+            AddLicensing = addLicensing,
+            AddSupportServices = addSupportServices,
             LicensingOptions = new LicensingInitializationOptions() { DisableLicenseAudit = disableLicenseAudit }
         };
 
@@ -51,7 +52,6 @@ public class RegisterServiceExtensionsTests
             }
             else
             {
-
                 Assert.NotNull( serviceProvider.GetBackstageService<ILicenseAuditManager>() );
             }
         }
@@ -73,11 +73,7 @@ public class RegisterServiceExtensionsTests
             Assert.Null( serviceProvider.GetBackstageService<ILoggerFactory>() );
             Assert.Null( serviceProvider.GetBackstageService<IExceptionReporter>() );
             Assert.Null( serviceProvider.GetBackstageService<IUsageReporter>() );
-
-            if ( !addLicensing )
-            {
-                Assert.Null( serviceProvider.GetBackstageService<ITelemetryUploader>() );
-            }
+            Assert.Null( serviceProvider.GetBackstageService<ITelemetryUploader>() );
         }
     }
 }

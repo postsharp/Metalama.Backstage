@@ -1,0 +1,84 @@
+﻿// Copyright (c) SharpCrafters s.r.o. See the LICENSE.md file in the root directory of this repository root for details.
+
+using Metalama.Backstage.Extensibility;
+using Metalama.Backstage.Licensing.Consumption;
+using Metalama.Backstage.Testing.Services;
+using Microsoft.Extensions.DependencyInjection;
+using System;
+using Xunit;
+using Xunit.Abstractions;
+
+namespace Metalama.Backstage.Licensing.Tests.Licensing.Consumption;
+
+public class LicenseSourcePriorityTests : LicensingTestsBase
+{
+    private static readonly LicenseRequirement _testLicenseRequirement = LicenseRequirement.Ultimate;
+
+    private const string _validTestLicense = TestLicenses.MetalamaUltimateBusiness;
+
+    private const string _invalidProjectLicense = "invalid-project";
+
+    private const string _invalidUserLicense = "invalid-user";
+
+    public LicenseSourcePriorityTests( ITestOutputHelper logger ) : base( logger, initializeConfiguration: false ) { }
+
+    private ILicenseConsumptionManager CreateConsumptionManager( bool isUnattendedProcess, string? projectLicense, string? userLicense, bool isPreview )
+    {
+        var serviceCollection = this.CreateServiceCollectionClone();
+
+        var serviceProviderBuilder =
+            new ServiceProviderBuilder(
+                ( type, instance ) => serviceCollection.AddSingleton( type, instance ),
+                () => serviceCollection.BuildServiceProvider() );
+
+        serviceProviderBuilder.AddSingleton<IApplicationInfoProvider>(
+                new ApplicationInfoProvider(
+                    new TestApplicationInfo( "License Source Priority Test App", isPreview, "1.0.0", new DateTime( 2022, 1, 1 ) )
+                    {
+                        IsUnattendedProcess = isUnattendedProcess
+                    } ) )
+            .AddConfigurationManager();
+
+        if ( userLicense != null )
+        {
+            TestLicensingConfigurationHelpers.SetStoredLicenseString( serviceProviderBuilder.ServiceProvider, userLicense );
+        }
+
+        var options = new LicensingInitializationOptions() { ProjectLicense = projectLicense, DisableLicenseAudit = true };
+
+        return LicenseConsumptionManagerFactory.Create( serviceProviderBuilder.ServiceProvider, options );
+    }
+
+    [Fact]
+    public void NoMessageGivenWithNoLicense()
+    {
+        var licenseConsumptionManager = this.CreateConsumptionManager( false, null, null, false );
+        Assert.False( licenseConsumptionManager.CanConsume( _testLicenseRequirement ) );
+        Assert.Empty( licenseConsumptionManager.Messages );
+    }
+
+    [Fact]
+    public void UnattendedLicenseHasHighestPriority()
+    {
+        // We don't pass an invalid project license, because project license disables unattended license.
+        var licenseConsumptionManager = this.CreateConsumptionManager( true, null, _invalidUserLicense, false );
+        Assert.True( licenseConsumptionManager.CanConsume( _testLicenseRequirement ) );
+        Assert.Empty( licenseConsumptionManager.Messages );
+    }
+
+    [Fact]
+    public void ProjectLicenseHasPriorityOverUserLicense()
+    {
+        var licenseConsumptionManager = this.CreateConsumptionManager( false, _invalidProjectLicense, _invalidUserLicense, false );
+        Assert.False( licenseConsumptionManager.CanConsume( _testLicenseRequirement ) );
+        Assert.Contains( _invalidProjectLicense, licenseConsumptionManager.Messages[0].Text, StringComparison.OrdinalIgnoreCase );
+    }
+
+    [Fact]
+    public void UserLicenseHasPriorityOverPreviewLicense()
+    {
+        var licenseConsumptionManager = this.CreateConsumptionManager( false, null, _invalidUserLicense, true );
+        Assert.False( licenseConsumptionManager.CanConsume( _testLicenseRequirement ) );
+        Assert.Contains( _invalidUserLicense, licenseConsumptionManager.Messages[0].Text, StringComparison.OrdinalIgnoreCase );
+    }
+}
