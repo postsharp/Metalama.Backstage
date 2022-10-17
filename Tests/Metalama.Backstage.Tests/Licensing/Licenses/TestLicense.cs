@@ -43,6 +43,11 @@ namespace Metalama.Backstage.Licensing.Tests.Licensing.Licenses
             throw new NotImplementedException();
         }
 
+        public void ResetUsage()
+        {
+            this.IsUsed = false;
+        }
+
         public override bool Equals( object? obj )
         {
             return obj is TestLicense license &&

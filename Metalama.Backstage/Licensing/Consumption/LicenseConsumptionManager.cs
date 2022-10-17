@@ -121,7 +121,7 @@ internal class LicenseConsumptionManager : ILicenseConsumptionManager
     {
         if ( !this._embeddedRedistributionLicensesCache.TryGetValue( redistributionLicenseKey, out var licensedNamespace ) )
         {
-            if ( !this._licenseFactory.TryCreate( redistributionLicenseKey, out var license, out var errorMessage) )
+            if ( !this._licenseFactory.TryCreate( redistributionLicenseKey, out var license, out var errorMessage ) )
             {
                 this.ReportMessage( new LicensingMessage( errorMessage, true ) );
 
@@ -131,7 +131,7 @@ internal class LicenseConsumptionManager : ILicenseConsumptionManager
             if ( !license.TryGetLicenseConsumptionData( out var licenseConsumptionData, out errorMessage ) )
             {
                 this.ReportMessage( new LicensingMessage( errorMessage, true ) );
-                
+
                 return false;
             }
 

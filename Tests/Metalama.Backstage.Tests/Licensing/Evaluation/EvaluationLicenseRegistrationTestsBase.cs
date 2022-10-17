@@ -4,7 +4,6 @@ using Metalama.Backstage.Extensibility;
 using Metalama.Backstage.Licensing.Licenses;
 using Metalama.Backstage.Licensing.Registration;
 using Metalama.Backstage.Licensing.Registration.Evaluation;
-using Metalama.Backstage.Licensing.Tests.Licensing.Registration;
 using System;
 using Xunit;
 using Xunit.Abstractions;

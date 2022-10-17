@@ -5,15 +5,125 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
+using System.IO.Abstractions;
 using System.IO.Abstractions.TestingHelpers;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading;
+using IFileSystem = Metalama.Backstage.Extensibility.IFileSystem;
 
 namespace Metalama.Backstage.Testing.Services
 {
     public class TestFileSystem : IFileSystem
     {
+        private enum ExecutionKind
+        {
+            Manage,
+            Read,
+            Write
+        }
+
+        private abstract class FileSystemWrapper
+        {
+            protected TestFileSystem Parent { get; }
+
+            public FileSystemWrapper( TestFileSystem parent )
+            {
+                this.Parent = parent;
+            }
+
+            public abstract bool Exists( string path );
+
+            public abstract void SetCreationTime( string path, DateTime creationTime );
+
+            public abstract void SetLastAccessTime( string path, DateTime lastAccessTime );
+
+            public abstract void SetLastWriteTime( string path, DateTime lastWriteTime );
+
+            protected TResult Execute<TResult>( ExecutionKind executionKind, string path, Func<TResult> action )
+            {
+                lock ( this.Parent.Mock )
+                {
+                    if ( executionKind == ExecutionKind.Read || executionKind == ExecutionKind.Write )
+                    {
+                        this.Parent.WaitAndThrowIfBlocked( path, true );
+                    }
+
+                    var accessTime = this.Parent._time.Now;
+
+                    var isCreated = executionKind == ExecutionKind.Write && !this.Exists( path );
+                    var result = action();
+
+                    if ( isCreated )
+                    {
+                        this.SetCreationTime( path, accessTime );
+                    }
+
+                    if ( executionKind == ExecutionKind.Read || executionKind == ExecutionKind.Write )
+                    {
+                        this.SetLastAccessTime( path, accessTime );
+                    }
+
+                    if ( executionKind == ExecutionKind.Write )
+                    {
+                        this.SetLastWriteTime( path, accessTime );
+                    }
+
+                    return result;
+                }
+            }
+
+            protected void Execute( ExecutionKind executionKind, string path, Action action )
+                => _ = this.Execute<object?>(
+                    executionKind,
+                    path,
+                    () =>
+                    {
+                        action();
+
+                        return null;
+                    } );
+        }
+
+        private class DirectoryWrapper : FileSystemWrapper
+        {
+            public DirectoryWrapper( TestFileSystem parent ) : base( parent ) { }
+
+            public override bool Exists( string path ) => this.Parent.Mock.Directory.Exists( path );
+
+            public override void SetCreationTime( string path, DateTime creationTime ) => this.Parent.Mock.Directory.SetCreationTime( path, creationTime );
+
+            public override void SetLastAccessTime( string path, DateTime lastAccessTime )
+                => this.Parent.Mock.Directory.SetLastAccessTime( path, lastAccessTime );
+
+            public override void SetLastWriteTime( string path, DateTime lastWriteTime ) => this.Parent.Mock.Directory.SetLastWriteTime( path, lastWriteTime );
+
+            public TResult Execute<TResult>( ExecutionKind executionKind, string path, Func<IDirectory, TResult> action )
+                => this.Execute( executionKind, path, () => action( this.Parent.Mock.Directory ) );
+
+            public void Execute( ExecutionKind executionKind, string path, Action<IDirectory> action )
+                => this.Execute( executionKind, path, () => action( this.Parent.Mock.Directory ) );
+        }
+
+        private class FileWrapper : FileSystemWrapper
+        {
+            public FileWrapper( TestFileSystem parent ) : base( parent ) { }
+
+            public override bool Exists( string path ) => this.Parent.Mock.File.Exists( path );
+
+            public override void SetCreationTime( string path, DateTime creationTime ) => this.Parent.Mock.File.SetCreationTime( path, creationTime );
+
+            public override void SetLastAccessTime( string path, DateTime lastAccessTime ) => this.Parent.Mock.File.SetLastAccessTime( path, lastAccessTime );
+
+            public override void SetLastWriteTime( string path, DateTime lastWriteTime ) => this.Parent.Mock.File.SetLastWriteTime( path, lastWriteTime );
+
+            public TResult Execute<TResult>( ExecutionKind executionKind, string path, Func<IFile, TResult> action )
+                => this.Execute( executionKind, path, () => action( this.Parent.Mock.File ) );
+
+            public void Execute( ExecutionKind executionKind, string path, Action<IFile> action )
+                => this.Execute( executionKind, path, () => action( this.Parent.Mock.File ) );
+        }
+
         private readonly ConcurrentDictionary<string, (ManualResetEventSlim Callee, ManualResetEventSlim Caller)> _blockedReads =
             new();
 
@@ -22,9 +132,22 @@ namespace Metalama.Backstage.Testing.Services
 
         private readonly List<string> _failedAccesses = new();
 
+        private readonly IDateTimeProvider _time;
+
+        private readonly DirectoryWrapper _directory;
+
+        private readonly FileWrapper _file;
+
         public MockFileSystem Mock { get; } = new();
 
         public IReadOnlyList<string> FailedFileAccesses => this._failedAccesses;
+
+        public TestFileSystem( IServiceProvider serviceProvider )
+        {
+            this._time = serviceProvider.GetRequiredBackstageService<IDateTimeProvider>();
+            this._directory = new( this );
+            this._file = new( this );
+        }
 
         public ManualResetEventSlim BlockRead( string path )
         {
@@ -83,279 +206,116 @@ namespace Metalama.Backstage.Testing.Services
             }
         }
 
-        public DateTime GetLastWriteTime( string path )
-        {
-            lock ( this.Mock )
-            {
-                return this.Mock.File.GetLastWriteTime( path );
-            }
-        }
+        public DateTime GetFileLastWriteTime( string path ) => this._file.Execute( ExecutionKind.Manage, path, f => f.GetLastWriteTime( path ) );
 
-        public void SetLastWriteTime( string path, DateTime lastWriteTime )
-        {
-            lock ( this.Mock )
-            {
-                this.Mock.File.SetLastWriteTime( path, lastWriteTime );
-            }
-        }
-
-        public bool FileExists( string path )
-        {
-            lock ( this.Mock )
-            {
-                return this.Mock.File.Exists( path );
-            }
-        }
-
-        public bool DirectoryExists( string path )
-        {
-            lock ( this.Mock )
-            {
-                return this.Mock.Directory.Exists( path );
-            }
-        }
-
-        public IEnumerable<string> EnumerateFiles(
-            string path,
-            string? searchPattern = null,
-            SearchOption? searchOption = null )
-        {
-            lock ( this.Mock )
-            {
-                return this.GetFiles( path, searchPattern, searchOption ).ToList();
-            }
-        }
-
-        public string[] GetFiles( string path, string? searchPattern = null, SearchOption? searchOption = null )
-        {
-            lock ( this.Mock )
-            {
-                if ( searchOption.HasValue )
+        public void SetFileLastWriteTime( string path, DateTime lastWriteTime )
+            => this._file.Execute(
+                ExecutionKind.Manage,
+                path,
+                f =>
                 {
-                    if ( searchPattern == null )
-                    {
-                        throw new ArgumentNullException( nameof(searchPattern) );
-                    }
+                    f.SetLastAccessTime( path, lastWriteTime );
+                    f.SetLastWriteTime( path, lastWriteTime );
+                } );
 
-                    return this.Mock.Directory.GetFiles( path, searchPattern, searchOption.Value );
-                }
-                else if ( searchPattern != null )
+        public DateTime GetDirectoryLastWriteTime( string path ) => this._directory.Execute( ExecutionKind.Manage, path, d => d.GetLastWriteTime( path ) );
+
+        public void SetDirectoryLastWriteTime( string path, DateTime lastWriteTime )
+            => this._directory.Execute(
+                ExecutionKind.Manage,
+                path,
+                d =>
                 {
-                    return this.Mock.Directory.GetFiles( path, searchPattern );
-                }
-                else
-                {
-                    return this.Mock.Directory.GetFiles( path );
-                }
-            }
-        }
+                    d.SetLastAccessTime( path, lastWriteTime );
+                    d.SetLastWriteTime( path, lastWriteTime );
+                } );
 
-        public IEnumerable<string> EnumerateDirectories(
-            string path,
-            string? searchPattern = null,
-            SearchOption? searchOption = null )
-        {
-            lock ( this.Mock )
-            {
-                return this.GetDirectories( path, searchPattern, searchOption );
-            }
-        }
+        public bool FileExists( string path ) => this._file.Execute( ExecutionKind.Manage, path, f => f.Exists( path ) );
 
-        public string[] GetDirectories( string path, string? searchPattern = null, SearchOption? searchOption = null )
-        {
-            lock ( this.Mock )
-            {
-                string[] directories;
+        public bool DirectoryExists( string path ) => this._directory.Execute( ExecutionKind.Manage, path, d => d.Exists( path ) );
 
-                if ( searchOption.HasValue )
-                {
-                    if ( searchPattern == null )
-                    {
-                        throw new ArgumentNullException( nameof(searchPattern) );
-                    }
+        // We use GetFiles instead of EnumerateFiles because the EnumerateFiles method doesn't behave as expected.
+        public IEnumerable<string> EnumerateFiles( string path ) => this._directory.Execute( ExecutionKind.Manage, path, d => d.GetFiles( path ) );
 
-                    directories = this.Mock.Directory.GetDirectories( path, searchPattern, searchOption.Value );
-                }
-                else if ( searchPattern != null )
-                {
-                    directories = this.Mock.Directory.GetDirectories( path, searchPattern );
-                }
-                else
-                {
-                    directories = this.Mock.Directory.GetDirectories( path );
-                }
+        // We use GetFiles instead of EnumerateFiles because the EnumerateFiles method doesn't behave as expected.
+        public IEnumerable<string> EnumerateFiles( string path, string searchPattern )
+            => this._directory.Execute( ExecutionKind.Manage, path, d => d.GetFiles( path, searchPattern ) );
 
-                // The mock returns trailing separator, but BCL does not.
+        // We use GetFiles instead of EnumerateFiles because the EnumerateFiles method doesn't behave as expected.
+        public IEnumerable<string> EnumerateFiles( string path, string searchPattern, SearchOption searchOption )
+            => this._directory.Execute( ExecutionKind.Manage, path, d => d.GetFiles( path, searchPattern, searchOption ) );
 
-                for ( var i = 0; i < directories.Length; i++ )
-                {
-                    directories[i] = directories[i].TrimEnd( Path.DirectorySeparatorChar );
-                }
+        public string[] GetFiles( string path ) => this._directory.Execute( ExecutionKind.Manage, path, d => d.GetFiles( path ) );
 
-                return directories;
-            }
-        }
+        public string[] GetFiles( string path, string searchPattern )
+            => this._directory.Execute( ExecutionKind.Manage, path, d => d.GetFiles( path, searchPattern ) );
 
-        public void CreateDirectory( string path )
-        {
-            lock ( this.Mock )
-            {
-                this.WaitAndThrowIfBlocked( path, true );
-                this.Mock.Directory.CreateDirectory( path );
-            }
-        }
+        public string[] GetFiles( string path, string searchPattern, SearchOption searchOption )
+            => this._directory.Execute( ExecutionKind.Manage, path, d => d.GetFiles( path, searchPattern, searchOption ) );
 
-        public Stream Open( string path, FileMode mode )
-        {
-            lock ( this.Mock )
-            {
-                this.WaitAndThrowIfBlocked( path, false );
+        // We use GetDirectories instead of EnumerateDirectories because the EnumerateDirectories method doesn't behave as expected.
+        public IEnumerable<string> EnumerateDirectories( string path )
+            => this._directory.Execute( ExecutionKind.Manage, path, d => d.GetDirectories( path ) );
 
-                return this.Mock.File.Open( path, mode );
-            }
-        }
+        // We use GetDirectories instead of EnumerateDirectories because the EnumerateDirectories method doesn't behave as expected.
+        public IEnumerable<string> EnumerateDirectories( string path, string searchPattern )
+            => this._directory.Execute( ExecutionKind.Manage, path, d => d.GetDirectories( path, searchPattern ) );
+
+        // We use GetDirectories instead of EnumerateDirectories because the EnumerateDirectories method doesn't behave as expected.
+        public IEnumerable<string> EnumerateDirectories( string path, string searchPattern, SearchOption searchOption )
+            => this._directory.Execute( ExecutionKind.Manage, path, d => d.GetDirectories( path, searchPattern, searchOption ) );
+
+        // This method helps to handle cases where the mock returns trailing separator, but BCL does not.
+        private static string[] RemoveTrailingSeparators( string[] paths ) => paths.Select( p => p.TrimEnd( Path.DirectorySeparatorChar ) ).ToArray();
+
+        public string[] GetDirectories( string path )
+            => this._directory.Execute( ExecutionKind.Manage, path, d => RemoveTrailingSeparators( d.GetDirectories( path ) ) );
+
+        public string[] GetDirectories( string path, string searchPattern )
+            => this._directory.Execute( ExecutionKind.Manage, path, d => RemoveTrailingSeparators( d.GetDirectories( path, searchPattern ) ) );
+
+        public string[] GetDirectories( string path, string searchPattern, SearchOption searchOption )
+            => this._directory.Execute( ExecutionKind.Manage, path, d => RemoveTrailingSeparators( d.GetDirectories( path, searchPattern, searchOption ) ) );
+
+        public void CreateDirectory( string path ) => this._directory.Execute( ExecutionKind.Write, path, d => d.CreateDirectory( path ) );
+
+        public Stream Open( string path, FileMode mode ) => this._file.Execute( ExecutionKind.Write, path, f => f.Open( path, mode ) );
 
         public Stream Open( string path, FileMode mode, FileAccess access )
-        {
-            lock ( this.Mock )
-            {
-                this.WaitAndThrowIfBlocked( path, false );
-
-                return this.Mock.File.Open( path, mode, access );
-            }
-        }
+            => this._file.Execute( access == FileAccess.Read ? ExecutionKind.Read : ExecutionKind.Write, path, f => f.Open( path, mode, access ) );
 
         public Stream Open( string path, FileMode mode, FileAccess access, FileShare share )
-        {
-            lock ( this.Mock )
-            {
-                this.WaitAndThrowIfBlocked( path, false );
+            => this._file.Execute( access == FileAccess.Read ? ExecutionKind.Read : ExecutionKind.Write, path, f => f.Open( path, mode, access, share ) );
 
-                return this.Mock.File.Open( path, mode, access, share );
-            }
-        }
+        public Stream OpenRead( string path ) => this._file.Execute( ExecutionKind.Read, path, f => f.OpenRead( path ) );
 
-        public Stream OpenRead( string path )
-        {
-            lock ( this.Mock )
-            {
-                this.WaitAndThrowIfBlocked( path, false );
+        public Stream OpenWrite( string path ) => this._file.Execute( ExecutionKind.Write, path, f => f.OpenWrite( path ) );
 
-                return this.Mock.File.OpenRead( path );
-            }
-        }
+        public byte[] ReadAllBytes( string path ) => this._file.Execute( ExecutionKind.Read, path, f => f.ReadAllBytes( path ) );
 
-        public Stream OpenWrite( string path )
-        {
-            lock ( this.Mock )
-            {
-                this.WaitAndThrowIfBlocked( path, true );
+        public void WriteAllBytes( string path, byte[] bytes ) => this._file.Execute( ExecutionKind.Write, path, f => f.WriteAllBytes( path, bytes ) );
 
-                return this.Mock.File.OpenWrite( path );
-            }
-        }
+        public string ReadAllText( string path ) => this._file.Execute( ExecutionKind.Read, path, f => f.ReadAllText( path ) );
 
-        public byte[] ReadAllBytes( string path )
-        {
-            lock ( this.Mock )
-            {
-                this.WaitAndThrowIfBlocked( path, false );
+        public void WriteAllText( string path, string content ) => this._file.Execute( ExecutionKind.Write, path, f => f.WriteAllText( path, content ) );
 
-                return this.Mock.File.ReadAllBytes( path );
-            }
-        }
+        public string[] ReadAllLines( string path ) => this._file.Execute( ExecutionKind.Read, path, f => f.ReadAllLines( path ) );
 
-        public void WriteAllBytes( string path, byte[] bytes )
-        {
-            lock ( this.Mock )
-            {
-                this.WaitAndThrowIfBlocked( path, true );
-                this.Mock.File.WriteAllBytes( path, bytes );
-            }
-        }
-
-        public string ReadAllText( string path )
-        {
-            lock ( this.Mock )
-            {
-                this.WaitAndThrowIfBlocked( path, false );
-
-                return this.Mock.File.ReadAllText( path );
-            }
-        }
-
-        public void WriteAllText( string path, string content )
-        {
-            lock ( this.Mock )
-            {
-                this.WaitAndThrowIfBlocked( path, true );
-                this.Mock.File.WriteAllText( path, content );
-                this.Mock.File.SetLastWriteTime( path, DateTime.Now );
-            }
-        }
-
-        public string[] ReadAllLines( string path )
-        {
-            lock ( this.Mock )
-            {
-                this.WaitAndThrowIfBlocked( path, false );
-
-                return this.Mock.File.ReadAllLines( path );
-            }
-        }
-
-        public void WriteAllLines( string path, string[] content )
-        {
-            lock ( this.Mock )
-            {
-                this.WaitAndThrowIfBlocked( path, true );
-                this.Mock.File.WriteAllLines( path, content );
-                this.Mock.File.SetLastWriteTime( path, DateTime.Now );
-            }
-        }
+        public void WriteAllLines( string path, string[] content ) => this._file.Execute( ExecutionKind.Write, path, f => f.WriteAllLines( path, content ) );
 
         public void WriteAllLines( string path, IEnumerable<string> content )
-        {
-            lock ( this.Mock )
-            {
-                this.WaitAndThrowIfBlocked( path, true );
-                this.Mock.File.WriteAllLines( path, content );
-                this.Mock.File.SetLastWriteTime( path, DateTime.Now );
-            }
-        }
+            => this._file.Execute( ExecutionKind.Write, path, f => f.WriteAllLines( path, content ) );
 
         public void MoveFile( string sourceFileName, string destFileName )
-        {
-            lock ( this.Mock )
-            {
-                this.Mock.File.Move( sourceFileName, destFileName );
-            }
-        }
+            => this._file.Execute( ExecutionKind.Manage, destFileName, f => f.Move( sourceFileName, destFileName ) );
 
-        public void DeleteFile( string path )
-        {
-            lock ( this.Mock )
-            {
-                this.Mock.File.Delete( path );
-            }
-        }
+        public void DeleteFile( string path ) => this._file.Execute( ExecutionKind.Manage, path, f => f.Delete( path ) );
 
         public void MoveDirectory( string sourceDirName, string destDirName )
-        {
-            lock ( this.Mock )
-            {
-                this.Mock.Directory.Move( sourceDirName, destDirName );
-            }
-        }
+            => this._directory.Execute( ExecutionKind.Manage, destDirName, d => d.Move( sourceDirName, destDirName ) );
 
-        public void DeleteDirectory( string path, bool recursive )
-        {
-            lock ( this.Mock )
-            {
-                this.Mock.Directory.Delete( path, recursive );
-            }
-        }
+        public void DeleteDirectory( string path, bool recursive ) => this._directory.Execute( ExecutionKind.Manage, path, d => d.Delete( path, recursive ) );
 
-        public bool IsDirectoryEmpty( string path ) => !this.Mock.Directory.EnumerateFileSystemEntries( path ).Any();
+        public bool IsDirectoryEmpty( string path ) => this._directory.Execute( ExecutionKind.Manage, path, d => d.EnumerateFileSystemEntries( path ).Any() );
     }
 }

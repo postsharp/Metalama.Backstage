@@ -3,6 +3,7 @@
 using Metalama.Backstage.Configuration;
 using Metalama.Backstage.Diagnostics;
 using Metalama.Backstage.Extensibility;
+using Metalama.Backstage.Licensing;
 using Metalama.Backstage.Utilities;
 using Newtonsoft.Json;
 using System;
@@ -29,13 +30,10 @@ public class TempFileManager : ITempFileManager
         this._time = serviceProvider.GetRequiredBackstageService<IDateTimeProvider>();
         this._standardDirectories = serviceProvider.GetRequiredBackstageService<IStandardDirectories>();
 
-        var applicationInfoProvider = serviceProvider.GetRequiredBackstageService<IApplicationInfoProvider>();
+        var application = serviceProvider.GetRequiredBackstageService<IApplicationInfoProvider>().CurrentApplication;
 
-        this._version =
-            (!applicationInfoProvider.CurrentApplication.Components.IsDefaultOrEmpty
-                ? applicationInfoProvider.CurrentApplication.Components[0].Version
-                : null) ?? applicationInfoProvider.CurrentApplication.Version ??
-            throw new InvalidOperationException( "The application version is not set." );
+        this._version = application.GetLatestComponentMadeByPostSharp().Version ??
+                        throw new InvalidOperationException( "The application version is not set." );
     }
 
     /// <summary>
@@ -114,7 +112,7 @@ public class TempFileManager : ITempFileManager
 
             if ( cleanUpFile != null )
             {
-                var lastWriteTime = this._fileSystem.GetLastWriteTime( cleanUpFileCandidate );
+                var lastWriteTime = this._fileSystem.GetFileLastWriteTime( cleanUpFileCandidate );
 
                 if ( cleanUpFile.Strategy == CleanUpStrategy.Always
                      || (cleanUpFile.Strategy == CleanUpStrategy.WhenUnused && lastWriteTime < DateTime.Now.AddDays( -7 )) )

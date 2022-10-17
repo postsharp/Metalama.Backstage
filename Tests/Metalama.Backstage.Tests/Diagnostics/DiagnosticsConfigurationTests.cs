@@ -4,32 +4,33 @@ using Metalama.Backstage.Configuration;
 using Metalama.Backstage.Diagnostics;
 using Metalama.Backstage.Extensibility;
 using Metalama.Backstage.Maintenance;
+using Metalama.Backstage.Testing;
 using Metalama.Backstage.Testing.Services;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Immutable;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace Metalama.Backstage.Licensing.Tests.Diagnostics;
 
 /// <summary>
 /// This tests class works with predefined default configuration set in constructor.
 /// </summary>
-public class DiagnosticsConfigurationTests
+public class DiagnosticsConfigurationTests : TestsBase
 {
+    public DiagnosticsConfigurationTests( ITestOutputHelper logger ) : base(
+        logger,
+        builder => builder
+            .AddSingleton<IEnvironmentVariableProvider>( new TestEnvironmentVariableProvider() )
+            .AddSingleton<IApplicationInfoProvider>( new ApplicationInfoProvider( new TestApplicationInfo() ) ) ) { }
+
     [Fact]
     public void OutdatedConfiguration_DisablesLogging()
     {
-        var testFileSystem = new TestFileSystem();
-
         ( IServiceProvider ServiceProvider, string FileName ) BuildServiceProvider( Action<Configuration.ConfigurationManager>? configure = null )
         {
-            var serviceCollection = new ServiceCollection()
-                .AddSingleton<IStandardDirectories>( new StandardDirectories() )
-                .AddSingleton<IApplicationInfoProvider>( new ApplicationInfoProvider( new TestApplicationInfo() ) )
-                .AddSingleton<IDateTimeProvider>( new CurrentDateTimeProvider() )
-                .AddSingleton<IFileSystem>( testFileSystem )
-                .AddSingleton<IEnvironmentVariableProvider>( new TestEnvironmentVariableProvider() );
+            var serviceCollection = this.CreateServiceCollectionClone();
 
             var configurationManager = new Configuration.ConfigurationManager( serviceCollection.BuildServiceProvider() );
             serviceCollection.AddSingleton<IConfigurationManager>( configurationManager );
@@ -66,7 +67,7 @@ public class DiagnosticsConfigurationTests
         Assert.NotNull( logger1.Trace );
 
         // Manually simulate the last modification of configuration happened before 3 hours.
-        testFileSystem.SetLastWriteTime( fileName, DateTime.Now.AddHours( -3 ) );
+        this.FileSystem.SetFileLastWriteTime( fileName, DateTime.Now.AddHours( -3 ) );
         var (serviceProvider2, _) = BuildServiceProvider();
 
         var logger2 = serviceProvider2.GetRequiredBackstageService<ILoggerFactory>().GetLogger( "Foo" );

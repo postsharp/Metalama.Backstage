@@ -12,13 +12,11 @@ namespace Metalama.Backstage.Licensing.Tests.Licensing.Consumption;
 
 public class LicenseSourcePriorityTests : LicensingTestsBase
 {
-    private static readonly LicenseRequirement _testLicenseRequirement = LicenseRequirement.Ultimate;
-
-    private const string _validTestLicense = TestLicenses.MetalamaUltimateBusiness;
-
     private const string _invalidProjectLicense = "invalid-project";
 
     private const string _invalidUserLicense = "invalid-user";
+    
+    private static readonly LicenseRequirement _testLicenseRequirement = LicenseRequirement.Ultimate;
 
     public LicenseSourcePriorityTests( ITestOutputHelper logger ) : base( logger, initializeConfiguration: false ) { }
 

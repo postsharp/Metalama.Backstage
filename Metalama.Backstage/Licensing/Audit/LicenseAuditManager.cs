@@ -75,16 +75,16 @@ internal class LicenseAuditManager : ILicenseAuditManager
         {
             var configuration = this._configurationManager.Get<LicenseAuditConfiguration>();
 
-            if ( configuration.LastAuditTimes.TryGetValue( report.AuditHashCode, out var lastReportTime )
-                 && lastReportTime >= this._time.Now.AddDays( -1 ) )
+            if ( !configuration.LastAuditTimes.TryGetValue( report.AuditHashCode, out var lastReportTime )
+                 || lastReportTime <= this._time.Now.AddDays( -1 ) )
+            {
+                return false;
+            }
+            else
             {
                 LogDisabledAudit( "has been reported recently" );
 
                 return true;
-            }
-            else
-            {
-                return false;
             }
         }
 
