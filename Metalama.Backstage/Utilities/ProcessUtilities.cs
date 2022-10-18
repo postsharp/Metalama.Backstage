@@ -135,12 +135,18 @@ public static class ProcessUtilities
                 return true;
             }
 
+            IReadOnlyList<ProcessInfo> parentProcesses = new List<ProcessInfo>();
+
             if ( !RuntimeInformation.IsOSPlatform( OSPlatform.Windows ) )
             {
-                // TODO: actual implementation.
-                logger.Trace?.Log( "Attended mode detected because of the platform is not Windows and Environment.UserInteractive is true." );
-
-                return false;
+                if ( RuntimeInformation.IsOSPlatform( OSPlatform.Linux ) || RuntimeInformation.IsOSPlatform( OSPlatform.OSX ) )
+                {
+                    parentProcesses = GetParentProcessesLinuxOrMac();
+                }
+            }
+            else
+            {
+                parentProcesses = GetParentProcessesWindows();
             }
 
             /*
@@ -160,8 +166,6 @@ public static class ProcessUtilities
             }
 
             var unattendedProcesses = new HashSet<string>( new[] { "services", "java", "agent.worker", "runner.worker" } );
-
-            var parentProcesses = GetParentProcesses();
 
             logger.Trace?.Log(
                 string.Format(
@@ -246,7 +250,7 @@ public static class ProcessUtilities
     }
     */
 
-    public static IReadOnlyList<ProcessInfo> GetParentProcesses()
+    public static IReadOnlyList<ProcessInfo> GetParentProcessesWindows()
     {
         var processes = new List<ProcessInfo>();
         var currentProcess = GetCurrentProcess();
@@ -320,6 +324,56 @@ public static class ProcessUtilities
         }
 
         CloseHandle( hProcess );
+
+        return processes.ToArray();
+    }
+
+    public static IReadOnlyList<ProcessInfo> GetParentProcessesLinuxOrMac()
+    {
+        Process process = new()
+        {
+            StartInfo = new ProcessStartInfo
+            {
+                WindowStyle = ProcessWindowStyle.Hidden,
+                CreateNoWindow = true,
+                FileName = "bash",
+                RedirectStandardInput = true,
+                RedirectStandardOutput = true,
+                RedirectStandardError = true,
+                UseShellExecute = false,
+            }
+        };
+
+        var parentProcessId = Process.GetCurrentProcess().Id;
+        var processes = new List<ProcessInfo>();
+
+        while ( parentProcessId != 0 )
+        {
+            processes.Add( new ProcessInfo( parentProcessId, Process.GetProcessById( parentProcessId ).ProcessName ) );
+
+            process.Start();
+            process.StandardInput.WriteLineAsync( $"ps -o ppid= -p {parentProcessId}" );
+            process.StandardInput.WriteLineAsync( "exit" );
+
+            string? commandOutputLine = null;
+
+            while ( process.StandardOutput.Peek() > -1 )
+            {
+                commandOutputLine = process.StandardOutput.ReadLineAsync().Result;
+            }
+
+            if ( commandOutputLine != null )
+            {
+                parentProcessId = int.Parse( commandOutputLine, CultureInfo.InvariantCulture );
+            }
+
+            process.WaitForExit();
+        }
+
+        foreach ( var item in processes )
+        {
+            Console.WriteLine( $"{item.ImagePath}, {item.ProcessId}" );
+        }
 
         return processes.ToArray();
     }
