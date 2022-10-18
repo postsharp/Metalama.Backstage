@@ -3,8 +3,13 @@
     <PropertyGroup>
         <TargetFramework>netstandard2.0</TargetFramework>
 		<!-- Packaging -->
-		<PackageDescription>A Metalama package providing licensing, telemetry and other configuration settings.</PackageDescription>
+		<PackageDescription>A Metalama package providing licensing, telemetry and other configuration settings for projects using Metalama.</PackageDescription>
+        <PackageReadmeFile>README.md</PackageReadmeFile>
     </PropertyGroup>
+
+    <ItemGroup>
+        <None Include="README.md" Pack="true" PackagePath="\"/>
+    </ItemGroup>
 
     <ItemGroup>
         <PackageReference Include="System.Collections.Immutable" Version="$(SystemImmutableCollectionsVersion)" />
