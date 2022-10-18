@@ -105,9 +105,5 @@ internal class UsageReporter : IUsageReporter
             this._currentSample.Flush();
             this._currentSample = null;
         }
-        else
-        {
-            throw new InvalidOperationException();
-        }
     }
 }
