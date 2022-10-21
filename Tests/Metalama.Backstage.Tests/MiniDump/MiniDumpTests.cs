@@ -17,10 +17,9 @@ public class MiniDumpTests : TestsBase
     public MiniDumpTests( ITestOutputHelper logger ) : base(
         logger,
         builder =>
-        {
-            builder.AddService( typeof(IConfigurationManager), new InMemoryConfigurationManager( builder.ServiceProvider ) );
-            builder.AddService( typeof(IApplicationInfoProvider), new ApplicationInfoProvider( new TestApplicationInfo() ) );
-        } ) { }
+            builder
+                .AddSingleton<IApplicationInfoProvider>( new ApplicationInfoProvider( new TestApplicationInfo() ) )
+                .AddSingleton<IConfigurationManager>( new InMemoryConfigurationManager( builder.ServiceProvider ) ) ) { }
 
     [Fact( Skip = "Randomly fails on TeamCity, probably because of old version of DbgHelper." )]
     public void WhenWriteFileExists()

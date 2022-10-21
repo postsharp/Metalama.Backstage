@@ -6,7 +6,7 @@ using Xunit.Abstractions;
 
 namespace Metalama.Backstage.Licensing.Tests.Licensing.Registration
 {
-    public class LicenseFileStorageTests : LicenseRegistrationTestsBase
+    public class LicenseFileStorageTests : LicensingTestsBase
     {
         public LicenseFileStorageTests( ITestOutputHelper logger )
             : base( logger ) { }
@@ -31,14 +31,14 @@ namespace Metalama.Backstage.Licensing.Tests.Licensing.Registration
             }
             else
             {
-                if ( !this.LicenseFactory.TryCreate( expectedLicenseString, out var expectedLicense ) )
+                if ( !this.LicenseFactory.TryCreate( expectedLicenseString, out var expectedLicense, out _ ) )
                 {
                     Assert.Null( storage.LicenseData );
 
                     return;
                 }
 
-                if ( !expectedLicense.TryGetLicenseRegistrationData( out var expectedData ) )
+                if ( !expectedLicense.TryGetLicenseRegistrationData( out var expectedData, out _ ) )
                 {
                     Assert.Null( storage.LicenseData );
 

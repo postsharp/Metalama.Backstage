@@ -12,16 +12,41 @@ namespace Metalama.Backstage.Extensibility
     public interface IFileSystem : IBackstageService
     {
         /// <summary>
+        /// Returns the date and time the specified file was last written to.
+        /// </summary>
+        /// <param name="path">The file for which to obtain write date and time information.</param>
+        /// <returns>
+        /// A <see cref="DateTime" /> structure set to the date and time that the specified file was last written to.
+        /// This value is expressed in local time.
+        /// </returns>
+        DateTime GetFileLastWriteTime( string path );
+
+        /// <summary>
+        /// Sets the date and time that the specified file was last written to.
+        /// </summary>
+        /// <param name="path">The file for which to set the date and time information.</param>
+        /// <param name="lastWriteTime">
+        /// A <see cref="T:System.DateTime" /> containing the value to set for the last write date and time of <paramref name="path" />.
+        /// This value is expressed in local time.
+        /// </param>
+        void SetFileLastWriteTime( string path, DateTime lastWriteTime );
+        
+        /// <summary>
         /// Returns the date and time the specified file or directory was last written to.
         /// </summary>
-        /// <param name="path">The file or directory for which to obtain write date and time information.</param>
+        /// <param name="path">The file or directory for which to obtain modification date and time information.</param>
         /// <returns>
-        /// A <see cref="DateTime" /> structure set to the date and time that the specified file
-        /// or directory was last written to. This value is expressed in local time.
+        /// A structure that is set to the date and time the specified file or directory was last written to.
+        /// This value is expressed in local time.
         /// </returns>
-        DateTime GetLastWriteTime( string path );
+        DateTime GetDirectoryLastWriteTime( string path );
 
-        void SetLastWriteTime( string path, DateTime lastWriteTime );
+        /// <summary>
+        /// Sets the date and time a directory was last written to.
+        /// </summary>
+        /// <param name="path">The path of the directory.</param>
+        /// <param name="lastWriteTime">The date and time the directory was last written to. This value is expressed in local time.</param>
+        void SetDirectoryLastWriteTime( string path, DateTime lastWriteTime );
 
         /// <summary>
         /// Determines whether the specified file exists.
@@ -45,6 +70,40 @@ namespace Metalama.Backstage.Extensibility
         /// </returns>
         bool DirectoryExists( string path );
 
+        /// <summary>
+        /// Returns an array of file names in a specified path.
+        /// </summary>
+        /// <param name="path">
+        /// The relative or absolute path to the directory to search.
+        /// This string is not case-sensitive.
+        /// </param>
+        /// <returns>
+        /// An array of the full names (including paths)
+        /// of the files in the directory specified by <paramref name="path"/>.
+        /// </returns>
+        string[] GetFiles( string path );
+        
+        /// <summary>
+        /// Returns an array of file names that match a search pattern
+        /// in a specified path.
+        /// </summary>
+        /// <param name="path">
+        /// The relative or absolute path to the directory to search.
+        /// This string is not case-sensitive.
+        /// </param>
+        /// <param name="searchPattern">
+        /// The search string to match against the names of files in path.
+        /// This parameter can contain a combination of valid literal path
+        /// and wild-card (* and ?) characters.
+        /// It doesn't support regular expressions.
+        /// </param>
+        /// <returns>
+        /// An array of the full names (including paths)
+        /// of the files in the directory specified by <paramref name="path"/>
+        /// and that match the specified <paramref name="searchPattern"/>.
+        /// </returns>
+        string[] GetFiles( string path, string searchPattern );
+        
         /// <summary>
         /// Returns an array of file names that match a search pattern
         /// in a specified path, and optionally searches subdirectories.
@@ -70,7 +129,42 @@ namespace Metalama.Backstage.Extensibility
         /// and that match the specified <paramref name="searchPattern"/>
         /// and <paramref name="searchOption"/>.
         /// </returns>
-        string[] GetFiles( string path, string? searchPattern = null, SearchOption? searchOption = null );
+        string[] GetFiles( string path, string searchPattern, SearchOption searchOption );
+
+        /// <summary>
+        /// Returns an enumerable collection of file names
+        /// in a specified path.
+        /// </summary>
+        /// <param name="path">
+        /// The relative or absolute path to the directory to search.
+        /// This string is not case-sensitive.
+        /// </param>
+        /// <returns>
+        /// An enumerable collection of the full names (including paths)
+        /// of the files in the directory specified by <paramref name="path"/>.
+        /// </returns>
+        IEnumerable<string> EnumerateFiles( string path );
+
+        /// <summary>
+        /// Returns an enumerable collection of file names that match a search pattern
+        /// in a specified path.
+        /// </summary>
+        /// <param name="path">
+        /// The relative or absolute path to the directory to search.
+        /// This string is not case-sensitive.
+        /// </param>
+        /// <param name="searchPattern">
+        /// The search string to match against the names of files in path.
+        /// This parameter can contain a combination of valid literal path
+        /// and wild-card (* and ?) characters.
+        /// It doesn't support regular expressions.
+        /// </param>
+        /// <returns>
+        /// An enumerable collection of the full names (including paths)
+        /// of the files in the directory specified by <paramref name="path"/>
+        /// and that match the specified <paramref name="searchPattern"/>.
+        /// </returns>
+        IEnumerable<string> EnumerateFiles( string path, string searchPattern );
 
         /// <summary>
         /// Returns an enumerable collection of file names that match a search pattern
@@ -97,11 +191,42 @@ namespace Metalama.Backstage.Extensibility
         /// and that match the specified <paramref name="searchPattern"/>
         /// and <paramref name="searchOption"/>.
         /// </returns>
-        IEnumerable<string> EnumerateFiles(
-            string path,
-            string? searchPattern = null,
-            SearchOption? searchOption = null );
+        IEnumerable<string> EnumerateFiles( string path, string searchPattern, SearchOption searchOption );
 
+        /// <summary>
+        /// Returns an array of directory names in a specified path.
+        /// </summary>
+        /// <param name="path">
+        /// The relative or absolute path to the directory to search.
+        /// This string is not case-sensitive.
+        /// </param>
+        /// <returns>
+        /// An array of the full names (including paths)
+        /// of the directories in the directory specified by <paramref name="path"/>.
+        /// </returns>
+        string[] GetDirectories( string path );
+        
+        /// <summary>
+        /// Returns an array of directory names that match a search pattern
+        /// in a specified path.
+        /// </summary>
+        /// <param name="path">
+        /// The relative or absolute path to the directory to search.
+        /// This string is not case-sensitive.
+        /// </param>
+        /// <param name="searchPattern">
+        /// The search string to match against the names of directories in path.
+        /// This parameter can contain a combination of valid literal path
+        /// and wild-card (* and ?) characters.
+        /// It doesn't support regular expressions.
+        /// </param>
+        /// <returns>
+        /// An array of the full names (including paths)
+        /// of the directories in the directory specified by <paramref name="path"/>
+        /// and that match the specified <paramref name="searchPattern"/>.
+        /// </returns>
+        string[] GetDirectories( string path, string searchPattern );
+        
         /// <summary>
         /// Returns an array of directory names that match a search pattern
         /// in a specified path, and optionally searches subdirectories.
@@ -127,8 +252,42 @@ namespace Metalama.Backstage.Extensibility
         /// and that match the specified <paramref name="searchPattern"/>
         /// and <paramref name="searchOption"/>.
         /// </returns>
-        string[] GetDirectories( string path, string? searchPattern = null, SearchOption? searchOption = null );
+        string[] GetDirectories( string path, string searchPattern, SearchOption searchOption );
 
+        /// <summary>
+        /// Returns an enumerable collection of directory names in a specified path.
+        /// </summary>
+        /// <param name="path">
+        /// The relative or absolute path to the directory to search.
+        /// This string is not case-sensitive.
+        /// </param>
+        /// <returns>
+        /// An enumerable collection of the full names (including paths)
+        /// of the directories in the directory specified by <paramref name="path"/>.
+        /// </returns>
+        IEnumerable<string> EnumerateDirectories( string path );
+        
+        /// <summary>
+        /// Returns an enumerable collection of directory names that match a search pattern
+        /// in a specified path.
+        /// </summary>
+        /// <param name="path">
+        /// The relative or absolute path to the directory to search.
+        /// This string is not case-sensitive.
+        /// </param>
+        /// <param name="searchPattern">
+        /// The search string to match against the names of directories in path.
+        /// This parameter can contain a combination of valid literal path
+        /// and wild-card (* and ?) characters.
+        /// It doesn't support regular expressions.
+        /// </param>
+        /// <returns>
+        /// An enumerable collection of the full names (including paths)
+        /// of the directories in the directory specified by <paramref name="path"/>
+        /// and that match the specified <paramref name="searchPattern"/>.
+        /// </returns>
+        IEnumerable<string> EnumerateDirectories( string path, string searchPattern );
+        
         /// <summary>
         /// Returns an enumerable collection of directory names that match a search pattern
         /// in a specified path, and optionally searches subdirectories.
@@ -154,10 +313,7 @@ namespace Metalama.Backstage.Extensibility
         /// and that match the specified <paramref name="searchPattern"/>
         /// and <paramref name="searchOption"/>.
         /// </returns>
-        IEnumerable<string> EnumerateDirectories(
-            string path,
-            string? searchPattern = null,
-            SearchOption? searchOption = null );
+        IEnumerable<string> EnumerateDirectories( string path, string searchPattern, SearchOption searchOption );
 
         /// <summary>
         /// Creates all directories and subdirectories in the specified path unless they already exist.

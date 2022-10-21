@@ -27,8 +27,10 @@ namespace Metalama.Backstage.Licensing.Consumption.Sources
                 return null;
             }
 
-            if ( !licenseFactory.TryCreate( licenseString, out var license ) )
+            if ( !licenseFactory.TryCreate( licenseString, out var license, out var errorMessage ) )
             {
+                reportMessage( new LicensingMessage( errorMessage, true ) );
+
                 return null;
             }
 
