@@ -13,7 +13,7 @@ namespace Metalama.Backstage.Licensing.Consumption.Sources
         /// <summary>
         /// Gets a license, if available and valid. <paramref name="reportMessage"/> is called when the license key is invalid.
         /// </summary>
-        /// <param name="reportMessage">Action to be called when the message is invalid.</param>
+        /// <param name="reportMessage">Action to be called when the license is invalid.</param>
         /// <returns>The license or <c>null</c>.</returns>
         ILicense? GetLicense( Action<LicensingMessage> reportMessage );
     }

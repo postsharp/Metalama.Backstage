@@ -17,7 +17,7 @@ namespace Metalama.Backstage
 
             var initializationOptions = new BackstageInitializationOptions( new BackstageWorkerApplicationInfo() )
             {
-                AddLicensing = true, AddSupportServices = true
+                AddSupportServices = true
             };
 
             var serviceProviderBuilder = new ServiceProviderBuilder()

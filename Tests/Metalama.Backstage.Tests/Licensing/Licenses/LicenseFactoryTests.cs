@@ -14,37 +14,40 @@ namespace Metalama.Backstage.Licensing.Tests.Licensing.Licenses
         [Fact]
         public void NullLicenseStringFails()
         {
-            Assert.False( this.LicenseFactory.TryCreate( "", out _ ) );
+            Assert.False( this.LicenseFactory.TryCreate( "", out _, out _ ) );
         }
 
         [Fact]
         public void EmptyLicenseStringFails()
         {
-            Assert.False( this.LicenseFactory.TryCreate( string.Empty, out _ ) );
+            Assert.False( this.LicenseFactory.TryCreate( string.Empty, out _, out _ ) );
         }
 
         [Fact]
         public void WhitespaceLicenseStringFails()
         {
-            Assert.False( this.LicenseFactory.TryCreate( " ", out _ ) );
+            Assert.False( this.LicenseFactory.TryCreate( " ", out _, out _ ) );
         }
 
         [Fact]
         public void InvalidLicenseStringCreatesInvalidLicense()
         {
             const string invalidLicenseString = "SomeInvalidLicenseString";
-            Assert.True( this.LicenseFactory.TryCreate( invalidLicenseString, out var license ) );
+            Assert.True( this.LicenseFactory.TryCreate( invalidLicenseString, out var license, out var errorMessage ) );
+            Assert.Null( errorMessage );
             Assert.True( license is License );
-            Assert.False( license!.TryGetLicenseConsumptionData( out _ ) );
+            Assert.False( license!.TryGetLicenseConsumptionData( out _, out _ ) );
         }
 
         [Fact]
         public void ValidLicenseKeyCreatesValidLicense()
         {
-            Assert.True( this.LicenseFactory.TryCreate( TestLicenses.PostSharpUltimate, out var license ) );
+            Assert.True( this.LicenseFactory.TryCreate( TestLicenses.PostSharpUltimate, out var license, out var errorMessage ) );
+            Assert.Null( errorMessage );
             Assert.True( license is License );
-            Assert.True( license!.TryGetLicenseConsumptionData( out var licenseData ) );
+            Assert.True( license!.TryGetLicenseConsumptionData( out var licenseData, out errorMessage ) );
             Assert.NotNull( licenseData );
+            Assert.Null( errorMessage );
         }
 
         [Fact]
@@ -55,7 +58,7 @@ namespace Metalama.Backstage.Licensing.Tests.Licensing.Licenses
             // Assert.True( this._licenseFactory.TryCreate( "http://hello.world", out var license ) );
             // Assert.True( license is LicenseLease );
 
-            Assert.False( this.LicenseFactory.TryCreate( "http://hello.world", out _ ) );
+            Assert.False( this.LicenseFactory.TryCreate( "http://hello.world", out _, out _ ) );
         }
     }
 }

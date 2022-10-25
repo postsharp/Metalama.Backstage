@@ -22,7 +22,7 @@ namespace Metalama.Backstage.Testing
 
         public TestDateTimeProvider Time { get; } = new();
 
-        public TestFileSystem FileSystem { get; } = new();
+        public TestFileSystem FileSystem { get; }
 
         public TestEnvironmentVariableProvider EnvironmentVariableProvider { get; } = new();
 
@@ -61,7 +61,11 @@ namespace Metalama.Backstage.Testing
             // ReSharper disable RedundantTypeArgumentsOfMethod
 
             this._serviceCollection = new ServiceCollection()
-                .AddSingleton<IDateTimeProvider>( this.Time )
+                .AddSingleton<IDateTimeProvider>( this.Time );
+                
+            this.FileSystem = new( this._serviceCollection.BuildServiceProvider() );
+
+            this._serviceCollection
                 .AddSingleton<IFileSystem>( this.FileSystem )
                 .AddSingleton<IEnvironmentVariableProvider>( this.EnvironmentVariableProvider );
 

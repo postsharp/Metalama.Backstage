@@ -20,7 +20,8 @@ public abstract class LicenseConsumptionManagerTestsBase : LicensingTestsBase
 
     private protected TestLicense CreateLicense( string licenseString )
     {
-        Assert.True( this.LicenseFactory.TryCreate( licenseString, out var license ) );
+        Assert.True( this.LicenseFactory.TryCreate( licenseString, out var license, out var errorMessage ) );
+        Assert.Null( errorMessage );
 
         return new TestLicense( license! );
     }

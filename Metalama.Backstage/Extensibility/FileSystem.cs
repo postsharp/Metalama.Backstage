@@ -13,14 +13,27 @@ namespace Metalama.Backstage.Extensibility
     internal class FileSystem : IFileSystem
     {
         /// <inheritdoc />
-        public DateTime GetLastWriteTime( string path )
+        public DateTime GetFileLastWriteTime( string path )
         {
             return File.GetLastWriteTime( path );
         }
 
-        public void SetLastWriteTime( string path, DateTime lastWriteTime )
+        /// <inheritdoc />
+        public void SetFileLastWriteTime( string path, DateTime lastWriteTime )
         {
             File.SetLastWriteTime( path, lastWriteTime );
+        }
+
+        /// <inheritdoc />
+        public DateTime GetDirectoryLastWriteTime( string path )
+        {
+            return Directory.GetLastWriteTime( path );
+        }
+
+        /// <inheritdoc />
+        public void SetDirectoryLastWriteTime( string path, DateTime lastWriteTime )
+        {
+            Directory.SetLastWriteTime( path, lastWriteTime );
         }
 
         /// <inheritdoc />
@@ -36,65 +49,75 @@ namespace Metalama.Backstage.Extensibility
         }
 
         /// <inheritdoc />
-        public string[] GetFiles( string path, string? searchPattern = null, SearchOption? searchOption = null )
+        public string[] GetFiles( string path )
         {
-            return this.EnumerateFiles( path, searchPattern, searchOption ).ToArray();
+            return Directory.GetFiles( path );
+        }
+        
+        /// <inheritdoc />
+        public string[] GetFiles( string path, string searchPattern )
+        {
+            return Directory.GetFiles( path, searchPattern );
+        }
+        
+        /// <inheritdoc />
+        public string[] GetFiles( string path, string searchPattern, SearchOption searchOption )
+        {
+            return Directory.GetFiles( path, searchPattern, searchOption );
         }
 
         /// <inheritdoc />
-        public IEnumerable<string> EnumerateFiles(
-            string path,
-            string? searchPattern = null,
-            SearchOption? searchOption = null )
+        public IEnumerable<string> EnumerateFiles( string path )
         {
-            if ( searchOption.HasValue )
-            {
-                if ( searchPattern == null )
-                {
-                    throw new ArgumentNullException( nameof(searchPattern) );
-                }
-
-                return Directory.EnumerateFiles( path, searchPattern, searchOption.Value );
-            }
-            else if ( searchPattern != null )
-            {
-                return Directory.EnumerateFiles( path, searchPattern );
-            }
-            else
-            {
-                return Directory.EnumerateFiles( path );
-            }
+            return Directory.EnumerateFiles( path );
+        }
+        
+        /// <inheritdoc />
+        public IEnumerable<string> EnumerateFiles( string path, string searchPattern )
+        {
+            return Directory.EnumerateFiles( path, searchPattern );
+        }
+        
+        /// <inheritdoc />
+        public IEnumerable<string> EnumerateFiles( string path, string searchPattern, SearchOption searchOption )
+        {
+            return Directory.EnumerateFiles( path, searchPattern, searchOption );
         }
 
         /// <inheritdoc />
-        public string[] GetDirectories( string path, string? searchPattern = null, SearchOption? searchOption = null )
+        public string[] GetDirectories( string path )
         {
-            return this.EnumerateDirectories( path, searchPattern, searchOption ).ToArray();
+            return Directory.GetDirectories( path );
+        }
+        
+        /// <inheritdoc />
+        public string[] GetDirectories( string path, string searchPattern )
+        {
+            return Directory.GetDirectories( path, searchPattern );
+        }
+        
+        /// <inheritdoc />
+        public string[] GetDirectories( string path, string searchPattern, SearchOption searchOption )
+        {
+            return Directory.GetDirectories( path, searchPattern, searchOption );
         }
 
         /// <inheritdoc />
-        public IEnumerable<string> EnumerateDirectories(
-            string path,
-            string? searchPattern = null,
-            SearchOption? searchOption = null )
+        public IEnumerable<string> EnumerateDirectories( string path )
         {
-            if ( searchOption.HasValue )
-            {
-                if ( searchPattern == null )
-                {
-                    throw new ArgumentNullException( nameof(searchPattern) );
-                }
-
-                return Directory.EnumerateDirectories( path, searchPattern, searchOption.Value );
-            }
-            else if ( searchPattern != null )
-            {
-                return Directory.EnumerateDirectories( path, searchPattern );
-            }
-            else
-            {
-                return Directory.EnumerateDirectories( path );
-            }
+            return Directory.EnumerateDirectories( path );
+        }
+        
+        /// <inheritdoc />
+        public IEnumerable<string> EnumerateDirectories( string path, string searchPattern )
+        {
+            return Directory.EnumerateDirectories( path, searchPattern );
+        }
+        
+        /// <inheritdoc />
+        public IEnumerable<string> EnumerateDirectories( string path, string searchPattern, SearchOption searchOption )
+        {
+            return Directory.EnumerateDirectories( path, searchPattern, searchOption );
         }
 
         /// <inheritdoc />
@@ -180,13 +203,13 @@ namespace Metalama.Backstage.Extensibility
         {
             File.Move( sourceFileName, destFileName );
         }
-        
+
         /// <inheritdoc />
         public void DeleteFile( string path )
         {
             File.Delete( path );
         }
-        
+
         /// <inheritdoc />
         public void MoveDirectory( string sourceDirName, string destDirName )
         {

@@ -35,10 +35,10 @@ internal class RegisterCommand : CommandBase
 
         var factory = new LicenseFactory( this.CommandServices.ServiceProvider );
 
-        if ( !factory.TryCreate( licenseKey, out var license )
-             || !license.TryGetLicenseRegistrationData( out var data ) )
+        if ( !factory.TryCreate( licenseKey, out var license, out var errorMessage )
+             || !license.TryGetLicenseRegistrationData( out var data, out errorMessage ) )
         {
-            console.Error.WriteLine( "Invalid license string." );
+            console.Error.WriteLine( $"Invalid license string: {errorMessage}" );
 
             return 1;
         }

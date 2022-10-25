@@ -14,13 +14,13 @@ namespace Metalama.Backstage.Licensing.Licenses
             byte[]? publicKeyToken,
             IDateTimeProvider dateTimeProvider,
             IApplicationInfo applicationInfo,
-            [MaybeNullWhen( true )] out string errorDescription )
+            [MaybeNullWhen( true )] out string errorMessage )
         {
 #pragma warning disable 618
             if ( this.LicenseType == LicenseType.Anonymous )
             {
                 // Anonymous licenses are always valid but confer no right.
-                errorDescription = null;
+                errorMessage = null;
 
                 return true;
             }
@@ -28,21 +28,21 @@ namespace Metalama.Backstage.Licensing.Licenses
 
             if ( !this.VerifySignature() )
             {
-                errorDescription = "The license signature is invalid.";
+                errorMessage = "The license signature is invalid.";
 
                 return false;
             }
 
             if ( this.ValidFrom.HasValue && this.ValidFrom > dateTimeProvider.Now )
             {
-                errorDescription = "The license is not yet valid.";
+                errorMessage = "The license is not yet valid.";
 
                 return false;
             }
 
             if ( this.ValidTo.HasValue && this.ValidTo < dateTimeProvider.Now )
             {
-                errorDescription = "The license is not valid any more.";
+                errorMessage = "The license is not valid any more.";
 
                 return false;
             }
@@ -51,14 +51,14 @@ namespace Metalama.Backstage.Licensing.Licenses
             {
                 if ( publicKeyToken == null )
                 {
-                    errorDescription = "The assembly is missing a public key token.";
+                    errorMessage = "The assembly is missing a public key token.";
 
                     return false;
                 }
 
                 if ( !ComparePublicKeyToken( publicKeyToken, this.PublicKeyToken ) )
                 {
-                    errorDescription = "The public key token of the assembly does not match the license.";
+                    errorMessage = "The public key token of the assembly does not match the license.";
 
                     return false;
                 }
@@ -66,14 +66,14 @@ namespace Metalama.Backstage.Licensing.Licenses
 
             if ( !Enum.IsDefined( typeof(LicenseType), this.LicenseType ) )
             {
-                errorDescription = "The license type is not known.";
+                errorMessage = "The license type is not known.";
 
                 return false;
             }
 
             if ( !Enum.IsDefined( typeof(LicensedProduct), this.Product ) )
             {
-                errorDescription = "The licensed product is not known.";
+                errorMessage = "The licensed product is not known.";
 
                 return false;
             }
@@ -83,7 +83,7 @@ namespace Metalama.Backstage.Licensing.Licenses
                         i.IsMustUnderstand()
                         && !Enum.IsDefined( typeof(LicenseFieldIndex), i ) ) )
             {
-                errorDescription = "The license contains unknown must-understand fields.";
+                errorMessage = "The license contains unknown must-understand fields.";
 
                 return false;
             }
@@ -99,7 +99,7 @@ namespace Metalama.Backstage.Licensing.Licenses
 
                 if ( this.SubscriptionEndDate < latestComponentMadeByPostSharp.BuildDate )
                 {
-                    errorDescription =
+                    errorMessage =
                         $"The licensed product '{latestComponentMadeByPostSharp.Name}' version {latestComponentMadeByPostSharp.Version} has been released on {latestComponentMadeByPostSharp.BuildDate:d}, but the license key {this.LicenseId} only allows you to use versions released before {this.SubscriptionEndDate:d}.";
 
                     return false;
@@ -108,19 +108,19 @@ namespace Metalama.Backstage.Licensing.Licenses
 
             if ( this.IsRedistribution && !this.IsLimitedByNamespace )
             {
-                errorDescription = "The license is a redistribution license, but is not limited by a namespace.";
+                errorMessage = "The license is a redistribution license, but is not limited by a namespace.";
 
                 return false;
             }
 
             if ( !this.IsRedistribution && this.IsLimitedByNamespace )
             {
-                errorDescription = "The license is limited by namespace, but it is not a redistribution license.";
+                errorMessage = "The license is limited by namespace, but it is not a redistribution license.";
 
                 return false;
             }
 
-            errorDescription = null;
+            errorMessage = null;
 
             return true;
         }

@@ -18,10 +18,9 @@ public class EnvironmentVariableConfigurationTests : TestsBase
     public EnvironmentVariableConfigurationTests( ITestOutputHelper logger ) : base(
         logger,
         builder =>
-        {
-            builder.AddService( typeof(IConfigurationManager), new Configuration.ConfigurationManager( builder.ServiceProvider ) );
-            builder.AddService( typeof(IApplicationInfoProvider), new ApplicationInfoProvider( new TestApplicationInfo() ) );
-        } )
+            builder
+                .AddSingleton<IApplicationInfoProvider>( new ApplicationInfoProvider( new TestApplicationInfo() ) )
+                .AddSingleton<IConfigurationManager>( new Configuration.ConfigurationManager( builder.ServiceProvider ) ) )
     {
         this._configurationManager = this.ServiceProvider.GetRequiredBackstageService<IConfigurationManager>();
         var standardDirectories = this.ServiceProvider.GetRequiredBackstageService<IStandardDirectories>();
@@ -31,7 +30,10 @@ public class EnvironmentVariableConfigurationTests : TestsBase
         this.FileSystem.WriteAllText( this._configurationManager.GetFilePath( typeof(DiagnosticsConfiguration) ), new DiagnosticsConfiguration().ToJson() );
 
         // Set up environment variable DiagnosticsConfiguration.
-        var environmentConfiguration = new DiagnosticsConfiguration { Logging = new LoggingConfiguration() { Processes = ImmutableDictionary<ProcessKind, bool>.Empty.Add( ProcessKind.Compiler, true ) } };
+        var environmentConfiguration = new DiagnosticsConfiguration
+        {
+            Logging = new LoggingConfiguration() { Processes = ImmutableDictionary<ProcessKind, bool>.Empty.Add( ProcessKind.Compiler, true ) }
+        };
 
         this.EnvironmentVariableProvider.Environment.Add( DiagnosticsConfiguration.EnvironmentVariableName, environmentConfiguration.ToJson() );
     }
