@@ -17,12 +17,12 @@ internal class ResetDeviceIdCommand : CommandBase
         "reset-device-id",
         "Resets the device ID" )
     {
-        this.Handler = CommandHandler.Create<IConsole>( this.Execute );
+        this.Handler = CommandHandler.Create<bool, IConsole>( this.Execute );
     }
 
-    private void Execute( IConsole console )
+    private void Execute( bool verbose, IConsole console )
     {
-        this.CommandServices.Initialize( console, false );
+        this.CommandServices.Initialize( console, verbose );
 
         this.CommandServices.ServiceProvider.GetRequiredService<IConfigurationManager>()
             .Update<TelemetryConfiguration>( c => c with { DeviceId = Guid.NewGuid() } );

@@ -58,7 +58,7 @@ internal class LicenseConsumptionManager : ILicenseConsumptionManager
 
             if ( license == null )
             {
-                this._logger.Info?.Log( $"'{source.GetType().Name}' license source provided no license." );
+                this._logger.Trace?.Log( $"'{source.GetType().Name}' license source provided no license." );
 
                 continue;
             }
@@ -66,7 +66,7 @@ internal class LicenseConsumptionManager : ILicenseConsumptionManager
             if ( !license.TryGetLicenseConsumptionData( out var data ) )
             {
                 var licenseUniqueId = license.TryGetLicenseRegistrationData( out var registrationData ) ? registrationData.UniqueId : "<invalid>";
-                this._logger.Info?.Log( $"License '{licenseUniqueId}' provided by '{source.GetType().Name}' license source is invalid." );
+                this._logger.Warning?.Log( $"License '{licenseUniqueId}' provided by '{source.GetType().Name}' license source is invalid." );
 
                 continue;
             }

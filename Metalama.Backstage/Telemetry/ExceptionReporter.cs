@@ -82,7 +82,8 @@ internal class ExceptionReporter : IExceptionReporter, IDisposable
 
         if ( exception is AggregateException aggregateException && aggregateException.InnerExceptions.Any( e => !this.ShouldReportException( e ) ) )
         {
-            this._logger.Trace?.Log( $"The exception '{exception.GetType().Name}' should not be reported because some inner exception should not be reported." );
+            this._logger.Trace?.Log(
+                $"The exception '{exception.GetType().Name}' should not be reported because some inner exception should not be reported." );
 
             return false;
         }
@@ -157,7 +158,7 @@ internal class ExceptionReporter : IExceptionReporter, IDisposable
     {
         if ( this._configuration.Issues.TryGetValue( hash, out var currentStatus ) && currentStatus is ReportingStatus.Ignored or ReportingStatus.Reported )
         {
-            this._logger.Info?.Log( $"The issue {hash} should not be reported because its status is {currentStatus}." );
+            this._logger.Trace?.Log( $"The issue {hash} should not be reported because its status is {currentStatus}." );
 
             return false;
         }
@@ -167,7 +168,7 @@ internal class ExceptionReporter : IExceptionReporter, IDisposable
             {
                 if ( c.Issues.TryGetValue( hash, out var raceStatus ) && raceStatus is ReportingStatus.Ignored or ReportingStatus.Reported )
                 {
-                    this._logger.Info?.Log( $"The issue {hash} should not be reported because another process is reporting it." );
+                    this._logger.Trace?.Log( $"The issue {hash} should not be reported because another process is reporting it." );
 
                     return false;
                 }
@@ -176,7 +177,7 @@ internal class ExceptionReporter : IExceptionReporter, IDisposable
             },
             c =>
             {
-                this._logger.Info?.Log( $"The issue {hash} should be reported." );
+                this._logger.Trace?.Log( $"The issue {hash} should be reported." );
 
                 return c with { Issues = c.Issues.SetItem( hash, ReportingStatus.Reported ) };
             } );

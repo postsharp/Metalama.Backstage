@@ -43,6 +43,6 @@ namespace Metalama.Tools.Config.Tests.Commands
             this.Log.Clear();
         }
 
-        void ICommandServiceProviderProvider.Initialize( IConsole console, bool addTrace ) { }
+        void ICommandServiceProviderProvider.Initialize( IConsole console, bool verbose ) { }
     }
 }

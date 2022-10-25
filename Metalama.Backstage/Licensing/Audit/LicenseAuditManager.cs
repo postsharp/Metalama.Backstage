@@ -32,7 +32,7 @@ internal class LicenseAuditManager : ILicenseAuditManager
     {
         void LogDisabledAudit( string reason )
         {
-            this._logger.Info?.Log( $"License audit disabled because the license '{license.DisplayName}' {reason}." );
+            this._logger.Trace?.Log( $"License audit disabled because the license '{license.DisplayName}' {reason}." );
         }
 
         if ( !license.IsAuditable )
@@ -51,7 +51,7 @@ internal class LicenseAuditManager : ILicenseAuditManager
 
         if ( this._applicationInfo.IsUnattendedProcess( this._loggerFactory ) )
         {
-            this._logger.Info?.Log( "License audit disabled because the current process is unattended." );
+            this._logger.Trace?.Log( "License audit disabled because the current process is unattended." );
 
             return;
         }
