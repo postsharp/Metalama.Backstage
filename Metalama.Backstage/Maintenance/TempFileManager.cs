@@ -26,7 +26,7 @@ public class TempFileManager : ITempFileManager
         this._configurationManager = serviceProvider.GetRequiredBackstageService<IConfigurationManager>();
         this._configuration = this._configurationManager.Get<CleanUpConfiguration>();
         this._fileSystem = serviceProvider.GetRequiredBackstageService<IFileSystem>();
-        this._logger = serviceProvider.GetLoggerFactory().Telemetry();
+        this._logger = serviceProvider.GetLoggerFactory().GetLogger( "TempFileManager" );
         this._time = serviceProvider.GetRequiredBackstageService<IDateTimeProvider>();
         this._standardDirectories = serviceProvider.GetRequiredBackstageService<IStandardDirectories>();
 
@@ -44,7 +44,7 @@ public class TempFileManager : ITempFileManager
     {
         if ( !MutexHelper.WithGlobalLock( "CleanUp", TimeSpan.FromMilliseconds( 1 ), out var mutex ) )
         {
-            this._logger.Info?.Log( "Clean-up is already running." );
+            this._logger.Warning?.Log( "Clean-up is already running." );
 
             return;
         }
@@ -68,7 +68,7 @@ public class TempFileManager : ITempFileManager
             {
                 try
                 {
-                    this._logger.Info?.Log( $"Starting clean-up of '{cacheDirectory}' directory." );
+                    this._logger.Trace?.Log( $"Cleaning '{cacheDirectory}'." );
 
                     // Go through all subdirectories in the cache directory.
                     foreach ( var subdirectory in this._fileSystem.EnumerateDirectories( cacheDirectory ) )
@@ -76,8 +76,7 @@ public class TempFileManager : ITempFileManager
                         // --all flag will cause the subdirectory to be deleted immediately.
                         if ( all )
                         {
-                            var renamedSubdirectory = this.RenameDirectory( subdirectory );
-                            this.DeleteDirectory( renamedSubdirectory );
+                            this.DeleteDirectory( subdirectory );
 
                             continue;
                         }
@@ -117,10 +116,7 @@ public class TempFileManager : ITempFileManager
                 if ( cleanUpFile.Strategy == CleanUpStrategy.Always
                      || (cleanUpFile.Strategy == CleanUpStrategy.WhenUnused && lastWriteTime < DateTime.Now.AddDays( -7 )) )
                 {
-                    this._logger.Info?.Log( $"Deleting '{directory}'." );
-
-                    var renamedDirectory = this.RenameDirectory( directory );
-                    this.DeleteDirectory( renamedDirectory );
+                    this.DeleteDirectory( directory );
                 }
             }
         }
@@ -134,51 +130,41 @@ public class TempFileManager : ITempFileManager
 
             if ( this._fileSystem.IsDirectoryEmpty( directory ) )
             {
-                var renamedDirectory = this.RenameDirectory( directory );
-                this.DeleteDirectory( renamedDirectory );
+                this.DeleteDirectory( directory );
             }
         }
     }
 
-    public string RenameDirectory( string directory )
+    private bool DeleteDirectory( string directory )
     {
+        this._logger.Trace?.Log( $"Deleting '{directory}'." );
+        
         for ( var i = 0; i < 100; i++ )
         {
-            var newDirectoryName = directory + i;
+            var newName = directory + i;
 
-            if ( !this._fileSystem.DirectoryExists( newDirectoryName ) )
+            if ( !this._fileSystem.DirectoryExists( newName ) )
             {
                 try
                 {
-                    this._fileSystem.MoveDirectory( directory, newDirectoryName );
+                    this._fileSystem.MoveDirectory( directory, newName );
+                    this._fileSystem.DeleteDirectory( newName, true );
                 }
                 catch ( Exception e )
                 {
                     this._logger.Warning?.Log( e.Message );
 
-                    throw;
+                    return false;
                 }
 
-                return newDirectoryName;
+                return true;
             }
         }
 
-        throw new InvalidOperationException(
+        this._logger.Warning?.Log(
             $"Directory '{directory}' could not be renamed, this is likely caused by another directory with same name exists in the same location." );
-    }
 
-    public void DeleteDirectory( string directory )
-    {
-        try
-        {
-            this._fileSystem.DeleteDirectory( directory, true );
-        }
-        catch ( Exception e )
-        {
-            this._logger.Warning?.Log( e.Message );
-
-            throw;
-        }
+        return false;
     }
 
     public string GetTempDirectory( string subdirectory, CleanUpStrategy cleanUpStrategy, Guid? guid )

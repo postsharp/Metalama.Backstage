@@ -16,12 +16,12 @@ internal class PrintLoggingCommand : CommandBase
         "print",
         "Prints the current logging configuration" )
     {
-        this.Handler = CommandHandler.Create<IConsole>( this.Execute );
+        this.Handler = CommandHandler.Create<bool, IConsole>( this.Execute );
     }
 
-    private void Execute( IConsole console )
+    private void Execute( bool verbose, IConsole console )
     {
-        this.CommandServices.Initialize( console, false );
+        this.CommandServices.Initialize( console, verbose );
         var configurationManager = this.CommandServices.ServiceProvider.GetRequiredService<IConfigurationManager>();
         var configuration = configurationManager.Get<DiagnosticsConfiguration>();
         var filePath = configurationManager.GetFilePath( typeof(DiagnosticsConfiguration) );

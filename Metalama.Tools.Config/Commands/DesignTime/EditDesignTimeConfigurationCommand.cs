@@ -16,12 +16,12 @@ internal class EditDesignTimeConfigurationCommand : CommandBase
         "edit",
         "Edits the design-time configuration with the default editor for JSON files" )
     {
-        this.Handler = CommandHandler.Create<IConsole>( this.Execute );
+        this.Handler = CommandHandler.Create<bool, IConsole>( this.Execute );
     }
 
-    private void Execute( IConsole console )
+    private void Execute( bool versobe, IConsole console )
     {
-        this.CommandServices.Initialize( console, false );
+        this.CommandServices.Initialize( console, versobe );
         var fileSystem = this.CommandServices.ServiceProvider.GetRequiredService<IFileSystem>();
         var configurationManager = this.CommandServices.ServiceProvider.GetRequiredService<IConfigurationManager>();
 
@@ -35,7 +35,7 @@ internal class EditDesignTimeConfigurationCommand : CommandBase
 
             return;
         }
-        
+
         console.Out.Write( $"Opening '{filePath}' in the default editor." );
 
         Process.Start( new ProcessStartInfo( filePath ) { UseShellExecute = true } );

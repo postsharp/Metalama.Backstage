@@ -15,10 +15,10 @@ internal class ResetDesignTimeConfigurationCommand : CommandBase
         "reset",
         "Resets the current design-time configuration to the default state" )
     {
-        this.Handler = CommandHandler.Create<IConsole>( this.Execute );
+        this.Handler = CommandHandler.Create<bool, IConsole>( this.Execute );
     }
 
-    private void Execute( IConsole console )
+    private void Execute( bool verbose, IConsole console )
     {
         this.CommandServices.Initialize( console, false );
         var fileSystem = this.CommandServices.ServiceProvider.GetRequiredService<IFileSystem>();

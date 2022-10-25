@@ -58,7 +58,7 @@ internal class LicenseConsumptionManager : ILicenseConsumptionManager
 
             if ( license == null )
             {
-                this._logger.Info?.Log( $"'{source.GetType().Name}' license source provided no license." );
+                this._logger.Trace?.Log( $"'{source.GetType().Name}' license source provided no license." );
 
                 continue;
             }
