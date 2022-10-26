@@ -1,5 +1,6 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. See the LICENSE.md file in the root directory of this repository root for details.
 
+using Metalama.Backstage.Extensibility;
 using System;
 using System.Threading;
 
@@ -9,10 +10,12 @@ internal class LogWriter : ILogWriter
 {
     private readonly Logger _logger;
     private readonly string _logLevel;
+    private readonly IDateTimeProvider _dateTimeProvider;
 
     public LogWriter( Logger logger, string logLevel )
     {
         this._logger = logger;
+        this._dateTimeProvider = logger.LoggerFactory.DateTimeProvider;
         this._logLevel = logLevel.ToUpperInvariant();
     }
 
@@ -22,13 +25,13 @@ internal class LogWriter : ILogWriter
         {
             this._logger.LoggerFactory.WriteLine(
                 FormattableString.Invariant(
-                    $"{DateTime.Now}, {this._logLevel}, Thread {Thread.CurrentThread.ManagedThreadId}, {this._logger.Category}: {message}" ) );
+                    $"{this._dateTimeProvider.Now}, {this._logLevel}, Thread {Thread.CurrentThread.ManagedThreadId}, {this._logger.Category}: {message}" ) );
         }
         else
         {
             this._logger.LoggerFactory.WriteLine(
                 FormattableString.Invariant(
-                    $"{DateTime.Now}, {this._logLevel},  Thread {Thread.CurrentThread.ManagedThreadId}, {this._logger.Category} - {this._logger.Prefix}: {message}" ) );
+                    $"{this._dateTimeProvider.Now}, {this._logLevel},  Thread {Thread.CurrentThread.ManagedThreadId}, {this._logger.Category} - {this._logger.Prefix}: {message}" ) );
         }
     }
 }

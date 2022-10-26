@@ -6,6 +6,7 @@ using Metalama.Backstage.Utilities;
 using System;
 using System.Collections.Concurrent;
 using System.IO;
+using System.Threading;
 
 namespace Metalama.Backstage.Diagnostics
 {
@@ -13,14 +14,21 @@ namespace Metalama.Backstage.Diagnostics
     {
         private readonly ConcurrentDictionary<string, ILogger> _loggers = new( StringComparer.OrdinalIgnoreCase );
         private readonly object _textWriterSync = new();
-        private readonly string? _fileName;
+
+        public string? LogFile { get; }
+
+        private readonly ConcurrentQueue<string> _messageQueue = new();
         private TextWriter? _textWriter;
+        private volatile int _backgroundTasks;
 
         internal DiagnosticsConfiguration Configuration { get; }
+
+        internal IDateTimeProvider DateTimeProvider { get; }
 
         public LoggerFactory( IServiceProvider serviceProvider, DiagnosticsConfiguration configuration, ProcessKind processKind, string? projectName )
         {
             var tempFileManager = serviceProvider.GetRequiredBackstageService<ITempFileManager>();
+            this.DateTimeProvider = serviceProvider.GetRequiredBackstageService<IDateTimeProvider>();
 
             this.Configuration = configuration;
 
@@ -42,7 +50,7 @@ namespace Metalama.Backstage.Diagnostics
                     var projectNameWithDot = string.IsNullOrEmpty( projectName ) ? "" : "-" + projectName;
 
                     // The filename must be unique because several instances of the current assembly (of different versions) may be loaded in the process.
-                    this._fileName = Path.Combine(
+                    this.LogFile = Path.Combine(
                         directory,
                         $"Metalama-{processKind}{projectNameWithDot}-{Guid.NewGuid()}.log" );
                 }
@@ -53,25 +61,46 @@ namespace Metalama.Backstage.Diagnostics
             }
         }
 
-        public void WriteLine( string s )
+        private void WriteToFile( object? state )
         {
             lock ( this._textWriterSync )
             {
-                if ( this._fileName == null )
+                if ( this.LogFile == null )
                 {
                     throw new InvalidOperationException( $"Cannot write diagnostics. The '{this.GetType().Name}' is not properly initialized." );
                 }
 
-                this._textWriter ??= File.CreateText( this._fileName );
+                this._textWriter ??= File.CreateText( this.LogFile );
 
-                this._textWriter.WriteLine( s );
-                this._textWriter.Flush();
+                // Process enqueued messages.
+                while ( this._messageQueue.TryDequeue( out var s ) )
+                {
+                    this._textWriter.WriteLine( s );
+                }
+
+                this._backgroundTasks = 0;
+
+                // Process messages that may have been added in the meantime (most of the times, none).
+                while ( this._messageQueue.TryDequeue( out var s ) )
+                {
+                    this._textWriter.WriteLine( s );
+                }
+            }
+        }
+
+        public void WriteLine( string s )
+        {
+            this._messageQueue.Enqueue( s );
+
+            if ( Interlocked.CompareExchange( ref this._backgroundTasks, 1, 0 ) == 0 )
+            {
+                ThreadPool.QueueUserWorkItem( this.WriteToFile );
             }
         }
 
         public ILogger GetLogger( string category )
         {
-            if ( this._fileName != null )
+            if ( this.LogFile != null )
             {
                 if ( this._loggers.TryGetValue( category, out var logger ) )
                 {
@@ -90,6 +119,19 @@ namespace Metalama.Backstage.Diagnostics
             }
         }
 
-        public void Dispose() => this._textWriter?.Close();
+        public void Dispose()
+        {
+            if ( this._backgroundTasks != 0 )
+            {
+                var spinWait = default(SpinWait);
+
+                while ( this._backgroundTasks > 0 )
+                {
+                    spinWait.SpinOnce();
+                }
+            }
+
+            this._textWriter?.Close();
+        }
     }
 }
