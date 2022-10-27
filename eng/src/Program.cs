@@ -21,8 +21,7 @@ var product = new Product( Dependencies.MetalamaBackstage )
     Configurations = Product.DefaultConfigurations
         .WithValue( BuildConfiguration.Release, new BuildConfigurationInfo(
             MSBuildName: "Release",
-            ExportsToTeamCityBuild: true ) ),
-    PublishTestResults = true
+            ExportsToTeamCityBuild: true ) )
 };
 
 var commandApp = new CommandApp();
