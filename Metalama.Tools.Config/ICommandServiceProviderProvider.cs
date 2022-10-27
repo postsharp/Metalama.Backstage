@@ -17,7 +17,7 @@ namespace Metalama.DotNetTools
         /// configured to redirect output and trace to a specific <see cref="IConsole"/>.
         /// </summary>
         /// <param name="console">The target <see cref="IConsole"/> for diagnostics and tracing.</param>
-        /// <param name="addTrace">Determines whether logging should be configured. Should typically be <c>true</c> for high verbosity.</param>
-        void Initialize( IConsole console, bool addTrace );
+        /// <param name="verbose">Determines whether logging should be configured. Should typically be <c>true</c> for high verbosity.</param>
+        void Initialize( IConsole console, bool verbose );
     }
 }

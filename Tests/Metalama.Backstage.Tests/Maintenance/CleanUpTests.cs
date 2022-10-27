@@ -37,8 +37,9 @@ public class CleanUpTests : TestsBase
         logger,
         builder =>
         {
-            builder.AddConfigurationManager().AddSingleton<IConfigurationManager>( new InMemoryConfigurationManager( builder.ServiceProvider ) );
-            builder.AddConfigurationManager().AddSingleton<IApplicationInfoProvider>( new ApplicationInfoProvider( new TestApplicationInfo() ) );
+            builder
+                .AddSingleton<IApplicationInfoProvider>( new ApplicationInfoProvider( new TestApplicationInfo() ) )
+                .AddConfigurationManager();
         } )
     {
         this._standardDirectories = this.ServiceProvider.GetRequiredBackstageService<IStandardDirectories>();
@@ -104,7 +105,7 @@ public class CleanUpTests : TestsBase
 
         foreach ( var cleanUpFile in cleanUpFilePaths )
         {
-            this.FileSystem.SetLastWriteTime( cleanUpFile, lastWriteTime );
+            this.FileSystem.SetFileLastWriteTime( cleanUpFile, lastWriteTime );
         }
     }
 

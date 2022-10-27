@@ -58,15 +58,17 @@ internal class LicenseConsumptionManager : ILicenseConsumptionManager
 
             if ( license == null )
             {
-                this._logger.Info?.Log( $"'{source.GetType().Name}' license source provided no license." );
+                this._logger.Trace?.Log( $"'{source.GetType().Name}' license source provided no license." );
 
                 continue;
             }
 
-            if ( !license.TryGetLicenseConsumptionData( out var data ) )
+            if ( !license.TryGetLicenseConsumptionData( out var data, out var errorMessage ) )
             {
-                var licenseUniqueId = license.TryGetLicenseRegistrationData( out var registrationData ) ? registrationData.UniqueId : "<invalid>";
-                this._logger.Info?.Log( $"License '{licenseUniqueId}' provided by '{source.GetType().Name}' license source is invalid." );
+                var licenseUniqueId = license.TryGetLicenseRegistrationData( out var registrationData, out _ ) ? registrationData.UniqueId : "<invalid>";
+
+                this.ReportMessage(
+                    new LicensingMessage( $"License '{licenseUniqueId}' provided by '{source.GetType().Name}' license source is invalid: {errorMessage}" ) );
 
                 continue;
             }
@@ -119,13 +121,17 @@ internal class LicenseConsumptionManager : ILicenseConsumptionManager
     {
         if ( !this._embeddedRedistributionLicensesCache.TryGetValue( redistributionLicenseKey, out var licensedNamespace ) )
         {
-            if ( !this._licenseFactory.TryCreate( redistributionLicenseKey, out var license ) )
+            if ( !this._licenseFactory.TryCreate( redistributionLicenseKey, out var license, out var errorMessage ) )
             {
+                this.ReportMessage( new LicensingMessage( errorMessage, true ) );
+
                 return false;
             }
 
-            if ( !license.TryGetLicenseConsumptionData( out var licenseConsumptionData ) )
+            if ( !license.TryGetLicenseConsumptionData( out var licenseConsumptionData, out errorMessage ) )
             {
+                this.ReportMessage( new LicensingMessage( errorMessage, true ) );
+
                 return false;
             }
 

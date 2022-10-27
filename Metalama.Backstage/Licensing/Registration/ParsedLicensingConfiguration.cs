@@ -68,9 +68,9 @@ namespace Metalama.Backstage.Licensing.Registration
 
             LicenseRegistrationData? licenseRegistrationData;
 
-            if ( licenseFactory.TryCreate( licenseString, out var license ) )
+            if ( licenseFactory.TryCreate( licenseString, out var license, out _ ) )
             {
-                _ = license.TryGetLicenseRegistrationData( out licenseRegistrationData );
+                _ = license.TryGetLicenseRegistrationData( out licenseRegistrationData, out _ );
             }
             else
             {

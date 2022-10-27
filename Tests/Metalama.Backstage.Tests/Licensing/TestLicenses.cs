@@ -66,6 +66,9 @@ namespace Metalama.Backstage.Licensing.Tests
         public const string MetalamaUltimateBusiness
             = "1-ZEQQQQQQZEAEQCRCE4UW3UFEB4URXMHRB8KQBJJSB64LX7EAEASD8CXFHZY99JSJCPGSS6F3Q258BHCEBQCCLP85GRPFUZWBPAKLCV8CDZQ3JUUZFPZQQDEZJGP4Q8USJG4X6P2";
 
+        public const string MetalamaUltimateBusinessNotAuditable
+            = "18-ZTWQQQQQZEAEQCRCE4UW3UFEB4URXMHRB8KQBJJSB64LX7EAEALTMDVY6TTTX2PKFXVNF5W6BNWSEJ5YYRW4SNYLFXFDE7RSVBMHWC6WVNFB5HUDVUZQQDEZJJWQQP7QNG4B27RXP3";
+
         public const string MetalamaUltimateRedistributionNamespace = "RedistributionTests.TargetNamespace";
 
         public const string MetalamaUltimateOpenSourceRedistribution

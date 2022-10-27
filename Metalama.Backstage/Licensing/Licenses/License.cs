@@ -92,9 +92,11 @@ namespace Metalama.Backstage.Licensing.Licenses
         }
 
         /// <inheritdoc />
-        public bool TryGetLicenseConsumptionData( [MaybeNullWhen( false )] out LicenseConsumptionData licenseConsumptionData )
+        public bool TryGetLicenseConsumptionData(
+            [MaybeNullWhen( false )] out LicenseConsumptionData licenseConsumptionData,
+            [MaybeNullWhen( true )] out string errorMessage )
         {
-            if ( !this.TryGetValidatedLicenseKeyData( out var licenseKeyData ) )
+            if ( !this.TryGetValidatedLicenseKeyData( out var licenseKeyData, out errorMessage ) )
             {
                 licenseConsumptionData = null;
 
@@ -107,9 +109,11 @@ namespace Metalama.Backstage.Licensing.Licenses
         }
 
         /// <inheritdoc />
-        public bool TryGetLicenseRegistrationData( [MaybeNullWhen( false )] out LicenseRegistrationData licenseRegistrationData )
+        public bool TryGetLicenseRegistrationData(
+            [MaybeNullWhen( false )] out LicenseRegistrationData licenseRegistrationData,
+            [MaybeNullWhen( true )] out string errorMessage )
         {
-            if ( !this.TryGetLicenseKeyDataWithVerifiedSignature( out var licenseKeyData ) )
+            if ( !this.TryGetLicenseKeyDataWithVerifiedSignature( out var licenseKeyData, out errorMessage ) )
             {
                 licenseRegistrationData = null;
 
@@ -121,13 +125,15 @@ namespace Metalama.Backstage.Licensing.Licenses
             return true;
         }
 
-        private bool TryGetLicenseKeyData( [MaybeNullWhen( false )] out LicenseKeyData data )
+        private bool TryGetLicenseKeyData( [MaybeNullWhen( false )] out LicenseKeyData data, [MaybeNullWhen( true )] out string errorMessage )
         {
             this._logger.Trace?.Log( $"Deserializing license '{this._licenseKey}'." );
 
-            if ( LicenseKeyData.TryDeserialize( this._licenseKey, out data, out var errorMessage ) )
+            if ( LicenseKeyData.TryDeserialize( this._licenseKey, out data, out var serializationErrorMessage ) )
             {
                 this._logger.Trace?.Log( $"Deserialized license: {data}" );
+
+                errorMessage = null;
 
                 return true;
             }
@@ -135,22 +141,22 @@ namespace Metalama.Backstage.Licensing.Licenses
             {
                 if ( TryGetLicenseId( this._licenseKey, out var id ) )
                 {
-                    this._logger.Error?.Log( $"Cannot parse license key ID {id}: {errorMessage}" );
+                    errorMessage = $"Cannot parse license key ID {id}: {serializationErrorMessage}";
                 }
                 else
                 {
-                    this._logger.Error?.Log( $"Cannot parse license key {this._licenseKey}: {errorMessage}" );
+                    errorMessage = $"Cannot parse license key {this._licenseKey}: {serializationErrorMessage}";
                 }
 
-                this._logger.Trace?.Log( $"Cannot parse the license {{{this._licenseKey}}}: {errorMessage}" );
+                this._logger.Error?.Log( errorMessage );
 
                 return false;
             }
         }
 
-        private bool TryGetValidatedLicenseKeyData( [MaybeNullWhen( false )] out LicenseKeyData data )
+        private bool TryGetValidatedLicenseKeyData( [MaybeNullWhen( false )] out LicenseKeyData data, [MaybeNullWhen( true )] out string errorMessage )
         {
-            if ( !this.TryGetLicenseKeyData( out data ) )
+            if ( !this.TryGetLicenseKeyData( out data, out errorMessage ) )
             {
                 return false;
             }
@@ -161,9 +167,10 @@ namespace Metalama.Backstage.Licensing.Licenses
                     null,
                     this._dateTimeProvider,
                     applicationInfoService,
-                    out var errorDescription ) )
+                    out var validationErrorMessage ) )
             {
-                this._logger.Error?.Log( $"License key {data.LicenseUniqueId} is invalid: {errorDescription}" );
+                errorMessage = $"License key {data.LicenseUniqueId} is invalid: {validationErrorMessage}";
+                this._logger.Error?.Log( errorMessage );
                 data = null;
 
                 return false;
@@ -172,16 +179,19 @@ namespace Metalama.Backstage.Licensing.Licenses
             return true;
         }
 
-        private bool TryGetLicenseKeyDataWithVerifiedSignature( [MaybeNullWhen( false )] out LicenseKeyData data )
+        private bool TryGetLicenseKeyDataWithVerifiedSignature(
+            [MaybeNullWhen( false )] out LicenseKeyData data,
+            [MaybeNullWhen( true )] out string errorMessage )
         {
-            if ( !this.TryGetLicenseKeyData( out data ) )
+            if ( !this.TryGetLicenseKeyData( out data, out errorMessage ) )
             {
                 return false;
             }
 
             if ( !data.VerifySignature() )
             {
-                this._logger.Warning?.Log( $"License key {data.LicenseUniqueId} has invalid signature." );
+                errorMessage = $"License key {data.LicenseUniqueId} has invalid signature.";
+                this._logger.Warning?.Log( errorMessage );
                 data = null;
 
                 return false;

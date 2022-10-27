@@ -32,7 +32,7 @@ internal class LicenseAuditManager : ILicenseAuditManager
     {
         void LogDisabledAudit( string reason )
         {
-            this._logger.Info?.Log( $"License audit disabled because the license '{license.DisplayName}' {reason}." );
+            this._logger.Trace?.Log( $"License audit disabled because the license '{license.DisplayName}' {reason}." );
         }
 
         if ( !license.IsAuditable )
@@ -51,7 +51,7 @@ internal class LicenseAuditManager : ILicenseAuditManager
 
         if ( this._applicationInfo.IsUnattendedProcess( this._loggerFactory ) )
         {
-            this._logger.Info?.Log( "License audit disabled because the current process is unattended." );
+            this._logger.Trace?.Log( "License audit disabled because the current process is unattended." );
 
             return;
         }
@@ -75,16 +75,16 @@ internal class LicenseAuditManager : ILicenseAuditManager
         {
             var configuration = this._configurationManager.Get<LicenseAuditConfiguration>();
 
-            if ( configuration.LastAuditTimes.TryGetValue( report.AuditHashCode, out var lastReportTime )
-                 && lastReportTime >= this._time.Now.AddDays( -1 ) )
+            if ( !configuration.LastAuditTimes.TryGetValue( report.AuditHashCode, out var lastReportTime )
+                 || lastReportTime <= this._time.Now.AddDays( -1 ) )
+            {
+                return false;
+            }
+            else
             {
                 LogDisabledAudit( "has been reported recently" );
 
                 return true;
-            }
-            else
-            {
-                return false;
             }
         }
 

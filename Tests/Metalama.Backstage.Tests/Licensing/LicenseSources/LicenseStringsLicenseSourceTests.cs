@@ -19,8 +19,9 @@ namespace Metalama.Backstage.Licensing.Tests.Licensing.LicenseSources
             var license = source.GetLicense( _ => { } );
             Assert.NotNull( license );
 
-            var dataParsed = license!.TryGetLicenseConsumptionData( out var data );
+            var dataParsed = license!.TryGetLicenseConsumptionData( out var data, out var errorMessage );
             Assert.True( dataParsed );
+            Assert.Null( errorMessage );
             Assert.Equal( TestLicenses.MetalamaUltimateBusiness, data!.LicenseString );
         }
     }

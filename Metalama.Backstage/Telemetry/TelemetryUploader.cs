@@ -153,7 +153,7 @@ namespace Metalama.Backstage.Telemetry
             {
                 foreach ( var file in files )
                 {
-                    this._logger.Info?.Log( $"Packing '{file}'." );
+                    this._logger.Trace?.Log( $"Packing '{file}'." );
 
                     // Attempt to open that file. Skip the file if we can't open it.
                     try
@@ -195,7 +195,7 @@ namespace Metalama.Backstage.Telemetry
                 if ( package == null )
                 {
                     // We did not find any file.
-                    this._logger.Info?.Log( "No file found." );
+                    this._logger.Trace?.Log( "No file found." );
 
                     return;
                 }
@@ -274,7 +274,7 @@ namespace Metalama.Backstage.Telemetry
                  lastUploadTime != null &&
                  lastUploadTime.Value.AddDays( 1 ) >= now )
             {
-                this._logger.Info?.Log( $"It's not time to upload the telemetry yet. Now: {now} Last upload time: {lastUploadTime}" );
+                this._logger.Trace?.Log( $"It's not time to upload the telemetry yet. Now: {now} Last upload time: {lastUploadTime}" );
 
                 return;
             }
@@ -283,7 +283,7 @@ namespace Metalama.Backstage.Telemetry
 
             if ( !MutexHelper.WithGlobalLock( "TelemetryUploader", TimeSpan.FromMilliseconds( 1 ), out var mutex ) )
             {
-                this._logger.Info?.Log( "Another upload is already being started." );
+                this._logger.Trace?.Log( "Another upload is already being started." );
 
                 return;
             }
@@ -346,7 +346,7 @@ namespace Metalama.Backstage.Telemetry
         {
             if ( !Directory.Exists( this._directories.TelemetryUploadQueueDirectory ) )
             {
-                this._logger.Info?.Log(
+                this._logger.Trace?.Log(
                     $"The telemetry upload queue directory '{this._directories.TelemetryUploadQueueDirectory}' doesn't exist. Assuming there's nothing to upload." );
 
                 return;
@@ -366,7 +366,7 @@ namespace Metalama.Backstage.Telemetry
 
                 if ( files.Length == 0 )
                 {
-                    this._logger.Info?.Log( $"No files found to be uploaded in '{this._directories.TelemetryUploadQueueDirectory}'." );
+                    this._logger.Trace?.Log( $"No files found to be uploaded in '{this._directories.TelemetryUploadQueueDirectory}'." );
 
                     return;
                 }

@@ -215,7 +215,7 @@ public static class RegisterServiceExtensions
             serviceProviderBuilder.AddTelemetryServices();
         }
 
-        // Add license audit
+        // Add licensing.
         if ( options.AddLicensing )
         {
             if ( !options.LicensingOptions.DisableLicenseAudit && !options.AddSupportServices )

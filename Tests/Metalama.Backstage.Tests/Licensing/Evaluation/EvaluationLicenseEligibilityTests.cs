@@ -15,16 +15,16 @@ namespace Metalama.Backstage.Licensing.Tests.Licensing.Evaluation
         [Fact]
         public void EvaluationLicenseRegistersInCleanEnvironment()
         {
-            this.Time.Set( TestStart );
+            this.Time.Set( TestStart, true );
             this.AssertEvaluationEligible();
         }
 
         private void TestRepetitiveRegistration( TimeSpan retryAfter, bool expectedEligibility )
         {
-            this.Time.Set( TestStart );
+            this.Time.Set( TestStart, true );
             this.AssertEvaluationEligible();
 
-            this.Time.Set( this.Time.Now + retryAfter );
+            this.Time.Set( this.Time.Now + retryAfter, true );
 
             if ( expectedEligibility )
             {

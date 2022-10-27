@@ -96,7 +96,9 @@ internal sealed class PreviewLicenseSource : ILicenseSource, ILicense
         return latestComponent.IsPreviewLicenseEligible() ? latestComponent : null;
     }
 
-    bool ILicense.TryGetLicenseConsumptionData( [MaybeNullWhen( false )] out LicenseConsumptionData licenseConsumptionData )
+    bool ILicense.TryGetLicenseConsumptionData(
+        [MaybeNullWhen( false )] out LicenseConsumptionData licenseConsumptionData,
+        [MaybeNullWhen( true )] out string errorMessage )
     {
         licenseConsumptionData = new LicenseConsumptionData(
             LicensedProduct.MetalamaUltimate,
@@ -108,13 +110,13 @@ internal sealed class PreviewLicenseSource : ILicenseSource, ILicense
             false,
             false );
 
+        errorMessage = null;
+
         return true;
     }
 
-    bool ILicense.TryGetLicenseRegistrationData( [MaybeNullWhen( false )] out LicenseRegistrationData licenseRegistrationData )
-    {
-        licenseRegistrationData = null;
-
-        return false;
-    }
+    bool ILicense.TryGetLicenseRegistrationData(
+        [MaybeNullWhen( false )] out LicenseRegistrationData licenseRegistrationData,
+        [MaybeNullWhen( true )] out string errorMessage )
+        => throw new NotSupportedException( "Preview license source doesn't support license registration." );
 }

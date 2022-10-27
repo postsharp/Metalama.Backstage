@@ -16,12 +16,12 @@ internal class EditLoggingCommand : CommandBase
         "edit",
         "Edits the logging configuration with the default editor for JSON files" )
     {
-        this.Handler = CommandHandler.Create<IConsole>( this.Execute );
+        this.Handler = CommandHandler.Create<bool, IConsole>( this.Execute );
     }
 
-    private void Execute( IConsole console )
+    private void Execute( bool verbose, IConsole console )
     {
-        this.CommandServices.Initialize( console, false );
+        this.CommandServices.Initialize( console, verbose );
         var configurationManager = this.CommandServices.ServiceProvider.GetRequiredService<IConfigurationManager>();
         configurationManager.CreateIfMissing<DiagnosticsConfiguration>();
 

@@ -16,7 +16,7 @@ namespace Metalama.DotNetTools
         public IServiceProvider ServiceProvider
             => this._serviceProvider ?? throw new InvalidOperationException( "Command services have not been initialized." );
 
-        public void Initialize( IConsole console, bool addTrace )
+        public void Initialize( IConsole console, bool verbose )
         {
             if ( this._serviceProvider != null )
             {
@@ -27,20 +27,15 @@ namespace Metalama.DotNetTools
 
             var serviceCollection = new ServiceCollection();
 
-            ILoggerFactory? loggerFactory = null;
+            serviceCollection
 
-            if ( addTrace )
-            {
-                serviceCollection
+                // https://docs.microsoft.com/en-us/dotnet/core/extensions/console-log-formatter
+                .AddLogging( builder => builder.AddConsole() )
 
-                    // https://docs.microsoft.com/en-us/dotnet/core/extensions/console-log-formatter
-                    .AddLogging( builder => builder.AddConsole() )
+                // https://www.blinkingcaret.com/2018/02/14/net-core-console-logging/
+                .Configure<LoggerFilterOptions>( options => options.MinLevel = verbose ? LogLevel.Trace : LogLevel.Information );
 
-                    // https://www.blinkingcaret.com/2018/02/14/net-core-console-logging/
-                    .Configure<LoggerFilterOptions>( options => options.MinLevel = LogLevel.Trace );
-
-                loggerFactory = serviceCollection.BuildServiceProvider().GetService<ILoggerFactory>();
-            }
+            var loggerFactory = serviceCollection.BuildServiceProvider().GetService<ILoggerFactory>();
 
             var serviceProviderBuilder = new ServiceProviderBuilder(
                 ( type, instance ) => serviceCollection.AddSingleton( type, instance ),

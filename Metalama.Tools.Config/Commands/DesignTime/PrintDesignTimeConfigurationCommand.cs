@@ -16,10 +16,10 @@ internal class PrintDesignTimeConfigurationCommand : CommandBase
         "print",
         "Prints the current design-time configuration" )
     {
-        this.Handler = CommandHandler.Create<IConsole>( this.Execute );
+        this.Handler = CommandHandler.Create<bool, IConsole>( this.Execute );
     }
 
-    private void Execute( IConsole console )
+    private void Execute( bool verbose, IConsole console )
     {
         this.CommandServices.Initialize( console, false );
         var fileSystem = this.CommandServices.ServiceProvider.GetRequiredService<IFileSystem>();
@@ -35,7 +35,7 @@ internal class PrintDesignTimeConfigurationCommand : CommandBase
 
             return;
         }
-        
+
         console.Out.WriteLine( $"The file '{filePath}' contains the following configuration:" );
         console.Out.WriteLine();
         console.Out.WriteLine( fileSystem.ReadAllText( filePath ) );

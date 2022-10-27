@@ -184,7 +184,7 @@ namespace Metalama.Backstage.Configuration
                         return false;
                     }
                 }
-                else if ( !this._fileSystem.FileExists( fileName ) || this._fileSystem.GetLastWriteTime( fileName ) != lastModified )
+                else if ( !this._fileSystem.FileExists( fileName ) || this._fileSystem.GetFileLastWriteTime( fileName ) != lastModified )
                 {
                     this.Logger.Warning?.Log( $"Cannot update '{fileName}' because the file did not exists or had a different timestamp." );
 
@@ -205,7 +205,7 @@ namespace Metalama.Backstage.Configuration
 
                 RetryHelper.Retry( () => this._fileSystem.WriteAllText( fileName, json ) );
 
-                var newLastModified = this._fileSystem.GetLastWriteTime( fileName );
+                var newLastModified = this._fileSystem.GetFileLastWriteTime( fileName );
 
                 while ( newLastModified == lastModified )
                 {
@@ -214,8 +214,8 @@ namespace Metalama.Backstage.Configuration
 
                     this.Logger.Trace?.Log( "Waiting for " );
                     Thread.Sleep( 10 );
-                    this._fileSystem.SetLastWriteTime( fileName, this._dateTimeProvider.Now );
-                    newLastModified = this._fileSystem.GetLastWriteTime( fileName );
+                    this._fileSystem.SetFileLastWriteTime( fileName, this._dateTimeProvider.Now );
+                    newLastModified = this._fileSystem.GetFileLastWriteTime( fileName );
                 }
 
                 value = value with { LastModified = newLastModified };
@@ -280,7 +280,7 @@ namespace Metalama.Backstage.Configuration
         {
             var fileName = this.GetFilePath( type );
 
-            var lastModified = this._fileSystem.GetLastWriteTime( fileName );
+            var lastModified = this._fileSystem.GetFileLastWriteTime( fileName );
 
             if ( !this.TryLoadConfigurationContent( type, fileName, lastModified, out var json ) )
             {
