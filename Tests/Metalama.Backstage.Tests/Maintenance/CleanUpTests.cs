@@ -117,7 +117,7 @@ public class CleanUpTests : TestsBase
         tempFileManager.CleanTempDirectories( true, true );
 
         // Assert every cache directory is deleted.
-        Assert.False( this.FileSystem.DirectoryExists( this._standardDirectories.TempDirectory  ) );
+        Assert.False( this.FileSystem.DirectoryExists( this._standardDirectories.TempDirectory ) );
     }
 
     [Fact]

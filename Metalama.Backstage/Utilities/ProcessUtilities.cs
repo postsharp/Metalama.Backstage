@@ -27,7 +27,7 @@ public static class ProcessUtilities
         {
             // Note that the same logic is duplicated in Metalama.Framework.CompilerExtensions.ProcessKindHelper and cannot 
             // be shared. Any change here must be done there too.
-            
+
             switch ( Process.GetCurrentProcess().ProcessName.ToLowerInvariant() )
             {
                 case "devenv":

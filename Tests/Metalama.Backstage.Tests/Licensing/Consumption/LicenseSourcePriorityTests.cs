@@ -15,7 +15,7 @@ public class LicenseSourcePriorityTests : LicensingTestsBase
     private const string _invalidProjectLicense = "invalid-project";
 
     private const string _invalidUserLicense = "invalid-user";
-    
+
     private static readonly LicenseRequirement _testLicenseRequirement = LicenseRequirement.Ultimate;
 
     public LicenseSourcePriorityTests( ITestOutputHelper logger ) : base( logger, initializeConfiguration: false ) { }

@@ -145,8 +145,8 @@ namespace Metalama.Backstage.Testing.Services
         public TestFileSystem( IServiceProvider serviceProvider )
         {
             this._time = serviceProvider.GetRequiredBackstageService<IDateTimeProvider>();
-            this._directory = new( this );
-            this._file = new( this );
+            this._directory = new DirectoryWrapper( this );
+            this._file = new FileWrapper( this );
         }
 
         public ManualResetEventSlim BlockRead( string path )
@@ -254,8 +254,7 @@ namespace Metalama.Backstage.Testing.Services
             => this._directory.Execute( ExecutionKind.Manage, path, d => d.GetFiles( path, searchPattern, searchOption ) );
 
         // We use GetDirectories instead of EnumerateDirectories because the EnumerateDirectories method doesn't behave as expected.
-        public IEnumerable<string> EnumerateDirectories( string path )
-            => this._directory.Execute( ExecutionKind.Manage, path, d => d.GetDirectories( path ) );
+        public IEnumerable<string> EnumerateDirectories( string path ) => this._directory.Execute( ExecutionKind.Manage, path, d => d.GetDirectories( path ) );
 
         // We use GetDirectories instead of EnumerateDirectories because the EnumerateDirectories method doesn't behave as expected.
         public IEnumerable<string> EnumerateDirectories( string path, string searchPattern )

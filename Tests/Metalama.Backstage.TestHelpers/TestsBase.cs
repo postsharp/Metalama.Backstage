@@ -62,8 +62,8 @@ namespace Metalama.Backstage.Testing
 
             this._serviceCollection = new ServiceCollection()
                 .AddSingleton<IDateTimeProvider>( this.Time );
-                
-            this.FileSystem = new( this._serviceCollection.BuildServiceProvider() );
+
+            this.FileSystem = new TestFileSystem( this._serviceCollection.BuildServiceProvider() );
 
             this._serviceCollection
                 .AddSingleton<IFileSystem>( this.FileSystem )

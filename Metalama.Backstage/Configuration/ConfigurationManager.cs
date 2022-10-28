@@ -37,7 +37,7 @@ namespace Metalama.Backstage.Configuration
             this._fileSystem = serviceProvider.GetRequiredBackstageService<IFileSystem>();
             this._dateTimeProvider = serviceProvider.GetRequiredBackstageService<IDateTimeProvider>();
             this._environmentVariableProvider = serviceProvider.GetRequiredBackstageService<IEnvironmentVariableProvider>();
-            
+
             // In a production use, the logger factory is created after the configuration manager, so we will not have any log for
             // this class. However, tests may have their own logging.
             this.Logger = serviceProvider.GetLoggerFactory().GetLogger( "Configuration" );
@@ -232,7 +232,7 @@ namespace Metalama.Backstage.Configuration
         {
             // Try to load the json from the environment variable.
             var environmentVariableName = this.GetEnvironmentVariableName( type );
-            
+
             if ( environmentVariableName != null )
             {
                 json = this._environmentVariableProvider.GetEnvironmentVariable( environmentVariableName )!;

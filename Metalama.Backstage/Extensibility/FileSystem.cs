@@ -53,13 +53,13 @@ namespace Metalama.Backstage.Extensibility
         {
             return Directory.GetFiles( path );
         }
-        
+
         /// <inheritdoc />
         public string[] GetFiles( string path, string searchPattern )
         {
             return Directory.GetFiles( path, searchPattern );
         }
-        
+
         /// <inheritdoc />
         public string[] GetFiles( string path, string searchPattern, SearchOption searchOption )
         {
@@ -71,13 +71,13 @@ namespace Metalama.Backstage.Extensibility
         {
             return Directory.EnumerateFiles( path );
         }
-        
+
         /// <inheritdoc />
         public IEnumerable<string> EnumerateFiles( string path, string searchPattern )
         {
             return Directory.EnumerateFiles( path, searchPattern );
         }
-        
+
         /// <inheritdoc />
         public IEnumerable<string> EnumerateFiles( string path, string searchPattern, SearchOption searchOption )
         {
@@ -89,13 +89,13 @@ namespace Metalama.Backstage.Extensibility
         {
             return Directory.GetDirectories( path );
         }
-        
+
         /// <inheritdoc />
         public string[] GetDirectories( string path, string searchPattern )
         {
             return Directory.GetDirectories( path, searchPattern );
         }
-        
+
         /// <inheritdoc />
         public string[] GetDirectories( string path, string searchPattern, SearchOption searchOption )
         {
@@ -107,13 +107,13 @@ namespace Metalama.Backstage.Extensibility
         {
             return Directory.EnumerateDirectories( path );
         }
-        
+
         /// <inheritdoc />
         public IEnumerable<string> EnumerateDirectories( string path, string searchPattern )
         {
             return Directory.EnumerateDirectories( path, searchPattern );
         }
-        
+
         /// <inheritdoc />
         public IEnumerable<string> EnumerateDirectories( string path, string searchPattern, SearchOption searchOption )
         {
