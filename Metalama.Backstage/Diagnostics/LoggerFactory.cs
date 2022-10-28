@@ -5,6 +5,7 @@ using Metalama.Backstage.Maintenance;
 using Metalama.Backstage.Utilities;
 using System;
 using System.Collections.Concurrent;
+using System.Diagnostics;
 using System.IO;
 using System.Threading;
 
@@ -12,14 +13,17 @@ namespace Metalama.Backstage.Diagnostics
 {
     internal class LoggerFactory : ILoggerFactory
     {
+        private const int _inactiveStatus = 0;
+        private const int _activeStatus = 1;
+        private const int _finishingStatus = 2;
+        private static readonly Stopwatch _stopwatch = Stopwatch.StartNew();
         private readonly ConcurrentDictionary<string, ILogger> _loggers = new( StringComparer.OrdinalIgnoreCase );
         private readonly object _textWriterSync = new();
-
-        public string? LogFile { get; }
-
         private readonly ConcurrentQueue<string> _messageQueue = new();
         private TextWriter? _textWriter;
-        private volatile int _backgroundTasks;
+        private volatile int _backgroundTaskStatus;
+
+        public string? LogFile { get; }
 
         internal DiagnosticsConfiguration Configuration { get; }
 
@@ -63,28 +67,47 @@ namespace Metalama.Backstage.Diagnostics
 
         private void WriteToFile( object? state )
         {
+            if ( this.LogFile == null )
+            {
+                throw new InvalidOperationException( $"Cannot write diagnostics. The '{this.GetType().Name}' is not properly initialized." );
+            }
+
             lock ( this._textWriterSync )
             {
-                if ( this.LogFile == null )
-                {
-                    throw new InvalidOperationException( $"Cannot write diagnostics. The '{this.GetType().Name}' is not properly initialized." );
-                }
-
                 this._textWriter ??= File.CreateText( this.LogFile );
 
                 // Process enqueued messages.
+                var lastFlush = _stopwatch.ElapsedMilliseconds;
+
+                while ( !this._messageQueue.IsEmpty )
+                {
+                    while ( this._messageQueue.TryDequeue( out var s ) )
+                    {
+                        this._textWriter.WriteLine( s );
+
+                        // Flush at least every 250 ms.
+                        if ( _stopwatch.ElapsedMilliseconds > lastFlush + 250 )
+                        {
+                            this._textWriter.Flush();
+                            lastFlush = _stopwatch.ElapsedMilliseconds;
+                        }
+                    }
+
+                    // Avoid too frequent start and stop of the task because this would also result in frequent flushing.
+                    Thread.Sleep( 100 );
+                }
+
+                // Say that we are going to end the task.
+                this._backgroundTaskStatus = _finishingStatus;
+
+                // Process messages that may have been added in the meantime.
                 while ( this._messageQueue.TryDequeue( out var s ) )
                 {
                     this._textWriter.WriteLine( s );
                 }
 
-                this._backgroundTasks = 0;
-
-                // Process messages that may have been added in the meantime (most of the times, none).
-                while ( this._messageQueue.TryDequeue( out var s ) )
-                {
-                    this._textWriter.WriteLine( s );
-                }
+                this._textWriter.Flush();
+                this._backgroundTaskStatus = _inactiveStatus;
             }
         }
 
@@ -92,7 +115,7 @@ namespace Metalama.Backstage.Diagnostics
         {
             this._messageQueue.Enqueue( s );
 
-            if ( Interlocked.CompareExchange( ref this._backgroundTasks, 1, 0 ) == 0 )
+            if ( Interlocked.CompareExchange( ref this._backgroundTaskStatus, _activeStatus, _inactiveStatus ) != _activeStatus )
             {
                 ThreadPool.QueueUserWorkItem( this.WriteToFile );
             }
@@ -121,11 +144,11 @@ namespace Metalama.Backstage.Diagnostics
 
         public void Dispose()
         {
-            if ( this._backgroundTasks != 0 )
+            if ( this._backgroundTaskStatus != _inactiveStatus )
             {
                 var spinWait = default(SpinWait);
 
-                while ( this._backgroundTasks > 0 )
+                while ( this._backgroundTaskStatus != _inactiveStatus )
                 {
                     spinWait.SpinOnce();
                 }

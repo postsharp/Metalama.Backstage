@@ -132,7 +132,7 @@ public class TempFileManager : ITempFileManager
                 {
                     this._fileSystem.DeleteFile( file );
                 }
-                catch ( IOException e )
+                catch ( Exception e )
                 {
                     this._logger.Warning?.Log( $"Cannot delete '{file}': {e.Message}" );
                 }
