@@ -53,7 +53,7 @@ internal class UnattendedLicenseSource : ILicenseSource, ILicense
             false );
 
         errorMessage = null;
-        
+
         return true;
     }
 

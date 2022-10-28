@@ -29,7 +29,7 @@ public class InMemoryConfigurationManager : IConfigurationManager
     public ILogger Logger { get; }
 
     public string GetFilePath( string fileName ) => throw new NotSupportedException();
-    
+
     public string GetFilePath( Type type ) => throw new NotSupportedException();
 
     public void Set( ConfigurationFile file ) => this._files[file.GetType()] = file;

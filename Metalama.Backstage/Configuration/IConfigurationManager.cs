@@ -11,7 +11,7 @@ namespace Metalama.Backstage.Configuration
         ILogger Logger { get; }
 
         string GetFilePath( string fileName );
-        
+
         string GetFilePath( Type type );
 
         ConfigurationFile Get( Type type, bool ignoreCache = false );

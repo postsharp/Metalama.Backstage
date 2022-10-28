@@ -28,14 +28,10 @@ public record DiagnosticsConfiguration : ConfigurationFile
 
         this.Logging = new LoggingConfiguration
         {
-            Processes = processes,
-            Categories = ImmutableDictionary<string, bool>.Empty.WithComparers( StringComparer.OrdinalIgnoreCase ).Add( "*", false ),
+            Processes = processes, Categories = ImmutableDictionary<string, bool>.Empty.WithComparers( StringComparer.OrdinalIgnoreCase ).Add( "*", false )
         };
 
-        this.Debugger = new DebuggerConfiguration()
-        {
-            Processes = processes,
-        };
+        this.Debugger = new DebuggerConfiguration() { Processes = processes };
 
         this.MiniDump = new MiniDumpConfiguration()
         {
