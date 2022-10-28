@@ -316,6 +316,6 @@ namespace Metalama.Backstage.Testing.Services
 
         public void DeleteDirectory( string path, bool recursive ) => this._directory.Execute( ExecutionKind.Manage, path, d => d.Delete( path, recursive ) );
 
-        public bool IsDirectoryEmpty( string path ) => this._directory.Execute( ExecutionKind.Manage, path, d => d.EnumerateFileSystemEntries( path ).Any() );
+        public bool IsDirectoryEmpty( string path ) => this._directory.Execute( ExecutionKind.Read, path, d => !d.EnumerateFileSystemEntries( path ).Any() );
     }
 }

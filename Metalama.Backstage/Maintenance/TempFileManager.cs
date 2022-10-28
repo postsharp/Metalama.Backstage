@@ -8,6 +8,7 @@ using Metalama.Backstage.Utilities;
 using Newtonsoft.Json;
 using System;
 using System.IO;
+using System.Net;
 
 namespace Metalama.Backstage.Maintenance;
 
@@ -53,44 +54,20 @@ public class TempFileManager : ITempFileManager
         {
             var now = this._time.Now;
             var lastCleanUpTime = this._configuration.LastCleanUpTime;
+            var nextCleanUpTime = lastCleanUpTime?.AddDays( 1 );
 
             if ( !force &&
                  lastCleanUpTime != null &&
-                 lastCleanUpTime.Value.AddDays( 1 ) >= now )
+                 now < nextCleanUpTime )
             {
-                this._logger.Info?.Log( $"It's not time to clean up cache directories yet. Now: {now} Last clean-up time: {lastCleanUpTime}" );
+                this._logger.Info?.Log(
+                    $"It's not time to clean up cache directories yet. Next clean-up time: {nextCleanUpTime}. Use --force to override this condition." );
 
                 return;
             }
 
             // Go through all cache directories in temp directory (i.e. CrashReports, ExtractExceptions, Logs etc.)
-            foreach ( var cacheDirectory in this._fileSystem.EnumerateDirectories( this._standardDirectories.TempDirectory ) )
-            {
-                try
-                {
-                    this._logger.Trace?.Log( $"Cleaning '{cacheDirectory}'." );
-
-                    // Go through all subdirectories in the cache directory.
-                    foreach ( var subdirectory in this._fileSystem.EnumerateDirectories( cacheDirectory ) )
-                    {
-                        // --all flag will cause the subdirectory to be deleted immediately.
-                        if ( all )
-                        {
-                            this.DeleteDirectory( subdirectory );
-
-                            continue;
-                        }
-
-                        this.DeleteDirectoryRecursive( subdirectory );
-                    }
-                }
-                catch ( Exception e )
-                {
-                    this._logger.Warning?.Log( e.Message );
-
-                    throw;
-                }
-            }
+            this.DeleteDirectoryRecursive( this._standardDirectories.TempDirectory, all );
         }
         finally
         {
@@ -99,15 +76,32 @@ public class TempFileManager : ITempFileManager
         }
     }
 
-    private void DeleteDirectoryRecursive( string directory )
+    private void DeleteDirectoryRecursive( string directory, bool all )
     {
+        if ( !this._fileSystem.DirectoryExists( directory ) )
+        {
+            return;
+        }
+
         var cleanUpFileCandidate = Path.Combine( directory, "cleanup.json" );
 
         // If we find the cleanup file in directory, the directory will be deleted.
-        if ( this._fileSystem.FileExists( cleanUpFileCandidate ) )
+        if ( !all && this._fileSystem.FileExists( cleanUpFileCandidate ) )
         {
             var jsonFileContent = this._fileSystem.ReadAllText( cleanUpFileCandidate );
-            var cleanUpFile = JsonConvert.DeserializeObject<CleanUpFile>( jsonFileContent );
+
+            CleanUpFile? cleanUpFile;
+
+            try
+            {
+                cleanUpFile = JsonConvert.DeserializeObject<CleanUpFile>( jsonFileContent );
+            }
+            catch ( JsonException e )
+            {
+                this._logger.Error?.Log( $"Cannot deserialize '{jsonFileContent}': {e.Message}" );
+
+                return;
+            }
 
             if ( cleanUpFile != null )
             {
@@ -118,16 +112,40 @@ public class TempFileManager : ITempFileManager
                 {
                     this.DeleteDirectory( directory );
                 }
+                else
+                {
+                    this._logger.Trace?.Log( $"The directory '{directory}' has been recently used and will not be deleted unless you use the --all option." );
+                }
+            }
+            else
+            {
+                this._logger.Error?.Log( $"The file '{jsonFileContent}' is empty." );
             }
         }
         else
         {
-            // If no cleanup file is found, we proceed deeper in the directory tree.
-            foreach ( var dir in this._fileSystem.GetDirectories( directory ) )
+            // We delete all files we find because they may be leftovers from a previous partial deletion.
+            foreach ( var file in this._fileSystem.GetFiles( directory ) )
             {
-                this.DeleteDirectoryRecursive( dir );
+                this._logger.Trace?.Log( $"Deleting '{file}'." );
+
+                try
+                {
+                    this._fileSystem.DeleteFile( file );
+                }
+                catch ( IOException e )
+                {
+                    this._logger.Warning?.Log( $"Cannot delete '{file}': {e.Message}" );
+                }
             }
 
+            // Proceed deeper in the directory tree.
+            foreach ( var dir in this._fileSystem.GetDirectories( directory ) )
+            {
+                this.DeleteDirectoryRecursive( dir, all );
+            }
+
+            // If the directory became empty, we can delete it too.
             if ( this._fileSystem.IsDirectoryEmpty( directory ) )
             {
                 this.DeleteDirectory( directory );
@@ -138,7 +156,7 @@ public class TempFileManager : ITempFileManager
     private bool DeleteDirectory( string directory )
     {
         this._logger.Trace?.Log( $"Deleting '{directory}'." );
-        
+
         for ( var i = 0; i < 100; i++ )
         {
             var newName = directory + i;
@@ -152,7 +170,7 @@ public class TempFileManager : ITempFileManager
                 }
                 catch ( Exception e )
                 {
-                    this._logger.Warning?.Log( e.Message );
+                    this._logger.Warning?.Log( $"Cannot delete '{directory}': {e.Message}" );
 
                     return false;
                 }
