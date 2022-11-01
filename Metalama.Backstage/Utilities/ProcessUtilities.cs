@@ -44,13 +44,18 @@ public static class ProcessUtilities
                     var commandLine = Environment.CommandLine.ToLowerInvariant();
 
 #pragma warning disable CA1307
-                    if ( commandLine.Contains( "jetbrains.resharper.roslyn.worker.exe" ) )
+                    if ( commandLine.Contains( "jetbrains.resharper.roslyn.worker" ) ||
+                         commandLine.Contains( "jetbrains.roslyn.worker" ) )
                     {
                         return ProcessKind.Rider;
                     }
                     else if ( commandLine.Contains( "vbcscompiler.dll" ) || commandLine.Contains( "csc.dll" ) )
                     {
                         return ProcessKind.Compiler;
+                    }
+                    else if ( commandLine.Contains( "omnisharp.dll" ) )
+                    {
+                        return ProcessKind.OmniSharp;
                     }
                     else
                     {

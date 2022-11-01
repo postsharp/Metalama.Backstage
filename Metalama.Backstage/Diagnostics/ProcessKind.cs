@@ -15,5 +15,6 @@ public enum ProcessKind
     Rider,
     BackstageWorker,
     MetalamaConfig,
-    TestHost
+    TestHost,
+    OmniSharp
 }
