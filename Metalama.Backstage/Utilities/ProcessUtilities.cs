@@ -149,6 +149,14 @@ public static class ProcessUtilities
             if ( RuntimeInformation.IsOSPlatform( OSPlatform.Linux ) )
             {
                 parentProcesses = GetParentProcessesOnLinux( logger );
+
+                // Check if the we are running in Linux based Docker.
+                if ( IsRunningInDockerContainer( logger ) )
+                {
+                    logger.Trace?.Log( "Unattended mode detected because of Docker containerized environment." );
+
+                    return true;
+                }
             }
 
             if ( RuntimeInformation.IsOSPlatform( OSPlatform.Windows ) )
@@ -415,6 +423,35 @@ public static class ProcessUtilities
         }
 
         return processes.ToArray();
+    }
+
+    public static bool IsRunningInDockerContainer( ILogger logger )
+    {
+        // If the process is running inside a Docker container,
+        // init (pid '1') process control group collection will have /docker/ as a part of the groups hierarchies.
+        string? processesControlGroup = null;
+        var controlGroupFile = "/proc/1/cgroup";
+        
+        try
+        {
+            processesControlGroup = File.ReadAllText( controlGroupFile );
+        }
+        catch ( Exception e )
+        {
+            logger.Trace?.Log( $"Could not read '{controlGroupFile}' file." );
+            logger.Trace?.Log( e.Message );
+        }
+
+        var isRunningInsideDockerContainer = false;
+
+        if ( !string.IsNullOrEmpty( processesControlGroup ) )
+        {
+#pragma warning disable CA1307
+            isRunningInsideDockerContainer = processesControlGroup!.Contains( "docker" );
+#pragma warning restore CA1307
+        }
+
+        return isRunningInsideDockerContainer;
     }
 
     public static bool IsNetCore()
