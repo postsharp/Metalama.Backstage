@@ -15,10 +15,7 @@ namespace Metalama.Backstage
         {
             IServiceProvider? serviceProvider = null;
 
-            var initializationOptions = new BackstageInitializationOptions( new BackstageWorkerApplicationInfo() )
-            {
-                AddSupportServices = true
-            };
+            var initializationOptions = new BackstageInitializationOptions( new BackstageWorkerApplicationInfo() ) { AddSupportServices = true };
 
             var serviceProviderBuilder = new ServiceProviderBuilder()
                 .AddBackstageServices( initializationOptions );

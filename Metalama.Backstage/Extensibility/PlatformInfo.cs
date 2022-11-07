@@ -2,7 +2,6 @@
 
 using Metalama.Backstage.Diagnostics;
 using System;
-using System.Diagnostics;
 using System.IO;
 using System.Runtime.InteropServices;
 
@@ -39,28 +38,8 @@ namespace Metalama.Backstage.Extensibility
 
             logger.Trace?.Log( $"Looking for {dotnetFileName} path." );
 
-            // See if the current process is dotnet.exe.
-            var currentProcessPath = Process.GetCurrentProcess().MainModule?.FileName;
-
-            if ( currentProcessPath == null )
-            {
-                logger.Trace?.Log( $"We don't know if the current process is {dotnetFileName} because the current processes main module path is unknown." );
-            }
-            else
-            {
-                var currentProcessFileName = Path.GetFileName( currentProcessPath );
-
-                if ( currentProcessFileName == dotnetFileName )
-                {
-                    logger.Trace?.Log( $"The current process '{currentProcessPath}' is {dotnetFileName}." );
-
-                    return currentProcessPath;
-                }
-                else
-                {
-                    logger.Trace?.Log( $"The current process '{currentProcessPath}' is not {dotnetFileName}." );
-                }
-            }
+            // We no longer look for the current process being dotnet because of Rider. Rider runs in dotnet.exe, but this
+            // instance of dotnet.exe does not have an SDK installed. So, it is better to ignore the current process as a hint.
 
             // Look in the DotNetSdkDirectory, if we know it.
             dotNetSdkDirectory ??= Environment.GetEnvironmentVariable( _dotNetSdkDirectoryEnvironmentVariableName );

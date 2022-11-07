@@ -54,7 +54,7 @@ namespace Metalama.Backstage.Licensing.Tests.Licensing
         {
             Assert.True( this.LicenseFactory.TryCreate( licenseString, out var license, out var errorMessage ) );
             Assert.Null( errorMessage );
-            Assert.True( license!.TryGetLicenseRegistrationData( out var data, out errorMessage) );
+            Assert.True( license!.TryGetLicenseRegistrationData( out var data, out errorMessage ) );
             Assert.Null( errorMessage );
 
             return data!;

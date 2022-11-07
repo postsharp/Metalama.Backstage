@@ -28,7 +28,7 @@ public static class ProcessUtilities
         {
             // Note that the same logic is duplicated in Metalama.Framework.CompilerExtensions.ProcessKindHelper and cannot 
             // be shared. Any change here must be done there too.
-            
+
             switch ( Process.GetCurrentProcess().ProcessName.ToLowerInvariant() )
             {
                 case "devenv":
@@ -45,13 +45,18 @@ public static class ProcessUtilities
                     var commandLine = Environment.CommandLine.ToLowerInvariant();
 
 #pragma warning disable CA1307
-                    if ( commandLine.Contains( "jetbrains.resharper.roslyn.worker.exe" ) )
+                    if ( commandLine.Contains( "jetbrains.resharper.roslyn.worker" ) ||
+                         commandLine.Contains( "jetbrains.roslyn.worker" ) )
                     {
                         return ProcessKind.Rider;
                     }
                     else if ( commandLine.Contains( "vbcscompiler.dll" ) || commandLine.Contains( "csc.dll" ) )
                     {
                         return ProcessKind.Compiler;
+                    }
+                    else if ( commandLine.Contains( "omnisharp.dll" ) )
+                    {
+                        return ProcessKind.OmniSharp;
                     }
                     else
                     {

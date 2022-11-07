@@ -116,11 +116,8 @@ public class CleanUpTests : TestsBase
         var tempFileManager = new TempFileManager( this.ServiceProvider );
         tempFileManager.CleanTempDirectories( true, true );
 
-        // Assert every cache directory is empty.
-        foreach ( var cacheDirectory in this.FileSystem.EnumerateDirectories( this._standardDirectories.TempDirectory ) )
-        {
-            Assert.Empty( this.FileSystem.EnumerateDirectories( cacheDirectory ) );
-        }
+        // Assert every cache directory is deleted.
+        Assert.False( this.FileSystem.DirectoryExists( this._standardDirectories.TempDirectory ) );
     }
 
     [Fact]
@@ -141,13 +138,14 @@ public class CleanUpTests : TestsBase
             {
                 case CleanUpStrategy.WhenUnused:
                     // Assert there are still uncleaned directories as they have been used in past 7 days.
+                    Assert.True( this.FileSystem.DirectoryExists( cacheDirectoryPath ) );
                     Assert.NotEmpty( this.FileSystem.EnumerateDirectories( cacheDirectoryPath ) );
 
                     break;
 
                 case CleanUpStrategy.Always:
                     // Assert always cleaned directories are empty.
-                    Assert.Empty( this.FileSystem.EnumerateDirectories( cacheDirectoryPath ) );
+                    Assert.False( this.FileSystem.DirectoryExists( cacheDirectoryPath ) );
 
                     break;
 
@@ -179,7 +177,7 @@ public class CleanUpTests : TestsBase
                 case CleanUpStrategy.WhenUnused:
                 case CleanUpStrategy.Always:
                     // Assert always cleaned directories and outdated directories are empty.
-                    Assert.Empty( this.FileSystem.EnumerateDirectories( cacheDirectoryPath ) );
+                    Assert.False( this.FileSystem.DirectoryExists( cacheDirectoryPath ) );
 
                     break;
 
@@ -217,7 +215,7 @@ public class CleanUpTests : TestsBase
 
                 case CleanUpStrategy.Always:
                     // Assert always cleaned directories are empty.
-                    Assert.Empty( this.FileSystem.EnumerateDirectories( cacheDirectoryPath ) );
+                    Assert.False( this.FileSystem.DirectoryExists( cacheDirectoryPath ) );
 
                     break;
 
@@ -259,10 +257,6 @@ public class CleanUpTests : TestsBase
         tempFileManager.CleanTempDirectories( true );
 
         // Assert cleanup leaves no leftover cleanup files in deep directory structure.
-        Assert.Empty(
-            this.FileSystem.EnumerateFiles(
-                Path.Combine( this._standardDirectories.TempDirectory, "DeepDirectory" ),
-                "cleanup.json",
-                SearchOption.AllDirectories ) );
+        Assert.False( this.FileSystem.DirectoryExists( Path.Combine( this._standardDirectories.TempDirectory, "DeepDirectory" ) ) );
     }
 }

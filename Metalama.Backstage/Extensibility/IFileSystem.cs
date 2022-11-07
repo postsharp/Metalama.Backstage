@@ -30,7 +30,7 @@ namespace Metalama.Backstage.Extensibility
         /// This value is expressed in local time.
         /// </param>
         void SetFileLastWriteTime( string path, DateTime lastWriteTime );
-        
+
         /// <summary>
         /// Returns the date and time the specified file or directory was last written to.
         /// </summary>
@@ -82,7 +82,7 @@ namespace Metalama.Backstage.Extensibility
         /// of the files in the directory specified by <paramref name="path"/>.
         /// </returns>
         string[] GetFiles( string path );
-        
+
         /// <summary>
         /// Returns an array of file names that match a search pattern
         /// in a specified path.
@@ -103,7 +103,7 @@ namespace Metalama.Backstage.Extensibility
         /// and that match the specified <paramref name="searchPattern"/>.
         /// </returns>
         string[] GetFiles( string path, string searchPattern );
-        
+
         /// <summary>
         /// Returns an array of file names that match a search pattern
         /// in a specified path, and optionally searches subdirectories.
@@ -205,7 +205,7 @@ namespace Metalama.Backstage.Extensibility
         /// of the directories in the directory specified by <paramref name="path"/>.
         /// </returns>
         string[] GetDirectories( string path );
-        
+
         /// <summary>
         /// Returns an array of directory names that match a search pattern
         /// in a specified path.
@@ -226,7 +226,7 @@ namespace Metalama.Backstage.Extensibility
         /// and that match the specified <paramref name="searchPattern"/>.
         /// </returns>
         string[] GetDirectories( string path, string searchPattern );
-        
+
         /// <summary>
         /// Returns an array of directory names that match a search pattern
         /// in a specified path, and optionally searches subdirectories.
@@ -266,7 +266,7 @@ namespace Metalama.Backstage.Extensibility
         /// of the directories in the directory specified by <paramref name="path"/>.
         /// </returns>
         IEnumerable<string> EnumerateDirectories( string path );
-        
+
         /// <summary>
         /// Returns an enumerable collection of directory names that match a search pattern
         /// in a specified path.
@@ -287,7 +287,7 @@ namespace Metalama.Backstage.Extensibility
         /// and that match the specified <paramref name="searchPattern"/>.
         /// </returns>
         IEnumerable<string> EnumerateDirectories( string path, string searchPattern );
-        
+
         /// <summary>
         /// Returns an enumerable collection of directory names that match a search pattern
         /// in a specified path, and optionally searches subdirectories.
@@ -434,11 +434,11 @@ namespace Metalama.Backstage.Extensibility
         /// <param name="sourceFileName">The name of the file to move. Can include a relative or absolute path.</param>
         /// <param name="destFileName">The new path and name for the file.</param>
         void MoveFile( string sourceFileName, string destFileName );
-        
+
         /// <summary>Deletes the specified file.</summary>
         /// <param name="path">The name of the file to be deleted. Wildcard characters are not supported.</param>
         void DeleteFile( string path );
-        
+
         /// <summary>Moves a file or a directory and its contents to a new location.</summary>
         /// <param name="sourceDirName">The path of the file or directory to move.</param>
         /// <param name="destDirName">The path to the new location for <paramref name="sourceDirName" />. If <paramref name="sourceDirName" /> is a file, then <paramref name="destDirName" /> must also be a file name.</param>

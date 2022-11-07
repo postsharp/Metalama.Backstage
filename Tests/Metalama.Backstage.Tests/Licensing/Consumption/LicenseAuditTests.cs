@@ -26,7 +26,7 @@ public class LicenseAuditTests : LicenseConsumptionManagerTestsBase
 
         return license;
     }
-    
+
     private string[] GetReports()
     {
         static bool IsAuditReport( string path ) => Path.GetFileName( path ) == "LicenseAudit-0.log";
@@ -36,7 +36,7 @@ public class LicenseAuditTests : LicenseConsumptionManagerTestsBase
 
         return reports;
     }
-    
+
     [Theory]
     [InlineData( TestLicenses.MetalamaUltimateBusiness )]
     [InlineData( TestLicenses.MetalamaUltimateBusinessNotAuditable )]
@@ -64,13 +64,13 @@ public class LicenseAuditTests : LicenseConsumptionManagerTestsBase
     public void LicenseAuditReportsDistinctLicenseKeyWithNoDelay()
     {
         var licenseKeys = new List<string> { TestLicenses.MetalamaUltimateBusiness, TestLicenses.MetalamaProfessionalBusiness };
-    
+
         licenseKeys.ForEach( l => this.CreateAndConsumeLicense( l ) );
 
         var reports = this.GetReports();
-        
+
         Assert.Equal( licenseKeys.Count, reports.Length );
-        
+
         for ( var i = 0; i < licenseKeys.Count; i++ )
         {
             Assert.Contains( licenseKeys[i], reports[i], StringComparison.OrdinalIgnoreCase );
@@ -81,7 +81,7 @@ public class LicenseAuditTests : LicenseConsumptionManagerTestsBase
     public void LicenseAuditReportsSameLicenseKeyDaily()
     {
         const string licenseKey = TestLicenses.MetalamaUltimateBusiness;
-        
+
         void AssertReportsCount( int expectedCount )
         {
             var reports = this.GetReports();
@@ -107,7 +107,7 @@ public class LicenseAuditTests : LicenseConsumptionManagerTestsBase
 
         ShiftTime( TimeSpan.Zero );
         ConsumeAndAssertReportsCount( 1 );
-        
+
         ConsumeAndAssertReportsCount( 1 );
 
         ShiftTime( TimeSpan.FromDays( 1 ) - TimeSpan.FromMilliseconds( 1 ) );
@@ -115,7 +115,7 @@ public class LicenseAuditTests : LicenseConsumptionManagerTestsBase
 
         ShiftTime( TimeSpan.FromMilliseconds( 1 ) );
         ConsumeAndAssertReportsCount( 2 );
-        
+
         ConsumeAndAssertReportsCount( 2 );
 
         ShiftTime( TimeSpan.FromDays( 1 ) - TimeSpan.FromMilliseconds( 1 ) );

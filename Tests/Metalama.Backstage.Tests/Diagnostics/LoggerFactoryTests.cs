@@ -42,7 +42,7 @@ public class LoggerFactoryTests : TestsBase
                 }
             },
             ProcessKind.Other,
-            "test" );
+            Guid.NewGuid().ToString() );
 
         var logger = loggerFactory.GetLogger( "Test" );
 
