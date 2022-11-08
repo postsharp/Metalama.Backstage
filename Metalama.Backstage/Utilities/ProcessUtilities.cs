@@ -153,6 +153,8 @@ public static class ProcessUtilities
 
             if ( RuntimeInformation.IsOSPlatform( OSPlatform.Linux ) )
             {
+                // We check for processes first, because we recognize some services
+                // that have specific process name when running in Docker container.
                 parentProcesses = GetParentProcessesOnLinux( logger );
 
                 // Check if the we are running in Linux based Docker.
@@ -168,15 +170,6 @@ public static class ProcessUtilities
             {
                 parentProcesses = GetParentProcessesOnWindows();
             }
-
-            /*
-            if ( SystemServiceLocator.GetService<IContainerDetectionService>( false )?.IsRunningInContainer() ?? false )
-            {
-                log = "Unattended mode detected because of containerized environment.";
-    
-                return true;
-            }
-            */
 
             if ( Environment.OSVersion.Version.Major >= 6 && Process.GetCurrentProcess().SessionId == 0 )
             {
@@ -380,8 +373,7 @@ public static class ProcessUtilities
             }
             catch ( Exception e )
             {
-                logger.Trace?.Log( $"Could not read '/proc/{parentProcessId}/comm' file." );
-                logger.Trace?.Log( e.Message );
+                logger.Error?.Log( $"Could not read '/proc/{parentProcessId}/comm' file: {e.Message}" );
                 processName = null;
             }
 
@@ -394,8 +386,7 @@ public static class ProcessUtilities
             }
             catch ( Exception e )
             {
-                logger.Trace?.Log( $"Could not read '/proc/{parentProcessId}/stat' file." );
-                logger.Trace?.Log( e.Message );
+                logger.Error?.Log( $"Could not read '/proc/{parentProcessId}/stat' file: {e.Message}" );
                 processStatus = null;
             }
 
@@ -414,8 +405,7 @@ public static class ProcessUtilities
             }
             catch ( Exception e )
             {
-                logger.Trace?.Log( $"Could not parse PPID from process '{parentProcessId}' status file." );
-                logger.Trace?.Log( e.Message );
+                logger.Error?.Log( $"Could not parse PPID from process '{parentProcessId}' status file: {e.Message}" );
             }
 
             if ( !parents.Add( parentProcessId ) )
@@ -443,8 +433,7 @@ public static class ProcessUtilities
         }
         catch ( Exception e )
         {
-            logger.Trace?.Log( $"Could not read '{controlGroupFile}' file." );
-            logger.Trace?.Log( e.Message );
+            logger.Error?.Log( $"Could not read '{controlGroupFile}' file: {e.Message}" );
         }
 
         var isRunningInsideDockerContainer = false;
