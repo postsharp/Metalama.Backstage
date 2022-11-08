@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -140,22 +141,33 @@ public static class ProcessUtilities
                 return true;
             }
 
-            if ( !RuntimeInformation.IsOSPlatform( OSPlatform.Windows ) )
+            // Mac/OSX is always considered user interactive.
+            if ( RuntimeInformation.IsOSPlatform( OSPlatform.OSX ) )
             {
-                // TODO: actual implementation.
-                logger.Trace?.Log( "Attended mode detected because of the platform is not Windows and Environment.UserInteractive is true." );
-
+                logger.Trace?.Log( "Unattended mode NOT detected: Mac/OSX platform." );
+                
                 return false;
             }
 
-            /*
-            if ( SystemServiceLocator.GetService<IContainerDetectionService>( false )?.IsRunningInContainer() ?? false )
+            IReadOnlyList<ProcessInfo> parentProcesses = new List<ProcessInfo>();
+
+            if ( RuntimeInformation.IsOSPlatform( OSPlatform.Linux ) )
             {
-                log = "Unattended mode detected because of containerized environment.";
-    
-                return true;
+                // Check if the we are running in Linux based Docker container.
+                if ( IsRunningInDockerContainer( logger ) )
+                {
+                    logger.Trace?.Log( "Unattended mode detected because of Docker containerized environment." );
+
+                    return true;
+                }
+                
+                parentProcesses = GetParentProcessesOnLinux( logger );
             }
-            */
+
+            if ( RuntimeInformation.IsOSPlatform( OSPlatform.Windows ) )
+            {
+                parentProcesses = GetParentProcessesOnWindows();
+            }
 
             if ( Environment.OSVersion.Version.Major >= 6 && Process.GetCurrentProcess().SessionId == 0 )
             {
@@ -164,9 +176,19 @@ public static class ProcessUtilities
                 return true;
             }
 
-            var unattendedProcesses = new HashSet<string>( new[] { "services", "java", "agent.worker", "runner.worker" } );
-
-            var parentProcesses = GetParentProcesses();
+            var unattendedProcesses = new HashSet<string>(
+                new[]
+                {
+                    "services",
+                    "java",               // TeamCity, Atlassian Bamboo (can also be "bamboo"), Jenkins, GoCD
+                    "bamboo",             // Atlassian Bamboo
+                    "agent.worker",       // Azure Pipelines
+                    "runner.worker",      // GitHub Actions
+                    "buildkite-agent",    // BuildKite
+                    "circleci-agent",     // CircleCI (Docker, but has specific process name)
+                    "agent",              // Semaphore CI (Linux)
+                    "sshd: travis [priv]" // Travis CI (Linux)
+                } );
 
             logger.Trace?.Log(
                 string.Format(
@@ -174,7 +196,7 @@ public static class ProcessUtilities
                     "Parent processes: {0}. ",
                     string.Join( ", ", parentProcesses.Select( p => p.ProcessName ?? p.ProcessId.ToString( CultureInfo.InvariantCulture ) ).ToArray() ) ) );
 
-            var unattendedProcessInfo = parentProcesses.FirstOrDefault( p => p.ProcessName != null && unattendedProcesses.Contains( p.ProcessName ) );
+            var unattendedProcessInfo = parentProcesses.FirstOrDefault( p => p.ImagePath != null && unattendedProcesses.Contains( p.ImagePath ) );
 
             if ( unattendedProcessInfo != null )
             {
@@ -251,7 +273,7 @@ public static class ProcessUtilities
     }
     */
 
-    public static IReadOnlyList<ProcessInfo> GetParentProcesses()
+    public static IReadOnlyList<ProcessInfo> GetParentProcessesOnWindows()
     {
         var processes = new List<ProcessInfo>();
         var currentProcess = GetCurrentProcess();
@@ -327,6 +349,101 @@ public static class ProcessUtilities
         CloseHandle( hProcess );
 
         return processes.ToArray();
+    }
+
+    public static IReadOnlyList<ProcessInfo> GetParentProcessesOnLinux( ILogger logger )
+    {
+        var processes = new List<ProcessInfo>();
+        var parents = new HashSet<int>();
+
+        // Get current process ID and command name, then add it to list of processes.
+        var currentProcessId = Process.GetCurrentProcess().Id;
+        var parentProcessId = currentProcessId;
+
+        while ( parentProcessId != 0 )
+        {
+            // Read command name of the process.
+            string? processName;
+
+            try
+            {
+                processName = File.ReadAllText( "/proc/" + parentProcessId + "/comm" ).Trim();
+            }
+            catch ( Exception e )
+            {
+                logger.Error?.Log( $"Could not read '/proc/{parentProcessId}/comm' file: {e.Message}" );
+                processName = null;
+            }
+
+            // Read status file of the process.
+            string? processStatus;
+
+            try
+            {
+                processStatus = File.ReadAllText( "/proc/" + parentProcessId + "/stat" );
+            }
+            catch ( Exception e )
+            {
+                logger.Error?.Log( $"Could not read '/proc/{parentProcessId}/stat' file: {e.Message}" );
+                processStatus = null;
+            }
+
+            if ( processStatus == null )
+            {
+                // Possible loop.
+                break;
+            }
+
+            var processStatusArray = processStatus.Split( ' ' );
+
+            // Try parse PPID from 4th value of status information, then add the process to list of processes.
+            try
+            {
+                parentProcessId = int.Parse( processStatusArray[3], CultureInfo.InvariantCulture );
+            }
+            catch ( Exception e )
+            {
+                logger.Error?.Log( $"Could not parse PPID from process '{parentProcessId}' status file: {e.Message}" );
+            }
+
+            if ( !parents.Add( parentProcessId ) )
+            {
+                // There is a loop.
+                break;
+            }
+
+            processes.Add( new ProcessInfo( parentProcessId, processName ) );
+        }
+
+        return processes.ToArray();
+    }
+
+    public static bool IsRunningInDockerContainer( ILogger logger )
+    {
+        // If the process is running inside a Docker container,
+        // init (pid '1') process control group collection will have /docker/ as a part of the groups hierarchies.
+        string? processesControlGroup = null;
+        var controlGroupFile = "/proc/1/cgroup";
+        
+        try
+        {
+            processesControlGroup = File.ReadAllText( controlGroupFile );
+        }
+        catch ( Exception e )
+        {
+            logger.Error?.Log( $"Could not read '{controlGroupFile}' file: {e.Message}" );
+        }
+
+        var isRunningInsideDockerContainer = false;
+
+        if ( !string.IsNullOrEmpty( processesControlGroup ) )
+        {
+#pragma warning disable CA1307
+            isRunningInsideDockerContainer = processesControlGroup!.Contains( "docker" );
+#pragma warning restore CA1307
+        }
+
+        return isRunningInsideDockerContainer;
     }
 
     public static bool IsNetCore()
