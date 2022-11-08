@@ -153,17 +153,15 @@ public static class ProcessUtilities
 
             if ( RuntimeInformation.IsOSPlatform( OSPlatform.Linux ) )
             {
-                // We check for processes first, because we recognize some services
-                // that have specific process name when running in Docker container.
-                parentProcesses = GetParentProcessesOnLinux( logger );
-
-                // Check if the we are running in Linux based Docker.
+                // Check if the we are running in Linux based Docker container.
                 if ( IsRunningInDockerContainer( logger ) )
                 {
                     logger.Trace?.Log( "Unattended mode detected because of Docker containerized environment." );
 
                     return true;
                 }
+                
+                parentProcesses = GetParentProcessesOnLinux( logger );
             }
 
             if ( RuntimeInformation.IsOSPlatform( OSPlatform.Windows ) )
