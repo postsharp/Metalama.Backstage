@@ -416,7 +416,7 @@ public static class ProcessUtilities
         if ( !string.IsNullOrEmpty( processesControlGroup ) )
         {
 #pragma warning disable CA1307
-            isRunningInsideDockerContainer = processesControlGroup.Contains( "docker" );
+            isRunningInsideDockerContainer = processesControlGroup!.Contains( "docker" );
 #pragma warning restore CA1307
         }
 
