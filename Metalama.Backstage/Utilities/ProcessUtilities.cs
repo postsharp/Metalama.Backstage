@@ -273,7 +273,7 @@ public static class ProcessUtilities
     }
     */
 
-    public static IReadOnlyList<ProcessInfo> GetParentProcessesOnWindows()
+    private static IReadOnlyList<ProcessInfo> GetParentProcessesOnWindows()
     {
         var processes = new List<ProcessInfo>();
         var currentProcess = GetCurrentProcess();
@@ -351,7 +351,23 @@ public static class ProcessUtilities
         return processes.ToArray();
     }
 
-    public static IReadOnlyList<ProcessInfo> GetParentProcessesOnLinux( ILogger logger )
+    public static IReadOnlyList<ProcessInfo> GetParentProcesses( ILogger logger )
+    {
+        if ( RuntimeInformation.IsOSPlatform( OSPlatform.Linux ) )
+        {
+            return GetParentProcessesOnLinux( logger );
+        }
+        else if ( RuntimeInformation.IsOSPlatform( OSPlatform.Windows ) )
+        {
+            return GetParentProcessesOnWindows();
+        }
+        else
+        {
+            throw new NotSupportedException( "Getting parent processes in not supported on the current platform." );
+        }
+    }
+
+    private static IReadOnlyList<ProcessInfo> GetParentProcessesOnLinux( ILogger logger )
     {
         var processes = new List<ProcessInfo>();
         var parents = new HashSet<int>();
