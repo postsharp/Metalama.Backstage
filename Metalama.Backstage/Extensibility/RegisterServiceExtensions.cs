@@ -215,6 +215,9 @@ public static class RegisterServiceExtensions
             serviceProviderBuilder.AddTelemetryServices();
         }
 
+        // Add process management service.
+        serviceProviderBuilder.AddProcessManagerService();
+
         // Add licensing.
         if ( options.AddLicensing )
         {
@@ -238,5 +241,10 @@ public static class RegisterServiceExtensions
             .AddSingleton<ITelemetryUploader>( new TelemetryUploader( serviceProviderBuilder.ServiceProvider ) )
             .AddSingleton<IExceptionReporter>( new ExceptionReporter( queue, serviceProviderBuilder.ServiceProvider ) )
             .AddSingleton<IUsageReporter>( new UsageReporter( serviceProviderBuilder.ServiceProvider ) );
+    }
+
+    private static ServiceProviderBuilder AddProcessManagerService( this ServiceProviderBuilder serviceProviderBuilder )
+    {
+        return serviceProviderBuilder.AddSingleton<IProcessManager>( new ProcessManager( serviceProviderBuilder.ServiceProvider ) );
     }
 }
