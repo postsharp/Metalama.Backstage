@@ -26,7 +26,7 @@ internal class KillCompilerServerCommand : CommandBase
 
         var processManager = this.CommandServices.ServiceProvider.GetRequiredService<IProcessManager>();
 
-        var success = processManager.KillVBCSCompilerProcess();
+        var success = processManager.RunKillVbcsCompiler();
         
         console.Out.WriteLine(
             success

@@ -12,6 +12,7 @@ using Metalama.Backstage.Welcome;
 using System;
 using System.Collections.Immutable;
 using System.Linq;
+using System.Runtime.InteropServices;
 
 namespace Metalama.Backstage.Extensibility;
 
@@ -245,6 +246,25 @@ public static class RegisterServiceExtensions
 
     private static ServiceProviderBuilder AddProcessManagerService( this ServiceProviderBuilder serviceProviderBuilder )
     {
-        return serviceProviderBuilder.AddSingleton<IProcessManager>( new ProcessManager( serviceProviderBuilder.ServiceProvider ) );
+        ProcessManagerBase processManager;
+
+        if ( RuntimeInformation.IsOSPlatform( OSPlatform.Windows ) )
+        {
+            processManager = new WindowsProcessManager( serviceProviderBuilder.ServiceProvider );
+        }
+        else if ( RuntimeInformation.IsOSPlatform( OSPlatform.Linux ) )
+        {
+            processManager = new LinuxProcessManager( serviceProviderBuilder.ServiceProvider );
+        }
+        else if ( RuntimeInformation.IsOSPlatform( OSPlatform.OSX ) )
+        {
+            processManager = new MacProcessManager( serviceProviderBuilder.ServiceProvider );
+        }
+        else
+        {
+            throw new NotSupportedException( "Process manager is not supported on the current platform." );
+        }
+
+        return serviceProviderBuilder.AddSingleton<IProcessManager>( processManager );
     }
 }
