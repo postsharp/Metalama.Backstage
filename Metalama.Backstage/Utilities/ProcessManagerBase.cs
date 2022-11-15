@@ -4,7 +4,7 @@ using System.Diagnostics;
 
 namespace Metalama.Backstage.Utilities;
 
-public abstract class ProcessManagerBase : IProcessManager
+internal abstract class ProcessManagerBase : IProcessManager
 {
     public Process[] GetDotnetProcesses() => Process.GetProcessesByName( "dotnet" );
 

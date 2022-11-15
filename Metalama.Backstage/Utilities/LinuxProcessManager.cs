@@ -55,6 +55,8 @@ internal class LinuxProcessManager : ProcessManagerBase
 
                     try
                     {
+                        this._logger.Trace?.Log( $"Killing '{process.ProcessName}' (PID: {process.Id})." );
+
                         process.Kill();
                         process.WaitForExit();
                     }

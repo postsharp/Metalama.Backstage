@@ -3,6 +3,8 @@
 using Metalama.Backstage.Diagnostics;
 using System;
 using System.Diagnostics;
+using System.Linq;
+using System.Management;
 
 namespace Metalama.Backstage.Utilities;
 
@@ -17,22 +19,18 @@ internal class WindowsProcessManager : ProcessManagerBase
 
     protected sealed override bool KillVbcsCompilerProcess()
     {
-        var processes = this.GetVbcsCompilerProcesses();
+        var compilerProcesses = this.GetVbcsCompilerProcesses().Where( p => p.MainModule != null );
 
-        this._logger.Trace?.Log( "Hello" );
         var success = true;
 
-        foreach ( var process in processes )
+        foreach ( var process in compilerProcesses )
         {
             // Start process that should shutdown VBCSCompiler.
             try
             {
-                if ( process.MainModule == null )
-                {
-                    continue;
-                }
+                var shutdownProcess = new Process() { StartInfo = new ProcessStartInfo() { FileName = process.MainModule!.FileName, Arguments = "-shutdown" } };
 
-                var shutdownProcess = new Process() { StartInfo = new ProcessStartInfo() { FileName = process.MainModule.FileName, Arguments = "-shutdown" } };
+                this._logger.Trace?.Log( $"Shutting down '{process.ProcessName}' (PID: {process.Id})." );
 
                 shutdownProcess.Start();
                 shutdownProcess.WaitForExit();
@@ -48,6 +46,8 @@ internal class WindowsProcessManager : ProcessManagerBase
             {
                 try
                 {
+                    this._logger.Trace?.Log( $"Killing '{process.ProcessName}' (PID: {process.Id})." );
+
                     process.Kill();
                     process.WaitForExit();
                 }
@@ -69,6 +69,71 @@ internal class WindowsProcessManager : ProcessManagerBase
             }
         }
 
+        // Kill all dotnet processes accessing VBSCompiler.
+        var dotnetProcesses = this.GetDotnetProcesses()
+            .Where(
+                p =>
+                {
+                    var commandLine = GetCommandLine( p );
+                    
+                    if ( commandLine != null 
+#pragma warning disable CA1307
+                         && commandLine.Contains( "VBCSCompiler" ) )
+#pragma warning restore CA1307
+                    {
+                        return true;
+                    }
+
+                    return false;
+                } )
+            .ToList();
+
+        foreach ( var process in dotnetProcesses )
+        {
+            try
+            {
+                this._logger.Trace?.Log( $"Killing '{process.ProcessName}' (PID: {process.Id})." );
+
+                process.Kill();
+                process.WaitForExit();
+            }
+            catch ( InvalidOperationException e )
+            {
+                this._logger.Warning?.Log( $"Could not kill process '{process.ProcessName}' (PID: {process.Id}), because it has already exited: {e.Message}." );
+            }
+            catch ( Exception e )
+            {
+                this._logger.Error?.Log( $"Could not kill process '{process.ProcessName}' (PID: {process.Id}): {e.Message}." );
+            }
+
+            if ( !process.HasExited )
+            {
+                this._logger.Error?.Log( $"Process '{process.ProcessName}' (PID: {process.Id}) could not be terminated." );
+
+                success = false;
+            }
+        }
+
         return success;
+    }
+
+    private static string? GetCommandLine( Process process )
+    {
+#pragma warning disable CA1416
+        try
+        {
+            using ManagementObjectSearcher searcher =
+                new( "SELECT CommandLine FROM Win32_Process WHERE ProcessId = " + process.Id );
+
+            using ( var objects = searcher.Get() )
+            {
+                return objects.Cast<ManagementBaseObject>().SingleOrDefault()?["CommandLine"]?.ToString();
+            }
+        }
+        catch
+        {
+            return null;
+        }
+#pragma warning restore CA1416
     }
 }

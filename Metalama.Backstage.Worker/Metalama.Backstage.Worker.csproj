@@ -32,6 +32,7 @@
 
     <ItemGroup>
         <PackageReference Include="System.Collections.Immutable" Version="$(SystemImmutableCollectionsVersion)" />
+        <PackageReference Include="System.Management" Version="7.0.0" />
     </ItemGroup>
 
 

@@ -246,25 +246,21 @@ public static class RegisterServiceExtensions
 
     private static ServiceProviderBuilder AddProcessManagerService( this ServiceProviderBuilder serviceProviderBuilder )
     {
-        ProcessManagerBase processManager;
-
         if ( RuntimeInformation.IsOSPlatform( OSPlatform.Windows ) )
         {
-            processManager = new WindowsProcessManager( serviceProviderBuilder.ServiceProvider );
+            return serviceProviderBuilder.AddSingleton<IProcessManager>( new WindowsProcessManager( serviceProviderBuilder.ServiceProvider ) );
         }
         else if ( RuntimeInformation.IsOSPlatform( OSPlatform.Linux ) )
         {
-            processManager = new LinuxProcessManager( serviceProviderBuilder.ServiceProvider );
+            return serviceProviderBuilder.AddSingleton<IProcessManager>( new LinuxProcessManager( serviceProviderBuilder.ServiceProvider ) );
         }
         else if ( RuntimeInformation.IsOSPlatform( OSPlatform.OSX ) )
         {
-            processManager = new MacProcessManager( serviceProviderBuilder.ServiceProvider );
+            return serviceProviderBuilder.AddSingleton<IProcessManager>( new MacProcessManager( serviceProviderBuilder.ServiceProvider ) );
         }
         else
         {
             throw new NotSupportedException( "Process manager is not supported on the current platform." );
         }
-
-        return serviceProviderBuilder.AddSingleton<IProcessManager>( processManager );
     }
 }
