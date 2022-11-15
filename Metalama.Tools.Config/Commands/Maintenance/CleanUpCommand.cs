@@ -1,6 +1,8 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. See the LICENSE.md file in the root directory of this repository root for details.
 
 using Metalama.Backstage.Maintenance;
+using Metalama.Backstage.Utilities;
+using Microsoft.Extensions.DependencyInjection;
 using System.CommandLine;
 using System.CommandLine.Invocation;
 
@@ -14,13 +16,20 @@ internal class CleanUpCommand : CommandBase
         "Cleans up cache directory" )
     {
         this.AddOption( new Option( new[] { "--all" }, "Delete all directories and files ignoring clean-up policies" ) );
-
-        this.Handler = CommandHandler.Create<bool, bool, IConsole>( this.Execute );
+        this.AddOption( new Option( new[] { "--no-kill" }, "Disables automatic VBCSCompiler process killing before clean-up." ) );
+        this.Handler = CommandHandler.Create<bool, bool, bool, IConsole>( this.Execute );
     }
 
-    private void Execute( bool all, bool verbose, IConsole console )
+    private void Execute( bool all, bool noKill, bool verbose, IConsole console )
     {
         this.CommandServices.Initialize( console, verbose );
+
+        if ( !noKill )
+        {
+            // Automatically kill VBCSCompiler processes before Cleanup unless --no-kill option is used.
+            var processManager = this.CommandServices.ServiceProvider.GetRequiredService<IProcessManager>();
+            processManager.RunKillVbcsCompiler();
+        }
 
         var tempFileManager = new TempFileManager( this.CommandServices.ServiceProvider );
 
