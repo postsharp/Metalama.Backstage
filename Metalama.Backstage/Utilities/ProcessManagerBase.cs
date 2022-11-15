@@ -13,4 +13,20 @@ internal abstract class ProcessManagerBase : IProcessManager
     public bool RunKillVbcsCompiler() => this.KillVbcsCompilerProcess();
 
     protected abstract bool KillVbcsCompilerProcess();
+
+    internal static void TryShutdownCompilerProcess( string path )
+    {
+        var shutdownProcess = new Process()
+        {
+            StartInfo = new ProcessStartInfo()
+            {
+                FileName = "dotnet",
+                Arguments = $"\"{path}\" -shutdown",
+                RedirectStandardOutput = true
+            }
+        };
+
+        shutdownProcess.Start();
+        shutdownProcess.WaitForExit();
+    }
 }

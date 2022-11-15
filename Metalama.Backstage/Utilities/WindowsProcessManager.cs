@@ -3,6 +3,7 @@
 using Metalama.Backstage.Diagnostics;
 using System;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Management;
 
@@ -75,12 +76,26 @@ internal class WindowsProcessManager : ProcessManagerBase
                 p =>
                 {
                     var commandLine = GetCommandLine( p );
-                    
+
                     if ( commandLine != null 
 #pragma warning disable CA1307
                          && commandLine.Contains( "VBCSCompiler" ) )
 #pragma warning restore CA1307
                     {
+                        var compilerFile = ParseCommandLine( commandLine );
+
+                        if ( compilerFile != null && File.Exists( compilerFile ) )
+                        {
+                            this._logger.Trace?.Log( $"Shutting down '{p.ProcessName}' (PID: {p.Id})." );
+
+                            TryShutdownCompilerProcess( compilerFile );
+
+                            if ( p.HasExited )
+                            {
+                                return false;
+                            }
+                        }
+
                         return true;
                     }
 
@@ -135,5 +150,14 @@ internal class WindowsProcessManager : ProcessManagerBase
             return null;
         }
 #pragma warning restore CA1416
+    }
+
+    private static string? ParseCommandLine( string commandLine )
+    {
+        var path = commandLine.Split( '"' );
+
+#pragma warning disable CA1307
+        return path.SingleOrDefault( p => p.Contains( "VBCSCompiler" ) );
+#pragma warning restore CA1307
     }
 }

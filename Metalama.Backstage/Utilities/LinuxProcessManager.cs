@@ -30,23 +30,12 @@ internal class LinuxProcessManager : ProcessManagerBase
                 .Any( m => m.ModuleName!.Contains( "VBCSCompiler" ) ) )
             {
                 var module = process.Modules.OfType<ProcessModule>()
-                    .SingleOrDefault( m => m.ModuleName!.Contains( "VBCSCompiler" ) );
+                    .Single( m => m.ModuleName!.Contains( "VBCSCompiler" ) );
 #pragma warning restore CA1307
-                this._logger.Trace?.Log( $"Found module {module!.ModuleName} running in {process.ProcessName} (PID: {process.Id}). Attempting to shut it down." );
+                this._logger.Trace?.Log( $"Found module {module.ModuleName} running in {process.ProcessName} (PID: {process.Id}). Attempting to shut it down." );
 
-                // Start process that should shutdown VBCSCompiler.
-                var shutdownModuleProcess = new Process()
-                {
-                    StartInfo = new ProcessStartInfo()
-                    {
-                        FileName = "dotnet",
-                        Arguments = $"{module!.FileName} -shutdown",
-                        RedirectStandardOutput = true
-                    }
-                };
-
-                shutdownModuleProcess.Start();
-                shutdownModuleProcess.WaitForExit();
+                // Start process that should shutdown VBCSCompiler. Empty string is for .NET 6 due to FileName being nullable.
+                TryShutdownCompilerProcess( module.FileName ?? string.Empty );
 
                 // Try to kill the parent process (dotnet) of VBCSCompiler.dll, if shutdown didn't work.
                 if ( !process.HasExited )
