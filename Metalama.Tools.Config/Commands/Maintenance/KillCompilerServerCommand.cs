@@ -12,7 +12,7 @@ internal class KillCompilerServerCommand : CommandBase
     public KillCompilerServerCommand( ICommandServiceProviderProvider commandServiceProvider ) : base(
         commandServiceProvider,
         "compiler-shutdown",
-        "Shuts down or kills locking compiler processes." )
+        "Shuts down or kills locking compiler processes" )
     {
         this.Handler = CommandHandler.Create<bool, IConsole>( this.Execute );
     }
@@ -23,6 +23,6 @@ internal class KillCompilerServerCommand : CommandBase
 
         var processManager = this.CommandServices.ServiceProvider.GetRequiredService<IProcessManager>();
 
-        processManager.KillCompilerProcesses();
+        processManager.KillCompilerProcesses( true );
     }
 }

@@ -28,7 +28,7 @@ internal class CleanUpCommand : CommandBase
         {
             // Automatically kill VBCSCompiler processes before Cleanup unless --no-kill option is used.
             var processManager = this.CommandServices.ServiceProvider.GetRequiredService<IProcessManager>();
-            processManager.KillCompilerProcesses();
+            processManager.KillCompilerProcesses( all );
         }
 
         var tempFileManager = new TempFileManager( this.CommandServices.ServiceProvider );

@@ -42,19 +42,22 @@ internal abstract partial class ProcessManagerBase : IProcessManager
 
     protected abstract IEnumerable<KillableProcess> GetProcesses( ImmutableArray<KillableModuleSpec> processNames );
 
-    public virtual void KillCompilerProcesses()
+    public virtual void KillCompilerProcesses( bool shouldEmitWarnings )
     {
         foreach ( var process in this.GetProcesses( _processesToKill ) )
         {
             process.ShutdownOrKill();
         }
-        
-        // Report a warning when processes may be locking but cannot be closed.
-        foreach ( var moduleSpec in _processesToWarn )
+
+        if ( shouldEmitWarnings )
         {
-            foreach ( var process in this.GetProcesses( ImmutableArray.Create( moduleSpec ) ) )
+            // Report a warning when processes may be locking but cannot be closed.
+            foreach ( var moduleSpec in _processesToWarn )
             {
-                this.Logger.Warning?.Log( $"The process {process.Process.Id} ({moduleSpec.DisplayName ?? moduleSpec.Name}) must be closed manually." );
+                foreach ( var process in this.GetProcesses( ImmutableArray.Create( moduleSpec ) ) )
+                {
+                    this.Logger.Warning?.Log( $"The process {process.Process.Id} ({moduleSpec.DisplayName ?? moduleSpec.Name}) must be closed manually." );
+                }
             }
         }
     }

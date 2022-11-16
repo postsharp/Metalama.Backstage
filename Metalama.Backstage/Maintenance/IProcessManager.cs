@@ -6,5 +6,5 @@ namespace Metalama.Backstage;
 
 public interface IProcessManager : IBackstageService
 {
-    public void KillCompilerProcesses();
+    public void KillCompilerProcesses( bool shouldEmitWarnings );
 }
