@@ -12,7 +12,7 @@ internal class KillCompilerServerCommand : CommandBase
     public KillCompilerServerCommand( ICommandServiceProviderProvider commandServiceProvider ) : base(
         commandServiceProvider,
         "compiler-shutdown",
-        "Tells VBCSCompiler process to shutdown." )
+        "Shuts down or kills locking compiler processes." )
     {
         this.Handler = CommandHandler.Create<bool, IConsole>( this.Execute );
     }
