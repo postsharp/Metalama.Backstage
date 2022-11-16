@@ -12,21 +12,21 @@ internal abstract partial class ProcessManagerBase
     {
         private readonly ILogger _logger;
 
-        private readonly Process _process;
+        public Process Process { get; }
 
         private readonly ProcessModule? _compilerModule;
-
+        
         private void Shutdown()
         {
             try
             {
-                this._logger.Trace?.Log( $"Gracefully shutting down process {this._process.Id}." );
+                this._logger.Trace?.Log( $"Gracefully shutting down process {this.Process.Id}." );
 
                 var shutdownProcess = new Process()
                 {
                     StartInfo = new ProcessStartInfo()
                     {
-                        FileName = this._process.MainModule!.FileName,
+                        FileName = this.Process.MainModule!.FileName,
                         Arguments = this._compilerModule == null ? $"\"{this._compilerModule}\" -shutdown" : "-shutdown",
                         RedirectStandardOutput = true
                     }
@@ -37,7 +37,7 @@ internal abstract partial class ProcessManagerBase
             }
             catch ( Exception e )
             {
-                this._logger.Warning?.Log(  $"Unable to gracefully shut down process {this._process.Id}: {e.Message}" );
+                this._logger.Warning?.Log(  $"Unable to gracefully shut down process {this.Process.Id}: {e.Message}" );
             }
         }
 
@@ -49,17 +49,17 @@ internal abstract partial class ProcessManagerBase
 
         private void Kill()
         {
-            var process = this._process;
+            var process = this.Process;
 
             // Try killing the process directly, if shutting down VBCSCompiler.exe didn't work.
-            if ( this._process.HasExited )
+            if ( this.Process.HasExited )
             {
                 return;
             }
 
             try
             {
-                this._logger.Trace?.Log( $"Killing '{this._process.ProcessName}' (PID: {process.Id})." );
+                this._logger.Trace?.Log( $"Killing '{this.Process.ProcessName}' (PID: {process.Id})." );
 
                 process.Kill();
                 process.WaitForExit();
@@ -76,7 +76,7 @@ internal abstract partial class ProcessManagerBase
 
         public KillableProcess( Process process, ILogger logger, ProcessModule? compilerModule )
         {
-            this._process = process;
+            this.Process = process;
             this._logger = logger;
             this._compilerModule = compilerModule;
         }

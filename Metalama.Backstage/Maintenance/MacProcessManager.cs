@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Linq;
 
@@ -11,7 +12,7 @@ internal class MacProcessManager : ProcessManagerBase
 {
     public MacProcessManager( IServiceProvider serviceProvider ) : base( serviceProvider ) { }
 
-    private bool ReferencesCompiler( Process process )
+    private static bool ReferencesModule( ImmutableArray<KillableModuleSpec> processNames, Process process )
     {
         var listOpenFilesProcess = new Process()
         {
@@ -27,7 +28,7 @@ internal class MacProcessManager : ProcessManagerBase
             if ( outputLine.ReadLine() != null )
             {
                 // TODO: pass the complete path for the shutdown logic.
-                if ( outputLine.ReadLine()!.Contains( "VBCSCompiler.dll" ) )
+                if ( processNames.Any( n => n.IsDotNet && outputLine.ReadLine()!.Contains( n.Name ) ) )
                 {
                     return true;
                 }
@@ -37,8 +38,8 @@ internal class MacProcessManager : ProcessManagerBase
         return false;
     }
 
-    protected override IEnumerable<KillableProcess> GetProcessesToKill()
+    protected override IEnumerable<KillableProcess> GetProcesses( ImmutableArray<KillableModuleSpec> processNames )
     {
-        return GetDotnetProcesses().Where( this.ReferencesCompiler ).Select( p => new KillableProcess( p, this.Logger, null ) );
+        return GetDotnetProcesses().Where( p => ReferencesModule( processNames, p ) ).Select( p => new KillableProcess( p, this.Logger, null ) );
     }
 }

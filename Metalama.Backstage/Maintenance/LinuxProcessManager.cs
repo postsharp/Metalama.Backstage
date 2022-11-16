@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 
 namespace Metalama.Backstage.Maintenance;
 
@@ -9,5 +10,6 @@ internal class LinuxProcessManager : ProcessManagerBase
 {
     public LinuxProcessManager( IServiceProvider serviceProvider ) : base( serviceProvider ) { }
 
-    protected override IEnumerable<KillableProcess> GetProcessesToKill() => this.GetDotNetCompilerProcesses();
+    protected override IEnumerable<KillableProcess> GetProcesses( ImmutableArray<KillableModuleSpec> processNames )
+        => this.GetDotNetCompilerProcesses( processNames );
 }
