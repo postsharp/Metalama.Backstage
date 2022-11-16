@@ -30,13 +30,15 @@ internal abstract partial class ProcessManagerBase : IProcessManager
 
     protected static Process[] GetDotnetProcesses() => Process.GetProcessesByName( "dotnet" );
 
+#pragma warning disable CA1307
     protected IEnumerable<KillableProcess> GetDotNetCompilerProcesses( ImmutableArray<KillableModuleSpec> processNames )
         => GetDotnetProcesses()
             .Select(
                 p => (Process: p, Module: p.Modules.OfType<ProcessModule>()
                           .FirstOrDefault( m => processNames.Any( n => n.IsDotNet && m.ModuleName!.Contains( n.Name ) ) )) )
             .Where( p => p.Module != null )
-            .Select( p => new KillableProcess( p.Process, this.Logger, p.Module ) );
+            .Select( p => new KillableProcess( p.Process, this.Logger, p.Module!.FileName ) );
+#pragma warning restore CA1307
 
     protected abstract IEnumerable<KillableProcess> GetProcesses( ImmutableArray<KillableModuleSpec> processNames );
 

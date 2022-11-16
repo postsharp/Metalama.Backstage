@@ -14,7 +14,7 @@ internal abstract partial class ProcessManagerBase
 
         public Process Process { get; }
 
-        private readonly ProcessModule? _compilerModule;
+        private readonly string? _compilerModule;
         
         private void Shutdown()
         {
@@ -27,7 +27,7 @@ internal abstract partial class ProcessManagerBase
                     StartInfo = new ProcessStartInfo()
                     {
                         FileName = this.Process.MainModule!.FileName,
-                        Arguments = this._compilerModule == null ? $"\"{this._compilerModule}\" -shutdown" : "-shutdown",
+                        Arguments = this._compilerModule != null ? $"\"{this._compilerModule}\" -shutdown" : "-shutdown",
                         RedirectStandardOutput = true
                     }
                 };
@@ -37,7 +37,7 @@ internal abstract partial class ProcessManagerBase
             }
             catch ( Exception e )
             {
-                this._logger.Warning?.Log(  $"Unable to gracefully shut down process {this.Process.Id}: {e.Message}" );
+                this._logger.Warning?.Log( $"Unable to gracefully shut down process {this.Process.Id}: {e.Message}" );
             }
         }
 
@@ -52,14 +52,14 @@ internal abstract partial class ProcessManagerBase
             var process = this.Process;
 
             // Try killing the process directly, if shutting down VBCSCompiler.exe didn't work.
-            if ( this.Process.HasExited )
+            if ( process.HasExited )
             {
                 return;
             }
 
             try
             {
-                this._logger.Trace?.Log( $"Killing '{this.Process.ProcessName}' (PID: {process.Id})." );
+                this._logger.Trace?.Log( $"Killing '{process.ProcessName}' (PID: {process.Id})." );
 
                 process.Kill();
                 process.WaitForExit();
@@ -74,7 +74,7 @@ internal abstract partial class ProcessManagerBase
             }
         }
 
-        public KillableProcess( Process process, ILogger logger, ProcessModule? compilerModule )
+        public KillableProcess( Process process, ILogger logger, string? compilerModule )
         {
             this.Process = process;
             this._logger = logger;

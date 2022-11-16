@@ -5,7 +5,6 @@ using Metalama.DotNetTools.Commands.Licensing;
 using Metalama.DotNetTools.Commands.Logging;
 using Metalama.DotNetTools.Commands.Maintenance;
 using Metalama.DotNetTools.Commands.Telemetry;
-using Metalama.DotNetTools.Commands.Utility;
 using System.CommandLine;
 
 namespace Metalama.DotNetTools.Commands;

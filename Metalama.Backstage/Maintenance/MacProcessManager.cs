@@ -12,7 +12,7 @@ internal class MacProcessManager : ProcessManagerBase
 {
     public MacProcessManager( IServiceProvider serviceProvider ) : base( serviceProvider ) { }
 
-    private static bool ReferencesModule( ImmutableArray<KillableModuleSpec> processNames, Process process )
+    private static string? GetModule( ImmutableArray<KillableModuleSpec> moduleNames, Process process )
     {
         var listOpenFilesProcess = new Process()
         {
@@ -20,26 +20,33 @@ internal class MacProcessManager : ProcessManagerBase
         };
 
         listOpenFilesProcess.Start();
+        listOpenFilesProcess.WaitForExit();
 
+#pragma warning disable CA1307
         while ( !listOpenFilesProcess.StandardOutput.EndOfStream )
         {
-            var outputLine = listOpenFilesProcess.StandardOutput;
+            var outputLine = listOpenFilesProcess.StandardOutput.ReadLine();
 
-            if ( outputLine.ReadLine() != null )
+            if ( outputLine != null )
             {
-                // TODO: pass the complete path for the shutdown logic.
-                if ( processNames.Any( n => n.IsDotNet && outputLine.ReadLine()!.Contains( n.Name ) ) )
+                // We need to be sure we will attempt to shutdown an actual .DLL and not any other file.
+                if ( moduleNames.Any( n => n.IsDotNet && outputLine!.Contains( n.Name + ".dll" ) ) )
                 {
-                    return true;
+                    // The last substring is an actual file path.
+                    return outputLine.Split( ' ' ).LastOrDefault();
                 }
             }
         }
 
-        return false;
+        return null;
     }
+#pragma warning restore CA1307
 
     protected override IEnumerable<KillableProcess> GetProcesses( ImmutableArray<KillableModuleSpec> processNames )
     {
-        return GetDotnetProcesses().Where( p => ReferencesModule( processNames, p ) ).Select( p => new KillableProcess( p, this.Logger, null ) );
+        return GetDotnetProcesses()
+            .Select( p => (Process: p, Module: GetModule( processNames, p )) )
+            .Where( p => p.Module != null )
+            .Select( p => new KillableProcess( p.Process, this.Logger, p.Module ) );
     }
 }
