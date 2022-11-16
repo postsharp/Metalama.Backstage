@@ -1,7 +1,7 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. See the LICENSE.md file in the root directory of this repository root for details.
 
+using Metalama.Backstage;
 using Metalama.Backstage.Maintenance;
-using Metalama.Backstage.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 using System.CommandLine;
 using System.CommandLine.Invocation;
@@ -28,7 +28,7 @@ internal class CleanUpCommand : CommandBase
         {
             // Automatically kill VBCSCompiler processes before Cleanup unless --no-kill option is used.
             var processManager = this.CommandServices.ServiceProvider.GetRequiredService<IProcessManager>();
-            processManager.RunKillVbcsCompiler();
+            processManager.KillCompilerProcesses();
         }
 
         var tempFileManager = new TempFileManager( this.CommandServices.ServiceProvider );

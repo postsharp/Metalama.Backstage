@@ -1,10 +1,9 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. See the LICENSE.md file in the root directory of this repository root for details.
 
-using Metalama.Backstage.Utilities;
+using Metalama.Backstage;
 using Microsoft.Extensions.DependencyInjection;
 using System.CommandLine;
 using System.CommandLine.Invocation;
-using System.CommandLine.IO;
 
 namespace Metalama.DotNetTools.Commands.Utility;
 
@@ -22,15 +21,8 @@ internal class KillCompilerServerCommand : CommandBase
     {
         this.CommandServices.Initialize( console, verbose );
 
-        console.Out.WriteLine( "Attempting to kill VBCSCompiler process. " );
-
         var processManager = this.CommandServices.ServiceProvider.GetRequiredService<IProcessManager>();
 
-        var success = processManager.RunKillVbcsCompiler();
-        
-        console.Out.WriteLine(
-            success
-                ? "All VBCSCompiler processes were terminated."
-                : "Some VBCSCompiler processes could not be terminated." );
+        processManager.KillCompilerProcesses();
     }
 }
