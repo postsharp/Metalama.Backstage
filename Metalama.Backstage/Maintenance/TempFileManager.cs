@@ -8,6 +8,7 @@ using Metalama.Backstage.Utilities;
 using Newtonsoft.Json;
 using System;
 using System.IO;
+using System.Linq;
 
 namespace Metalama.Backstage.Maintenance;
 
@@ -126,18 +127,9 @@ public class TempFileManager : ITempFileManager
         else
         {
             // We delete all files we find because they may be leftovers from a previous partial deletion.
-            foreach ( var file in this._fileSystem.GetFiles( directory ) )
+            if ( this._fileSystem.GetFiles( directory ).Any() )
             {
-                this._logger.Trace?.Log( $"Deleting '{file}'." );
-
-                try
-                {
-                    this._fileSystem.DeleteFile( file );
-                }
-                catch ( Exception e )
-                {
-                    this._logger.Warning?.Log( $"Cannot delete '{file}': {e.Message}" );
-                }
+                this._logger.Warning?.Log( $"There are orphan files in directory '{directory}'. It must be cleaned manually. If this situation repeats itself with no user cause, please report this situation to support." );
             }
 
             // Proceed deeper in the directory tree.
