@@ -48,6 +48,8 @@ public class TempFileManager : ITempFileManager
 
             return;
         }
+        
+        this._logger.Info?.Log( "Cleaning Metalama temporary files." );
 
         try
         {

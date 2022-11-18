@@ -11,18 +11,19 @@ internal class KillCompilerServerCommand : CommandBase
 {
     public KillCompilerServerCommand( ICommandServiceProviderProvider commandServiceProvider ) : base(
         commandServiceProvider,
-        "compiler-shutdown",
+        "shutdown",
         "Shuts down or kills locking compiler processes" )
     {
-        this.Handler = CommandHandler.Create<bool, IConsole>( this.Execute );
+        this.AddOption( new Option( new[] { "--no-warn" }, "Do not write warnings for processes that may be locking Metalama files." ) );
+        this.Handler = CommandHandler.Create<bool, bool, IConsole>( this.Execute );
     }
 
-    private void Execute( bool verbose, IConsole console )
+    private void Execute( bool noWarn, bool verbose, IConsole console )
     {
         this.CommandServices.Initialize( console, verbose );
 
         var processManager = this.CommandServices.ServiceProvider.GetRequiredService<IProcessManager>();
 
-        processManager.KillCompilerProcesses( true );
+        processManager.KillCompilerProcesses( !noWarn );
     }
 }

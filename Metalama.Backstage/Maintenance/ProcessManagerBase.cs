@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 
 namespace Metalama.Backstage;
@@ -35,7 +36,7 @@ internal abstract partial class ProcessManagerBase : IProcessManager
         => GetDotnetProcesses()
             .Select(
                 p => (Process: p, Module: p.Modules.OfType<ProcessModule>()
-                          .FirstOrDefault( m => processNames.Any( n => n.IsDotNet && m.ModuleName!.Contains( n.Name ) ) )) )
+                          .FirstOrDefault( m => processNames.Any( n => n.IsDotNet && Path.GetFileNameWithoutExtension( m.FileName ).Equals( n.Name, StringComparison.OrdinalIgnoreCase ) ) )) )
             .Where( p => p.Module != null )
             .Select( p => new KillableProcess( p.Process, this.Logger, p.Module!.FileName ) );
 #pragma warning restore CA1307
@@ -44,6 +45,8 @@ internal abstract partial class ProcessManagerBase : IProcessManager
 
     public virtual void KillCompilerProcesses( bool shouldEmitWarnings )
     {
+        this.Logger.Info?.Log( "Killing Metalama processes." );
+        
         foreach ( var process in this.GetProcesses( _processesToKill ) )
         {
             process.ShutdownOrKill();
