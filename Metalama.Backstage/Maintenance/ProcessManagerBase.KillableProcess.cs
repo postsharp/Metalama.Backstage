@@ -59,7 +59,7 @@ internal abstract partial class ProcessManagerBase
 
             try
             {
-                this._logger.Trace?.Log( $"Killing '{process.ProcessName}' (PID: {process.Id})." );
+                this._logger.Trace?.Log( $"Killing process '{process.ProcessName}' (PID: {process.Id})." );
 
                 process.Kill();
                 process.WaitForExit();
