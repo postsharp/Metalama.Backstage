@@ -127,19 +127,20 @@ public class TempFileManager : ITempFileManager
         else
         {
             // We delete all files we find because they may be leftovers from a previous partial deletion.
-            if ( this._fileSystem.GetFiles( directory ).Any() )
+            if ( this._fileSystem.GetFiles( directory ).Any() && !this._fileSystem.FileExists( cleanUpFileCandidate ) )
             {
                 this._logger.Warning?.Log( $"There are orphan files in directory '{directory}'. It must be cleaned manually. If this situation repeats itself with no user cause, please report this situation to support." );
             }
 
             // Proceed deeper in the directory tree.
+
             foreach ( var dir in this._fileSystem.GetDirectories( directory ) )
             {
                 this.DeleteDirectoryRecursive( dir, all );
             }
 
             // If the directory became empty, we can delete it too.
-            if ( this._fileSystem.IsDirectoryEmpty( directory ) )
+            if ( this._fileSystem.IsDirectoryEmpty( directory ) || this._fileSystem.FileExists( cleanUpFileCandidate ) )
             {
                 this.DeleteDirectory( directory );
             }
