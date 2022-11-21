@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 
 namespace Metalama.Backstage;
@@ -29,9 +30,7 @@ internal class MacProcessManager : ProcessManagerBase
 
             if ( outputLine != null )
             {
-                // We need to be sure we will attempt to shutdown an actual .DLL and not any other file.
-                // TODO: checking for Contains is too general. We must make sure we are matching the complete file name without the path.
-                if ( moduleNames.Any( n => n.IsDotNet && outputLine!.Contains( n.Name + ".dll" ) ) )
+                if ( moduleNames.Any( n => n.IsDotNet && Path.GetFileNameWithoutExtension( outputLine ).Equals( n.Name, StringComparison.OrdinalIgnoreCase ) ) )
                 {
                     // The last substring is an actual file path.
                     return outputLine.Split( ' ' ).LastOrDefault();
