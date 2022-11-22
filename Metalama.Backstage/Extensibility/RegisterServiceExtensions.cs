@@ -12,6 +12,7 @@ using Metalama.Backstage.Welcome;
 using System;
 using System.Collections.Immutable;
 using System.Linq;
+using System.Runtime.InteropServices;
 
 namespace Metalama.Backstage.Extensibility;
 
@@ -130,14 +131,14 @@ public static class RegisterServiceExtensions
     internal static ServiceProviderBuilder AddConfigurationManager( this ServiceProviderBuilder serviceProviderBuilder )
         => serviceProviderBuilder.AddSingleton<IConfigurationManager>( new ConfigurationManager( serviceProviderBuilder.ServiceProvider ) );
 
-    private static ServiceProviderBuilder AddPlatformInfo(
+    private static void AddPlatformInfo(
         this ServiceProviderBuilder serviceProviderBuilder,
         string? dotnetSdkDirectory )
     {
-        return serviceProviderBuilder.AddSingleton<IPlatformInfo>( new PlatformInfo( serviceProviderBuilder.ServiceProvider, dotnetSdkDirectory ) );
+        serviceProviderBuilder.AddSingleton<IPlatformInfo>( new PlatformInfo( serviceProviderBuilder.ServiceProvider, dotnetSdkDirectory ) );
     }
 
-    private static ServiceProviderBuilder AddLicensing(
+    private static void AddLicensing(
         this ServiceProviderBuilder serviceProviderBuilder,
         LicensingInitializationOptions options )
     {
@@ -151,8 +152,6 @@ public static class RegisterServiceExtensions
             options );
 
         serviceProviderBuilder.AddSingleton( licenseConsumptionManager );
-
-        return serviceProviderBuilder;
     }
 
     public static ServiceProviderBuilder AddBackstageServices(
@@ -215,6 +214,9 @@ public static class RegisterServiceExtensions
             serviceProviderBuilder.AddTelemetryServices();
         }
 
+        // Add process management service.
+        serviceProviderBuilder.TryAddProcessManagerService();
+
         // Add licensing.
         if ( options.AddLicensing )
         {
@@ -229,14 +231,34 @@ public static class RegisterServiceExtensions
         return serviceProviderBuilder;
     }
 
-    private static ServiceProviderBuilder AddTelemetryServices( this ServiceProviderBuilder serviceProviderBuilder )
+    private static void AddTelemetryServices( this ServiceProviderBuilder serviceProviderBuilder )
     {
         // Add telemetry.
         var queue = new TelemetryQueue( serviceProviderBuilder.ServiceProvider );
 
-        return serviceProviderBuilder
+        serviceProviderBuilder
             .AddSingleton<ITelemetryUploader>( new TelemetryUploader( serviceProviderBuilder.ServiceProvider ) )
             .AddSingleton<IExceptionReporter>( new ExceptionReporter( queue, serviceProviderBuilder.ServiceProvider ) )
             .AddSingleton<IUsageReporter>( new UsageReporter( serviceProviderBuilder.ServiceProvider ) );
+    }
+
+    private static void TryAddProcessManagerService( this ServiceProviderBuilder serviceProviderBuilder )
+    {
+        if ( RuntimeInformation.IsOSPlatform( OSPlatform.Windows ) )
+        {
+            serviceProviderBuilder.AddSingleton<IProcessManager>( new WindowsProcessManager( serviceProviderBuilder.ServiceProvider ) );
+        }
+        else if ( RuntimeInformation.IsOSPlatform( OSPlatform.Linux ) )
+        {
+            serviceProviderBuilder.AddSingleton<IProcessManager>( new LinuxProcessManager( serviceProviderBuilder.ServiceProvider ) );
+        }
+        else if ( RuntimeInformation.IsOSPlatform( OSPlatform.OSX ) )
+        {
+            serviceProviderBuilder.AddSingleton<IProcessManager>( new MacProcessManager( serviceProviderBuilder.ServiceProvider ) );
+        }
+        else
+        {
+            // Not supported.
+        }
     }
 }

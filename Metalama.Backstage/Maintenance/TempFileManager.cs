@@ -8,6 +8,7 @@ using Metalama.Backstage.Utilities;
 using Newtonsoft.Json;
 using System;
 using System.IO;
+using System.Linq;
 
 namespace Metalama.Backstage.Maintenance;
 
@@ -49,6 +50,8 @@ public class TempFileManager : ITempFileManager
             return;
         }
 
+        this._logger.Info?.Log( "Cleaning Metalama temporary files." );
+
         try
         {
             var now = this._time.Now;
@@ -77,17 +80,52 @@ public class TempFileManager : ITempFileManager
 
     private void DeleteDirectoryRecursive( string directory, bool all )
     {
-        if ( !this._fileSystem.DirectoryExists( directory ) )
+        // Delete the directory if it contains cleanup.json and the cleanup policy requires it.
+        if ( this.MustDeleteDirectory( directory, all ) )
         {
-            return;
+            this.DeleteDirectory( directory );
         }
+        else
+        {
+            // Process subdirectories. There are subdirectories after the previous step when the directory does not contain cleanup.json.
+            foreach ( var subdirectory in this._fileSystem.EnumerateDirectories( directory ) )
+            {
+                this.DeleteDirectoryRecursive( subdirectory, all );
+            }
 
-        var cleanUpFileCandidate = Path.Combine( directory, "cleanup.json" );
+            // If the directory became empty, we delete it.
+            if ( this._fileSystem.IsDirectoryEmpty( directory ) )
+            {
+                this.DeleteDirectory( directory );
+            }
+        }
+    }
+
+    private bool MustDeleteDirectory( string directory, bool all )
+    {
+        var cleanUpFilePath = Path.Combine( directory, "cleanup.json" );
 
         // If we find the cleanup file in directory, the directory will be deleted.
-        if ( !all && this._fileSystem.FileExists( cleanUpFileCandidate ) )
+        if ( !this._fileSystem.FileExists( cleanUpFilePath ) )
         {
-            var jsonFileContent = this._fileSystem.ReadAllText( cleanUpFileCandidate );
+            if ( !all )
+            {
+                return false;
+            }
+            else
+            {
+                // When we delete all files, we only delete leave directories, so we delete them depth-first.
+                return !this._fileSystem.GetDirectories( directory ).Any();
+            }
+        }
+
+        if ( all )
+        {
+            return true;
+        }
+        else
+        {
+            var jsonFileContent = this._fileSystem.ReadAllText( cleanUpFilePath );
 
             CleanUpFile? cleanUpFile;
 
@@ -99,55 +137,30 @@ public class TempFileManager : ITempFileManager
             {
                 this._logger.Error?.Log( $"Cannot deserialize '{jsonFileContent}': {e.Message}" );
 
-                return;
+                return false;
             }
 
             if ( cleanUpFile != null )
             {
-                var lastWriteTime = this._fileSystem.GetFileLastWriteTime( cleanUpFileCandidate );
+                var lastWriteTime = this._fileSystem.GetFileLastWriteTime( cleanUpFilePath );
 
                 if ( cleanUpFile.Strategy == CleanUpStrategy.Always
                      || (cleanUpFile.Strategy == CleanUpStrategy.WhenUnused && lastWriteTime < DateTime.Now.AddDays( -7 )) )
                 {
-                    this.DeleteDirectory( directory );
+                    return true;
                 }
                 else
                 {
                     this._logger.Trace?.Log( $"The directory '{directory}' has been recently used and will not be deleted unless you use the --all option." );
+
+                    return false;
                 }
             }
             else
             {
-                this._logger.Error?.Log( $"The file '{jsonFileContent}' is empty." );
-            }
-        }
-        else
-        {
-            // We delete all files we find because they may be leftovers from a previous partial deletion.
-            foreach ( var file in this._fileSystem.GetFiles( directory ) )
-            {
-                this._logger.Trace?.Log( $"Deleting '{file}'." );
+                this._logger.Error?.Log( $"Cannot deserialize '{jsonFileContent}': the file is empty." );
 
-                try
-                {
-                    this._fileSystem.DeleteFile( file );
-                }
-                catch ( Exception e )
-                {
-                    this._logger.Warning?.Log( $"Cannot delete '{file}': {e.Message}" );
-                }
-            }
-
-            // Proceed deeper in the directory tree.
-            foreach ( var dir in this._fileSystem.GetDirectories( directory ) )
-            {
-                this.DeleteDirectoryRecursive( dir, all );
-            }
-
-            // If the directory became empty, we can delete it too.
-            if ( this._fileSystem.IsDirectoryEmpty( directory ) )
-            {
-                this.DeleteDirectory( directory );
+                return false;
             }
         }
     }

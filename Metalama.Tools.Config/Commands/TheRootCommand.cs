@@ -19,6 +19,7 @@ internal class TheRootCommand : RootCommand
         this.Add( new DiagnosticsCommand( commandServiceProvider ) );
         this.Add( new DesignTimeCommand( commandServiceProvider ) );
         this.Add( new CleanUpCommand( commandServiceProvider ) );
+        this.Add( new KillCompilerServerCommand( commandServiceProvider ) );
         this.Add( new WelcomeCommand( commandServiceProvider ) );
 
         var verboseOption = new Option<bool>( "--verbose", "Set detailed verbosity level" );

@@ -4,7 +4,9 @@ namespace Metalama.Backstage.Maintenance;
 
 public enum CleanUpStrategy
 {
-    None,
-    Always,
-    WhenUnused
+    // The integer values must not be changed because they are serialized in cleanup.json.
+    
+    None = 0,
+    Always = 1,
+    WhenUnused = 2
 }
