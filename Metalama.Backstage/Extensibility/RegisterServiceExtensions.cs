@@ -217,7 +217,7 @@ public static class RegisterServiceExtensions
         }
 
         // Add process management service.
-        serviceProviderBuilder.AddProcessManagerService();
+        serviceProviderBuilder.TryAddProcessManagerService();
 
         // Add licensing.
         if ( options.AddLicensing )
@@ -244,7 +244,7 @@ public static class RegisterServiceExtensions
             .AddSingleton<IUsageReporter>( new UsageReporter( serviceProviderBuilder.ServiceProvider ) );
     }
 
-    private static ServiceProviderBuilder AddProcessManagerService( this ServiceProviderBuilder serviceProviderBuilder )
+    private static ServiceProviderBuilder TryAddProcessManagerService( this ServiceProviderBuilder serviceProviderBuilder )
     {
         if ( RuntimeInformation.IsOSPlatform( OSPlatform.Windows ) )
         {
@@ -260,7 +260,8 @@ public static class RegisterServiceExtensions
         }
         else
         {
-            throw new NotSupportedException( "Process manager is not supported on the current platform." );
+            // Not supported.
+            return serviceProviderBuilder;
         }
     }
 }
