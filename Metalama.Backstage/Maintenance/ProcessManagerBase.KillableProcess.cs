@@ -3,8 +3,9 @@
 using Metalama.Backstage.Diagnostics;
 using System;
 using System.Diagnostics;
+using System.Threading;
 
-namespace Metalama.Backstage;
+namespace Metalama.Backstage.Maintenance;
 
 internal abstract partial class ProcessManagerBase
 {
@@ -12,14 +13,21 @@ internal abstract partial class ProcessManagerBase
     {
         private readonly ILogger _logger;
 
+        public KillableProcessSpec Spec { get; }
+
         public Process Process { get; }
 
-        private readonly string? _compilerModule;
-        
-        private void Shutdown()
+        public string? MainModule { get; }
+
+        private bool Shutdown()
         {
             try
             {
+                if ( this.Process.HasExited )
+                {
+                    return true;
+                }
+
                 this._logger.Trace?.Log( $"Gracefully shutting down process {this.Process.Id}." );
 
                 var shutdownProcess = new Process()
@@ -27,31 +35,42 @@ internal abstract partial class ProcessManagerBase
                     StartInfo = new ProcessStartInfo()
                     {
                         FileName = this.Process.MainModule!.FileName,
-                        Arguments = this._compilerModule != null ? $"\"{this._compilerModule}\" -shutdown" : "-shutdown",
+                        Arguments = this.MainModule != null ? $"\"{this.MainModule}\" -shutdown" : "-shutdown",
                         RedirectStandardOutput = true
                     }
                 };
 
                 shutdownProcess.Start();
                 shutdownProcess.WaitForExit();
+
+                var waitCycles = 0;
+
+                while ( !this.Process.HasExited )
+                {
+                    if ( waitCycles > 5 )
+                    {
+                        return false;
+                    }
+
+                    waitCycles++;
+
+                    Thread.Sleep( 1 );
+                }
+
+                return true;
             }
             catch ( Exception e )
             {
                 this._logger.Warning?.Log( $"Unable to gracefully shut down process {this.Process.Id}: {e.Message}" );
-            }
-        }
 
-        public void ShutdownOrKill()
-        {
-            this.Shutdown();
-            this.Kill();
+                return false;
+            }
         }
 
         private void Kill()
         {
             var process = this.Process;
 
-            // Try killing the process directly, if shutting down VBCSCompiler.exe didn't work.
             if ( process.HasExited )
             {
                 return;
@@ -74,11 +93,25 @@ internal abstract partial class ProcessManagerBase
             }
         }
 
-        public KillableProcess( Process process, ILogger logger, string? compilerModule )
+        public KillableProcess( Process process, ILogger logger, string? mainModule, KillableProcessSpec spec )
         {
             this.Process = process;
             this._logger = logger;
-            this._compilerModule = compilerModule;
+            this.Spec = spec;
+            this.MainModule = mainModule;
+        }
+
+        public void ShutdownOrKill()
+        {
+            if ( this.Spec.CanShutdown )
+            {
+                if ( this.Shutdown() )
+                {
+                    return;
+                }
+            }
+
+            this.Kill();
         }
     }
 }

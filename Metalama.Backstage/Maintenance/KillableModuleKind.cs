@@ -2,7 +2,7 @@
 
 using System;
 
-namespace Metalama.Backstage;
+namespace Metalama.Backstage.Maintenance;
 
 [Flags]
 internal enum KillableModuleKind

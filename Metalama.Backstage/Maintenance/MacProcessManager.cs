@@ -4,17 +4,19 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics;
-using System.IO;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 
-namespace Metalama.Backstage;
+namespace Metalama.Backstage.Maintenance;
 
 internal class MacProcessManager : ProcessManagerBase
 {
     public MacProcessManager( IServiceProvider serviceProvider ) : base( serviceProvider ) { }
 
-    private static string? GetModule( ImmutableArray<KillableModuleSpec> moduleNames, Process process )
+    protected override bool TryGetModulePaths( Process process, [NotNullWhen( true )] out List<string>? modules )
     {
+        modules = new List<string>();
+
         var listOpenFilesProcess = new Process()
         {
             StartInfo = new ProcessStartInfo() { FileName = "lsof", Arguments = $"-p {process.Id}", RedirectStandardOutput = true }
@@ -30,23 +32,20 @@ internal class MacProcessManager : ProcessManagerBase
 
             if ( outputLine != null )
             {
-                if ( moduleNames.Any( n => n.IsDotNet && Path.GetFileNameWithoutExtension( outputLine ).Equals( n.Name, StringComparison.OrdinalIgnoreCase ) ) )
+                var module = outputLine.Split( ' ' ).LastOrDefault();
+
+                if ( module != null )
                 {
-                    // The last substring is an actual file path.
-                    return outputLine.Split( ' ' ).LastOrDefault();
+                    modules.Add( module );
                 }
             }
         }
 
-        return null;
+        return true;
     }
-#pragma warning restore CA1307
 
-    protected override IEnumerable<KillableProcess> GetProcesses( ImmutableArray<KillableModuleSpec> processNames )
+    protected override IEnumerable<KillableProcess> GetProcesses( ImmutableArray<KillableProcessSpec> processNames )
     {
-        return GetDotnetProcesses()
-            .Select( p => (Process: p, Module: GetModule( processNames, p )) )
-            .Where( p => p.Module != null )
-            .Select( p => new KillableProcess( p.Process, this.Logger, p.Module ) );
+        return this.GetDotNetProcesses( processNames );
     }
 }

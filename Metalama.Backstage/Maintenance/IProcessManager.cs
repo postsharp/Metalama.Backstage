@@ -2,7 +2,7 @@
 
 using Metalama.Backstage.Extensibility;
 
-namespace Metalama.Backstage;
+namespace Metalama.Backstage.Maintenance;
 
 public interface IProcessManager : IBackstageService
 {

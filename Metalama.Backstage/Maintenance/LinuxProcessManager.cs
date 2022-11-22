@@ -10,6 +10,5 @@ internal class LinuxProcessManager : ProcessManagerBase
 {
     public LinuxProcessManager( IServiceProvider serviceProvider ) : base( serviceProvider ) { }
 
-    protected override IEnumerable<KillableProcess> GetProcesses( ImmutableArray<KillableModuleSpec> processNames )
-        => this.GetDotNetCompilerProcesses( processNames );
+    protected override IEnumerable<KillableProcess> GetProcesses( ImmutableArray<KillableProcessSpec> processNames ) => this.GetDotNetProcesses( processNames );
 }

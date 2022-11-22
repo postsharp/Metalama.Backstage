@@ -1,6 +1,7 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. See the LICENSE.md file in the root directory of this repository root for details.
 
 using Metalama.Backstage;
+using Metalama.Backstage.Maintenance;
 using Microsoft.Extensions.DependencyInjection;
 using System.CommandLine;
 using System.CommandLine.Invocation;
@@ -11,7 +12,7 @@ internal class KillCompilerServerCommand : CommandBase
 {
     public KillCompilerServerCommand( ICommandServiceProviderProvider commandServiceProvider ) : base(
         commandServiceProvider,
-        "shutdown",
+        "kill",
         "Shuts down or kills locking compiler processes" )
     {
         this.AddOption( new Option( new[] { "--no-warn" }, "Do not write warnings for processes that may be locking Metalama files." ) );

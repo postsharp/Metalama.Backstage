@@ -6,16 +6,34 @@ using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Linq;
 
-namespace Metalama.Backstage;
+namespace Metalama.Backstage.Maintenance;
 
 internal class WindowsProcessManager : ProcessManagerBase
 {
     public WindowsProcessManager( IServiceProvider serviceProvider ) : base( serviceProvider ) { }
 
-    protected override IEnumerable<KillableProcess> GetProcesses( ImmutableArray<KillableModuleSpec> processNames )
-        => this.GetDotNetCompilerProcesses( processNames ).Concat( this.GetStandaloneCompilerProcesses( processNames ) );
+    protected override IEnumerable<KillableProcess> GetProcesses( ImmutableArray<KillableProcessSpec> processNames )
+        => this.GetDotNetProcesses( processNames ).Concat( this.GetStandaloneCompilerProcesses( processNames ) );
 
-    private IEnumerable<KillableProcess> GetStandaloneCompilerProcesses( ImmutableArray<KillableModuleSpec> processNames )
-        => processNames.Where( n => n.IsStandaloneProcess )
-            .SelectMany( n => Process.GetProcessesByName( n.Name ).Select( p => new KillableProcess( p, this.Logger, null ) ) );
+#pragma warning disable CA1307
+    private IEnumerable<KillableProcess> GetStandaloneCompilerProcesses( ImmutableArray<KillableProcessSpec> processNames )
+    {
+        foreach ( var processSpec in processNames.Where( p => p.IsStandaloneProcess ) )
+        {
+            foreach ( var process in Process.GetProcessesByName( processSpec.Name.ToLowerInvariant() ) )
+            {
+                if ( !this.TryGetModulePaths( process, out var modules ) )
+                {
+                    continue;
+                }
+
+                if ( this.ReferencesMetalama( process, modules ) == false )
+                {
+                    this.Logger.Trace?.Log( $"Do not kill '{process.ProcessName}' ({process.Id}) because it does not contain Metalama." );
+                }
+
+                yield return new KillableProcess( process, this.Logger, null, processSpec );
+            }
+        }
+    }
 }
