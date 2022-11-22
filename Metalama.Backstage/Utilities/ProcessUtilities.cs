@@ -38,32 +38,50 @@ public static class ProcessUtilities
                 case "servicehub.roslyncodeanalysisservice":
                     return ProcessKind.RoslynCodeAnalysisService;
 
+                case "servicehub.host":
+                    {
+                        var commandLine = Environment.CommandLine.ToLowerInvariant();
+
+#pragma warning disable CA1307
+                        if ( commandLine.Contains( "$codelensservice$" ) )
+                        {
+                            return ProcessKind.CodeLensService;
+                        }
+                        else
+                        {
+                            return ProcessKind.Other;
+                        }
+#pragma warning restore CA1307                        
+                    }
+
                 case "csc":
                 case "vbcscompiler":
                     return ProcessKind.Compiler;
 
                 case "dotnet":
-                    var commandLine = Environment.CommandLine.ToLowerInvariant();
+                    {
+                        var commandLine = Environment.CommandLine.ToLowerInvariant();
 
 #pragma warning disable CA1307
-                    if ( commandLine.Contains( "jetbrains.resharper.roslyn.worker" ) ||
-                         commandLine.Contains( "jetbrains.roslyn.worker" ) )
-                    {
-                        return ProcessKind.Rider;
-                    }
-                    else if ( commandLine.Contains( "vbcscompiler.dll" ) || commandLine.Contains( "csc.dll" ) )
-                    {
-                        return ProcessKind.Compiler;
-                    }
-                    else if ( commandLine.Contains( "omnisharp.dll" ) )
-                    {
-                        return ProcessKind.OmniSharp;
-                    }
-                    else
-                    {
-                        return ProcessKind.Other;
-                    }
+                        if ( commandLine.Contains( "jetbrains.resharper.roslyn.worker" ) ||
+                             commandLine.Contains( "jetbrains.roslyn.worker" ) )
+                        {
+                            return ProcessKind.Rider;
+                        }
+                        else if ( commandLine.Contains( "vbcscompiler.dll" ) || commandLine.Contains( "csc.dll" ) )
+                        {
+                            return ProcessKind.Compiler;
+                        }
+                        else if ( commandLine.Contains( "omnisharp.dll" ) )
+                        {
+                            return ProcessKind.OmniSharp;
+                        }
+                        else
+                        {
+                            return ProcessKind.Other;
+                        }
 #pragma warning restore CA1307
+                    }
 
                 default:
                     return ProcessKind.Other;
