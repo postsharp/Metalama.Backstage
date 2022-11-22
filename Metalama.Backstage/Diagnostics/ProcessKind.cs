@@ -16,5 +16,6 @@ public enum ProcessKind
     BackstageWorker,
     MetalamaConfig,
     TestHost,
-    OmniSharp
+    OmniSharp,
+    CodeLensService
 }
