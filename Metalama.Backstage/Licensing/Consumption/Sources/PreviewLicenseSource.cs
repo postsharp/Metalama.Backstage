@@ -31,6 +31,7 @@ internal sealed class PreviewLicenseSource : ILicenseSource, ILicense
 
     public ILicense? GetLicense( Action<LicensingMessage> reportMessage )
     {
+        // These environment variables exist for manual testing and are not documented to users.
         const string disablePreviewLicenseEnvironmentVariableName = "METALAMA_DISABLE_PREVIEW_LICENSE";
         const string forcePreviewLicenseWarningEnvironmentVariableName = "METALAMA_FORCE_PREVIEW_LICENSE_WARNING";
         const string forcePreviewLicenseErrorEnvironmentVariableName = "METALAMA_FORCE_PREVIEW_LICENSE_ERROR";
@@ -74,7 +75,7 @@ internal sealed class PreviewLicenseSource : ILicenseSource, ILicense
         {
             reportMessage(
                 new LicensingMessage(
-                    $"Your preview license for this build of {latestPrereleaseComponent.Name} {latestPrereleaseComponent.Version} has expired on {latestPrereleaseComponent.BuildDate!.Value.AddDays( PreviewLicensePeriod ):d}. To continue using {latestPrereleaseComponent.Name}, update it to a newer preview build, register a license key, or switch to Metalama Free. See https://doc.metalama.net/deployment/register-license for details.",
+                    $"Your preview build of {latestPrereleaseComponent.Name} {latestPrereleaseComponent.Version} has expired on {latestPrereleaseComponent.BuildDate!.Value.AddDays( PreviewLicensePeriod ):d}. To continue using {latestPrereleaseComponent.Name}, update it to a newer preview build, register a license key, or switch to Metalama Free. See https://doc.metalama.net/deployment/register-license for details.",
                     true ) );
 
             this._messageReported = true;
@@ -106,7 +107,7 @@ internal sealed class PreviewLicenseSource : ILicenseSource, ILicense
         {
             reportMessage(
                 new LicensingMessage(
-                    $"Your preview license of {latestPrereleaseComponent.Name} {latestPrereleaseComponent.Version} will expire on {latestPrereleaseComponent.BuildDate!.Value.AddDays( PreviewLicensePeriod ):d}. Please update {latestPrereleaseComponent.Name} to a newer preview, register a license key, or switch to Metalama Free. See https://doc.metalama.net/deployment/register-license for details" ) );
+                    $"Your preview build of {latestPrereleaseComponent.Name} {latestPrereleaseComponent.Version} will expire on {latestPrereleaseComponent.BuildDate!.Value.AddDays( PreviewLicensePeriod ):d}. Please update {latestPrereleaseComponent.Name} to a newer preview, register a license key, or switch to Metalama Free. See https://doc.metalama.net/deployment/register-license for details" ) );
 
             this._messageReported = true;
         }
