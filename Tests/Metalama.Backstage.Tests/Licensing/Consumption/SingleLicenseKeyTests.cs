@@ -1,6 +1,5 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. See the LICENSE.md file in the root directory of this repository root for details.
 
-using Metalama.Backstage.Licensing.Consumption;
 using Metalama.Backstage.Licensing.Consumption.Sources;
 using System.Collections.Generic;
 using Xunit;
@@ -42,17 +41,6 @@ public class SingleLicenseKeyTests : LicenseConsumptionManagerTestsBase
 
     public static IEnumerable<LicenseRequirement> GetAllRequirements()
         => new[] { LicenseRequirement.Free, LicenseRequirement.Starter, LicenseRequirement.Professional, LicenseRequirement.Ultimate };
-
-    [Theory]
-    [InlineData( LicenseRequirementTestEnum.Free )]
-    [InlineData( LicenseRequirementTestEnum.Starter )]
-    [InlineData( LicenseRequirementTestEnum.Professional )]
-    [InlineData( LicenseRequirementTestEnum.Ultimate )]
-    public void NoLicenseAutoRegistersEvaluationLicense( LicenseRequirementTestEnum requestedRequirement )
-    {
-        LicenseConsumptionManager manager = new( this.ServiceProvider );
-        TestConsumption( manager, requestedRequirement, false, true );
-    }
 
     [Theory]
     [InlineData( TestLicenses.PostSharpEssentials, false )]
@@ -170,6 +158,28 @@ public class SingleLicenseKeyTests : LicenseConsumptionManagerTestsBase
     [InlineData( LicenseRequirementTestEnum.Starter, true )]
     [InlineData( LicenseRequirementTestEnum.Professional, true )]
     [InlineData( LicenseRequirementTestEnum.Ultimate, true )]
-    public void PreviewLicenseAllowsRequirements( LicenseRequirementTestEnum requestedRequirement, bool expectedCanConsume )
+    public void PreviewLicenseAllowsRequirementsForPreviewBeforeTimeBomb( LicenseRequirementTestEnum requestedRequirement, bool expectedCanConsume )
         => this.TestOneLicenseSource( TestLicenses.CreatePreviewLicenseSource( true, 0 ), requestedRequirement, expectedCanConsume );
+
+    [Theory]
+    [InlineData( LicenseRequirementTestEnum.Free, false )]
+    [InlineData( LicenseRequirementTestEnum.Starter, false )]
+    [InlineData( LicenseRequirementTestEnum.Professional, false )]
+    [InlineData( LicenseRequirementTestEnum.Ultimate, false )]
+    public void PreviewLicenseDisallowsRequirementsForPreviewAfterTimeBomb( LicenseRequirementTestEnum requestedRequirement, bool expectedCanConsume )
+        => this.TestOneLicenseSource(
+            TestLicenses.CreatePreviewLicenseSource( true, PreviewLicenseSource.PreviewLicensePeriod + 1 ),
+            requestedRequirement,
+            expectedCanConsume );
+
+    [Theory]
+    [InlineData( LicenseRequirementTestEnum.Free, false )]
+    [InlineData( LicenseRequirementTestEnum.Starter, false )]
+    [InlineData( LicenseRequirementTestEnum.Professional, false )]
+    [InlineData( LicenseRequirementTestEnum.Ultimate, false )]
+    public void PreviewLicenseDisallowsRequirementsForNotPreviewBeforeTimeBomb( LicenseRequirementTestEnum requestedRequirement, bool expectedCanConsume )
+        => this.TestOneLicenseSource(
+            TestLicenses.CreatePreviewLicenseSource( false, 0 ),
+            requestedRequirement,
+            expectedCanConsume );
 }
