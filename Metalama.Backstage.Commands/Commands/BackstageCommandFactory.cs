@@ -3,6 +3,7 @@
 using Metalama.Backstage.Commands.Commands.Configuration;
 using Metalama.Backstage.Commands.Commands.Licensing;
 using Metalama.Backstage.Commands.Commands.Maintenance;
+using Metalama.Backstage.Commands.Commands.Telemetry;
 using Metalama.Backstage.Configuration;
 using Metalama.Backstage.Diagnostics;
 using Metalama.Backstage.Telemetry;
@@ -20,6 +21,7 @@ public static class BackstageCommandFactory
             new ConfigurationCommand( commandServiceProvider ),
             new CleanUpCommand( commandServiceProvider ),
             new LicenseCommand( commandServiceProvider ),
+            new TelemetryCommand( commandServiceProvider ),
             new KillCompilerServerCommand( commandServiceProvider ),
             new WelcomeCommand( commandServiceProvider ) );
     }

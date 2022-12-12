@@ -27,6 +27,14 @@ internal class PrintCommand : CommandBase
     {
         this.CommandServices.Initialize( console, verbose );
         var configurationManager = this.CommandServices.ServiceProvider.GetRequiredService<IConfigurationManager>();
+
+        if ( !BackstageCommandFactory.ConfigurationCategories.ContainsKey( name ) )
+        {
+            console.Out.WriteLine( $"Argument '{name}' is not recognized configuration name. Use 'metalama config list' command to see list of accepted names." );
+
+            return;
+        }
+
         var configurationType = BackstageCommandFactory.ConfigurationCategories[name].GetType();
         var configuration = configurationManager.Get( configurationType );
         var filePath = configurationManager.GetFilePath( configurationType );

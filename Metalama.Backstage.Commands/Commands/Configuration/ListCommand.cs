@@ -20,7 +20,7 @@ internal class ListCommand : CommandBase
     {
         this.CommandServices.Initialize( console, verbose );
 
-        console.Out.WriteLine( "The 'metalama config' commands accepts of the following <name> arguments:" );
+        console.Out.WriteLine( "The 'metalama config' commands accept of the following <name> arguments:" );
         console.Out.WriteLine();
 
         foreach ( var category in BackstageCommandFactory.ConfigurationCategories.Keys )

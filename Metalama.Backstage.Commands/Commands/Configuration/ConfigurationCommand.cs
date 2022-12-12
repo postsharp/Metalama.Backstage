@@ -4,7 +4,10 @@ namespace Metalama.Backstage.Commands.Commands.Configuration;
 
 internal class ConfigurationCommand : CommandBase
 {
-    public ConfigurationCommand( ICommandServiceProviderProvider commandServiceProvider ) : base( commandServiceProvider, "config", "Allows managing Metalama configuration settings. " )
+    public ConfigurationCommand( ICommandServiceProviderProvider commandServiceProvider ) : base(
+        commandServiceProvider,
+        "config",
+        "Allows managing Metalama configuration settings" )
     {
         this.Add( new PrintCommand( commandServiceProvider ) );
         this.Add( new EditCommand( commandServiceProvider ) );
