@@ -5,7 +5,7 @@ VisualStudioVersion = 17.0.31912.275
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Metalama.Backstage", "Metalama.Backstage\Metalama.Backstage.csproj", "{B49FF95D-E828-4A93-85F7-AFCAF30A5588}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Metalama.Tools.Config", "Metalama.Tools.Config\Metalama.Tools.Config.csproj", "{6A7A96ED-555C-4DF4-9C36-7F15E5902D6F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Metalama.Backstage.Commands", "Metalama.Backstage.Commands\Metalama.Backstage.Commands.csproj", "{6A7A96ED-555C-4DF4-9C36-7F15E5902D6F}"
 EndProject
 Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Metalama.Backstage.MicrosoftLogging", "Metalama.Backstage.MicrosoftLogging\Metalama.Backstage.MicrosoftLogging.shproj", "{5D3DD7E9-74CA-4192-9E62-5F3044460B54}"
 EndProject
@@ -21,7 +21,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Metalama.Backstage.TestHelp
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Metalama.Backstage.Tests", "Tests\Metalama.Backstage.Tests\Metalama.Backstage.Tests.csproj", "{223E7228-F193-4FAD-A993-76FC800E18E4}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Metalama.Tools.Config.Tests", "Tests\Metalama.Tools.Config.Tests\Metalama.Tools.Config.Tests.csproj", "{EDF195AE-53FD-4FD1-B560-688EB0AC548B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Metalama.Backstage.Commands.Tests", "Tests\Metalama.Backstage.Commands.Tests\Metalama.Backstage.Commands.Tests.csproj", "{EDF195AE-53FD-4FD1-B560-688EB0AC548B}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Metalama.Backstage.Worker", "Metalama.Backstage.Worker\Metalama.Backstage.Worker.csproj", "{B1D5955D-CB60-4233-8C95-D0CC456C6939}"
 EndProject

@@ -4,7 +4,7 @@ using System.CommandLine;
 
 namespace Metalama.DotNetTools.Commands
 {
-    internal class CommandBase : Command
+    internal abstract class CommandBase : Command
     {
         public ICommandServiceProviderProvider CommandServices { get; }
 

@@ -4,7 +4,6 @@ using Metalama.Backstage.Diagnostics;
 using Metalama.Backstage.Extensibility;
 using Metalama.Backstage.Testing;
 using Metalama.DotNetTools;
-using Metalama.DotNetTools.Commands;
 using Metalama.Tools.Config.Tests.Console;
 using System;
 using System.CommandLine;

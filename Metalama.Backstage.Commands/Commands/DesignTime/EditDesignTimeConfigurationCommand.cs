@@ -19,9 +19,9 @@ internal class EditDesignTimeConfigurationCommand : CommandBase
         this.Handler = CommandHandler.Create<bool, IConsole>( this.Execute );
     }
 
-    private void Execute( bool versobe, IConsole console )
+    private void Execute( bool verbose, IConsole console )
     {
-        this.CommandServices.Initialize( console, versobe );
+        this.CommandServices.Initialize( console, verbose );
         var fileSystem = this.CommandServices.ServiceProvider.GetRequiredService<IFileSystem>();
         var configurationManager = this.CommandServices.ServiceProvider.GetRequiredService<IConfigurationManager>();
 

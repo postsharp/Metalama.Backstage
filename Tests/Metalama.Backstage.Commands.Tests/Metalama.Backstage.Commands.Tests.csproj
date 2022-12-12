@@ -3,6 +3,7 @@
     <PropertyGroup>
         <TargetFramework>net6.0</TargetFramework>
         <IsPackable>false</IsPackable>
+        <RootNamespace>Metalama.Tools.Config.Tests</RootNamespace>
     </PropertyGroup>
 
     <ItemGroup>
@@ -21,7 +22,7 @@
     <ItemGroup>
         <ProjectReference Include="..\..\Metalama.Backstage\Metalama.Backstage.csproj" />
         <ProjectReference Include="..\Metalama.Backstage.TestHelpers\Metalama.Backstage.TestHelpers.csproj" />
-        <ProjectReference Include="..\..\Metalama.Tools.Config\Metalama.Tools.Config.csproj" />
+        <ProjectReference Include="..\..\Metalama.Backstage.Commands\Metalama.Backstage.Commands.csproj" />
     </ItemGroup>
 
 </Project>

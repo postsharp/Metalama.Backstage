@@ -8,7 +8,7 @@ namespace Metalama.DotNetTools
     /// <summary>
     /// Creates an instance <see cref="IServiceProvider"/> configured for a console command.
     /// </summary>
-    internal interface ICommandServiceProviderProvider
+    public interface ICommandServiceProviderProvider
     {
         IServiceProvider ServiceProvider { get; }
 
