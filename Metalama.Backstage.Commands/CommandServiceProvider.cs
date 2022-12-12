@@ -7,9 +7,9 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.CommandLine;
 
-namespace Metalama.DotNetTools
+namespace Metalama.Backstage.Commands
 {
-    internal class CommandServiceProvider : ICommandServiceProviderProvider
+    public class CommandServiceProvider : ICommandServiceProviderProvider
     {
         private IServiceProvider? _serviceProvider;
 
