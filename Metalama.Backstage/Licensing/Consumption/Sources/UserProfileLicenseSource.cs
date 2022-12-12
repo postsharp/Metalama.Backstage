@@ -19,7 +19,5 @@ internal class UserProfileLicenseSource : LicenseSourceBase
         this._licensingConfiguration = services.GetRequiredBackstageService<IConfigurationManager>().Get<LicensingConfiguration>();
     }
 
-    // Originally, the license configuration allowed for multiple license keys. We keep the array for backward compatibility,
-    // but we no longer store more than one key there.
     protected override string? GetLicenseString() => this._licensingConfiguration.License;
 }

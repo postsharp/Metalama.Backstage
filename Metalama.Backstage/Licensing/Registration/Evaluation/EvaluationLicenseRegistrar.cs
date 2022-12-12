@@ -18,9 +18,6 @@ public class EvaluationLicenseRegistrar
     /// </summary>
     internal static TimeSpan EvaluationPeriod { get; } = TimeSpan.FromDays( 45 );
 
-    // TODO: How to license pre-release versions?
-    internal static TimeSpan PrereleaseEvaluationPeriod { get; } = TimeSpan.FromDays( 30 );
-
     /// <summary>
     /// Gets the time span from the end of an evaluation license validity
     /// in which a new evaluation license cannot be registered.

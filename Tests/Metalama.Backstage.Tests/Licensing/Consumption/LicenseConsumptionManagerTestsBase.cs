@@ -42,8 +42,7 @@ public abstract class LicenseConsumptionManagerTestsBase : LicensingTestsBase
     private protected static void TestConsumption(
         ILicenseConsumptionManager manager,
         LicenseRequirementTestEnum requestedRequirement,
-        bool expectedCanConsume,
-        bool expectedLicenseAutoRegistrationAttempt = false )
+        bool expectedCanConsume )
         => TestConsumption(
             manager,
             requestedRequirement,
