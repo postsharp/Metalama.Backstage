@@ -23,12 +23,12 @@
 
     <ItemGroup>
         <ProjectReference Include="..\Metalama.Backstage\Metalama.Backstage.csproj" />
+		<ProjectReference Include="..\Metalama.Backstage.MicrosoftLogging\Metalama.Backstage.MicrosoftLogging.csproj" />
     </ItemGroup>
 
     <ItemGroup>
         <InternalsVisibleTo Include="Metalama.Backstage.Commands.Tests" />
     </ItemGroup>
 
-    <Import Project="..\Metalama.Backstage.MicrosoftLogging\Metalama.Backstage.MicrosoftLogging.projitems" Label="Shared" />
 
 </Project>

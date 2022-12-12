@@ -9,7 +9,8 @@
 
     <ItemGroup>
         <ProjectReference Include="..\..\Metalama.Backstage\Metalama.Backstage.csproj" />
-    </ItemGroup>
+		<ProjectReference Include="..\..\Metalama.Backstage.MicrosoftLogging\Metalama.Backstage.MicrosoftLogging.csproj" />
+	</ItemGroup>
 
     <ItemGroup>
         <PackageReference Include="MartinCostello.Logging.XUnit" Version="0.1.1" />
@@ -18,7 +19,5 @@
         <PackageReference Include="System.IO.Abstractions" Version="13.2.29" />
         <PackageReference Include="System.IO.Abstractions.TestingHelpers" Version="13.2.29" />
     </ItemGroup>
-
-    <Import Project="..\..\Metalama.Backstage.MicrosoftLogging\Metalama.Backstage.MicrosoftLogging.projitems" Label="Shared" />
 
 </Project>
