@@ -7,7 +7,7 @@ using System.CommandLine;
 using System.CommandLine.Invocation;
 using System.Diagnostics;
 
-namespace Metalama.DotNetTools.Commands.DesignTime;
+namespace Metalama.Backstage.Commands.Commands.DesignTime;
 
 internal class EditDesignTimeConfigurationCommand : CommandBase
 {

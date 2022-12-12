@@ -7,7 +7,7 @@ using System.CommandLine;
 using System.CommandLine.Invocation;
 using System.CommandLine.IO;
 
-namespace Metalama.DotNetTools.Commands.DesignTime;
+namespace Metalama.Backstage.Commands.Commands.DesignTime;
 
 internal class PrintDesignTimeConfigurationCommand : CommandBase
 {

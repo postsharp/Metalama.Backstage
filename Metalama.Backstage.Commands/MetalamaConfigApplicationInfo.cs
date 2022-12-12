@@ -3,7 +3,7 @@
 using Metalama.Backstage.Diagnostics;
 using Metalama.Backstage.Extensibility;
 
-namespace Metalama.DotNetTools
+namespace Metalama.Backstage.Commands
 {
     internal class MetalamaConfigApplicationInfo : ApplicationInfoBase
     {

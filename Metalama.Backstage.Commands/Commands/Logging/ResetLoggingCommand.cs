@@ -6,7 +6,7 @@ using Microsoft.Extensions.DependencyInjection;
 using System.CommandLine;
 using System.CommandLine.Invocation;
 
-namespace Metalama.DotNetTools.Commands.Logging;
+namespace Metalama.Backstage.Commands.Commands.Logging;
 
 internal class ResetLoggingCommand : CommandBase
 {

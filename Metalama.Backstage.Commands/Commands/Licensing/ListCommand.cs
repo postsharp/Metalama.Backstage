@@ -7,7 +7,7 @@ using System.CommandLine.Invocation;
 using System.CommandLine.IO;
 using System.Globalization;
 
-namespace Metalama.DotNetTools.Commands.Licensing
+namespace Metalama.Backstage.Commands.Commands.Licensing
 {
     internal class ListCommand : CommandBase
     {

@@ -7,7 +7,7 @@ using System.CommandLine;
 using System.CommandLine.Invocation;
 using System.CommandLine.IO;
 
-namespace Metalama.DotNetTools.Commands.Logging;
+namespace Metalama.Backstage.Commands.Commands.Logging;
 
 internal class PrintLoggingCommand : CommandBase
 {

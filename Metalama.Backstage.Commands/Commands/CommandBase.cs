@@ -2,7 +2,7 @@
 
 using System.CommandLine;
 
-namespace Metalama.DotNetTools.Commands
+namespace Metalama.Backstage.Commands.Commands
 {
     internal abstract class CommandBase : Command
     {

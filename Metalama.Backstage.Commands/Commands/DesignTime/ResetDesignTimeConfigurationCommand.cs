@@ -6,7 +6,7 @@ using Microsoft.Extensions.DependencyInjection;
 using System.CommandLine;
 using System.CommandLine.Invocation;
 
-namespace Metalama.DotNetTools.Commands.DesignTime;
+namespace Metalama.Backstage.Commands.Commands.DesignTime;
 
 internal class ResetDesignTimeConfigurationCommand : CommandBase
 {

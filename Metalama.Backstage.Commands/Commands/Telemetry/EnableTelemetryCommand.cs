@@ -7,7 +7,7 @@ using System.CommandLine;
 using System.CommandLine.Invocation;
 using System.CommandLine.IO;
 
-namespace Metalama.DotNetTools.Commands.Telemetry;
+namespace Metalama.Backstage.Commands.Commands.Telemetry;
 
 internal class EnableTelemetryCommand : CommandBase
 {

@@ -4,7 +4,7 @@ using Metalama.Backstage.Welcome;
 using System.CommandLine;
 using System.CommandLine.Invocation;
 
-namespace Metalama.DotNetTools.Commands;
+namespace Metalama.Backstage.Commands.Commands;
 
 internal class WelcomeCommand : CommandBase
 {

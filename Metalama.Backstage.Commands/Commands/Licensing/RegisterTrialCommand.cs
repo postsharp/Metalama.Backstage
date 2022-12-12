@@ -5,7 +5,7 @@ using System.CommandLine;
 using System.CommandLine.Invocation;
 using System.CommandLine.IO;
 
-namespace Metalama.DotNetTools.Commands.Licensing;
+namespace Metalama.Backstage.Commands.Commands.Licensing;
 
 internal class RegisterTrialCommand : CommandBase
 {

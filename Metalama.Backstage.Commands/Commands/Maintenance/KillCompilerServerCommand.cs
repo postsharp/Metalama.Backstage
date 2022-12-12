@@ -5,7 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 using System.CommandLine;
 using System.CommandLine.Invocation;
 
-namespace Metalama.DotNetTools.Commands.Maintenance;
+namespace Metalama.Backstage.Commands.Commands.Maintenance;
 
 internal class KillCompilerServerCommand : CommandBase
 {
