@@ -6,7 +6,6 @@ using Metalama.Backstage.Commands.Commands.Maintenance;
 using Metalama.Backstage.Commands.Commands.Telemetry;
 using Metalama.Backstage.Configuration;
 using Metalama.Backstage.Diagnostics;
-using Metalama.Backstage.Telemetry;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.CommandLine;
@@ -26,11 +25,8 @@ public static class BackstageCommandFactory
             new WelcomeCommand( commandServiceProvider ) );
     }
 
-    public static readonly Dictionary<string, ConfigurationFile> ConfigurationCategories
-        = new Dictionary<string, ConfigurationFile>()
-        {
-            { "diag", new DiagnosticsConfiguration() },
-            { "design-time", new DiagnosticsConfiguration() }, // TODO: Replace this with DesignTimeConfiguration().
-            { "telemetry", new TelemetryConfiguration() },
-        };
+    public static Dictionary<string, ConfigurationFile> ConfigurationFilesByCategory { get; set; } = new Dictionary<string, ConfigurationFile>()
+    {
+        { "diag", new DiagnosticsConfiguration() }
+    };
 }

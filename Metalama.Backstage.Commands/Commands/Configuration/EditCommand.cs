@@ -3,11 +3,9 @@
 using Metalama.Backstage.Configuration;
 using Metalama.Backstage.Diagnostics;
 using Microsoft.Extensions.DependencyInjection;
-using System;
 using System.CommandLine;
 using System.CommandLine.Invocation;
 using System.Diagnostics;
-using System.Linq;
 
 namespace Metalama.Backstage.Commands.Commands.Configuration;
 
@@ -28,13 +26,19 @@ internal class EditCommand : CommandBase
 
     private void Execute( string name, bool verbose, IConsole console )
     {
+        if ( !ConfigurationCommand.VerifyArgumentExistsInDictionary( name, console ) )
+        {
+            return;
+        }
+
         this.CommandServices.Initialize( console, verbose );
         var configurationManager = this.CommandServices.ServiceProvider.GetRequiredService<IConfigurationManager>();
-        configurationManager.CreateIfMissing<DiagnosticsConfiguration>();
-        var configurationType = BackstageCommandFactory.ConfigurationCategories[name].GetType();
-        // TODO: configurationManager.CreateIfMissing( configurationType );
+        var configurationType = BackstageCommandFactory.ConfigurationFilesByCategory[name];
 
-        var filePath = configurationManager.GetFilePath( configurationType );
+        // TODO #32386: This needs to be generic and for all ConfigurationFiles.
+        configurationManager.CreateIfMissing<DiagnosticsConfiguration>();
+
+        var filePath = configurationManager.GetFilePath( configurationType.GetType() );
         console.Out.Write( $"Opening '{filePath}' in the default editor." );
 
         Process.Start( new ProcessStartInfo( filePath ) { UseShellExecute = true } );

@@ -25,17 +25,15 @@ internal class PrintCommand : CommandBase
 
     private void Execute( string name, bool verbose, IConsole console )
     {
-        this.CommandServices.Initialize( console, verbose );
-        var configurationManager = this.CommandServices.ServiceProvider.GetRequiredService<IConfigurationManager>();
-
-        if ( !BackstageCommandFactory.ConfigurationCategories.ContainsKey( name ) )
+        if ( !ConfigurationCommand.VerifyArgumentExistsInDictionary( name, console ) )
         {
-            console.Out.WriteLine( $"Argument '{name}' is not recognized configuration name. Use 'metalama config list' command to see list of accepted names." );
-
             return;
         }
 
-        var configurationType = BackstageCommandFactory.ConfigurationCategories[name].GetType();
+        this.CommandServices.Initialize( console, verbose );
+        var configurationManager = this.CommandServices.ServiceProvider.GetRequiredService<IConfigurationManager>();
+
+        var configurationType = BackstageCommandFactory.ConfigurationFilesByCategory[name].GetType();
         var configuration = configurationManager.Get( configurationType );
         var filePath = configurationManager.GetFilePath( configurationType );
 

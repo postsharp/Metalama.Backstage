@@ -25,10 +25,15 @@ internal class ResetCommand : CommandBase
 
     private void Execute( string name, bool verbose, IConsole console )
     {
+        if ( !ConfigurationCommand.VerifyArgumentExistsInDictionary( name, console ) )
+        {
+            return;
+        }
+        
         this.CommandServices.Initialize( console, verbose );
         var configurationManager = this.CommandServices.ServiceProvider.GetRequiredService<IConfigurationManager>();
-        var configurationType = BackstageCommandFactory.ConfigurationCategories[name].GetType();
 
+        // TODO #32386: This needs to be generic and for all ConfigurationFiles.
         configurationManager.Update<DiagnosticsConfiguration>( _ => new DiagnosticsConfiguration() );
     }
 }
