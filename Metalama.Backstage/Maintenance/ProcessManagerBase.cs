@@ -59,11 +59,11 @@ internal abstract partial class ProcessManagerBase : IProcessManager
     {
 #pragma warning disable CA1307
         if ( modules.Any( m => Path.GetFileNameWithoutExtension( m )?.ToLowerInvariant()?.Contains( "metalama" ) == true ) )
-#pragma warning restore CA1307            
+#pragma warning restore CA1307
         {
             return true;
         }
-    
+
         // TODO: Determines if the process references Metalama. 
         // We cannot do it by looking at the modules because .NET assemblies are not always exposed as modules.
 
@@ -130,8 +130,6 @@ internal abstract partial class ProcessManagerBase : IProcessManager
 
     public virtual void KillCompilerProcesses( bool shouldEmitWarnings )
     {
-        this.Logger.Info?.Log( "Killing Metalama processes." );
-
         foreach ( var process in this.GetProcesses( _processesToKill ) )
         {
             if ( process.Spec.CanShutdownOrKill )

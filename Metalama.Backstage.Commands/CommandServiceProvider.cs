@@ -3,26 +3,16 @@
 using Metalama.Backstage.Extensibility;
 using Metalama.Backstage.MicrosoftLogging;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Logging;
 using System;
-using System.CommandLine;
 
 namespace Metalama.Backstage.Commands
 {
     public class CommandServiceProvider : ICommandServiceProviderProvider
     {
-        private IServiceProvider? _serviceProvider;
-
-        public IServiceProvider ServiceProvider
-            => this._serviceProvider ?? throw new InvalidOperationException( "Command services have not been initialized." );
-
-        public void Initialize( IConsole console, bool verbose )
+        public IServiceProvider GetServiceProvider( ConsoleWriter console, bool verbose )
         {
-            if ( this._serviceProvider != null )
-            {
-                throw new InvalidOperationException( "Service provider is initialized already." );
-            }
-
             // ReSharper disable RedundantTypeArgumentsOfMethod
 
             var serviceCollection = new ServiceCollection();
@@ -30,7 +20,11 @@ namespace Metalama.Backstage.Commands
             serviceCollection
 
                 // https://docs.microsoft.com/en-us/dotnet/core/extensions/console-log-formatter
-                .AddLogging( builder => builder.AddConsole() )
+                .AddLogging(
+                    builder =>
+                    {
+                        builder.Services.TryAddEnumerable( ServiceDescriptor.Singleton<ILoggerProvider>( new AnsiConsoleLoggingProvider( verbose, console ) ) );
+                    } )
 
                 // https://www.blinkingcaret.com/2018/02/14/net-core-console-logging/
                 .Configure<LoggerFilterOptions>( options => options.MinLevel = verbose ? LogLevel.Trace : LogLevel.Information );
@@ -56,7 +50,7 @@ namespace Metalama.Backstage.Commands
 
             serviceProviderBuilder.AddBackstageServices( initializationOptions );
 
-            this._serviceProvider = serviceCollection.BuildServiceProvider();
+            return serviceCollection.BuildServiceProvider();
         }
     }
 }

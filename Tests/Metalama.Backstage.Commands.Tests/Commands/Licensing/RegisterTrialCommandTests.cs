@@ -33,7 +33,7 @@ namespace Metalama.Tools.Config.Tests.Commands.Licensing
             await this.TestCommandAsync(
                 "license register trial",
                 "",
-                "Cannot start the trial period. Use --verbose (-v) flag for details." + Environment.NewLine,
+                "Cannot start the trial period." + Environment.NewLine,
                 1 );
 
             await this.TestCommandAsync( "license list", TestLicenses.EvaluationOutput );

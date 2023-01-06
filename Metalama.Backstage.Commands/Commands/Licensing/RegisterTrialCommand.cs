@@ -1,35 +1,20 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. See the LICENSE.md file in the root directory of this repository root for details.
 
 using Metalama.Backstage.Licensing.Registration.Evaluation;
-using System.CommandLine;
-using System.CommandLine.Invocation;
-using System.CommandLine.IO;
 
 namespace Metalama.Backstage.Commands.Commands.Licensing;
 
-internal class RegisterTrialCommand : CommandBase
+internal class RegisterTrialCommand : CommandBase<CommonCommandSettings>
 {
-    public RegisterTrialCommand( ICommandServiceProviderProvider commandServiceProvider )
-        : base( commandServiceProvider, "trial", "Starts the trial period" )
+    protected override void Execute( ExtendedCommandContext context, CommonCommandSettings settings )
     {
-        this.Handler = CommandHandler.Create<bool, IConsole>( this.Execute );
-    }
+        var registrar = new EvaluationLicenseRegistrar( context.ServiceProvider );
 
-    private int Execute( bool verbose, IConsole console )
-    {
-        this.CommandServices.Initialize( console, verbose );
-
-        var registrar = new EvaluationLicenseRegistrar( this.CommandServices.ServiceProvider );
-
-        if ( registrar.TryActivateLicense() )
+        if ( !registrar.TryActivateLicense() )
         {
-            return 0;
+            throw new CommandException( "Cannot start the trial period." );
         }
-        else
-        {
-            console.Error.WriteLine( "Cannot start the trial period. Use --verbose (-v) flag for details." );
 
-            return 1;
-        }
+        context.Console.WriteSuccess( "You are now using Metalama Trial." );
     }
 }

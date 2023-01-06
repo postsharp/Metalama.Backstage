@@ -84,7 +84,7 @@ public class WelcomeService
                             ExceptionReportingAction = c.ExceptionReportingAction == ReportingAction.Ask ? ReportingAction.Yes : c.ExceptionReportingAction,
                             PerformanceProblemReportingAction =
                             c.PerformanceProblemReportingAction == ReportingAction.Yes ? ReportingAction.Yes : c.PerformanceProblemReportingAction,
-                            ReportUsage = c.ReportUsage == ReportingAction.Ask ? ReportingAction.Yes : c.ReportUsage
+                            UsageReportingAction = c.UsageReportingAction == ReportingAction.Ask ? ReportingAction.Yes : c.UsageReportingAction
                         } );
                 }
             },

@@ -1,27 +1,14 @@
 // Copyright (c) SharpCrafters s.r.o. See the LICENSE.md file in the root directory of this repository root for details.
 
 using Metalama.Backstage.Welcome;
-using System.CommandLine;
-using System.CommandLine.Invocation;
 
 namespace Metalama.Backstage.Commands.Commands;
 
-internal class WelcomeCommand : CommandBase
+internal class WelcomeCommand : CommandBase<CommonCommandSettings>
 {
-    public WelcomeCommand( ICommandServiceProviderProvider commandServiceProvider ) : base(
-        commandServiceProvider,
-        "welcome",
-        "Executes the first-day initialization" )
+    protected override void Execute( ExtendedCommandContext context, CommonCommandSettings settings )
     {
-        this.Handler = CommandHandler.Create<bool, IConsole>( this.Execute );
-        this.IsHidden = true;
-    }
-
-    private void Execute( bool verbose, IConsole console )
-    {
-        this.CommandServices.Initialize( console, verbose );
-
-        var welcomeService = new WelcomeService( this.CommandServices.ServiceProvider );
+        var welcomeService = new WelcomeService( context.ServiceProvider );
         welcomeService.ExecuteFirstStartSetup();
         welcomeService.OpenWelcomePage();
     }

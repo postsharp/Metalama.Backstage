@@ -2,39 +2,23 @@
 
 using Metalama.Backstage.Extensibility;
 using Metalama.Backstage.Telemetry;
-using System.CommandLine;
-using System.CommandLine.Invocation;
-using System.Threading.Tasks;
 
 namespace Metalama.Backstage.Commands.Commands.Telemetry
 {
-    internal class UploadTelemetryCommand : CommandBase
+    internal class UploadTelemetryCommand : CommandBase<UploadTelemetryCommandSettings>
     {
-        public UploadTelemetryCommand( ICommandServiceProviderProvider commandServiceProvider )
-            : base( commandServiceProvider, "upload", "Uploads the telemetry" )
+        protected override void Execute( ExtendedCommandContext context, UploadTelemetryCommandSettings settings )
         {
-            this.AddOption( new Option( new[] { "--async", "-a" }, "Run the upload asynchronously in a background process." ) );
-            this.AddOption( new Option( new[] { "--force", "-f" }, "Force the upload even if another upload has been performed recently." ) );
+            var uploader = context.ServiceProvider.GetRequiredBackstageService<ITelemetryUploader>();
 
-            this.Handler = CommandHandler.Create<bool, bool, bool, IConsole>( this.ExecuteAsync );
-        }
-
-        private async Task<int> ExecuteAsync( bool async, bool force, bool verbose, IConsole console )
-        {
-            this.CommandServices.Initialize( console, verbose );
-
-            var uploader = this.CommandServices.ServiceProvider.GetRequiredBackstageService<ITelemetryUploader>();
-
-            if ( async )
+            if ( settings.Async )
             {
-                uploader.StartUpload( force );
+                uploader.StartUpload( settings.Force );
             }
             else
             {
-                await uploader.UploadAsync();
+                uploader.UploadAsync().RunSynchronously();
             }
-
-            return 0;
         }
     }
 }

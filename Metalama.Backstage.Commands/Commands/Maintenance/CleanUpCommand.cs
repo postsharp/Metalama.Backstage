@@ -2,36 +2,35 @@
 
 using Metalama.Backstage.Maintenance;
 using Microsoft.Extensions.DependencyInjection;
-using System.CommandLine;
-using System.CommandLine.Invocation;
 
 namespace Metalama.Backstage.Commands.Commands.Maintenance;
 
-internal class CleanUpCommand : CommandBase
+internal class CleanUpCommand : CommandBase<CleanUpCommandSettings>
 {
-    public CleanUpCommand( ICommandServiceProviderProvider commandServiceProvider ) : base(
-        commandServiceProvider,
-        "cleanup",
-        "Cleans up cache directory" )
+    protected override void Execute( ExtendedCommandContext context, CleanUpCommandSettings settings )
     {
-        this.AddOption( new Option( new[] { "--all" }, "Delete all directories and files ignoring clean-up policies" ) );
-        this.AddOption( new Option( new[] { "--no-kill" }, "Disables automatic VBCSCompiler process killing before clean-up." ) );
-        this.Handler = CommandHandler.Create<bool, bool, bool, IConsole>( this.Execute );
-    }
-
-    private void Execute( bool all, bool noKill, bool verbose, IConsole console )
-    {
-        this.CommandServices.Initialize( console, verbose );
-
-        if ( all && !noKill )
+        if ( settings.All && !settings.DoNotKill )
         {
+            context.Console.WriteHeading( "Killing Metalama processes" );
+
             // Automatically kill processes before Cleanup unless --no-kill option is used.
-            var processManager = this.CommandServices.ServiceProvider.GetRequiredService<IProcessManager>();
+            var processManager = context.ServiceProvider.GetRequiredService<IProcessManager>();
             processManager.KillCompilerProcesses( true );
         }
 
-        var tempFileManager = new TempFileManager( this.CommandServices.ServiceProvider );
+        context.Console.WriteHeading( "Cleaning up temporary files. " );
 
-        tempFileManager.CleanTempDirectories( true, all );
+        var tempFileManager = new TempFileManager( context.ServiceProvider );
+
+        tempFileManager.CleanTempDirectories( true, settings.All );
+
+        if ( settings.All )
+        {
+            context.Console.WriteSuccess( "Temporary files have been cleaned up." );
+        }
+        else
+        {
+            context.Console.WriteSuccess( "Unused temporary files have been cleaned up." );
+        }
     }
 }

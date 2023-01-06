@@ -2,7 +2,7 @@
 
 namespace Metalama.Backstage.Commands.Commands.Telemetry;
 
-internal class EnableTelemetryCommand : SetTelemetryCommand
+internal class DisableTelemetryCommand : SetTelemetryCommand
 {
-    public EnableTelemetryCommand() : base( true ) { }
+    public DisableTelemetryCommand() : base( false ) { }
 }
