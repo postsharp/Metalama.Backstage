@@ -14,18 +14,18 @@ namespace Metalama.Tools.Config.Tests.Commands.Licensing
         [Fact]
         public async Task FreeRegistersInEmptyEnvironment()
         {
-            await this.TestCommandAsync( "license register free", "" );
+            await this.TestCommandAsync( "license free" );
 
-            await this.TestCommandAsync( "license list", TestLicenses.FreeOutput );
+            await this.TestCommandAsync( "license list", "Metalama Free" );
         }
 
         [Fact]
         public async Task RepetitiveFreeRegistrationKeepsOneFreeLicenseRegistered()
         {
-            await this.TestCommandAsync( "license register free", "" );
-            await this.TestCommandAsync( "license register free", "" );
+            await this.TestCommandAsync( "license free" );
+            await this.TestCommandAsync( "license free" );
 
-            await this.TestCommandAsync( "license list", TestLicenses.FreeOutput );
+            await this.TestCommandAsync( "license list", "Metalama Free" );
         }
     }
 }

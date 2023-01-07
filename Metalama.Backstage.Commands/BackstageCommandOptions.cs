@@ -1,6 +1,6 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. See the LICENSE.md file in the root directory of this repository root for details.
 
-using Metalama.Backstage.Commands.Commands.Configuration;
+using Metalama.Backstage.Commands.Configuration;
 using Metalama.Backstage.Configuration;
 using Metalama.Backstage.Diagnostics;
 using Spectre.Console;
@@ -16,13 +16,18 @@ public sealed class BackstageCommandOptions
     private readonly Dictionary<string, ConfigurationFileCommandAdapter> _configurationFileCommandAdapters = new();
 
     public BackstageCommandOptions(
-        ICommandServiceProviderProvider? serviceProvider = null,
+        TextWriter? standardOutput = null,
+        TextWriter? errorOutput = null,
+        AnsiSupport ansiSupport = AnsiSupport.Detect ) : this( new CommandServiceProvider(), standardOutput, errorOutput, ansiSupport ) { }
+
+    internal BackstageCommandOptions(
+        ICommandServiceProviderProvider serviceProvider,
         TextWriter? standardOutput = null,
         TextWriter? errorOutput = null,
         AnsiSupport ansiSupport = AnsiSupport.Detect )
     {
         this._ansiSupport = ansiSupport;
-        this.ServiceProvider = serviceProvider ?? new CommandServiceProvider();
+        this.ServiceProvider = serviceProvider;
         this.StandardOutput = standardOutput ?? Console.Out;
         this.ErrorOutput = errorOutput ?? Console.Error;
         this.AddConfigurationFileAdapter<DiagnosticsConfiguration>();
@@ -34,15 +39,15 @@ public sealed class BackstageCommandOptions
         settings.Interactive = InteractionSupport.No;
     }
 
-    public ICommandServiceProviderProvider ServiceProvider { get; }
+    internal ICommandServiceProviderProvider ServiceProvider { get; }
 
     public TextWriter StandardOutput { get; }
 
     public TextWriter ErrorOutput { get; }
 
-    public IReadOnlyDictionary<string, ConfigurationFileCommandAdapter> ConfigurationFileCommandAdapters => this._configurationFileCommandAdapters;
+    internal IReadOnlyDictionary<string, ConfigurationFileCommandAdapter> ConfigurationFileCommandAdapters => this._configurationFileCommandAdapters;
 
-    public void AddConfigurationFileAdapter( ConfigurationFileCommandAdapter adapter )
+    internal void AddConfigurationFileAdapter( ConfigurationFileCommandAdapter adapter )
     {
         this._configurationFileCommandAdapters.Add( adapter.Alias, adapter );
     }

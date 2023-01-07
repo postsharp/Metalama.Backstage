@@ -7,7 +7,7 @@ namespace Metalama.Backstage.Commands
     /// <summary>
     /// Creates an instance <see cref="IServiceProvider"/> configured for a console command.
     /// </summary>
-    public interface ICommandServiceProviderProvider
+    internal interface ICommandServiceProviderProvider
     {
         IServiceProvider GetServiceProvider( ConsoleWriter console, bool verbose );
     }

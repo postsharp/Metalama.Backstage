@@ -36,7 +36,7 @@ internal abstract partial class ProcessManagerBase : IProcessManager
         {
             foreach ( ProcessModule module in process.Modules )
             {
-                if ( module.FileName != null )
+                if ( module.FileName != null! )
                 {
                     modules.Add( module.FileName );
                 }
@@ -58,7 +58,7 @@ internal abstract partial class ProcessManagerBase : IProcessManager
     protected bool? ReferencesMetalama( Process process, IReadOnlyList<string> modules )
     {
 #pragma warning disable CA1307
-        if ( modules.Any( m => Path.GetFileNameWithoutExtension( m )?.ToLowerInvariant()?.Contains( "metalama" ) == true ) )
+        if ( modules.Any( m => Path.GetFileNameWithoutExtension( m ).ToLowerInvariant().Contains( "metalama" ) ) )
 #pragma warning restore CA1307
         {
             return true;
@@ -81,7 +81,7 @@ internal abstract partial class ProcessManagerBase : IProcessManager
                 continue;
             }
 
-            var moduleFileNames = modules.Select( s => Path.GetFileNameWithoutExtension( s )?.ToLowerInvariant() ).ToList();
+            var moduleFileNames = modules.Select( s => Path.GetFileNameWithoutExtension( s ).ToLowerInvariant() ).ToList();
 
             var hasMatch = false;
 

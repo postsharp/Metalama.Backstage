@@ -19,19 +19,19 @@ namespace Metalama.Tools.Config.Tests.Commands.Licensing
                 $"license unregister",
                 "",
                 $"A license is not registered." + Environment.NewLine,
-                2 );
+                1 );
         }
 
         [Fact]
         public async Task RegisteredLicenseUnregisters()
         {
-            await this.TestCommandAsync( $"license register {TestLicenses.MetalamaStarterBusinessKey}", "" );
+            await this.TestCommandAsync( $"license register {TestLicenses.MetalamaStarterBusinessKey}" );
 
-            await this.TestCommandAsync( "license list", TestLicenses.MetalamaStarterBusinessOutput );
+            await this.TestCommandAsync( "license list", "Metalama Starter" );
 
-            await this.TestCommandAsync( "license unregister", "The license has been unregistered." + Environment.NewLine );
+            await this.TestCommandAsync( "license unregister", "has been unregistered." );
 
-            await this.TestCommandAsync( "license list", "" );
+            await this.TestCommandAsync( "license list", "No Metalama license" );
         }
     }
 }

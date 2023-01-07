@@ -51,7 +51,7 @@ public static class ProcessUtilities
                         {
                             return ProcessKind.Other;
                         }
-#pragma warning restore CA1307                        
+#pragma warning restore CA1307
                     }
 
                 case "csc":
@@ -433,9 +433,9 @@ public static class ProcessUtilities
 
         if ( !string.IsNullOrEmpty( processesControlGroup ) )
         {
-#pragma warning disable CA1307
-            isRunningInsideDockerContainer = processesControlGroup!.Contains( "docker" );
-#pragma warning restore CA1307
+#pragma warning disable CS8602, CA1307
+            isRunningInsideDockerContainer = processesControlGroup.Contains( "docker" );
+#pragma warning restore CS8602, CA1307
         }
 
         return isRunningInsideDockerContainer;

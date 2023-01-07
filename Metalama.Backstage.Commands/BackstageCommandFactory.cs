@@ -1,10 +1,9 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. See the LICENSE.md file in the root directory of this repository root for details.
 
-using Metalama.Backstage.Commands.Commands;
-using Metalama.Backstage.Commands.Commands.Configuration;
-using Metalama.Backstage.Commands.Commands.Licensing;
-using Metalama.Backstage.Commands.Commands.Maintenance;
-using Metalama.Backstage.Commands.Commands.Telemetry;
+using Metalama.Backstage.Commands.Configuration;
+using Metalama.Backstage.Commands.Licensing;
+using Metalama.Backstage.Commands.Maintenance;
+using Metalama.Backstage.Commands.Telemetry;
 using Spectre.Console.Cli;
 
 namespace Metalama.Backstage.Commands;

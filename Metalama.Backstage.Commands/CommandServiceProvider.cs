@@ -9,7 +9,7 @@ using System;
 
 namespace Metalama.Backstage.Commands
 {
-    public class CommandServiceProvider : ICommandServiceProviderProvider
+    internal class CommandServiceProvider : ICommandServiceProviderProvider
     {
         public IServiceProvider GetServiceProvider( ConsoleWriter console, bool verbose )
         {

@@ -14,25 +14,25 @@ namespace Metalama.Tools.Config.Tests.Commands.Licensing
         [Fact]
         public async Task CleanEnvironmentListsNoLicenses()
         {
-            await this.TestCommandAsync( "license list", "" );
+            await this.TestCommandAsync( "license list", "No Metalama license" );
         }
 
         [Fact]
         public async Task OneLicenseKeyListedAfterOneRegistration()
         {
-            await this.TestCommandAsync( $"license register {TestLicenses.MetalamaStarterBusinessKey}", "" );
+            await this.TestCommandAsync( $"license register {TestLicenses.MetalamaStarterBusinessKey}" );
 
-            await this.TestCommandAsync( "license list", TestLicenses.MetalamaStarterBusinessOutput );
+            await this.TestCommandAsync( "license list", TestLicenses.MetalamaStarterBusinessKey );
         }
 
         [Fact]
         public async Task OneLicenseKeyListedAfterMultipleLicenseKeysRegistered()
         {
-            await this.TestCommandAsync( $"license register {TestLicenses.MetalamaStarterBusinessKey}", "" );
-            await this.TestCommandAsync( $"license register {TestLicenses.MetalamaProfessionalPersonalKey}", "" );
-            await this.TestCommandAsync( $"license register {TestLicenses.MetalamaUltimateOpenSourceRedistributionKey}", "" );
+            await this.TestCommandAsync( $"license register {TestLicenses.MetalamaStarterBusinessKey}" );
+            await this.TestCommandAsync( $"license register {TestLicenses.MetalamaProfessionalPersonalKey}" );
+            await this.TestCommandAsync( $"license register {TestLicenses.MetalamaUltimateOpenSourceRedistributionKey}" );
 
-            await this.TestCommandAsync( "license list", TestLicenses.MetalamaUltimateOpenSourceRedistributionOutput );
+            await this.TestCommandAsync( "license list", TestLicenses.MetalamaUltimateOpenSourceRedistributionKey );
         }
     }
 }
