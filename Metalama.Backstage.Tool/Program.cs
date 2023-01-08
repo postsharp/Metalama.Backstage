@@ -8,8 +8,8 @@ internal static class Program
     public static int Main( string[] args )
     {
         var app = new CommandApp();
-        BackstageCommandFactory.ConfigureCommandApp( app, new BackstageCommandOptions(new ApplicationInfo()) );
+        BackstageCommandFactory.ConfigureCommandApp( app, new BackstageCommandOptions( new ApplicationInfo() ) );
 
-        return app.Run( args );        
+        return app.Run( args );
     }
 }
