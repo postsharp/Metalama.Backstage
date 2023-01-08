@@ -52,7 +52,7 @@ object DebugBuild : BuildType({
     }
 
     requirements {
-        equals("env.BuildAgentType", "caravela03")
+        equals("env.BuildAgentType", "caravela04")
     }
 
     features {
@@ -106,7 +106,7 @@ object ReleaseBuild : BuildType({
     }
 
     requirements {
-        equals("env.BuildAgentType", "caravela03")
+        equals("env.BuildAgentType", "caravela04")
     }
 
     features {
@@ -149,7 +149,7 @@ object PublicBuild : BuildType({
     }
 
     requirements {
-        equals("env.BuildAgentType", "caravela03")
+        equals("env.BuildAgentType", "caravela04")
     }
 
     features {
@@ -183,7 +183,7 @@ object PublicDeployment : BuildType({
     }
 
     requirements {
-        equals("env.BuildAgentType", "caravela03")
+        equals("env.BuildAgentType", "caravela04")
     }
 
     features {
@@ -232,7 +232,7 @@ object VersionBump : BuildType({
     }
 
     requirements {
-        equals("env.BuildAgentType", "caravela03")
+        equals("env.BuildAgentType", "caravela04")
     }
 
     features {
