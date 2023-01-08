@@ -5,12 +5,13 @@ using Metalama.Backstage.Commands.Licensing;
 using Metalama.Backstage.Commands.Maintenance;
 using Metalama.Backstage.Commands.Telemetry;
 using Spectre.Console.Cli;
+using System;
 
 namespace Metalama.Backstage.Commands;
 
 public static class BackstageCommandFactory
 {
-    public static void ConfigureCommandApp( CommandApp app, BackstageCommandOptions options )
+    public static void ConfigureCommandApp( CommandApp app, BackstageCommandOptions options, Action<IConfigurator>? configureMoreCommands = null )
     {
         app.Configure(
             appConfig =>
@@ -92,6 +93,8 @@ public static class BackstageCommandFactory
                             .WithData( options )
                             .WithDescription( "Displays the configuration and the status of telemetry." );
                     } );
+                
+                configureMoreCommands?.Invoke( appConfig );
             } );
     }
 }
