@@ -16,7 +16,7 @@ var product = new Product( Dependencies.MetalamaBackstage )
     PublicArtifacts = Pattern.Create(
         "Metalama.Backstage.$(PackageVersion).nupkg" ),
     Dependencies = new[] { Dependencies.PostSharpEngineering },
-    BuildAgentType = "caravela03",
+    BuildAgentType = "caravela04",
     Configurations = Product.DefaultConfigurations
         .WithValue( BuildConfiguration.Release, new BuildConfigurationInfo(
             MSBuildName: "Release",
