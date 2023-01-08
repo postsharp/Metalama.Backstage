@@ -1,5 +1,6 @@
 // Copyright (c) SharpCrafters s.r.o. See the LICENSE.md file in the root directory of this repository root for details.
 
+using JetBrains.Annotations;
 using Metalama.Backstage.Diagnostics;
 using System;
 using System.Collections.Generic;
@@ -23,6 +24,7 @@ namespace Metalama.Backstage.Utilities;
 
 public static class ProcessUtilities
 {
+    [PublicAPI]
     public static ProcessKind ProcessKind
     {
         get
@@ -140,7 +142,7 @@ public static class ProcessUtilities
 
     private static int _isCurrentProcessUnattended;
 
-    public static bool IsCurrentProcessUnattended( ILoggerFactory loggerFactory )
+    internal static bool IsCurrentProcessUnattended( ILoggerFactory loggerFactory )
     {
         var logger = loggerFactory.GetLogger( "ProcessUtilities" );
 
@@ -441,7 +443,7 @@ public static class ProcessUtilities
         return isRunningInsideDockerContainer;
     }
 
-    public static bool IsNetCore()
+    internal static bool IsNetCore()
     {
         var frameworkDescription = RuntimeInformation.FrameworkDescription.ToLowerInvariant();
 

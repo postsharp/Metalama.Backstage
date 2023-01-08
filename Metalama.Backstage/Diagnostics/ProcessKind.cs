@@ -1,5 +1,7 @@
 // Copyright (c) SharpCrafters s.r.o. See the LICENSE.md file in the root directory of this repository root for details.
 
+using JetBrains.Annotations;
+
 namespace Metalama.Backstage.Diagnostics;
 
 public enum ProcessKind
@@ -14,7 +16,11 @@ public enum ProcessKind
     RoslynCodeAnalysisService,
     Rider,
     BackstageWorker,
-    MetalamaConfig,
+
+    [PublicAPI]
+    DotNetTool,
+
+    [PublicAPI]
     TestHost,
     OmniSharp,
     CodeLensService

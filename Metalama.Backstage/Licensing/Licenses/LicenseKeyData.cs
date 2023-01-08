@@ -1,5 +1,6 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. See the LICENSE.md file in the root directory of this repository root for details.
 
+using JetBrains.Annotations;
 using System;
 using System.Globalization;
 using System.Text;
@@ -9,6 +10,7 @@ namespace Metalama.Backstage.Licensing.Licenses
     /// <summary>
     /// Provides serialization, cryptography and validation for license keys.
     /// </summary>
+    [PublicAPI]
     public partial class LicenseKeyData
     {
         /// <summary>

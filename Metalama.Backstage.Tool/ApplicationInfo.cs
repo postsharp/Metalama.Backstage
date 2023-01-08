@@ -1,8 +1,10 @@
-﻿using Metalama.Backstage.Extensibility;
+﻿// Copyright (c) SharpCrafters s.r.o. See the LICENSE.md file in the root directory of this repository root for details.
 
-internal class TestToolApplicationInfo : ApplicationInfoBase
+using Metalama.Backstage.Extensibility;
+
+internal class ApplicationInfo : ApplicationInfoBase
 {
-    public TestToolApplicationInfo() : base( typeof(TestToolApplicationInfo).Assembly ) { }
+    public ApplicationInfo() : base( typeof(ApplicationInfo).Assembly ) { }
 
-    public override string Name => typeof(TestToolApplicationInfo).Assembly.GetName().Name!;
+    public override string Name => typeof(ApplicationInfo).Assembly.GetName().Name!;
 }

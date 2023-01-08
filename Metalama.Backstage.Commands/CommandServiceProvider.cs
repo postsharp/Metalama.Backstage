@@ -11,6 +11,13 @@ namespace Metalama.Backstage.Commands
 {
     internal class CommandServiceProvider : ICommandServiceProviderProvider
     {
+        private readonly IApplicationInfo _applicationInfo;
+
+        public CommandServiceProvider( IApplicationInfo applicationInfo )
+        {
+            this._applicationInfo = applicationInfo;
+        }
+
         public IServiceProvider GetServiceProvider( ConsoleWriter console, bool verbose )
         {
             // ReSharper disable RedundantTypeArgumentsOfMethod
@@ -35,7 +42,7 @@ namespace Metalama.Backstage.Commands
                 ( type, instance ) => serviceCollection.AddSingleton( type, instance ),
                 () => serviceCollection.BuildServiceProvider() );
 
-            var initializationOptions = new BackstageInitializationOptions( new MetalamaConfigApplicationInfo() )
+            var initializationOptions = new BackstageInitializationOptions( this._applicationInfo )
             {
                 AddLicensing = true,
                 AddSupportServices = true,

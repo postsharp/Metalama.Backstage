@@ -1,8 +1,10 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. See the LICENSE.md file in the root directory of this repository root for details.
 
+using JetBrains.Annotations;
 using Metalama.Backstage.Commands.Configuration;
 using Metalama.Backstage.Configuration;
 using Metalama.Backstage.Diagnostics;
+using Metalama.Backstage.Extensibility;
 using Spectre.Console;
 using System;
 using System.Collections.Generic;
@@ -16,9 +18,10 @@ public sealed class BackstageCommandOptions
     private readonly Dictionary<string, ConfigurationFileCommandAdapter> _configurationFileCommandAdapters = new();
 
     public BackstageCommandOptions(
+        IApplicationInfo applicationInfo,
         TextWriter? standardOutput = null,
         TextWriter? errorOutput = null,
-        AnsiSupport ansiSupport = AnsiSupport.Detect ) : this( new CommandServiceProvider(), standardOutput, errorOutput, ansiSupport ) { }
+        AnsiSupport ansiSupport = AnsiSupport.Detect ) : this( new CommandServiceProvider( applicationInfo ), standardOutput, errorOutput, ansiSupport ) { }
 
     internal BackstageCommandOptions(
         ICommandServiceProviderProvider serviceProvider,
@@ -47,11 +50,7 @@ public sealed class BackstageCommandOptions
 
     internal IReadOnlyDictionary<string, ConfigurationFileCommandAdapter> ConfigurationFileCommandAdapters => this._configurationFileCommandAdapters;
 
-    internal void AddConfigurationFileAdapter( ConfigurationFileCommandAdapter adapter )
-    {
-        this._configurationFileCommandAdapters.Add( adapter.Alias, adapter );
-    }
-
+    [PublicAPI]
     public void AddConfigurationFileAdapter<T>()
         where T : ConfigurationFile, new()
     {

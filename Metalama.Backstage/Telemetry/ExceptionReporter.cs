@@ -154,8 +154,16 @@ internal class ExceptionReporter : IExceptionReporter, IDisposable
         return hash.ToString();
     }
 
-    internal bool ShouldReportIssue( string hash )
+    public bool ShouldReportIssue( string hash )
     {
+        if ( !this._applicationInfoProvider.CurrentApplication.ShouldCreateLocalCrashReports )
+        {
+            this._logger.Trace?.Log(
+                $"The issue {hash} should not be reported because the errors in the application '{this._applicationInfoProvider.CurrentApplication}' should never be reported." );
+
+            return false;
+        }
+
         if ( this._configuration.Issues.TryGetValue( hash, out var currentStatus ) && currentStatus is ReportingStatus.Ignored or ReportingStatus.Reported )
         {
             this._logger.Trace?.Log( $"The issue {hash} should not be reported because its status is {currentStatus}." );
