@@ -3,6 +3,7 @@
 using Metalama.Backstage.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using System;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Reflection;
 
@@ -11,6 +12,8 @@ namespace Metalama.Backstage.Commands.Configuration;
 internal abstract class ConfigurationFileCommandAdapter
 {
     public abstract string Alias { get; }
+
+    public abstract string? Description { get; }
 
     public virtual string? EnvironmentVariableName => null;
 
@@ -35,9 +38,13 @@ internal class ConfigurationFileCommandAdapter<T> : ConfigurationFileCommandAdap
         this._attribute = typeof(T).GetCustomAttribute<ConfigurationFileAttribute>()
                           ?? throw new InvalidOperationException(
                               $"'{nameof(ConfigurationFileAttribute)}' custom attribute not found for '{typeof(T).FullName}' type." );
+
+        this.Description = typeof(T).GetCustomAttribute<DescriptionAttribute>()?.Description;
     }
 
     public override string Alias => this._attribute.Alias;
+
+    public override string? Description { get; }
 
     public override string? EnvironmentVariableName => this._attribute.EnvironmentVariableName;
 
@@ -46,10 +53,7 @@ internal class ConfigurationFileCommandAdapter<T> : ConfigurationFileCommandAdap
         var configurationManager = context.ServiceProvider.GetRequiredService<IConfigurationManager>();
 
         var configuration = configurationManager.Get( typeof(T) );
-        var filePath = configurationManager.GetFilePath( typeof(T) );
 
-        context.Console.WriteMessage( $"The file '{filePath}' contains the following configuration:" );
-        context.Console.WriteMessage( "" );
         context.Console.WriteMessage( configuration.ToJson() );
     }
 

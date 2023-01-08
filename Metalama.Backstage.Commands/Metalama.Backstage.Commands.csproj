@@ -8,13 +8,7 @@
         https://aka.ms/dotnet-missing-libicu
          -->
         <InvariantGlobalization>True</InvariantGlobalization>
-        
-        <!--        
-CSC : warning CS8002: Referenced assembly 'Spectre.Console, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null' does not have a strong name. [C:\src\Metalama.Backstage\Metalama.Backstage.Commands\Metalama.Backstage.Commands.csproj]
-CSC : warning CS8002: Referenced assembly 'Spectre.Console.Cli, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null' does not have a strong name. [C:\src\Metalama.Backstage\Metalama.Backstage.Commands\Metalama.Backstage.Commands.csproj]
-        -->
-        
-        <NoWarn>CS8002</NoWarn>
+  
     </PropertyGroup>
 
     <PropertyGroup>

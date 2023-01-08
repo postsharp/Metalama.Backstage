@@ -60,6 +60,10 @@ public static class BackstageCommandFactory
                         config.AddCommand<ResetConfigurationCommand>( "reset" )
                             .WithData( options )
                             .WithDescription( "Resets a given configuration file to its default value." );
+
+                        config.AddCommand<PrintConfigurationCommand>( "print" )
+                            .WithData( options )
+                            .WithDescription( "Prints to content of the given configuration file to the console." );
                     } );
 
                 appConfig.AddCommand<CleanUpCommand>( "cleanup" )

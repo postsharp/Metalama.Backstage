@@ -1,6 +1,9 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. See the LICENSE.md file in the root directory of this repository root for details.
 
 using JetBrains.Annotations;
+using Metalama.Backstage.Diagnostics;
+using Metalama.Backstage.Extensibility;
+using Metalama.Backstage.Telemetry;
 using Spectre.Console.Cli;
 using System;
 
@@ -31,9 +34,41 @@ namespace Metalama.Backstage.Commands
             }
             catch ( Exception e )
             {
-                extendedContext.Console.WriteError( e.ToString() );
+                try
+                {
+                    extendedContext.ServiceProvider.GetBackstageService<IExceptionReporter>()?.ReportException( e );
+                }
+                catch ( Exception reporterException )
+                {
+                    throw new AggregateException( e, reporterException );
+                }
 
-                return 2;
+                return -1;
+            }
+            finally
+            {
+                try
+                {
+                    // Report usage.
+                    extendedContext.ServiceProvider.GetBackstageService<IUsageReporter>()?.StopSession();
+
+                    // Close logs.
+                    // Logging has to be disposed as the last one, so it could be used until now.
+                    extendedContext.ServiceProvider.GetLoggerFactory().Dispose();
+                }
+                catch ( Exception e )
+                {
+                    try
+                    {
+                        extendedContext.ServiceProvider.GetBackstageService<IExceptionReporter>()?.ReportException( e );
+                    }
+                    catch
+                    {
+                        // We don't want failing telemetry to disturb users.
+                    }
+
+                    // We don't want failing telemetry to disturb users.
+                }
             }
         }
 

@@ -1,15 +1,11 @@
 // Copyright (c) SharpCrafters s.r.o. See the LICENSE.md file in the root directory of this repository root for details.
 
-using System;
+namespace Metalama.Backstage.Telemetry;
 
-namespace Metalama.Backstage.Maintenance;
-
-[Flags]
-internal enum KillableModuleKind
+public enum ReportingStatus
 {
     // Resharper warning disable once UnusedMember.Global.
     None,
-    StandaloneProcess = 1,
-    DotNet = 2,
-    Both = 3
+    Reported,
+    Ignored
 }

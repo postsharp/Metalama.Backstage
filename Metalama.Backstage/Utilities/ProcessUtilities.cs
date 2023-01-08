@@ -142,7 +142,8 @@ public static class ProcessUtilities
 
     private static int _isCurrentProcessUnattended;
 
-    internal static bool IsCurrentProcessUnattended( ILoggerFactory loggerFactory )
+    [PublicAPI]
+    public static bool IsCurrentProcessUnattended( ILoggerFactory loggerFactory )
     {
         var logger = loggerFactory.GetLogger( "ProcessUtilities" );
 
@@ -324,6 +325,7 @@ public static class ProcessUtilities
         return processes.ToArray();
     }
 
+    [PublicAPI]
     public static IReadOnlyList<ProcessInfo> GetParentProcesses( ILogger? logger = null )
     {
         if ( RuntimeInformation.IsOSPlatform( OSPlatform.Linux ) )

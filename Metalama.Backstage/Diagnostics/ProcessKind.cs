@@ -15,6 +15,8 @@ public enum ProcessKind
     DevEnv,
     RoslynCodeAnalysisService,
     Rider,
+
+    // Resharper disable once UnusedMember.Global
     BackstageWorker,
 
     [PublicAPI]

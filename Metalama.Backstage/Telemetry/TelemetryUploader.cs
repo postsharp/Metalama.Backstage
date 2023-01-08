@@ -176,7 +176,7 @@ namespace Metalama.Backstage.Telemetry
                                     mime ?? MediaTypeNames.Application.Octet,
                                     CompressionOption.Maximum );
 
-                            using ( var packagePartStream = packagePart.GetStream( FileMode.Create ) )
+                            using ( var packagePartStream = packagePart!.GetStream( FileMode.Create ) )
                             {
                                 CopyStream( stream, packagePartStream );
                             }

@@ -36,10 +36,3 @@ public record TelemetryConfiguration : ConfigurationFile
         };
     }
 }
-
-public enum ReportingStatus
-{
-    None,
-    Reported,
-    Ignored
-}

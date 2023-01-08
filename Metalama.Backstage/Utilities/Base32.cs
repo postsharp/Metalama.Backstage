@@ -4,7 +4,7 @@ using System.Text;
 
 namespace Metalama.Backstage.Utilities
 {
-    internal sealed class Base32
+    internal static class Base32
     {
         // the valid chars for the encoding
         private const string _validChars = "QAZ2WSX3" + "EDC4RFV5" + "TGB6YHN7" + "UJM8K9LP";

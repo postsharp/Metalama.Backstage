@@ -12,11 +12,11 @@ internal class ListConfigurationsCommand : BaseCommand<BaseCommandSettings>
         var table = new Table();
         table.AddColumn( "Alias" );
         table.AddColumn( "Environment variable" );
-        table.AddColumn( "Path" );
+        table.AddColumn( "Description" );
 
         foreach ( var item in context.BackstageCommandOptions.ConfigurationFileCommandAdapters.OrderBy( item => item.Key ) )
         {
-            table.AddRow( item.Value.Alias, item.Value.EnvironmentVariableName ?? "(None)", item.Value.GetFilePath( context.ServiceProvider ) );
+            table.AddRow( item.Value.Alias, item.Value.EnvironmentVariableName ?? "(None)", item.Value.Description ?? "" );
         }
 
         context.Console.Out.Write( table );

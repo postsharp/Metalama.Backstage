@@ -4,11 +4,13 @@ using Metalama.Backstage.Configuration;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Immutable;
+using System.ComponentModel;
 using System.Linq;
 
 namespace Metalama.Backstage.Diagnostics;
 
 [ConfigurationFile( "diagnostics.json", EnvironmentVariableName = EnvironmentVariableName )]
+[Description( "Logging and debugging options of Metalama itself." )]
 public record DiagnosticsConfiguration : ConfigurationFile
 {
     public const string EnvironmentVariableName = "METALAMA_DIAGNOSTICS";
