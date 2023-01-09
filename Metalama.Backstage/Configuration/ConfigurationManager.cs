@@ -337,11 +337,6 @@ namespace Metalama.Backstage.Configuration
                 } );
         }
 
-        public void ClearCache()
-        {
-            this._instances.Clear();
-        }
-
         public void Dispose()
         {
             this._mutex.Dispose();

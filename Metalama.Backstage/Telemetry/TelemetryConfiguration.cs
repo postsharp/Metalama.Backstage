@@ -26,7 +26,7 @@ public record TelemetryConfiguration : ConfigurationFile
     public ImmutableDictionary<string, DateTime> Sessions { get; init; } =
         ImmutableDictionary<string, DateTime>.Empty.WithComparers( StringComparer.OrdinalIgnoreCase );
 
-    public ReportingAction ReportUsage { get; init; } = ReportingAction.Ask;
+    public ReportingAction UsageReportingAction { get; init; } = ReportingAction.Ask;
 
     public TelemetryConfiguration CleanUp( DateTime threshold )
     {
@@ -35,11 +35,4 @@ public record TelemetryConfiguration : ConfigurationFile
             Sessions = this.Sessions.Where( s => s.Value.Date >= threshold ).ToImmutableDictionary( k => k.Key, k => k.Value, this.Sessions.KeyComparer )
         };
     }
-}
-
-public enum ReportingStatus
-{
-    None,
-    Reported,
-    Ignored
 }

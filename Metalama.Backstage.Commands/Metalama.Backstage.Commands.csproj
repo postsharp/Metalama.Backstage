@@ -1,0 +1,37 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net6.0</TargetFramework>
+        
+        <!--
+        Disable globalization so users on Linux do not have to install the lib-icu library.
+        https://aka.ms/dotnet-missing-libicu
+         -->
+        <InvariantGlobalization>True</InvariantGlobalization>
+  
+    </PropertyGroup>
+
+    <PropertyGroup>
+        <EnableNETAnalyzers>true</EnableNETAnalyzers>
+        <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
+        <WarningLevel>4</WarningLevel>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="6.0.0" />
+        <PackageReference Include="Spectre.Console" Version="0.45.0" />
+        <PackageReference Include="Spectre.Console.Cli" Version="0.45.0" />
+        <PackageReference Include="JetBrains.Annotations" Version="2022.3.1" PrivateAssets="all" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\Metalama.Backstage\Metalama.Backstage.csproj" />
+		<ProjectReference Include="..\Metalama.Backstage.MicrosoftLogging\Metalama.Backstage.MicrosoftLogging.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <InternalsVisibleTo Include="Metalama.Backstage.Commands.Tests" />
+    </ItemGroup>
+
+
+</Project>

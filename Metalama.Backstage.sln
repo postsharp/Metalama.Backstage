@@ -5,9 +5,7 @@ VisualStudioVersion = 17.0.31912.275
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Metalama.Backstage", "Metalama.Backstage\Metalama.Backstage.csproj", "{B49FF95D-E828-4A93-85F7-AFCAF30A5588}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Metalama.Tools.Config", "Metalama.Tools.Config\Metalama.Tools.Config.csproj", "{6A7A96ED-555C-4DF4-9C36-7F15E5902D6F}"
-EndProject
-Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Metalama.Backstage.MicrosoftLogging", "Metalama.Backstage.MicrosoftLogging\Metalama.Backstage.MicrosoftLogging.shproj", "{5D3DD7E9-74CA-4192-9E62-5F3044460B54}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Metalama.Backstage.Commands", "Metalama.Backstage.Commands\Metalama.Backstage.Commands.csproj", "{6A7A96ED-555C-4DF4-9C36-7F15E5902D6F}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Utilities", "Utilities", "{8646425E-F3F1-4741-992D-09F0112F67CD}"
 EndProject
@@ -21,16 +19,15 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Metalama.Backstage.TestHelp
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Metalama.Backstage.Tests", "Tests\Metalama.Backstage.Tests\Metalama.Backstage.Tests.csproj", "{223E7228-F193-4FAD-A993-76FC800E18E4}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Metalama.Tools.Config.Tests", "Tests\Metalama.Tools.Config.Tests\Metalama.Tools.Config.Tests.csproj", "{EDF195AE-53FD-4FD1-B560-688EB0AC548B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Metalama.Backstage.Commands.Tests", "Tests\Metalama.Backstage.Commands.Tests\Metalama.Backstage.Commands.Tests.csproj", "{EDF195AE-53FD-4FD1-B560-688EB0AC548B}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Metalama.Backstage.Worker", "Metalama.Backstage.Worker\Metalama.Backstage.Worker.csproj", "{B1D5955D-CB60-4233-8C95-D0CC456C6939}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Metalama.Backstage.MicrosoftLogging", "Metalama.Backstage.MicrosoftLogging\Metalama.Backstage.MicrosoftLogging.csproj", "{C236CF93-5C73-4F03-A6D6-2A6D3C90E13F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Metalama.Backstage.Tool", "Metalama.Backstage.Tool\Metalama.Backstage.Tool.csproj", "{34D564FB-8BDB-4187-8FCD-249C99E70FDA}"
+EndProject
 Global
-	GlobalSection(SharedMSBuildProjectFiles) = preSolution
-		Metalama.Backstage.MicrosoftLogging\Metalama.Backstage.MicrosoftLogging.projitems*{35d4322c-116d-461a-9006-b9c838631cae}*SharedItemsImports = 5
-		Metalama.Backstage.MicrosoftLogging\Metalama.Backstage.MicrosoftLogging.projitems*{5d3dd7e9-74ca-4192-9e62-5f3044460b54}*SharedItemsImports = 13
-		Metalama.Backstage.MicrosoftLogging\Metalama.Backstage.MicrosoftLogging.projitems*{6a7a96ed-555c-4df4-9c36-7f15e5902d6f}*SharedItemsImports = 5
-	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
@@ -68,6 +65,14 @@ Global
 		{B1D5955D-CB60-4233-8C95-D0CC456C6939}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B1D5955D-CB60-4233-8C95-D0CC456C6939}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B1D5955D-CB60-4233-8C95-D0CC456C6939}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C236CF93-5C73-4F03-A6D6-2A6D3C90E13F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C236CF93-5C73-4F03-A6D6-2A6D3C90E13F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C236CF93-5C73-4F03-A6D6-2A6D3C90E13F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C236CF93-5C73-4F03-A6D6-2A6D3C90E13F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{34D564FB-8BDB-4187-8FCD-249C99E70FDA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{34D564FB-8BDB-4187-8FCD-249C99E70FDA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{34D564FB-8BDB-4187-8FCD-249C99E70FDA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{34D564FB-8BDB-4187-8FCD-249C99E70FDA}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

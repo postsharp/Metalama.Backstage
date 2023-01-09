@@ -1,5 +1,6 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. See the LICENSE.md file in the root directory of this repository root for details.
 
+using JetBrains.Annotations;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
@@ -14,6 +15,7 @@ namespace Metalama.Backstage.Utilities
     /// Reads the <see cref="AssemblyMetadataAttribute"/> defined by the build pipeline.
     /// These attributes are defined by Directory.Build.targets.
     /// </summary>
+    [PublicAPI]
     public class AssemblyMetadataReader
     {
         private readonly Assembly _assembly;

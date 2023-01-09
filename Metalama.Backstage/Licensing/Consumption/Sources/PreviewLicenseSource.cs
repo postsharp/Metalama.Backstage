@@ -66,7 +66,8 @@ internal sealed class PreviewLicenseSource : ILicenseSource, ILicense
         }
         else if ( Environment.GetEnvironmentVariable( forcePreviewLicenseErrorEnvironmentVariableName ) != null )
         {
-            this._logger.Trace?.Log( $"PreviewLicenseSource failed: error forced using '{forcePreviewLicenseErrorEnvironmentVariableName}' environment variable." );
+            this._logger.Trace?.Log(
+                $"PreviewLicenseSource failed: error forced using '{forcePreviewLicenseErrorEnvironmentVariableName}' environment variable." );
 
             emitError = true;
         }
@@ -86,7 +87,7 @@ internal sealed class PreviewLicenseSource : ILicenseSource, ILicense
         this._logger.Trace?.Log( "PreviewLicenseSource: providing a license." );
 
         var emitWarning = false;
-        
+
         if ( !this._messageReported )
         {
             if ( age > PreviewLicensePeriod - WarningPeriod )
@@ -97,8 +98,9 @@ internal sealed class PreviewLicenseSource : ILicenseSource, ILicense
             }
             else if ( Environment.GetEnvironmentVariable( forcePreviewLicenseWarningEnvironmentVariableName ) != null )
             {
-                this._logger.Trace?.Log( $"PreviewLicenseSource warning: warning forced using '{forcePreviewLicenseWarningEnvironmentVariableName}' environment variable." );
-                
+                this._logger.Trace?.Log(
+                    $"PreviewLicenseSource warning: warning forced using '{forcePreviewLicenseWarningEnvironmentVariableName}' environment variable." );
+
                 emitWarning = true;
             }
         }

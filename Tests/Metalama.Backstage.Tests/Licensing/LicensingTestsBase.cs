@@ -15,8 +15,6 @@ namespace Metalama.Backstage.Licensing.Tests.Licensing
     {
         private protected LicenseFactory LicenseFactory { get; }
 
-        private protected UnsignedLicenseFactory UnsignedLicenseFactory { get; }
-
         private protected LicensingTestsBase(
             ITestOutputHelper logger,
             Action<ServiceProviderBuilder>? serviceBuilder = null,
@@ -42,7 +40,6 @@ namespace Metalama.Backstage.Licensing.Tests.Licensing
                     : null )
         {
             this.LicenseFactory = new LicenseFactory( this.ServiceProvider );
-            this.UnsignedLicenseFactory = new UnsignedLicenseFactory( this.ServiceProvider );
         }
 
         protected string? ReadStoredLicenseString() => TestLicensingConfigurationHelpers.ReadStoredLicenseString( this.ServiceProvider );

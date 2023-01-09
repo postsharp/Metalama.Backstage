@@ -14,6 +14,8 @@ using IFileSystem = Metalama.Backstage.Extensibility.IFileSystem;
 
 namespace Metalama.Backstage.Testing.Services
 {
+    // Resharper disable UnusedMember.Global
+
     public class TestFileSystem : IFileSystem
     {
         private enum ExecutionKind

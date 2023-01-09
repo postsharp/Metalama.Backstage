@@ -6,7 +6,7 @@ internal readonly record struct KillableProcessSpec( string Name, KillableModule
 {
     public bool IsDotNet => (this.Kind & KillableModuleKind.DotNet) != 0;
 
-    public bool IsStandaloneProcess => (this.Kind & KillableModuleKind.DotNet) != 0;
+    public bool IsStandaloneProcess => (this.Kind & KillableModuleKind.StandaloneProcess) != 0;
 
     public bool CanShutdownOrKill => this.CanShutdown || this.CanKill;
 }

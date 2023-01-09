@@ -30,7 +30,7 @@ internal class UsageReporter : IUsageReporter
 
         if ( !applicationInfo.IsTelemetryEnabled )
         {
-            this._logger.Trace?.Log( $"Usage should not be reported because telemetry is disabled for {applicationInfo.Name} {applicationInfo.Version}." );
+            this._logger.Trace?.Log( $"Usage should not be reported because telemetry is disabled for '{applicationInfo.Name} {applicationInfo.Version}'." );
         }
         else if ( TelemetryConfiguration.IsOptOutEnvironmentVariableSet() )
         {

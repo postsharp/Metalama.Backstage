@@ -21,16 +21,6 @@ namespace Metalama.Backstage.Extensibility;
 /// </summary>
 public static class RegisterServiceExtensions
 {
-    internal static ServiceProviderBuilder AddUntypedSingleton<T>(
-        this ServiceProviderBuilder serviceProviderBuilder,
-        T instance )
-        where T : notnull
-    {
-        serviceProviderBuilder.AddService( typeof(T), instance );
-
-        return serviceProviderBuilder;
-    }
-
     internal static ServiceProviderBuilder AddSingleton<T>(
         this ServiceProviderBuilder serviceProviderBuilder,
         T instance )

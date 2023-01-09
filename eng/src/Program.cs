@@ -14,10 +14,9 @@ var product = new Product( Dependencies.MetalamaBackstage )
         new DotNetSolution( "Metalama.Backstage.sln" ) { SupportsTestCoverage = true, CanFormatCode = true }
     },
     PublicArtifacts = Pattern.Create(
-        "Metalama.Backstage.$(PackageVersion).nupkg",
-        "metalama-config.$(PackageVersion).nupkg" ),
+        "Metalama.Backstage.$(PackageVersion).nupkg" ),
     Dependencies = new[] { Dependencies.PostSharpEngineering },
-    BuildAgentType = "caravela03",
+    BuildAgentType = "caravela04",
     Configurations = Product.DefaultConfigurations
         .WithValue( BuildConfiguration.Release, new BuildConfigurationInfo(
             MSBuildName: "Release",

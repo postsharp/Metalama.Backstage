@@ -1,5 +1,6 @@
 // Copyright (c) SharpCrafters s.r.o. See the LICENSE.md file in the root directory of this repository root for details.
 
+using JetBrains.Annotations;
 using Metalama.Backstage.Diagnostics;
 using System;
 using System.Collections.Generic;
@@ -23,6 +24,7 @@ namespace Metalama.Backstage.Utilities;
 
 public static class ProcessUtilities
 {
+    [PublicAPI]
     public static ProcessKind ProcessKind
     {
         get
@@ -51,7 +53,7 @@ public static class ProcessUtilities
                         {
                             return ProcessKind.Other;
                         }
-#pragma warning restore CA1307                        
+#pragma warning restore CA1307
                     }
 
                 case "csc":
@@ -140,6 +142,7 @@ public static class ProcessUtilities
 
     private static int _isCurrentProcessUnattended;
 
+    [PublicAPI]
     public static bool IsCurrentProcessUnattended( ILoggerFactory loggerFactory )
     {
         var logger = loggerFactory.GetLogger( "ProcessUtilities" );
@@ -322,6 +325,7 @@ public static class ProcessUtilities
         return processes.ToArray();
     }
 
+    [PublicAPI]
     public static IReadOnlyList<ProcessInfo> GetParentProcesses( ILogger? logger = null )
     {
         if ( RuntimeInformation.IsOSPlatform( OSPlatform.Linux ) )
@@ -433,15 +437,15 @@ public static class ProcessUtilities
 
         if ( !string.IsNullOrEmpty( processesControlGroup ) )
         {
-#pragma warning disable CA1307
-            isRunningInsideDockerContainer = processesControlGroup!.Contains( "docker" );
-#pragma warning restore CA1307
+#pragma warning disable CS8602, CA1307
+            isRunningInsideDockerContainer = processesControlGroup.Contains( "docker" );
+#pragma warning restore CS8602, CA1307
         }
 
         return isRunningInsideDockerContainer;
     }
 
-    public static bool IsNetCore()
+    internal static bool IsNetCore()
     {
         var frameworkDescription = RuntimeInformation.FrameworkDescription.ToLowerInvariant();
 

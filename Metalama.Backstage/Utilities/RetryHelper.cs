@@ -1,5 +1,6 @@
 // Copyright (c) SharpCrafters s.r.o. See the LICENSE.md file in the root directory of this repository root for details.
 
+using JetBrains.Annotations;
 using Metalama.Backstage.Diagnostics;
 using Metalama.Backstage.Extensibility;
 using System;
@@ -11,6 +12,7 @@ using System.Threading;
 
 namespace Metalama.Backstage.Utilities
 {
+    [PublicAPI]
     public static class RetryHelper
     {
         public static void Retry( Action action, Predicate<Exception>? retryPredicate = null, ILogger? logger = null, Action<Exception>? onException = null )
