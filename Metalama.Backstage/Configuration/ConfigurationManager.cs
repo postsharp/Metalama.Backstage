@@ -30,6 +30,7 @@ namespace Metalama.Backstage.Configuration
 
         // Named semaphore to handle many instances.
         private readonly Mutex _mutex = new( false, "Global\\Metalama.Configuration" );
+        private ILoggerFactory _loggerFactory;
 
         public ConfigurationManager( IServiceProvider serviceProvider )
         {
@@ -38,9 +39,17 @@ namespace Metalama.Backstage.Configuration
             this._dateTimeProvider = serviceProvider.GetRequiredBackstageService<IDateTimeProvider>();
             this._environmentVariableProvider = serviceProvider.GetRequiredBackstageService<IEnvironmentVariableProvider>();
 
-            // In a production use, the logger factory is created after the configuration manager, so we will not have any log for
-            // this class. However, tests may have their own logging.
-            this.Logger = serviceProvider.GetLoggerFactory().GetLogger( "Configuration" );
+            // In a production use, the logger factory is created after the configuration manager, so we cannot
+            // report diagnostics while getting the configuration. To work around this problem, we buffer
+            // the reported messages and we report them when the real logging service is available.
+            this._loggerFactory = serviceProvider.GetLoggerFactory();
+
+            if ( this._loggerFactory is NullLogger )
+            {
+                this._loggerFactory = new BufferingLoggerFactory();
+            }
+
+            this.Logger = this._loggerFactory.GetLogger( "Configuration" );
 
             this.ApplicationDataDirectory = serviceProvider.GetRequiredBackstageService<IStandardDirectories>().ApplicationDataDirectory;
 
@@ -56,6 +65,17 @@ namespace Metalama.Backstage.Configuration
                 this._fileSystemWatcher.Changed += this.OnFileChanged;
                 this._fileSystemWatcher.EnableRaisingEvents = true;
             }
+        }
+
+        public void SetLoggerFactory( ILoggerFactory loggerFactory )
+        {
+            if ( this._loggerFactory is BufferingLoggerFactory bufferingLoggerFactory )
+            {
+                bufferingLoggerFactory.Replay( loggerFactory );
+            }
+
+            this._loggerFactory = loggerFactory;
+            this.Logger = loggerFactory.GetLogger( "Configuration" );
         }
 
         private void OnFileChanged( object sender, FileSystemEventArgs e )
@@ -86,7 +106,7 @@ namespace Metalama.Backstage.Configuration
 
         public string ApplicationDataDirectory { get; }
 
-        public ILogger Logger { get; }
+        public ILogger Logger { get; private set; }
 
         public string GetFilePath( string fileName ) => Path.Combine( this.ApplicationDataDirectory, fileName );
 

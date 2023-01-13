@@ -19,21 +19,22 @@ public record DiagnosticsConfiguration : ConfigurationFile
     public LoggingConfiguration Logging { get; init; } = new();
 
     [JsonProperty( "debugger" )]
-    public DebuggerConfiguration Debugger { get; } = new();
+    public DebuggerConfiguration Debugging { get; } = new();
 
     [JsonProperty( "miniDump" )]
     public MiniDumpConfiguration MiniDump { get; } = new();
 
     public DiagnosticsConfiguration()
     {
-        var processes = Enum.GetValues( typeof(ProcessKind) ).Cast<ProcessKind>().ToImmutableDictionary( x => x, _ => false );
+        var processes = Enum.GetValues( typeof(ProcessKind) ).Cast<ProcessKind>().ToImmutableDictionary( x => x.ToString(), _ => false );
 
         this.Logging = new LoggingConfiguration
         {
-            Processes = processes, Categories = ImmutableDictionary<string, bool>.Empty.WithComparers( StringComparer.OrdinalIgnoreCase ).Add( "*", false )
+            Processes = processes,
+            TraceCategories = ImmutableDictionary<string, bool>.Empty.WithComparers( StringComparer.OrdinalIgnoreCase ).Add( "*", false )
         };
 
-        this.Debugger = new DebuggerConfiguration() { Processes = processes };
+        this.Debugging = new DebuggerConfiguration() { Processes = processes };
 
         this.MiniDump = new MiniDumpConfiguration()
         {

@@ -49,7 +49,9 @@ namespace Metalama.Backstage.Licensing.Tests.Licensing.Essentials
                 x => x.Message != null && x.Message.Contains(
                     "Failed to register Metalama Free license: A Metalama Free license is registered already."
 #if NET
-                 ,
+
+                    // ReSharper disable once WrongIndentSize
+                   ,
                     StringComparison.InvariantCulture
 #endif
                 ) );

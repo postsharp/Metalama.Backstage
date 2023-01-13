@@ -12,14 +12,14 @@ public record LoggingConfiguration
     /// Gets a value indicating whether logging is enabled at all.
     /// </summary>
     [JsonProperty( "processes" )]
-    public ImmutableDictionary<ProcessKind, bool> Processes { get; init; } = ImmutableDictionary<ProcessKind, bool>.Empty;
+    public ImmutableDictionary<string, bool> Processes { get; init; } =
+        ImmutableDictionary<string, bool>.Empty.WithComparers( StringComparer.OrdinalIgnoreCase );
 
     /// <summary>
     /// Gets the list of categories that are enabled for trace-level logging.
     /// </summary>
-    [JsonProperty( "categories" )]
-
-    public ImmutableDictionary<string, bool> Categories { get; init; } =
+    [JsonProperty( "trace" )]
+    public ImmutableDictionary<string, bool> TraceCategories { get; init; } =
         ImmutableDictionary<string, bool>.Empty.WithComparers( StringComparer.OrdinalIgnoreCase );
 
     /// <summary>

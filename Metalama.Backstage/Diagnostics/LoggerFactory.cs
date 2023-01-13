@@ -36,7 +36,7 @@ namespace Metalama.Backstage.Diagnostics
 
             this.Configuration = configuration;
 
-            if ( this.Configuration.Logging.Processes.TryGetValue( processKind, out var enabled ) && enabled )
+            if ( this.Configuration.Logging.Processes.TryGetValue( processKind.ToString(), out var enabled ) && enabled )
             {
                 var directory = tempFileManager.GetTempDirectory( "Logs", CleanUpStrategy.Always );
 

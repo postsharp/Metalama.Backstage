@@ -42,7 +42,7 @@ internal class MiniDumper : IMiniDumper
 
         var applicationInfo = serviceProvider.GetRequiredBackstageService<IApplicationInfoProvider>().CurrentApplication;
         this._processKind = applicationInfo.ProcessKind;
-        this._isProcessEnabled = this._configuration.Processes.TryGetValue( applicationInfo.ProcessKind, out var isEnabled ) && isEnabled;
+        this._isProcessEnabled = this._configuration.Processes.TryGetValue( applicationInfo.ProcessKind.ToString(), out var isEnabled ) && isEnabled;
 
         foreach ( var flag in this._configuration.Flags )
         {
