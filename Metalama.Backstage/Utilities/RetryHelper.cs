@@ -2,18 +2,16 @@
 
 using JetBrains.Annotations;
 using Metalama.Backstage.Diagnostics;
-using Metalama.Backstage.Extensibility;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
-using System.Linq;
 using System.Threading;
 
 namespace Metalama.Backstage.Utilities
 {
     [PublicAPI]
-    public static class RetryHelper
+    public static partial class RetryHelper
     {
         public static void Retry( Action action, Predicate<Exception>? retryPredicate = null, ILogger? logger = null, Action<Exception>? onException = null )
             => Retry(
@@ -42,55 +40,44 @@ namespace Metalama.Backstage.Utilities
             Predicate<Exception>? retryPredicate = null,
             ILogger? logger = null )
         {
+            var context = new DeadlockDetectionContext( serviceProvider, logger, files );
+
+            ExecuteWithLockDetection(
+                () =>
+                {
+                    foreach ( var file in files )
+                    {
+                        Retry( () => action( file ), retryPredicate, logger, context.OnRecoverableException );
+                    }
+                },
+                context );
+        }
+
+        public static void RetryWithLockDetection(
+            IReadOnlyList<string> files,
+            Action action,
+            IServiceProvider serviceProvider,
+            Predicate<Exception>? retryPredicate = null,
+            ILogger? logger = null )
+        {
+            var context = new DeadlockDetectionContext( serviceProvider, logger, files );
+
+            ExecuteWithLockDetection( action, context );
+        }
+
+        private static void ExecuteWithLockDetection(
+            Action action,
+            DeadlockDetectionContext context )
+        {
             try
             {
-                foreach ( var file in files )
-                {
-                    Retry( () => action( file ), retryPredicate, logger, OnException );
-                }
+                action();
             }
             catch ( Exception e )
             {
-                var lockingDetection = serviceProvider.GetBackstageService<ILockingProcessDetector>();
+                context.OnFatalException( e );
 
-                if ( lockingDetection != null )
-                {
-                    var lockingProcesses = lockingDetection.GetProcessesUsingFiles( files );
-
-                    if ( lockingProcesses.Count > 0 )
-                    {
-                        var additionalMessage =
-                            $" The following process(es) are locking the file(s): {string.Join( ", ", lockingProcesses.Select( p => $"{p.ProcessName} ({p.Id})" ) )}.";
-
-                        throw new LockedFileException( e.Message + additionalMessage, e );
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
-            }
-
-            void OnException( Exception obj )
-            {
-                var lockingDetection = serviceProvider.GetBackstageService<ILockingProcessDetector>();
-
-                if ( lockingDetection != null && logger != null )
-                {
-                    var lockingProcesses = lockingDetection.GetProcessesUsingFiles( files );
-
-                    if ( lockingProcesses.Count == 0 )
-                    {
-                        logger.Trace?.Log( "No process locking these files was found." );
-                    }
-                    else
-                    {
-                        logger.Warning?.Log(
-                            "The following process(es) are locking these files: " + string.Join(
-                                ", ",
-                                lockingProcesses.Select( p => $"{p.ProcessName} ({p.Id})" ) ) );
-                    }
-                }
+                throw;
             }
         }
 
