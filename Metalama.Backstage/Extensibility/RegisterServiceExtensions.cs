@@ -95,7 +95,11 @@ public static class RegisterServiceExtensions
         var applicationInfo = serviceProvider.GetRequiredBackstageService<IApplicationInfoProvider>().CurrentApplication;
         var loggerFactory = new LoggerFactory( serviceProvider, configuration, applicationInfo.ProcessKind, projectName );
 
-        return serviceProviderBuilder.AddSingleton<ILoggerFactory>( loggerFactory );
+        serviceProviderBuilder.AddSingleton<ILoggerFactory>( loggerFactory );
+
+        (configurationManager as ConfigurationManager)?.SetLoggerFactory( loggerFactory );
+
+        return serviceProviderBuilder;
     }
 
     /// <summary>
@@ -181,6 +185,11 @@ public static class RegisterServiceExtensions
             else
             {
                 options.AddLoggerFactoryAction( serviceProviderBuilder );
+
+                var configurationManager = serviceProviderBuilder.ServiceProvider.GetBackstageService<IConfigurationManager>();
+
+                (configurationManager as ConfigurationManager)?.SetLoggerFactory(
+                    serviceProviderBuilder.ServiceProvider.GetRequiredBackstageService<ILoggerFactory>() );
             }
         }
 

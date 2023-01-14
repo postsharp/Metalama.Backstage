@@ -12,4 +12,12 @@ public class BaseCommandSettings : CommandSettings
     [Description( "Prints trace messages." )]
     [CommandOption( "--verbose" )]
     public bool Verbose { get; protected set; }
+
+    [Description( "Does not report any warnings." )]
+    [CommandOption( "--no-warn" )]
+    public bool NoWarn { get; protected set; }
+
+    [Description( "Attaches a debugger." )]
+    [CommandOption( "--debug", IsHidden = true )]
+    public bool Debug { get; protected set; }
 }

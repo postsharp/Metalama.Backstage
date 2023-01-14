@@ -11,7 +11,7 @@ namespace Metalama.Backstage.Diagnostics
 
         public static void Launch( DiagnosticsConfiguration configuration, ProcessKind processKind )
         {
-            if ( configuration.Debugger.Processes.TryGetValue( processKind, out var enabled ) && enabled )
+            if ( configuration.Debugging.Processes.TryGetValue( processKind.ToString(), out var enabled ) && enabled )
             {
                 lock ( _attachDebuggerSync )
                 {

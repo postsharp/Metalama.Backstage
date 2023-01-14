@@ -64,7 +64,11 @@ public static class BackstageCommandFactory
 
                         config.AddCommand<PrintConfigurationCommand>( "print" )
                             .WithData( options )
-                            .WithDescription( "Prints to content of the given configuration file to the console." );
+                            .WithDescription( "Prints the content of the given configuration file to the console." );
+
+                        config.AddCommand<ValidateConfigurationCommand>( "validate" )
+                            .WithData( options )
+                            .WithDescription( "Validates the content of the given configuration file." );
                     } );
 
                 appConfig.AddCommand<CleanUpCommand>( "cleanup" )
@@ -93,7 +97,7 @@ public static class BackstageCommandFactory
                             .WithData( options )
                             .WithDescription( "Displays the configuration and the status of telemetry." );
                     } );
-                
+
                 configureMoreCommands?.Invoke( appConfig );
             } );
     }

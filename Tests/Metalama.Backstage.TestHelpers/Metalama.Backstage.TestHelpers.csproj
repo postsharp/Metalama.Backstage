@@ -9,12 +9,11 @@
 
     <ItemGroup>
         <ProjectReference Include="..\..\Metalama.Backstage\Metalama.Backstage.csproj" />
-		<ProjectReference Include="..\..\Metalama.Backstage.MicrosoftLogging\Metalama.Backstage.MicrosoftLogging.csproj" />
 	</ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="MartinCostello.Logging.XUnit" Version="0.1.1" />
-        <PackageReference Include="MELT" Version="0.8.0" />
+        <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="2.1.0" />
+        <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="2.1.0" />
         <PackageReference Include="xunit" Version="$(XunitVersion)" />
         <PackageReference Include="System.IO.Abstractions" Version="13.2.29" />
         <PackageReference Include="System.IO.Abstractions.TestingHelpers" Version="13.2.29" />

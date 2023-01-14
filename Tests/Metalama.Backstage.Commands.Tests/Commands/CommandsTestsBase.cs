@@ -62,6 +62,6 @@ namespace Metalama.Tools.Config.Tests.Commands
             this.Log.Clear();
         }
 
-        public IServiceProvider GetServiceProvider( ConsoleWriter console, bool verbose ) => this.ServiceProvider;
+        public IServiceProvider GetServiceProvider( ConsoleWriter console, BaseCommandSettings settings ) => this.ServiceProvider;
     }
 }

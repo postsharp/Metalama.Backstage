@@ -1,8 +1,8 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. See the LICENSE.md file in the root directory of this repository root for details.
 
 using Metalama.Backstage.Configuration;
+using Metalama.Backstage.Extensibility;
 using Metalama.Backstage.Telemetry;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace Metalama.Backstage.Commands.Telemetry;
 
@@ -17,7 +17,7 @@ internal abstract class SetTelemetryCommand : BaseCommand<BaseCommandSettings>
 
     protected override void Execute( ExtendedCommandContext context, BaseCommandSettings settings )
     {
-        var configurationManager = context.ServiceProvider.GetRequiredService<IConfigurationManager>();
+        var configurationManager = context.ServiceProvider.GetRequiredBackstageService<IConfigurationManager>();
         var reportAction = this._enable ? ReportingAction.Yes : ReportingAction.No;
 
         configurationManager.Update<TelemetryConfiguration>(

@@ -20,7 +20,7 @@ internal class MiniDumper : IMiniDumper
     private static volatile WeakReference<MiniDumper>? _latestDumper;
 
     private readonly ILogger _logger;
-    private readonly MiniDumpConfiguration _configuration;
+    private readonly CrashDumpConfiguration _configuration;
     private readonly bool _isProcessEnabled;
     private readonly MiniDumpKind _flags;
     private readonly ProcessKind _processKind;
@@ -38,11 +38,11 @@ internal class MiniDumper : IMiniDumper
     public MiniDumper( IServiceProvider serviceProvider )
     {
         this._logger = serviceProvider.GetLoggerFactory().GetLogger( "Dumper" );
-        this._configuration = serviceProvider.GetRequiredBackstageService<IConfigurationManager>().Get<DiagnosticsConfiguration>().MiniDump;
+        this._configuration = serviceProvider.GetRequiredBackstageService<IConfigurationManager>().Get<DiagnosticsConfiguration>().CrashDumps;
 
         var applicationInfo = serviceProvider.GetRequiredBackstageService<IApplicationInfoProvider>().CurrentApplication;
         this._processKind = applicationInfo.ProcessKind;
-        this._isProcessEnabled = this._configuration.Processes.TryGetValue( applicationInfo.ProcessKind, out var isEnabled ) && isEnabled;
+        this._isProcessEnabled = this._configuration.Processes.TryGetValue( applicationInfo.ProcessKind.ToString(), out var isEnabled ) && isEnabled;
 
         foreach ( var flag in this._configuration.Flags )
         {
