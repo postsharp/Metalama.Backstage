@@ -9,9 +9,9 @@ namespace Metalama.Backstage.Testing;
 
 public class TestLoggerFactory : ILoggerFactory
 {
-    private ConcurrentDictionary<string, ILogger> _loggers = new();
-    private List<Entry> _entries = new();
-    private ITestOutputHelper _testOutputHelper;
+    private readonly ConcurrentDictionary<string, ILogger> _loggers = new();
+    private readonly List<Entry> _entries = new();
+    private readonly ITestOutputHelper _testOutputHelper;
 
     public TestLoggerFactory( ITestOutputHelper testOutputHelper )
     {
@@ -34,8 +34,8 @@ public class TestLoggerFactory : ILoggerFactory
 
     private class Logger : ILogger
     {
-        private string _category;
-        private TestLoggerFactory _parent;
+        private readonly string _category;
+        private readonly TestLoggerFactory _parent;
 
         public Logger( string category, TestLoggerFactory parent )
         {
@@ -60,9 +60,9 @@ public class TestLoggerFactory : ILoggerFactory
 
     private class LogWriter : ILogWriter
     {
-        private string _category;
-        private Severity _severity;
-        private TestLoggerFactory _parent;
+        private readonly string _category;
+        private readonly Severity _severity;
+        private readonly TestLoggerFactory _parent;
 
         public LogWriter( string category, Severity severity, TestLoggerFactory parent )
         {
@@ -82,7 +82,13 @@ public class TestLoggerFactory : ILoggerFactory
         }
     }
 
-    public enum Severity { Trace, Info, Warning, Error }
+    public enum Severity
+    {
+        Trace,
+        Info,
+        Warning,
+        Error
+    }
 
     public record Entry( Severity Severity, string Category, string Message );
 }

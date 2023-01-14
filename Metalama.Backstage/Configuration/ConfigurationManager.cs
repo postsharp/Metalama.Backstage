@@ -334,7 +334,7 @@ namespace Metalama.Backstage.Configuration
                 // In case of error, we need to return an empty instance of the configuration object,
                 // with the LastModified property properly set. If instead we return false, the caller
                 // will interpret this as if the file did not exist, and it can create an infinite loop.
-                settings = (ConfigurationFile) Activator.CreateInstance( type );
+                settings = (ConfigurationFile) Activator.CreateInstance( type )!;
                 settings.LastModified = lastModified;
 
                 return true;
