@@ -3,6 +3,7 @@
 using Metalama.Backstage.Configuration;
 using Newtonsoft.Json;
 using System;
+using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.ComponentModel;
 using System.Linq;
@@ -22,7 +23,7 @@ public record DiagnosticsConfiguration : ConfigurationFile
     public DebuggerConfiguration Debugging { get; } = new();
 
     [JsonProperty( "crashDumps" )]
-    public CrashDumpConfiguration MiniDump { get; } = new();
+    public CrashDumpConfiguration CrashDumps { get; } = new();
 
     public DiagnosticsConfiguration()
     {
@@ -36,7 +37,7 @@ public record DiagnosticsConfiguration : ConfigurationFile
 
         this.Debugging = new DebuggerConfiguration() { Processes = processes };
 
-        this.MiniDump = new CrashDumpConfiguration()
+        this.CrashDumps = new CrashDumpConfiguration()
         {
             Processes = processes,
             Flags = new[]
@@ -54,5 +55,26 @@ public record DiagnosticsConfiguration : ConfigurationFile
                 .ToImmutableArray(),
             ExceptionTypes = ImmutableArray.Create( "*" )
         };
+    }
+
+    public override void Validate( Action<string> reportWarning )
+    {
+        base.Validate( reportWarning );
+
+        void ValidateProcessKinds( IEnumerable<string> processKinds, string path )
+        {
+            foreach ( var processKind in processKinds )
+            {
+                if ( !Enum.TryParse<ProcessKind>( processKind, out _ ) )
+                {
+                    reportWarning(
+                        $"Invalid key '{processKind}' at path '{path}'. Valid keys are: {string.Join( ", ", Enum.GetNames( typeof(ProcessKind) ) )}" );
+                }
+            }
+        }
+
+        ValidateProcessKinds( this.Logging.Processes.Keys, "logging.processes" );
+        ValidateProcessKinds( this.Debugging.Processes.Keys, "debugging.processes" );
+        ValidateProcessKinds( this.CrashDumps.Processes.Keys, "crashDumps.processes" );
     }
 }

@@ -9,6 +9,6 @@ namespace Metalama.Backstage.Commands
     /// </summary>
     internal interface ICommandServiceProviderProvider
     {
-        IServiceProvider GetServiceProvider( ConsoleWriter console, bool verbose );
+        IServiceProvider GetServiceProvider( ConsoleWriter console, BaseCommandSettings settings );
     }
 }

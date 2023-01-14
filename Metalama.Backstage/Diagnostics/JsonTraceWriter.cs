@@ -8,10 +8,12 @@ namespace Metalama.Backstage.Diagnostics;
 
 internal class JsonTraceWriter : ITraceWriter
 {
+    private readonly string _filePath;
     private readonly ILogger _logger;
 
-    public JsonTraceWriter( ILogger logger )
+    public JsonTraceWriter( string filePath, ILogger logger )
     {
+        this._filePath = filePath;
         this._logger = logger;
     }
 
@@ -30,16 +32,21 @@ internal class JsonTraceWriter : ITraceWriter
                 break;
 
             case TraceLevel.Info:
-                this._logger.Info?.Log( message );
-
-                break;
-            
             case TraceLevel.Verbose:
-                this._logger.Trace?.Log( message );
+                if ( message.StartsWith( "Unable to", StringComparison.OrdinalIgnoreCase )
+                     || message.StartsWith( "Could not find", StringComparison.OrdinalIgnoreCase ) )
+                {
+                    this._logger.Warning?.Log( $"Recoverable error in '{this._filePath}': {message}" );
+                }
+                else
+                {
+                    this._logger.Trace?.Log( message );
+                }
 
                 break;
         }
     }
 
-    public TraceLevel LevelFilter => this._logger.Trace == null ? TraceLevel.Warning : TraceLevel.Verbose;
+    // Some warnings are reported as Verbose so we need to capture all messages.
+    public TraceLevel LevelFilter => TraceLevel.Verbose;
 }

@@ -27,11 +27,23 @@ namespace Metalama.Backstage.Commands
 
         public IAnsiConsole Error { get; }
 
+        public bool HasErrors { get; private set; }
+
+        public bool HasWarnings { get; private set; }
+
         public void WriteError( string format, params object[] args ) => this.WriteError( string.Format( CultureInfo.InvariantCulture, format, args ) );
 
-        public void WriteError( string message ) => this.Error.MarkupLine( $"[red]{message.EscapeMarkup()}[/]" );
+        public void WriteError( string message )
+        {
+            this.HasErrors = true;
+            this.Error.MarkupLine( $"[red]{message.EscapeMarkup()}[/]" );
+        }
 
-        public void WriteWarning( string message ) => this.Out.MarkupLine( $"[yellow]{message.EscapeMarkup()}[/]" );
+        public void WriteWarning( string message )
+        {
+            this.HasWarnings = true;
+            this.Out.MarkupLine( $"[yellow]{message.EscapeMarkup()}[/]" );
+        }
 
         public void WriteWarning( string format, params object[] args ) => this.WriteWarning( string.Format( CultureInfo.InvariantCulture, format, args ) );
 

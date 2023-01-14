@@ -1,7 +1,7 @@
 // Copyright (c) SharpCrafters s.r.o. See the LICENSE.md file in the root directory of this repository root for details.
 
 using Metalama.Backstage.Configuration;
-using Microsoft.Extensions.DependencyInjection;
+using Metalama.Backstage.Extensibility;
 using System;
 using System.ComponentModel;
 using System.Diagnostics;
@@ -22,6 +22,8 @@ internal abstract class ConfigurationFileCommandAdapter
     public abstract void Reset( ExtendedCommandContext context );
 
     public abstract void Edit( ExtendedCommandContext context );
+
+    public abstract void Validate( ExtendedCommandContext context );
 
     public abstract string GetFilePath( IServiceProvider contextServiceProvider );
 }
@@ -50,7 +52,7 @@ internal class ConfigurationFileCommandAdapter<T> : ConfigurationFileCommandAdap
 
     public override void Print( ExtendedCommandContext context )
     {
-        var configurationManager = context.ServiceProvider.GetRequiredService<IConfigurationManager>();
+        var configurationManager = context.ServiceProvider.GetRequiredBackstageService<IConfigurationManager>();
 
         var configuration = configurationManager.Get( typeof(T) );
 
@@ -59,7 +61,7 @@ internal class ConfigurationFileCommandAdapter<T> : ConfigurationFileCommandAdap
 
     public override void Reset( ExtendedCommandContext context )
     {
-        var configurationManager = context.ServiceProvider.GetRequiredService<IConfigurationManager>();
+        var configurationManager = context.ServiceProvider.GetRequiredBackstageService<IConfigurationManager>();
 
         configurationManager.Update<T>( _ => new T() );
 
@@ -68,7 +70,7 @@ internal class ConfigurationFileCommandAdapter<T> : ConfigurationFileCommandAdap
 
     public override void Edit( ExtendedCommandContext context )
     {
-        var configurationManager = context.ServiceProvider.GetRequiredService<IConfigurationManager>();
+        var configurationManager = context.ServiceProvider.GetRequiredBackstageService<IConfigurationManager>();
 
         configurationManager.CreateIfMissing<T>();
 
@@ -78,9 +80,22 @@ internal class ConfigurationFileCommandAdapter<T> : ConfigurationFileCommandAdap
         Process.Start( new ProcessStartInfo( filePath ) { UseShellExecute = true } );
     }
 
+    public override void Validate( ExtendedCommandContext context )
+    {
+        var configurationManager = context.ServiceProvider.GetRequiredBackstageService<IConfigurationManager>();
+
+        // The side effect of getting the configuration is to get the warnings.
+        _ = configurationManager.Get( typeof(T) );
+
+        if ( context.Console is { HasErrors: false, HasWarnings: false } )
+        {
+            context.Console.WriteSuccess( $"The file '{configurationManager.GetFilePath<T>()}' is correct." );
+        }
+    }
+
     public override string GetFilePath( IServiceProvider serviceProvider )
     {
-        var configurationManager = serviceProvider.GetRequiredService<IConfigurationManager>();
+        var configurationManager = serviceProvider.GetRequiredBackstageService<IConfigurationManager>();
 
         return configurationManager.GetFilePath<T>();
     }

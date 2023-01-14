@@ -37,4 +37,20 @@ public class ConfigurationManagerTests : TestsBase
             Assert.Equal( 1, countTrue );
         }
     }
+
+    [Fact]
+    public void InvalidJson()
+    {
+        var configurationManager = new Configuration.ConfigurationManager( this.ServiceProvider );
+        var fileName = configurationManager.GetFilePath<TestConfigurationFile>();
+        this.FileSystem.WriteAllText( fileName, "not valid json" );
+
+        // Reading the file should be successful.
+        var configuration = configurationManager.Get<TestConfigurationFile>();
+        Assert.NotNull( configuration.LastModified );
+        Assert.NotEmpty( this.Log.Entries.Where( e => e.Severity == TestLoggerFactory.Severity.Error ) );
+
+        // Updating the file should be successful.
+        Assert.True( configurationManager.UpdateIf<TestConfigurationFile>( c => !c.IsModified, c => c with { IsModified = true } ) );
+    }
 }

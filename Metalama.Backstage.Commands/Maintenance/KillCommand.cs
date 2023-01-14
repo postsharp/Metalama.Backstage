@@ -1,7 +1,7 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. See the LICENSE.md file in the root directory of this repository root for details.
 
+using Metalama.Backstage.Extensibility;
 using Metalama.Backstage.Maintenance;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace Metalama.Backstage.Commands.Maintenance;
 
@@ -11,7 +11,7 @@ internal class KillCommand : BaseCommand<KillCommandSettings>
     {
         context.Console.WriteHeading( "Killing Metalama processes" );
 
-        var processManager = context.ServiceProvider.GetRequiredService<IProcessManager>();
+        var processManager = context.ServiceProvider.GetRequiredBackstageService<IProcessManager>();
 
         processManager.KillCompilerProcesses( !settings.NoWarn );
 

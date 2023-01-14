@@ -17,6 +17,6 @@ public sealed class ExtendedCommandContext
     {
         this.BackstageCommandOptions = (BackstageCommandOptions) commandContext.Data!;
         this.Console = new ConsoleWriter( this.BackstageCommandOptions );
-        this.ServiceProvider = this.BackstageCommandOptions.ServiceProvider.GetServiceProvider( this.Console, settings.Verbose );
+        this.ServiceProvider = this.BackstageCommandOptions.ServiceProvider.GetServiceProvider( this.Console, settings );
     }
 }

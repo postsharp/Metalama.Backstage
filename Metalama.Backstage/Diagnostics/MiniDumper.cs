@@ -38,7 +38,7 @@ internal class MiniDumper : IMiniDumper
     public MiniDumper( IServiceProvider serviceProvider )
     {
         this._logger = serviceProvider.GetLoggerFactory().GetLogger( "Dumper" );
-        this._configuration = serviceProvider.GetRequiredBackstageService<IConfigurationManager>().Get<DiagnosticsConfiguration>().MiniDump;
+        this._configuration = serviceProvider.GetRequiredBackstageService<IConfigurationManager>().Get<DiagnosticsConfiguration>().CrashDumps;
 
         var applicationInfo = serviceProvider.GetRequiredBackstageService<IApplicationInfoProvider>().CurrentApplication;
         this._processKind = applicationInfo.ProcessKind;

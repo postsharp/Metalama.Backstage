@@ -199,8 +199,7 @@ namespace Metalama.Backstage.Configuration
                 {
                     if ( this._fileSystem.FileExists( fileName ) )
                     {
-                        // This can happen when the configuration file cannot be parsed. In this case, we get a new configuration object,
-                        // without a timestamp.
+                        return false;
                     }
                 }
                 else if ( !this._fileSystem.FileExists( fileName ) || this._fileSystem.GetFileLastWriteTime( fileName ) != lastModified )
@@ -310,13 +309,18 @@ namespace Metalama.Backstage.Configuration
 
             try
             {
-                var jsonSettings = new JsonSerializerSettings { TraceWriter = new JsonTraceWriter( this.Logger.WithPrefix( "Json" ) ) };
+                var jsonSettings = new JsonSerializerSettings { TraceWriter = new JsonTraceWriter( fileName, this.Logger.WithPrefix( "Json" ) ) };
 
                 settings = (ConfigurationFile?) JsonConvert.DeserializeObject( json, type, jsonSettings );
 
                 if ( settings == null )
                 {
                     return false;
+                }
+
+                if ( this.Logger.Warning != null )
+                {
+                    settings.Validate( message => this.Logger.Warning?.Log( $"Recoverable error in '{fileName}: {message}'" ) );
                 }
 
                 settings = settings with { LastModified = lastModified };
@@ -326,11 +330,15 @@ namespace Metalama.Backstage.Configuration
             catch ( Exception e )
             {
                 this.Logger.Error?.Log( $"Error reading file '{fileName}': " + e.Message );
+
+                // In case of error, we need to return an empty instance of the configuration object,
+                // with the LastModified property properly set. If instead we return false, the caller
+                // will interpret this as if the file did not exist, and it can create an infinite loop.
+                settings = (ConfigurationFile) Activator.CreateInstance( type );
+                settings.LastModified = lastModified;
+
+                return true;
             }
-
-            settings = default;
-
-            return false;
         }
 
         private DisposableAction WithMutex()

@@ -45,13 +45,12 @@ namespace Metalama.Backstage.Licensing.Tests.Licensing.Essentials
 
 #pragma warning disable SA1001, SA1111, SA1113, SA1115, SA1116
             Assert.Single(
-                this.Log.LogEntries,
-                x => x.Message != null && x.Message.Contains(
+                this.Log.Entries,
+                x => x.Message.Contains(
                     "Failed to register Metalama Free license: A Metalama Free license is registered already."
 #if NET
-
                     // ReSharper disable once WrongIndentSize
-                   ,
+                 ,
                     StringComparison.InvariantCulture
 #endif
                 ) );

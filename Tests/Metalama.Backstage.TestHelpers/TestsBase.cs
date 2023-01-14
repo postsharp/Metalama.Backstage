@@ -1,16 +1,14 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. See the LICENSE.md file in the root directory of this repository root for details.
 
-using MELT;
 using Metalama.Backstage.Configuration;
 using Metalama.Backstage.Extensibility;
-using Metalama.Backstage.MicrosoftLogging;
 using Metalama.Backstage.Telemetry;
 using Metalama.Backstage.Testing.Services;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
-using Microsoft.Extensions.Logging;
 using System;
 using Xunit.Abstractions;
+using ILoggerFactory = Metalama.Backstage.Diagnostics.ILoggerFactory;
 
 namespace Metalama.Backstage.Testing
 {
@@ -26,7 +24,7 @@ namespace Metalama.Backstage.Testing
 
         public TestEnvironmentVariableProvider EnvironmentVariableProvider { get; } = new();
 
-        public ITestLoggerSink Log { get; }
+        public TestLoggerFactory Log { get; }
 
         public TestTelemetryUploader TelemetryUploader { get; } = new();
 
@@ -52,11 +50,7 @@ namespace Metalama.Backstage.Testing
         {
             this.Logger = logger;
 
-            var loggerFactory = TestLoggerFactory
-                .Create()
-                .AddXUnit( logger );
-
-            this.Log = loggerFactory.GetTestLoggerSink();
+            this.Log = new TestLoggerFactory( logger );
 
             // ReSharper disable RedundantTypeArgumentsOfMethod
 
@@ -74,9 +68,8 @@ namespace Metalama.Backstage.Testing
                     ( type, instance ) => this._serviceCollection.AddSingleton( type, instance ),
                     () => this._serviceCollection.BuildServiceProvider() );
 
-            serviceProviderBuilder
-                .AddMicrosoftLoggerFactory( loggerFactory )
-                .AddStandardDirectories();
+            serviceProviderBuilder.AddService( typeof(ILoggerFactory), this.Log );
+            serviceProviderBuilder.AddStandardDirectories();
 
             this._serviceCollection.AddSingleton<ITelemetryUploader>( this.TelemetryUploader );
             this._serviceCollection.AddSingleton<IUsageReporter>( this.UsageReporter );
