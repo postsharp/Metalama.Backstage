@@ -18,11 +18,11 @@ public record DiagnosticsConfiguration : ConfigurationFile
     [JsonProperty( "logging" )]
     public LoggingConfiguration Logging { get; init; } = new();
 
-    [JsonProperty( "debugger" )]
+    [JsonProperty( "debugging" )]
     public DebuggerConfiguration Debugging { get; } = new();
 
-    [JsonProperty( "miniDump" )]
-    public MiniDumpConfiguration MiniDump { get; } = new();
+    [JsonProperty( "crashDumps" )]
+    public CrashDumpConfiguration MiniDump { get; } = new();
 
     public DiagnosticsConfiguration()
     {
@@ -36,7 +36,7 @@ public record DiagnosticsConfiguration : ConfigurationFile
 
         this.Debugging = new DebuggerConfiguration() { Processes = processes };
 
-        this.MiniDump = new MiniDumpConfiguration()
+        this.MiniDump = new CrashDumpConfiguration()
         {
             Processes = processes,
             Flags = new[]

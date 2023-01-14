@@ -20,7 +20,7 @@ internal class MiniDumper : IMiniDumper
     private static volatile WeakReference<MiniDumper>? _latestDumper;
 
     private readonly ILogger _logger;
-    private readonly MiniDumpConfiguration _configuration;
+    private readonly CrashDumpConfiguration _configuration;
     private readonly bool _isProcessEnabled;
     private readonly MiniDumpKind _flags;
     private readonly ProcessKind _processKind;

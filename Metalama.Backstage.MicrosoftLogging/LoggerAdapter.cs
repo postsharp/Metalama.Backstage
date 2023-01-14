@@ -19,7 +19,7 @@ namespace Metalama.Backstage.MicrosoftLogging
             this._logger = logger;
             this.Error = this.CreateLogWriter( LogLevel.Error );
             this.Info = this.CreateLogWriter( LogLevel.Information );
-            this.Trace = this.CreateLogWriter( LogLevel.Trace );
+            this.Trace = this.CreateLogWriter( LogLevel.Debug );
             this.Warning = this.CreateLogWriter( LogLevel.Warning );
         }
 
@@ -43,7 +43,7 @@ namespace Metalama.Backstage.MicrosoftLogging
 
         public ILogWriter? Error { get; }
 
-        public IPostSharpLogger WithPrefix( string prefix ) => throw new NotImplementedException();
+        public IPostSharpLogger WithPrefix( string prefix ) => this;
 
         private class LogWriter : ILogWriter
         {

@@ -199,9 +199,8 @@ namespace Metalama.Backstage.Configuration
                 {
                     if ( this._fileSystem.FileExists( fileName ) )
                     {
-                        this.Logger.Warning?.Log( $"Cannot update '{fileName}' because the file exists but it was not supposed to." );
-
-                        return false;
+                        // This can happen when the configuration file cannot be parsed. In this case, we get a new configuration object,
+                        // without a timestamp.
                     }
                 }
                 else if ( !this._fileSystem.FileExists( fileName ) || this._fileSystem.GetFileLastWriteTime( fileName ) != lastModified )
@@ -311,7 +310,9 @@ namespace Metalama.Backstage.Configuration
 
             try
             {
-                settings = (ConfigurationFile?) JsonConvert.DeserializeObject( json, type );
+                var jsonSettings = new JsonSerializerSettings { TraceWriter = new JsonTraceWriter( this.Logger.WithPrefix( "Json" ) ) };
+
+                settings = (ConfigurationFile?) JsonConvert.DeserializeObject( json, type, jsonSettings );
 
                 if ( settings == null )
                 {
@@ -324,7 +325,7 @@ namespace Metalama.Backstage.Configuration
             }
             catch ( Exception e )
             {
-                this.Logger.Error?.Log( $"Error reading file '{fileName}': " + e );
+                this.Logger.Error?.Log( $"Error reading file '{fileName}': " + e.Message );
             }
 
             settings = default;

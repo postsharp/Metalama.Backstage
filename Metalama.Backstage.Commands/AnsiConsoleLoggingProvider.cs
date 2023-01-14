@@ -52,6 +52,7 @@ internal class AnsiConsoleLoggingProvider : ILoggerProvider
                     break;
 
                 case LogLevel.Trace:
+                case LogLevel.Debug:
                     this._parent._consoleWriter.WriteMessage( message );
 
                     break;

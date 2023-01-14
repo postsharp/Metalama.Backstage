@@ -50,7 +50,7 @@ namespace Metalama.Backstage.Commands
                 {
                     if ( loggerFactory != null )
                     {
-                        builder.AddMicrosoftLoggerFactory( loggerFactory );
+                        builder.AddService( typeof(ILoggerFactory), loggerFactory );
                     }
                 }
             };

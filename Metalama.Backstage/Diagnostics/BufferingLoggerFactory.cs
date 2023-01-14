@@ -5,6 +5,10 @@ using System.Collections.Concurrent;
 
 namespace Metalama.Backstage.Diagnostics;
 
+/// <summary>
+/// A logger factory that buffers all log records and can then replay them on another <see cref="ILoggerFactory"/> by calling the <see cref="Replay(Metalama.Backstage.Diagnostics.ILoggerFactory)"/> method.
+/// This class is used when the principal <see cref="ILoggerFactory"/> is not yet initialized.
+/// </summary>
 internal class BufferingLoggerFactory : ILoggerFactory
 {
     private readonly ConcurrentQueue<Action<ILoggerFactory>> _replayActions = new();
