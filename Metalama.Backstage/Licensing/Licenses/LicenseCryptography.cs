@@ -42,7 +42,7 @@ namespace Metalama.Backstage.Licensing.Licenses
         /// <remarks>
         /// This implementation supports .NET Core 2.1, where the <see cref="DSA" /> method is not implemented.
         /// </remarks>
-        public static void FromXmlString2( this DSA dsa, string xmlString, bool expectPrivateParameters = false )
+        private static void FromXmlString2( this DSA dsa, string xmlString, bool expectPrivateParameters = false )
         {
             static int ConvertByteArrayToInt( byte[] input )
             {
@@ -169,144 +169,6 @@ namespace Metalama.Backstage.Licensing.Licenses
         }
 
         /// <summary>
-        /// Creates and returns an XML string representation of the current <see cref="DSA" /> object.
-        /// </summary>
-        /// <remarks>
-        /// This implementation supports .NET Core 2.1, where the <see cref="DSA.FromXmlString" /> method is not implemented.
-        /// </remarks>
-        public static string ToXmlString2( this DSA dsa, bool includePrivateParameters )
-        {
-            // output of this routine is always big endian
-            static byte[] ConvertIntToByteArray( int dwInput )
-            {
-                var temp = new byte[8]; // int can never be greater than Int64
-                int t1;                 // t1 is remaining value to account for
-                int t2;                 // t2 is t1 % 256
-                var i = 0;
-
-                if ( dwInput == 0 )
-                {
-                    return new byte[1];
-                }
-
-                t1 = dwInput;
-
-                while ( t1 > 0 )
-                {
-                    if ( i >= 8 )
-                    {
-                        throw new InvalidOperationException( "Got too big an int here!" );
-                    }
-
-                    t2 = t1 % 256;
-                    temp[i] = (byte) t2;
-                    t1 = (t1 - t2) / 256;
-                    i++;
-                }
-
-                // Now, copy only the non-zero part of temp and reverse
-                var output = new byte[i];
-
-                // copy and reverse in one pass
-                for ( var j = 0; j < i; j++ )
-                {
-                    output[j] = temp[i - j - 1];
-                }
-
-                return output;
-            }
-
-            // ReSharper disable CommentTypo
-
-            // From the XMLDSIG spec, RFC 3075, Section 6.4.1, a DSAKeyValue looks like this:
-            /* 
-               <element name="DSAKeyValue"> 
-                 <complexType> 
-                   <sequence>
-                     <sequence>
-                       <element name="P" type="ds:CryptoBinary"/> 
-                       <element name="Q" type="ds:CryptoBinary"/> 
-                       <element name="G" type="ds:CryptoBinary"/> 
-                       <element name="Y" type="ds:CryptoBinary"/> 
-                       <element name="J" type="ds:CryptoBinary" minOccurs="0"/> 
-                     </sequence>
-                     <sequence minOccurs="0">
-                       <element name="Seed" type="ds:CryptoBinary"/> 
-                       <element name="PgenCounter" type="ds:CryptoBinary"/> 
-                     </sequence>
-                   </sequence>
-                 </complexType>
-               </element>
-            */
-
-            // ReSharper restore CommentTypo
-
-            // we extend appropriately for private component X
-            var dsaParams = dsa.ExportParameters( includePrivateParameters );
-            var sb = new StringBuilder();
-            sb.Append( "<DSAKeyValue>" );
-
-            // Add P, Q, G and Y
-            sb.Append( "<P>" + Convert.ToBase64String( dsaParams.P! ) + "</P>" );
-            sb.Append( "<Q>" + Convert.ToBase64String( dsaParams.Q! ) + "</Q>" );
-            sb.Append( "<G>" + Convert.ToBase64String( dsaParams.G! ) + "</G>" );
-            sb.Append( "<Y>" + Convert.ToBase64String( dsaParams.Y! ) + "</Y>" );
-
-            // Add optional components if present
-            if ( dsaParams.J != null )
-            {
-                sb.Append( "<J>" + Convert.ToBase64String( dsaParams.J ) + "</J>" );
-            }
-
-            if ( dsaParams.Seed != null )
-            {
-                // ReSharper disable StringLiteralTypo
-
-                // note we assume counter is correct if Seed is present
-                sb.Append( "<Seed>" + Convert.ToBase64String( dsaParams.Seed ) + "</Seed>" );
-
-                sb.Append(
-                    "<PgenCounter>" + Convert.ToBase64String( ConvertIntToByteArray( dsaParams.Counter ) ) +
-                    "</PgenCounter>" );
-
-                // ReSharper restore StringLiteralTypo
-            }
-
-            if ( includePrivateParameters )
-            {
-                // Add the private component
-                sb.Append( "<X>" + Convert.ToBase64String( dsaParams.X! ) + "</X>" );
-            }
-
-            sb.Append( "</DSAKeyValue>" );
-
-            return sb.ToString();
-        }
-
-        /// <summary>
-        /// Computes an invariant 32-bit hash of a string.
-        /// </summary>
-        /// <param name="s">A string.</param>
-        /// <returns>An invariant 32-bit hash of <paramref name="s"/>.</returns>
-        public static int ComputeStringHash( string? s )
-        {
-            if ( s == null )
-            {
-                return 0;
-            }
-
-            s = s.Trim().Normalize();
-            var bytes = Encoding.UTF8.GetBytes( s );
-
-            using ( var md5 = new MD5Managed() )
-            {
-                var hash = md5.ComputeHash( bytes );
-
-                return hash[0] | (hash[1] << 8) | (hash[2] << 16) | (hash[3] << 24);
-            }
-        }
-
-        /// <summary>
         /// Computes an invariant 64-bit hash of a string.
         /// </summary>
         /// <param name="s">A string.</param>
@@ -365,18 +227,6 @@ namespace Metalama.Backstage.Licensing.Licenses
         internal static bool VerifySignature( byte[] message, DSA publicKey, byte[] signature )
         {
             return publicKey.VerifySignature( GetHash( message ), signature );
-        }
-
-        /// <summary>
-        /// Verifies the signature of a message given a key index.
-        /// </summary>
-        /// <param name="message">Message.</param>
-        /// <param name="publicKeyIndex">Identifier of the public key.</param>
-        /// <param name="signature">Signature of <paramref name="message"/> generated with the private key corresponding to <paramref name="publicKeyIndex"/>.</param>
-        /// <returns><c>true</c> if the signature is valid, otherwise <c>false</c>.</returns>
-        internal static bool VerifySignature( byte[] message, byte publicKeyIndex, byte[] signature )
-        {
-            return VerifySignature( message, GetPublicKey( publicKeyIndex ), signature );
         }
 
         /// <summary>

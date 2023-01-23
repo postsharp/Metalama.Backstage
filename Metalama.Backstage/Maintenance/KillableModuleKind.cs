@@ -7,6 +7,7 @@ namespace Metalama.Backstage.Maintenance;
 [Flags]
 internal enum KillableModuleKind
 {
+    // Resharper warning disable once UnusedMember.Global.
     None,
     StandaloneProcess = 1,
     DotNet = 2,

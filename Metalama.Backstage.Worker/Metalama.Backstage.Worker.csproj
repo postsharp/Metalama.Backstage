@@ -23,6 +23,9 @@
 
     <ItemGroup>
         <Compile Include="$(MetalamaBackstageDirectory)\**\*.cs" Exclude="$(MetalamaBackstageDirectory)\obj\**\*;$(MetalamaBackstageDirectory)\bin\**\*" />
+        <Compile Update="..\Metalama.Backstage\Diagnostics\BufferingLoggerFactory.cs">
+          <Link>Diagnostics\BufferingLoggerFactory.cs</Link>
+        </Compile>
     </ItemGroup>
 
     <ItemGroup Condition="'$(TargetFramework)'=='netframework4.7.2'">
@@ -32,6 +35,7 @@
 
     <ItemGroup>
         <PackageReference Include="System.Collections.Immutable" Version="$(SystemImmutableCollectionsVersion)" />
+        <PackageReference Include="JetBrains.Annotations" Version="2022.3.1" PrivateAssets="all" />
     </ItemGroup>
 
 

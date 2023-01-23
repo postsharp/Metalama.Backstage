@@ -63,15 +63,6 @@ public class EvaluationLicenseRegistrar
                 return true;
             }
 
-            // If the configuration file contains any license, we won't register the evaluation license.
-            if ( configuration.LicenseData != null &&
-                 (configuration.LicenseData.ValidTo == null || configuration.LicenseData.ValidTo.Value >= this._time.Now) )
-            {
-                this._logger.Warning?.Log( "You cannot start the evaluation mode because another license key is registered in the user profile." );
-
-                return false;
-            }
-
             if ( configuration.LastEvaluationStartDate != null )
             {
                 var nextEvaluationMinStartDate =
@@ -79,7 +70,7 @@ public class EvaluationLicenseRegistrar
 
                 if ( nextEvaluationMinStartDate >= this._time.Now )
                 {
-                    this._logger.Warning?.Log( $"You cannot start the evaluation mode until {nextEvaluationMinStartDate}." );
+                    this._logger.Warning?.Log( $"You cannot start a new trial period until {nextEvaluationMinStartDate}." );
 
                     return false;
                 }

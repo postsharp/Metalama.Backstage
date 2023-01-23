@@ -1,10 +1,12 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. See the LICENSE.md file in the root directory of this repository root for details.
 
+using JetBrains.Annotations;
 using System;
 
 namespace Metalama.Backstage.Diagnostics;
 
 [Flags]
+[UsedImplicitly( ImplicitUseTargetFlags.WithMembers )]
 public enum MiniDumpKind : uint
 {
     // From dbghelp.h.

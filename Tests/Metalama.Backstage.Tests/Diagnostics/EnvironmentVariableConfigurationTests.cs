@@ -32,7 +32,7 @@ public class EnvironmentVariableConfigurationTests : TestsBase
         // Set up environment variable DiagnosticsConfiguration.
         var environmentConfiguration = new DiagnosticsConfiguration
         {
-            Logging = new LoggingConfiguration() { Processes = ImmutableDictionary<ProcessKind, bool>.Empty.Add( ProcessKind.Compiler, true ) }
+            Logging = new LoggingConfiguration() { Processes = ImmutableDictionary<string, bool>.Empty.Add( ProcessKind.Compiler.ToString(), true ) }
         };
 
         this.EnvironmentVariableProvider.Environment.Add( DiagnosticsConfiguration.EnvironmentVariableName, environmentConfiguration.ToJson() );
@@ -43,6 +43,6 @@ public class EnvironmentVariableConfigurationTests : TestsBase
     {
         var diagnosticsConfiguration = this._configurationManager.Get<DiagnosticsConfiguration>();
 
-        Assert.True( diagnosticsConfiguration.Logging.Processes[ProcessKind.Compiler] );
+        Assert.True( diagnosticsConfiguration.Logging.Processes[ProcessKind.Compiler.ToString()] );
     }
 }

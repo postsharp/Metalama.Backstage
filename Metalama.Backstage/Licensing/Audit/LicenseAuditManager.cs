@@ -65,7 +65,7 @@ internal class LicenseAuditManager : ILicenseAuditManager
 
         if ( VersionExtensions.IsDevelopmentVersion( report.ReportedComponent.Version ) )
         {
-            this._logger.Info?.Log(
+            this._logger.Trace?.Log(
                 $"License audit disabled because the '{report.ReportedComponent.Name}' application version '{report.ReportedComponent.Version}' is a development version." );
 
             return;

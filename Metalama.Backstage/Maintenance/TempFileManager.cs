@@ -50,8 +50,6 @@ public class TempFileManager : ITempFileManager
             return;
         }
 
-        this._logger.Info?.Log( "Cleaning Metalama temporary files." );
-
         try
         {
             var now = this._time.Now;
@@ -165,7 +163,7 @@ public class TempFileManager : ITempFileManager
         }
     }
 
-    private bool DeleteDirectory( string directory )
+    private void DeleteDirectory( string directory )
     {
         this._logger.Trace?.Log( $"Deleting '{directory}'." );
 
@@ -184,17 +182,15 @@ public class TempFileManager : ITempFileManager
                 {
                     this._logger.Warning?.Log( $"Cannot delete '{directory}': {e.Message}" );
 
-                    return false;
+                    return;
                 }
 
-                return true;
+                return;
             }
         }
 
         this._logger.Warning?.Log(
             $"Directory '{directory}' could not be renamed, this is likely caused by another directory with same name exists in the same location." );
-
-        return false;
     }
 
     public string GetTempDirectory( string subdirectory, CleanUpStrategy cleanUpStrategy, Guid? guid )

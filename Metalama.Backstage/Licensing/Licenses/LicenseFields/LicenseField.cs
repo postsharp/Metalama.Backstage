@@ -36,10 +36,5 @@ namespace Metalama.Backstage.Licensing.Licenses.LicenseFields
         {
             return this.Value?.ToString() ?? "null";
         }
-
-        public LicenseField Clone()
-        {
-            return (LicenseField) this.MemberwiseClone();
-        }
     }
 }

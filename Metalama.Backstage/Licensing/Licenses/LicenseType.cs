@@ -1,5 +1,6 @@
 // Copyright (c) SharpCrafters s.r.o. See the LICENSE.md file in the root directory of this repository root for details.
 
+using JetBrains.Annotations;
 using System;
 
 namespace Metalama.Backstage.Licensing.Licenses
@@ -14,6 +15,7 @@ namespace Metalama.Backstage.Licensing.Licenses
     /// Obsolete license types do not need to be included here
     /// and reported license types representing products and special cases should not be included here.
     /// </remarks>
+    [PublicAPI]
     public enum LicenseType : byte
     {
         /// <summary>

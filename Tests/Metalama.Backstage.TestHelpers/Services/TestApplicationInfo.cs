@@ -61,7 +61,7 @@ namespace Metalama.Backstage.Testing.Services
         public bool IsTelemetryEnabled { get; init; }
 
         /// <inheritdoc />
-        public bool ShouldCreateLocalCrashReports => false;
+        public bool ShouldCreateLocalCrashReports => this.IsTelemetryEnabled;
 
         /// <inheritdoc />
         public ImmutableArray<IComponentInfo> Components { get; init; } = ImmutableArray<IComponentInfo>.Empty;

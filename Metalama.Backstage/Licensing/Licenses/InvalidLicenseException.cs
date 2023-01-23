@@ -12,19 +12,7 @@ namespace Metalama.Backstage.Licensing.Licenses
         /// <summary>
         /// Initializes a new instance of the <see cref="InvalidLicenseException"/> class.
         /// </summary>
-        public InvalidLicenseException() { }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="InvalidLicenseException"/> class.
-        /// </summary>
         /// <param name="message">Exception message.</param>
         public InvalidLicenseException( string message ) : base( message ) { }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="InvalidLicenseException"/> class.
-        /// </summary>
-        /// <param name="message">Exception message.</param>
-        /// <param name="inner">Inner exception.</param>
-        public InvalidLicenseException( string message, Exception inner ) : base( message, inner ) { }
     }
 }

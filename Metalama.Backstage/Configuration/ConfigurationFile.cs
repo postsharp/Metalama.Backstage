@@ -9,7 +9,7 @@ namespace Metalama.Backstage.Configuration;
 public abstract record ConfigurationFile
 {
     [JsonIgnore]
-    public DateTime? LastModified { get; init; }
+    internal DateTime? LastModified { get; set; }
 
     public string ToJson()
     {
@@ -21,4 +21,6 @@ public abstract record ConfigurationFile
 
         return textWriter.ToString();
     }
+
+    public virtual void Validate( Action<string> reportWarning ) { }
 }

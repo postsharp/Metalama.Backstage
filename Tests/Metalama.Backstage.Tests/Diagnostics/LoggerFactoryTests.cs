@@ -37,8 +37,8 @@ public class LoggerFactoryTests : TestsBase
             {
                 Logging = new LoggingConfiguration()
                 {
-                    Categories = ImmutableDictionary<string, bool>.Empty.Add( "*", true ),
-                    Processes = ImmutableDictionary<ProcessKind, bool>.Empty.Add( ProcessKind.Other, true )
+                    TraceCategories = ImmutableDictionary<string, bool>.Empty.Add( "*", true ),
+                    Processes = ImmutableDictionary<string, bool>.Empty.Add( ProcessKind.Other.ToString(), true )
                 }
             },
             ProcessKind.Other,

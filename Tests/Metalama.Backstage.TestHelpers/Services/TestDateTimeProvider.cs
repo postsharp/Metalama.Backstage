@@ -13,10 +13,10 @@ namespace Metalama.Backstage.Testing.Services
 
         public DateTime Now => this._lastResetTime?.AddMilliseconds( this._stopwatch?.ElapsedMilliseconds ?? 0 ) ?? DateTime.Now;
 
-        public void Set( DateTime now, bool keepRuning = false )
+        public void Set( DateTime now, bool keepRunning = false )
         {
             this._lastResetTime = now;
-            this._stopwatch = keepRuning ? Stopwatch.StartNew() : null;
+            this._stopwatch = keepRunning ? Stopwatch.StartNew() : null;
         }
 
         public void Reset()

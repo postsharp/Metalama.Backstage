@@ -1,9 +1,11 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. See the LICENSE.md file in the root directory of this repository root for details.
 
+using JetBrains.Annotations;
 using System;
 
 namespace Metalama.Backstage.Configuration
 {
+    [PublicAPI]
     public static class ConfigurationManagerExtensions
     {
         private const int _maxUpdateAttempts = 10;
@@ -18,7 +20,15 @@ namespace Metalama.Backstage.Configuration
 
         public static bool CreateIfMissing<T>( this IConfigurationManager configurationManager )
             where T : ConfigurationFile
-            => configurationManager.UpdateIf<T>( c => !c.LastModified.HasValue, c => c );
+        {
+            // Do a first check that does not skip the cache.
+            if ( configurationManager.Get<T>().LastModified != null )
+            {
+                return false;
+            }
+
+            return configurationManager.UpdateIf<T>( c => !c.LastModified.HasValue, c => c );
+        }
 
         public static bool UpdateIf<T>( this IConfigurationManager configurationManager, Predicate<T> condition, Func<T, T> updateFunc )
             where T : ConfigurationFile
@@ -38,7 +48,7 @@ namespace Metalama.Backstage.Configuration
                 {
                     // We no longer throw an exception here because we have a known random issue and throwing an exception seems to be worse
                     // than ignoring it.
-                    
+
                     configurationManager.Logger.Error?.Log(
                         $"Too many attempts to update the configuration {typeof(T).Name}. There must be an unaddressed race condition." );
 
@@ -87,7 +97,7 @@ namespace Metalama.Backstage.Configuration
                 {
                     // We no longer throw an exception here because we have a known random issue and throwing an exception seems to be worse
                     // than ignoring it.
-                    
+
                     configurationManager.Logger.Error?.Log(
                         $"Too many attempts to update the configuration {typeof(T).Name}. There must be an unaddressed race condition." );
 
