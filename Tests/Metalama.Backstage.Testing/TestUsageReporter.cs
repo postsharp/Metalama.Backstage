@@ -2,7 +2,7 @@
 
 using Metalama.Backstage.Telemetry;
 
-namespace Metalama.Backstage.Testing.Services;
+namespace Metalama.Backstage.Testing;
 
 // TODO: Unit tests for usage reporting.
 public class TestUsageReporter : IUsageReporter

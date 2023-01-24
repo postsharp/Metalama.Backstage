@@ -4,7 +4,6 @@ using Metalama.Backstage.Configuration;
 using Metalama.Backstage.Extensibility;
 using Metalama.Backstage.Telemetry;
 using Metalama.Backstage.Testing;
-using Metalama.Backstage.Testing.Services;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.IO;

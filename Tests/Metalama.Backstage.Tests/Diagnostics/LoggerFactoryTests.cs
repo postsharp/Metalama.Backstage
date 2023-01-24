@@ -4,7 +4,6 @@ using Metalama.Backstage.Diagnostics;
 using Metalama.Backstage.Extensibility;
 using Metalama.Backstage.Maintenance;
 using Metalama.Backstage.Testing;
-using Metalama.Backstage.Testing.Services;
 using System;
 using System.Collections.Immutable;
 using System.Globalization;

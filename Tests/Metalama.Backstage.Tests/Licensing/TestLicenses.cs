@@ -5,7 +5,7 @@
 using Metalama.Backstage.Extensibility;
 using Metalama.Backstage.Licensing.Consumption.Sources;
 using Metalama.Backstage.Licensing.Licenses;
-using Metalama.Backstage.Testing.Services;
+using Metalama.Backstage.Testing;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 

@@ -4,7 +4,7 @@ using System;
 using System.IO.Abstractions.TestingHelpers;
 using System.Text;
 
-namespace Metalama.Backstage.Testing.Services
+namespace Metalama.Backstage.Testing
 {
     public class MockFileDataEx : MockFileData
     {
