@@ -3,7 +3,6 @@
 using Metalama.Backstage.Extensibility;
 using Metalama.Backstage.Telemetry;
 using Metalama.Backstage.Testing;
-using Metalama.Backstage.Testing.Services;
 using System.IO;
 using System.Linq;
 using Xunit;

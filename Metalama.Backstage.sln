@@ -15,7 +15,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PostSharp.LicenseKeyGenerat
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{9D6FD712-60EF-4B8A-95EE-0143DF7E4B97}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Metalama.Backstage.TestHelpers", "Tests\Metalama.Backstage.TestHelpers\Metalama.Backstage.TestHelpers.csproj", "{35D4322C-116D-461A-9006-B9C838631CAE}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Metalama.Backstage.Testing", "Tests\Metalama.Backstage.Testing\Metalama.Backstage.Testing.csproj", "{35D4322C-116D-461A-9006-B9C838631CAE}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Metalama.Backstage.Tests", "Tests\Metalama.Backstage.Tests\Metalama.Backstage.Tests.csproj", "{223E7228-F193-4FAD-A993-76FC800E18E4}"
 EndProject

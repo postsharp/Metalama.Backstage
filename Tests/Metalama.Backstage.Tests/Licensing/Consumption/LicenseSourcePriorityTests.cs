@@ -2,7 +2,7 @@
 
 using Metalama.Backstage.Extensibility;
 using Metalama.Backstage.Licensing.Consumption;
-using Metalama.Backstage.Testing.Services;
+using Metalama.Backstage.Testing;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using Xunit;

@@ -3,7 +3,7 @@
 using Metalama.Backstage.Telemetry;
 using System.Threading.Tasks;
 
-namespace Metalama.Backstage.Testing.Services;
+namespace Metalama.Backstage.Testing;
 
 // TODO: Unit tests for telemetry
 public class TestTelemetryUploader : ITelemetryUploader

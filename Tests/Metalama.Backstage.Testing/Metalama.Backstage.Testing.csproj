@@ -3,7 +3,7 @@
     <PropertyGroup>
         <TargetFrameworks>netframework4.7.2;net6.0</TargetFrameworks>
         <IsTestProject>False</IsTestProject>
-        <IsPackable>False</IsPackable>
+        <IsPackable>True</IsPackable>
         <RootNamespace>Metalama.Backstage.Testing</RootNamespace>
     </PropertyGroup>
 

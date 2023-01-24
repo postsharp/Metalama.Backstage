@@ -3,7 +3,7 @@
 using Metalama.Backstage.Extensibility;
 using System;
 
-namespace Metalama.Backstage.Testing.Services
+namespace Metalama.Backstage.Testing
 {
     public class TestComponentInfo : IComponentInfo
     {

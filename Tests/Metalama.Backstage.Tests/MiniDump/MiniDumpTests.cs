@@ -4,7 +4,6 @@ using Metalama.Backstage.Configuration;
 using Metalama.Backstage.Diagnostics;
 using Metalama.Backstage.Extensibility;
 using Metalama.Backstage.Testing;
-using Metalama.Backstage.Testing.Services;
 using System;
 using System.IO;
 using Xunit;

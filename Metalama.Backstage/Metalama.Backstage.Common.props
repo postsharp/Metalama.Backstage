@@ -47,7 +47,7 @@
 
     <ItemGroup>
         <InternalsVisibleTo Include="Metalama.Backstage.Tests" />
-        <InternalsVisibleTo Include="Metalama.Backstage.TestHelpers" />
+        <InternalsVisibleTo Include="Metalama.Backstage.Testing" />
     </ItemGroup>
 
 </Project>

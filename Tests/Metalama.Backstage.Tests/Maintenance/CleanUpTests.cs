@@ -4,7 +4,6 @@ using Metalama.Backstage.Configuration;
 using Metalama.Backstage.Extensibility;
 using Metalama.Backstage.Maintenance;
 using Metalama.Backstage.Testing;
-using Metalama.Backstage.Testing.Services;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
