@@ -61,6 +61,7 @@ public static class ProcessUtilities
                     return ProcessKind.Compiler;
                 
                 case "resharpertestrunner":
+                case "resharpertestrunner64":
                     return ProcessKind.ResharperTestRunner;
 
                 case "dotnet":
