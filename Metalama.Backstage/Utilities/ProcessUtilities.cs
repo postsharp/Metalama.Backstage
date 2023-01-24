@@ -59,6 +59,9 @@ public static class ProcessUtilities
                 case "csc":
                 case "vbcscompiler":
                     return ProcessKind.Compiler;
+                
+                case "resharpertestrunner":
+                    return ProcessKind.ResharperTestRunner;
 
                 case "dotnet":
                     {
@@ -77,6 +80,10 @@ public static class ProcessUtilities
                         else if ( commandLine.Contains( "omnisharp.dll" ) )
                         {
                             return ProcessKind.OmniSharp;
+                        }
+                        else if ( commandLine.Contains( "resharpertestrunner.dll" ) )
+                        {
+                            return ProcessKind.ResharperTestRunner;
                         }
                         else
                         {
