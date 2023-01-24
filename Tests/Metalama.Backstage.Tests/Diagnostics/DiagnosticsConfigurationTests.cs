@@ -5,7 +5,6 @@ using Metalama.Backstage.Diagnostics;
 using Metalama.Backstage.Extensibility;
 using Metalama.Backstage.Maintenance;
 using Metalama.Backstage.Testing;
-using Metalama.Backstage.Testing.Services;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Immutable;

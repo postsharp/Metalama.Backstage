@@ -6,7 +6,7 @@ using Metalama.Backstage.Utilities;
 using System;
 using System.Collections.Immutable;
 
-namespace Metalama.Backstage.Testing.Services
+namespace Metalama.Backstage.Testing
 {
     /// <inheritdoc />
     public class TestApplicationInfo : IApplicationInfo

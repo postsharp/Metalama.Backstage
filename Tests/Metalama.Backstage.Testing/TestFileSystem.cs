@@ -12,7 +12,7 @@ using System.Runtime.CompilerServices;
 using System.Threading;
 using IFileSystem = Metalama.Backstage.Extensibility.IFileSystem;
 
-namespace Metalama.Backstage.Testing.Services
+namespace Metalama.Backstage.Testing
 {
     // Resharper disable UnusedMember.Global
 

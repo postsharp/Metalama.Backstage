@@ -3,7 +3,6 @@
 using Metalama.Backstage.Extensibility;
 using Metalama.Backstage.Licensing.Licenses;
 using Metalama.Backstage.Testing;
-using Metalama.Backstage.Testing.Services;
 using System;
 using System.Collections.Immutable;
 using Xunit;

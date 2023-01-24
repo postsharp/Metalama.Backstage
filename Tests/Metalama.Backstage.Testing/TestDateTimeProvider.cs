@@ -4,7 +4,7 @@ using Metalama.Backstage.Extensibility;
 using System;
 using System.Diagnostics;
 
-namespace Metalama.Backstage.Testing.Services
+namespace Metalama.Backstage.Testing
 {
     public class TestDateTimeProvider : IDateTimeProvider
     {
