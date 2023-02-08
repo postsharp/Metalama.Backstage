@@ -3,6 +3,7 @@
 using Metalama.Backstage.Configuration;
 using Metalama.Backstage.Diagnostics;
 using Metalama.Backstage.Extensibility;
+using Metalama.Backstage.Maintenance;
 using Metalama.Backstage.Testing;
 using System;
 using System.IO;
@@ -18,9 +19,10 @@ public class MiniDumpTests : TestsBase
         builder =>
             builder
                 .AddSingleton<IApplicationInfoProvider>( new ApplicationInfoProvider( new TestApplicationInfo() ) )
-                .AddSingleton<IConfigurationManager>( new InMemoryConfigurationManager( builder.ServiceProvider ) ) ) { }
+                .AddSingleton<IConfigurationManager>( new InMemoryConfigurationManager( builder.ServiceProvider ) )
+                .AddSingleton<ITempFileManager>( new TempFileManager( builder.ServiceProvider ) ) ) { }
 
-    [Fact( Skip = "Randomly fails on TeamCity, probably because of old version of DbgHelper." )]
+    [Fact]
     public void WhenWriteFileExists()
     {
         var serviceProvider = this.ServiceProvider;
@@ -34,7 +36,7 @@ public class MiniDumpTests : TestsBase
         }
         catch
         {
-            var dumpFile = dumper.Write();
+            var dumpFile = dumper.Write( new MiniDumpOptions( false ) );
 
             this.Logger.WriteLine( $"Dump file '{dumpFile}' written." );
             Assert.NotNull( dumpFile );

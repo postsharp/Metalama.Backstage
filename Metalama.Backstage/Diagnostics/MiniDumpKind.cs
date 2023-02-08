@@ -28,12 +28,17 @@ public enum MiniDumpKind : uint
     WithThreadInfo = 0x00001000,
     WithCodeSegments = 0x00002000,
     WithoutAuxiliaryState = 0x00004000,
-    WithFullAuxiliaryState = 0x00008000
+    WithFullAuxiliaryState = 0x00008000,
 
     // The following flags have been introduced in  DbgHelp 6.1
 
-    // WithPrivateWriteCopyMemory = 0x00010000,
-    // IgnoreInaccessibleMemory = 0x00020000,
-    // ReSharper disable once CommentTypo
-    // ValidTypeFlags = 0x0003ffff
+    WithPrivateWriteCopyMemory = 0x00010000,
+    IgnoreInaccessibleMemory = 0x00020000,
+    WithTokenInformation = 0x00040000,
+    WithModuleHeaders = 0x00080000,
+    FilterTriage = 0x00100000,
+    WithAvxXStateContext = 0x00200000,
+    WithIptTrace = 0x00400000,
+    ScanInaccessiblePartialPages = 0x00800000,
+    FilterWriteCombinedMemory,
 }

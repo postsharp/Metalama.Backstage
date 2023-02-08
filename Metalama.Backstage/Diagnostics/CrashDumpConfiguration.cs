@@ -15,9 +15,6 @@ public record CrashDumpConfiguration
     public ImmutableDictionary<string, bool> Processes { get; init; } =
         ImmutableDictionary<string, bool>.Empty.WithComparers( StringComparer.OrdinalIgnoreCase );
 
-    [JsonProperty( "flags" )]
-    public ImmutableArray<string> Flags { get; init; } = ImmutableArray<string>.Empty;
-
     [JsonProperty( "exceptionTypes" )]
     public ImmutableArray<string> ExceptionTypes { get; init; } = ImmutableArray<string>.Empty;
 }

@@ -2,6 +2,7 @@
 
 using Metalama.Backstage.Configuration;
 using Metalama.Backstage.Extensibility;
+using Metalama.Backstage.Maintenance;
 using System;
 using System.IO;
 using System.IO.Compression;
@@ -22,8 +23,8 @@ internal class MiniDumper : IMiniDumper
     private readonly ILogger _logger;
     private readonly CrashDumpConfiguration _configuration;
     private readonly bool _isProcessEnabled;
-    private readonly MiniDumpKind _flags;
     private readonly ProcessKind _processKind;
+    private readonly ITempFileManager _tempFileManager;
 
     [StructLayout( LayoutKind.Sequential, Pack = 4 )] // Pack=4 is important! So it works also for x64!
     private struct MiniDumpExceptionInformation
@@ -39,23 +40,11 @@ internal class MiniDumper : IMiniDumper
     {
         this._logger = serviceProvider.GetLoggerFactory().GetLogger( "Dumper" );
         this._configuration = serviceProvider.GetRequiredBackstageService<IConfigurationManager>().Get<DiagnosticsConfiguration>().CrashDumps;
+        this._tempFileManager = serviceProvider.GetRequiredBackstageService<ITempFileManager>();
 
         var applicationInfo = serviceProvider.GetRequiredBackstageService<IApplicationInfoProvider>().CurrentApplication;
         this._processKind = applicationInfo.ProcessKind;
         this._isProcessEnabled = this._configuration.Processes.TryGetValue( applicationInfo.ProcessKind.ToString(), out var isEnabled ) && isEnabled;
-
-        foreach ( var flag in this._configuration.Flags )
-        {
-            if ( Enum.TryParse<MiniDumpKind>( flag, out var parsedFlag ) )
-            {
-                this._flags |= parsedFlag;
-            }
-            else
-            {
-                var possibleValues = string.Join( ",", Enum.GetNames( typeof(MiniDumpKind) ) );
-                this._logger.Warning?.Log( $"Cannot parse the dump flag '{flag}'. The flag was ignored. Possible values are: {possibleValues}." );
-            }
-        }
 
         // The MiniDumper class is instantiated for each project, but the handler must be global.
         // We will use the latest available configuration in the process.
@@ -115,18 +104,15 @@ internal class MiniDumper : IMiniDumper
                        && exception is not TaskCanceledException and not OperationCanceledException
                        && (this._configuration.ExceptionTypes.Contains( exception.GetType().Name ) || this._configuration.ExceptionTypes.Contains( "*" ));
 
-    public string? Write()
+    public string? Write( MiniDumpOptions? options = null )
     {
+        options ??= MiniDumpOptions.Default;
+
         try
         {
-            var directory = Path.Combine( Path.GetTempPath(), "Metalama", "CrashReports" );
-
-            if ( !Directory.Exists( directory ) )
-            {
-                Directory.CreateDirectory( directory );
-            }
-
-            var fileName = Path.Combine( directory, $"{this._processKind}-{Guid.NewGuid()}.dmp" );
+            var directory = this._tempFileManager.GetTempDirectory( "CrashReports", CleanUpStrategy.Always );
+            
+            var fileName = Path.Combine( directory, $"{this._processKind.ToString().ToLowerInvariant()}-{Guid.NewGuid()}.dmp" );
 
             this._logger.Info?.Log( $"Saving a dump to '{fileName}.'" );
 
@@ -144,6 +130,17 @@ internal class MiniDumper : IMiniDumper
                     exp.ExceptionPointers = (IntPtr) getExceptionPointers.Invoke( null, Array.Empty<object>() )!;
                 }
 
+                const MiniDumpKind flags = MiniDumpKind.WithDataSegments |
+                                           MiniDumpKind.WithProcessThreadData |
+                                           MiniDumpKind.WithHandleData |
+                                           MiniDumpKind.WithPrivateReadWriteMemory |
+                                           MiniDumpKind.WithUnloadedModules |
+                                           MiniDumpKind.WithFullMemoryInfo |
+                                           MiniDumpKind.WithThreadInfo |
+                                           MiniDumpKind.FilterMemory |
+                                           MiniDumpKind.WithoutAuxiliaryState |
+                                           MiniDumpKind.WithFullMemory;
+
                 // ReSharper disable once PossibleNullReferenceException
                 var hFile = file.SafeFileHandle.DangerousGetHandle();
 
@@ -151,7 +148,7 @@ internal class MiniDumper : IMiniDumper
                     GetCurrentProcess(),
                     GetCurrentProcessId(),
                     hFile,
-                    (uint) this._flags,
+                    (uint) flags,
                     ref exp,
                     IntPtr.Zero,
                     IntPtr.Zero );
@@ -164,19 +161,26 @@ internal class MiniDumper : IMiniDumper
                 }
             }
 
-            var compressedFileName = fileName + ".gz";
-
-            this._logger.Info?.Log( $"Compressing dump to '{compressedFileName}.'" );
-
-            using ( var readStream = File.OpenRead( fileName ) )
-            using ( var writeStream = new GZipStream( File.OpenWrite( compressedFileName ), CompressionMode.Compress ) )
+            if ( !options.Compress )
             {
-                readStream.CopyTo( writeStream );
+                return fileName;
             }
+            else
+            {
+                var compressedFileName = fileName + ".gz";
 
-            File.Delete( fileName );
+                this._logger.Info?.Log( $"Compressing dump to '{compressedFileName}.'" );
 
-            return compressedFileName;
+                using ( var readStream = File.OpenRead( fileName ) )
+                using ( var writeStream = new GZipStream( File.OpenWrite( compressedFileName ), CompressionMode.Compress ) )
+                {
+                    readStream.CopyTo( writeStream );
+                }
+
+                File.Delete( fileName );
+
+                return compressedFileName;
+            }
         }
         catch ( Exception e )
         {

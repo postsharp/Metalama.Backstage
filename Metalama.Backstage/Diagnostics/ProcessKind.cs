@@ -35,7 +35,7 @@ public enum ProcessKind
     // Resharper disable once UnusedMember.Global
     
     /// <summary>
-    /// <c>Metalama.Workstage.Worker</c>.
+    /// <c>Metalama.Backstage.Worker</c>.
     /// </summary>
     BackstageWorker,
 
