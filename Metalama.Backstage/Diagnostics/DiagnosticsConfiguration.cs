@@ -40,19 +40,6 @@ public record DiagnosticsConfiguration : ConfigurationFile
         this.CrashDumps = new CrashDumpConfiguration()
         {
             Processes = processes,
-            Flags = new[]
-                {
-                    MiniDumpKind.WithDataSegments,
-                    MiniDumpKind.WithProcessThreadData,
-                    MiniDumpKind.WithHandleData,
-                    MiniDumpKind.WithPrivateReadWriteMemory,
-                    MiniDumpKind.WithUnloadedModules,
-                    MiniDumpKind.WithFullMemoryInfo,
-                    MiniDumpKind.WithThreadInfo,
-                    MiniDumpKind.FilterMemory,
-                    MiniDumpKind.WithoutAuxiliaryState
-                }.Select( x => x.ToString() )
-                .ToImmutableArray(),
             ExceptionTypes = ImmutableArray.Create( "*" )
         };
     }

@@ -9,7 +9,7 @@ using Metalama.Backstage.Testing;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 
-namespace Metalama.Backstage.Licensing.Tests
+namespace Metalama.Backstage.Licensing.Tests.Licensing
 {
     internal static class TestLicenses
     {
