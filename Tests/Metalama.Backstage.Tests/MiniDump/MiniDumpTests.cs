@@ -36,11 +36,13 @@ public class MiniDumpTests : TestsBase
         }
         catch
         {
-            var dumpFile = dumper.Write( new MiniDumpOptions( false ) );
+            var dumpFile = dumper.Write();
 
             this.Logger.WriteLine( $"Dump file '{dumpFile}' written." );
             Assert.NotNull( dumpFile );
             Assert.True( File.Exists( dumpFile ) );
+            
+            File.Delete( dumpFile! );
         }
     }
 }
