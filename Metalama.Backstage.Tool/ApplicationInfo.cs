@@ -2,6 +2,8 @@
 
 using Metalama.Backstage.Extensibility;
 
+namespace Metalama.Backstage.Tool;
+
 internal class ApplicationInfo : ApplicationInfoBase
 {
     public ApplicationInfo() : base( typeof(ApplicationInfo).Assembly ) { }

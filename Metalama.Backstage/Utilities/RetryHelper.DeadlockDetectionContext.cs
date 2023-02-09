@@ -45,7 +45,7 @@ public static partial class RetryHelper
             }
         }
 
-        public void OnFatalException(Exception e)
+        public void OnFatalException( Exception e )
         {
             var lockingDetection = this._serviceProvider.GetBackstageService<ILockingProcessDetector>();
 

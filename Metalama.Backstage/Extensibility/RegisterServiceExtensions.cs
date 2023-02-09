@@ -205,10 +205,7 @@ public static class RegisterServiceExtensions
         // Add support services.
         if ( options.AddSupportServices )
         {
-            if ( MiniDumper.IsSupported )
-            {
-                serviceProviderBuilder.AddService( typeof(IMiniDumper), new MiniDumper( serviceProviderBuilder.ServiceProvider ) );
-            }
+            serviceProviderBuilder.AddService( typeof(IMiniDumper), new MiniDumper( serviceProviderBuilder.ServiceProvider ) );
 
             serviceProviderBuilder.AddTelemetryServices();
         }
