@@ -20,9 +20,10 @@ public class MiniDumpTests : TestsBase
             builder
                 .AddSingleton<IApplicationInfoProvider>( new ApplicationInfoProvider( new TestApplicationInfo() ) )
                 .AddSingleton<IConfigurationManager>( new InMemoryConfigurationManager( builder.ServiceProvider ) )
-                .AddSingleton<ITempFileManager>( new TempFileManager( builder.ServiceProvider ) ) ) { }
+                .AddSingleton<ITempFileManager>( new TempFileManager( builder.ServiceProvider ) )
+                .AddSingleton<IPlatformInfo>( new PlatformInfo( builder.ServiceProvider, null ) ) ) { }
 
-    [Fact]
+    [Fact( Skip = "Required dotnet dump on the build agent." )]
     public void WhenWriteFileExists()
     {
         var serviceProvider = this.ServiceProvider;
@@ -41,8 +42,6 @@ public class MiniDumpTests : TestsBase
             this.Logger.WriteLine( $"Dump file '{dumpFile}' written." );
             Assert.NotNull( dumpFile );
             Assert.True( File.Exists( dumpFile ) );
-            
-            File.Delete( dumpFile! );
         }
     }
 }

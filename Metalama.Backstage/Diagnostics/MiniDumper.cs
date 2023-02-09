@@ -3,11 +3,12 @@
 using Metalama.Backstage.Configuration;
 using Metalama.Backstage.Extensibility;
 using Metalama.Backstage.Maintenance;
+using Metalama.Backstage.Utilities;
 using System;
+using System.Diagnostics;
 using System.IO;
 using System.IO.Compression;
 using System.Runtime.ExceptionServices;
-using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -15,8 +16,6 @@ namespace Metalama.Backstage.Diagnostics;
 
 internal class MiniDumper : IMiniDumper
 {
-    public static bool IsSupported => RuntimeInformation.IsOSPlatform( OSPlatform.Windows );
-
     private static int _isAppDomainInitialized;
     private static volatile WeakReference<MiniDumper>? _latestDumper;
 
@@ -25,22 +24,14 @@ internal class MiniDumper : IMiniDumper
     private readonly bool _isProcessEnabled;
     private readonly ProcessKind _processKind;
     private readonly ITempFileManager _tempFileManager;
-
-    [StructLayout( LayoutKind.Sequential, Pack = 4 )] // Pack=4 is important! So it works also for x64!
-    private struct MiniDumpExceptionInformation
-    {
-        public uint ThreadId;
-        public IntPtr ExceptionPointers;
-
-        [MarshalAs( UnmanagedType.Bool )]
-        public bool ClientPointers;
-    }
+    private readonly IPlatformInfo _platformInfo;
 
     public MiniDumper( IServiceProvider serviceProvider )
     {
         this._logger = serviceProvider.GetLoggerFactory().GetLogger( "Dumper" );
         this._configuration = serviceProvider.GetRequiredBackstageService<IConfigurationManager>().Get<DiagnosticsConfiguration>().CrashDumps;
         this._tempFileManager = serviceProvider.GetRequiredBackstageService<ITempFileManager>();
+        this._platformInfo = serviceProvider.GetRequiredBackstageService<IPlatformInfo>();
 
         var applicationInfo = serviceProvider.GetRequiredBackstageService<IApplicationInfoProvider>().CurrentApplication;
         this._processKind = applicationInfo.ProcessKind;
@@ -74,35 +65,10 @@ internal class MiniDumper : IMiniDumper
         }
     }
 
-    [DllImport(
-        "dbghelp.dll",
-        EntryPoint = "MiniDumpWriteDump",
-        CallingConvention = CallingConvention.StdCall,
-        CharSet = CharSet.Unicode,
-        ExactSpelling = true,
-        SetLastError = true )]
-    private static extern bool MiniDumpWriteDump(
-        IntPtr hProcess,
-        uint processId,
-        IntPtr hFile,
-        uint dumpType,
-        ref MiniDumpExceptionInformation expParam,
-        IntPtr userStreamParam,
-        IntPtr callbackParam );
-
-    [DllImport( "kernel32.dll", EntryPoint = "GetCurrentThreadId", ExactSpelling = true )]
-    private static extern uint GetCurrentThreadId();
-
-    [DllImport( "kernel32.dll", EntryPoint = "GetCurrentProcess", ExactSpelling = true )]
-    private static extern IntPtr GetCurrentProcess();
-
-    [DllImport( "kernel32.dll", EntryPoint = "GetCurrentProcessId", ExactSpelling = true )]
-    private static extern uint GetCurrentProcessId();
-
     public bool MustWrite( Exception exception )
-        => IsSupported && this._isProcessEnabled
-                       && exception is not TaskCanceledException and not OperationCanceledException
-                       && (this._configuration.ExceptionTypes.Contains( exception.GetType().Name ) || this._configuration.ExceptionTypes.Contains( "*" ));
+        => this._isProcessEnabled
+           && exception is not TaskCanceledException and not OperationCanceledException
+           && (this._configuration.ExceptionTypes.Contains( exception.GetType().Name ) || this._configuration.ExceptionTypes.Contains( "*" ));
 
     public string? Write( MiniDumpOptions? options = null )
     {
@@ -111,54 +77,18 @@ internal class MiniDumper : IMiniDumper
         try
         {
             var directory = this._tempFileManager.GetTempDirectory( "CrashReports", CleanUpStrategy.Always );
-            
+
             var fileName = Path.Combine( directory, $"{this._processKind.ToString().ToLowerInvariant()}-{Guid.NewGuid()}.dmp" );
 
             this._logger.Info?.Log( $"Saving a dump to '{fileName}.'" );
 
-            using ( var file = new FileStream( fileName, FileMode.Create, FileAccess.Write, FileShare.None ) )
+            if ( !ToolInvocationHelper.InvokeTool(
+                    this._logger,
+                    this._platformInfo.DotNetExePath,
+                    $"dump collect -p {Process.GetCurrentProcess().Id} -o \"{fileName}\" --type Heap",
+                    null ) )
             {
-                MiniDumpExceptionInformation exp = default;
-                exp.ThreadId = GetCurrentThreadId();
-                exp.ClientPointers = false;
-
-                // Marshal.GetExceptionPointer is not defined in .NET Standard but is present in both .NET Framework and .NET Core.
-                var getExceptionPointers = typeof(Marshal).GetMethod( "GetExceptionPointers" );
-
-                if ( getExceptionPointers != null )
-                {
-                    exp.ExceptionPointers = (IntPtr) getExceptionPointers.Invoke( null, Array.Empty<object>() )!;
-                }
-
-                const MiniDumpKind flags = MiniDumpKind.WithDataSegments |
-                                           MiniDumpKind.WithProcessThreadData |
-                                           MiniDumpKind.WithHandleData |
-                                           MiniDumpKind.WithPrivateReadWriteMemory |
-                                           MiniDumpKind.WithUnloadedModules |
-                                           MiniDumpKind.WithFullMemoryInfo |
-                                           MiniDumpKind.WithThreadInfo |
-                                           MiniDumpKind.FilterMemory |
-                                           MiniDumpKind.WithoutAuxiliaryState |
-                                           MiniDumpKind.WithFullMemory;
-
-                // ReSharper disable once PossibleNullReferenceException
-                var hFile = file.SafeFileHandle.DangerousGetHandle();
-
-                var bRet = MiniDumpWriteDump(
-                    GetCurrentProcess(),
-                    GetCurrentProcessId(),
-                    hFile,
-                    (uint) flags,
-                    ref exp,
-                    IntPtr.Zero,
-                    IntPtr.Zero );
-
-                if ( !bRet )
-                {
-                    this._logger.Error?.Log( $"MiniDumpWriteDump has failed with error code 0x{Marshal.GetLastWin32Error():x8}." );
-
-                    return null;
-                }
+                return null;
             }
 
             if ( !options.Compress )
