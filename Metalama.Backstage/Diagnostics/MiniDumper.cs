@@ -74,49 +74,52 @@ internal class MiniDumper : IMiniDumper
     {
         options ??= MiniDumpOptions.Default;
 
-        try
+        using ( MutexHelper.WithGlobalLock( "MiniDump" ) )
         {
-            var directory = this._tempFileManager.GetTempDirectory( "CrashReports", CleanUpStrategy.Always );
-
-            var fileName = Path.Combine( directory, $"{this._processKind.ToString().ToLowerInvariant()}-{Guid.NewGuid()}.dmp" );
-
-            this._logger.Info?.Log( $"Saving a dump to '{fileName}.'" );
-
-            if ( !ToolInvocationHelper.InvokeTool(
-                    this._logger,
-                    this._platformInfo.DotNetExePath,
-                    $"dump collect -p {Process.GetCurrentProcess().Id} -o \"{fileName}\" --type Heap",
-                    null ) )
+            try
             {
-                return null;
-            }
+                var directory = this._tempFileManager.GetTempDirectory( "CrashReports", CleanUpStrategy.Always );
 
-            if ( !options.Compress )
-            {
-                return fileName;
-            }
-            else
-            {
-                var compressedFileName = fileName + ".gz";
+                var fileName = Path.Combine( directory, $"{this._processKind.ToString().ToLowerInvariant()}-{Guid.NewGuid()}.dmp" );
 
-                this._logger.Info?.Log( $"Compressing dump to '{compressedFileName}.'" );
+                this._logger.Info?.Log( $"Saving a dump to '{fileName}.'" );
 
-                using ( var readStream = File.OpenRead( fileName ) )
-                using ( var writeStream = new GZipStream( File.OpenWrite( compressedFileName ), CompressionMode.Compress ) )
+                if ( !ToolInvocationHelper.InvokeTool(
+                        this._logger,
+                        this._platformInfo.DotNetExePath,
+                        $"dump collect -p {Process.GetCurrentProcess().Id} -o \"{fileName}\" --type Heap",
+                        null ) )
                 {
-                    readStream.CopyTo( writeStream );
+                    return null;
                 }
 
-                File.Delete( fileName );
+                if ( !options.Compress )
+                {
+                    return fileName;
+                }
+                else
+                {
+                    var compressedFileName = fileName + ".gz";
 
-                return compressedFileName;
+                    this._logger.Info?.Log( $"Compressing dump to '{compressedFileName}.'" );
+
+                    using ( var readStream = File.OpenRead( fileName ) )
+                    using ( var writeStream = new GZipStream( File.OpenWrite( compressedFileName ), CompressionMode.Compress ) )
+                    {
+                        readStream.CopyTo( writeStream );
+                    }
+
+                    File.Delete( fileName );
+
+                    return compressedFileName;
+                }
             }
-        }
-        catch ( Exception e )
-        {
-            this._logger.Error?.Log( e.ToString() );
+            catch ( Exception e )
+            {
+                this._logger.Error?.Log( e.ToString() );
 
-            return null;
+                return null;
+            }
         }
     }
 }
