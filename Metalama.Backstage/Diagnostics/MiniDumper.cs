@@ -87,7 +87,7 @@ internal class MiniDumper : IMiniDumper
                 if ( !ToolInvocationHelper.InvokeTool(
                         this._logger,
                         this._platformInfo.DotNetExePath,
-                        $"dump collect -p {Process.GetCurrentProcess().Id} -o \"{fileName}\" --type Heap",
+                        $"dump collect -p {Process.GetCurrentProcess().Id} -o \"{fileName}\"",
                         null ) )
                 {
                     return null;
