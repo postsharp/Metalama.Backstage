@@ -8,6 +8,7 @@ using System;
 using System.Diagnostics;
 using System.IO;
 using System.IO.Compression;
+using System.Net;
 using System.Runtime.ExceptionServices;
 using System.Threading;
 using System.Threading.Tasks;
@@ -67,7 +68,9 @@ internal class MiniDumper : IMiniDumper
 
     public bool MustWrite( Exception exception )
         => this._isProcessEnabled
-           && exception is not TaskCanceledException and not OperationCanceledException
+           && exception is not (TaskCanceledException or OperationCanceledException or IOException or WebException)
+           && !(exception is AggregateException { InnerExceptions.Count: 1 } aggregateException 
+                && !this.MustWrite( aggregateException.InnerException! ))
            && (this._configuration.ExceptionTypes.Contains( exception.GetType().Name ) || this._configuration.ExceptionTypes.Contains( "*" ));
 
     public string? Write( MiniDumpOptions? options = null )
