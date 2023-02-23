@@ -42,6 +42,6 @@ public static class BackstageServiceFactory
         }
     }
 
-    public static ILicenseConsumptionManager CreateLicenseConsumptionManager( LicensingInitializationOptions options )
-        => LicenseConsumptionManagerFactory.Create( ServiceProvider, options );
+    public static ILicenseConsumptionService CreateLicenseConsumptionService( LicensingInitializationOptions options )
+        => LicenseConsumptionServiceFactory.Create( ServiceProvider, options );
 }

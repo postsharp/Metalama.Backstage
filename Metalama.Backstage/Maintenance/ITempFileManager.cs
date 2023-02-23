@@ -7,5 +7,5 @@ namespace Metalama.Backstage.Maintenance;
 
 public interface ITempFileManager : IBackstageService
 {
-    string GetTempDirectory( string subdirectory, CleanUpStrategy cleanUpStrategy, Guid? guid = null );
+    string GetTempDirectory( string subdirectory, CleanUpStrategy cleanUpStrategy, Guid? guid = null, bool versionNeutral = false );
 }

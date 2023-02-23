@@ -141,7 +141,7 @@ public static class RegisterServiceExtensions
             serviceProviderBuilder.AddSingleton<ILicenseAuditManager>( new LicenseAuditManager( serviceProviderBuilder.ServiceProvider ) );
         }
 
-        var licenseConsumptionManager = LicenseConsumptionManagerFactory.Create(
+        var licenseConsumptionManager = LicenseConsumptionServiceFactory.Create(
             serviceProviderBuilder.ServiceProvider,
             options );
 

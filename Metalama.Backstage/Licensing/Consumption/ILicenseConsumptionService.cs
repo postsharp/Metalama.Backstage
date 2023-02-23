@@ -1,23 +1,17 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. See the LICENSE.md file in the root directory of this repository root for details.
 
+using JetBrains.Annotations;
 using Metalama.Backstage.Extensibility;
 using System.Collections.Generic;
 
 namespace Metalama.Backstage.Licensing.Consumption
 {
     /// <summary>
-    /// Manages license consumption.
+    /// Exposes a service to verify the current license and consume features from iut.
     /// </summary>
-    public interface ILicenseConsumptionManager : IBackstageService
+    [PublicAPI]
+    public interface ILicenseConsumptionService : IBackstageService
     {
-        /// <summary>
-        /// Gets redistribution license key if available.
-        /// </summary>
-        /// <remarks>
-        /// This license key is to be embedded into an output assembly.
-        /// </remarks>
-        string? RedistributionLicenseKey { get; }
-
         /// <summary>
         /// Gets the list of licensing messages that have been emitted when calling <see cref="CanConsume"/> or when initializing the component.
         /// </summary>
@@ -39,5 +33,11 @@ namespace Metalama.Backstage.Licensing.Consumption
         /// This method serves for validation of redistribution license keys embedded in referenced aspect libraries.
         /// </remarks>
         bool ValidateRedistributionLicenseKey( string redistributionLicenseKey, string aspectClassNamespace );
+
+        bool IsTrialLicense { get; }
+
+        bool IsRedistributionLicense { get; }
+
+        string? LicenseString { get; }
     }
 }

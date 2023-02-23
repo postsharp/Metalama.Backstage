@@ -6,6 +6,7 @@ using Metalama.Backstage.Licensing.Consumption.Sources;
 using Metalama.Backstage.Licensing.Tests.Licensing.Licenses;
 using Metalama.Backstage.Licensing.Tests.Licensing.LicenseSources;
 using System;
+using System.Linq;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -26,7 +27,7 @@ public abstract class LicenseConsumptionManagerTestsBase : LicensingTestsBase
         return new TestLicense( license! );
     }
 
-    private protected ILicenseConsumptionManager CreateConsumptionManager( TestLicense license )
+    private protected ILicenseConsumptionService CreateConsumptionManager( TestLicense license )
     {
         // ReSharper disable once CoVariantArrayConversion
         var licenseSource = new TestLicenseSource( "test", license );
@@ -34,28 +35,29 @@ public abstract class LicenseConsumptionManagerTestsBase : LicensingTestsBase
         return this.CreateConsumptionManager( licenseSource );
     }
 
-    private protected ILicenseConsumptionManager CreateConsumptionManager( params ILicenseSource[] licenseSources )
-        => new LicenseConsumptionManager( this.ServiceProvider, licenseSources );
+    private protected ILicenseConsumptionService CreateConsumptionManager( params ILicenseSource[] licenseSources )
+        => new LicenseConsumptionService( this.ServiceProvider, licenseSources );
 
-    private protected ILicenseConsumptionManager CreateConsumptionManager() => new LicenseConsumptionManager( this.ServiceProvider );
+    private protected ILicenseConsumptionService CreateConsumptionManager()
+        => new LicenseConsumptionService( this.ServiceProvider, Enumerable.Empty<ILicenseSource>() );
 
     private protected static void TestConsumption(
-        ILicenseConsumptionManager manager,
+        ILicenseConsumptionService service,
         LicenseRequirementTestEnum requestedRequirement,
         bool expectedCanConsume )
         => TestConsumption(
-            manager,
+            service,
             requestedRequirement,
             "Foo",
             expectedCanConsume );
 
     private protected static void TestConsumption(
-        ILicenseConsumptionManager manager,
+        ILicenseConsumptionService service,
         LicenseRequirementTestEnum requestedRequirement,
         string requiredNamespace,
         bool expectedCanConsume )
     {
-        var actualCanConsume = manager.CanConsume( LicenseRequirementHelper.GetRequirement( requestedRequirement ), requiredNamespace );
+        var actualCanConsume = service.CanConsume( LicenseRequirementHelper.GetRequirement( requestedRequirement ), requiredNamespace );
         Assert.Equal( expectedCanConsume, actualCanConsume );
     }
 }

@@ -20,7 +20,7 @@ public class LicenseSourcePriorityTests : LicensingTestsBase
 
     public LicenseSourcePriorityTests( ITestOutputHelper logger ) : base( logger, initializeConfiguration: false ) { }
 
-    private ILicenseConsumptionManager CreateConsumptionManager( bool isUnattendedProcess, string? projectLicense, string? userLicense, bool isPreview )
+    private ILicenseConsumptionService CreateConsumptionManager( bool isUnattendedProcess, string? projectLicense, string? userLicense, bool isPreview )
     {
         var serviceCollection = this.CreateServiceCollectionClone();
 
@@ -44,7 +44,7 @@ public class LicenseSourcePriorityTests : LicensingTestsBase
 
         var options = new LicensingInitializationOptions() { ProjectLicense = projectLicense, DisableLicenseAudit = true };
 
-        return LicenseConsumptionManagerFactory.Create( serviceProviderBuilder.ServiceProvider, options );
+        return LicenseConsumptionServiceFactory.Create( serviceProviderBuilder.ServiceProvider, options );
     }
 
     [Fact]

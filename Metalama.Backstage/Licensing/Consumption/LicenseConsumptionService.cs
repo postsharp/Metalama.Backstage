@@ -11,7 +11,7 @@ using System.Collections.Generic;
 namespace Metalama.Backstage.Licensing.Consumption;
 
 /// <inheritdoc />
-internal class LicenseConsumptionManager : ILicenseConsumptionManager
+internal class LicenseConsumptionService : ILicenseConsumptionService
 {
     private readonly ILogger _logger;
     private readonly List<LicensingMessage> _messages = new();
@@ -19,14 +19,6 @@ internal class LicenseConsumptionManager : ILicenseConsumptionManager
     private readonly Dictionary<string, NamespaceLicenseInfo> _embeddedRedistributionLicensesCache = new();
     private readonly LicenseConsumptionData? _license;
     private readonly NamespaceLicenseInfo? _licensedNamespace;
-
-    /// <summary>
-    /// Initializes a new instance of the <see cref="LicenseConsumptionManager"/> class.
-    /// </summary>
-    /// <param name="services">Services.</param>
-    /// <param name="licenseSources">License sources.</param>
-    public LicenseConsumptionManager( IServiceProvider services, params ILicenseSource[] licenseSources )
-        : this( services, (IEnumerable<ILicenseSource>) licenseSources ) { }
 
     private void ReportMessage( LicensingMessage message )
     {
@@ -43,11 +35,11 @@ internal class LicenseConsumptionManager : ILicenseConsumptionManager
     }
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="LicenseConsumptionManager"/> class.
+    /// Initializes a new instance of the <see cref="LicenseConsumptionService"/> class.
     /// </summary>
     /// <param name="services">Services.</param>
     /// <param name="licenseSources">License sources.</param>
-    public LicenseConsumptionManager( IServiceProvider services, IEnumerable<ILicenseSource> licenseSources )
+    public LicenseConsumptionService( IServiceProvider services, IEnumerable<ILicenseSource> licenseSources )
     {
         this._logger = services.GetLoggerFactory().Licensing();
         this._licenseFactory = new LicenseFactory( services );
@@ -75,7 +67,6 @@ internal class LicenseConsumptionManager : ILicenseConsumptionManager
 
             this._license = data;
             this._licensedNamespace = string.IsNullOrEmpty( data.LicensedNamespace ) ? null : new NamespaceLicenseInfo( data.LicensedNamespace! );
-            this.RedistributionLicenseKey = data.IsRedistributable ? data.LicenseString : null;
 
             var licenseAuditManager = services.GetBackstageService<ILicenseAuditManager>();
             licenseAuditManager?.ReportLicense( data );
@@ -152,8 +143,11 @@ internal class LicenseConsumptionManager : ILicenseConsumptionManager
         return licensedNamespace.AllowsNamespace( aspectClassNamespace );
     }
 
-    /// <inheritdoc />
-    public string? RedistributionLicenseKey { get; }
+    public bool IsTrialLicense => this._license?.LicenseType == LicenseType.Evaluation;
+
+    public bool IsRedistributionLicense => this._license?.IsRedistributable == true;
+
+    public string? LicenseString => this._license?.LicenseString;
 
     /// <inheritdoc />
     public IReadOnlyList<LicensingMessage> Messages => this._messages;

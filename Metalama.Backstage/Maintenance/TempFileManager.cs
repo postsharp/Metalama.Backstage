@@ -147,6 +147,37 @@ public class TempFileManager : ITempFileManager
                 {
                     return true;
                 }
+                else if ( cleanUpFile.Strategy == CleanUpStrategy.FileOneMonthAfterCreation )
+                {
+                    var remainsAnyFile = false;
+
+                    foreach ( var file in this._fileSystem.GetFiles( directory ) )
+                    {
+                        if ( file == cleanUpFilePath )
+                        {
+                            continue;
+                        }
+
+                        if ( this._fileSystem.GetFileLastWriteTime( file ) < DateTime.Now.AddDays( -30 ) )
+                        {
+                            try
+                            {
+                                this._logger.Trace?.Log( $"Deleting '{file}'." );
+                            }
+                            catch ( Exception e )
+                            {
+                                this._logger.Warning?.Log( $"Cannot delete '{file}': {e.Message}" );
+                                remainsAnyFile = true;
+                            }
+                        }
+                        else
+                        {
+                            remainsAnyFile = true;
+                        }
+                    }
+
+                    return !remainsAnyFile;
+                }
                 else
                 {
                     this._logger.Trace?.Log( $"The directory '{directory}' has been recently used and will not be deleted unless you use the --all option." );
@@ -193,13 +224,18 @@ public class TempFileManager : ITempFileManager
             $"Directory '{directory}' could not be renamed, this is likely caused by another directory with same name exists in the same location." );
     }
 
-    public string GetTempDirectory( string subdirectory, CleanUpStrategy cleanUpStrategy, Guid? guid )
+    public string GetTempDirectory( string subdirectory, CleanUpStrategy cleanUpStrategy, Guid? guid, bool versionNeutral )
     {
-        var directory = Path.Combine(
-            this._standardDirectories.TempDirectory,
-            subdirectory,
-            this._version,
-            guid?.ToString() ?? "" );
+        var directory = versionNeutral
+            ? Path.Combine(
+                this._standardDirectories.TempDirectory,
+                subdirectory,
+                guid?.ToString() ?? "" )
+            : Path.Combine(
+                this._standardDirectories.TempDirectory,
+                subdirectory,
+                this._version,
+                guid?.ToString() ?? "" );
 
         var cleanUpFilePath = Path.Combine( directory, "cleanup.json" );
 
