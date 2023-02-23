@@ -6,9 +6,9 @@ using System.Collections.Generic;
 
 namespace Metalama.Backstage.Licensing.Consumption;
 
-internal static class LicenseConsumptionManagerFactory
+internal static class LicenseConsumptionServiceFactory
 {
-    public static ILicenseConsumptionManager Create(
+    public static ILicenseConsumptionService Create(
         IServiceProvider serviceProvider,
         LicensingInitializationOptions options )
     {
@@ -35,6 +35,6 @@ internal static class LicenseConsumptionManagerFactory
             licenseSources.Add( new PreviewLicenseSource( serviceProvider ) );
         }
 
-        return new LicenseConsumptionManager( serviceProvider, licenseSources );
+        return new LicenseConsumptionService( serviceProvider, licenseSources );
     }
 }

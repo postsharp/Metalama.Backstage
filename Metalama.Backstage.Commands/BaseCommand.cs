@@ -6,6 +6,7 @@ using Metalama.Backstage.Extensibility;
 using Metalama.Backstage.Telemetry;
 using Spectre.Console.Cli;
 using System;
+using System.Diagnostics;
 
 namespace Metalama.Backstage.Commands
 {
@@ -18,6 +19,11 @@ namespace Metalama.Backstage.Commands
         public sealed override int Execute( CommandContext context, [System.Diagnostics.CodeAnalysis.NotNull] T settings )
 #pragma warning restore CS8765
         {
+            if ( settings.Debug )
+            {
+                Debugger.Launch();
+            }
+
             var extendedContext = new ExtendedCommandContext( context, settings );
 
             try
@@ -43,7 +49,7 @@ namespace Metalama.Backstage.Commands
                     throw new AggregateException( e, reporterException );
                 }
 
-                return -1;
+                throw;
             }
             finally
             {

@@ -44,7 +44,7 @@ public class RegisterServiceExtensionsTests
 
         if ( addLicensing )
         {
-            Assert.NotNull( serviceProvider.GetBackstageService<ILicenseConsumptionManager>() );
+            Assert.NotNull( serviceProvider.GetBackstageService<ILicenseConsumptionService>() );
 
             if ( disableLicenseAudit )
             {
@@ -57,7 +57,7 @@ public class RegisterServiceExtensionsTests
         }
         else
         {
-            Assert.Null( serviceProvider.GetBackstageService<ILicenseConsumptionManager>() );
+            Assert.Null( serviceProvider.GetBackstageService<ILicenseConsumptionService>() );
             Assert.Null( serviceProvider.GetBackstageService<ILicenseAuditManager>() );
         }
 

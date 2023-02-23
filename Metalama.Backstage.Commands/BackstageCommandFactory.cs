@@ -11,7 +11,11 @@ namespace Metalama.Backstage.Commands;
 
 public static class BackstageCommandFactory
 {
-    public static void ConfigureCommandApp( CommandApp app, BackstageCommandOptions options, Action<IConfigurator>? configureMoreCommands = null )
+    public static void ConfigureCommandApp(
+        CommandApp app,
+        BackstageCommandOptions options,
+        Action<IConfigurator>? configureMoreCommands = null,
+        Action<string, IConfigurator<CommandSettings>>? configureBranch = null )
     {
         app.Configure(
             appConfig =>
@@ -25,6 +29,8 @@ public static class BackstageCommandFactory
                     "license",
                     license =>
                     {
+                        license.SetDescription( "Register or register a license key, switch to Metalama Free or Metalama Trial, analyzes credit consumption." );
+
                         license.AddCommand<ListLicensesCommand>( "list" )
                             .WithData( options )
                             .WithDescription( "Lists registered license." );
@@ -44,12 +50,16 @@ public static class BackstageCommandFactory
                         license.AddCommand<RegisterFreeCommand>( "free" )
                             .WithData( options )
                             .WithDescription( "Switches to Metalama Free." );
+
+                        configureBranch?.Invoke( "license", license );
                     } );
 
                 appConfig.AddBranch(
                     "config",
                     config =>
                     {
+                        config.SetDescription( "Lists, edits, prints, resets configuration settings." );
+
                         config.AddCommand<ListConfigurationsCommand>( "list" )
                             .WithData( options )
                             .WithDescription( "Lists the supported JSON configuration files" );
@@ -69,6 +79,8 @@ public static class BackstageCommandFactory
                         config.AddCommand<ValidateConfigurationCommand>( "validate" )
                             .WithData( options )
                             .WithDescription( "Validates the content of the given configuration file." );
+
+                        configureBranch?.Invoke( "config", config );
                     } );
 
                 appConfig.AddCommand<CleanUpCommand>( "cleanup" )
@@ -83,6 +95,8 @@ public static class BackstageCommandFactory
                     "telemetry",
                     telemetry =>
                     {
+                        telemetry.SetDescription( "Manages the telemetry options and upload queue." );
+
                         telemetry.AddCommand<EnableTelemetryCommand>( "enable" ).WithData( options ).WithDescription( "Enables telemetry." );
                         telemetry.AddCommand<DisableTelemetryCommand>( "disable" ).WithData( options ).WithDescription( "Disables telemetry." );
 
@@ -96,6 +110,8 @@ public static class BackstageCommandFactory
                         telemetry.AddCommand<TelemetryStatusCommand>( "status" )
                             .WithData( options )
                             .WithDescription( "Displays the configuration and the status of telemetry." );
+
+                        configureBranch?.Invoke( "telemetry", telemetry );
                     } );
 
                 configureMoreCommands?.Invoke( appConfig );
