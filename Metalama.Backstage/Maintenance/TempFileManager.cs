@@ -224,30 +224,29 @@ public class TempFileManager : ITempFileManager
             $"Directory '{directory}' could not be renamed, this is likely caused by another directory with same name exists in the same location." );
     }
 
-    public string GetTempDirectory( string subdirectory, CleanUpStrategy cleanUpStrategy, Guid? guid, bool versionNeutral )
+    public string GetTempDirectory(
+        string directory,
+        CleanUpStrategy cleanUpStrategy,
+        string? subdirectory = null,
+        bool versionNeutral = false )
     {
-        var directory = versionNeutral
-            ? Path.Combine(
+        var directoryFullPath = Path.Combine(
                 this._standardDirectories.TempDirectory,
-                subdirectory,
-                guid?.ToString() ?? "" )
-            : Path.Combine(
-                this._standardDirectories.TempDirectory,
-                subdirectory,
-                this._version,
-                guid?.ToString() ?? "" );
+                directory,
+                versionNeutral ? "" : this._version,
+                subdirectory ?? "" );
 
-        var cleanUpFilePath = Path.Combine( directory, "cleanup.json" );
+        var cleanUpFilePath = Path.Combine( directoryFullPath, "cleanup.json" );
 
-        if ( !Directory.Exists( directory ) || !File.Exists( cleanUpFilePath ) )
+        if ( !Directory.Exists( directoryFullPath ) || !File.Exists( cleanUpFilePath ) )
         {
-            using ( MutexHelper.WithGlobalLock( directory ) )
+            using ( MutexHelper.WithGlobalLock( directoryFullPath ) )
             {
-                if ( !Directory.Exists( directory ) || !File.Exists( cleanUpFilePath ) )
+                if ( !Directory.Exists( directoryFullPath ) || !File.Exists( cleanUpFilePath ) )
                 {
-                    if ( !Directory.Exists( directory ) )
+                    if ( !Directory.Exists( directoryFullPath ) )
                     {
-                        Directory.CreateDirectory( directory );
+                        Directory.CreateDirectory( directoryFullPath );
                     }
 
                     if ( !File.Exists( cleanUpFilePath ) )
@@ -255,7 +254,7 @@ public class TempFileManager : ITempFileManager
                         var file = new CleanUpFile() { Strategy = cleanUpStrategy };
                         File.WriteAllText( cleanUpFilePath, JsonConvert.SerializeObject( file ) );
 
-                        return directory;
+                        return directoryFullPath;
                     }
                 }
             }
@@ -269,6 +268,6 @@ public class TempFileManager : ITempFileManager
             }
         }
 
-        return directory;
+        return directoryFullPath;
     }
 }
