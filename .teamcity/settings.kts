@@ -29,7 +29,8 @@ object DebugBuild : BuildType({
 
     vcs {
         root(DslContext.settingsRoot)
-    }
+
+        }
 
     steps {
         // Step to kill all dotnet or VBCSCompiler processes that might be locking files we delete in during cleanup.
@@ -83,7 +84,8 @@ object ReleaseBuild : BuildType({
 
     vcs {
         root(DslContext.settingsRoot)
-    }
+
+        }
 
     steps {
         // Step to kill all dotnet or VBCSCompiler processes that might be locking files we delete in during cleanup.
@@ -126,7 +128,8 @@ object PublicBuild : BuildType({
 
     vcs {
         root(DslContext.settingsRoot)
-    }
+
+        }
 
     steps {
         // Step to kill all dotnet or VBCSCompiler processes that might be locking files we delete in during cleanup.
@@ -169,7 +172,8 @@ object PublicDeployment : BuildType({
 
     vcs {
         root(DslContext.settingsRoot)
-    }
+
+        }
 
     steps {
         powerShell {
@@ -220,7 +224,8 @@ object VersionBump : BuildType({
 
     vcs {
         root(DslContext.settingsRoot)
-    }
+
+        }
 
     steps {
         powerShell {
