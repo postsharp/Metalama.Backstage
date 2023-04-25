@@ -76,7 +76,7 @@ internal sealed class PreviewLicenseSource : ILicenseSource, ILicense
         {
             reportMessage(
                 new LicensingMessage(
-                    $"Your preview build of {latestPrereleaseComponent.Name} {latestPrereleaseComponent.Version} has expired on {latestPrereleaseComponent.BuildDate!.Value.AddDays( PreviewLicensePeriod ):d}. To continue using {latestPrereleaseComponent.Name}, update it to a newer preview build, register a license key, or switch to Metalama Free. See https://doc.metalama.net/deployment/register-license for details.",
+                    $"Your preview build of {latestPrereleaseComponent.Name} {latestPrereleaseComponent.Version} has expired on {latestPrereleaseComponent.BuildDate!.Value.AddDays( PreviewLicensePeriod ):d}. To continue using {latestPrereleaseComponent.Name}, update it to a newer preview build, register a license key, or switch to Metalama Free. See https://postsharp.net/links/metalama-register-license for details.",
                     true ) );
 
             this._messageReported = true;
@@ -109,7 +109,7 @@ internal sealed class PreviewLicenseSource : ILicenseSource, ILicense
         {
             reportMessage(
                 new LicensingMessage(
-                    $"Your preview build of {latestPrereleaseComponent.Name} {latestPrereleaseComponent.Version} will expire on {latestPrereleaseComponent.BuildDate!.Value.AddDays( PreviewLicensePeriod ):d}. Please update {latestPrereleaseComponent.Name} to a newer preview, register a license key, or switch to Metalama Free. See https://doc.metalama.net/deployment/register-license for details" ) );
+                    $"Your preview build of {latestPrereleaseComponent.Name} {latestPrereleaseComponent.Version} will expire on {latestPrereleaseComponent.BuildDate!.Value.AddDays( PreviewLicensePeriod ):d}. Please update {latestPrereleaseComponent.Name} to a newer preview, register a license key, or switch to Metalama Free. See https://postsharp.net/links/metalama-register-license for details" ) );
 
             this._messageReported = true;
         }
