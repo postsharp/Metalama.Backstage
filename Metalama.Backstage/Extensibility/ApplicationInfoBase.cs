@@ -19,21 +19,22 @@ namespace Metalama.Backstage.Extensibility
         {
             var reader = AssemblyMetadataReader.GetInstance( metadataAssembly );
             this.Version = reader.PackageVersion;
-            
+
             // IsPrerelease flag can be overridden for testing purposes.
             var isPrereleaseEnvironmentVariableValue = Environment.GetEnvironmentVariable( "METALAMA_IS_PRERELEASE" );
-            bool? isPrereleaseOverriddenValue = isPrereleaseEnvironmentVariableValue == null ? null : bool.Parse( isPrereleaseEnvironmentVariableValue ); 
+            bool? isPrereleaseOverriddenValue = isPrereleaseEnvironmentVariableValue == null ? null : bool.Parse( isPrereleaseEnvironmentVariableValue );
 #pragma warning disable CA1307
-            this.IsPrerelease = isPrereleaseOverriddenValue ?? this.Version?.Contains( "-" );
+            this.IsPrerelease = isPrereleaseOverriddenValue
+                                ?? (this.Version?.Contains( "-" ) == true && !this.Version.EndsWith( "-rc", StringComparison.Ordinal ));
 #pragma warning restore CA1307
-            
+
             // BuildDate value can be overridden for testing purposes.
             var buildDateEnvironmentVariableValue = Environment.GetEnvironmentVariable( "METALAMA_BUILD_DATE" );
 
             DateTime? buildDateOverriddenValue = buildDateEnvironmentVariableValue == null
                 ? null
                 : DateTime.Parse( buildDateEnvironmentVariableValue, CultureInfo.InvariantCulture, DateTimeStyles.AssumeLocal );
-            
+
             this.BuildDate = buildDateOverriddenValue ?? reader.BuildDate;
             this.Company = reader.Company;
 
