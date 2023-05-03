@@ -8,7 +8,7 @@ namespace Metalama.Backstage.Testing;
 
 public class TestProcessExecutor : IProcessExecutor
 {
-    public readonly List<ProcessStartInfo> StartedProcesses = new();
+    public List<ProcessStartInfo> StartedProcesses { get; } = new();
 
     public Process? Start( ProcessStartInfo startInfo )
     {
