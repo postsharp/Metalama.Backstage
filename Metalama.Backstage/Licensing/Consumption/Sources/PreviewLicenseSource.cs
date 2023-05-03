@@ -31,18 +31,6 @@ internal sealed class PreviewLicenseSource : ILicenseSource, ILicense
 
     public ILicense? GetLicense( Action<LicensingMessage> reportMessage )
     {
-        // These environment variables exist for manual testing and are not documented to users.
-        const string disablePreviewLicenseEnvironmentVariableName = "METALAMA_DISABLE_PREVIEW_LICENSE";
-        const string forcePreviewLicenseWarningEnvironmentVariableName = "METALAMA_FORCE_PREVIEW_LICENSE_WARNING";
-        const string forcePreviewLicenseErrorEnvironmentVariableName = "METALAMA_FORCE_PREVIEW_LICENSE_ERROR";
-
-        if ( Environment.GetEnvironmentVariable( disablePreviewLicenseEnvironmentVariableName ) != null )
-        {
-            this._logger.Trace?.Log( $"PreviewLicenseSource skipped: disabled using '{disablePreviewLicenseEnvironmentVariableName}' environment variable." );
-
-            return null;
-        }
-
         var latestPrereleaseComponent = this.GetLatestPrereleaseComponent();
 
         if ( latestPrereleaseComponent == null )
@@ -56,24 +44,10 @@ internal sealed class PreviewLicenseSource : ILicenseSource, ILicense
 
         var age = (int) (this._time.Now - latestPrereleaseComponent.BuildDate!.Value).TotalDays;
 
-        var emitError = false;
-
         if ( age > PreviewLicensePeriod )
         {
             this._logger.Trace?.Log( "PreviewLicenseSource failed: the pre-release build has expired." );
 
-            emitError = true;
-        }
-        else if ( Environment.GetEnvironmentVariable( forcePreviewLicenseErrorEnvironmentVariableName ) != null )
-        {
-            this._logger.Trace?.Log(
-                $"PreviewLicenseSource failed: error forced using '{forcePreviewLicenseErrorEnvironmentVariableName}' environment variable." );
-
-            emitError = true;
-        }
-
-        if ( emitError )
-        {
             reportMessage(
                 new LicensingMessage(
                     $"Your preview build of {latestPrereleaseComponent.Name} {latestPrereleaseComponent.Version} has expired on {latestPrereleaseComponent.BuildDate!.Value.AddDays( PreviewLicensePeriod ):d}. To continue using {latestPrereleaseComponent.Name}, update it to a newer preview build, register a license key, or switch to Metalama Free. See https://postsharp.net/links/metalama-register-license for details.",
@@ -86,27 +60,10 @@ internal sealed class PreviewLicenseSource : ILicenseSource, ILicense
 
         this._logger.Trace?.Log( "PreviewLicenseSource: providing a license." );
 
-        var emitWarning = false;
-
-        if ( !this._messageReported )
+        if ( !this._messageReported && age > PreviewLicensePeriod - WarningPeriod )
         {
-            if ( age > PreviewLicensePeriod - WarningPeriod )
-            {
-                this._logger.Trace?.Log( "PreviewLicenseSource warning: the pre-release build is close to expiration." );
+            this._logger.Trace?.Log( "PreviewLicenseSource warning: the pre-release build is close to expiration." );
 
-                emitWarning = true;
-            }
-            else if ( Environment.GetEnvironmentVariable( forcePreviewLicenseWarningEnvironmentVariableName ) != null )
-            {
-                this._logger.Trace?.Log(
-                    $"PreviewLicenseSource warning: warning forced using '{forcePreviewLicenseWarningEnvironmentVariableName}' environment variable." );
-
-                emitWarning = true;
-            }
-        }
-
-        if ( emitWarning )
-        {
             reportMessage(
                 new LicensingMessage(
                     $"Your preview build of {latestPrereleaseComponent.Name} {latestPrereleaseComponent.Version} will expire on {latestPrereleaseComponent.BuildDate!.Value.AddDays( PreviewLicensePeriod ):d}. Please update {latestPrereleaseComponent.Name} to a newer preview, register a license key, or switch to Metalama Free. See https://postsharp.net/links/metalama-register-license for details" ) );

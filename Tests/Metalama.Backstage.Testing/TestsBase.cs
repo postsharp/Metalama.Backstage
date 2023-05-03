@@ -33,6 +33,8 @@ namespace Metalama.Backstage.Testing
 
         public InMemoryConfigurationManager ConfigurationManager { get; }
 
+        public TestProcessExecutor ProcessExecutor { get; } = new();
+
         protected IServiceCollection CreateServiceCollectionClone()
         {
             var services = new ServiceCollection();
@@ -54,7 +56,8 @@ namespace Metalama.Backstage.Testing
             // ReSharper disable RedundantTypeArgumentsOfMethod
 
             this._serviceCollection = new ServiceCollection()
-                .AddSingleton<IDateTimeProvider>( this.Time );
+                .AddSingleton<IDateTimeProvider>( this.Time )
+                .AddSingleton<IProcessExecutor>( this.ProcessExecutor );
 
             this.FileSystem = new TestFileSystem( this._serviceCollection.BuildServiceProvider() );
 

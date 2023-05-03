@@ -12,6 +12,5 @@ internal class WelcomeCommand : BaseCommand<BaseCommandSettings>
     {
         var welcomeService = new WelcomeService( context.ServiceProvider );
         welcomeService.ExecuteFirstStartSetup();
-        welcomeService.OpenWelcomePage();
     }
 }

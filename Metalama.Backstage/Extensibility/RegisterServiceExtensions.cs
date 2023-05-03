@@ -2,7 +2,6 @@
 
 using Metalama.Backstage.Configuration;
 using Metalama.Backstage.Diagnostics;
-using Metalama.Backstage.Licensing;
 using Metalama.Backstage.Licensing.Audit;
 using Metalama.Backstage.Licensing.Consumption;
 using Metalama.Backstage.Maintenance;
@@ -84,10 +83,7 @@ public static class RegisterServiceExtensions
         {
             configurationManager.UpdateIf<DiagnosticsConfiguration>(
                 c => c.Logging.Processes.Any( p => p.Value ),
-                c =>
-                {
-                    return c with { Logging = c.Logging with { Processes = c.Logging.Processes.ToImmutableDictionary( x => x.Key, _ => false ) } };
-                } );
+                c => c with { Logging = c.Logging with { Processes = c.Logging.Processes.ToImmutableDictionary( x => x.Key, _ => false ) } } );
 
             configuration = configurationManager.Get<DiagnosticsConfiguration>();
         }
@@ -115,6 +111,7 @@ public static class RegisterServiceExtensions
             .AddFileSystem()
             .AddEnvironmentVariableProvider()
             .AddStandardDirectories()
+            .AddSingleton<IProcessExecutor>( new ProcessExecutor() )
             .AddConfigurationManager();
 
         serviceProviderBuilder.AddService( typeof(ITempFileManager), new TempFileManager( serviceProviderBuilder.ServiceProvider ) );
@@ -167,20 +164,10 @@ public static class RegisterServiceExtensions
                     .AddDiagnostics( applicationInfo.ProcessKind, options.ProjectName );
 
                 var serviceProvider = serviceProviderBuilder.ServiceProvider;
-
+                
                 // First-run configuration. This must be done before initializing licensing and telemetry.
-                var registerEvaluationLicense =
-                    !options.LicensingOptions.IgnoreUserProfileLicenses
-                    && !applicationInfo.IsPreviewLicenseEligible()
-                    && !applicationInfo.IsUnattendedProcess( serviceProvider.GetLoggerFactory() );
-
                 var welcomeService = new WelcomeService( serviceProvider );
-                welcomeService.ExecuteFirstStartSetup( registerEvaluationLicense );
-
-                if ( options.OpenWelcomePage )
-                {
-                    welcomeService.OpenWelcomePage();
-                }
+                welcomeService.ExecuteFirstStartSetup( options );
             }
             else
             {

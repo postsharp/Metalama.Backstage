@@ -15,16 +15,20 @@ namespace Metalama.Backstage.Welcome;
 public class WelcomeService
 {
     private readonly IServiceProvider _serviceProvider;
+    private readonly ILoggerFactory _loggerFactory;
     private readonly ILogger _logger;
     private readonly IConfigurationManager _configurationManager;
     private readonly WelcomeConfiguration _welcomeConfiguration;
+    private readonly IProcessExecutor _processExecutor;
 
     public WelcomeService( IServiceProvider serviceProvider )
     {
         this._serviceProvider = serviceProvider;
-        this._logger = serviceProvider.GetLoggerFactory().GetLogger( "Welcome" );
+        this._loggerFactory = serviceProvider.GetLoggerFactory(); 
+        this._logger = this._loggerFactory.GetLogger( "Welcome" );
         this._configurationManager = serviceProvider.GetRequiredBackstageService<IConfigurationManager>();
         this._welcomeConfiguration = this._configurationManager.Get<WelcomeConfiguration>();
+        this._processExecutor = serviceProvider.GetRequiredBackstageService<IProcessExecutor>();
     }
 
     private void ExecuteOnce(
@@ -46,7 +50,7 @@ public class WelcomeService
         using ( MutexHelper.WithGlobalLock( $"Welcome{actionName}" ) )
         {
             if ( !this._configurationManager.UpdateIf(
-                    c => !getIsFirst( c ),
+                    c => getIsFirst( c ),
                     setIsNotFirst ) )
             {
                 // Another process has won the race.
@@ -60,63 +64,92 @@ public class WelcomeService
         }
     }
 
-    public void ExecuteFirstStartSetup( bool registerEvaluationLicense = true )
+    public void ExecuteFirstStartSetup( BackstageInitializationOptions options )
     {
-        this.ExecuteOnce(
-            () =>
-            {
-                // Start the evaluation license.
-                if ( registerEvaluationLicense )
-                {
-                    var evaluationLicenseRegistrar = new EvaluationLicenseRegistrar( this._serviceProvider );
-                    evaluationLicenseRegistrar.TryActivateLicense();
-                }
+        var ignoreUserProfileLicenses = options.LicensingOptions.IgnoreUserProfileLicenses;
+        var isPreviewLicenseEligible = options.ApplicationInfo.IsPreviewLicenseEligible();
+        var isUnattendedProcess = options.ApplicationInfo.IsUnattendedProcess( this._loggerFactory );
 
-                // Activate telemetry.
-                if ( !TelemetryConfiguration.IsOptOutEnvironmentVariableSet() )
-                {
-                    this._logger.Trace?.Log( "Enabling telemetry." );
+        var registerEvaluationLicense = !ignoreUserProfileLicenses
+                                        && !isPreviewLicenseEligible
+                                        && !isUnattendedProcess;
 
-                    this._configurationManager.Update<TelemetryConfiguration>(
-                        c => c with
-                        {
-                            // Enable telemetry except if it has been disabled by the command line.
-                            ExceptionReportingAction = c.ExceptionReportingAction == ReportingAction.Ask ? ReportingAction.Yes : c.ExceptionReportingAction,
-                            PerformanceProblemReportingAction =
-                            c.PerformanceProblemReportingAction == ReportingAction.Yes ? ReportingAction.Yes : c.PerformanceProblemReportingAction,
-                            UsageReportingAction = c.UsageReportingAction == ReportingAction.Ask ? ReportingAction.Yes : c.UsageReportingAction
-                        } );
-                }
-            },
-            nameof(this.ExecuteFirstStartSetup),
-            c => c.IsFirstStart,
-            c => c with { IsFirstStart = false } );
+        this._logger.Trace?.Log( $"{nameof(ignoreUserProfileLicenses)}: {ignoreUserProfileLicenses}" );
+        this._logger.Trace?.Log( $"{nameof(isPreviewLicenseEligible)}: {isPreviewLicenseEligible}" );
+        this._logger.Trace?.Log( $"{nameof(isUnattendedProcess)}: {isUnattendedProcess}" );
+        this._logger.Trace?.Log( $"{nameof(registerEvaluationLicense)}: {registerEvaluationLicense}" );
+
+        this.ExecuteFirstStartSetup( registerEvaluationLicense, options.OpenWelcomePage );
     }
 
-    public void OpenWelcomePage()
+    public void ExecuteFirstStartSetup( bool registerEvaluationLicense = true, bool openWelcomePage = true )
     {
+        if ( registerEvaluationLicense )
+        {
+            this.ExecuteOnce(
+                this.RegisterEvaluationLicense,
+                nameof(this.RegisterEvaluationLicense),
+                c => c.IsFirstTimeEvaluationLicenseRegistrationPending,
+                c => c with { IsFirstTimeEvaluationLicenseRegistrationPending = false } );
+        }
+
         this.ExecuteOnce(
-            () =>
-            {
-                try
+            this.ActivateTelemetry,
+            nameof(this.ActivateTelemetry),
+            c => c.IsFirstStart,
+            c => c with { IsFirstStart = false } );
+
+        if ( openWelcomePage )
+        {
+            this.ExecuteOnce(
+                this.OpenWelcomePage,
+                nameof(this.OpenWelcomePage),
+                c => c.IsWelcomePagePending,
+                c => c with { IsWelcomePagePending = false } );
+        }
+    }
+
+    private void RegisterEvaluationLicense()
+    {
+        var evaluationLicenseRegistrar = new EvaluationLicenseRegistrar( this._serviceProvider );
+        evaluationLicenseRegistrar.TryActivateLicense();
+    }
+
+    private void ActivateTelemetry()
+    {
+        if ( !TelemetryConfiguration.IsOptOutEnvironmentVariableSet() )
+        {
+            this._logger.Trace?.Log( "Enabling telemetry." );
+
+            this._configurationManager.Update<TelemetryConfiguration>(
+                c => c with
                 {
-                    var applicationInfo = this._serviceProvider.GetRequiredBackstageService<IApplicationInfoProvider>().CurrentApplication;
+                    // Enable telemetry except if it has been disabled by the command line.
+                    ExceptionReportingAction = c.ExceptionReportingAction == ReportingAction.Ask ? ReportingAction.Yes : c.ExceptionReportingAction,
+                    PerformanceProblemReportingAction =
+                    c.PerformanceProblemReportingAction == ReportingAction.Ask ? ReportingAction.Yes : c.PerformanceProblemReportingAction,
+                    UsageReportingAction = c.UsageReportingAction == ReportingAction.Ask ? ReportingAction.Yes : c.UsageReportingAction
+                } );
+        }
+    }
 
-                    var url = applicationInfo.IsPreviewLicenseEligible()
-                        ? "https://www.postsharp.net/links/metalama-welcome-preview"
-                        : "https://www.postsharp.net/links/metalama-welcome";
+    private void OpenWelcomePage()
+    {
+        try
+        {
+            var applicationInfo = this._serviceProvider.GetRequiredBackstageService<IApplicationInfoProvider>().CurrentApplication;
 
-                    this._logger.Trace?.Log( $"Opening '{url}'." );
+            var url = applicationInfo.IsPreviewLicenseEligible()
+                ? "https://www.postsharp.net/links/metalama-welcome-preview"
+                : "https://www.postsharp.net/links/metalama-welcome";
 
-                    Process.Start( new ProcessStartInfo( url ) { UseShellExecute = true } );
-                }
-                catch ( Exception e )
-                {
-                    this._logger.Error?.Log( $"Cannot start the welcome web page: {e.Message}" );
-                }
-            },
-            nameof(this.OpenWelcomePage),
-            c => c.IsWelcomePagePending,
-            c => c with { IsWelcomePagePending = false } );
+            this._logger.Trace?.Log( $"Opening '{url}'." );
+
+            _ = this._processExecutor.Start( new ProcessStartInfo( url ) { UseShellExecute = true } );
+        }
+        catch ( Exception e )
+        {
+            this._logger.Error?.Log( $"Cannot start the welcome web page: {e.Message}" );
+        }
     }
 }
