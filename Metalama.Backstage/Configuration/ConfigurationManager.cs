@@ -23,7 +23,7 @@ namespace Metalama.Backstage.Configuration
         // that represent the same file.
         private readonly ConcurrentDictionary<Type, ConfigurationFile> _instances = new();
 
-        private readonly FileSystemWatcher? _fileSystemWatcher;
+        private readonly IDisposable? _fileSystemWatcher;
         private readonly IFileSystem _fileSystem;
         private readonly IDateTimeProvider _dateTimeProvider;
         private readonly IEnvironmentVariableProvider _environmentVariableProvider;
@@ -60,10 +60,7 @@ namespace Metalama.Backstage.Configuration
 
             if ( applicationInfo is { IsLongRunningProcess: true } )
             {
-                this._fileSystemWatcher = new FileSystemWatcher( this.ApplicationDataDirectory, "*.json" );
-                this._fileSystemWatcher.Created += this.OnFileChanged;
-                this._fileSystemWatcher.Changed += this.OnFileChanged;
-                this._fileSystemWatcher.EnableRaisingEvents = true;
+                this._fileSystemWatcher = this._fileSystem.WatchChanges( this.ApplicationDataDirectory, "*.json", this.OnFileChanged );
             }
         }
 
@@ -78,27 +75,28 @@ namespace Metalama.Backstage.Configuration
             this.Logger = loggerFactory.GetLogger( "Configuration" );
         }
 
-        private void OnFileChanged( object sender, FileSystemEventArgs e )
+        private void OnFileChanged( FileSystemEventArgs e )
         {
             this.Logger.Trace?.Log( $"File has changed: '{e.FullPath}'." );
             var fileName = e.FullPath;
 
-            var changedSettings = this._instances.Values.Where(
-                s =>
-                    string.Equals( this.GetFilePath( s.GetType() ), fileName, StringComparison.OrdinalIgnoreCase ) );
+            var instancesForThisFile = this._instances.Values.Where(
+                    s =>
+                        string.Equals( this.GetFilePath( s.GetType() ), fileName, StringComparison.OrdinalIgnoreCase ) )
+                .ToList();
 
-            using ( this.WithMutex() )
+            foreach ( var instance in instancesForThisFile )
             {
-                foreach ( var changedSetting in changedSettings )
-                {
-                    // To frequent avoid file locks, wait. There is another wait cycle in TryLoadSettings but not
-                    // waiting here is annoying for debugging.
-                    Thread.Sleep( 100 );
+                // To frequent avoid file locks, wait. There is another wait cycle in TryLoadSettings but not
+                // waiting here is annoying for debugging.
+                Thread.Sleep( 100 );
 
-                    if ( this.TryLoadConfigurationFile( changedSetting.GetType(), out var cachedSettings ) &&
-                         cachedSettings.LastModified > changedSetting.LastModified + _lastModifiedTolerance )
+                using ( this.WithMutex() )
+                {
+                    if ( this.TryLoadConfigurationFile( instance.GetType(), out var newValue ) &&
+                         (instance.LastModified == null || newValue.LastModified > instance.LastModified + _lastModifiedTolerance) )
                     {
-                        this.AddToCache( changedSetting );
+                        this.AddToCache( newValue );
                     }
                 }
             }
@@ -181,8 +179,14 @@ namespace Metalama.Backstage.Configuration
 
         private void AddToCache( ConfigurationFile settings )
         {
+            var isChange = this._instances.TryGetValue( settings.GetType(), out var oldValue ) && oldValue.ToJson() != settings.ToJson();
+
             this._instances.AddOrUpdate( settings.GetType(), settings, ( _, _ ) => settings );
-            this.ConfigurationFileChanged?.Invoke( settings );
+
+            if ( isChange )
+            {
+                this.ConfigurationFileChanged?.Invoke( settings );
+            }
         }
 
         public bool TryUpdate( ConfigurationFile value, DateTime? lastModified )

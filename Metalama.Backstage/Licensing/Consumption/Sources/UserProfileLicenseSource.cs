@@ -11,12 +11,24 @@ namespace Metalama.Backstage.Licensing.Consumption.Sources;
 /// </summary>
 internal class UserProfileLicenseSource : LicenseSourceBase
 {
-    private readonly LicensingConfiguration _licensingConfiguration;
+    private readonly IConfigurationManager _configurationManager;
+    private LicensingConfiguration _licensingConfiguration;
 
     public UserProfileLicenseSource( IServiceProvider services )
         : base( services )
     {
-        this._licensingConfiguration = services.GetRequiredBackstageService<IConfigurationManager>().Get<LicensingConfiguration>();
+        this._configurationManager = services.GetRequiredBackstageService<IConfigurationManager>();
+        this._licensingConfiguration = this._configurationManager.Get<LicensingConfiguration>();
+        this._configurationManager.ConfigurationFileChanged += this.OnConfigurationFileChanged;
+    }
+
+    private void OnConfigurationFileChanged( ConfigurationFile file )
+    {
+        if ( file is LicensingConfiguration licensingConfiguration )
+        {
+            this._licensingConfiguration = licensingConfiguration;
+            this.OnChanged();
+        }
     }
 
     protected override string? GetLicenseString() => this._licensingConfiguration.License;

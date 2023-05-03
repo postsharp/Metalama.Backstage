@@ -458,5 +458,7 @@ namespace Metalama.Backstage.Extensibility
         /// <param name="path">The name of the directory to check.</param>
         /// <returns>Value indicating whether <paramref name="path"/> has any subdirectories or files.</returns>
         bool IsDirectoryEmpty( string path );
+
+        IDisposable WatchChanges( string directory, string filter, Action<FileSystemEventArgs> callback );
     }
 }

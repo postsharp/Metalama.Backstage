@@ -45,7 +45,7 @@ namespace Metalama.Backstage.Testing
             return services;
         }
 
-        public TestsBase( ITestOutputHelper logger, Action<ServiceProviderBuilder>? serviceBuilder = null )
+        protected TestsBase( ITestOutputHelper logger, Action<ServiceProviderBuilder>? serviceBuilder = null, IApplicationInfo? applicationInfo = null )
         {
             this.Logger = logger;
 
@@ -55,6 +55,11 @@ namespace Metalama.Backstage.Testing
 
             this._serviceCollection = new ServiceCollection()
                 .AddSingleton<IDateTimeProvider>( this.Time );
+
+            if ( applicationInfo != null )
+            {
+                this._serviceCollection.AddSingleton<IApplicationInfoProvider>( new ApplicationInfoProvider( applicationInfo ) );
+            }
 
             this.FileSystem = new TestFileSystem( this._serviceCollection.BuildServiceProvider() );
 
