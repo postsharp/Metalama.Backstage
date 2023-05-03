@@ -11,5 +11,7 @@ internal record WelcomeConfiguration : ConfigurationFile
 {
     public bool IsFirstStart { get; init; } = true;
 
+    public bool IsFirstTimeEvaluationLicenseRegistrationPending { get; init; } = true;
+
     public bool IsWelcomePagePending { get; init; } = true;
 }

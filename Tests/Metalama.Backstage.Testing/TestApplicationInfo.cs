@@ -38,7 +38,7 @@ namespace Metalama.Backstage.Testing
         public string Name { get; }
 
         /// <inheritdoc />
-        public bool? IsPrerelease { get; init; }
+        public bool? IsPrerelease { get; set; }
 
         /// <inheritdoc />
         public string? Version { get; }
@@ -49,7 +49,7 @@ namespace Metalama.Backstage.Testing
         /// <inheritdoc />
         public ProcessKind ProcessKind => ProcessKind.Other;
 
-        public bool IsUnattendedProcess { get; init; }
+        public bool IsUnattendedProcess { get; set; }
 
         /// <inheritdoc />
         bool IApplicationInfo.IsUnattendedProcess( ILoggerFactory loggerFactory ) => this.IsUnattendedProcess;

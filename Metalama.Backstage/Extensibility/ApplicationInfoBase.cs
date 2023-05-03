@@ -4,6 +4,7 @@ using Metalama.Backstage.Diagnostics;
 using Metalama.Backstage.Utilities;
 using System;
 using System.Collections.Immutable;
+using System.Globalization;
 using System.Reflection;
 
 namespace Metalama.Backstage.Extensibility
@@ -18,10 +19,22 @@ namespace Metalama.Backstage.Extensibility
         {
             var reader = AssemblyMetadataReader.GetInstance( metadataAssembly );
             this.Version = reader.PackageVersion;
+            
+            // IsPrerelease flag can be overridden for testing purposes.
+            var isPrereleaseEnvironmentVariableValue = Environment.GetEnvironmentVariable( "METALAMA_IS_PRERELEASE" );
+            bool? isPrereleaseOverriddenValue = isPrereleaseEnvironmentVariableValue == null ? null : bool.Parse( isPrereleaseEnvironmentVariableValue ); 
 #pragma warning disable CA1307
-            this.IsPrerelease = this.Version?.Contains( "-" );
+            this.IsPrerelease = isPrereleaseOverriddenValue ?? this.Version?.Contains( "-" );
 #pragma warning restore CA1307
-            this.BuildDate = reader.BuildDate;
+            
+            // BuildDate value can be overridden for testing purposes.
+            var buildDateEnvironmentVariableValue = Environment.GetEnvironmentVariable( "METALAMA_BUILD_DATE" );
+
+            DateTime? buildDateOverriddenValue = buildDateEnvironmentVariableValue == null
+                ? null
+                : DateTime.Parse( buildDateEnvironmentVariableValue, CultureInfo.InvariantCulture, DateTimeStyles.AssumeLocal );
+            
+            this.BuildDate = buildDateOverriddenValue ?? reader.BuildDate;
             this.Company = reader.Company;
 
             if ( this.Version != null )
