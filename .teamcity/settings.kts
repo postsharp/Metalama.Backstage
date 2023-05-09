@@ -29,7 +29,8 @@ object DebugBuild : BuildType({
 
     vcs {
         root(DslContext.settingsRoot)
-    }
+
+        }
 
     steps {
         // Step to kill all dotnet or VBCSCompiler processes that might be locking files we delete in during cleanup.
@@ -52,7 +53,7 @@ object DebugBuild : BuildType({
     }
 
     requirements {
-        equals("env.BuildAgentType", "caravela04")
+        equals("env.BuildAgentType", "caravela04cloud")
     }
 
     features {
@@ -83,7 +84,8 @@ object ReleaseBuild : BuildType({
 
     vcs {
         root(DslContext.settingsRoot)
-    }
+
+        }
 
     steps {
         // Step to kill all dotnet or VBCSCompiler processes that might be locking files we delete in during cleanup.
@@ -106,7 +108,7 @@ object ReleaseBuild : BuildType({
     }
 
     requirements {
-        equals("env.BuildAgentType", "caravela04")
+        equals("env.BuildAgentType", "caravela04cloud")
     }
 
     features {
@@ -126,7 +128,8 @@ object PublicBuild : BuildType({
 
     vcs {
         root(DslContext.settingsRoot)
-    }
+
+        }
 
     steps {
         // Step to kill all dotnet or VBCSCompiler processes that might be locking files we delete in during cleanup.
@@ -149,7 +152,7 @@ object PublicBuild : BuildType({
     }
 
     requirements {
-        equals("env.BuildAgentType", "caravela04")
+        equals("env.BuildAgentType", "caravela04cloud")
     }
 
     features {
@@ -169,7 +172,8 @@ object PublicDeployment : BuildType({
 
     vcs {
         root(DslContext.settingsRoot)
-    }
+
+        }
 
     steps {
         powerShell {
@@ -183,7 +187,7 @@ object PublicDeployment : BuildType({
     }
 
     requirements {
-        equals("env.BuildAgentType", "caravela04")
+        equals("env.BuildAgentType", "caravela04cloud")
     }
 
     features {
@@ -220,7 +224,8 @@ object VersionBump : BuildType({
 
     vcs {
         root(DslContext.settingsRoot)
-    }
+
+        }
 
     steps {
         powerShell {
@@ -234,7 +239,7 @@ object VersionBump : BuildType({
     }
 
     requirements {
-        equals("env.BuildAgentType", "caravela04")
+        equals("env.BuildAgentType", "caravela04cloud")
     }
 
     features {
