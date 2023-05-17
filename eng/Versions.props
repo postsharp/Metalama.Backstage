@@ -11,7 +11,7 @@
 
     <!-- Versions of dependencies -->
     <PropertyGroup>
-        <PostSharpEngineeringVersion>2023.0.144</PostSharpEngineeringVersion>
+        <PostSharpEngineeringVersion>2023.0.146</PostSharpEngineeringVersion>
         <NewtonsoftJsonVersion>13.0.1</NewtonsoftJsonVersion>
         <MicrosoftBclHashCodeVersion>1.1.1</MicrosoftBclHashCodeVersion>
         <MicrosoftNETTestSdkVersion>17.1.0</MicrosoftNETTestSdkVersion>
