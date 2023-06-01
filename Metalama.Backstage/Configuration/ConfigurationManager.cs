@@ -11,6 +11,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace Metalama.Backstage.Configuration
 {
@@ -27,10 +28,12 @@ namespace Metalama.Backstage.Configuration
         private readonly IFileSystem _fileSystem;
         private readonly IDateTimeProvider _dateTimeProvider;
         private readonly IEnvironmentVariableProvider _environmentVariableProvider;
+        private readonly ConcurrentDictionary<string, string> _fileChanges = new( StringComparer.Ordinal );
 
         // Named semaphore to handle many instances.
         private readonly Mutex _mutex = new( false, "Global\\Metalama.Configuration" );
         private ILoggerFactory _loggerFactory;
+        private volatile int _fileChangeProcessingTaskStatus;
 
         public ConfigurationManager( IServiceProvider serviceProvider )
         {
@@ -83,28 +86,59 @@ namespace Metalama.Backstage.Configuration
             this.Logger.Trace?.Log( $"File has changed: '{e.FullPath}'." );
             var fileName = e.FullPath;
 
-            var changedSettings = this._instances.Values.Where(
+            var isAffected = this._instances.Values.Any(
                 s =>
                     string.Equals( this.GetFilePath( s.GetType() ), fileName, StringComparison.OrdinalIgnoreCase ) );
 
-            using ( this.WithMutex() )
+            if ( isAffected &&
+                 this._fileChanges.TryAdd( e.FullPath, e.FullPath ) &&
+                 Interlocked.CompareExchange( ref this._fileChangeProcessingTaskStatus, 1, 0 ) == 0 )
             {
-                foreach ( var changedSetting in changedSettings )
-                {
-                    // To frequent avoid file locks, wait. There is another wait cycle in TryLoadSettings but not
-                    // waiting here is annoying for debugging.
-                    Thread.Sleep( 100 );
-
-                    if ( this.TryLoadConfigurationFile( changedSetting.GetType(), out var cachedSettings ) &&
-                         cachedSettings.LastModified > changedSetting.LastModified + _lastModifiedTolerance )
-                    {
-                        this.AddToCache( changedSetting );
-                    }
-                }
+                Task.Run( this.ProcessFileChanges );
             }
         }
 
-        public string ApplicationDataDirectory { get; }
+        private void ProcessFileChanges()
+        {
+            // To frequent avoid file locks, wait. There is another wait cycle in TryLoadSettings but not
+            // waiting here is annoying for debugging.
+            Thread.Sleep( 100 );
+
+            using ( this.WithMutex() )
+            {
+                void Process()
+                {
+                    while ( !this._fileChanges.IsEmpty )
+                    {
+                        foreach ( var fileName in this._fileChanges.Keys )
+                        {
+                            var changedSettings = this._instances.Values.Where(
+                                s =>
+                                    string.Equals( this.GetFilePath( s.GetType() ), fileName, StringComparison.OrdinalIgnoreCase ) );
+
+                            foreach ( var changedSetting in changedSettings )
+                            {
+                                if ( this.TryLoadConfigurationFile( changedSetting.GetType(), out var cachedSettings ) &&
+                                     cachedSettings.LastModified > changedSetting.LastModified + _lastModifiedTolerance )
+                                {
+                                    this.AddToCache( changedSetting );
+                                }
+                            }
+                        }
+                    }
+                }
+
+                Process();
+
+                this._fileChangeProcessingTaskStatus = 0;
+
+                // In case of race we don't want to lose events in the buffer.
+                // It is preferable in this case to have two concurrent tasks. They will not interfere because of the lock.
+                Process();
+            }
+        }
+
+        private string ApplicationDataDirectory { get; }
 
         public ILogger Logger { get; private set; }
 
