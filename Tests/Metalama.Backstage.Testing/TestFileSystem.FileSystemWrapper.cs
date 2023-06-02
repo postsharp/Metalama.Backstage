@@ -62,7 +62,7 @@ public partial class TestFileSystem
                     {
                         foreach ( var watcher in watchers )
                         {
-                            var isMatch = path.EndsWith( watcher.Key.Filter.Replace( "*", "" ), StringComparison.OrdinalIgnoreCase );
+                            var isMatch = path.EndsWith( watcher.Key.Filter.Replace( "*", "", StringComparison.Ordinal ), StringComparison.OrdinalIgnoreCase );
 
                             if ( isMatch )
                             {
