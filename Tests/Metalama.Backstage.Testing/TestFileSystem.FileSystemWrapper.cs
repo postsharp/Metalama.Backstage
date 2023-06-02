@@ -62,7 +62,9 @@ public partial class TestFileSystem
                     {
                         foreach ( var watcher in watchers )
                         {
-                            var isMatch = path.EndsWith( watcher.Key.Filter.Replace( "*", "", StringComparison.Ordinal ), StringComparison.OrdinalIgnoreCase );
+#pragma warning disable CA1307
+                            var isMatch = path.EndsWith( watcher.Key.Filter.Replace( "*", "" ), StringComparison.OrdinalIgnoreCase );
+#pragma warning restore CA1307                            
 
                             if ( isMatch )
                             {
