@@ -40,7 +40,7 @@ namespace Metalama.Backstage.Extensibility
 
             if ( this.Version != null )
             {
-                this.IsTelemetryEnabled = !VersionExtensions.IsDevelopmentVersion( this.Version );
+                this.IsTelemetryEnabled = !VersionHelper.IsDevelopmentVersion( this.Version );
             }
         }
 

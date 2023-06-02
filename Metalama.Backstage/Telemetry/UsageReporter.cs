@@ -102,7 +102,7 @@ internal class UsageReporter : IUsageReporter
     {
         if ( this._currentSample != null )
         {
-            this._currentSample.Flush();
+            this._currentSample.Upload();
             this._currentSample = null;
         }
     }

@@ -2,7 +2,7 @@
 
 namespace Metalama.Backstage.Extensibility;
 
-internal static class VersionExtensions
+internal static class VersionHelper
 {
     public static bool IsDevelopmentVersion( string version )
     {

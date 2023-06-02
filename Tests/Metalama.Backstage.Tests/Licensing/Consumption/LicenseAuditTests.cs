@@ -29,10 +29,8 @@ public class LicenseAuditTests : LicenseConsumptionManagerTestsBase
 
     private string[] GetReports()
     {
-        static bool IsAuditReport( string path ) => Path.GetFileName( path ) == "LicenseAudit-0.log";
-
-        var reportText = this.FileSystem.ReadAllText( this.FileSystem.Mock.AllFiles.Single( IsAuditReport ) );
-        var reports = reportText.Split( Environment.NewLine.ToCharArray(), StringSplitOptions.RemoveEmptyEntries );
+        var files = this.FileSystem.Mock.AllFiles.Where( path => Path.GetFileName( path ).StartsWith( "LicenseAudit-", StringComparison.Ordinal ) );
+        var reports = files.SelectMany( f => this.FileSystem.ReadAllLines( f ) ).ToArray();
 
         return reports;
     }
