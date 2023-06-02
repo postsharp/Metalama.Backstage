@@ -16,5 +16,10 @@ namespace Metalama.Backstage.Licensing.Consumption.Sources
         /// <param name="reportMessage">Action to be called when the license is invalid.</param>
         /// <returns>The license or <c>null</c>.</returns>
         ILicense? GetLicense( Action<LicensingMessage> reportMessage );
+
+        /// <summary>
+        /// Event raised when the current source has changed.
+        /// </summary>
+        event Action? Changed;
     }
 }
