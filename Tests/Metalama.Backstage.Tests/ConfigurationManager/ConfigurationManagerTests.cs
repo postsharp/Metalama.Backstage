@@ -3,6 +3,7 @@
 using Metalama.Backstage.Configuration;
 using Metalama.Backstage.Testing;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
 using Xunit.Abstractions;
@@ -11,7 +12,7 @@ namespace Metalama.Backstage.Licensing.Tests.ConfigurationManager;
 
 public class ConfigurationManagerTests : TestsBase
 {
-    public ConfigurationManagerTests( ITestOutputHelper logger ) : base( logger ) { }
+    public ConfigurationManagerTests( ITestOutputHelper logger ) : base( logger, applicationInfo: new TestApplicationInfo() { IsLongRunningProcess = true } ) { }
 
     [Fact]
     public async Task ConcurrentUpdate()
@@ -52,5 +53,24 @@ public class ConfigurationManagerTests : TestsBase
 
         // Updating the file should be successful.
         Assert.True( configurationManager.UpdateIf<TestConfigurationFile>( c => !c.IsModified, c => c with { IsModified = true } ) );
+    }
+
+    [Fact]
+    public void BackgroundChange()
+    {
+        var configurationManager1 = new Configuration.ConfigurationManager( this.ServiceProvider );
+        var configurationManager2 = new Configuration.ConfigurationManager( this.ServiceProvider );
+        var fileName = configurationManager1.GetFilePath<TestConfigurationFile>();
+
+        Assert.False( configurationManager2.Get<TestConfigurationFile>().IsModified );
+        configurationManager1.Update<TestConfigurationFile>( c => c with { IsModified = true } );
+
+        var hasChange = new ManualResetEventSlim();
+        configurationManager2.ConfigurationFileChanged += _ => hasChange.Set();
+
+        Assert.True( hasChange.Wait( 30000 ) );
+        
+        Assert.True( configurationManager2.Get<TestConfigurationFile>().IsModified );
+
     }
 }

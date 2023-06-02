@@ -47,7 +47,7 @@ namespace Metalama.Backstage.Testing
             return services;
         }
 
-        public TestsBase( ITestOutputHelper logger, Action<ServiceProviderBuilder>? serviceBuilder = null )
+        protected TestsBase( ITestOutputHelper logger, Action<ServiceProviderBuilder>? serviceBuilder = null, IApplicationInfo? applicationInfo = null )
         {
             this.Logger = logger;
 
@@ -56,6 +56,7 @@ namespace Metalama.Backstage.Testing
             // ReSharper disable RedundantTypeArgumentsOfMethod
 
             this._serviceCollection = new ServiceCollection()
+                .AddSingleton<IApplicationInfoProvider>( new ApplicationInfoProvider( applicationInfo ?? new TestApplicationInfo() ) )
                 .AddSingleton<IDateTimeProvider>( this.Time )
                 .AddSingleton<IProcessExecutor>( this.ProcessExecutor );
 

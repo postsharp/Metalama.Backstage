@@ -100,41 +100,55 @@ namespace Metalama.Backstage.Configuration
 
         private void ProcessFileChanges()
         {
-            // To frequent avoid file locks, wait. There is another wait cycle in TryLoadSettings but not
-            // waiting here is annoying for debugging.
-            Thread.Sleep( 100 );
-
-            using ( this.WithMutex() )
+            try
             {
-                void Process()
-                {
-                    while ( !this._fileChanges.IsEmpty )
-                    {
-                        foreach ( var fileName in this._fileChanges.Keys )
-                        {
-                            var changedSettings = this._instances.Values.Where(
-                                s =>
-                                    string.Equals( this.GetFilePath( s.GetType() ), fileName, StringComparison.OrdinalIgnoreCase ) );
+                throw new Exception();
 
-                            foreach ( var changedSetting in changedSettings )
+                // To frequent avoid file locks, wait. There is another wait cycle in TryLoadSettings but not
+                // waiting here is annoying for debugging.
+                Thread.Sleep( 100 );
+
+                using ( this.WithMutex() )
+                {
+                    void Process()
+                    {
+                        while ( !this._fileChanges.IsEmpty )
+                        {
+                            foreach ( var fileName in this._fileChanges.Keys )
                             {
-                                if ( this.TryLoadConfigurationFile( changedSetting.GetType(), out var cachedSettings ) &&
-                                     cachedSettings.LastModified > changedSetting.LastModified + _lastModifiedTolerance )
+                                var changedSettings = this._instances.Values.Where(
+                                    s =>
+                                        string.Equals( this.GetFilePath( s.GetType() ), fileName, StringComparison.OrdinalIgnoreCase ) );
+
+                                foreach ( var changedSetting in changedSettings )
                                 {
-                                    this.AddToCache( changedSetting );
+                                    if ( this.TryLoadConfigurationFile( changedSetting.GetType(), out var cachedSettings ) &&
+                                         cachedSettings.LastModified > changedSetting.LastModified + _lastModifiedTolerance )
+                                    {
+                                        this.AddToCache( changedSetting );
+                                    }
                                 }
+
+                                this._fileChanges.TryRemove( fileName, out _ );
                             }
                         }
                     }
+
+                    Process();
+
+                    this._fileChangeProcessingTaskStatus = 0;
+
+                    // In case of race we don't want to lose events in the buffer.
+                    // It is preferable in this case to have two concurrent tasks. They will not interfere because of the lock.
+                    Process();
                 }
-
-                Process();
-
+            }
+            catch ( Exception e )
+            {
+                // When we have an exception we may miss events in case of race.
+                
+                this.Logger.Error?.Log( e.ToString() );
                 this._fileChangeProcessingTaskStatus = 0;
-
-                // In case of race we don't want to lose events in the buffer.
-                // It is preferable in this case to have two concurrent tasks. They will not interfere because of the lock.
-                Process();
             }
         }
 
@@ -382,7 +396,11 @@ namespace Metalama.Backstage.Configuration
                 if ( !this._mutex.WaitOne( 0 ) )
                 {
                     this.Logger.Trace?.Log( $"Waiting for the configuration mutex." );
-                    this._mutex.WaitOne();
+
+                    if ( !this._mutex.WaitOne( 30000 ) )
+                    {
+                        throw new TimeoutException( "Cannot acquire the global configuration mutex in 30s." );
+                    }
                 }
             }
             catch ( AbandonedMutexException )
