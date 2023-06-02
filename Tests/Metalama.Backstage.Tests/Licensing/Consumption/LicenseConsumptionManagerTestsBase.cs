@@ -6,7 +6,6 @@ using Metalama.Backstage.Licensing.Consumption.Sources;
 using Metalama.Backstage.Licensing.Tests.Licensing.Licenses;
 using Metalama.Backstage.Licensing.Tests.Licensing.LicenseSources;
 using System;
-using System.Linq;
 using Xunit;
 using Xunit.Abstractions;
 

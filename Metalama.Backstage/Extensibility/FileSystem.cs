@@ -12,6 +12,8 @@ namespace Metalama.Backstage.Extensibility
     /// </summary>
     internal class FileSystem : IFileSystem
     {
+        public string SynchronizationPrefix => "Global\\";
+
         /// <inheritdoc />
         public DateTime GetFileLastWriteTime( string path )
         {

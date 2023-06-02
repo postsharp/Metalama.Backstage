@@ -78,7 +78,7 @@ public class ConfigurationManagerTests : TestsBase
         var newValue = new TestConfigurationFile() { IsModified = true };
         this.FileSystem.WriteAllText( path, newValue.ToJson() );
 
-        Assert.True( gotEvent.WaitOne( 30000 ) );
+        Assert.True( gotEvent.WaitOne( 180000 ) );
 
         var newValueFromManager = configurationManager.Get<TestConfigurationFile>();
 

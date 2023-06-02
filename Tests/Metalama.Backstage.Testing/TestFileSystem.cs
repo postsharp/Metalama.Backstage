@@ -108,6 +108,8 @@ namespace Metalama.Backstage.Testing
             }
         }
 
+        public string SynchronizationPrefix { get; } = $"{Guid.NewGuid()}_";
+
         public DateTime GetFileLastWriteTime( string path ) => this._file.Execute( ExecutionKind.Manage, 0, path, f => f.GetLastWriteTime( path ) );
 
         public void SetFileLastWriteTime( string path, DateTime lastWriteTime )

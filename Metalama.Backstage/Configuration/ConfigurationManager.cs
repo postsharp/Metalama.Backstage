@@ -6,6 +6,7 @@ using Metalama.Backstage.Utilities;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Concurrent;
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
@@ -31,7 +32,7 @@ namespace Metalama.Backstage.Configuration
         private readonly ConcurrentDictionary<string, string> _fileChanges = new( StringComparer.Ordinal );
 
         // Named semaphore to handle many instances.
-        private readonly Mutex _mutex = new( false, "Global\\Metalama.Configuration" );
+        private readonly Mutex _mutex;
         private ILoggerFactory _loggerFactory;
         private volatile int _fileChangeProcessingTaskStatus;
 
@@ -41,6 +42,8 @@ namespace Metalama.Backstage.Configuration
             this._fileSystem = serviceProvider.GetRequiredBackstageService<IFileSystem>();
             this._dateTimeProvider = serviceProvider.GetRequiredBackstageService<IDateTimeProvider>();
             this._environmentVariableProvider = serviceProvider.GetRequiredBackstageService<IEnvironmentVariableProvider>();
+
+            this._mutex = new Mutex( false, $"{this._fileSystem.SynchronizationPrefix}Metalama.Configuration" );
 
             // In a production use, the logger factory is created after the configuration manager, so we cannot
             // report diagnostics while getting the configuration. To work around this problem, we buffer
@@ -99,8 +102,6 @@ namespace Metalama.Backstage.Configuration
         {
             try
             {
-                throw new Exception();
-
                 // To frequent avoid file locks, wait. There is another wait cycle in TryLoadSettings but not
                 // waiting here is annoying for debugging.
                 Thread.Sleep( 100 );
@@ -113,16 +114,16 @@ namespace Metalama.Backstage.Configuration
                         {
                             foreach ( var fileName in this._fileChanges.Keys )
                             {
-                                var changedSettings = this._instances.Values.Where(
+                                var oldSettings = this._instances.Values.Where(
                                     s =>
                                         string.Equals( this.GetFilePath( s.GetType() ), fileName, StringComparison.OrdinalIgnoreCase ) );
 
-                                foreach ( var changedSetting in changedSettings )
+                                foreach ( var oldSetting in oldSettings )
                                 {
-                                    if ( this.TryLoadConfigurationFile( changedSetting.GetType(), out var cachedSettings ) &&
-                                         cachedSettings.LastModified > changedSetting.LastModified + _lastModifiedTolerance )
+                                    if ( this.TryLoadConfigurationFile( oldSetting.GetType(), out var newSetting ) &&
+                                         (oldSetting.LastModified == null || newSetting.LastModified > oldSetting.LastModified + _lastModifiedTolerance) )
                                     {
-                                        this.AddToCache( changedSetting );
+                                        this.AddToCache( newSetting );
                                     }
                                 }
 
@@ -143,7 +144,7 @@ namespace Metalama.Backstage.Configuration
             catch ( Exception e )
             {
                 // When we have an exception we may miss events in case of race.
-                
+
                 this.Logger.Error?.Log( e.ToString() );
                 this._fileChangeProcessingTaskStatus = 0;
             }
@@ -413,10 +414,18 @@ namespace Metalama.Backstage.Configuration
 
             this.Logger.Trace?.Log( $"Configuration mutex acquired." );
 
+            var stopwatch = Stopwatch.StartNew();
+
             return new DisposableAction(
                 () =>
                 {
-                    this.Logger.Trace?.Log( $"Releasing configuration mutex." );
+                    this.Logger.Trace?.Log( $"Releasing configuration mutex. It was held for {stopwatch.ElapsedMilliseconds} ms." );
+
+                    if ( stopwatch.ElapsedMilliseconds > 1000 )
+                    {
+                        this.Logger.Warning?.Log( $"The configuration mutex was held for a long time: {stopwatch.Elapsed}." );
+                    }
+
                     this._mutex.ReleaseMutex();
                 } );
         }
