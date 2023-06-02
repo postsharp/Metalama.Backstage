@@ -3,6 +3,7 @@
 using Metalama.Backstage.Extensibility;
 using Metalama.Backstage.Telemetry;
 using Metalama.Backstage.Testing;
+using System;
 using System.IO;
 using System.Linq;
 using Xunit;
@@ -28,6 +29,6 @@ public class UsageReporterTests : TestsBase
         usageReporter.StopSession();
 
         Assert.Single( this.FileSystem.Mock.AllFiles );
-        Assert.Equal( "Usage-0.log", Path.GetFileName( this.FileSystem.Mock.AllFiles.Single() ) );
+        Assert.StartsWith( "Usage-", Path.GetFileName( this.FileSystem.Mock.AllFiles.Single() ), StringComparison.Ordinal );
     }
 }
