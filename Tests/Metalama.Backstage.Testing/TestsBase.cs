@@ -60,6 +60,11 @@ namespace Metalama.Backstage.Testing
                 .AddSingleton<IDateTimeProvider>( this.Time )
                 .AddSingleton<IProcessExecutor>( this.ProcessExecutor );
 
+            if ( applicationInfo != null )
+            {
+                this._serviceCollection.AddSingleton<IApplicationInfoProvider>( new ApplicationInfoProvider( applicationInfo ) );
+            }
+
             this.FileSystem = new TestFileSystem( this._serviceCollection.BuildServiceProvider() );
 
             this._serviceCollection

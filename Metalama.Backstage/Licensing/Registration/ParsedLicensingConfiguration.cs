@@ -12,14 +12,56 @@ namespace Metalama.Backstage.Licensing.Registration
     /// </summary>
     public class ParsedLicensingConfiguration
     {
+        private readonly IServiceProvider _services;
         private readonly IConfigurationManager _configurationManager;
-        private readonly LicensingConfiguration _configuration;
+        private LicensingConfiguration _configuration = null!;
 
-        private ParsedLicensingConfiguration( LicensingConfiguration configuration, IServiceProvider services )
+        private ParsedLicensingConfiguration( IServiceProvider services )
         {
+            this._services = services;
             this._configurationManager = services.GetRequiredBackstageService<IConfigurationManager>();
-            this._configuration = configuration;
+            this._configurationManager.ConfigurationFileChanged += this.OnConfigurationFileChanged;
+
+            this.ReadConfiguration();
         }
+
+        private void ReadConfiguration()
+        {
+            var configurationManager = this._services.GetRequiredBackstageService<IConfigurationManager>();
+            this._configuration = configurationManager.Get<LicensingConfiguration>();
+            this.LicenseString = this._configuration.License;
+
+            if ( string.IsNullOrWhiteSpace( this.LicenseString ) )
+            {
+                this.LicenseData = null;
+                this.LicenseString = null;
+            }
+            else
+            {
+                var licenseFactory = new LicenseFactory( this._services );
+
+                if ( licenseFactory.TryCreate( this.LicenseString, out var license, out _ ) )
+                {
+                    _ = license.TryGetLicenseRegistrationData( out var licenseRegistrationData, out _ );
+                    this.LicenseData = licenseRegistrationData;
+                }
+                else
+                {
+                    this.LicenseData = null;
+                }
+            }
+        }
+
+        private void OnConfigurationFileChanged( ConfigurationFile file )
+        {
+            if ( file is LicensingConfiguration )
+            {
+                this.ReadConfiguration();
+                this.Changed?.Invoke();
+            }
+        }
+
+        public event Action? Changed;
 
         /// <summary>
         /// Gets the license contained in the storage or to be stored to the storage.
@@ -38,51 +80,13 @@ namespace Metalama.Backstage.Licensing.Registration
         }
 
         /// <summary>
-        /// Creates an empty storage.
-        /// </summary>
-        /// <returns>The empty storage.</returns>
-        public static ParsedLicensingConfiguration CreateEmpty( IServiceProvider services )
-        {
-            var storage = new ParsedLicensingConfiguration( new LicensingConfiguration(), services );
-
-            return storage;
-        }
-
-        /// <summary>
         /// Opens a license file or creates empty storage if the license file doesn't exist.
         /// </summary>
         /// <param name="services">Services.</param>
         /// <returns></returns>
         public static ParsedLicensingConfiguration OpenOrCreate( IServiceProvider services )
         {
-            var configurationManager = services.GetRequiredBackstageService<IConfigurationManager>();
-            var licensingConfiguration = configurationManager.Get<LicensingConfiguration>();
-            var licenseString = licensingConfiguration.License;
-
-            if ( string.IsNullOrWhiteSpace( licenseString ) )
-            {
-                return CreateEmpty( services );
-            }
-
-            var licenseFactory = new LicenseFactory( services );
-
-            LicenseRegistrationData? licenseRegistrationData;
-
-            if ( licenseFactory.TryCreate( licenseString, out var license, out _ ) )
-            {
-                _ = license.TryGetLicenseRegistrationData( out licenseRegistrationData, out _ );
-            }
-            else
-            {
-                licenseRegistrationData = null;
-            }
-
-            var parsedLicensingConfiguration = new ParsedLicensingConfiguration( licensingConfiguration, services )
-            {
-                LicenseString = licenseString, LicenseData = licenseRegistrationData
-            };
-
-            return parsedLicensingConfiguration;
+            return new ParsedLicensingConfiguration( services );
         }
 
         /// <summary>
@@ -122,8 +126,11 @@ namespace Metalama.Backstage.Licensing.Registration
         /// </remarks>
         private void Save()
         {
+            // The ConfigurationManager may trigger the OnConfigurationFileChanged event when saving.
+            var licenseString = this.LicenseString;
+
             this._configurationManager
-                .Update<LicensingConfiguration>( c => c with { License = this.LicenseString } );
+                .Update<LicensingConfiguration>( c => c with { License = licenseString } );
         }
     }
 }

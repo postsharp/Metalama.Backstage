@@ -39,7 +39,7 @@ public abstract class LicenseConsumptionManagerTestsBase : LicensingTestsBase
         => new LicenseConsumptionService( this.ServiceProvider, licenseSources );
 
     private protected ILicenseConsumptionService CreateConsumptionManager()
-        => new LicenseConsumptionService( this.ServiceProvider, Enumerable.Empty<ILicenseSource>() );
+        => new LicenseConsumptionService( this.ServiceProvider, Array.Empty<ILicenseSource>() );
 
     private protected static void TestConsumption(
         ILicenseConsumptionService service,
