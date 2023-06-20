@@ -27,5 +27,7 @@ namespace Metalama.Backstage.Licensing.Tests.Licensing.LicenseSources
 
             return this._license;
         }
+
+        public string GetDescription() => "test license source";
     }
 }

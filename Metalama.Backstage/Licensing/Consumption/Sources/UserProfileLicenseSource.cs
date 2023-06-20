@@ -20,4 +20,6 @@ internal class UserProfileLicenseSource : LicenseSourceBase
     }
 
     protected override string? GetLicenseString() => this._licensingConfiguration.License;
+
+    public override string GetDescription() => "user profile";
 }

@@ -15,4 +15,6 @@ internal class ExplicitLicenseSource : LicenseSourceBase
     }
 
     protected override string? GetLicenseString() => this._licenseString;
+
+    public override string GetDescription() => "an environment variable or an MSBuild property";
 }

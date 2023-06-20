@@ -37,6 +37,8 @@ namespace Metalama.Backstage.Licensing.Consumption.Sources
             return license;
         }
 
+        public abstract string GetDescription();
+
         public override string ToString() => this.GetType().Name;
     }
 }

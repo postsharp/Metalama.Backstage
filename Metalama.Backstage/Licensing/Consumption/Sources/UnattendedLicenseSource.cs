@@ -38,6 +38,8 @@ internal class UnattendedLicenseSource : ILicenseSource, ILicense
         }
     }
 
+    public string GetDescription() => "unattended license source";
+
     bool ILicense.TryGetLicenseConsumptionData(
         [MaybeNullWhen( false )] out LicenseConsumptionData licenseConsumptionData,
         [MaybeNullWhen( true )] out string errorMessage )

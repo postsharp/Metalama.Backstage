@@ -74,6 +74,8 @@ internal sealed class PreviewLicenseSource : ILicenseSource, ILicense
         return this;
     }
 
+    public string GetDescription() => "product preview";
+
     private IComponentInfo? GetLatestPrereleaseComponent()
     {
         IComponentInfo latestComponent = this._applicationInfo;

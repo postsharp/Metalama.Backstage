@@ -38,17 +38,6 @@ namespace Metalama.Backstage.Licensing.Registration
         }
 
         /// <summary>
-        /// Creates an empty storage.
-        /// </summary>
-        /// <returns>The empty storage.</returns>
-        public static ParsedLicensingConfiguration CreateEmpty( IServiceProvider services )
-        {
-            var storage = new ParsedLicensingConfiguration( new LicensingConfiguration(), services );
-
-            return storage;
-        }
-
-        /// <summary>
         /// Opens a license file or creates empty storage if the license file doesn't exist.
         /// </summary>
         /// <param name="services">Services.</param>
@@ -59,22 +48,16 @@ namespace Metalama.Backstage.Licensing.Registration
             var licensingConfiguration = configurationManager.Get<LicensingConfiguration>();
             var licenseString = licensingConfiguration.License;
 
-            if ( string.IsNullOrWhiteSpace( licenseString ) )
+            LicenseRegistrationData? licenseRegistrationData = null;
+            
+            if ( !string.IsNullOrWhiteSpace( licenseString ) )
             {
-                return CreateEmpty( services );
-            }
+                var licenseFactory = new LicenseFactory( services );
 
-            var licenseFactory = new LicenseFactory( services );
-
-            LicenseRegistrationData? licenseRegistrationData;
-
-            if ( licenseFactory.TryCreate( licenseString, out var license, out _ ) )
-            {
-                _ = license.TryGetLicenseRegistrationData( out licenseRegistrationData, out _ );
-            }
-            else
-            {
-                licenseRegistrationData = null;
+                if ( licenseFactory.TryCreate( licenseString, out var license, out _ ) )
+                {
+                    _ = license.TryGetLicenseRegistrationData( out licenseRegistrationData, out _ );
+                }
             }
 
             var parsedLicensingConfiguration = new ParsedLicensingConfiguration( licensingConfiguration, services )
@@ -100,6 +83,9 @@ namespace Metalama.Backstage.Licensing.Registration
         /// <summary>
         /// Removes the stored license.
         /// </summary>
+        /// <returns>
+        /// <c>true</c> if a license has been removed, <c>false</c> if there was no license to be removed.
+        /// </returns>
         public bool RemoveLicense()
         {
             if ( this.LicenseString != null )
