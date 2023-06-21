@@ -12,6 +12,8 @@ namespace Metalama.Backstage.Extensibility
     /// </summary>
     internal class FileSystem : IFileSystem
     {
+        public string SynchronizationPrefix => "Global\\";
+
         /// <inheritdoc />
         public DateTime GetFileLastWriteTime( string path )
         {
@@ -224,5 +226,15 @@ namespace Metalama.Backstage.Extensibility
 
         /// <inheritdoc />
         public bool IsDirectoryEmpty( string path ) => !Directory.EnumerateFileSystemEntries( path ).Any();
+
+        public IDisposable WatchChanges( string directory, string filter, Action<FileSystemEventArgs> callback )
+        {
+            var fileSystemWatcher = new FileSystemWatcher( directory, filter );
+            fileSystemWatcher.Created += ( sender, args ) => callback( args );
+            fileSystemWatcher.Changed += ( sender, args ) => callback( args );
+            fileSystemWatcher.EnableRaisingEvents = true;
+
+            return fileSystemWatcher;
+        }
     }
 }

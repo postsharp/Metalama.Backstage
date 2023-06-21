@@ -3,6 +3,7 @@
 using Metalama.Backstage.Configuration;
 using Metalama.Backstage.Diagnostics;
 using Metalama.Backstage.Extensibility;
+using Metalama.Backstage.Maintenance;
 using Metalama.Backstage.Utilities;
 using System;
 using System.Collections.Generic;
@@ -21,23 +22,22 @@ namespace Metalama.Backstage.Telemetry
 {
     internal sealed class TelemetryUploader : ITelemetryUploader
     {
-        private readonly TelemetryConfiguration _configuration;
         private readonly IStandardDirectories _directories;
         private readonly IDateTimeProvider _time;
         private readonly IPlatformInfo _platformInfo;
         private readonly ILogger _logger;
-
         private readonly Uri _requestUri = new( "https://bits.postsharp.net:44301/upload" );
         private readonly IConfigurationManager _configurationManager;
+        private readonly ITempFileManager _tempFileManager;
 
         public TelemetryUploader( IServiceProvider serviceProvider )
         {
             this._configurationManager = serviceProvider.GetRequiredBackstageService<IConfigurationManager>();
-            this._configuration = this._configurationManager.Get<TelemetryConfiguration>();
 
             this._directories = serviceProvider.GetRequiredBackstageService<IStandardDirectories>();
             this._time = serviceProvider.GetRequiredBackstageService<IDateTimeProvider>();
             this._platformInfo = serviceProvider.GetRequiredBackstageService<IPlatformInfo>();
+            this._tempFileManager = serviceProvider.GetRequiredBackstageService<ITempFileManager>();
             this._logger = serviceProvider.GetLoggerFactory().Telemetry();
         }
 
@@ -220,21 +220,27 @@ namespace Metalama.Backstage.Telemetry
 
             if ( !File.Exists( touchFile ) )
             {
-                Directory.CreateDirectory( workerDirectory );
-
-                var zipResourceName = $"Metalama.Backstage.Metalama.Backstage.Worker.{targetFramework}.zip";
-                var assembly = this.GetType().Assembly;
-                using var resourceStream = assembly.GetManifestResourceStream( zipResourceName );
-
-                if ( resourceStream == null )
+                using ( MutexHelper.WithGlobalLock( touchFile ) )
                 {
-                    throw new InvalidOperationException( $"Resource '{zipResourceName}' not found in '{assembly.Location}'." );
+                    if ( !File.Exists( touchFile ) )
+                    {
+                        Directory.CreateDirectory( workerDirectory );
+
+                        var zipResourceName = $"Metalama.Backstage.Metalama.Backstage.Worker.{targetFramework}.zip";
+                        var assembly = this.GetType().Assembly;
+                        using var resourceStream = assembly.GetManifestResourceStream( zipResourceName );
+
+                        if ( resourceStream == null )
+                        {
+                            throw new InvalidOperationException( $"Resource '{zipResourceName}' not found in '{assembly.Location}'." );
+                        }
+
+                        using var zipStream = new ZipArchive( resourceStream );
+                        zipStream.ExtractToDirectory( workerDirectory );
+
+                        File.WriteAllText( touchFile, "" );
+                    }
                 }
-
-                using var zipStream = new ZipArchive( resourceStream );
-                zipStream.ExtractToDirectory( workerDirectory );
-
-                File.WriteAllText( touchFile, "" );
             }
         }
 
@@ -268,63 +274,37 @@ namespace Metalama.Backstage.Telemetry
         public void StartUpload( bool force = false )
         {
             var now = this._time.Now;
-            var lastUploadTime = this._configuration.LastUploadTime;
-
-            if ( !force &&
-                 lastUploadTime != null &&
-                 lastUploadTime.Value.AddDays( 1 ) >= now )
-            {
-                this._logger.Trace?.Log( $"It's not time to upload the telemetry yet. Now: {now} Last upload time: {lastUploadTime}" );
-
-                return;
-            }
 
             this._logger.Trace?.Log( "Acquiring mutex." );
 
-            if ( !MutexHelper.WithGlobalLock( "TelemetryUploader", TimeSpan.FromMilliseconds( 1 ), out var mutex ) )
+            if ( !this._configurationManager.UpdateIf<TelemetryConfiguration>(
+                    c => force ||
+                         c.LastUploadTime == null ||
+                         c.LastUploadTime.Value.AddDays( 1 ) < now,
+                    c => c with { LastUploadTime = this._time.Now } ) )
             {
-                this._logger.Trace?.Log( "Another upload is already being started." );
+                this._logger.Trace?.Log( $"It's not time to upload the telemetry yet." );
 
                 return;
             }
 
-            try
+            var targetFramework = ProcessUtilities.IsNetCore()
+                ? "net6.0"
+                : "netframework4.7.2";
+
+            var version = AssemblyMetadataReader.GetInstance( typeof(TelemetryUploader).Assembly ).PackageVersion;
+
+            if ( version == null )
             {
-                this._configurationManager.Update<TelemetryConfiguration>( c => c with { LastUploadTime = this._time.Now } );
-
-                var targetFramework = ProcessUtilities.IsNetCore()
-                    ? "net6.0"
-                    : "netframework4.7.2";
-
-                var configuration =
-#if DEBUG
-                    "Debug";
-#else
-                    "Release";
-#endif
-
-                var version = AssemblyMetadataReader.GetInstance( typeof(TelemetryUploader).Assembly ).PackageVersion;
-
-                if ( version == null )
-                {
-                    throw new InvalidOperationException( $"Unknown version of '{typeof(TelemetryUploader).Assembly}' assembly package." );
-                }
-
-                var workerDirectory = Path.Combine(
-                    this._directories.ApplicationDataDirectory,
-                    "Worker",
-                    version,
-                    configuration,
-                    targetFramework );
-
-                this.ExtractWorker( workerDirectory, targetFramework );
-
-                this.StartWorker( workerDirectory );
+                throw new InvalidOperationException( $"Unknown version of '{typeof(TelemetryUploader).Assembly}' assembly package." );
             }
-            finally
-            {
-                mutex.Dispose();
-            }
+
+            var workerDirectory =
+                this._tempFileManager.GetTempDirectory( "BackstageWorker", subdirectory: targetFramework, cleanUpStrategy: CleanUpStrategy.WhenUnused );
+
+            this.ExtractWorker( workerDirectory, targetFramework );
+
+            this.StartWorker( workerDirectory );
         }
 
         private static string ComputeHash( string s )

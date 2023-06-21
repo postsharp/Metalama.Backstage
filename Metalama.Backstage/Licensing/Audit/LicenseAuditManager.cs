@@ -4,7 +4,6 @@ using Metalama.Backstage.Configuration;
 using Metalama.Backstage.Diagnostics;
 using Metalama.Backstage.Extensibility;
 using Metalama.Backstage.Licensing.Consumption;
-using Metalama.Backstage.Utilities;
 using System;
 
 namespace Metalama.Backstage.Licensing.Audit;
@@ -30,21 +29,16 @@ internal class LicenseAuditManager : ILicenseAuditManager
 
     public void ReportLicense( LicenseConsumptionData license )
     {
-        void LogDisabledAudit( string reason )
-        {
-            this._logger.Trace?.Log( $"License audit disabled because the license '{license.DisplayName}' {reason}." );
-        }
-
         if ( !license.IsAuditable )
         {
-            LogDisabledAudit( "is not auditable" );
+            this._logger.Trace?.Log( $"License audit disabled because the license '{license.DisplayName}' is not auditable." );
 
             return;
         }
 
         if ( string.IsNullOrEmpty( license.LicenseString ) )
         {
-            LogDisabledAudit( "has no license string" );
+            this._logger.Trace?.Log( $"License audit disabled because the license string is empty." );
 
             return;
         }
@@ -56,6 +50,13 @@ internal class LicenseAuditManager : ILicenseAuditManager
             return;
         }
 
+        if ( this._applicationInfo.IsTelemetryEnabled )
+        {
+            this._logger.Trace?.Log( $"License audit disabled because telemetry is disabled for the current build." );
+
+            return;
+        }
+
         var report = new LicenseAuditReport( this._serviceProvider, license.LicenseString! );
 
         if ( report.ReportedComponent.Version == null )
@@ -63,54 +64,19 @@ internal class LicenseAuditManager : ILicenseAuditManager
             throw new InvalidOperationException( $"Version of '{report.ReportedComponent.Name}' application is unknown." );
         }
 
-        if ( VersionExtensions.IsDevelopmentVersion( report.ReportedComponent.Version ) )
-        {
-            this._logger.Trace?.Log(
-                $"License audit disabled because the '{report.ReportedComponent.Name}' application version '{report.ReportedComponent.Version}' is a development version." );
+        var updated = this._configurationManager.UpdateIf<LicenseAuditConfiguration>(
+            c => !c.LastAuditTimes.TryGetValue( report.AuditHashCode, out var lastReportTime )
+                 || lastReportTime <= this._time.Now.AddDays( -1 ),
+            c => c with { LastAuditTimes = c.LastAuditTimes.SetItem( report.AuditHashCode, this._time.Now ) } );
 
-            return;
+        if ( !updated )
+        {
+            this._logger.Trace?.Log( $"License audit disabled because the license '{license.DisplayName}' has been recently audited." );
         }
-
-        bool HasBeenReportedRecently()
+        else
         {
-            var configuration = this._configurationManager.Get<LicenseAuditConfiguration>();
-
-            if ( !configuration.LastAuditTimes.TryGetValue( report.AuditHashCode, out var lastReportTime )
-                 || lastReportTime <= this._time.Now.AddDays( -1 ) )
-            {
-                return false;
-            }
-            else
-            {
-                LogDisabledAudit( "has been reported recently" );
-
-                return true;
-            }
-        }
-
-        if ( HasBeenReportedRecently() )
-        {
-            return;
-        }
-
-        if ( !MutexHelper.WithGlobalLock( $"LicenseAuditManager-{report.AuditHashCode}", TimeSpan.FromMilliseconds( 1 ), out var mutex ) )
-        {
-            LogDisabledAudit( "is just being audited by another audit manager" );
-
-            return;
-        }
-
-        using ( mutex )
-        {
-            if ( HasBeenReportedRecently() )
-            {
-                return;
-            }
-
-            report.Flush();
-
-            this._configurationManager.Update<LicenseAuditConfiguration>(
-                c => c with { LastAuditTimes = c.LastAuditTimes.SetItem( report.AuditHashCode, this._time.Now ) } );
+            this._logger.Trace?.Log( $"Uploading license audit report." );
+            report.Upload();
         }
     }
 }

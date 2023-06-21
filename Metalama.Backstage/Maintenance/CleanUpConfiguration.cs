@@ -9,6 +9,8 @@ namespace Metalama.Backstage.Maintenance;
 [ConfigurationFile( "cleanup.json" )]
 public record CleanUpConfiguration : ConfigurationFile
 {
+#pragma warning disable CA1507 // Use nameof in place of string literal
     [JsonProperty( "LastCleanUpTime" )]
+#pragma warning restore CA1507
     public DateTime? LastCleanUpTime { get; init; }
 }

@@ -1,5 +1,6 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. See the LICENSE.md file in the root directory of this repository root for details.
 
+using Metalama.Backstage.Diagnostics;
 using Metalama.Backstage.Extensibility;
 using System;
 using System.IO;
@@ -12,45 +13,44 @@ internal abstract class MetricsBase
     private readonly IStandardDirectories _directories;
     private readonly IFileSystem _fileSystem;
     private readonly ITelemetryUploader _uploader;
+    private readonly ILogger _logger;
     private readonly string _feedbackKind;
 
     protected MetricCollection Metrics { get; } = new();
 
     protected MetricsBase( IServiceProvider serviceProvider, string feedbackKind )
     {
+        this._feedbackKind = feedbackKind;
+
         this._directories = serviceProvider.GetRequiredBackstageService<IStandardDirectories>();
         this._fileSystem = serviceProvider.GetRequiredBackstageService<IFileSystem>();
         this._uploader = serviceProvider.GetRequiredBackstageService<ITelemetryUploader>();
-        this._feedbackKind = feedbackKind;
+        this._logger = serviceProvider.GetLoggerFactory().GetLogger( "Metrics" );
     }
 
-    public void Flush()
+    public void Upload()
     {
         // If no filename was provided, we have to write metrics to the standard reporting directory.
 
         this.CreateUploadDirectory();
 
-        // We try 8 different files to avoid locks.
-        for ( var i = 0; i < 8; i++ )
+        try
         {
-            try
-            {
-                var fileName = Path.Combine( this._directories.TelemetryUploadQueueDirectory, $"{this._feedbackKind}-{i}.log" );
-                this.Flush( fileName );
-            }
-            catch
-            {
-                continue;
-            }
-
-            // Start the upload periodically.
-            this._uploader.StartUpload();
-
-            break;
+            var fileName = Path.Combine( this._directories.TelemetryUploadQueueDirectory, $"{this._feedbackKind}-{Guid.NewGuid()}.log" );
+            this.Write( fileName );
         }
+        catch ( Exception e )
+        {
+            this._logger.Error?.Log( e.ToString() );
+
+            return;
+        }
+
+        // Start the upload periodically.
+        this._uploader.StartUpload();
     }
 
-    private void Flush( string fileName )
+    private void Write( string fileName )
     {
         var directory = Path.GetDirectoryName( fileName );
 

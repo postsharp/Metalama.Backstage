@@ -14,6 +14,11 @@ namespace Metalama.Backstage.Extensibility
     public interface IFileSystem : IBackstageService
     {
         /// <summary>
+        /// Gets prefix for synchronization objects (mutexes) related to objects of the current file system.
+        /// </summary>
+        string SynchronizationPrefix { get; }
+
+        /// <summary>
         /// Returns the date and time the specified file was last written to.
         /// </summary>
         /// <param name="path">The file for which to obtain write date and time information.</param>
@@ -458,5 +463,7 @@ namespace Metalama.Backstage.Extensibility
         /// <param name="path">The name of the directory to check.</param>
         /// <returns>Value indicating whether <paramref name="path"/> has any subdirectories or files.</returns>
         bool IsDirectoryEmpty( string path );
+
+        IDisposable WatchChanges( string directory, string filter, Action<FileSystemEventArgs> callback );
     }
 }

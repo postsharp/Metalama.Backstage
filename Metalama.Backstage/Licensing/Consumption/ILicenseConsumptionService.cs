@@ -2,6 +2,7 @@
 
 using JetBrains.Annotations;
 using Metalama.Backstage.Extensibility;
+using System;
 using System.Collections.Generic;
 
 namespace Metalama.Backstage.Licensing.Consumption
@@ -39,5 +40,7 @@ namespace Metalama.Backstage.Licensing.Consumption
         bool IsRedistributionLicense { get; }
 
         string? LicenseString { get; }
+
+        event Action? Changed;
     }
 }

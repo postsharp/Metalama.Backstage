@@ -1,165 +1,49 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. See the LICENSE.md file in the root directory of this repository root for details.
 
-using Metalama.Backstage.Diagnostics;
-using Metalama.Backstage.Extensibility;
-using Metalama.Backstage.Licensing.Audit;
 using Metalama.Backstage.Licensing.Consumption.Sources;
-using Metalama.Backstage.Licensing.Licenses;
 using System;
 using System.Collections.Generic;
 
 namespace Metalama.Backstage.Licensing.Consumption;
 
 /// <inheritdoc />
-internal class LicenseConsumptionService : ILicenseConsumptionService
+internal partial class LicenseConsumptionService : ILicenseConsumptionService
 {
-    private readonly ILogger _logger;
-    private readonly List<LicensingMessage> _messages = new();
-    private readonly LicenseFactory _licenseFactory;
-    private readonly Dictionary<string, NamespaceLicenseInfo> _embeddedRedistributionLicensesCache = new();
-    private readonly LicenseConsumptionData? _license;
-    private readonly NamespaceLicenseInfo? _licensedNamespace;
+    private readonly IServiceProvider _services;
+    private readonly IReadOnlyList<ILicenseSource> _sources;
+    private ImmutableImpl _impl;
 
-    private void ReportMessage( LicensingMessage message )
+    public LicenseConsumptionService( IServiceProvider services, IReadOnlyList<ILicenseSource> licenseSources )
     {
-        this._messages.Add( message );
+        this._services = services;
+        this._sources = licenseSources;
+        this._impl = new ImmutableImpl( services, this._sources );
 
-        if ( message.IsError )
+        foreach ( var source in this._sources )
         {
-            this._logger.Error?.Log( message.Text );
-        }
-        else
-        {
-            this._logger.Warning?.Log( message.Text );
+            source.Changed += this.OnSourceChanged;
         }
     }
 
-    /// <summary>
-    /// Initializes a new instance of the <see cref="LicenseConsumptionService"/> class.
-    /// </summary>
-    /// <param name="services">Services.</param>
-    /// <param name="licenseSources">License sources.</param>
-    public LicenseConsumptionService( IServiceProvider services, IEnumerable<ILicenseSource> licenseSources )
+    private void OnSourceChanged()
     {
-        this._logger = services.GetLoggerFactory().Licensing();
-        this._licenseFactory = new LicenseFactory( services );
+        this._impl = new ImmutableImpl( this._services, this._sources );
 
-        foreach ( var source in licenseSources )
-        {
-            var license = source.GetLicense( this.ReportMessage );
-
-            if ( license == null )
-            {
-                this._logger.Trace?.Log( $"'{source.GetType().Name}' license source provided no license." );
-
-                continue;
-            }
-
-            if ( !license.TryGetLicenseConsumptionData( out var data, out var errorMessage ) )
-            {
-                _ = license.TryGetLicenseRegistrationData( out var registrationData, out _ );
-                var message = registrationData == null ? "A license" : $"The {registrationData.Description}";
-                message += $" {errorMessage}.";
-
-                if ( registrationData is { IsSelfCreated: false } )
-                {
-                    message += $" License key ID: '{registrationData.LicenseId}'.";
-                }
-
-                if ( source.GetType() != typeof(UserProfileLicenseSource) )
-                {
-                    message += $" The license key originates from {source.GetDescription()}.";
-                }
-
-                this.ReportMessage( new LicensingMessage( message ) );
-
-                continue;
-            }
-
-            this._license = data;
-            this._licensedNamespace = string.IsNullOrEmpty( data.LicensedNamespace ) ? null : new NamespaceLicenseInfo( data.LicensedNamespace! );
-
-            var licenseAuditManager = services.GetBackstageService<ILicenseAuditManager>();
-            licenseAuditManager?.ReportLicense( data );
-
-            return;
-        }
+        this.Changed?.Invoke();
     }
 
-    /// <inheritdoc />
-    public bool CanConsume( LicenseRequirement requirement, string? consumerNamespace = null )
-    {
-        if ( this._license == null )
-        {
-            this._logger.Error?.Log( "No license provided." );
+    public IReadOnlyList<LicensingMessage> Messages => this._impl.Messages;
 
-            return false;
-        }
+    public bool CanConsume( LicenseRequirement requirement, string? consumerNamespace = null ) => this._impl.CanConsume( requirement, consumerNamespace );
 
-        if ( !string.IsNullOrEmpty( consumerNamespace )
-             && this._licensedNamespace != null
-             && !this._licensedNamespace.AllowsNamespace( consumerNamespace ) )
-        {
-            this.ReportMessage(
-                new LicensingMessage(
-                    $"Namespace '{consumerNamespace}' is not licensed. Your license is limited to '{this._licensedNamespace.AllowedNamespace}' namespace.",
-                    true ) );
-
-            return false;
-        }
-
-        if ( !requirement.IsFulfilledBy( this._license ) )
-        {
-            this._logger.Error?.Log( $"License requirement '{requirement}' is not licensed." );
-
-            return false;
-        }
-
-        return true;
-    }
-
-    /// <inheritdoc />
     public bool ValidateRedistributionLicenseKey( string redistributionLicenseKey, string aspectClassNamespace )
-    {
-        if ( !this._embeddedRedistributionLicensesCache.TryGetValue( redistributionLicenseKey, out var licensedNamespace ) )
-        {
-            if ( !this._licenseFactory.TryCreate( redistributionLicenseKey, out var license, out var errorMessage ) )
-            {
-                this.ReportMessage( new LicensingMessage( errorMessage, true ) );
+        => this._impl.ValidateRedistributionLicenseKey( redistributionLicenseKey, aspectClassNamespace );
 
-                return false;
-            }
+    public bool IsTrialLicense => this._impl.IsTrialLicense;
 
-            if ( !license.TryGetLicenseConsumptionData( out var licenseConsumptionData, out errorMessage ) )
-            {
-                this.ReportMessage( new LicensingMessage( errorMessage, true ) );
+    public bool IsRedistributionLicense => this._impl.IsRedistributionLicense;
 
-                return false;
-            }
+    public string? LicenseString => this._impl.LicenseString;
 
-            if ( !licenseConsumptionData.IsRedistributable )
-            {
-                return false;
-            }
-
-            if ( string.IsNullOrEmpty( licenseConsumptionData.LicensedNamespace ) )
-            {
-                return false;
-            }
-
-            licensedNamespace = new NamespaceLicenseInfo( licenseConsumptionData.LicensedNamespace! );
-            this._embeddedRedistributionLicensesCache.Add( redistributionLicenseKey, licensedNamespace );
-        }
-
-        return licensedNamespace.AllowsNamespace( aspectClassNamespace );
-    }
-
-    public bool IsTrialLicense => this._license?.LicenseType == LicenseType.Evaluation;
-
-    public bool IsRedistributionLicense => this._license?.IsRedistributable == true;
-
-    public string? LicenseString => this._license?.LicenseString;
-
-    /// <inheritdoc />
-    public IReadOnlyList<LicensingMessage> Messages => this._messages;
+    public event Action? Changed;
 }

@@ -28,6 +28,8 @@ namespace Metalama.Backstage.Licensing.Tests.Licensing.LicenseSources
             return this._license;
         }
 
+        event Action? ILicenseSource.Changed { add { } remove { } }
+
         public string GetDescription() => "test license source";
     }
 }

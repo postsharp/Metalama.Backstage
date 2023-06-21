@@ -6,7 +6,6 @@ using Metalama.Backstage.Licensing.Consumption.Sources;
 using Metalama.Backstage.Licensing.Tests.Licensing.Licenses;
 using Metalama.Backstage.Licensing.Tests.Licensing.LicenseSources;
 using System;
-using System.Linq;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -39,7 +38,7 @@ public abstract class LicenseConsumptionManagerTestsBase : LicensingTestsBase
         => new LicenseConsumptionService( this.ServiceProvider, licenseSources );
 
     private protected ILicenseConsumptionService CreateConsumptionManager()
-        => new LicenseConsumptionService( this.ServiceProvider, Enumerable.Empty<ILicenseSource>() );
+        => new LicenseConsumptionService( this.ServiceProvider, Array.Empty<ILicenseSource>() );
 
     private protected static void TestConsumption(
         ILicenseConsumptionService service,

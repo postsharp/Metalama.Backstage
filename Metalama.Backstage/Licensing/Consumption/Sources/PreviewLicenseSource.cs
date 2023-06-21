@@ -74,6 +74,8 @@ internal sealed class PreviewLicenseSource : ILicenseSource, ILicense
         return this;
     }
 
+    event Action? ILicenseSource.Changed { add { } remove { } }
+
     public string GetDescription() => "product preview";
 
     private IComponentInfo? GetLatestPrereleaseComponent()

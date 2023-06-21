@@ -37,6 +37,10 @@ namespace Metalama.Backstage.Licensing.Consumption.Sources
             return license;
         }
 
+        public event Action? Changed;
+
+        protected virtual void OnChanged() => this.Changed?.Invoke();
+
         public abstract string GetDescription();
 
         public override string ToString() => this.GetType().Name;

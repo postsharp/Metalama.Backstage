@@ -18,6 +18,11 @@ namespace Metalama.Backstage.Licensing.Consumption.Sources
         ILicense? GetLicense( Action<LicensingMessage> reportMessage );
 
         /// <summary>
+        /// Event raised when the current source has changed.
+        /// </summary>
+        event Action? Changed;
+
+        /// <summary>
         /// Gets a description of the license source.
         /// </summary>
         /// <returns>The description of the license source.</returns>
