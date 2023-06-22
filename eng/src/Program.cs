@@ -6,8 +6,9 @@ using PostSharp.Engineering.BuildTools.Build.Model;
 using PostSharp.Engineering.BuildTools.Build.Solutions;
 using PostSharp.Engineering.BuildTools.Dependencies.Definitions;
 using Spectre.Console.Cli;
+using MetalamaDependencies = PostSharp.Engineering.BuildTools.Dependencies.Definitions.MetalamaDependencies.V2023_2;
 
-var product = new Product( MetalamaDependencies.V2023_2.MetalamaBackstage )
+var product = new Product( MetalamaDependencies.MetalamaBackstage )
 {
     Solutions = new Solution[]
     {
