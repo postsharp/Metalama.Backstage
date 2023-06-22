@@ -4,10 +4,11 @@ using PostSharp.Engineering.BuildTools;
 using PostSharp.Engineering.BuildTools.Build;
 using PostSharp.Engineering.BuildTools.Build.Model;
 using PostSharp.Engineering.BuildTools.Build.Solutions;
-using PostSharp.Engineering.BuildTools.Dependencies.Model;
+using PostSharp.Engineering.BuildTools.Dependencies.Definitions;
 using Spectre.Console.Cli;
+using MetalamaDependencies = PostSharp.Engineering.BuildTools.Dependencies.Definitions.MetalamaDependencies.V2023_1;
 
-var product = new Product( Dependencies.MetalamaBackstage )
+var product = new Product( MetalamaDependencies.MetalamaBackstage )
 {
     Solutions = new Solution[]
     {
@@ -15,7 +16,7 @@ var product = new Product( Dependencies.MetalamaBackstage )
     },
     PublicArtifacts = Pattern.Create(
         "Metalama.Backstage.$(PackageVersion).nupkg" ),
-    Dependencies = new[] { Dependencies.PostSharpEngineering },
+    Dependencies = new[] { DevelopmentDependencies.PostSharpEngineering },
     Configurations = Product.DefaultConfigurations
         .WithValue( BuildConfiguration.Release, new BuildConfigurationInfo(
             MSBuildName: "Release",
