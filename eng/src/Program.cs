@@ -18,9 +18,7 @@ var product = new Product( MetalamaDependencies.MetalamaBackstage )
         "Metalama.Backstage.$(PackageVersion).nupkg" ),
     Dependencies = new[] { DevelopmentDependencies.PostSharpEngineering },
     Configurations = Product.DefaultConfigurations
-        .WithValue( BuildConfiguration.Release, new BuildConfigurationInfo(
-            MSBuildName: "Release",
-            ExportsToTeamCityBuild: true ) )
+        .WithValue( BuildConfiguration.Release, c => c with { ExportsToTeamCityBuild = true } )
 };
 
 var commandApp = new CommandApp();
