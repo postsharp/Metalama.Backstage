@@ -14,6 +14,8 @@ internal class UserProfileLicenseSource : LicenseSourceBase
     private readonly IConfigurationManager _configurationManager;
     private LicensingConfiguration _licensingConfiguration;
 
+    public override string Description => "user profile";
+    
     public UserProfileLicenseSource( IServiceProvider services )
         : base( services )
     {
