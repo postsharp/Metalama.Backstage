@@ -9,6 +9,8 @@ namespace Metalama.Backstage.Licensing.Consumption.Sources
     {
         private readonly IServiceProvider _services;
 
+        public abstract string Description { get; }
+        
         protected LicenseSourceBase( IServiceProvider services )
         {
             this._services = services;

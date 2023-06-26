@@ -122,7 +122,7 @@ namespace Metalama.Backstage.Licensing.Licenses
         /// </summary>
         public static LicenseRegistrationData ToRegistrationData( this LicenseKeyData licenseKeyData )
         {
-            var description = $"{licenseKeyData.GetProductName()} ({licenseKeyData.LicenseType.GetLicenseTypeName()})";
+            var description = $"{licenseKeyData.GetProductName()} {licenseKeyData.LicenseType.GetLicenseTypeName()}";
 
             bool licenseServerEligible;
 

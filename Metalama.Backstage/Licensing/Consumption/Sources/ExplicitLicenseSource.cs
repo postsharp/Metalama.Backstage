@@ -8,6 +8,8 @@ internal class ExplicitLicenseSource : LicenseSourceBase
 {
     private readonly string _licenseString;
 
+    public override string Description => "the MSBuild property or environment variable named MetalamaLicense";
+
     public ExplicitLicenseSource( string licenseString, IServiceProvider services )
         : base( services )
     {

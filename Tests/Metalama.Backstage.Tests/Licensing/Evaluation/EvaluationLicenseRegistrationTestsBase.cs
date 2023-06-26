@@ -43,7 +43,7 @@ namespace Metalama.Backstage.Licensing.Tests.Licensing.Evaluation
 
         protected void AssertEvaluationNotEligible( string reason )
         {
-            Assert.False( this.Registrar.TryActivateLicense() );
+            Assert.False( this.Registrar.TryActivateLicense(), reason );
         }
     }
 }

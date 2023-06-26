@@ -57,10 +57,21 @@ internal class LicenseConsumptionService : ILicenseConsumptionService
 
             if ( !license.TryGetLicenseConsumptionData( out var data, out var errorMessage ) )
             {
-                var licenseUniqueId = license.TryGetLicenseRegistrationData( out var registrationData, out _ ) ? registrationData.UniqueId : "<invalid>";
+                _ = license.TryGetLicenseRegistrationData( out var registrationData, out _ );
+                var message = registrationData == null ? "A license" : $"The {registrationData.Description}";
+                message += $" {errorMessage}.";
 
-                this.ReportMessage(
-                    new LicensingMessage( $"License '{licenseUniqueId}' provided by '{source.GetType().Name}' license source is invalid: {errorMessage}" ) );
+                if ( registrationData is { IsSelfCreated: false } )
+                {
+                    message += $" License key ID: '{registrationData.LicenseId}'.";
+                }
+
+                if ( source.GetType() != typeof(UserProfileLicenseSource) )
+                {
+                    message += $" The license key originates from {source.Description}.";
+                }
+
+                this.ReportMessage( new LicensingMessage( message ) );
 
                 continue;
             }

@@ -154,9 +154,9 @@ namespace Metalama.Backstage.Licensing.Licenses
             }
         }
 
-        private bool TryGetValidatedLicenseKeyData( [MaybeNullWhen( false )] out LicenseKeyData data, [MaybeNullWhen( true )] out string errorMessage )
+        private bool TryGetValidatedLicenseKeyData( [MaybeNullWhen( false )] out LicenseKeyData data, [MaybeNullWhen( true )] out string validationErrorMessage )
         {
-            if ( !this.TryGetLicenseKeyData( out data, out errorMessage ) )
+            if ( !this.TryGetLicenseKeyData( out data, out validationErrorMessage ) )
             {
                 return false;
             }
@@ -167,10 +167,9 @@ namespace Metalama.Backstage.Licensing.Licenses
                     null,
                     this._dateTimeProvider,
                     applicationInfoService,
-                    out var validationErrorMessage ) )
+                    out validationErrorMessage ) )
             {
-                errorMessage = $"License key {data.LicenseUniqueId} is invalid: {validationErrorMessage}";
-                this._logger.Error?.Log( errorMessage );
+                this._logger.Trace?.Log( $"License key {data.LicenseUniqueId} is invalid: {validationErrorMessage}" );
                 data = null;
 
                 return false;

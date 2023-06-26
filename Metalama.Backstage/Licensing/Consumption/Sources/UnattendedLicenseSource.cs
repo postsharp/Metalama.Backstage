@@ -15,6 +15,8 @@ internal class UnattendedLicenseSource : ILicenseSource, ILicense
     private readonly ILogger _logger;
     private readonly IApplicationInfo _applicationInfo;
 
+    public string Description => "unattended license source"; 
+    
     public UnattendedLicenseSource( IServiceProvider serviceProvider )
     {
         this._serviceProvider = serviceProvider;
