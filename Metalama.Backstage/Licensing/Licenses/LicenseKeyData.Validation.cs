@@ -14,13 +14,13 @@ namespace Metalama.Backstage.Licensing.Licenses
             byte[]? publicKeyToken,
             IDateTimeProvider dateTimeProvider,
             IApplicationInfo applicationInfo,
-            [MaybeNullWhen( true )] out string errorMessage )
+            [MaybeNullWhen( true )] out string errorDescription )
         {
 #pragma warning disable 618
             if ( this.LicenseType == LicenseType.Anonymous )
             {
                 // Anonymous licenses are always valid but confer no right.
-                errorMessage = null;
+                errorDescription = null;
 
                 return true;
             }
@@ -28,21 +28,21 @@ namespace Metalama.Backstage.Licensing.Licenses
 
             if ( !this.VerifySignature() )
             {
-                errorMessage = "The license signature is invalid.";
+                errorDescription = "has invalid signature";
 
                 return false;
             }
 
             if ( this.ValidFrom.HasValue && this.ValidFrom > dateTimeProvider.Now )
             {
-                errorMessage = "The license is not yet valid.";
+                errorDescription = "in not yet valid";
 
                 return false;
             }
 
             if ( this.ValidTo.HasValue && this.ValidTo < dateTimeProvider.Now )
             {
-                errorMessage = "The license is not valid any more.";
+                errorDescription = "has expired";
 
                 return false;
             }
@@ -51,14 +51,14 @@ namespace Metalama.Backstage.Licensing.Licenses
             {
                 if ( publicKeyToken == null )
                 {
-                    errorMessage = "The assembly is missing a public key token.";
+                    errorDescription = "cannot be validated because the validating assembly is missing a public key token";
 
                     return false;
                 }
 
                 if ( !ComparePublicKeyToken( publicKeyToken, this.PublicKeyToken ) )
                 {
-                    errorMessage = "The public key token of the assembly does not match the license.";
+                    errorDescription = "is invalid because the public key token of the assembly does not match the license";
 
                     return false;
                 }
@@ -66,14 +66,14 @@ namespace Metalama.Backstage.Licensing.Licenses
 
             if ( !Enum.IsDefined( typeof(LicenseType), this.LicenseType ) )
             {
-                errorMessage = "The license type is not known.";
+                errorDescription = "license type is unknown";
 
                 return false;
             }
 
             if ( !Enum.IsDefined( typeof(LicensedProduct), this.Product ) )
             {
-                errorMessage = "The licensed product is not known.";
+                errorDescription = "licensed product is unknown";
 
                 return false;
             }
@@ -83,7 +83,7 @@ namespace Metalama.Backstage.Licensing.Licenses
                         i.IsMustUnderstand()
                         && !Enum.IsDefined( typeof(LicenseFieldIndex), i ) ) )
             {
-                errorMessage = "The license contains unknown must-understand fields.";
+                errorDescription = "contains unknown must-understand fields";
 
                 return false;
             }
@@ -99,8 +99,8 @@ namespace Metalama.Backstage.Licensing.Licenses
 
                 if ( this.SubscriptionEndDate < latestComponentMadeByPostSharp.BuildDate )
                 {
-                    errorMessage =
-                        $"The licensed product '{latestComponentMadeByPostSharp.Name}' version {latestComponentMadeByPostSharp.Version} has been released on {latestComponentMadeByPostSharp.BuildDate:d}, but the license key {this.LicenseId} only allows you to use versions released before {this.SubscriptionEndDate:d}.";
+                    errorDescription =
+                        $"does not allow to use the licensed product '{latestComponentMadeByPostSharp.Name}' version {latestComponentMadeByPostSharp.Version} released on {latestComponentMadeByPostSharp.BuildDate:d} - only versions released before {this.SubscriptionEndDate:d} are allowed to use by this license";
 
                     return false;
                 }
@@ -108,19 +108,19 @@ namespace Metalama.Backstage.Licensing.Licenses
 
             if ( this.IsRedistribution && !this.IsLimitedByNamespace )
             {
-                errorMessage = "The license is a redistribution license, but is not limited by a namespace.";
+                errorDescription = "is a redistribution license, but it is not limited by a namespace";
 
                 return false;
             }
 
             if ( !this.IsRedistribution && this.IsLimitedByNamespace )
             {
-                errorMessage = "The license is limited by namespace, but it is not a redistribution license.";
+                errorDescription = "is limited by a namespace, but it is not a redistribution license";
 
                 return false;
             }
 
-            errorMessage = null;
+            errorDescription = null;
 
             return true;
         }

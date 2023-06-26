@@ -104,6 +104,9 @@ namespace Metalama.Backstage.Licensing.Registration
         /// <summary>
         /// Removes the stored license.
         /// </summary>
+        /// <returns>
+        /// <c>true</c> if a license has been removed, <c>false</c> if there was no license to be removed.
+        /// </returns>
         public bool RemoveLicense()
         {
             if ( this.LicenseString != null )
