@@ -11,6 +11,11 @@ namespace Metalama.Backstage.Licensing.Consumption.Sources
     public interface ILicenseSource
     {
         /// <summary>
+        /// Gets a description of the license source.
+        /// </summary>
+        string Description { get; }
+        
+        /// <summary>
         /// Gets a license, if available and valid. <paramref name="reportMessage"/> is called when the license key is invalid.
         /// </summary>
         /// <param name="reportMessage">Action to be called when the license is invalid.</param>
@@ -21,11 +26,5 @@ namespace Metalama.Backstage.Licensing.Consumption.Sources
         /// Event raised when the current source has changed.
         /// </summary>
         event Action? Changed;
-
-        /// <summary>
-        /// Gets a description of the license source.
-        /// </summary>
-        /// <returns>The description of the license source.</returns>
-        string GetDescription();
     }
 }

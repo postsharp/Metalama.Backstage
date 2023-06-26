@@ -22,6 +22,8 @@ internal sealed class PreviewLicenseSource : ILicenseSource, ILicense
 
     private bool _messageReported;
 
+    public string Description => "product preview";
+
     public PreviewLicenseSource( IServiceProvider serviceProvider )
     {
         this._time = serviceProvider.GetRequiredBackstageService<IDateTimeProvider>();
@@ -75,8 +77,6 @@ internal sealed class PreviewLicenseSource : ILicenseSource, ILicense
     }
 
     event Action? ILicenseSource.Changed { add { } remove { } }
-
-    public string GetDescription() => "product preview";
 
     private IComponentInfo? GetLatestPrereleaseComponent()
     {
