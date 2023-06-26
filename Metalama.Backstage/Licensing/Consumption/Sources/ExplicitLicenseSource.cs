@@ -16,5 +16,5 @@ internal class ExplicitLicenseSource : LicenseSourceBase
 
     protected override string? GetLicenseString() => this._licenseString;
 
-    public override string GetDescription() => "an environment variable or an MSBuild property";
+    public override string GetDescription() => "the MSBuild property or environment variable named MetalamaLicense";
 }
