@@ -9,6 +9,8 @@ namespace Metalama.Backstage.Licensing.Consumption.Sources
     {
         private readonly IServiceProvider _services;
 
+        public abstract string Description { get; }
+        
         protected LicenseSourceBase( IServiceProvider services )
         {
             this._services = services;
@@ -36,8 +38,6 @@ namespace Metalama.Backstage.Licensing.Consumption.Sources
 
             return license;
         }
-
-        public abstract string GetDescription();
 
         public override string ToString() => this.GetType().Name;
     }

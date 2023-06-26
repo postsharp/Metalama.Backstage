@@ -13,6 +13,8 @@ internal class UserProfileLicenseSource : LicenseSourceBase
 {
     private readonly LicensingConfiguration _licensingConfiguration;
 
+    public override string Description => "user profile";
+    
     public UserProfileLicenseSource( IServiceProvider services )
         : base( services )
     {
@@ -20,6 +22,4 @@ internal class UserProfileLicenseSource : LicenseSourceBase
     }
 
     protected override string? GetLicenseString() => this._licensingConfiguration.License;
-
-    public override string GetDescription() => "user profile";
 }

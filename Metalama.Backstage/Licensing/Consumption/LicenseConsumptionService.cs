@@ -68,7 +68,7 @@ internal class LicenseConsumptionService : ILicenseConsumptionService
 
                 if ( source.GetType() != typeof(UserProfileLicenseSource) )
                 {
-                    message += $" The license key originates from {source.GetDescription()}.";
+                    message += $" The license key originates from {source.Description}.";
                 }
 
                 this.ReportMessage( new LicensingMessage( message ) );

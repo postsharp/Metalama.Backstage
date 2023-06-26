@@ -11,6 +11,8 @@ namespace Metalama.Backstage.Licensing.Tests.Licensing.LicenseSources
     {
         private readonly ILicense? _license;
 
+        public string Description => "test license source"; 
+        
         public string Id { get; }
 
         public bool IsUsed { get; set; }
@@ -27,7 +29,5 @@ namespace Metalama.Backstage.Licensing.Tests.Licensing.LicenseSources
 
             return this._license;
         }
-
-        public string GetDescription() => "test license source";
     }
 }
