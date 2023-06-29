@@ -78,6 +78,11 @@ public class TempFileManager : ITempFileManager
 
     private void DeleteDirectoryRecursive( string directory, bool all )
     {
+        if ( !this._fileSystem.DirectoryExists( directory ) )
+        {
+            return;
+        }
+        
         // Delete the directory if it contains cleanup.json and the cleanup policy requires it.
         if ( this.MustDeleteDirectory( directory, all ) )
         {
