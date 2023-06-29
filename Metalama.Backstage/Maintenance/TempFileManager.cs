@@ -78,7 +78,7 @@ public class TempFileManager : ITempFileManager
 
     private void DeleteDirectoryRecursive( string directory, bool all )
     {
-        if ( !Directory.Exists( directory ) )
+        if ( !this._fileSystem.DirectoryExists( directory ) )
         {
             return;
         }
