@@ -17,7 +17,7 @@ namespace Metalama.Backstage.Commands.Telemetry
             }
             else
             {
-                uploader.UploadAsync().RunSynchronously();
+                uploader.UploadAsync().GetAwaiter().GetResult();
             }
         }
     }

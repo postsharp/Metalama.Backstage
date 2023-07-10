@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.IO.Compression;
 using System.Linq;
 
 namespace Metalama.Backstage.Extensibility
@@ -121,6 +122,24 @@ namespace Metalama.Backstage.Extensibility
         }
 
         /// <inheritdoc />
+        public Stream CreateFile( string path )
+        {
+            return File.Create( path );
+        }
+
+        /// <inheritdoc />
+        public Stream CreateFile( string path, int bufferSize )
+        {
+            return File.Create( path, bufferSize );
+        }
+
+        /// <inheritdoc />
+        public Stream CreateFile( string path, int bufferSize, FileOptions options )
+        {
+            return File.Create( path, bufferSize, options );
+        }
+
+        /// <inheritdoc />
         public void CreateDirectory( string path )
         {
             Directory.CreateDirectory( path );
@@ -224,5 +243,13 @@ namespace Metalama.Backstage.Extensibility
 
         /// <inheritdoc />
         public bool IsDirectoryEmpty( string path ) => !Directory.EnumerateFileSystemEntries( path ).Any();
+
+        /// <inheritdoc />
+        public void ExtractZipArchiveToDirectory( ZipArchive sourceZipArchive, string destinationDirectoryPath )
+            => sourceZipArchive.ExtractToDirectory( destinationDirectoryPath );
+
+        /// <inheritdoc />
+        public void ExtractZipArchiveToDirectory( ZipArchive sourceZipArchive, string destinationDirectoryPath, bool overwriteFiles )
+            => sourceZipArchive.ExtractToDirectory( destinationDirectoryPath, overwriteFiles );
     }
 }

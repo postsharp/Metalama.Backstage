@@ -25,7 +25,7 @@ namespace Metalama.Backstage.Testing
 
         public TestLoggerFactory Log { get; }
 
-        public TestTelemetryUploader TelemetryUploader { get; } = new();
+        public NullTelemetryUploader TelemetryUploader { get; } = new();
 
         public TestUsageReporter UsageReporter { get; } = new();
 

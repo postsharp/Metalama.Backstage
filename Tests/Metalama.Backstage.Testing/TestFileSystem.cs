@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.IO.Abstractions;
 using System.IO.Abstractions.TestingHelpers;
+using System.IO.Compression;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading;
@@ -278,6 +279,13 @@ namespace Metalama.Backstage.Testing
         public string[] GetDirectories( string path, string searchPattern, SearchOption searchOption )
             => this._directory.Execute( ExecutionKind.Manage, path, d => RemoveTrailingSeparators( d.GetDirectories( path, searchPattern, searchOption ) ) );
 
+        public Stream CreateFile( string path ) => this._file.Execute( ExecutionKind.Write, path, f => f.Create( path ) );
+
+        public Stream CreateFile( string path, int bufferSize ) => this._file.Execute( ExecutionKind.Write, path, f => f.Create( path, bufferSize ) );
+
+        public Stream CreateFile( string path, int bufferSize, FileOptions options )
+            => this._file.Execute( ExecutionKind.Write, path, f => f.Create( path, bufferSize, options ) );
+
         public void CreateDirectory( string path ) => this._directory.Execute( ExecutionKind.Write, path, d => d.CreateDirectory( path ) );
 
         public Stream Open( string path, FileMode mode ) => this._file.Execute( ExecutionKind.Write, path, f => f.Open( path, mode ) );
@@ -318,5 +326,11 @@ namespace Metalama.Backstage.Testing
         public void DeleteDirectory( string path, bool recursive ) => this._directory.Execute( ExecutionKind.Manage, path, d => d.Delete( path, recursive ) );
 
         public bool IsDirectoryEmpty( string path ) => this._directory.Execute( ExecutionKind.Read, path, d => !d.EnumerateFileSystemEntries( path ).Any() );
+
+        public void ExtractZipArchiveToDirectory( ZipArchive sourceZipArchive, string destinationDirectoryPath )
+            => TestFileSystemZipUtilities.ExtractToDirectory( this, sourceZipArchive, destinationDirectoryPath );
+
+        public void ExtractZipArchiveToDirectory( ZipArchive sourceZipArchive, string destinationDirectoryPath, bool overwriteFiles )
+            => TestFileSystemZipUtilities.ExtractToDirectory( this, sourceZipArchive, destinationDirectoryPath, overwriteFiles );
     }
 }

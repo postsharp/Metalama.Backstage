@@ -4,6 +4,7 @@ using JetBrains.Annotations;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.IO.Compression;
 
 namespace Metalama.Backstage.Extensibility
 {
@@ -13,6 +14,11 @@ namespace Metalama.Backstage.Extensibility
     [PublicAPI]
     public interface IFileSystem : IBackstageService
     {
+        /// <summary>
+        /// Default buffer size as per internal FileStream.DefaultBufferSize.
+        /// </summary>
+        public const int DefaultBufferSize = 4096;
+
         /// <summary>
         /// Returns the date and time the specified file was last written to.
         /// </summary>
@@ -318,6 +324,37 @@ namespace Metalama.Backstage.Extensibility
         IEnumerable<string> EnumerateDirectories( string path, string searchPattern, SearchOption searchOption );
 
         /// <summary>
+        /// Creates or overwrites a file in the specified path.
+        /// </summary>
+        /// <param name="path">The path and name of the file to create.</param>
+        /// <returns>A <see cref="Stream"/> that provides read/write access to the file specified in <paramref name="path"/>.</returns>
+        public Stream CreateFile( string path );
+
+        /// <summary>
+        /// Creates or overwrites a file in the specified path, specifying a buffer size.
+        /// </summary>
+        /// <param name="path">The path and name of the file to create.</param>
+        /// <param name="bufferSize">The number of bytes buffered for reads and writes to the file.</param>
+        /// <returns>
+        /// A <see cref="Stream"/> with the specified buffer size
+        /// that provides read/write access to the file specified in <paramref name="path"/>.
+        /// </returns>
+        public Stream CreateFile( string path, int bufferSize );
+
+        /// <summary>
+        /// Creates or overwrites a file in the specified path, specifying a buffer size
+        /// and options that describe how to create or overwrite the file.
+        /// </summary>
+        /// <param name="path">The path and name of the file to create.</param>
+        /// <param name="bufferSize">The number of bytes buffered for reads and writes to the file.</param>
+        /// <param name="options">One of the <see cref="FileOptions"/> values that describes how to create or overwrite the file.</param>
+        /// <returns>
+        /// A <see cref="Stream"/> with the specified buffer size
+        /// that provides specified access to the file specified in <paramref name="path"/>.
+        /// </returns>
+        public Stream CreateFile( string path, int bufferSize, FileOptions options );
+
+        /// <summary>
         /// Creates all directories and subdirectories in the specified path unless they already exist.
         /// </summary>
         /// <param name="path">The directory to create.</param>
@@ -458,5 +495,28 @@ namespace Metalama.Backstage.Extensibility
         /// <param name="path">The name of the directory to check.</param>
         /// <returns>Value indicating whether <paramref name="path"/> has any subdirectories or files.</returns>
         bool IsDirectoryEmpty( string path );
+
+        /// <summary>
+        /// Extracts all the files in the zip archive to a directory on the file system.
+        /// </summary>
+        /// <param name="sourceZipArchive">The zip archive to extract files from.</param>
+        /// <param name="destinationDirectoryPath">
+        /// The path to the directory to place the extracted files in. You can specify either
+        /// a relative or an absolute path. A relative path is interpreted as relative to
+        /// the current working directory.
+        /// </param>
+        void ExtractZipArchiveToDirectory( ZipArchive sourceZipArchive, string destinationDirectoryPath );
+
+        /// <summary>
+        /// Extracts all the files in the zip archive to a directory on the file system.
+        /// </summary>
+        /// <param name="sourceZipArchive">The zip archive to extract files from.</param>
+        /// <param name="destinationDirectoryPath">
+        /// The path to the directory to place the extracted files in. You can specify either
+        /// a relative or an absolute path. A relative path is interpreted as relative to
+        /// the current working directory.
+        /// </param>
+        /// <param name="overwriteFiles"><c>true</c> to overwrite existing files; <c>false</c> otherwise.</param>
+        void ExtractZipArchiveToDirectory( ZipArchive sourceZipArchive, string destinationDirectoryPath, bool overwriteFiles );
     }
 }

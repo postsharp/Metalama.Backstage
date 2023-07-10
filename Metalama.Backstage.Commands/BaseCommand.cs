@@ -28,6 +28,8 @@ namespace Metalama.Backstage.Commands
 
             try
             {
+                extendedContext.ServiceProvider.GetBackstageService<IUsageReporter>()?.StartSession( "CompilerUsage" );
+
                 this.Execute( extendedContext, settings );
 
                 return 0;
