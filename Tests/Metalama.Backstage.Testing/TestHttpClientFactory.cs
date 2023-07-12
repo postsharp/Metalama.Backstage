@@ -7,13 +7,13 @@ namespace Metalama.Backstage.Testing
 {
     public class TestHttpClientFactory : IHttpClientFactory
     {
-        private readonly HttpMessageHandler _handler;
+        public HttpMessageHandler Handler { get; }
 
         public TestHttpClientFactory( HttpMessageHandler handler )
         {
-            this._handler = handler;
+            this.Handler = handler;
         }
 
-        public HttpClient Create() => new HttpClient( this._handler );
+        public HttpClient Create() => new HttpClient( this.Handler );
     }
 }

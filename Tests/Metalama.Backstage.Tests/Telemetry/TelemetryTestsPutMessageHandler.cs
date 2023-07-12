@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Primitives;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -14,10 +15,12 @@ using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Metalama.Backstage.Licensing.Tests.Telemetry;
+namespace Metalama.Backstage.Tests.Telemetry;
 
 internal class TelemetryTestsPutMessageHandler : HttpMessageHandler
 {
+    public List<(HttpRequestMessage Request, HttpResponseMessage Response)> ProcessedRequests { get; } = new();
+
     private readonly TelemetryPutHandler _telemetryPutHandler;
 
     public TelemetryTestsPutMessageHandler(IServiceProvider serviceProvider, string outputDirectory)
@@ -41,6 +44,9 @@ internal class TelemetryTestsPutMessageHandler : HttpMessageHandler
 
         await response.ExecuteAsync( httpContext );
         var responseMessage = new HttpResponseMessage( (HttpStatusCode) httpContext.Response.StatusCode );
+
+        this.ProcessedRequests.Add( (requestMessage, responseMessage) );
+
         return responseMessage;
     }
 

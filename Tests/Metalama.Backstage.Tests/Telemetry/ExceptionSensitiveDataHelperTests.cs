@@ -7,7 +7,7 @@ using System.Reflection;
 using System.Text;
 using Xunit;
 
-namespace Metalama.Backstage.Licensing.Tests.Telemetry
+namespace Metalama.Backstage.Tests.Telemetry
 {
     public class ExceptionSensitiveDataHelperTests
     {

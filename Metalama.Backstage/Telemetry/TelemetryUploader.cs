@@ -438,6 +438,7 @@ namespace Metalama.Backstage.Telemetry
                 foreach ( var failedFile in this._failedFiles )
                 {
                     var exception = new TelemetryFilePackingFailedException( $"Failed to pack '{failedFile.File}' telemetry file: {failedFile.Reason.Message}", failedFile.File, failedFile.Reason );
+                    this._exceptionReporter.ReportException( exception );
 
 #if DEBUG
                     failedFileExceptions.Add( exception );
