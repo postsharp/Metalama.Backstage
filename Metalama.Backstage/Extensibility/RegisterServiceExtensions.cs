@@ -112,6 +112,7 @@ public static class RegisterServiceExtensions
             .AddEnvironmentVariableProvider()
             .AddStandardDirectories()
             .AddSingleton<IProcessExecutor>( new ProcessExecutor() )
+            .AddSingleton<IHttpClientFactory>( new HttpClientFactory() )
             .AddConfigurationManager();
 
         serviceProviderBuilder.AddService( typeof(ITempFileManager), new TempFileManager( serviceProviderBuilder.ServiceProvider ) );
@@ -214,14 +215,14 @@ public static class RegisterServiceExtensions
         return serviceProviderBuilder;
     }
 
-    private static void AddTelemetryServices( this ServiceProviderBuilder serviceProviderBuilder )
+    internal static void AddTelemetryServices( this ServiceProviderBuilder serviceProviderBuilder )
     {
         // Add telemetry.
         var queue = new TelemetryQueue( serviceProviderBuilder.ServiceProvider );
 
         serviceProviderBuilder
-            .AddSingleton<ITelemetryUploader>( new TelemetryUploader( serviceProviderBuilder.ServiceProvider ) )
             .AddSingleton<IExceptionReporter>( new ExceptionReporter( queue, serviceProviderBuilder.ServiceProvider ) )
+            .AddSingleton<ITelemetryUploader>( new TelemetryUploader( serviceProviderBuilder.ServiceProvider ) )
             .AddSingleton<IUsageReporter>( new UsageReporter( serviceProviderBuilder.ServiceProvider ) );
     }
 

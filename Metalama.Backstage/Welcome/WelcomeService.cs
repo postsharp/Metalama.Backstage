@@ -150,6 +150,10 @@ public class WelcomeService
         catch ( Exception e )
         {
             this._logger.Error?.Log( $"Cannot start the welcome web page: {e.Message}" );
+
+#if DEBUG
+            throw;
+#endif
         }
     }
 }

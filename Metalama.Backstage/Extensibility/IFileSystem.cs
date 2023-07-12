@@ -15,11 +15,6 @@ namespace Metalama.Backstage.Extensibility
     public interface IFileSystem : IBackstageService
     {
         /// <summary>
-        /// Default buffer size as per internal FileStream.DefaultBufferSize.
-        /// </summary>
-        public const int DefaultBufferSize = 4096;
-
-        /// <summary>
         /// Returns the date and time the specified file was last written to.
         /// </summary>
         /// <param name="path">The file for which to obtain write date and time information.</param>
@@ -328,7 +323,7 @@ namespace Metalama.Backstage.Extensibility
         /// </summary>
         /// <param name="path">The path and name of the file to create.</param>
         /// <returns>A <see cref="Stream"/> that provides read/write access to the file specified in <paramref name="path"/>.</returns>
-        public Stream CreateFile( string path );
+        Stream CreateFile( string path );
 
         /// <summary>
         /// Creates or overwrites a file in the specified path, specifying a buffer size.
@@ -339,7 +334,7 @@ namespace Metalama.Backstage.Extensibility
         /// A <see cref="Stream"/> with the specified buffer size
         /// that provides read/write access to the file specified in <paramref name="path"/>.
         /// </returns>
-        public Stream CreateFile( string path, int bufferSize );
+        Stream CreateFile( string path, int bufferSize );
 
         /// <summary>
         /// Creates or overwrites a file in the specified path, specifying a buffer size
@@ -352,7 +347,13 @@ namespace Metalama.Backstage.Extensibility
         /// A <see cref="Stream"/> with the specified buffer size
         /// that provides specified access to the file specified in <paramref name="path"/>.
         /// </returns>
-        public Stream CreateFile( string path, int bufferSize, FileOptions options );
+        Stream CreateFile( string path, int bufferSize, FileOptions options );
+
+        /// <summary>
+        /// Creates a uniquely named, zero-byte temporary file on disk and returns the full path of that file.
+        /// </summary>
+        /// <returns>The full path of the temporary file.</returns>
+        string GetTempFileName();
 
         /// <summary>
         /// Creates all directories and subdirectories in the specified path unless they already exist.
@@ -401,6 +402,24 @@ namespace Metalama.Backstage.Extensibility
         /// with read, write, or read/write access and the specified sharing option.
         /// </returns>
         Stream Open( string path, FileMode mode, FileAccess access, FileShare share );
+
+        /// <summary>
+        /// Opens an existing file.
+        /// </summary>
+        /// <param name="path">The file to be opened.</param>
+        /// <param name="mode">
+        /// A <see cref="FileMode"/> value that specifies whether a file is created if one does not exist,
+        /// and determines whether the contents of existing files are retained or overwritten.
+        /// </param>
+        /// <param name="access">A <see cref="FileAccess"/> value that specifies the operations that can be performed on the file.</param>
+        /// <param name="share">A <see cref="FileShare"/> value specifying the type of access other threads have to the file.</param>
+        /// <param name="bufferSize">A positive <see cref="int"/> value greater than 0 indicating the buffer size. The default buffer size is 4096.</param>
+        /// <param name="options">A <see cref="FileOptions"/> value specifying advance options for creating a <see cref="FileStream"/> object.</param>
+        /// <returns>
+        /// A <see cref="Stream"/> on the specified path, having the specified mode
+        /// with read, write, or read/write access and the specified sharing option.
+        /// </returns>
+        Stream Open( string path, FileMode mode, FileAccess access, FileShare share, int bufferSize, FileOptions options );
 
         /// <summary>
         /// Opens an existing file for reading.
@@ -506,17 +525,5 @@ namespace Metalama.Backstage.Extensibility
         /// the current working directory.
         /// </param>
         void ExtractZipArchiveToDirectory( ZipArchive sourceZipArchive, string destinationDirectoryPath );
-
-        /// <summary>
-        /// Extracts all the files in the zip archive to a directory on the file system.
-        /// </summary>
-        /// <param name="sourceZipArchive">The zip archive to extract files from.</param>
-        /// <param name="destinationDirectoryPath">
-        /// The path to the directory to place the extracted files in. You can specify either
-        /// a relative or an absolute path. A relative path is interpreted as relative to
-        /// the current working directory.
-        /// </param>
-        /// <param name="overwriteFiles"><c>true</c> to overwrite existing files; <c>false</c> otherwise.</param>
-        void ExtractZipArchiveToDirectory( ZipArchive sourceZipArchive, string destinationDirectoryPath, bool overwriteFiles );
     }
 }

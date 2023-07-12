@@ -304,6 +304,10 @@ internal class ExceptionReporter : IExceptionReporter, IDisposable
         catch ( Exception e )
         {
             this._logger.Error?.Log( "Cannot report the exception: " + e );
+
+#if DEBUG
+            throw;
+#endif
         }
     }
 

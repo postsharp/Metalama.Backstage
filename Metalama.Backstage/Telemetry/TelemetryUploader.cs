@@ -21,16 +21,18 @@ namespace Metalama.Backstage.Telemetry
 {
     internal sealed class TelemetryUploader : ITelemetryUploader
     {
+        private readonly Uri _requestUri = new( "https://bits.postsharp.net:44301/upload" );
         private readonly TelemetryConfiguration _configuration;
         private readonly IStandardDirectories _directories;
         private readonly IFileSystem _fileSystem;
         private readonly IProcessExecutor _processExecutor;
+        private readonly IHttpClientFactory _httpClientFactory;
         private readonly IDateTimeProvider _time;
         private readonly IPlatformInfo _platformInfo;
         private readonly ILogger _logger;
-
-        private readonly Uri _requestUri = new( "https://bits.postsharp.net:44301/upload" );
         private readonly IConfigurationManager _configurationManager;
+        private readonly IExceptionReporter _exceptionReporter;
+        private readonly List<(string File, Exception Reason)> _failedFiles = new();
 
         public TelemetryUploader( IServiceProvider serviceProvider )
         {
@@ -40,9 +42,11 @@ namespace Metalama.Backstage.Telemetry
             this._directories = serviceProvider.GetRequiredBackstageService<IStandardDirectories>();
             this._fileSystem = serviceProvider.GetRequiredBackstageService<IFileSystem>();
             this._processExecutor = serviceProvider.GetRequiredBackstageService<IProcessExecutor>();
+            this._httpClientFactory = serviceProvider.GetRequiredBackstageService<IHttpClientFactory>();
             this._time = serviceProvider.GetRequiredBackstageService<IDateTimeProvider>();
             this._platformInfo = serviceProvider.GetRequiredBackstageService<IPlatformInfo>();
             this._logger = serviceProvider.GetLoggerFactory().Telemetry();
+            this._exceptionReporter = serviceProvider.GetRequiredBackstageService<IExceptionReporter>();
         }
 
         private static void CopyStream( Stream inputStream, Stream outputStream )
@@ -147,7 +151,7 @@ namespace Metalama.Backstage.Telemetry
                 CryptoStreamMode.Write );
         }
 
-        private void CreatePackage( IEnumerable<string> files, string outputPath, out IEnumerable<string> filesToDelete )
+        private bool TryCreatePackage( IEnumerable<string> files, string outputPath, out IEnumerable<string> filesToDelete )
         {
             var filesToDeleteLocal = new List<string>();
             string? tempPackagePath = null;
@@ -168,14 +172,14 @@ namespace Metalama.Backstage.Telemetry
                             // Create a ZIP package if it does not exist yet.
                             if ( package == null )
                             {
-                                if ( packageStream == null )
+                                if ( packageStream != null )
                                 {
                                     throw new InvalidOperationException( "Package stream has to be assigned along with package." );
                                 }
 
-                                tempPackagePath = Path.GetTempFileName();
+                                tempPackagePath = this._fileSystem.GetTempFileName();
                                 packageStream = this._fileSystem.Open( tempPackagePath, FileMode.Create );
-                                package = Package.Open( packageStream );
+                                package = Package.Open( packageStream, FileMode.Create );
                             }
 
                             string? mime = null;
@@ -198,6 +202,7 @@ namespace Metalama.Backstage.Telemetry
                     catch ( Exception e )
                     {
                         this._logger.Error?.Log( $"Cannot pack file '{file}': {e.Message}" );
+                        this._failedFiles.Add( (file, e) );
                     }
                 }
 
@@ -208,13 +213,15 @@ namespace Metalama.Backstage.Telemetry
                     // We did not find any file.
                     this._logger.Trace?.Log( "No file found." );
 
-                    return;
+                    return false;
                 }
 
                 package.Close();
 
                 // Encrypt the package.
                 this.EncryptFile( tempPackagePath!, outputPath );
+
+                return true;
             }
             finally
             {
@@ -340,10 +347,12 @@ namespace Metalama.Backstage.Telemetry
             }
         }
 
-        private static string ComputeHash( string s )
+        internal static string ComputeHash( string packageName )
         {
+            const string salt = @"<27e\)$a<=b9&zyVwjzaJ`!WW`rwHh~;Z5QAC.J5TQ`.NY"")]~FGA);AKSSmbV$M";
+
             var sha = SHA512.Create();
-            var data = sha.ComputeHash( Encoding.UTF8.GetBytes( s ) );
+            var data = sha.ComputeHash( Encoding.UTF8.GetBytes( packageName + salt ) );
             var builder = new StringBuilder();
 
             foreach ( var t in data )
@@ -385,7 +394,10 @@ namespace Metalama.Backstage.Telemetry
                 }
 
                 // TODO: Stream the data directly to HTTP
-                this.CreatePackage( files, packagePath, out filesToDelete );
+                if ( !this.TryCreatePackage( files, packagePath, out filesToDelete ) )
+                {
+                    return;
+                }
 
                 using var formData = new MultipartFormDataContent();
 
@@ -396,10 +408,9 @@ namespace Metalama.Backstage.Telemetry
                 formData.Add( streamContent, packageId, packageName );
 
                 // ReSharper disable once StringLiteralTypo
-                const string salt = @"<27e\)$a<=b9&zyVwjzaJ`!WW`rwHh~;Z5QAC.J5TQ`.NY"")]~FGA);AKSSmbV$M";
-                var check = ComputeHash( packageName + salt );
+                var check = ComputeHash( packageName );
 
-                using var client = new HttpClient();
+                using var client = this._httpClientFactory.Create();
                 var response = await client.PutAsync( $"{this._requestUri}?check={check}", formData );
 
                 if ( !response.IsSuccessStatusCode )
@@ -419,6 +430,26 @@ namespace Metalama.Backstage.Telemetry
                 {
                     this._fileSystem.DeleteFile( packagePath );
                 }
+
+#if DEBUG
+                var failedFileExceptions = new List<Exception>();
+#endif
+
+                foreach ( var failedFile in this._failedFiles )
+                {
+                    var exception = new TelemetryFilePackingFailedException( $"Failed to pack '{failedFile.File}' telemetry file: {failedFile.Reason.Message}", failedFile.File, failedFile.Reason );
+
+#if DEBUG
+                    failedFileExceptions.Add( exception );
+#endif
+                }
+
+#if DEBUG
+                if ( failedFileExceptions.Count > 0 )
+                {
+                    throw new AggregateException( "No all files have been packed. See inner exceptions for the failed files.", failedFileExceptions );
+                }
+#endif
             }
 
             // Delete the files that have just been sent.

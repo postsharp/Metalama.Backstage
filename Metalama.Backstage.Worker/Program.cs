@@ -35,6 +35,10 @@ namespace Metalama.Backstage
                 {
                     throw;
                 }
+
+#if DEBUG
+                throw;
+#endif
             }
 
             // Telemetry.
@@ -56,6 +60,10 @@ namespace Metalama.Backstage
                 {
                     throw;
                 }
+
+#if DEBUG
+                throw;
+#endif
             }
             finally
             {
@@ -77,9 +85,17 @@ namespace Metalama.Backstage
                     catch
                     {
                         // We don't want failing telemetry to disturb users.
+
+#if DEBUG
+                        throw;
+#endif
                     }
 
                     // We don't re-throw here as we don't want compiler to crash because of usage reporting exceptions.
+
+#if DEBUG
+                    throw;
+#endif
                 }
             }
         }

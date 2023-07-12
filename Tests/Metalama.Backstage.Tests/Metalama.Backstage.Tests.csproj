@@ -20,6 +20,7 @@
     </ItemGroup>
 
     <ItemGroup>
+        <ProjectReference Include="..\..\Metalama.Backstage.Internal\Metalama.Backstage.Internal.csproj" Condition="'$(TargetFramework)'=='net6.0'" />
         <ProjectReference Include="..\..\Metalama.Backstage\Metalama.Backstage.csproj" />
         <ProjectReference Include="..\Metalama.Backstage.Testing\Metalama.Backstage.Testing.csproj" />
     </ItemGroup>

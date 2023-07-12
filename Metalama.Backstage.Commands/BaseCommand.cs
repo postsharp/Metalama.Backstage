@@ -73,9 +73,15 @@ namespace Metalama.Backstage.Commands
                     catch
                     {
                         // We don't want failing telemetry to disturb users.
+#if DEBUG
+                        throw;
+#endif
                     }
 
                     // We don't want failing telemetry to disturb users.
+#if DEBUG
+                    throw;
+#endif
                 }
             }
         }

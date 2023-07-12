@@ -140,6 +140,12 @@ namespace Metalama.Backstage.Extensibility
         }
 
         /// <inheritdoc />
+        public string GetTempFileName()
+        {
+            return Path.GetTempFileName();
+        }
+
+        /// <inheritdoc />
         public void CreateDirectory( string path )
         {
             Directory.CreateDirectory( path );
@@ -161,6 +167,12 @@ namespace Metalama.Backstage.Extensibility
         public Stream Open( string path, FileMode mode, FileAccess access, FileShare share )
         {
             return File.Open( path, mode, access, share );
+        }
+
+        /// <inheritdoc />
+        public Stream Open( string path, FileMode mode, FileAccess access, FileShare share, int bufferSize, FileOptions options )
+        {
+            return new FileStream( path, mode, access, share, bufferSize, options );
         }
 
         /// <inheritdoc />
@@ -247,9 +259,5 @@ namespace Metalama.Backstage.Extensibility
         /// <inheritdoc />
         public void ExtractZipArchiveToDirectory( ZipArchive sourceZipArchive, string destinationDirectoryPath )
             => sourceZipArchive.ExtractToDirectory( destinationDirectoryPath );
-
-        /// <inheritdoc />
-        public void ExtractZipArchiveToDirectory( ZipArchive sourceZipArchive, string destinationDirectoryPath, bool overwriteFiles )
-            => sourceZipArchive.ExtractToDirectory( destinationDirectoryPath, overwriteFiles );
     }
 }
