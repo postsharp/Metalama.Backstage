@@ -1,8 +1,9 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. See the LICENSE.md file in the root directory of this repository root for details.
 
 using Metalama.Backstage.Extensibility;
+using Metalama.Backstage.Licensing;
 using Metalama.Backstage.Licensing.Audit;
-using Metalama.Backstage.Licensing.Tests.Licensing.Licenses;
+using Metalama.Backstage.Tests.Licensing.Licenses;
 using System;
 using System.Collections.Generic;
 using System.IO;

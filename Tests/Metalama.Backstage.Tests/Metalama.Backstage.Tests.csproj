@@ -24,4 +24,9 @@
         <ProjectReference Include="..\Metalama.Backstage.Testing\Metalama.Backstage.Testing.csproj" />
     </ItemGroup>
 
+	<ItemGroup Condition="'$(TargetFramework)'=='netframework4.7.2'">
+		<Reference Include="System.IO.Compression" />
+		<Reference Include="System.Net.Http" />
+	</ItemGroup>
+
 </Project>

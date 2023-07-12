@@ -1,19 +1,20 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. See the LICENSE.md file in the root directory of this repository root for details.
 
-#if NET
-
-using Metalama.Backstage.Internal.Telemetry;
-using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Primitives;
 using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
+
+#if NET
+using Metalama.Backstage.Internal.Telemetry;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Primitives;
+using System.IO;
+using System.Linq;
+#endif
 
 namespace Metalama.Backstage.Tests.Telemetry;
 
@@ -21,15 +22,22 @@ internal class TelemetryTestsPutMessageHandler : HttpMessageHandler
 {
     public List<(HttpRequestMessage Request, HttpResponseMessage Response)> ProcessedRequests { get; } = new();
 
+#if NET
     private readonly TelemetryPutHandler _telemetryPutHandler;
+#endif
 
     public TelemetryTestsPutMessageHandler(IServiceProvider serviceProvider, string outputDirectory)
     {
+#if NET
         this._telemetryPutHandler = new TelemetryPutHandler( serviceProvider, outputDirectory );
+#endif
     }
 
     protected override async Task<HttpResponseMessage> SendAsync( HttpRequestMessage requestMessage, CancellationToken cancellationToken )
     {
+        HttpResponseMessage responseMessage;
+
+#if NET
         var request = await MessageToRequest( requestMessage );
         var response = await this._telemetryPutHandler.HandleAsync( request, cancellationToken );
 
@@ -43,13 +51,20 @@ internal class TelemetryTestsPutMessageHandler : HttpMessageHandler
         };
 
         await response.ExecuteAsync( httpContext );
-        var responseMessage = new HttpResponseMessage( (HttpStatusCode) httpContext.Response.StatusCode );
+        responseMessage = new HttpResponseMessage( (HttpStatusCode) httpContext.Response.StatusCode );
+#else
+        // Get rid of "this method lacks await" warning.
+        await Task.CompletedTask;
+
+        responseMessage = new HttpResponseMessage( HttpStatusCode.OK );
+#endif
 
         this.ProcessedRequests.Add( (requestMessage, responseMessage) );
 
         return responseMessage;
     }
 
+#if NET
     // https://stackoverflow.com/a/68453301/4100001
     private static async Task<HttpRequest> MessageToRequest( HttpRequestMessage requestMessage )
     {
@@ -83,6 +98,5 @@ internal class TelemetryTestsPutMessageHandler : HttpMessageHandler
 
         return httpContext.Request;
     }
-}
-
 #endif
+}
