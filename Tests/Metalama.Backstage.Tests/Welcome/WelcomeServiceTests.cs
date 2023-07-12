@@ -14,7 +14,7 @@ using System.Linq;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace Metalama.Backstage.Licensing.Tests.Welcome;
+namespace Metalama.Backstage.Tests.Welcome;
 
 public class WelcomeServiceTests : TestsBase
 {

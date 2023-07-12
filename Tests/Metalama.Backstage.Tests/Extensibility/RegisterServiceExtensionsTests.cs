@@ -10,7 +10,7 @@ using Microsoft.Extensions.DependencyInjection;
 using System;
 using Xunit;
 
-namespace Metalama.Backstage.Licensing.Tests.Extensibility;
+namespace Metalama.Backstage.Tests.Extensibility;
 
 public class RegisterServiceExtensionsTests
 {

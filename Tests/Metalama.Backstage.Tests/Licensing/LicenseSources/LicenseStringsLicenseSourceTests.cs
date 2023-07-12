@@ -4,7 +4,7 @@ using Metalama.Backstage.Licensing.Consumption.Sources;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace Metalama.Backstage.Licensing.Tests.Licensing.LicenseSources
+namespace Metalama.Backstage.Tests.Licensing.LicenseSources
 {
     public class LicenseStringsLicenseSourceTests : LicensingTestsBase
     {

@@ -2,7 +2,7 @@
 
 using System;
 
-namespace Metalama.Backstage.Licensing.Tests.Licensing
+namespace Metalama.Backstage.Tests.Licensing
 {
     internal static class LicenseRequirementHelper
     {

@@ -5,7 +5,7 @@ using System;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace Metalama.Backstage.Licensing.Tests.Licensing.Essentials
+namespace Metalama.Backstage.Tests.Licensing.Essentials
 {
     public class FreeLicenseRegistrationTests : LicensingTestsBase
     {

@@ -13,7 +13,7 @@ using System.Linq;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace Metalama.Backstage.Licensing.Tests.Maintenance;
+namespace Metalama.Backstage.Tests.Maintenance;
 
 public class CleanUpTests : TestsBase
 {

@@ -5,7 +5,7 @@ using Metalama.Backstage.Extensibility;
 using Metalama.Backstage.Testing;
 using System;
 
-namespace Metalama.Backstage.Licensing.Tests.Licensing;
+namespace Metalama.Backstage.Tests.Licensing;
 
 internal static class TestLicensingConfigurationHelpers
 {

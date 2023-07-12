@@ -10,7 +10,7 @@ using System.IO;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace Metalama.Backstage.Licensing.Tests.MiniDump;
+namespace Metalama.Backstage.Tests.MiniDump;
 
 public class MiniDumpTests : TestsBase
 {
