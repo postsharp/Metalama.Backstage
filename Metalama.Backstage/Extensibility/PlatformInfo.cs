@@ -44,7 +44,7 @@ namespace Metalama.Backstage.Extensibility
             // Look in the DotNetSdkDirectory, if we know it.
             dotNetSdkDirectory ??= Environment.GetEnvironmentVariable( _dotNetSdkDirectoryEnvironmentVariableName );
 
-            if ( dotNetSdkDirectory != null )
+            if ( !string.IsNullOrEmpty( dotNetSdkDirectory ) )
             {
                 for ( var directory = dotNetSdkDirectory; directory != null; directory = Path.GetDirectoryName( directory ) )
                 {
