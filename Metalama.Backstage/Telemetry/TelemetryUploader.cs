@@ -177,7 +177,9 @@ namespace Metalama.Backstage.Telemetry
                                     throw new InvalidOperationException( "Package stream has to be assigned along with package." );
                                 }
 
+                                this._logger.Trace?.Log( $"Creating package." );
                                 tempPackagePath = this._fileSystem.GetTempFileName();
+                                this._logger.Trace?.Log( $"The package is stored at '{tempPackagePath}'." );
                                 packageStream = this._fileSystem.Open( tempPackagePath, FileMode.Create );
                                 package = Package.Open( packageStream, FileMode.Create );
                             }
@@ -185,6 +187,7 @@ namespace Metalama.Backstage.Telemetry
                             string? mime = null;
 
                             // Add the file to the zip.
+                            this._logger.Trace?.Log( $"Adding '{file}' file to '{tempPackagePath}' package." );
                             var packagePart =
                                 package.CreatePart(
                                     new Uri( "/" + Uri.EscapeDataString( Path.GetFileName( file ) ), UriKind.Relative ),
@@ -198,6 +201,8 @@ namespace Metalama.Backstage.Telemetry
                         }
 
                         filesToDeleteLocal.Add( file );
+
+                        this._logger.Trace?.Log( $"'{file}' file added to '{tempPackagePath}' package." );
                     }
                     catch ( Exception e )
                     {
@@ -216,19 +221,25 @@ namespace Metalama.Backstage.Telemetry
                     return false;
                 }
 
+                this._logger.Trace?.Log( $"Closing '{tempPackagePath}' package." );
                 package.Close();
+                packageStream!.Close();
 
                 // Encrypt the package.
+                this._logger.Trace?.Log( $"Encrypting '{tempPackagePath}' package to '{outputPath}'." );
                 this.EncryptFile( tempPackagePath!, outputPath );
 
+                this._logger.Trace?.Log( $"'{outputPath}' package created." );
                 return true;
             }
             finally
             {
+                this._logger.Trace?.Log( $"Disposing temporary package stream." );
                 packageStream?.Dispose();
 
                 if ( tempPackagePath != null && this._fileSystem.FileExists( tempPackagePath ) )
                 {
+                    this._logger.Trace?.Log( $"Deleting temporary package '{tempPackagePath}'." );
                     this._fileSystem.DeleteFile( tempPackagePath );
                 }
             }
@@ -374,6 +385,7 @@ namespace Metalama.Backstage.Telemetry
                 return;
             }
 
+            this._logger.Trace?.Log( $"Creating upload directory '{this._directories.TelemetryUploadPackagesDirectory}'" );
             this._fileSystem.CreateDirectory( this._directories.TelemetryUploadPackagesDirectory );
 
             var packageId = Guid.NewGuid().ToString();
@@ -399,24 +411,31 @@ namespace Metalama.Backstage.Telemetry
                     return;
                 }
 
+                this._logger.Trace?.Log( "Preparing request content." );
                 using var formData = new MultipartFormDataContent();
 
                 // ReSharper disable once UseAwaitUsing
+                this._logger.Trace?.Log( $"Adding '{packagePath}' package as '{packageName}', ID '{packageId}'." );
                 using var packageFile = this._fileSystem.OpenRead( packagePath );
-
                 var streamContent = new StreamContent( packageFile );
                 formData.Add( streamContent, packageId, packageName );
 
                 // ReSharper disable once StringLiteralTypo
+                this._logger.Trace?.Log( $"Computing hash of '{packageName}'." );
                 var check = ComputeHash( packageName );
 
+                this._logger.Trace?.Log( $"Creating client." );
                 using var client = this._httpClientFactory.Create();
+
+                this._logger.Trace?.Log( $"Uploading." );
                 var response = await client.PutAsync( $"{this._requestUri}?check={check}", formData );
 
                 if ( !response.IsSuccessStatusCode )
                 {
                     throw new InvalidOperationException( $"Request failed: {response.StatusCode} {response.ReasonPhrase}" );
                 }
+
+                this._logger.Trace?.Log( $"Upload succeeded." );
             }
             catch ( Exception exception )
             {
@@ -428,6 +447,7 @@ namespace Metalama.Backstage.Telemetry
             {
                 if ( this._fileSystem.FileExists( packagePath ) )
                 {
+                    this._logger.Trace?.Log( $"Deleting '{packagePath}' package." );
                     this._fileSystem.DeleteFile( packagePath );
                 }
 
@@ -456,8 +476,11 @@ namespace Metalama.Backstage.Telemetry
             // Delete the files that have just been sent.
             foreach ( var file in filesToDelete )
             {
+                this._logger.Trace?.Log( $"Deleting sent file '{file}'." );
                 this._fileSystem.DeleteFile( file );
             }
+
+            this._logger.Trace?.Log( "Telemetry upload finished." );
         }
     }
 }

@@ -16,43 +16,36 @@ namespace Metalama.Backstage
             IServiceProvider? serviceProvider = null;
 
             var initializationOptions = new BackstageInitializationOptions( new BackstageWorkerApplicationInfo() ) { AddSupportServices = true };
+            var serviceProviderBuilder = new ServiceProviderBuilder().AddBackstageServices( initializationOptions );
+            serviceProvider = serviceProviderBuilder.ServiceProvider;
 
-            var serviceProviderBuilder = new ServiceProviderBuilder()
-                .AddBackstageServices( initializationOptions );
-
-            // Clean-up is scheduled automatically from Telemetry.
             try
             {
-                serviceProvider = serviceProviderBuilder.ServiceProvider;
+                var logger = serviceProvider.GetLoggerFactory().GetLogger( "Worker" );
+                var usageReporter = serviceProviderBuilder.ServiceProvider.GetBackstageService<IUsageReporter>();
 
-                var tempFileManager = new TempFileManager( serviceProvider );
-
-                tempFileManager.CleanTempDirectories();
-            }
-            catch ( Exception e )
-            {
-                if ( !HandleException( serviceProvider, e ) )
+                try
                 {
-                    throw;
+                    logger.Trace?.Log( "Job started." );
+                    usageReporter?.StartSession( "CompilerUsage" );
+
+                    // Clean-up. Scheduled automatically by telemetry.
+                    logger.Trace?.Log( "Starting temporary directories cleanup." );
+                    var tempFileManager = new TempFileManager( serviceProvider );
+                    tempFileManager.CleanTempDirectories();
+
+                    // Telemetry.
+                    logger.Trace?.Log( "Starting telemetry upload." );
+                    var uploader = serviceProvider.GetRequiredBackstageService<ITelemetryUploader>();
+                    await uploader.UploadAsync();
+
+                    logger.Trace?.Log( "Job done." );
                 }
-
-#if DEBUG
-                throw;
-#endif
-            }
-
-            // Telemetry.
-            var usageReporter = serviceProviderBuilder.ServiceProvider.GetBackstageService<IUsageReporter>();
-
-            try
-            {
-                usageReporter?.StartSession( "CompilerUsage" );
-
-                serviceProvider = serviceProviderBuilder.ServiceProvider;
-
-                var uploader = serviceProvider.GetRequiredBackstageService<ITelemetryUploader>();
-
-                await uploader.UploadAsync();
+                finally
+                {
+                    // Report usage.
+                    usageReporter?.StopSession();
+                }
             }
             catch ( Exception e )
             {
@@ -69,9 +62,6 @@ namespace Metalama.Backstage
             {
                 try
                 {
-                    // Report usage.
-                    usageReporter?.StopSession();
-
                     // Close logs.
                     // Logging has to be disposed as the last one, so it could be used until now.
                     serviceProvider?.GetLoggerFactory().Dispose();

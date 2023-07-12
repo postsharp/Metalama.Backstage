@@ -23,7 +23,7 @@ namespace Metalama.Backstage
 #if DEBUG
                 false;
 #else
-            true;
+                true;
 #endif
     }
 }
