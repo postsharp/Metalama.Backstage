@@ -7,7 +7,8 @@ namespace Metalama.Backstage.Commands.Licensing;
 
 internal class RegisterLicenseCommand : BaseCommand<RegisterLicenseCommandSettings>
 {
-    // TODO Reporting of license registration (#29957)
+    // We no longer collect license activations reports.
+    // We only collect license usage reports.
 
     protected override void Execute( ExtendedCommandContext context, RegisterLicenseCommandSettings settings )
     {

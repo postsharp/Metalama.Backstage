@@ -1,11 +1,12 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. See the LICENSE.md file in the root directory of this repository root for details.
 
+using Metalama.Backstage.Licensing;
 using Metalama.Backstage.Licensing.Registration.Free;
 using System;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace Metalama.Backstage.Licensing.Tests.Licensing.Essentials
+namespace Metalama.Backstage.Tests.Licensing.Essentials
 {
     public class FreeLicenseRegistrationTests : LicensingTestsBase
     {

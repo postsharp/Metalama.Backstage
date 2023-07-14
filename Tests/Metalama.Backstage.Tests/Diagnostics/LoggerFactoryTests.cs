@@ -13,7 +13,7 @@ using Xunit;
 using Xunit.Abstractions;
 using LoggerFactory = Metalama.Backstage.Diagnostics.LoggerFactory;
 
-namespace Metalama.Backstage.Licensing.Tests.Diagnostics;
+namespace Metalama.Backstage.Tests.Diagnostics;
 
 public class LoggerFactoryTests : TestsBase
 {

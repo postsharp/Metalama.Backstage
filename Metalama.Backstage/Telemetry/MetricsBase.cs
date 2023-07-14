@@ -52,6 +52,8 @@ internal abstract class MetricsBase
 
     private void Write( string fileName )
     {
+        this._logger.Trace?.Log( $"Flushing usage to '{fileName}' file." );
+
         var directory = Path.GetDirectoryName( fileName );
 
         if ( directory != null )
@@ -65,12 +67,15 @@ internal abstract class MetricsBase
             this.Metrics.Write( writer );
             writer.Write( Environment.NewLine );
         }
+
+        this._logger.Trace?.Log( $"Usage written to '{fileName}' file." );
     }
 
     private void CreateUploadDirectory()
     {
         if ( !this._fileSystem.DirectoryExists( this._directories.TelemetryUploadQueueDirectory ) )
         {
+            this._logger.Trace?.Log( $"Creating '{this._directories.TelemetryUploadQueueDirectory}' directory." );
             this._fileSystem.CreateDirectory( this._directories.TelemetryUploadQueueDirectory );
         }
     }
