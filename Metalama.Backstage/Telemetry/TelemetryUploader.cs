@@ -23,6 +23,7 @@ namespace Metalama.Backstage.Telemetry
     {
         private readonly Uri _requestUri = new( "https://bits.postsharp.net:44301/upload" );
         private readonly TelemetryConfiguration _configuration;
+        private readonly IServiceProvider _serviceProvider;
         private readonly IStandardDirectories _directories;
         private readonly IFileSystem _fileSystem;
         private readonly IProcessExecutor _processExecutor;
@@ -39,6 +40,7 @@ namespace Metalama.Backstage.Telemetry
             this._configurationManager = serviceProvider.GetRequiredBackstageService<IConfigurationManager>();
             this._configuration = this._configurationManager.Get<TelemetryConfiguration>();
 
+            this._serviceProvider = serviceProvider;
             this._directories = serviceProvider.GetRequiredBackstageService<IStandardDirectories>();
             this._fileSystem = serviceProvider.GetRequiredBackstageService<IFileSystem>();
             this._processExecutor = serviceProvider.GetRequiredBackstageService<IProcessExecutor>();
@@ -334,12 +336,8 @@ namespace Metalama.Backstage.Telemetry
                     "Release";
 #endif
 
-                var version = AssemblyMetadataReader.GetInstance( typeof(TelemetryUploader).Assembly ).PackageVersion;
-
-                if ( version == null )
-                {
-                    throw new InvalidOperationException( $"Unknown version of '{typeof(TelemetryUploader).Assembly}' assembly package." );
-                }
+                var version = AssemblyMetadataReader.GetInstance( typeof(TelemetryUploader).Assembly ).PackageVersion
+                    ?? throw new InvalidOperationException( $"Unknown version of '{typeof(TelemetryUploader).Assembly}' assembly package." );
 
                 var workerDirectory = Path.Combine(
                     this._directories.ApplicationDataDirectory,
@@ -445,11 +443,19 @@ namespace Metalama.Backstage.Telemetry
             }
             finally
             {
-                if ( this._fileSystem.FileExists( packagePath ) )
-                {
-                    this._logger.Trace?.Log( $"Deleting '{packagePath}' package." );
-                    this._fileSystem.DeleteFile( packagePath );
-                }
+
+                RetryHelper.RetryWithLockDetection(
+                    packagePath,
+                    f =>
+                    {
+                        if ( this._fileSystem.FileExists( packagePath ) )
+                        {
+                            this._logger.Trace?.Log( $"Deleting '{packagePath}' package." );
+                            this._fileSystem.DeleteFile( f );
+                        }
+                    },
+                    this._serviceProvider,
+                    logger: this._logger );
 
 #if DEBUG
                 var failedFileExceptions = new List<Exception>();
@@ -477,7 +483,8 @@ namespace Metalama.Backstage.Telemetry
             foreach ( var file in filesToDelete )
             {
                 this._logger.Trace?.Log( $"Deleting sent file '{file}'." );
-                this._fileSystem.DeleteFile( file );
+
+                RetryHelper.RetryWithLockDetection( file, f => this._fileSystem.DeleteFile( f ), this._serviceProvider, logger: this._logger );
             }
 
             this._logger.Trace?.Log( "Telemetry upload finished." );

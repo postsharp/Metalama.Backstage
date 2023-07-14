@@ -4,7 +4,7 @@ using System;
 
 namespace Metalama.Backstage.Telemetry;
 
-internal class TelemetryFilePackingFailedException : Exception
+internal sealed class TelemetryFilePackingFailedException : Exception
 {
     public string File { get; }
 

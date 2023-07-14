@@ -28,6 +28,7 @@ internal class ExceptionReporter : IExceptionReporter, IDisposable
     private readonly Regex _stackFrameRegex = new( @"\S+\([^\)]*\)" );
     private readonly IConfigurationManager _configurationManager;
     private readonly IFileSystem _fileSystem;
+    private readonly bool _canIgnoreRecoverableExceptions;
     private TelemetryConfiguration _configuration;
 
     public ExceptionReporter( TelemetryQueue uploadManager, IServiceProvider serviceProvider )
@@ -41,6 +42,7 @@ internal class ExceptionReporter : IExceptionReporter, IDisposable
         this._directories = serviceProvider.GetRequiredBackstageService<IStandardDirectories>();
         this._logger = serviceProvider.GetLoggerFactory().Telemetry();
         this._fileSystem = serviceProvider.GetRequiredBackstageService<IFileSystem>();
+        this._canIgnoreRecoverableExceptions = serviceProvider.GetRequiredBackstageService<IRecoverableExceptionService>().CanIgnore;
     }
 
     private void OnConfigurationChanged( ConfigurationFile configuration )
@@ -303,11 +305,16 @@ internal class ExceptionReporter : IExceptionReporter, IDisposable
         }
         catch ( Exception e )
         {
-            this._logger.Error?.Log( "Cannot report the exception: " + e );
+            try
+            {
+                this._logger.Error?.Log( "Cannot report the exception: " + e );
+            }
+            catch when ( this._canIgnoreRecoverableExceptions ) { }
 
-#if DEBUG
-            throw;
-#endif
+            if ( !this._canIgnoreRecoverableExceptions )
+            {
+                throw;
+            }
         }
     }
 
