@@ -5,7 +5,7 @@ using System.IO.Abstractions.TestingHelpers;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace Metalama.Backstage.Licensing.Tests.Licensing.LicenseSources
+namespace Metalama.Backstage.Tests.Licensing.LicenseSources
 {
     public class UserProfileLicenseSourceTests : LicensingTestsBase
     {

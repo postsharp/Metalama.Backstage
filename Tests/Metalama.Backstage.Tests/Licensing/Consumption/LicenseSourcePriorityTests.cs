@@ -1,6 +1,7 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. See the LICENSE.md file in the root directory of this repository root for details.
 
 using Metalama.Backstage.Extensibility;
+using Metalama.Backstage.Licensing;
 using Metalama.Backstage.Licensing.Consumption;
 using Metalama.Backstage.Testing;
 using Microsoft.Extensions.DependencyInjection;
@@ -8,7 +9,7 @@ using System;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace Metalama.Backstage.Licensing.Tests.Licensing.Consumption;
+namespace Metalama.Backstage.Tests.Licensing.Consumption;
 
 public class LicenseSourcePriorityTests : LicensingTestsBase
 {

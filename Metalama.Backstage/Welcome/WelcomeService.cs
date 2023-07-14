@@ -20,6 +20,7 @@ public class WelcomeService
     private readonly IConfigurationManager _configurationManager;
     private readonly WelcomeConfiguration _welcomeConfiguration;
     private readonly IProcessExecutor _processExecutor;
+    private readonly bool _canIgnoreRecoverableExceptions;
 
     public WelcomeService( IServiceProvider serviceProvider )
     {
@@ -29,6 +30,7 @@ public class WelcomeService
         this._configurationManager = serviceProvider.GetRequiredBackstageService<IConfigurationManager>();
         this._welcomeConfiguration = this._configurationManager.Get<WelcomeConfiguration>();
         this._processExecutor = serviceProvider.GetRequiredBackstageService<IProcessExecutor>();
+        this._canIgnoreRecoverableExceptions = serviceProvider.GetRequiredBackstageService<IRecoverableExceptionService>().CanIgnore;
     }
 
     private void ExecuteOnce(
@@ -149,7 +151,16 @@ public class WelcomeService
         }
         catch ( Exception e )
         {
-            this._logger.Error?.Log( $"Cannot start the welcome web page: {e.Message}" );
+            try
+            {
+                this._logger.Error?.Log( $"Cannot start the welcome web page: {e.Message}" );
+            }
+            catch when ( this._canIgnoreRecoverableExceptions ) { }
+
+            if ( !this._canIgnoreRecoverableExceptions )
+            {
+                throw;
+            }
         }
     }
 }

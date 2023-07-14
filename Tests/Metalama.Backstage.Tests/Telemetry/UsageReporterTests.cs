@@ -8,7 +8,7 @@ using System.Linq;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace Metalama.Backstage.Licensing.Tests.Telemetry;
+namespace Metalama.Backstage.Tests.Telemetry;
 
 public class UsageReporterTests : TestsBase
 {

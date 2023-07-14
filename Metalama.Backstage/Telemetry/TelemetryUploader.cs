@@ -21,24 +21,34 @@ namespace Metalama.Backstage.Telemetry
 {
     internal sealed class TelemetryUploader : ITelemetryUploader
     {
+        private readonly Uri _requestUri = new( "https://bits.postsharp.net:44301/upload" );
         private readonly TelemetryConfiguration _configuration;
+        private readonly IServiceProvider _serviceProvider;
         private readonly IStandardDirectories _directories;
+        private readonly IFileSystem _fileSystem;
+        private readonly IProcessExecutor _processExecutor;
+        private readonly IHttpClientFactory _httpClientFactory;
         private readonly IDateTimeProvider _time;
         private readonly IPlatformInfo _platformInfo;
         private readonly ILogger _logger;
-
-        private readonly Uri _requestUri = new( "https://bits.postsharp.net:44301/upload" );
         private readonly IConfigurationManager _configurationManager;
+        private readonly IExceptionReporter _exceptionReporter;
+        private readonly List<(string File, Exception Reason)> _failedFiles = new();
 
         public TelemetryUploader( IServiceProvider serviceProvider )
         {
             this._configurationManager = serviceProvider.GetRequiredBackstageService<IConfigurationManager>();
             this._configuration = this._configurationManager.Get<TelemetryConfiguration>();
 
+            this._serviceProvider = serviceProvider;
             this._directories = serviceProvider.GetRequiredBackstageService<IStandardDirectories>();
+            this._fileSystem = serviceProvider.GetRequiredBackstageService<IFileSystem>();
+            this._processExecutor = serviceProvider.GetRequiredBackstageService<IProcessExecutor>();
+            this._httpClientFactory = serviceProvider.GetRequiredBackstageService<IHttpClientFactory>();
             this._time = serviceProvider.GetRequiredBackstageService<IDateTimeProvider>();
             this._platformInfo = serviceProvider.GetRequiredBackstageService<IPlatformInfo>();
             this._logger = serviceProvider.GetLoggerFactory().Telemetry();
+            this._exceptionReporter = serviceProvider.GetRequiredBackstageService<IExceptionReporter>();
         }
 
         private static void CopyStream( Stream inputStream, Stream outputStream )
@@ -53,10 +63,10 @@ namespace Metalama.Backstage.Telemetry
             }
         }
 
-        private static void EncryptFile( string inputFile, string outputFile )
+        private void EncryptFile( string inputFile, string outputFile )
         {
-            using ( Stream inputStream = File.OpenRead( inputFile ) )
-            using ( Stream outputStream = File.Create( outputFile ) )
+            using ( var inputStream = this._fileSystem.OpenRead( inputFile ) )
+            using ( var outputStream = this._fileSystem.CreateFile( outputFile ) )
             {
                 EncryptStream( inputStream, outputStream );
             }
@@ -81,9 +91,9 @@ namespace Metalama.Backstage.Telemetry
             string publicKeyXml;
 
             using (
-                var keyStream = typeof(TelemetryUploader)
+                var keyStream = typeof( TelemetryUploader )
                     .Assembly
-                    .GetManifestResourceStream( "Metalama.Backstage.public.key" ) )
+                    .GetManifestResourceStream( "Metalama.Backstage.Telemetry.public.key" ) )
             {
                 if ( keyStream == null )
                 {
@@ -143,10 +153,11 @@ namespace Metalama.Backstage.Telemetry
                 CryptoStreamMode.Write );
         }
 
-        private void CreatePackage( IEnumerable<string> files, string outputPath, out IEnumerable<string> filesToDelete )
+        private bool TryCreatePackage( IReadOnlyList<string> files, string outputPath, out IReadOnlyList<string> filesToDelete )
         {
             var filesToDeleteLocal = new List<string>();
             string? tempPackagePath = null;
+            Stream? packageStream = null;
             Package? package = null;
 
             try
@@ -158,18 +169,27 @@ namespace Metalama.Backstage.Telemetry
                     // Attempt to open that file. Skip the file if we can't open it.
                     try
                     {
-                        using ( Stream stream = File.Open( file, FileMode.Open, FileAccess.Read, FileShare.None ) )
+                        using ( var stream = this._fileSystem.Open( file, FileMode.Open, FileAccess.Read, FileShare.None ) )
                         {
                             // Create a ZIP package if it does not exist yet.
                             if ( package == null )
                             {
-                                tempPackagePath = Path.GetTempFileName();
-                                package = Package.Open( tempPackagePath, FileMode.Create );
+                                if ( packageStream != null )
+                                {
+                                    throw new InvalidOperationException( "Package stream has to be assigned along with package." );
+                                }
+
+                                this._logger.Trace?.Log( $"Creating package." );
+                                tempPackagePath = this._fileSystem.GetTempFileName();
+                                this._logger.Trace?.Log( $"The package is stored at '{tempPackagePath}'." );
+                                packageStream = this._fileSystem.Open( tempPackagePath, FileMode.Create );
+                                package = Package.Open( packageStream, FileMode.Create );
                             }
 
                             string? mime = null;
 
                             // Add the file to the zip.
+                            this._logger.Trace?.Log( $"Adding '{file}' file to '{tempPackagePath}' package." );
                             var packagePart =
                                 package.CreatePart(
                                     new Uri( "/" + Uri.EscapeDataString( Path.GetFileName( file ) ), UriKind.Relative ),
@@ -183,10 +203,13 @@ namespace Metalama.Backstage.Telemetry
                         }
 
                         filesToDeleteLocal.Add( file );
+
+                        this._logger.Trace?.Log( $"'{file}' file added to '{tempPackagePath}' package." );
                     }
                     catch ( Exception e )
                     {
                         this._logger.Error?.Log( $"Cannot pack file '{file}': {e.Message}" );
+                        this._failedFiles.Add( (file, e) );
                     }
                 }
 
@@ -197,19 +220,29 @@ namespace Metalama.Backstage.Telemetry
                     // We did not find any file.
                     this._logger.Trace?.Log( "No file found." );
 
-                    return;
+                    return false;
                 }
 
+                this._logger.Trace?.Log( $"Closing '{tempPackagePath}' package." );
                 package.Close();
+                packageStream!.Close();
 
                 // Encrypt the package.
-                EncryptFile( tempPackagePath!, outputPath );
+                this._logger.Trace?.Log( $"Encrypting '{tempPackagePath}' package to '{outputPath}'." );
+                this.EncryptFile( tempPackagePath!, outputPath );
+
+                this._logger.Trace?.Log( $"'{outputPath}' package created." );
+                return true;
             }
             finally
             {
-                if ( tempPackagePath != null && File.Exists( tempPackagePath ) )
+                this._logger.Trace?.Log( $"Disposing temporary package stream." );
+                packageStream?.Dispose();
+
+                if ( tempPackagePath != null && this._fileSystem.FileExists( tempPackagePath ) )
                 {
-                    File.Delete( tempPackagePath );
+                    this._logger.Trace?.Log( $"Deleting temporary package '{tempPackagePath}'." );
+                    this._fileSystem.DeleteFile( tempPackagePath );
                 }
             }
         }
@@ -218,9 +251,9 @@ namespace Metalama.Backstage.Telemetry
         {
             var touchFile = Path.Combine( workerDirectory, "unzipped.touch" );
 
-            if ( !File.Exists( touchFile ) )
+            if ( !this._fileSystem.FileExists( touchFile ) )
             {
-                Directory.CreateDirectory( workerDirectory );
+                this._fileSystem.CreateDirectory( workerDirectory );
 
                 var zipResourceName = $"Metalama.Backstage.Metalama.Backstage.Worker.{targetFramework}.zip";
                 var assembly = this.GetType().Assembly;
@@ -232,9 +265,9 @@ namespace Metalama.Backstage.Telemetry
                 }
 
                 using var zipStream = new ZipArchive( resourceStream );
-                zipStream.ExtractToDirectory( workerDirectory );
+                this._fileSystem.ExtractZipArchiveToDirectory( zipStream, workerDirectory );
 
-                File.WriteAllText( touchFile, "" );
+                this._fileSystem.WriteAllText( touchFile, "" );
             }
         }
 
@@ -256,12 +289,15 @@ namespace Metalama.Backstage.Telemetry
 
             var processStartInfo = new ProcessStartInfo()
             {
-                FileName = executableFileName, Arguments = arguments, UseShellExecute = true, WindowStyle = ProcessWindowStyle.Hidden
+                FileName = executableFileName,
+                Arguments = arguments,
+                UseShellExecute = true,
+                WindowStyle = ProcessWindowStyle.Hidden
             };
 
             this._logger.Info?.Log( $"Starting '{executableFileName}{(arguments == "" ? "" : " ")}{arguments}'." );
 
-            Process.Start( processStartInfo );
+            _ = this._processExecutor.Start( processStartInfo );
         }
 
         /// <inheritdoc />
@@ -303,12 +339,8 @@ namespace Metalama.Backstage.Telemetry
                     "Release";
 #endif
 
-                var version = AssemblyMetadataReader.GetInstance( typeof(TelemetryUploader).Assembly ).PackageVersion;
-
-                if ( version == null )
-                {
-                    throw new InvalidOperationException( $"Unknown version of '{typeof(TelemetryUploader).Assembly}' assembly package." );
-                }
+                var version = AssemblyMetadataReader.GetInstance( typeof( TelemetryUploader ).Assembly ).PackageVersion
+                    ?? throw new InvalidOperationException( $"Unknown version of '{typeof( TelemetryUploader ).Assembly}' assembly package." );
 
                 var workerDirectory = Path.Combine(
                     this._directories.ApplicationDataDirectory,
@@ -327,10 +359,12 @@ namespace Metalama.Backstage.Telemetry
             }
         }
 
-        private static string ComputeHash( string s )
+        internal static string ComputeHash( string packageName )
         {
+            const string salt = @"<27e\)$a<=b9&zyVwjzaJ`!WW`rwHh~;Z5QAC.J5TQ`.NY"")]~FGA);AKSSmbV$M";
+
             var sha = SHA512.Create();
-            var data = sha.ComputeHash( Encoding.UTF8.GetBytes( s ) );
+            var data = sha.ComputeHash( Encoding.UTF8.GetBytes( packageName + salt ) );
             var builder = new StringBuilder();
 
             foreach ( var t in data )
@@ -344,7 +378,7 @@ namespace Metalama.Backstage.Telemetry
         /// <inheritdoc />
         public async Task UploadAsync()
         {
-            if ( !Directory.Exists( this._directories.TelemetryUploadQueueDirectory ) )
+            if ( !this._fileSystem.DirectoryExists( this._directories.TelemetryUploadQueueDirectory ) )
             {
                 this._logger.Trace?.Log(
                     $"The telemetry upload queue directory '{this._directories.TelemetryUploadQueueDirectory}' doesn't exist. Assuming there's nothing to upload." );
@@ -352,17 +386,18 @@ namespace Metalama.Backstage.Telemetry
                 return;
             }
 
-            Directory.CreateDirectory( this._directories.TelemetryUploadPackagesDirectory );
+            this._logger.Trace?.Log( $"Creating upload directory '{this._directories.TelemetryUploadPackagesDirectory}'" );
+            this._fileSystem.CreateDirectory( this._directories.TelemetryUploadPackagesDirectory );
 
             var packageId = Guid.NewGuid().ToString();
             var packageName = packageId + ".psf";
             var packagePath = Path.Combine( this._directories.TelemetryUploadPackagesDirectory, packageName );
 
-            IEnumerable<string> filesToDelete;
+            IReadOnlyList<string> filesToDelete;
 
             try
             {
-                var files = Directory.GetFiles( this._directories.TelemetryUploadQueueDirectory );
+                var files = this._fileSystem.GetFiles( this._directories.TelemetryUploadQueueDirectory );
 
                 if ( files.Length == 0 )
                 {
@@ -372,27 +407,36 @@ namespace Metalama.Backstage.Telemetry
                 }
 
                 // TODO: Stream the data directly to HTTP
-                this.CreatePackage( files, packagePath, out filesToDelete );
+                if ( !this.TryCreatePackage( files, packagePath, out filesToDelete ) )
+                {
+                    return;
+                }
 
+                this._logger.Trace?.Log( "Preparing request content." );
                 using var formData = new MultipartFormDataContent();
 
                 // ReSharper disable once UseAwaitUsing
-                using var packageFile = File.OpenRead( packagePath );
-
+                this._logger.Trace?.Log( $"Adding '{packagePath}' package as '{packageName}', ID '{packageId}'." );
+                using var packageFile = this._fileSystem.OpenRead( packagePath );
                 var streamContent = new StreamContent( packageFile );
                 formData.Add( streamContent, packageId, packageName );
 
                 // ReSharper disable once StringLiteralTypo
-                const string salt = @"<27e\)$a<=b9&zyVwjzaJ`!WW`rwHh~;Z5QAC.J5TQ`.NY"")]~FGA);AKSSmbV$M";
-                var check = ComputeHash( packageName + salt );
+                this._logger.Trace?.Log( $"Computing hash of '{packageName}'." );
+                var check = ComputeHash( packageName );
 
-                using var client = new HttpClient();
+                this._logger.Trace?.Log( $"Creating client." );
+                using var client = this._httpClientFactory.Create();
+
+                this._logger.Trace?.Log( $"Uploading." );
                 var response = await client.PutAsync( $"{this._requestUri}?check={check}", formData );
 
                 if ( !response.IsSuccessStatusCode )
                 {
                     throw new InvalidOperationException( $"Request failed: {response.StatusCode} {response.ReasonPhrase}" );
                 }
+
+                this._logger.Trace?.Log( $"Upload succeeded." );
             }
             catch ( Exception exception )
             {
@@ -402,17 +446,54 @@ namespace Metalama.Backstage.Telemetry
             }
             finally
             {
-                if ( File.Exists( packagePath ) )
+
+                RetryHelper.RetryWithLockDetection(
+                    packagePath,
+                    f =>
+                    {
+                        if ( this._fileSystem.FileExists( packagePath ) )
+                        {
+                            this._logger.Trace?.Log( $"Deleting '{packagePath}' package." );
+                            this._fileSystem.DeleteFile( f );
+                        }
+                    },
+                    this._serviceProvider,
+                    logger: this._logger );
+
+#if DEBUG
+                var failedFileExceptions = new List<Exception>();
+#endif
+
+                foreach ( var failedFile in this._failedFiles )
                 {
-                    File.Delete( packagePath );
+                    var exception = new TelemetryFilePackingFailedException( $"Failed to pack '{failedFile.File}' telemetry file: {failedFile.Reason.Message}", failedFile.File, failedFile.Reason );
+                    this._exceptionReporter.ReportException( exception );
+
+#if DEBUG
+                    failedFileExceptions.Add( exception );
+#endif
                 }
+
+#if DEBUG
+                if ( failedFileExceptions.Count > 0 )
+                {
+                    throw new AggregateException( "No all files have been packed. See inner exceptions for the failed files.", failedFileExceptions );
+                }
+#endif
             }
 
             // Delete the files that have just been sent.
-            foreach ( var file in filesToDelete )
-            {
-                File.Delete( file );
-            }
+            RetryHelper.RetryWithLockDetection(
+                filesToDelete,
+                f =>
+                {
+                    this._logger.Trace?.Log( $"Deleting sent file '{f}'." );
+                    this._fileSystem.DeleteFile( f );
+                },
+                this._serviceProvider,
+                logger: this._logger );
+
+            this._logger.Trace?.Log( "Telemetry upload finished." );
         }
     }
 }

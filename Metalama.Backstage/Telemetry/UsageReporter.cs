@@ -93,6 +93,12 @@ internal class UsageReporter : IUsageReporter
 
         this._currentSample = new UsageSample( this._serviceProvider, kind );
 
+        if ( this._logger.Trace != null )
+        {
+            this._logger.Trace.Log( $"Usage session started." );
+            this.TraceCurrentSample();
+        }
+
         return true;
     }
 
@@ -102,8 +108,27 @@ internal class UsageReporter : IUsageReporter
     {
         if ( this._currentSample != null )
         {
+            if ( this._logger.Trace != null )
+            {
+                this._logger.Trace.Log( $"Usage session ended." );
+                this.TraceCurrentSample();
+            }
+
             this._currentSample.Flush();
             this._currentSample = null;
+        }
+    }
+
+    private void TraceCurrentSample()
+    {
+        if ( this._logger.Trace == null || this._currentSample == null )
+        {
+            return;
+        }
+
+        foreach ( var metric in this._currentSample.Metrics )
+        {
+            this._logger.Trace.Log( $"  {metric.Name}: {metric}" );
         }
     }
 }

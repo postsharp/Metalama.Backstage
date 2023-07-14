@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace Metalama.Backstage.Licensing.Tests.ConfigurationManager;
+namespace Metalama.Backstage.Tests.ConfigurationManager;
 
 public class ConfigurationManagerTests : TestsBase
 {

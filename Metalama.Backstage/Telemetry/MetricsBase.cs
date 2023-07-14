@@ -1,5 +1,6 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. See the LICENSE.md file in the root directory of this repository root for details.
 
+using Metalama.Backstage.Diagnostics;
 using Metalama.Backstage.Extensibility;
 using System;
 using System.IO;
@@ -12,6 +13,7 @@ internal abstract class MetricsBase
     private readonly IStandardDirectories _directories;
     private readonly IFileSystem _fileSystem;
     private readonly ITelemetryUploader _uploader;
+    private readonly ILogger _logger;
     private readonly string _feedbackKind;
 
     protected MetricCollection Metrics { get; } = new();
@@ -21,6 +23,7 @@ internal abstract class MetricsBase
         this._directories = serviceProvider.GetRequiredBackstageService<IStandardDirectories>();
         this._fileSystem = serviceProvider.GetRequiredBackstageService<IFileSystem>();
         this._uploader = serviceProvider.GetRequiredBackstageService<ITelemetryUploader>();
+        this._logger = serviceProvider.GetRequiredBackstageService<ILoggerFactory>().Telemetry();
         this._feedbackKind = feedbackKind;
     }
 
@@ -52,6 +55,8 @@ internal abstract class MetricsBase
 
     private void Flush( string fileName )
     {
+        this._logger.Trace?.Log( $"Flushing usage to '{fileName}' file." );
+
         var directory = Path.GetDirectoryName( fileName );
 
         if ( directory != null )
@@ -65,12 +70,15 @@ internal abstract class MetricsBase
             this.Metrics.Write( writer );
             writer.Write( Environment.NewLine );
         }
+
+        this._logger.Trace?.Log( $"Usage written to '{fileName}' file." );
     }
 
     private void CreateUploadDirectory()
     {
         if ( !this._fileSystem.DirectoryExists( this._directories.TelemetryUploadQueueDirectory ) )
         {
+            this._logger.Trace?.Log( $"Creating '{this._directories.TelemetryUploadQueueDirectory}' directory." );
             this._fileSystem.CreateDirectory( this._directories.TelemetryUploadQueueDirectory );
         }
     }

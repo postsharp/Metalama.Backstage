@@ -11,7 +11,7 @@ using System.Collections.Immutable;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace Metalama.Backstage.Licensing.Tests.Diagnostics;
+namespace Metalama.Backstage.Tests.Diagnostics;
 
 /// <summary>
 /// This tests class works with predefined default configuration set in constructor.

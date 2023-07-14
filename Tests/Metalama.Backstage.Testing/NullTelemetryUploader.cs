@@ -5,8 +5,7 @@ using System.Threading.Tasks;
 
 namespace Metalama.Backstage.Testing;
 
-// TODO: Unit tests for telemetry
-public class TestTelemetryUploader : ITelemetryUploader
+public class NullTelemetryUploader : ITelemetryUploader
 {
     public void StartUpload( bool force = false ) { }
 

@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.IO.Abstractions;
 using System.IO.Abstractions.TestingHelpers;
+using System.IO.Compression;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading;
@@ -278,6 +279,21 @@ namespace Metalama.Backstage.Testing
         public string[] GetDirectories( string path, string searchPattern, SearchOption searchOption )
             => this._directory.Execute( ExecutionKind.Manage, path, d => RemoveTrailingSeparators( d.GetDirectories( path, searchPattern, searchOption ) ) );
 
+        public Stream CreateFile( string path ) => this._file.Execute( ExecutionKind.Write, path, f => f.Create( path ) );
+
+        public Stream CreateFile( string path, int bufferSize ) => this._file.Execute( ExecutionKind.Write, path, f => f.Create( path, bufferSize ) );
+
+        public Stream CreateFile( string path, int bufferSize, FileOptions options )
+            => this._file.Execute( ExecutionKind.Write, path, f => f.Create( path, bufferSize, options ) );
+
+        public string GetTempFileName()
+        {
+            var path = this.Mock.Path.GetTempFileName();
+
+            // We don't know the path beforehand, so we set the last write time in a separate dummy step.
+            return this._file.Execute( ExecutionKind.Write, path, f => path );
+        }
+
         public void CreateDirectory( string path ) => this._directory.Execute( ExecutionKind.Write, path, d => d.CreateDirectory( path ) );
 
         public Stream Open( string path, FileMode mode ) => this._file.Execute( ExecutionKind.Write, path, f => f.Open( path, mode ) );
@@ -287,6 +303,10 @@ namespace Metalama.Backstage.Testing
 
         public Stream Open( string path, FileMode mode, FileAccess access, FileShare share )
             => this._file.Execute( access == FileAccess.Read ? ExecutionKind.Read : ExecutionKind.Write, path, f => f.Open( path, mode, access, share ) );
+
+        // TODO: Support for bufferSize and options, which are not needed in tests at the moment.
+        public Stream Open( string path, FileMode mode, FileAccess access, FileShare share, int bufferSize, FileOptions options )
+            => this.Open( path, mode, access, share );
 
         public Stream OpenRead( string path ) => this._file.Execute( ExecutionKind.Read, path, f => f.OpenRead( path ) );
 
@@ -318,5 +338,8 @@ namespace Metalama.Backstage.Testing
         public void DeleteDirectory( string path, bool recursive ) => this._directory.Execute( ExecutionKind.Manage, path, d => d.Delete( path, recursive ) );
 
         public bool IsDirectoryEmpty( string path ) => this._directory.Execute( ExecutionKind.Read, path, d => !d.EnumerateFileSystemEntries( path ).Any() );
+
+        public void ExtractZipArchiveToDirectory( ZipArchive sourceZipArchive, string destinationDirectoryPath )
+            => TestFileSystemZipUtilities.ExtractToDirectory( this, sourceZipArchive, destinationDirectoryPath );
     }
 }
