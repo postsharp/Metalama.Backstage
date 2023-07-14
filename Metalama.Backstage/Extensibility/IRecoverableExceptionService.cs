@@ -8,7 +8,7 @@ namespace Metalama.Backstage.Extensibility;
 /// <remarks>
 /// This is to allow recoverable failures not to disturb users, but being hit by PostSharp engineers at the same time.
 /// </remarks>
-public interface IRecoverableExceptionService : IBackstageService
+internal interface IRecoverableExceptionService : IBackstageService
 {
     /// <summary>
     /// Gets a value indicating whether a recoverable exception can be ignored.
