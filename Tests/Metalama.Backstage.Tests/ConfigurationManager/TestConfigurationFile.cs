@@ -2,7 +2,7 @@
 
 using Metalama.Backstage.Configuration;
 
-namespace Metalama.Backstage.Licensing.Tests.ConfigurationManager;
+namespace Metalama.Backstage.Tests.ConfigurationManager;
 
 [ConfigurationFile( "test.json" )]
 internal record TestConfigurationFile : ConfigurationFile

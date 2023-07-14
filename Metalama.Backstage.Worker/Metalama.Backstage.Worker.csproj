@@ -23,12 +23,6 @@
 
     <ItemGroup>
         <Compile Include="$(MetalamaBackstageDirectory)\**\*.cs" Exclude="$(MetalamaBackstageDirectory)\obj\**\*;$(MetalamaBackstageDirectory)\bin\**\*" />
-        <Compile Update="..\Metalama.Backstage\Diagnostics\BufferingLoggerFactory.cs">
-          <Link>Diagnostics\BufferingLoggerFactory.cs</Link>
-        </Compile>
-        <Compile Update="..\Metalama.Backstage\Licensing\Consumption\LicenseConsumptionService.ImmutableImpl.cs">
-          <Link>Licensing\Consumption\LicenseConsumptionService.ImmutableImpl.cs</Link>
-        </Compile>
     </ItemGroup>
 
     <ItemGroup Condition="'$(TargetFramework)'=='netframework4.7.2'">

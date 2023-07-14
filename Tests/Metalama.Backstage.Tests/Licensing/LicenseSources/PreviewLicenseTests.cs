@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Xunit;
 
-namespace Metalama.Backstage.Licensing.Tests.Licensing.LicenseSources;
+namespace Metalama.Backstage.Tests.Licensing.LicenseSources;
 
 public class PreviewLicenseTests
 {

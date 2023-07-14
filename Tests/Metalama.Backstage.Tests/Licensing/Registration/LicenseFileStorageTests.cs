@@ -4,7 +4,7 @@ using Metalama.Backstage.Licensing.Registration;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace Metalama.Backstage.Licensing.Tests.Licensing.Registration
+namespace Metalama.Backstage.Tests.Licensing.Registration
 {
     public class LicenseFileStorageTests : LicensingTestsBase
     {

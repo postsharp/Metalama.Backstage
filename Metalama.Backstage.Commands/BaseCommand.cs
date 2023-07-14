@@ -25,9 +25,12 @@ namespace Metalama.Backstage.Commands
             }
 
             var extendedContext = new ExtendedCommandContext( context, settings );
+            var canIgnoreRecoverableExceptions = extendedContext.ServiceProvider.GetRequiredBackstageService<IRecoverableExceptionService>().CanIgnore;
 
             try
             {
+                // We don't report usage of commands.
+
                 this.Execute( extendedContext, settings );
 
                 return 0;
@@ -55,9 +58,6 @@ namespace Metalama.Backstage.Commands
             {
                 try
                 {
-                    // Report usage.
-                    extendedContext.ServiceProvider.GetBackstageService<IUsageReporter>()?.StopSession();
-
                     // Close logs.
                     // Logging has to be disposed as the last one, so it could be used until now.
                     extendedContext.ServiceProvider.GetLoggerFactory().Dispose();
@@ -68,12 +68,16 @@ namespace Metalama.Backstage.Commands
                     {
                         extendedContext.ServiceProvider.GetBackstageService<IExceptionReporter>()?.ReportException( e );
                     }
-                    catch
+                    catch when ( canIgnoreRecoverableExceptions )
                     {
                         // We don't want failing telemetry to disturb users.
                     }
 
                     // We don't want failing telemetry to disturb users.
+                    if ( !canIgnoreRecoverableExceptions )
+                    {
+                        throw;
+                    }
                 }
             }
         }

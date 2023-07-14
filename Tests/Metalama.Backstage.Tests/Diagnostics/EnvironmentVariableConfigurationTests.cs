@@ -8,7 +8,7 @@ using System.Collections.Immutable;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace Metalama.Backstage.Licensing.Tests.Diagnostics;
+namespace Metalama.Backstage.Tests.Diagnostics;
 
 public class EnvironmentVariableConfigurationTests : TestsBase
 {
