@@ -1,76 +1,122 @@
 // Copyright (c) SharpCrafters s.r.o. See the LICENSE.md file in the root directory of this repository root for details.
 
+using Metalama.Backstage.Diagnostics;
 using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Threading;
 
-namespace Metalama.Backstage.Utilities
-{
-    internal static class MutexHelper
-    {
-        public static IDisposable WithGlobalLock( string name )
-        {
-            var mutex = CreateGlobalMutex( name );
+#if DEBUG
+using System.Diagnostics;
+#endif
 
-            try
+namespace Metalama.Backstage.Utilities;
+
+public static class MutexHelper
+{
+    public static IDisposable WithGlobalLock( string name, ILogger? logger = null )
+    {
+        logger?.Trace?.Log( $"Acquiring lock '{name}'." );
+
+        var mutex = CreateGlobalMutex( name, logger );
+
+        try
+        {
+            if ( !mutex.WaitOne( 0 ) )
             {
+                logger?.Trace?.Log( $"  Another process owns '{name}'. Waiting." );
                 mutex.WaitOne();
             }
-            catch ( AbandonedMutexException ) { }
-
-            return new MutexHandle( mutex );
         }
-
-        public static bool WithGlobalLock( string name, TimeSpan timeout, [NotNullWhen( true )] out IDisposable? mutexHandle )
+        catch ( AbandonedMutexException )
         {
-            var mutex = CreateGlobalMutex( name );
-
-            bool acquired;
-
-            try
-            {
-                acquired = mutex.WaitOne( timeout );
-            }
-            catch ( AbandonedMutexException )
-            {
-                acquired = true;
-            }
-
-            if ( acquired )
-            {
-                mutexHandle = new MutexHandle( mutex );
-
-                return true;
-            }
-            else
-            {
-                mutexHandle = null;
-
-                return false;
-            }
+            logger?.Warning?.Log( "  Ignoring an AbandonedMutexException." );
         }
 
-        private static Mutex CreateGlobalMutex( string fullName )
+        logger?.Trace?.Log( $"Lock '{name}' acquired." );
+
+        return new MutexHandle( mutex, name, logger );
+    }
+
+    public static bool WithGlobalLock( string name, TimeSpan timeout, [NotNullWhen( true )] out IDisposable? mutexHandle, ILogger? logger = null )
+    {
+        var mutex = CreateGlobalMutex( name, logger );
+
+        bool acquired;
+
+        try
         {
-            var mutexName = @"Global\Metalama_" + HashUtilities.HashString( fullName );
-
-            return new Mutex( false, mutexName );
+            acquired = mutex.WaitOne( timeout );
         }
-
-        private class MutexHandle : IDisposable
+        catch ( AbandonedMutexException )
         {
-            private readonly Mutex _mutex;
+            acquired = true;
 
-            public MutexHandle( Mutex mutex )
-            {
-                this._mutex = mutex;
-            }
-
-            public void Dispose()
-            {
-                this._mutex.ReleaseMutex();
-                this._mutex.Dispose();
-            }
+            logger?.Warning?.Log( "  Ignoring an AbandonedMutexException." );
         }
+
+        if ( acquired )
+        {
+            logger?.Trace?.Log( $"Lock '{name}' acquired." );
+
+            mutexHandle = new MutexHandle( mutex, name, logger );
+
+            return true;
+        }
+        else
+        {
+            logger?.Trace?.Log( $"Lock '{name}' not acquired." );
+
+            mutexHandle = null;
+
+            return false;
+        }
+    }
+
+    private static Mutex CreateGlobalMutex( string fullName, ILogger? logger )
+    {
+        var mutexName = "Global\\Metalama_" + HashUtilities.HashString( fullName );
+
+        logger?.Trace?.Log( $"  Mutex name: '{mutexName}'." );
+
+        return new Mutex( false, mutexName );
+    }
+
+    private sealed class MutexHandle : IDisposable
+    {
+        private readonly Mutex _mutex;
+        private readonly string _name;
+        private readonly ILogger? _logger;
+
+#if DEBUG
+        private readonly StackTrace _stackTrace = new();
+#endif
+
+        public MutexHandle( Mutex mutex, string name, ILogger? logger )
+        {
+            this._mutex = mutex;
+            this._name = name;
+            this._logger = logger;
+        }
+
+        public void Dispose()
+        {
+            this._logger?.Trace?.Log( $"Releasing lock '{this._name}'." );
+
+            this._mutex.ReleaseMutex();
+            this._mutex.Dispose();
+
+#if DEBUG
+            GC.SuppressFinalize( this );
+#endif
+        }
+
+#pragma warning disable CA1821
+#if DEBUG
+        ~MutexHandle()
+        {
+            throw new InvalidOperationException( "The mutex was not disposed. It was acquired here: " + Environment.NewLine + this._stackTrace );
+        }
+#endif
+#pragma warning restore CA1821
     }
 }
