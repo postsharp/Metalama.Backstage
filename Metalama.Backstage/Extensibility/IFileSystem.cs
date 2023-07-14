@@ -4,6 +4,7 @@ using JetBrains.Annotations;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.IO.Compression;
 
 namespace Metalama.Backstage.Extensibility
 {
@@ -323,6 +324,43 @@ namespace Metalama.Backstage.Extensibility
         IEnumerable<string> EnumerateDirectories( string path, string searchPattern, SearchOption searchOption );
 
         /// <summary>
+        /// Creates or overwrites a file in the specified path.
+        /// </summary>
+        /// <param name="path">The path and name of the file to create.</param>
+        /// <returns>A <see cref="Stream"/> that provides read/write access to the file specified in <paramref name="path"/>.</returns>
+        Stream CreateFile( string path );
+
+        /// <summary>
+        /// Creates or overwrites a file in the specified path, specifying a buffer size.
+        /// </summary>
+        /// <param name="path">The path and name of the file to create.</param>
+        /// <param name="bufferSize">The number of bytes buffered for reads and writes to the file.</param>
+        /// <returns>
+        /// A <see cref="Stream"/> with the specified buffer size
+        /// that provides read/write access to the file specified in <paramref name="path"/>.
+        /// </returns>
+        Stream CreateFile( string path, int bufferSize );
+
+        /// <summary>
+        /// Creates or overwrites a file in the specified path, specifying a buffer size
+        /// and options that describe how to create or overwrite the file.
+        /// </summary>
+        /// <param name="path">The path and name of the file to create.</param>
+        /// <param name="bufferSize">The number of bytes buffered for reads and writes to the file.</param>
+        /// <param name="options">One of the <see cref="FileOptions"/> values that describes how to create or overwrite the file.</param>
+        /// <returns>
+        /// A <see cref="Stream"/> with the specified buffer size
+        /// that provides specified access to the file specified in <paramref name="path"/>.
+        /// </returns>
+        Stream CreateFile( string path, int bufferSize, FileOptions options );
+
+        /// <summary>
+        /// Creates a uniquely named, zero-byte temporary file on disk and returns the full path of that file.
+        /// </summary>
+        /// <returns>The full path of the temporary file.</returns>
+        string GetTempFileName();
+
+        /// <summary>
         /// Creates all directories and subdirectories in the specified path unless they already exist.
         /// </summary>
         /// <param name="path">The directory to create.</param>
@@ -369,6 +407,24 @@ namespace Metalama.Backstage.Extensibility
         /// with read, write, or read/write access and the specified sharing option.
         /// </returns>
         Stream Open( string path, FileMode mode, FileAccess access, FileShare share );
+
+        /// <summary>
+        /// Opens an existing file.
+        /// </summary>
+        /// <param name="path">The file to be opened.</param>
+        /// <param name="mode">
+        /// A <see cref="FileMode"/> value that specifies whether a file is created if one does not exist,
+        /// and determines whether the contents of existing files are retained or overwritten.
+        /// </param>
+        /// <param name="access">A <see cref="FileAccess"/> value that specifies the operations that can be performed on the file.</param>
+        /// <param name="share">A <see cref="FileShare"/> value specifying the type of access other threads have to the file.</param>
+        /// <param name="bufferSize">A positive <see cref="int"/> value greater than 0 indicating the buffer size. The default buffer size is 4096.</param>
+        /// <param name="options">A <see cref="FileOptions"/> value specifying advance options for creating a <see cref="FileStream"/> object.</param>
+        /// <returns>
+        /// A <see cref="Stream"/> on the specified path, having the specified mode
+        /// with read, write, or read/write access and the specified sharing option.
+        /// </returns>
+        Stream Open( string path, FileMode mode, FileAccess access, FileShare share, int bufferSize, FileOptions options );
 
         /// <summary>
         /// Opens an existing file for reading.
@@ -463,6 +519,17 @@ namespace Metalama.Backstage.Extensibility
         /// <param name="path">The name of the directory to check.</param>
         /// <returns>Value indicating whether <paramref name="path"/> has any subdirectories or files.</returns>
         bool IsDirectoryEmpty( string path );
+
+        /// <summary>
+        /// Extracts all the files in the zip archive to a directory on the file system.
+        /// </summary>
+        /// <param name="sourceZipArchive">The zip archive to extract files from.</param>
+        /// <param name="destinationDirectoryPath">
+        /// The path to the directory to place the extracted files in. You can specify either
+        /// a relative or an absolute path. A relative path is interpreted as relative to
+        /// the current working directory.
+        /// </param>
+        void ExtractZipArchiveToDirectory( ZipArchive sourceZipArchive, string destinationDirectoryPath );
 
         IDisposable WatchChanges( string directory, string filter, Action<FileSystemEventArgs> callback );
     }

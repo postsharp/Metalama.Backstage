@@ -23,7 +23,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Metalama.Backstage.Commands
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Metalama.Backstage.Worker", "Metalama.Backstage.Worker\Metalama.Backstage.Worker.csproj", "{B1D5955D-CB60-4233-8C95-D0CC456C6939}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Metalama.Backstage.Tool", "Metalama.Backstage.Tool\Metalama.Backstage.Tool.csproj", "{34D564FB-8BDB-4187-8FCD-249C99E70FDA}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Metalama.Backstage.Tool", "Metalama.Backstage.Tool\Metalama.Backstage.Tool.csproj", "{34D564FB-8BDB-4187-8FCD-249C99E70FDA}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

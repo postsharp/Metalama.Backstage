@@ -2,6 +2,7 @@
 
 using Metalama.Backstage.Configuration;
 using Metalama.Backstage.Extensibility;
+using Metalama.Backstage.Maintenance;
 using Metalama.Backstage.Telemetry;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
@@ -25,7 +26,7 @@ namespace Metalama.Backstage.Testing
 
         public TestLoggerFactory Log { get; }
 
-        public TestTelemetryUploader TelemetryUploader { get; } = new();
+        public NullTelemetryUploader TelemetryUploader { get; } = new();
 
         public TestUsageReporter UsageReporter { get; } = new();
 
@@ -68,8 +69,9 @@ namespace Metalama.Backstage.Testing
             this.FileSystem = new TestFileSystem( this._serviceCollection.BuildServiceProvider() );
 
             this._serviceCollection
-                .AddSingleton<IFileSystem>( this.FileSystem )
-                .AddSingleton<IEnvironmentVariableProvider>( this.EnvironmentVariableProvider );
+                .AddSingleton<IEnvironmentVariableProvider>( this.EnvironmentVariableProvider )
+                .AddSingleton<IRecoverableExceptionService>( new TestRecoverableExceptionService() )
+                .AddSingleton<IFileSystem>( this.FileSystem );
 
             var serviceProviderBuilder =
                 new ServiceProviderBuilder(
@@ -85,6 +87,7 @@ namespace Metalama.Backstage.Testing
             this.ConfigurationManager = new InMemoryConfigurationManager( this._serviceCollection.BuildServiceProvider() );
 
             this._serviceCollection.AddSingleton<IConfigurationManager>( this.ConfigurationManager );
+            this._serviceCollection.AddSingleton<ITempFileManager>( new TempFileManager( serviceProviderBuilder.ServiceProvider ) );
 
             // ReSharper restore RedundantTypeArgumentsOfMethod
 

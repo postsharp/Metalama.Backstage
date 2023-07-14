@@ -19,4 +19,9 @@
         <PackageReference Include="System.IO.Abstractions.TestingHelpers" Version="13.2.29" />
     </ItemGroup>
 
+	<ItemGroup Condition="'$(TargetFramework)'=='netframework4.7.2'">
+      <Reference Include="System.IO.Compression" />
+      <Reference Include="System.Net.Http" />
+    </ItemGroup>
+
 </Project>

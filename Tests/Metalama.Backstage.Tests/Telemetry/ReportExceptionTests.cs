@@ -14,7 +14,7 @@ using System.Xml.Linq;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace Metalama.Backstage.Licensing.Tests.Telemetry;
+namespace Metalama.Backstage.Tests.Telemetry;
 
 public class ReportExceptionTests : TestsBase
 {
