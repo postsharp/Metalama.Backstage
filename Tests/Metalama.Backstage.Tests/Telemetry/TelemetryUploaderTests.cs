@@ -101,7 +101,8 @@ public class TelemetryUploaderTests : TestsBase
         var directores = this.ServiceProvider.GetRequiredBackstageService<IStandardDirectories>();
         var platformInfo = this.ServiceProvider.GetRequiredBackstageService<IPlatformInfo>();
 
-        var version = AssemblyMetadataReader.GetInstance( typeof( TelemetryUploader ).Assembly ).PackageVersion;
+        var version = AssemblyMetadataReader.GetInstance( typeof( TelemetryUploader ).Assembly ).PackageVersion
+            ?? throw new InvalidOperationException( $"Unknown version of '{typeof( TelemetryUploader ).Assembly}' assembly package." );
 
         var configuration =
 #if DEBUG

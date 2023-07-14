@@ -11,16 +11,17 @@ namespace Metalama.Backstage
 {
     internal static class Program
     {
+        private static bool _canIgnoreRecoverableExceptions = true;
+
         public static async Task Main()
         {
-            IServiceProvider? serviceProvider = null;
-
             var initializationOptions = new BackstageInitializationOptions( new BackstageWorkerApplicationInfo() ) { AddSupportServices = true };
             var serviceProviderBuilder = new ServiceProviderBuilder().AddBackstageServices( initializationOptions );
-            serviceProvider = serviceProviderBuilder.ServiceProvider;
+            var serviceProvider = serviceProviderBuilder.ServiceProvider;
 
             try
             {
+                _canIgnoreRecoverableExceptions = serviceProvider.GetRequiredBackstageService<IRecoverableExceptionService>().CanIgnore;
                 var logger = serviceProvider.GetLoggerFactory().GetLogger( "Worker" );
                 var usageReporter = serviceProviderBuilder.ServiceProvider.GetBackstageService<IUsageReporter>();
 
@@ -54,9 +55,10 @@ namespace Metalama.Backstage
                     throw;
                 }
 
-#if DEBUG
-                throw;
-#endif
+                if ( !_canIgnoreRecoverableExceptions )
+                {
+                    throw;
+                }
             }
             finally
             {
@@ -72,20 +74,16 @@ namespace Metalama.Backstage
                     {
                         serviceProvider?.GetBackstageService<IExceptionReporter>()?.ReportException( e );
                     }
-                    catch
+                    catch when ( _canIgnoreRecoverableExceptions )
                     {
                         // We don't want failing telemetry to disturb users.
-
-#if DEBUG
-                        throw;
-#endif
                     }
 
                     // We don't re-throw here as we don't want compiler to crash because of usage reporting exceptions.
-
-#if DEBUG
-                    throw;
-#endif
+                    if ( !_canIgnoreRecoverableExceptions )
+                    {
+                        throw;
+                    }
                 }
             }
         }
@@ -103,7 +101,7 @@ namespace Metalama.Backstage
                     return true;
                 }
             }
-            catch
+            catch when ( _canIgnoreRecoverableExceptions )
             {
                 // We don't want failing telemetry to disturb users.
             }
@@ -119,7 +117,7 @@ namespace Metalama.Backstage
                     return true;
                 }
             }
-            catch
+            catch when ( _canIgnoreRecoverableExceptions )
             {
                 // We don't want failing telemetry to disturb users.
             }

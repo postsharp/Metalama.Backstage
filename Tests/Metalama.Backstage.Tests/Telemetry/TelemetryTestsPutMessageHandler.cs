@@ -8,7 +8,7 @@ using System.Threading;
 using System.Threading.Tasks;
 
 #if NET
-using Metalama.Backstage.Internal.Telemetry;
+using Metalama.Backstage.Telemetry;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Primitives;
