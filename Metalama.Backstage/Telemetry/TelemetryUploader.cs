@@ -91,7 +91,7 @@ namespace Metalama.Backstage.Telemetry
             string publicKeyXml;
 
             using (
-                var keyStream = typeof(TelemetryUploader)
+                var keyStream = typeof( TelemetryUploader )
                     .Assembly
                     .GetManifestResourceStream( "Metalama.Backstage.Telemetry.public.key" ) )
             {
@@ -153,7 +153,7 @@ namespace Metalama.Backstage.Telemetry
                 CryptoStreamMode.Write );
         }
 
-        private bool TryCreatePackage( IEnumerable<string> files, string outputPath, out IEnumerable<string> filesToDelete )
+        private bool TryCreatePackage( IReadOnlyList<string> files, string outputPath, out IReadOnlyList<string> filesToDelete )
         {
             var filesToDeleteLocal = new List<string>();
             string? tempPackagePath = null;
@@ -289,7 +289,10 @@ namespace Metalama.Backstage.Telemetry
 
             var processStartInfo = new ProcessStartInfo()
             {
-                FileName = executableFileName, Arguments = arguments, UseShellExecute = true, WindowStyle = ProcessWindowStyle.Hidden
+                FileName = executableFileName,
+                Arguments = arguments,
+                UseShellExecute = true,
+                WindowStyle = ProcessWindowStyle.Hidden
             };
 
             this._logger.Info?.Log( $"Starting '{executableFileName}{(arguments == "" ? "" : " ")}{arguments}'." );
@@ -336,8 +339,8 @@ namespace Metalama.Backstage.Telemetry
                     "Release";
 #endif
 
-                var version = AssemblyMetadataReader.GetInstance( typeof(TelemetryUploader).Assembly ).PackageVersion
-                    ?? throw new InvalidOperationException( $"Unknown version of '{typeof(TelemetryUploader).Assembly}' assembly package." );
+                var version = AssemblyMetadataReader.GetInstance( typeof( TelemetryUploader ).Assembly ).PackageVersion
+                    ?? throw new InvalidOperationException( $"Unknown version of '{typeof( TelemetryUploader ).Assembly}' assembly package." );
 
                 var workerDirectory = Path.Combine(
                     this._directories.ApplicationDataDirectory,
@@ -390,7 +393,7 @@ namespace Metalama.Backstage.Telemetry
             var packageName = packageId + ".psf";
             var packagePath = Path.Combine( this._directories.TelemetryUploadPackagesDirectory, packageName );
 
-            IEnumerable<string> filesToDelete;
+            IReadOnlyList<string> filesToDelete;
 
             try
             {
@@ -480,12 +483,15 @@ namespace Metalama.Backstage.Telemetry
             }
 
             // Delete the files that have just been sent.
-            foreach ( var file in filesToDelete )
-            {
-                this._logger.Trace?.Log( $"Deleting sent file '{file}'." );
-
-                RetryHelper.RetryWithLockDetection( file, f => this._fileSystem.DeleteFile( f ), this._serviceProvider, logger: this._logger );
-            }
+            RetryHelper.RetryWithLockDetection(
+                filesToDelete,
+                f =>
+                {
+                    this._logger.Trace?.Log( $"Deleting sent file '{f}'." );
+                    this._fileSystem.DeleteFile( f );
+                },
+                this._serviceProvider,
+                logger: this._logger );
 
             this._logger.Trace?.Log( "Telemetry upload finished." );
         }
