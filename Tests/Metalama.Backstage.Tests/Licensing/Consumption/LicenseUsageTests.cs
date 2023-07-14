@@ -1,11 +1,11 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. See the LICENSE.md file in the root directory of this repository root for details.
 
-using Metalama.Backstage.Licensing.Tests.Licensing.LicenseSources;
+using Metalama.Backstage.Tests.Licensing.LicenseSources;
 using System.Linq;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace Metalama.Backstage.Licensing.Tests.Licensing.Consumption;
+namespace Metalama.Backstage.Tests.Licensing.Consumption;
 
 public class LicenseUsageTests : LicenseConsumptionManagerTestsBase
 {

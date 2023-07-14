@@ -7,7 +7,7 @@ using System;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace Metalama.Backstage.Licensing.Tests.Licensing.Evaluation
+namespace Metalama.Backstage.Tests.Licensing.Evaluation
 {
     public class EvaluationLicenseEligibilityTests : EvaluationLicenseRegistrationTestsBase
     {

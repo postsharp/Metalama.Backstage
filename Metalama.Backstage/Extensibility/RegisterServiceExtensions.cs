@@ -55,6 +55,14 @@ public static class RegisterServiceExtensions
         => serviceProviderBuilder.AddSingleton<IEnvironmentVariableProvider>( new EnvironmentVariableProvider() );
 
     /// <summary>
+    /// Adds a service providing information if a recoverable exception can be ignored.
+    /// </summary>
+    /// <param name="serviceProviderBuilder">The <see cref="ServiceProviderBuilder" /> to add services to.</param>
+    /// <returns>The <see cref="ServiceProviderBuilder" /> so that additional calls can be chained.</returns>
+    private static ServiceProviderBuilder AddRecoverableExceptionService( this ServiceProviderBuilder serviceProviderBuilder )
+        => serviceProviderBuilder.AddSingleton<IRecoverableExceptionService>( new RecoverableExceptionService( serviceProviderBuilder.ServiceProvider ) );
+
+    /// <summary>
     /// Adds a service providing paths of standard directories to the specified <see cref="ServiceProviderBuilder" />.
     /// </summary>
     /// <param name="serviceProviderBuilder">The <see cref="ServiceProviderBuilder" /> to add services to.</param>
@@ -106,15 +114,17 @@ public static class RegisterServiceExtensions
         IApplicationInfo applicationInfo )
     {
         serviceProviderBuilder = serviceProviderBuilder
+            .AddEnvironmentVariableProvider()
+            .AddRecoverableExceptionService()
             .AddSingleton<IApplicationInfoProvider>( new ApplicationInfoProvider( applicationInfo ) )
             .AddCurrentDateTimeProvider()
             .AddFileSystem()
-            .AddEnvironmentVariableProvider()
             .AddStandardDirectories()
             .AddSingleton<IProcessExecutor>( new ProcessExecutor() )
+            .AddSingleton<IHttpClientFactory>( new HttpClientFactory() )
             .AddConfigurationManager();
 
-        serviceProviderBuilder.AddService( typeof(ITempFileManager), new TempFileManager( serviceProviderBuilder.ServiceProvider ) );
+        serviceProviderBuilder.AddSingleton<ITempFileManager>( new TempFileManager( serviceProviderBuilder.ServiceProvider ) );
 
         return serviceProviderBuilder;
     }
@@ -214,14 +224,14 @@ public static class RegisterServiceExtensions
         return serviceProviderBuilder;
     }
 
-    private static void AddTelemetryServices( this ServiceProviderBuilder serviceProviderBuilder )
+    internal static void AddTelemetryServices( this ServiceProviderBuilder serviceProviderBuilder )
     {
         // Add telemetry.
         var queue = new TelemetryQueue( serviceProviderBuilder.ServiceProvider );
 
         serviceProviderBuilder
-            .AddSingleton<ITelemetryUploader>( new TelemetryUploader( serviceProviderBuilder.ServiceProvider ) )
             .AddSingleton<IExceptionReporter>( new ExceptionReporter( queue, serviceProviderBuilder.ServiceProvider ) )
+            .AddSingleton<ITelemetryUploader>( new TelemetryUploader( serviceProviderBuilder.ServiceProvider ) )
             .AddSingleton<IUsageReporter>( new UsageReporter( serviceProviderBuilder.ServiceProvider ) );
     }
 

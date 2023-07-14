@@ -3,7 +3,6 @@
     <PropertyGroup>
         <TargetFrameworks>netframework4.7.2;net6.0</TargetFrameworks>
         <IsPackable>false</IsPackable>
-        <RootNamespace>Metalama.Backstage.Licensing.Tests</RootNamespace>
     </PropertyGroup>
 
     <ItemGroup>
@@ -23,5 +22,14 @@
         <ProjectReference Include="..\..\Metalama.Backstage\Metalama.Backstage.csproj" />
         <ProjectReference Include="..\Metalama.Backstage.Testing\Metalama.Backstage.Testing.csproj" />
     </ItemGroup>
+
+	<ItemGroup Condition="'$(TargetFramework)'=='netframework4.7.2'">
+		<Reference Include="System.IO.Compression" />
+		<Reference Include="System.Net.Http" />
+	</ItemGroup>
+
+	<ItemGroup Condition="'$(TargetFramework)'=='net6.0'">
+		<FrameworkReference Include="Microsoft.AspNetCore.App" />
+	</ItemGroup>
 
 </Project>

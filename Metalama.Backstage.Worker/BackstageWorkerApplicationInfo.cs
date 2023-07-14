@@ -17,13 +17,5 @@ namespace Metalama.Backstage
         public override bool IsLongRunningProcess => false;
 
         public override bool IsUnattendedProcess( ILoggerFactory loggerFactory ) => true;
-
-        public override bool IsTelemetryEnabled
-            =>
-#if DEBUG
-                false;
-#else
-            true;
-#endif
     }
 }

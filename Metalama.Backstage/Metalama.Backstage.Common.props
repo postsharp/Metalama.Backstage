@@ -16,7 +16,8 @@
 
     <ItemGroup>
         <None Remove="Telemetry\public.key" />
-        <EmbeddedResource Include="$(MetalamaBackstageDirectory)\Telemetry\public.key" />
+        <EmbeddedResource Include="$(MetalamaBackstageDirectory)\Telemetry\public.key"
+                          LogicalName="Metalama.Backstage.Telemetry.public.key" />
         <EmbeddedResource Include="..\Metalama.Backstage.Worker\bin\Metalama.Backstage.Worker.net6.0.zip"
                           Condition="'$(IsWorkerBuild)'!='true'" />
         <EmbeddedResource Include="..\Metalama.Backstage.Worker\bin\Metalama.Backstage.Worker.netframework4.7.2.zip"
