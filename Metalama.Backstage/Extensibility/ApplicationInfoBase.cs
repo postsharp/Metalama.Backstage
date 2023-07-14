@@ -2,9 +2,7 @@
 
 using Metalama.Backstage.Diagnostics;
 using Metalama.Backstage.Utilities;
-using System;
 using System.Collections.Immutable;
-using System.Globalization;
 using System.Reflection;
 
 namespace Metalama.Backstage.Extensibility
@@ -13,50 +11,15 @@ namespace Metalama.Backstage.Extensibility
     /// Implementation of <see cref="IApplicationInfo" /> interface with build information
     /// initialized from assembly metadata using <see cref="AssemblyMetadataReader" />.
     /// </summary>
-    public abstract class ApplicationInfoBase : IApplicationInfo
+    public abstract class ApplicationInfoBase : ComponentInfoBase, IApplicationInfo
     {
-        protected ApplicationInfoBase( Assembly metadataAssembly )
+        protected ApplicationInfoBase( Assembly metadataAssembly ) : base( metadataAssembly )
         {
-            var reader = AssemblyMetadataReader.GetInstance( metadataAssembly );
-            this.Version = reader.PackageVersion;
-
-            // IsPrerelease flag can be overridden for testing purposes.
-            var isPrereleaseEnvironmentVariableValue = Environment.GetEnvironmentVariable( "METALAMA_IS_PRERELEASE" );
-            bool? isPrereleaseOverriddenValue = isPrereleaseEnvironmentVariableValue == null ? null : bool.Parse( isPrereleaseEnvironmentVariableValue );
-#pragma warning disable CA1307
-            this.IsPrerelease = isPrereleaseOverriddenValue
-                                ?? (this.Version?.Contains( "-" ) == true && !this.Version.EndsWith( "-rc", StringComparison.Ordinal ));
-#pragma warning restore CA1307
-
-            // BuildDate value can be overridden for testing purposes.
-            var buildDateEnvironmentVariableValue = Environment.GetEnvironmentVariable( "METALAMA_BUILD_DATE" );
-
-            DateTime? buildDateOverriddenValue = buildDateEnvironmentVariableValue == null
-                ? null
-                : DateTime.Parse( buildDateEnvironmentVariableValue, CultureInfo.InvariantCulture, DateTimeStyles.AssumeLocal );
-
-            this.BuildDate = buildDateOverriddenValue ?? reader.BuildDate;
-            this.Company = reader.Company;
-
             if ( this.Version != null )
             {
                 this.IsTelemetryEnabled = !VersionExtensions.IsDevelopmentVersion( this.Version );
             }
         }
-
-        public string? Company { get; }
-
-        /// <inheritdoc />
-        public abstract string Name { get; }
-
-        /// <inheritdoc />
-        public string? Version { get; }
-
-        /// <inheritdoc />
-        public bool? IsPrerelease { get; }
-
-        /// <inheritdoc />
-        public DateTime? BuildDate { get; }
 
         /// <inheritdoc />
         public virtual ProcessKind ProcessKind => ProcessUtilities.ProcessKind;

@@ -4,7 +4,6 @@ using Metalama.Backstage.Configuration;
 using Metalama.Backstage.Diagnostics;
 using Metalama.Backstage.Extensibility;
 using System;
-using System.Runtime.CompilerServices;
 
 namespace Metalama.Backstage.Telemetry;
 
