@@ -12,8 +12,8 @@ namespace Metalama.Backstage.Tests.Licensing.LicenseSources
     {
         private readonly ILicense? _license;
 
-        public string Description => "test license source"; 
-        
+        public string Description => "test license source";
+
         [UsedImplicitly]
         public string Id { get; }
 

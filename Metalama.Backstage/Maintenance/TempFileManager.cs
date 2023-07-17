@@ -82,7 +82,7 @@ public class TempFileManager : ITempFileManager
         {
             return;
         }
-        
+
         // Delete the directory if it contains cleanup.json and the cleanup policy requires it.
         if ( this.MustDeleteDirectory( directory, all ) )
         {

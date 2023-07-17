@@ -59,7 +59,7 @@ public static class ProcessUtilities
                 case "csc":
                 case "vbcscompiler":
                     return ProcessKind.Compiler;
-                
+
                 case "resharpertestrunner":
                 case "resharpertestrunner64":
                     return ProcessKind.ResharperTestRunner;

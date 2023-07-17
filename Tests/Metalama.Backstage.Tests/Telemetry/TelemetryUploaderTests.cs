@@ -27,9 +27,10 @@ public class TelemetryUploaderTests : TestsBase
             services
                 .AddSingleton<IApplicationInfoProvider>( new ApplicationInfoProvider( new TestApplicationInfo() { IsTelemetryEnabled = true } ) )
                 .AddSingleton<IPlatformInfo>( new PlatformInfo( services.ServiceProvider, null ) )
-                .AddSingleton<IHttpClientFactory>( new TestHttpClientFactory( new TelemetryTestsPutMessageHandler( services.ServiceProvider, _feedbackDirectory ) ) )
+                .AddSingleton<IHttpClientFactory>(
+                    new TestHttpClientFactory( new TelemetryTestsPutMessageHandler( services.ServiceProvider, _feedbackDirectory ) ) )
                 .AddTelemetryServices() )
-    { 
+    {
         this.FileSystem.CreateDirectory( _feedbackDirectory );
         var httpClientFactory = (TestHttpClientFactory) this.ServiceProvider.GetRequiredBackstageService<IHttpClientFactory>();
         this._httpHandler = (TelemetryTestsPutMessageHandler) httpClientFactory.Handler;

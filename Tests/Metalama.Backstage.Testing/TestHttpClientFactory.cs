@@ -14,6 +14,6 @@ namespace Metalama.Backstage.Testing
             this.Handler = handler;
         }
 
-        public HttpClient Create() => new HttpClient( this.Handler );
+        public HttpClient Create() => new( this.Handler );
     }
 }

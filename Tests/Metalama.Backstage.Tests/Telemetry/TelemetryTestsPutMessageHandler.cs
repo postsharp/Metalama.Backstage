@@ -39,7 +39,7 @@ internal class TelemetryTestsPutMessageHandler : HttpMessageHandler
 #pragma warning restore CS1998
     {
         HttpResponseMessage responseMessage;
-        
+
 #if NET
         var request = await MessageToRequest( requestMessage );
         var response = await this._telemetryPutHandler.HandleAsync( request, cancellationToken );
@@ -60,7 +60,7 @@ internal class TelemetryTestsPutMessageHandler : HttpMessageHandler
 
         return responseMessage;
     }
-    
+
 #if NET
     private static async Task<HttpRequest> MessageToRequest( HttpRequestMessage requestMessage )
     {

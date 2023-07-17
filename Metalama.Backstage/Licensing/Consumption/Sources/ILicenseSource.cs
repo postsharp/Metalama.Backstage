@@ -14,7 +14,7 @@ namespace Metalama.Backstage.Licensing.Consumption.Sources
         /// Gets a description of the license source.
         /// </summary>
         string Description { get; }
-        
+
         /// <summary>
         /// Gets a license, if available and valid. <paramref name="reportMessage"/> is called when the license key is invalid.
         /// </summary>
