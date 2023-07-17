@@ -6,11 +6,10 @@ namespace Metalama.Backstage.Extensibility;
 
 internal static class VersionHelper
 {
-    public static bool IsPrereleaseVersion( string version ) =>
 #pragma warning disable CA1307
-        version.Contains( "-" )
+    public static bool IsPrereleaseVersion( string version )
+        => version.Contains( "-" ) && !version.EndsWith( "-rc", StringComparison.Ordinal );
 #pragma warning restore CA1307
-        == true && !version.EndsWith( "-rc", StringComparison.Ordinal );
 
     public static bool IsDevelopmentVersion( string version )
     {

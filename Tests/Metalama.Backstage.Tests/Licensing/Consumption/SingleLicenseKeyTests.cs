@@ -1,8 +1,6 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. See the LICENSE.md file in the root directory of this repository root for details.
 
-using Metalama.Backstage.Licensing;
 using Metalama.Backstage.Licensing.Consumption.Sources;
-using System.Collections.Generic;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -39,9 +37,6 @@ public class SingleLicenseKeyTests : LicenseConsumptionManagerTestsBase
         var manager = this.CreateConsumptionManager( licenseSource );
         TestConsumption( manager, requestedRequirement, requiredNamespace, expectedCanConsume );
     }
-
-    public static IEnumerable<LicenseRequirement> GetAllRequirements()
-        => new[] { LicenseRequirement.Free, LicenseRequirement.Starter, LicenseRequirement.Professional, LicenseRequirement.Ultimate };
 
     [Theory]
     [InlineData( TestLicenses.PostSharpEssentials, false )]

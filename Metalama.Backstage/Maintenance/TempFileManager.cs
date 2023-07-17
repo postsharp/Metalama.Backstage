@@ -236,10 +236,10 @@ public class TempFileManager : ITempFileManager
         bool versionNeutral = false )
     {
         var directoryFullPath = Path.Combine(
-                this._standardDirectories.TempDirectory,
-                directory,
-                versionNeutral ? "" : this._version,
-                subdirectory ?? "" );
+            this._standardDirectories.TempDirectory,
+            directory,
+            versionNeutral ? "" : this._version,
+            subdirectory ?? "" );
 
         var cleanUpFilePath = Path.Combine( directoryFullPath, "cleanup.json" );
 

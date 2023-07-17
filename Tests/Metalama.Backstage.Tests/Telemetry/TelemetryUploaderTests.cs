@@ -25,10 +25,10 @@ public class TelemetryUploaderTests : TestsBase
         logger,
         services =>
             services
-        .AddSingleton<IApplicationInfoProvider>( new ApplicationInfoProvider( new TestApplicationInfo() { IsTelemetryEnabled = true } ) )
-        .AddSingleton<IPlatformInfo>( new PlatformInfo( services.ServiceProvider, null ) )
-        .AddSingleton<IHttpClientFactory>( new TestHttpClientFactory( new TelemetryTestsPutMessageHandler( services.ServiceProvider, _feedbackDirectory ) ) )
-        .AddTelemetryServices() )
+                .AddSingleton<IApplicationInfoProvider>( new ApplicationInfoProvider( new TestApplicationInfo() { IsTelemetryEnabled = true } ) )
+                .AddSingleton<IPlatformInfo>( new PlatformInfo( services.ServiceProvider, null ) )
+                .AddSingleton<IHttpClientFactory>( new TestHttpClientFactory( new TelemetryTestsPutMessageHandler( services.ServiceProvider, _feedbackDirectory ) ) )
+                .AddTelemetryServices() )
     { 
         this.FileSystem.CreateDirectory( _feedbackDirectory );
         var httpClientFactory = (TestHttpClientFactory) this.ServiceProvider.GetRequiredBackstageService<IHttpClientFactory>();
@@ -38,7 +38,7 @@ public class TelemetryUploaderTests : TestsBase
         new WelcomeService( this.ServiceProvider ).ExecuteFirstStartSetup( false, false );
     }
 
-    private async Task AssertUploadedAsync(bool uploadedFileExpected)
+    private async Task AssertUploadedAsync( bool uploadedFileExpected )
     {
         await this._uploader.UploadAsync();
 
@@ -102,12 +102,12 @@ public class TelemetryUploaderTests : TestsBase
         var platformInfo = this.ServiceProvider.GetRequiredBackstageService<IPlatformInfo>();
 
         var targetFramework = ProcessUtilities.IsNetCore()
-                    ? "net6.0"
-                    : "netframework4.7.2";
+            ? "net6.0"
+            : "netframework4.7.2";
 
         var workerDirectory =
             this.ServiceProvider.GetRequiredBackstageService<ITempFileManager>()
-            .GetTempDirectory( "BackstageWorker", subdirectory: targetFramework, cleanUpStrategy: CleanUpStrategy.WhenUnused );
+                .GetTempDirectory( "BackstageWorker", subdirectory: targetFramework, cleanUpStrategy: CleanUpStrategy.WhenUnused );
 
         string expectedExecutedFileName;
         string workerExecutableFilePath;

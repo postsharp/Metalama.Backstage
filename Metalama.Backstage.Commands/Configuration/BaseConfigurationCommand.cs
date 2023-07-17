@@ -14,8 +14,8 @@ internal abstract class BaseConfigurationCommand : BaseCommand<ConfigurationComm
                 $"Invalid configuration alias: '{settings.Alias}'. The following configurations are available: {string.Join( ", ", context.BackstageCommandOptions.ConfigurationFileCommandAdapters.Keys.OrderBy( k => k ) )}" );
         }
 
-        this.Execute( context, settings, adapter );
+        this.Execute( context, adapter );
     }
 
-    protected abstract void Execute( ExtendedCommandContext context, ConfigurationCommandSettings settings, ConfigurationFileCommandAdapter adapter );
+    protected abstract void Execute( ExtendedCommandContext context, ConfigurationFileCommandAdapter adapter );
 }

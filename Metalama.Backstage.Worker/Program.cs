@@ -66,13 +66,13 @@ namespace Metalama.Backstage
                 {
                     // Close logs.
                     // Logging has to be disposed as the last one, so it could be used until now.
-                    serviceProvider?.GetLoggerFactory().Dispose();
+                    serviceProvider.GetLoggerFactory().Dispose();
                 }
                 catch ( Exception e )
                 {
                     try
                     {
-                        serviceProvider?.GetBackstageService<IExceptionReporter>()?.ReportException( e );
+                        serviceProvider.GetBackstageService<IExceptionReporter>()?.ReportException( e );
                     }
                     catch when ( _canIgnoreRecoverableExceptions )
                     {

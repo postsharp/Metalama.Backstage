@@ -1,5 +1,6 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. See the LICENSE.md file in the root directory of this repository root for details.
 
+using JetBrains.Annotations;
 using Metalama.Backstage.Configuration;
 using Metalama.Backstage.Extensibility;
 using Metalama.Backstage.Licensing.Licenses;
@@ -10,6 +11,7 @@ namespace Metalama.Backstage.Licensing.Registration
     /// <summary>
     /// Manages license file for license registration purposes.
     /// </summary>
+    [PublicAPI]
     public class ParsedLicensingConfiguration
     {
         private readonly IServiceProvider _services;

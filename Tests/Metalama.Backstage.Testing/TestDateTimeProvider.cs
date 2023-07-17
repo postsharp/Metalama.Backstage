@@ -18,10 +18,5 @@ namespace Metalama.Backstage.Testing
             this._lastResetTime = now;
             this._stopwatch = keepRunning ? Stopwatch.StartNew() : null;
         }
-
-        public void Reset()
-        {
-            this._lastResetTime = null;
-        }
     }
 }

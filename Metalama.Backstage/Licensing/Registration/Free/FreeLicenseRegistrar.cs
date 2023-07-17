@@ -1,5 +1,6 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. See the LICENSE.md file in the root directory of this repository root for details.
 
+using JetBrains.Annotations;
 using Metalama.Backstage.Diagnostics;
 using Metalama.Backstage.Licensing.Licenses;
 using System;
@@ -9,6 +10,7 @@ namespace Metalama.Backstage.Licensing.Registration.Free
     /// <summary>
     /// Registers an unsigned Metalama Free.
     /// </summary>
+    [PublicAPI]
     public class FreeLicenseRegistrar
     {
         private readonly IServiceProvider _services;
