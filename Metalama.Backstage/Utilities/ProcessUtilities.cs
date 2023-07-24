@@ -56,6 +56,9 @@ public static class ProcessUtilities
 #pragma warning restore CA1307
                     }
 
+                case "visualstudio":
+                    return ProcessKind.VisualStudioMac;
+
                 case "csc":
                 case "vbcscompiler":
                     return ProcessKind.Compiler;
