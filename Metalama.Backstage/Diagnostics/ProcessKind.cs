@@ -32,6 +32,11 @@ public enum ProcessKind
     /// </summary>
     Rider,
 
+    /// <summary>
+    /// <c>VisualStudio</c> process on Mac.
+    /// </summary>
+    VisualStudioMac,
+
     // Resharper disable once UnusedMember.Global
 
     /// <summary>
