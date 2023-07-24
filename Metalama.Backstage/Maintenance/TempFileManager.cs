@@ -82,7 +82,7 @@ public class TempFileManager : ITempFileManager
         {
             return;
         }
-        
+
         // Delete the directory if it contains cleanup.json and the cleanup policy requires it.
         if ( this.MustDeleteDirectory( directory, all ) )
         {
@@ -236,10 +236,10 @@ public class TempFileManager : ITempFileManager
         bool versionNeutral = false )
     {
         var directoryFullPath = Path.Combine(
-                this._standardDirectories.TempDirectory,
-                directory,
-                versionNeutral ? "" : this._version,
-                subdirectory ?? "" );
+            this._standardDirectories.TempDirectory,
+            directory,
+            versionNeutral ? "" : this._version,
+            subdirectory ?? "" );
 
         var cleanUpFilePath = Path.Combine( directoryFullPath, "cleanup.json" );
 

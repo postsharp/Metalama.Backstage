@@ -92,7 +92,7 @@ namespace Metalama.Backstage.Telemetry
             string publicKeyXml;
 
             using (
-                var keyStream = typeof( TelemetryUploader )
+                var keyStream = typeof(TelemetryUploader)
                     .Assembly
                     .GetManifestResourceStream( "Metalama.Backstage.Telemetry.public.key" ) )
             {
@@ -191,12 +191,14 @@ namespace Metalama.Backstage.Telemetry
 
                             // Add the file to the zip.
                             this._logger.Trace?.Log( $"Adding '{file}' file to '{tempPackagePath}' package." );
+
                             var packagePart =
                                 package.CreatePart(
                                     new Uri( "/" + Uri.EscapeDataString( Path.GetFileName( file ) ), UriKind.Relative ),
                                     mime ?? MediaTypeNames.Application.Octet,
                                     CompressionOption.Maximum );
 
+                            // ReSharper disable once PossibleNullReferenceException
                             using ( var packagePartStream = packagePart.GetStream( FileMode.Create ) )
                             {
                                 CopyStream( stream, packagePartStream );
@@ -233,6 +235,7 @@ namespace Metalama.Backstage.Telemetry
                 this.EncryptFile( tempPackagePath!, outputPath );
 
                 this._logger.Trace?.Log( $"'{outputPath}' package created." );
+
                 return true;
             }
             finally
@@ -329,9 +332,6 @@ namespace Metalama.Backstage.Telemetry
                 ? "net6.0"
                 : "netframework4.7.2";
 
-            var version = AssemblyMetadataReader.GetInstance( typeof(TelemetryUploader).Assembly ).PackageVersion
-                ?? throw new InvalidOperationException( $"Unknown version of '{typeof(TelemetryUploader).Assembly}' assembly package." );
-
             var workerDirectory =
                 this._tempFileManager.GetTempDirectory( "BackstageWorker", subdirectory: targetFramework, cleanUpStrategy: CleanUpStrategy.WhenUnused );
 
@@ -342,6 +342,7 @@ namespace Metalama.Backstage.Telemetry
 
         internal static string ComputeHash( string packageName )
         {
+            // ReSharper disable once StringLiteralTypo
             const string salt = @"<27e\)$a<=b9&zyVwjzaJ`!WW`rwHh~;Z5QAC.J5TQ`.NY"")]~FGA);AKSSmbV$M";
 
             var sha = SHA512.Create();
@@ -396,8 +397,9 @@ namespace Metalama.Backstage.Telemetry
                 this._logger.Trace?.Log( "Preparing request content." );
                 using var formData = new MultipartFormDataContent();
 
-                // ReSharper disable once UseAwaitUsing
                 this._logger.Trace?.Log( $"Adding '{packagePath}' package as '{packageName}', ID '{packageId}'." );
+
+                // ReSharper disable once UseAwaitUsing
                 using var packageFile = this._fileSystem.OpenRead( packagePath );
                 var streamContent = new StreamContent( packageFile );
                 formData.Add( streamContent, packageId, packageName );
@@ -427,7 +429,6 @@ namespace Metalama.Backstage.Telemetry
             }
             finally
             {
-
                 RetryHelper.RetryWithLockDetection(
                     packagePath,
                     f =>
@@ -447,7 +448,10 @@ namespace Metalama.Backstage.Telemetry
 
                 foreach ( var failedFile in this._failedFiles )
                 {
-                    var exception = new TelemetryFilePackingFailedException( $"Failed to pack '{failedFile.File}' telemetry file: {failedFile.Reason.Message}", failedFile.File, failedFile.Reason );
+                    var exception = new TelemetryFilePackingFailedException(
+                        $"Failed to pack '{failedFile.File}' telemetry file: {failedFile.Reason.Message}",
+                        failedFile.Reason );
+
                     this._exceptionReporter.ReportException( exception );
 
 #if DEBUG

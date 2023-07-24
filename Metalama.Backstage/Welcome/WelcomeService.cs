@@ -25,7 +25,7 @@ public class WelcomeService
     public WelcomeService( IServiceProvider serviceProvider )
     {
         this._serviceProvider = serviceProvider;
-        this._loggerFactory = serviceProvider.GetLoggerFactory(); 
+        this._loggerFactory = serviceProvider.GetLoggerFactory();
         this._logger = this._loggerFactory.GetLogger( "Welcome" );
         this._configurationManager = serviceProvider.GetRequiredBackstageService<IConfigurationManager>();
         this._welcomeConfiguration = this._configurationManager.Get<WelcomeConfiguration>();

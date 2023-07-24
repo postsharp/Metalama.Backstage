@@ -1,5 +1,6 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. See the LICENSE.md file in the root directory of this repository root for details.
 
+using JetBrains.Annotations;
 using System;
 using System.Collections.Generic;
 
@@ -9,6 +10,7 @@ namespace Metalama.Backstage.Extensibility
     /// Wraps a service provider factory or service collection, so that this project can
     /// register services in an arbitrary provider. 
     /// </summary>
+    [PublicAPI]
     public sealed class ServiceProviderBuilder
     {
         private readonly Action<Type, object> _addService;

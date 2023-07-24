@@ -44,19 +44,12 @@ namespace Metalama.Backstage.Tests.Licensing.Essentials
             Assert.True( this._registrar.TryRegisterLicense() );
             this.AssertSingleFreeLicenseRegistered();
 
-#pragma warning disable SA1001, SA1111, SA1113, SA1115, SA1116
+#pragma warning disable CA1307
             Assert.Single(
                 this.Log.Entries,
                 x => x.Message.Contains(
-                    "Failed to register Metalama Free license: A Metalama Free license is registered already."
-#if NET
-
-                    // ReSharper disable once WrongIndentSize
-                   ,
-                    StringComparison.InvariantCulture
-#endif
-                ) );
-#pragma warning restore SA1001, SA1111, SA1113, SA1115, SA1116
+                    "Failed to register Metalama Free license: A Metalama Free license is registered already." ) );
+#pragma warning restore CA1307
         }
     }
 }

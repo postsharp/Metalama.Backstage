@@ -1,5 +1,6 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. See the LICENSE.md file in the root directory of this repository root for details.
 
+using JetBrains.Annotations;
 using Metalama.Backstage.Diagnostics;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -18,6 +19,7 @@ public class TestLoggerFactory : ILoggerFactory
         this._testOutputHelper = testOutputHelper;
     }
 
+    [UsedImplicitly]
     public void Clear()
     {
         lock ( this._entries )
@@ -75,7 +77,7 @@ public class TestLoggerFactory : ILoggerFactory
         {
             lock ( this._parent._entries )
             {
-                this._parent._entries.Add( new Entry( this._severity, this._category, message ) );
+                this._parent._entries.Add( new Entry( this._severity, message ) );
             }
 
             this._parent._testOutputHelper.WriteLine( $"{this._severity.ToString().ToUpperInvariant()} {this._category}: {message}" );
@@ -90,5 +92,5 @@ public class TestLoggerFactory : ILoggerFactory
         Error
     }
 
-    public record Entry( Severity Severity, string Category, string Message );
+    public record Entry( Severity Severity, string Message );
 }

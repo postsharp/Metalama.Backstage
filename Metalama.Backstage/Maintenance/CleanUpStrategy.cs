@@ -1,12 +1,13 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. See the LICENSE.md file in the root directory of this repository root for details.
 
+using JetBrains.Annotations;
+
 namespace Metalama.Backstage.Maintenance;
 
+[PublicAPI]
 public enum CleanUpStrategy
 {
     // The integer values must not be changed because they are serialized in cleanup.json.
-
-    // Resharper disable once UnusedMember.Global.
 
     /// <summary>
     /// The whole directory is never cleaned up.

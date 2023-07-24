@@ -1,5 +1,6 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. See the LICENSE.md file in the root directory of this repository root for details.
 
+using JetBrains.Annotations;
 using Metalama.Backstage.Diagnostics;
 using System;
 using System.ComponentModel;
@@ -13,6 +14,7 @@ using System.Threading;
 
 namespace Metalama.Backstage.Utilities;
 
+[PublicAPI]
 public static class ToolInvocationHelper
 {
     public static bool InvokeTool(
@@ -222,7 +224,6 @@ public static class ToolInvocationHelper
                 }
             }
 
-            Path.GetFileName( fileName );
             Process process = new() { StartInfo = startInfo };
 
             using ( ManualResetEvent stdErrorClosed = new( false ) )

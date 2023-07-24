@@ -1,8 +1,8 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. See the LICENSE.md file in the root directory of this repository root for details.
 
 #if NET
-
 using Metalama.Backstage.Extensibility;
+using Metalama.Backstage.Telemetry;
 using Microsoft.AspNetCore.Http;
 using System;
 using System.IO;
@@ -10,7 +10,7 @@ using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Metalama.Backstage.Telemetry;
+namespace Metalama.Backstage.Tests.Telemetry;
 
 // This is a copy of the code from BusinessSystems\web\Services\SharpCrafters.Internal.Services.TelemetryReceiver.Program.
 // Keep the code synchronized.
@@ -60,13 +60,14 @@ public class TelemetryPutHandler
             return Results.BadRequest();
         }
 
+        // ReSharper disable once UseAwaitUsing
         using ( var outputFile = this._fileSystem.Open(
-            Path.Combine( this._outputDirectory, file.FileName ),
-            FileMode.Create,
-            FileAccess.Write,
-            FileShare.None,
-            4096,
-            FileOptions.Asynchronous ) )
+                   Path.Combine( this._outputDirectory, file.FileName ),
+                   FileMode.Create,
+                   FileAccess.Write,
+                   FileShare.None,
+                   4096,
+                   FileOptions.Asynchronous ) )
         {
             await file.CopyToAsync( outputFile, cancellationToken );
         }

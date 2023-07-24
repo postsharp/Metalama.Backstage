@@ -174,7 +174,7 @@ public static class RegisterServiceExtensions
                     .AddDiagnostics( applicationInfo.ProcessKind, options.ProjectName );
 
                 var serviceProvider = serviceProviderBuilder.ServiceProvider;
-                
+
                 // First-run configuration. This must be done before initializing licensing and telemetry.
                 var welcomeService = new WelcomeService( serviceProvider );
                 welcomeService.ExecuteFirstStartSetup( options );

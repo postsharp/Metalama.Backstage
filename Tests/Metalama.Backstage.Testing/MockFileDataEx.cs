@@ -1,11 +1,13 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. See the LICENSE.md file in the root directory of this repository root for details.
 
+using JetBrains.Annotations;
 using System;
 using System.IO.Abstractions.TestingHelpers;
 using System.Text;
 
 namespace Metalama.Backstage.Testing
 {
+    [PublicAPI]
     public class MockFileDataEx : MockFileData
     {
         public MockFileDataEx( string textContents )

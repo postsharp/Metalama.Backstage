@@ -265,8 +265,8 @@ namespace Metalama.Backstage.Extensibility
         public IDisposable WatchChanges( string directory, string filter, Action<FileSystemEventArgs> callback )
         {
             var fileSystemWatcher = new FileSystemWatcher( directory, filter );
-            fileSystemWatcher.Created += ( sender, args ) => callback( args );
-            fileSystemWatcher.Changed += ( sender, args ) => callback( args );
+            fileSystemWatcher.Created += ( _, args ) => callback( args );
+            fileSystemWatcher.Changed += ( _, args ) => callback( args );
             fileSystemWatcher.EnableRaisingEvents = true;
 
             return fileSystemWatcher;

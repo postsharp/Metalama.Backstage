@@ -21,10 +21,12 @@ internal static class TestFileSystemZipUtilities
                 sourceEntry.FullName.TrimStart(
                     Path.DirectorySeparatorChar,
                     Path.AltDirectorySeparatorChar ) );
+
         var directoryPath =
             Path.GetDirectoryName( fileDestinationPath );
+
         if ( directoryPath != null &&
-            !fileSystem.DirectoryExists( directoryPath ) )
+             !fileSystem.DirectoryExists( directoryPath ) )
         {
             fileSystem.CreateDirectory( directoryPath );
         }

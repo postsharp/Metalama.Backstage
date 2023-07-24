@@ -1,11 +1,13 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. See the LICENSE.md file in the root directory of this repository root for details.
 
+using JetBrains.Annotations;
 using Metalama.Backstage.Licensing.Consumption;
 using Metalama.Backstage.Licensing.Licenses;
 using System.Collections.Immutable;
 
 namespace Metalama.Backstage.Licensing
 {
+    [PublicAPI]
     public class LicenseRequirement
     {
         private readonly string _name;

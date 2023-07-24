@@ -186,7 +186,8 @@ namespace Metalama.Backstage.Testing
 
         public Stream CreateFile( string path ) => this._file.Execute( ExecutionKind.Write, WatcherChangeTypes.Created, path, f => f.Create( path ) );
 
-        public Stream CreateFile( string path, int bufferSize ) => this._file.Execute( ExecutionKind.Write, WatcherChangeTypes.Created, path, f => f.Create( path, bufferSize ) );
+        public Stream CreateFile( string path, int bufferSize )
+            => this._file.Execute( ExecutionKind.Write, WatcherChangeTypes.Created, path, f => f.Create( path, bufferSize ) );
 
         public Stream CreateFile( string path, int bufferSize, FileOptions options )
             => this._file.Execute( ExecutionKind.Write, WatcherChangeTypes.Created, path, f => f.Create( path, bufferSize, options ) );
@@ -196,10 +197,11 @@ namespace Metalama.Backstage.Testing
             var path = this.Mock.Path.GetTempFileName();
 
             // We don't know the path beforehand, so we set the last write time in a separate dummy step.
-            return this._file.Execute( ExecutionKind.Write, WatcherChangeTypes.Created, path, f => path );
+            return this._file.Execute( ExecutionKind.Write, WatcherChangeTypes.Created, path, _ => path );
         }
 
-        public void CreateDirectory( string path ) => this._directory.Execute( ExecutionKind.Write, WatcherChangeTypes.Created, path, d => d.CreateDirectory( path ) );
+        public void CreateDirectory( string path )
+            => this._directory.Execute( ExecutionKind.Write, WatcherChangeTypes.Created, path, d => d.CreateDirectory( path ) );
 
         public Stream Open( string path, FileMode mode )
             => this._file.Execute( ExecutionKind.Write, WatcherChangeTypes.Changed, path, f => f.Open( path, mode ) );
@@ -271,7 +273,7 @@ namespace Metalama.Backstage.Testing
 
         public IDisposable WatchChanges( string directory, string filter, Action<FileSystemEventArgs> callback )
         {
-            var subDictionary = this._changeWatchers.GetOrAdd( directory, d => new ConcurrentDictionary<WatcherHandle, Action<FileSystemEventArgs>>() );
+            var subDictionary = this._changeWatchers.GetOrAdd( directory, _ => new ConcurrentDictionary<WatcherHandle, Action<FileSystemEventArgs>>() );
             var handle = new WatcherHandle( this, directory, filter );
             subDictionary.TryAdd( handle, callback );
 

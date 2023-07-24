@@ -154,7 +154,9 @@ namespace Metalama.Backstage.Licensing.Licenses
             }
         }
 
-        private bool TryGetValidatedLicenseKeyData( [MaybeNullWhen( false )] out LicenseKeyData data, [MaybeNullWhen( true )] out string validationErrorMessage )
+        private bool TryGetValidatedLicenseKeyData(
+            [MaybeNullWhen( false )] out LicenseKeyData data,
+            [MaybeNullWhen( true )] out string validationErrorMessage )
         {
             if ( !this.TryGetLicenseKeyData( out data, out validationErrorMessage ) )
             {

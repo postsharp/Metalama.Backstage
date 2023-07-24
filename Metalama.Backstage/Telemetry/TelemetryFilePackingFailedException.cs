@@ -6,11 +6,6 @@ namespace Metalama.Backstage.Telemetry;
 
 internal sealed class TelemetryFilePackingFailedException : Exception
 {
-    public string File { get; }
-
-    public TelemetryFilePackingFailedException( string message, string file, Exception reason )
-        : base( message, reason )
-    {
-        this.File = file;
-    }
+    public TelemetryFilePackingFailedException( string message, Exception reason )
+        : base( message, reason ) { }
 }
