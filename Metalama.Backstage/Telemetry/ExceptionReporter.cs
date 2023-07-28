@@ -93,7 +93,7 @@ internal class ExceptionReporter : IExceptionReporter, IDisposable
         return true;
     }
 
-    private string ComputeExceptionHash( string? version, string exceptionTypeName, string stackTrace )
+    private string ComputeExceptionHash( string? version, string exceptionTypeName, IEnumerable<string> stackTraces )
     {
         var signature = new StringBuilder( 1024 );
         signature.Append( version ?? "?" );
@@ -104,39 +104,47 @@ internal class ExceptionReporter : IExceptionReporter, IDisposable
         var firstFrame = true;
         var lastFrameIsUser = false;
 
-        foreach ( var stackFrame in this.CleanStackTrace( stackTrace ) )
+        foreach ( var stackTrace in stackTraces )
         {
-            var writeStackFrame = stackFrame ?? "<null>";
+            if ( stackTrace == null )
+            {
+                continue;
+            }
+
+            foreach ( var stackFrame in this.CleanStackTrace( stackTrace ) )
+            {
+                var writeStackFrame = stackFrame ?? "<null>";
 
 #pragma warning disable CA1307
-            if ( writeStackFrame.Contains( "#user" ) )
+                if ( writeStackFrame.Contains( "#user" ) )
 #pragma warning restore CA1307
-            {
-                if ( lastFrameIsUser )
                 {
-                    continue;
+                    if ( lastFrameIsUser )
+                    {
+                        continue;
+                    }
+                    else
+                    {
+                        writeStackFrame = "#user";
+                        lastFrameIsUser = true;
+                    }
                 }
                 else
                 {
-                    writeStackFrame = "#user";
                     lastFrameIsUser = true;
                 }
-            }
-            else
-            {
-                lastFrameIsUser = true;
-            }
 
-            if ( firstFrame )
-            {
-                firstFrame = false;
-            }
-            else
-            {
-                signature.Append( ',' );
-            }
+                if ( firstFrame )
+                {
+                    firstFrame = false;
+                }
+                else
+                {
+                    signature.Append( ',' );
+                }
 
-            signature.Append( writeStackFrame );
+                signature.Append( writeStackFrame );
+            }
         }
 
         byte[] hashBytes;
@@ -193,6 +201,26 @@ internal class ExceptionReporter : IExceptionReporter, IDisposable
             } );
     }
 
+    private static void PopulateStackTraces( List<string> stackTraces, Exception exception )
+    {
+        if ( exception.StackTrace != null )
+        {
+            stackTraces.Add( exception.StackTrace );
+        }
+
+        if ( exception is AggregateException aggregateException )
+        {
+            foreach ( var child in aggregateException.InnerExceptions )
+            {
+                PopulateStackTraces( stackTraces, child );
+            }
+        }
+        else if ( exception.InnerException != null )
+        {
+            PopulateStackTraces( stackTraces, exception.InnerException );
+        }
+    }
+
     public void ReportException( Exception reportedException, ExceptionReportingKind exceptionReportingKind = ExceptionReportingKind.Exception )
     {
         try
@@ -217,11 +245,15 @@ internal class ExceptionReporter : IExceptionReporter, IDisposable
 
             var applicationInfo = this._applicationInfoProvider.CurrentApplication;
 
+            // Get stack traces.
+            var stackTraces = new List<string>();
+            PopulateStackTraces( stackTraces, reportedException );
+
             // Compute a signature for this exception.
             var hash = this.ComputeExceptionHash(
                 applicationInfo.Version,
                 reportedException.GetType().FullName!,
-                ExceptionSensitiveDataHelper.Instance.RemoveSensitiveData( reportedException.StackTrace ) );
+                stackTraces );
 
             // Check if this exception has already been reported.
 
