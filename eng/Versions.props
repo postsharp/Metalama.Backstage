@@ -9,9 +9,9 @@
         <MetalamaBackstageAssemblyVersion>$(MainVersion)</MetalamaBackstageAssemblyVersion>
     </PropertyGroup>
 
-    <!-- Versions of dependencies -->
+    <!-- Set the default versions of dependencies -->
     <PropertyGroup>
-        <PostSharpEngineeringVersion>2023.2.26</PostSharpEngineeringVersion>
+        <PostSharpEngineeringVersion>2023.2.32</PostSharpEngineeringVersion>
         <NewtonsoftJsonVersion>13.0.1</NewtonsoftJsonVersion>
         <MicrosoftBclHashCodeVersion>1.1.1</MicrosoftBclHashCodeVersion>
         <MicrosoftNETTestSdkVersion>17.1.0</MicrosoftNETTestSdkVersion>
@@ -22,6 +22,9 @@
              downgrade the package. -->
         <SystemImmutableCollectionsVersion>5.0.0</SystemImmutableCollectionsVersion>
     </PropertyGroup>
+
+    <!-- Set the deafult versions of auto-updated dependencies -->
+    <Import Project="AutoUpdatedVersions.props" />
 
     <!-- Import overrides for the local build -->
     <Import Project="Versions.g.props" Condition="Exists('Versions.g.props')" />

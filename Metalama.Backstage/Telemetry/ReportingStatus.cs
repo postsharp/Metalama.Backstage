@@ -1,10 +1,12 @@
 // Copyright (c) SharpCrafters s.r.o. See the LICENSE.md file in the root directory of this repository root for details.
 
+using JetBrains.Annotations;
+
 namespace Metalama.Backstage.Telemetry;
 
+[PublicAPI]
 public enum ReportingStatus
 {
-    // Resharper warning disable once UnusedMember.Global.
     None,
     Reported,
     Ignored

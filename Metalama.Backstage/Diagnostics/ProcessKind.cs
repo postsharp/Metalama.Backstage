@@ -11,29 +11,34 @@ public enum ProcessKind
     /// </summary>
     /// 
     Other,
-    
+
     /// <summary>
     /// <c>Metalama.Compiler</c> itself.
     /// </summary>
     Compiler,
-    
+
     /// <summary>
     /// <c>devenv.exe</c>, i.e. the UI process of Visual Studio.
     /// </summary>
     DevEnv,
-    
+
     /// <summary>
     /// The Roslyn analysis process of Visual Studio.
     /// </summary>
     RoslynCodeAnalysisService,
-    
+
     /// <summary>
     /// The process running Roslyn under Rider.
     /// </summary>
     Rider,
 
+    /// <summary>
+    /// <c>VisualStudio</c> process on Mac.
+    /// </summary>
+    VisualStudioMac,
+
     // Resharper disable once UnusedMember.Global
-    
+
     /// <summary>
     /// <c>Metalama.Backstage.Worker</c>.
     /// </summary>
@@ -50,19 +55,19 @@ public enum ProcessKind
     /// </summary>
     [PublicAPI]
     TestHost,
-    
+
     /// <summary>
     /// The OmniSharp background process of Visual Studio Code or other editors.
     /// </summary>
     OmniSharp,
-    
+
     /// <summary>
     /// The Code Lens background process of Visual Studio.
     /// </summary>
     CodeLensService,
-    
+
     /// <summary>
     /// A test runner process of Rider or Resharper.
     /// </summary>
-    ResharperTestRunner,
+    ResharperTestRunner
 }

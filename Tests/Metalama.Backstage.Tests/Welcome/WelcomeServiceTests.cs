@@ -50,13 +50,13 @@ public class WelcomeServiceTests : TestsBase
 
             return license;
         }
-        
+
         this._applicationInfo.IsPrerelease = isPrerelease;
         this._applicationInfo.IsUnattendedProcess = isUnattendedProcess;
 
         var options = new BackstageInitializationOptions( this._applicationInfo, "TestProject" )
         {
-            LicensingOptions = new() { IgnoreUserProfileLicenses = ignoreUserProfileLicenses }
+            LicensingOptions = new LicensingInitializationOptions { IgnoreUserProfileLicenses = ignoreUserProfileLicenses }
         };
 
         var welcomeService = new WelcomeService( this.ServiceProvider );

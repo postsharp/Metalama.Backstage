@@ -8,7 +8,6 @@ using System.Threading;
 using System.Threading.Tasks;
 
 #if NET
-using Metalama.Backstage.Telemetry;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Primitives;
@@ -26,14 +25,18 @@ internal class TelemetryTestsPutMessageHandler : HttpMessageHandler
     private readonly TelemetryPutHandler _telemetryPutHandler;
 #endif
 
-    public TelemetryTestsPutMessageHandler(IServiceProvider serviceProvider, string outputDirectory)
+    // ReSharper disable UnusedParameter.Local
+    public TelemetryTestsPutMessageHandler( IServiceProvider serviceProvider, string outputDirectory )
     {
+        // ReSharper restore UnusedParameter.Local
 #if NET
         this._telemetryPutHandler = new TelemetryPutHandler( serviceProvider, outputDirectory );
 #endif
     }
 
+#pragma warning disable CS1998
     protected override async Task<HttpResponseMessage> SendAsync( HttpRequestMessage requestMessage, CancellationToken cancellationToken )
+#pragma warning restore CS1998
     {
         HttpResponseMessage responseMessage;
 
@@ -45,17 +48,11 @@ internal class TelemetryTestsPutMessageHandler : HttpMessageHandler
         serviceCollection.AddLogging();
         var serviceProvider = serviceCollection.BuildServiceProvider();
 
-        var httpContext = new DefaultHttpContext()
-        {
-            RequestServices = serviceProvider
-        };
+        var httpContext = new DefaultHttpContext() { RequestServices = serviceProvider };
 
         await response.ExecuteAsync( httpContext );
         responseMessage = new HttpResponseMessage( (HttpStatusCode) httpContext.Response.StatusCode );
 #else
-        // Get rid of "this method lacks await" warning.
-        await Task.CompletedTask;
-
         responseMessage = new HttpResponseMessage( HttpStatusCode.OK );
 #endif
 
@@ -65,17 +62,17 @@ internal class TelemetryTestsPutMessageHandler : HttpMessageHandler
     }
 
 #if NET
-    // https://stackoverflow.com/a/68453301/4100001
     private static async Task<HttpRequest> MessageToRequest( HttpRequestMessage requestMessage )
     {
+        // https://stackoverflow.com/a/68453301/4100001
         if ( requestMessage.RequestUri == null )
         {
-            throw new ArgumentException( $"{nameof( requestMessage )}.{nameof( requestMessage.RequestUri )} is null.", nameof( requestMessage ) );
+            throw new ArgumentException( $"{nameof(requestMessage)}.{nameof(requestMessage.RequestUri)} is null.", nameof(requestMessage) );
         }
 
         if ( requestMessage.Content == null )
         {
-            throw new ArgumentException( $"{nameof( requestMessage )}.{nameof( requestMessage.Content )} is null.", nameof( requestMessage ) );
+            throw new ArgumentException( $"{nameof(requestMessage)}.{nameof(requestMessage.Content)} is null.", nameof(requestMessage) );
         }
 
         var httpContext = new DefaultHttpContext();

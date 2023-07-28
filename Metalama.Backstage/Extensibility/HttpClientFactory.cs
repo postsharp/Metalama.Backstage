@@ -6,5 +6,5 @@ namespace Metalama.Backstage.Extensibility;
 
 internal class HttpClientFactory : IHttpClientFactory
 {
-    public HttpClient Create() => new HttpClient();
+    public HttpClient Create() => new();
 }

@@ -24,13 +24,11 @@ internal abstract class ConfigurationFileCommandAdapter
     public abstract void Edit( ExtendedCommandContext context );
 
     public abstract void Validate( ExtendedCommandContext context );
-
-    public abstract string GetFilePath( IServiceProvider contextServiceProvider );
 }
 
 #pragma warning disable SA1402
 
-internal class ConfigurationFileCommandAdapter<T> : ConfigurationFileCommandAdapter
+internal sealed class ConfigurationFileCommandAdapter<T> : ConfigurationFileCommandAdapter
     where T : ConfigurationFile, new()
 {
     private readonly ConfigurationFileAttribute _attribute;
@@ -91,12 +89,5 @@ internal class ConfigurationFileCommandAdapter<T> : ConfigurationFileCommandAdap
         {
             context.Console.WriteSuccess( $"The file '{configurationManager.GetFilePath<T>()}' is correct." );
         }
-    }
-
-    public override string GetFilePath( IServiceProvider serviceProvider )
-    {
-        var configurationManager = serviceProvider.GetRequiredBackstageService<IConfigurationManager>();
-
-        return configurationManager.GetFilePath<T>();
     }
 }

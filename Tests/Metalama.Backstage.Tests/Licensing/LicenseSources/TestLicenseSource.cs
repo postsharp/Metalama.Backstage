@@ -1,5 +1,6 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. See the LICENSE.md file in the root directory of this repository root for details.
 
+using JetBrains.Annotations;
 using Metalama.Backstage.Licensing.Consumption;
 using Metalama.Backstage.Licensing.Consumption.Sources;
 using Metalama.Backstage.Licensing.Licenses;
@@ -11,11 +12,12 @@ namespace Metalama.Backstage.Tests.Licensing.LicenseSources
     {
         private readonly ILicense? _license;
 
-        public string Description => "test license source"; 
-        
+        public string Description => "test license source";
+
+        [UsedImplicitly]
         public string Id { get; }
 
-        public bool IsUsed { get; set; }
+        public bool IsUsed { get; private set; }
 
         public TestLicenseSource( string id, ILicense? license )
         {

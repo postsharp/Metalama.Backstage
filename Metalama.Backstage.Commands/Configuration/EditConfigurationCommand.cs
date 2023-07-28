@@ -4,7 +4,7 @@ namespace Metalama.Backstage.Commands.Configuration;
 
 internal class EditConfigurationCommand : BaseConfigurationCommand
 {
-    protected override void Execute( ExtendedCommandContext context, ConfigurationCommandSettings settings, ConfigurationFileCommandAdapter adapter )
+    protected override void Execute( ExtendedCommandContext context, ConfigurationFileCommandAdapter adapter )
     {
         adapter.Edit( context );
     }
