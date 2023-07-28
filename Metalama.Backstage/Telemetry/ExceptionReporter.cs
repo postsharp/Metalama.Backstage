@@ -110,9 +110,8 @@ internal class ExceptionReporter : IExceptionReporter, IDisposable
             {
                 continue;
             }
-        
 
-        foreach ( var stackFrame in this.CleanStackTrace( stackTrace ) )
+            foreach ( var stackFrame in this.CleanStackTrace( stackTrace ) )
             {
                 var writeStackFrame = stackFrame ?? "<null>";
 
@@ -204,7 +203,10 @@ internal class ExceptionReporter : IExceptionReporter, IDisposable
 
     private static void PopulateStackTraces( List<string> stackTraces, Exception exception )
     {
-        stackTraces.Add( exception.StackTrace );
+        if ( exception.StackTrace != null )
+        {
+            stackTraces.Add( exception.StackTrace );
+        }
 
         if ( exception is AggregateException aggregateException )
         {
@@ -242,11 +244,11 @@ internal class ExceptionReporter : IExceptionReporter, IDisposable
             }
 
             var applicationInfo = this._applicationInfoProvider.CurrentApplication;
-            
+
             // Get stack traces.
             var stackTraces = new List<string>();
             PopulateStackTraces( stackTraces, reportedException );
-            
+
             // Compute a signature for this exception.
             var hash = this.ComputeExceptionHash(
                 applicationInfo.Version,
