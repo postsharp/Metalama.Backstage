@@ -25,6 +25,9 @@ public record DiagnosticsConfiguration : ConfigurationFile
     [JsonProperty( "crashDumps" )]
     public CrashDumpConfiguration CrashDumps { get; } = new();
 
+    [JsonProperty( "profiling" )]
+    public ProfilingConfiguration Profiling { get; } = new();
+
     public DiagnosticsConfiguration()
     {
         var processes = Enum.GetValues( typeof(ProcessKind) ).Cast<ProcessKind>().ToImmutableDictionary( x => x.ToString(), _ => false );
@@ -37,11 +40,7 @@ public record DiagnosticsConfiguration : ConfigurationFile
 
         this.Debugging = new DebuggerConfiguration() { Processes = processes };
 
-        this.CrashDumps = new CrashDumpConfiguration()
-        {
-            Processes = processes,
-            ExceptionTypes = ImmutableArray.Create( "*" )
-        };
+        this.CrashDumps = new CrashDumpConfiguration() { Processes = processes, ExceptionTypes = ImmutableArray.Create( "*" ) };
     }
 
     public override void Validate( Action<string> reportWarning )
