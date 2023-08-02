@@ -32,7 +32,9 @@ public static class ProcessUtilities
             // Note that the same logic is duplicated in Metalama.Framework.CompilerExtensions.ProcessKindHelper and cannot 
             // be shared. Any change here must be done there too.
 
-            switch ( Process.GetCurrentProcess().ProcessName.ToLowerInvariant() )
+            var processName = Process.GetCurrentProcess().ProcessName.ToLowerInvariant();
+
+            switch ( processName )
             {
                 case "devenv":
                     return ProcessKind.DevEnv;
@@ -97,7 +99,14 @@ public static class ProcessUtilities
                     }
 
                 default:
-                    return ProcessKind.Other;
+                    if ( processName.StartsWith( "linqpad", StringComparison.Ordinal ) )
+                    {
+                        return ProcessKind.LinqPad;
+                    }
+                    else
+                    {
+                        return ProcessKind.Other;
+                    }
             }
         }
     }

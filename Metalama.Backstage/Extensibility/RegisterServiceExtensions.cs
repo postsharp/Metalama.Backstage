@@ -70,7 +70,6 @@ public static class RegisterServiceExtensions
     internal static ServiceProviderBuilder AddStandardDirectories( this ServiceProviderBuilder serviceProviderBuilder )
         => serviceProviderBuilder.AddSingleton<IStandardDirectories>( new StandardDirectories() );
 
-    // Internal for test only.
     internal static ServiceProviderBuilder AddDiagnostics(
         this ServiceProviderBuilder serviceProviderBuilder,
         ProcessKind processKind,
@@ -102,6 +101,8 @@ public static class RegisterServiceExtensions
         serviceProviderBuilder.AddSingleton<ILoggerFactory>( loggerFactory );
 
         (configurationManager as ConfigurationManager)?.SetLoggerFactory( loggerFactory );
+
+        new ProfilingService( serviceProviderBuilder.ServiceProvider, processKind ).Initialize();
 
         return serviceProviderBuilder;
     }
