@@ -40,6 +40,8 @@ public record DiagnosticsConfiguration : ConfigurationFile
 
         this.Debugging = new DebuggerConfiguration() { Processes = processes };
 
+        this.Profiling = new ProfilingConfiguration() { Processes = processes };
+
         this.CrashDumps = new CrashDumpConfiguration() { Processes = processes, ExceptionTypes = ImmutableArray.Create( "*" ) };
     }
 
