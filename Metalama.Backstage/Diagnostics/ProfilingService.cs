@@ -45,14 +45,13 @@ internal class ProfilingService : IBackstageService
     private void StartProfiler()
     {
 #if NETFRAMEWORK || NET6_0_OR_GREATER
-            var directory = this._tempFileManager.GetTempDirectory( "Profiling", CleanUpStrategy.WhenUnused );
+        var directory = this._tempFileManager.GetTempDirectory( "Profiling", CleanUpStrategy.WhenUnused );
 
-            this._logger.Warning?.Log( $"Starting the profiler. Data will be stored in '{directory}'." );
+        this._logger.Warning?.Log( $"Starting the profiler. Data will be stored in '{directory}'." );
 
-            DotTrace.EnsurePrerequisite();
-            DotTrace.Attach( new DotTrace.Config().SaveToDir( directory ) );
-            DotTrace.StartCollectingData();
-            AppDomain.CurrentDomain.DomainUnload += ( sender, args ) => DotTrace.Detach();
+        DotTrace.EnsurePrerequisite();
+        DotTrace.Attach( new DotTrace.Config().SaveToDir( directory ) );
+        DotTrace.StartCollectingData();
 #else
         this._logger.Warning?.Log( $"The profiler was not started because this is the .NET Standard 2.0 build of Metalama.Backstage'." );
 #endif
