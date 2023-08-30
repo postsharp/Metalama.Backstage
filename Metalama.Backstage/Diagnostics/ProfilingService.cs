@@ -25,13 +25,13 @@ internal class ProfilingService : IBackstageService
 #if NETFRAMEWORK || NET6_0_OR_GREATER
     private readonly ITempFileManager _tempFileManager;
 #endif
-    
+
     public ProfilingService( IServiceProvider serviceProvider, ProcessKind options )
     {
         this._options = options;
         this._configuration = serviceProvider.GetRequiredBackstageService<IConfigurationManager>().Get<DiagnosticsConfiguration>();
         this._logger = serviceProvider.GetLoggerFactory().GetLogger( "Profiling" );
-        
+
 #if NETFRAMEWORK || NET6_0_OR_GREATER
         this._tempFileManager = serviceProvider.GetRequiredBackstageService<ITempFileManager>();
 #endif
@@ -51,7 +51,7 @@ internal class ProfilingService : IBackstageService
     {
 #if NETFRAMEWORK || NET6_0_OR_GREATER
 
-        if ( Interlocked.CompareExchange( ref _isProfiling, 1, 0 ) != 0 ) 
+        if ( Interlocked.CompareExchange( ref _isProfiling, 1, 0 ) != 0 )
         {
             this._logger.Trace?.Log( $"Profiling is already in progress." );
 
@@ -62,9 +62,16 @@ internal class ProfilingService : IBackstageService
 
         this._logger.Warning?.Log( $"Starting the profiler. Data will be stored in '{directory}'." );
 
-        DotTrace.EnsurePrerequisite();
-        DotTrace.Attach( new DotTrace.Config().SaveToDir( directory ) );
-        DotTrace.StartCollectingData();
+        try
+        {
+            DotTrace.EnsurePrerequisite();
+            DotTrace.Attach( new DotTrace.Config().SaveToDir( directory ) );
+            DotTrace.StartCollectingData();
+        }
+        catch ( Exception e )
+        {
+            this._logger.Error?.Log( $"Cannot start the profiler: {e}" );
+        }
 #else
         this._logger.Warning?.Log( $"The profiler was not started because this is the .NET Standard 2.0 build of Metalama.Backstage'." );
 #endif
