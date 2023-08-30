@@ -69,6 +69,9 @@ public static class ProcessUtilities
                 case "resharpertestrunner64":
                     return ProcessKind.ResharperTestRunner;
 
+                case "microsoft.codeanalysis.languageserver":
+                    return ProcessKind.LanguageServer;
+
                 case "dotnet":
                     {
                         var commandLine = Environment.CommandLine.ToLowerInvariant();
