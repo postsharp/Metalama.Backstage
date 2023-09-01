@@ -74,5 +74,10 @@ public enum ProcessKind
     /// <summary>
     /// LinqPad driver proxy process.
     /// </summary>
-    LinqPad
+    LinqPad,
+
+    /// <summary>
+    /// Language server used by VS Code C# Dev Kit.
+    /// </summary>
+    LanguageServer
 }
