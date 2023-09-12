@@ -45,7 +45,7 @@
 
     <Target Name="Zip" Inputs="@(ZipInputFiles)" Outputs="$(OutputZipFile)" AfterTargets="Build" DependsOnTargets="ResolveZipInputFiles" Condition="'$(IsCrossTargetingBuild)'!='true'">
         <ZipDirectory SourceDirectory="$(OutDir)" Overwrite="true" DestinationFile="$(OutputZipFile)" />
-        <Message Text="$(MSBuildProjectName) -&gt; $(MSBuildProjectDirector)\$(OutputZipFile)" Importance="High" />
+        <Message Text="$(MSBuildProjectName) -&gt; $(MSBuildProjectDirectory)\$(OutputZipFile)" Importance="High" />
     </Target>
 
 </Project>
