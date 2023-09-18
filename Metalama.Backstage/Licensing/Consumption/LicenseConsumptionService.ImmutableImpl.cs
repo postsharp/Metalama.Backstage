@@ -83,7 +83,7 @@ internal partial class LicenseConsumptionService
         }
 
         /// <inheritdoc />
-        public bool CanConsume( LicenseRequirement requirement, string? consumerNamespace = null )
+        public bool CanConsume( LicenseRequirement requirement, string? consumerProjectName = null )
         {
             if ( this._license == null )
             {
@@ -92,13 +92,16 @@ internal partial class LicenseConsumptionService
                 return false;
             }
 
-            if ( !string.IsNullOrEmpty( consumerNamespace )
+            // Redistributable licenses allow building any namespace. Their namespace field limits the redistribution only.
+            // Ie., the namespace of redistributed aspects built with the redistribution license key.
+            if ( !this.IsRedistributionLicense
+                 && !string.IsNullOrEmpty( consumerProjectName )
                  && this._licensedNamespace != null
-                 && !this._licensedNamespace.AllowsNamespace( consumerNamespace ) )
+                 && !this._licensedNamespace.AllowsNamespace( consumerProjectName ) )
             {
                 this.ReportMessage(
                     new LicensingMessage(
-                        $"Namespace '{consumerNamespace}' is not licensed. Your license is limited to '{this._licensedNamespace.AllowedNamespace}' namespace.",
+                        $"Project '{consumerProjectName}' is not licensed. Your license is limited to project names beginning with '{this._licensedNamespace.AllowedNamespace}'.",
                         true ) );
 
                 return false;

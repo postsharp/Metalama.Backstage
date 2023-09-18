@@ -113,12 +113,13 @@ namespace Metalama.Backstage.Licensing.Licenses
                 return false;
             }
 
-            if ( !this.IsRedistribution && this.IsLimitedByNamespace )
-            {
-                errorDescription = "is limited by a namespace, but it is not a redistribution license";
-
-                return false;
-            }
+            // TODO: Shouldn't we have a project-bound license type?
+            // if ( !this.IsRedistribution && this.IsLimitedByNamespace )
+            // {
+            //     errorDescription = "is limited by a namespace, but it is not a redistribution license";
+            //
+            //     return false;
+            // }
 
             errorDescription = null;
 
