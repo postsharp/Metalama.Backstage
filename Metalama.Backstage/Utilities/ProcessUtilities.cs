@@ -70,6 +70,7 @@ public static class ProcessUtilities
                     return ProcessKind.ResharperTestRunner;
 
                 case "microsoft.codeanalysis.languageserver":
+                case "microsoft.visualstudio.code.languageserver":
                     return ProcessKind.LanguageServer;
 
                 case "dotnet":
@@ -85,6 +86,10 @@ public static class ProcessUtilities
                         else if ( commandLine.Contains( "vbcscompiler.dll" ) || commandLine.Contains( "csc.dll" ) )
                         {
                             return ProcessKind.Compiler;
+                        }
+                        else if ( commandLine.Contains( "languageserver.dll" ) )
+                        {
+                            return ProcessKind.LanguageServer;
                         }
                         else if ( commandLine.Contains( "omnisharp.dll" ) )
                         {
