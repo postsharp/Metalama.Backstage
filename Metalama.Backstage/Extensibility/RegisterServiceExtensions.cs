@@ -117,6 +117,7 @@ public static class RegisterServiceExtensions
             .AddEnvironmentVariableProvider()
             .AddRecoverableExceptionService()
             .AddSingleton<IApplicationInfoProvider>( new ApplicationInfoProvider( applicationInfo ) )
+            .AddSingleton<IUserInteractionService>( new UserInteractionService() )
             .AddCurrentDateTimeProvider()
             .AddFileSystem()
             .AddStandardDirectories()
@@ -174,7 +175,7 @@ public static class RegisterServiceExtensions
                     .AddDiagnostics( applicationInfo.ProcessKind, options.ProjectName );
 
                 var serviceProvider = serviceProviderBuilder.ServiceProvider;
-                
+
                 // First-run configuration. This must be done before initializing licensing and telemetry.
                 var welcomeService = new WelcomeService( serviceProvider );
                 welcomeService.ExecuteFirstStartSetup( options );

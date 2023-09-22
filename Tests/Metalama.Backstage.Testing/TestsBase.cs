@@ -4,6 +4,7 @@ using Metalama.Backstage.Configuration;
 using Metalama.Backstage.Extensibility;
 using Metalama.Backstage.Maintenance;
 using Metalama.Backstage.Telemetry;
+using Metalama.Backstage.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using System;
@@ -71,6 +72,7 @@ namespace Metalama.Backstage.Testing
             this._serviceCollection
                 .AddSingleton<IEnvironmentVariableProvider>( this.EnvironmentVariableProvider )
                 .AddSingleton<IRecoverableExceptionService>( new TestRecoverableExceptionService() )
+                .AddSingleton<IUserInteractionService>( new TestUserInteractionService() )
                 .AddSingleton<IFileSystem>( this.FileSystem );
 
             var serviceProviderBuilder =

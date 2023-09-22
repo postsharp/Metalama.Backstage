@@ -10,7 +10,7 @@ using System.Runtime.InteropServices;
 
 namespace Metalama.Backstage.Utilities;
 
-internal static class UserInteractionHelper
+internal class UserInteractionService : IUserInteractionService
 {
     [StructLayout( LayoutKind.Sequential )]
     private struct LastInputInfo
@@ -49,7 +49,7 @@ internal static class UserInteractionHelper
         public uint Flags;
     }
 
-    public static int? GetTotalMonitorWidth()
+    public int? GetTotalMonitorWidth()
     {
         try
         {
@@ -80,7 +80,7 @@ internal static class UserInteractionHelper
     }
 
     // Method to get the last input time in seconds
-    public static TimeSpan? GetLastInputTime()
+    public TimeSpan? GetLastInputTime()
     {
         try
         {
