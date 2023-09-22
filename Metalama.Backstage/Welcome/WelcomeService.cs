@@ -25,7 +25,7 @@ public class WelcomeService
     public WelcomeService( IServiceProvider serviceProvider )
     {
         this._serviceProvider = serviceProvider;
-        this._loggerFactory = serviceProvider.GetLoggerFactory(); 
+        this._loggerFactory = serviceProvider.GetLoggerFactory();
         this._logger = this._loggerFactory.GetLogger( "Welcome" );
         this._configurationManager = serviceProvider.GetRequiredBackstageService<IConfigurationManager>();
         this._welcomeConfiguration = this._configurationManager.Get<WelcomeConfiguration>();
@@ -104,8 +104,13 @@ public class WelcomeService
         if ( openWelcomePage )
         {
             // To reduce the chance of opening the page in an unattended virtual machine, we
-            // don't open it if there has been no recent user interaction.
-            if ( UserInteractionHelper.GetLastInputTime() is null or { TotalMinutes: < 15 } )
+            // don't open it if there has been no recent user interaction. We also skip monitors
+            // smaller than 1280 pixels since this is likely to be an unattended or test VM.
+            var hasRecentUserInput = UserInteractionHelper.GetLastInputTime() is null or { TotalMinutes: < 15 };
+            var hasLargeMonitor = UserInteractionHelper.GetTotalMonitorWidth() is null or >= 1280;
+            this._logger.Trace?.Log( $"HasRecentUserInput={hasRecentUserInput}, HasLargeMonitor={hasLargeMonitor}" );
+
+            if ( hasRecentUserInput && hasLargeMonitor )
             {
                 this.ExecuteOnce(
                     this.OpenWelcomePage,
