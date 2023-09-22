@@ -103,11 +103,14 @@ public class WelcomeService
 
         if ( openWelcomePage )
         {
-            this.ExecuteOnce(
-                this.OpenWelcomePage,
-                nameof(this.OpenWelcomePage),
-                c => c.IsWelcomePagePending,
-                c => c with { IsWelcomePagePending = false } );
+            if ( UserInteractionHelper.GetLastInputTime() is null or { TotalMinutes: < 15 } )
+            {
+                this.ExecuteOnce(
+                    this.OpenWelcomePage,
+                    nameof(this.OpenWelcomePage),
+                    c => c.IsWelcomePagePending,
+                    c => c with { IsWelcomePagePending = false } );
+            }
         }
     }
 
