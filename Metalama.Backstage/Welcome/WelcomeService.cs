@@ -103,6 +103,8 @@ public class WelcomeService
 
         if ( openWelcomePage )
         {
+            // To reduce the chance of opening the page in an unattended virtual machine, we
+            // don't open it if there has been no recent user interaction.
             if ( UserInteractionHelper.GetLastInputTime() is null or { TotalMinutes: < 15 } )
             {
                 this.ExecuteOnce(
