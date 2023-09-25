@@ -66,6 +66,11 @@ namespace Metalama.Backstage.Tests.Licensing
         public const string MetalamaUltimateCommercialRedistribution
             = "16-ZQWQQQQQREAEQCRCE4UW3UFEB4URXMHRB8KQBJJSB64LX7YQ2GYCXBSF629W7YDRH29BN7JFYCJX3MFVVAHZXJ9RS29KYTHFS8KQ7TFRS6ZTZHUAE5D6EGGR7GKBRC4N4BYSAS4MX2JRFGTW3AELYYSMRX29B3S6XLBLCS4C5MG6NSQQBTWB2P7QNG4B27RXP3";
 
+        public const string MetalamaUltimateProjectBoundProjectName = "ProjectBoundTestsProject";
+
+        public const string MetalamaUltimatePersonalProjectBound
+            = "19-ZUWQQQQQ6EAEQCRCE4UW3UFEB4URXMHRB8KQBJJSB64LX7YQUQYW77DFS8UE3A9FH68EXCHR629X3EDV56MCNGGVCQCUUEKRAV2GH9DNWLV95EQWL28NHM2AKKU426FARGLBXDW92Y8TVRX3U7FJXVETL3H7QQEZBEVKPZUXVDVKBJKP";
+
         // This is to be used in Metalama Integration tests, where the test dependency has a random assembly name.
         [UsedImplicitly]
         public const string MetalamaUltimateOpenSourceRedistributionForIntegrationTestsNamespace = "dependency_XXXXXXXXXXXXXXXX";
