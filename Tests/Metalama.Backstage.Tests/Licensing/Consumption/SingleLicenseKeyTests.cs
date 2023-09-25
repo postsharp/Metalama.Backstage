@@ -91,7 +91,6 @@ public class SingleLicenseKeyTests : LicenseConsumptionManagerTestsBase
     [InlineData( TestLicenses.PostSharpFramework, false )]
     [InlineData( TestLicenses.PostSharpUltimate, true )]
     [InlineData( TestLicenses.PostSharpEnterprise, true )]
-    [InlineData( TestLicenses.PostSharpUltimateOpenSourceRedistribution, false )]
     [InlineData( TestLicenses.MetalamaStarterPersonal, false )]
     [InlineData( TestLicenses.MetalamaStarterBusiness, false )]
     [InlineData( TestLicenses.MetalamaProfessionalPersonal, false )]
@@ -118,7 +117,16 @@ public class SingleLicenseKeyTests : LicenseConsumptionManagerTestsBase
     [InlineData( TestLicenses.PostSharpUltimateOpenSourceRedistribution )]
     [InlineData( TestLicenses.MetalamaUltimateOpenSourceRedistribution )]
     [InlineData( TestLicenses.MetalamaUltimateCommercialRedistribution )]
-    public void NamespaceLimitedLicenseForbidsMetalamaInArbitraryNamespace( string licenseKey )
+    public void RedistributionLicenseAllowsMetalamaInArbitraryNamespace( string licenseKey )
+        => this.TestOneLicense(
+            licenseKey,
+            LicenseRequirementTestEnum.Ultimate,
+            "Foo",
+            true );
+
+    [Theory]
+    [InlineData( TestLicenses.MetalamaUltimatePersonalProjectBound )]
+    public void ProjectBoundLicenseForbidsMetalamaInArbitraryNamespace( string licenseKey )
         => this.TestOneLicense(
             licenseKey,
             LicenseRequirementTestEnum.Ultimate,

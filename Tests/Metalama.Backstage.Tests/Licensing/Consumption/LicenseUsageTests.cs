@@ -51,7 +51,7 @@ public class LicenseUsageTests : LicenseConsumptionManagerTestsBase
     [Fact]
     public void NamespaceLicenseConsideredForForbiddenFeature()
     {
-        var license = this.CreateLicense( TestLicenses.MetalamaUltimateOpenSourceRedistribution );
+        var license = this.CreateLicense( TestLicenses.MetalamaUltimatePersonalProjectBound );
         var manager = this.CreateConsumptionManager( license );
         TestConsumption( manager, LicenseRequirementTestEnum.Ultimate, "Foo", false );
         AssertAllUsed( license );
