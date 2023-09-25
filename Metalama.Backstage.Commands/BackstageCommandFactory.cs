@@ -29,7 +29,7 @@ public static class BackstageCommandFactory
                     "license",
                     license =>
                     {
-                        license.SetDescription( "Register or register a license key, switch to Metalama Free or Metalama Trial, analyzes credit consumption." );
+                        license.SetDescription( "Register or unregister a license key, switch to Metalama Free or Metalama Trial, analyzes license usage." );
 
                         license.AddCommand<ListLicensesCommand>( "list" )
                             .WithData( options )
