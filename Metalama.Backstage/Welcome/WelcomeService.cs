@@ -21,6 +21,7 @@ public class WelcomeService
     private readonly WelcomeConfiguration _welcomeConfiguration;
     private readonly IProcessExecutor _processExecutor;
     private readonly bool _canIgnoreRecoverableExceptions;
+    private readonly IUserInteractionService _userInteractionService;
 
     public WelcomeService( IServiceProvider serviceProvider )
     {
@@ -31,6 +32,7 @@ public class WelcomeService
         this._welcomeConfiguration = this._configurationManager.Get<WelcomeConfiguration>();
         this._processExecutor = serviceProvider.GetRequiredBackstageService<IProcessExecutor>();
         this._canIgnoreRecoverableExceptions = serviceProvider.GetRequiredBackstageService<IRecoverableExceptionService>().CanIgnore;
+        this._userInteractionService = serviceProvider.GetRequiredBackstageService<IUserInteractionService>();
     }
 
     private void ExecuteOnce(
@@ -103,11 +105,21 @@ public class WelcomeService
 
         if ( openWelcomePage )
         {
-            this.ExecuteOnce(
-                this.OpenWelcomePage,
-                nameof(this.OpenWelcomePage),
-                c => c.IsWelcomePagePending,
-                c => c with { IsWelcomePagePending = false } );
+            // To reduce the chance of opening the page in an unattended virtual machine, we
+            // don't open it if there has been no recent user interaction. We also skip monitors
+            // smaller than 1280 pixels since this is likely to be an unattended or test VM.
+            var hasRecentUserInput = this._userInteractionService.GetLastInputTime() is null or { TotalMinutes: < 15 };
+            var hasLargeMonitor = this._userInteractionService.GetTotalMonitorWidth() is null or >= 1280;
+            this._logger.Trace?.Log( $"HasRecentUserInput={hasRecentUserInput}, HasLargeMonitor={hasLargeMonitor}" );
+
+            if ( hasRecentUserInput )
+            {
+                this.ExecuteOnce(
+                    this.OpenWelcomePage,
+                    nameof(this.OpenWelcomePage),
+                    c => c.IsWelcomePagePending,
+                    c => c with { IsWelcomePagePending = false } );
+            }
         }
     }
 
