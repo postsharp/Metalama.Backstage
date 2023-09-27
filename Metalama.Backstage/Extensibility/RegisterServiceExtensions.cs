@@ -118,6 +118,7 @@ public static class RegisterServiceExtensions
             .AddEnvironmentVariableProvider()
             .AddRecoverableExceptionService()
             .AddSingleton<IApplicationInfoProvider>( new ApplicationInfoProvider( applicationInfo ) )
+            .AddSingleton<IUserInteractionService>( new UserInteractionService() )
             .AddCurrentDateTimeProvider()
             .AddFileSystem()
             .AddStandardDirectories()
