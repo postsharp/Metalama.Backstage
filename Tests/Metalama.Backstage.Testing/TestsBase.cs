@@ -37,6 +37,8 @@ namespace Metalama.Backstage.Testing
 
         public TestProcessExecutor ProcessExecutor { get; } = new();
 
+        public TestUserInteractionService UserInteraction { get; } = new();
+
         protected IServiceCollection CreateServiceCollectionClone()
         {
             var services = new ServiceCollection();
@@ -72,7 +74,7 @@ namespace Metalama.Backstage.Testing
             this._serviceCollection
                 .AddSingleton<IEnvironmentVariableProvider>( this.EnvironmentVariableProvider )
                 .AddSingleton<IRecoverableExceptionService>( new TestRecoverableExceptionService() )
-                .AddSingleton<IUserInteractionService>( new TestUserInteractionService() )
+                .AddSingleton<IUserInteractionService>( this.UserInteraction )
                 .AddSingleton<IFileSystem>( this.FileSystem );
 
             var serviceProviderBuilder =
