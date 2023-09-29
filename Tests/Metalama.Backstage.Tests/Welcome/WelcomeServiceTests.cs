@@ -19,8 +19,8 @@ namespace Metalama.Backstage.Tests.Welcome;
 
 public class WelcomeServiceTests : TestsBase
 {
-    private const int MaxRecentUserInteractionMinutes = 14;
-    private const int MinLargeScreenWidth = 1280;
+    private const int _maxRecentUserInteractionMinutes = 14;
+    private const int _minLargeScreenWidth = 1280;
 
     private readonly TestApplicationInfo _applicationInfo;
 
@@ -138,13 +138,13 @@ public class WelcomeServiceTests : TestsBase
     }
 
     [Theory]
-    [InlineData( true, true, MaxRecentUserInteractionMinutes, MinLargeScreenWidth, true )]
-    [InlineData( true, false, MaxRecentUserInteractionMinutes, MinLargeScreenWidth, true )]
-    [InlineData( false, true, MaxRecentUserInteractionMinutes, MinLargeScreenWidth, true )]
-    [InlineData( false, false, MaxRecentUserInteractionMinutes, MinLargeScreenWidth, true )]
-    [InlineData( true, false, MaxRecentUserInteractionMinutes + 1, MinLargeScreenWidth, false )]
-    [InlineData( true, false, MaxRecentUserInteractionMinutes, MinLargeScreenWidth - 1, false )]
-    [InlineData( true, false, MaxRecentUserInteractionMinutes + 1, MinLargeScreenWidth - 1, false )]
+    [InlineData( true, true, _maxRecentUserInteractionMinutes, _minLargeScreenWidth, true )]
+    [InlineData( true, false, _maxRecentUserInteractionMinutes, _minLargeScreenWidth, true )]
+    [InlineData( false, true, _maxRecentUserInteractionMinutes, _minLargeScreenWidth, true )]
+    [InlineData( false, false, _maxRecentUserInteractionMinutes, _minLargeScreenWidth, true )]
+    [InlineData( true, false, _maxRecentUserInteractionMinutes + 1, _minLargeScreenWidth, false )]
+    [InlineData( true, false, _maxRecentUserInteractionMinutes, _minLargeScreenWidth - 1, false )]
+    [InlineData( true, false, _maxRecentUserInteractionMinutes + 1, _minLargeScreenWidth - 1, false )]
     public void IsWelcomePageOpenedOnFirstRun(
         bool registerEvaluationLicense,
         bool isPrerelease,
