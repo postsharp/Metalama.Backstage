@@ -112,7 +112,7 @@ public class WelcomeService
             var hasLargeMonitor = this._userInteractionService.GetTotalMonitorWidth() is null or >= 1280;
             this._logger.Trace?.Log( $"HasRecentUserInput={hasRecentUserInput}, HasLargeMonitor={hasLargeMonitor}" );
 
-            if ( hasRecentUserInput )
+            if ( hasRecentUserInput && hasLargeMonitor )
             {
                 this.ExecuteOnce(
                     this.OpenWelcomePage,
