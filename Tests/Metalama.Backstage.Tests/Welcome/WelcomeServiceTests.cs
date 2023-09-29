@@ -19,6 +19,9 @@ namespace Metalama.Backstage.Tests.Welcome;
 
 public class WelcomeServiceTests : TestsBase
 {
+    private const int MaxRecentUserInteractionMinutes = 14;
+    private const int MinLargeScreenWidth = 1280;
+
     private readonly TestApplicationInfo _applicationInfo;
 
     public WelcomeServiceTests( ITestOutputHelper logger ) : base(
@@ -135,16 +138,35 @@ public class WelcomeServiceTests : TestsBase
     }
 
     [Theory]
-    [InlineData( true, true )]
-    [InlineData( true, false )]
-    [InlineData( false, true )]
-    [InlineData( false, false )]
-    public void IsWelcomePageOpenedOnFirstRun( bool registerEvaluationLicense, bool isPrerelease )
+    [InlineData( true, true, MaxRecentUserInteractionMinutes, MinLargeScreenWidth, true )]
+    [InlineData( true, false, MaxRecentUserInteractionMinutes, MinLargeScreenWidth, true )]
+    [InlineData( false, true, MaxRecentUserInteractionMinutes, MinLargeScreenWidth, true )]
+    [InlineData( false, false, MaxRecentUserInteractionMinutes, MinLargeScreenWidth, true )]
+    [InlineData( true, false, MaxRecentUserInteractionMinutes + 1, MinLargeScreenWidth, false )]
+    [InlineData( true, false, MaxRecentUserInteractionMinutes, MinLargeScreenWidth - 1, false )]
+    [InlineData( true, false, MaxRecentUserInteractionMinutes + 1, MinLargeScreenWidth - 1, false )]
+    public void IsWelcomePageOpenedOnFirstRun(
+        bool registerEvaluationLicense,
+        bool isPrerelease,
+        int? lastInputTimeMinutes,
+        int? totalMonitorWidth,
+        bool shouldBeOpened )
     {
         this._applicationInfo.IsPrerelease = isPrerelease;
+        this.UserInteraction.LastInputTime = lastInputTimeMinutes == null ? null : TimeSpan.FromMinutes( lastInputTimeMinutes.Value );
+        this.UserInteraction.TotalMonitorWidth = totalMonitorWidth;
 
         var welcomeService = new WelcomeService( this.ServiceProvider );
         welcomeService.ExecuteFirstStartSetup( registerEvaluationLicense );
+
+        void AssertNotOpened() => Assert.Empty( this.ProcessExecutor.StartedProcesses );
+        
+        if ( !shouldBeOpened )
+        {
+            AssertNotOpened();
+
+            return;
+        }
 
         Assert.Single( this.ProcessExecutor.StartedProcesses );
         var processName = this.ProcessExecutor.StartedProcesses.Single().FileName;
@@ -165,6 +187,6 @@ public class WelcomeServiceTests : TestsBase
         welcomeService = new WelcomeService( this.ServiceProvider );
         welcomeService.ExecuteFirstStartSetup( registerEvaluationLicense );
 
-        Assert.Empty( this.ProcessExecutor.StartedProcesses );
+        AssertNotOpened();
     }
 }
