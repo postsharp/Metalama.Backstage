@@ -5,9 +5,13 @@ using System;
 
 namespace Metalama.Backstage.Testing;
 
-internal sealed class TestUserInteractionService : IUserInteractionService
+public sealed class TestUserInteractionService : IUserInteractionService
 {
-    public int? GetTotalMonitorWidth() => 10_000;
+    public int? TotalMonitorWidth { get; set; } = 10_000;
 
-    public TimeSpan? GetLastInputTime() => TimeSpan.FromSeconds( 1 );
+    public TimeSpan? LastInputTime { get; set; } = TimeSpan.FromSeconds( 1 );
+    
+    public int? GetTotalMonitorWidth() => this.TotalMonitorWidth;
+
+    public TimeSpan? GetLastInputTime() => this.LastInputTime;
 }
