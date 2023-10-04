@@ -1,5 +1,6 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. See the LICENSE.md file in the root directory of this repository root for details.
 
+using System;
 using System.Threading.Tasks;
 using Xunit;
 using Xunit.Abstractions;
@@ -8,10 +9,16 @@ namespace Metalama.Tools.Config.Tests.Commands.Licensing
 {
     public class RegisterTrialCommandTests : LicensingCommandsTestsBase
     {
+        private static readonly DateTime _evaluationStart = new( 2020, 1, 1 );
+
+        private static readonly DateTime _invalidNextEvaluationStart = new( 2020, 1, 14 );
+
+        private static readonly DateTime _validNextEvaluationStart = new( 2021, 1, 1 );
+        
         public RegisterTrialCommandTests( ITestOutputHelper logger )
             : base( logger )
         {
-            this.Time.Set( TestLicenses.EvaluationStart );
+            this.Time.Set( _evaluationStart );
         }
 
         [Fact]
@@ -27,7 +34,7 @@ namespace Metalama.Tools.Config.Tests.Commands.Licensing
         {
             await this.TestCommandAsync( "license try" );
 
-            this.Time.Set( TestLicenses.InvalidNextEvaluationStart );
+            this.Time.Set( _invalidNextEvaluationStart );
 
             await this.TestCommandAsync(
                 "license try",
@@ -43,7 +50,7 @@ namespace Metalama.Tools.Config.Tests.Commands.Licensing
         {
             await this.TestCommandAsync( "license try" );
 
-            this.Time.Set( TestLicenses.ValidNextEvaluationStart );
+            this.Time.Set( _validNextEvaluationStart );
             await this.TestCommandAsync( "license try" );
 
             await this.TestCommandAsync( "license list", "Evaluation License" );

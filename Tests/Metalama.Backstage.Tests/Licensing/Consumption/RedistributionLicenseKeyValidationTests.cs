@@ -1,5 +1,6 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. See the LICENSE.md file in the root directory of this repository root for details.
 
+using Metalama.Backstage.Testing;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -11,9 +12,11 @@ namespace Metalama.Backstage.Tests.Licensing.Consumption
             : base( logger ) { }
 
         [Theory]
-        [InlineData( TestLicenses.PostSharpUltimateOpenSourceRedistribution, TestLicenses.PostSharpUltimateOpenSourceRedistributionNamespace )]
-        [InlineData( TestLicenses.MetalamaUltimateOpenSourceRedistribution, TestLicenses.MetalamaUltimateRedistributionNamespace )]
-        [InlineData( TestLicenses.MetalamaUltimateCommercialRedistribution, TestLicenses.MetalamaUltimateRedistributionNamespace )]
+        [TestLicensesInlineData(
+            nameof(TestLicenses.PostSharpUltimateOpenSourceRedistribution),
+            TestLicenses.PostSharpUltimateOpenSourceRedistributionNamespace )]
+        [TestLicensesInlineData( nameof(TestLicenses.MetalamaUltimateOpenSourceRedistribution), TestLicenses.MetalamaUltimateRedistributionNamespace )]
+        [TestLicensesInlineData( nameof(TestLicenses.MetalamaUltimateCommercialRedistribution), TestLicenses.MetalamaUltimateRedistributionNamespace )]
         public void RedistributionLicenseAllowsLicensedNamespace( string licenseKey, string requiredNamespace )
         {
             var manager = this.CreateConsumptionManager();
@@ -24,9 +27,9 @@ namespace Metalama.Backstage.Tests.Licensing.Consumption
         }
 
         [Theory]
-        [InlineData( TestLicenses.PostSharpUltimateOpenSourceRedistribution )]
-        [InlineData( TestLicenses.MetalamaUltimateOpenSourceRedistribution )]
-        [InlineData( TestLicenses.MetalamaUltimateCommercialRedistribution )]
+        [TestLicensesInlineData( nameof(TestLicenses.PostSharpUltimateOpenSourceRedistribution) )]
+        [TestLicensesInlineData( nameof(TestLicenses.MetalamaUltimateOpenSourceRedistribution) )]
+        [TestLicensesInlineData( nameof(TestLicenses.MetalamaUltimateCommercialRedistribution) )]
         public void RedistributionLicenseForbidsArbitraryNamespace( string licenseKey )
         {
             var manager = this.CreateConsumptionManager();
