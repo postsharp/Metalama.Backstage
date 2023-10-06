@@ -16,7 +16,7 @@ namespace Metalama.Backstage.Licensing.Licenses
             IApplicationInfo applicationInfo,
             [MaybeNullWhen( true )] out string errorDescription )
         {
-#pragma warning disable 618
+#pragma warning disable CS0618
             if ( this.LicenseType == LicenseType.Anonymous )
             {
                 // Anonymous licenses are always valid but confer no right.
@@ -24,8 +24,15 @@ namespace Metalama.Backstage.Licensing.Licenses
 
                 return true;
             }
-#pragma warning restore 618
+#pragma warning restore CS0618
 
+            if ( this.LicenseId is not 0 and < 20 )
+            {
+                errorDescription = "has been revoked";
+            
+                return false;
+            }
+            
             if ( !this.VerifySignature() )
             {
                 errorDescription = "has invalid signature";
@@ -35,7 +42,7 @@ namespace Metalama.Backstage.Licensing.Licenses
 
             if ( this.ValidFrom.HasValue && this.ValidFrom > dateTimeProvider.Now )
             {
-                errorDescription = "in not yet valid";
+                errorDescription = "is not yet valid";
 
                 return false;
             }
