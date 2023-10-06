@@ -1,5 +1,6 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. See the LICENSE.md file in the root directory of this repository root for details.
 
+using Metalama.Backstage.Testing;
 using System;
 using System.Threading.Tasks;
 using Xunit;
@@ -25,7 +26,7 @@ namespace Metalama.Tools.Config.Tests.Commands.Licensing
         [Fact]
         public async Task RegisteredLicenseUnregisters()
         {
-            await this.TestCommandAsync( $"license register {TestLicenses.MetalamaStarterBusinessKey}" );
+            await this.TestCommandAsync( $"license register {TestLicenses.MetalamaStarterBusiness}" );
 
             await this.TestCommandAsync( "license list", "Metalama Starter" );
 
