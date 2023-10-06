@@ -3,6 +3,7 @@
 using Metalama.Backstage.Extensibility;
 using Metalama.Backstage.Licensing;
 using Metalama.Backstage.Licensing.Audit;
+using Metalama.Backstage.Testing;
 using Metalama.Backstage.Tests.Licensing.Licenses;
 using System;
 using System.Collections.Generic;
@@ -37,8 +38,8 @@ public class LicenseAuditTests : LicenseConsumptionManagerTestsBase
     }
 
     [Theory]
-    [InlineData( TestLicenses.MetalamaUltimateBusiness )]
-    [InlineData( TestLicenses.MetalamaUltimateBusinessNotAuditable )]
+    [TestLicensesInlineData( nameof(TestLicenses.MetalamaUltimateBusiness) )]
+    [TestLicensesInlineData( nameof(TestLicenses.MetalamaUltimateBusinessNotAuditable) )]
     public void LicenseIsAudited( string licenseKey )
     {
         var license = this.CreateAndConsumeLicense( licenseKey );
@@ -79,7 +80,7 @@ public class LicenseAuditTests : LicenseConsumptionManagerTestsBase
     [Fact]
     public void LicenseAuditReportsSameLicenseKeyDaily()
     {
-        const string licenseKey = TestLicenses.MetalamaUltimateBusiness;
+        var licenseKey = TestLicenses.MetalamaUltimateBusiness;
 
         void AssertReportsCount( int expectedCount )
         {
