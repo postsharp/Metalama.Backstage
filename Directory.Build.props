@@ -2,7 +2,7 @@
 
     <PropertyGroup>
         <RepoDirectory>$(MSBuildThisFileDirectory)</RepoDirectory>
-        <RepoKind>AzureRepos</RepoKind>
+        <RepoKind>GitHub</RepoKind>
         <GenerateDocumentationFile>true</GenerateDocumentationFile>
     </PropertyGroup>
 
