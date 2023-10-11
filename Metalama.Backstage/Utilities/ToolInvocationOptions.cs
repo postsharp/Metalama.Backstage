@@ -1,6 +1,5 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. See the LICENSE.md file in the root directory of this repository root for details.
 
-using JetBrains.Annotations;
 using System.Collections.Immutable;
 using System.Text.RegularExpressions;
 
@@ -30,9 +29,3 @@ public record ToolInvocationOptions(
 
     public ImmutableArray<ReplacePattern> ReplacePatterns { get; init; } = ImmutableArray<ReplacePattern>.Empty;
 }
-
-[PublicAPI]
-public record ToolInvocationRetry( Regex? Regex, int? ExitCode );
-
-[PublicAPI]
-public record ReplacePattern( Regex Regex, MatchEvaluator GetReplacement );
