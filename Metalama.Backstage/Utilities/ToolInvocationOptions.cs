@@ -30,9 +30,3 @@ public record ToolInvocationOptions(
 
     public ImmutableArray<ReplacePattern> ReplacePatterns { get; init; } = ImmutableArray<ReplacePattern>.Empty;
 }
-
-[PublicAPI]
-public record ToolInvocationRetry( Regex? Regex, int? ExitCode );
-
-[PublicAPI]
-public record ReplacePattern( Regex Regex, MatchEvaluator GetReplacement );
