@@ -1,7 +1,6 @@
 // Copyright (c) SharpCrafters s.r.o. See the LICENSE.md file in the root directory of this repository root for details.
 
 using PostSharp.Engineering.BuildTools;
-using PostSharp.Engineering.BuildTools.Build;
 using PostSharp.Engineering.BuildTools.Build.Model;
 using PostSharp.Engineering.BuildTools.Build.Solutions;
 using PostSharp.Engineering.BuildTools.Dependencies.Definitions;
@@ -16,9 +15,7 @@ var product = new Product( MetalamaDependencies.MetalamaBackstage )
     },
     PublicArtifacts = Pattern.Create(
         "Metalama.Backstage.$(PackageVersion).nupkg" ),
-    Dependencies = new[] { DevelopmentDependencies.PostSharpEngineering },
-    Configurations = Product.DefaultConfigurations
-        .WithValue( BuildConfiguration.Release, c => c with { ExportsToTeamCityBuild = true } )
+    Dependencies = new[] { DevelopmentDependencies.PostSharpEngineering }
 };
 
 var commandApp = new CommandApp();
