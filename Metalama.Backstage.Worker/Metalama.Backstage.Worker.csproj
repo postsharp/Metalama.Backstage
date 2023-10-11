@@ -23,9 +23,6 @@
 
     <ItemGroup>
         <Compile Include="$(MetalamaBackstageDirectory)\**\*.cs" Exclude="$(MetalamaBackstageDirectory)\obj\**\*;$(MetalamaBackstageDirectory)\bin\**\*" />
-        <Compile Update="..\Metalama.Backstage\Utilities\ToolInvocationRetry.cs">
-          <Link>Utilities\ToolInvocationRetry.cs</Link>
-        </Compile>
     </ItemGroup>
 
     <ItemGroup Condition="'$(TargetFramework)'=='netframework4.7.2'">
