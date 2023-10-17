@@ -1,5 +1,6 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. See the LICENSE.md file in the root directory of this repository root for details.
 
+using Metalama.Backstage.Utilities;
 using System;
 using System.IO;
 
@@ -40,7 +41,7 @@ namespace Metalama.Backstage.Extensibility
         public string ApplicationDataDirectory { get; }
 
         /// <inheritdoc />
-        public string TempDirectory { get; } = Path.Combine( Path.GetTempPath(), "Metalama" );
+        public string TempDirectory { get; } = Path.Combine( MetalamaPathUtilities.GetTempPath(), "Metalama" );
 
         /// <inheritdoc />
         public string TelemetryExceptionsDirectory => Path.Combine( this.ApplicationDataDirectory, "Telemetry", "Exceptions" );
