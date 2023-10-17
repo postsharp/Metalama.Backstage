@@ -17,7 +17,7 @@ public static class MutexHelper
     {
         logger?.Trace?.Log( $"Acquiring lock '{name}'." );
 
-        var mutex = CreateGlobalMutex( name, logger );
+        var mutex = OpenOrCreateGlobalMutex( name, logger );
 
         try
         {
@@ -39,7 +39,7 @@ public static class MutexHelper
 
     public static bool WithGlobalLock( string name, TimeSpan timeout, [NotNullWhen( true )] out IDisposable? mutexHandle, ILogger? logger = null )
     {
-        var mutex = CreateGlobalMutex( name, logger );
+        var mutex = OpenOrCreateGlobalMutex( name, logger );
 
         bool acquired;
 
@@ -72,13 +72,59 @@ public static class MutexHelper
         }
     }
 
-    private static Mutex CreateGlobalMutex( string fullName, ILogger? logger )
+
+    private static Mutex OpenOrCreateGlobalMutex( string fullName, ILogger? logger )
     {
         var mutexName = "Global\\Metalama_" + HashUtilities.HashString( fullName );
 
+        return OpenOrCreateMutex( mutexName, logger );
+    }
+
+    internal static Mutex OpenOrCreateMutex( string mutexName, ILogger? logger )
+    {
         logger?.Trace?.Log( $"  Mutex name: '{mutexName}'." );
 
-        return new Mutex( false, mutexName );
+        // The number of iterations is intentionally very low.
+        // We will restart if the following occurs:
+        //   1) TryOpenExisting fails, i.e. there is no existing mutex.
+        //   2) Creating a new mutex fails, i.e. the mutex was created in the meantime by a process with higher set of rights.
+        // The probability of mutex being destroyed when we call TryOpenExisting again is fairly low.
+
+#pragma warning disable IDE0059 // Unnecessary assignment of a value
+        for ( var i = 0; ; i++ )
+#pragma warning restore IDE0059 // Unnecessary assignment of a value
+        {
+            // First try opening the mutex.
+            if ( Mutex.TryOpenExisting( mutexName, out var existingMutex ) )
+            {
+                logger?.Trace?.Log( $"  Opened existing mutex." );
+                return existingMutex;
+            }
+            else
+            {
+                // Otherwise we will try to create the mutex.
+                try
+                {
+                    logger?.Trace?.Log( $"  Creating new mutex." );
+                    return new Mutex( false, mutexName );
+                }
+                catch ( UnauthorizedAccessException )
+                {
+                    if ( i < 3 )
+                    {
+                        // Mutex was probably created in the meantime and is not accessible - we will restart.
+                        logger?.Trace?.Log( $"  Mutex was probably created and current process has restricted access to it, restarting." );
+                        continue;
+                    }
+                    else
+                    {
+                        // There were too many restarts - just rethrow.
+                        logger?.Trace?.Log( $"  Tried to open mutex too many times - throwing the exception received." );
+                        throw;
+                    }
+                }
+            }
+        }
     }
 
     private sealed class MutexHandle : IDisposable
