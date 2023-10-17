@@ -72,7 +72,6 @@ public static class MutexHelper
         }
     }
 
-
     private static Mutex OpenOrCreateGlobalMutex( string fullName, ILogger? logger )
     {
         var mutexName = "Global\\Metalama_" + HashUtilities.HashString( fullName );
