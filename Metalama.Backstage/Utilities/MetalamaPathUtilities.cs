@@ -1,5 +1,7 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. See the LICENSE.md file in the root directory of this repository root for details.
 
+// There is a copy of this code in Metalama.Compiler.Shared and partially in Metalama ResourceExtractor.
+
 using System;
 using System.IO;
 
@@ -38,13 +40,7 @@ public static class MetalamaPathUtilities
                     newFile.Close();
                 }
             }
-            catch ( Exception e )
-            {
-                if ( ++attempt == 10 )
-                {
-                    throw new IOException( "No unique temporary file name is available.", e );
-                }
-            }
+            catch ( IOException ) when ( ++attempt < 10 ) { continue; }
 
             return path;
         }
