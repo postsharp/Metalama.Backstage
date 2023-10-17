@@ -79,6 +79,7 @@ public static class MutexHelper
         return OpenOrCreateMutex( mutexName, logger );
     }
 
+    // This code is duplicated in DesignTimeEntryPointManager in Metalama.Framework and should be kept in sync.
     internal static Mutex OpenOrCreateMutex( string mutexName, ILogger? logger )
     {
         logger?.Trace?.Log( $"  Mutex name: '{mutexName}'." );
