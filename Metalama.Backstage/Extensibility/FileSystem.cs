@@ -1,5 +1,6 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. See the LICENSE.md file in the root directory of this repository root for details.
 
+using Metalama.Backstage.Utilities;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -144,7 +145,7 @@ namespace Metalama.Backstage.Extensibility
         /// <inheritdoc />
         public string GetTempFileName()
         {
-            return Path.GetTempFileName();
+            return MetalamaPathUtilities.GetTempFileName();
         }
 
         /// <inheritdoc />
