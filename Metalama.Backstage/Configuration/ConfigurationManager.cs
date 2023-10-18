@@ -43,7 +43,8 @@ namespace Metalama.Backstage.Configuration
             this._dateTimeProvider = serviceProvider.GetRequiredBackstageService<IDateTimeProvider>();
             this._environmentVariableProvider = serviceProvider.GetRequiredBackstageService<IEnvironmentVariableProvider>();
 
-            this._mutex = new Mutex( false, $"{this._fileSystem.SynchronizationPrefix}Metalama.Configuration" );
+            // We pass no logger here, we will be unable to read the log anyway if this throws an exception.
+            this._mutex = MutexHelper.OpenOrCreateMutex( $"{this._fileSystem.SynchronizationPrefix}Metalama.Configuration", null );
 
             // In a production use, the logger factory is created after the configuration manager, so we cannot
             // report diagnostics while getting the configuration. To work around this problem, we buffer
