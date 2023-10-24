@@ -15,7 +15,7 @@ namespace Metalama.Backstage.Tests.Licensing.LicenseSources
         [Fact]
         public void OneLicenseStringPasses()
         {
-            ExplicitLicenseSource source = new( TestLicenses.MetalamaUltimateBusiness, this.ServiceProvider );
+            ExplicitLicenseSource source = new( TestLicenseKeys.MetalamaUltimateBusiness, this.ServiceProvider );
 
             var license = source.GetLicense( _ => { } );
             Assert.NotNull( license );
@@ -23,7 +23,7 @@ namespace Metalama.Backstage.Tests.Licensing.LicenseSources
             var dataParsed = license!.TryGetLicenseConsumptionData( out var data, out var errorMessage );
             Assert.True( dataParsed );
             Assert.Null( errorMessage );
-            Assert.Equal( TestLicenses.MetalamaUltimateBusiness, data!.LicenseString );
+            Assert.Equal( TestLicenseKeys.MetalamaUltimateBusiness, data!.LicenseString );
         }
     }
 }

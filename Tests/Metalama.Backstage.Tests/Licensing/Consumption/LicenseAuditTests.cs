@@ -38,8 +38,8 @@ public class LicenseAuditTests : LicenseConsumptionManagerTestsBase
     }
 
     [Theory]
-    [TestLicensesInlineData( nameof(TestLicenses.MetalamaUltimateBusiness) )]
-    [TestLicensesInlineData( nameof(TestLicenses.MetalamaUltimateBusinessNotAuditable) )]
+    [TestLicensesInlineData( nameof(TestLicenseKeys.MetalamaUltimateBusiness) )]
+    [TestLicensesInlineData( nameof(TestLicenseKeys.MetalamaUltimateBusinessNotAuditable) )]
     public void LicenseIsAudited( string licenseKey )
     {
         var license = this.CreateAndConsumeLicense( licenseKey );
@@ -63,7 +63,7 @@ public class LicenseAuditTests : LicenseConsumptionManagerTestsBase
     [Fact]
     public void LicenseAuditReportsDistinctLicenseKeyWithNoDelay()
     {
-        var licenseKeys = new List<string> { TestLicenses.MetalamaUltimateBusiness, TestLicenses.MetalamaProfessionalBusiness };
+        var licenseKeys = new List<string> { TestLicenseKeys.MetalamaUltimateBusiness, TestLicenseKeys.MetalamaProfessionalBusiness };
 
         licenseKeys.ForEach( l => this.CreateAndConsumeLicense( l ) );
 
@@ -80,7 +80,7 @@ public class LicenseAuditTests : LicenseConsumptionManagerTestsBase
     [Fact]
     public void LicenseAuditReportsSameLicenseKeyDaily()
     {
-        var licenseKey = TestLicenses.MetalamaUltimateBusiness;
+        var licenseKey = TestLicenseKeys.MetalamaUltimateBusiness;
 
         void AssertReportsCount( int expectedCount )
         {
