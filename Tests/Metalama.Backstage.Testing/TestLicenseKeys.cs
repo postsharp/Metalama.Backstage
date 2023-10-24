@@ -45,7 +45,7 @@ public static class TestLicenseKeys
         => _testLicenseKeys?.TryGetValue( keyName, out var key ) ?? false
             ? key
             : throw new InvalidOperationException(
-                $"Uknown test license key: '{keyName}'. Test license keys may not have been restored by PostSharp.Engineering. Licensing tests are only awailable on PostSharp-owned devices and will always fail otherwise." );
+                $"Uknown test license key: '{keyName}'. Test license keys may not have been restored by PostSharp.Engineering. Licensing tests are only available on PostSharp-owned devices and will always fail otherwise." );
 
     public static string PostSharpEssentials => GetLicenseKey( nameof(PostSharpEssentials) );
 
