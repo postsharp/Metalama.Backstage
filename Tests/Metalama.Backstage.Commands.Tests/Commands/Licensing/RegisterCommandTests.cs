@@ -21,19 +21,19 @@ namespace Metalama.Tools.Config.Tests.Commands.Licensing
         [Fact]
         public async Task OneLicenseKeyListedAfterOneRegistration()
         {
-            await this.TestCommandAsync( $"license register {TestLicenses.MetalamaStarterBusiness}" );
+            await this.TestCommandAsync( $"license register {TestLicenseKeys.MetalamaStarterBusiness}" );
 
-            await this.TestCommandAsync( "license list", TestLicenses.MetalamaStarterBusiness );
+            await this.TestCommandAsync( "license list", TestLicenseKeys.MetalamaStarterBusiness );
         }
 
         [Fact]
         public async Task OneLicenseKeyListedAfterMultipleLicenseKeysRegistered()
         {
-            await this.TestCommandAsync( $"license register {TestLicenses.MetalamaStarterBusiness}" );
-            await this.TestCommandAsync( $"license register {TestLicenses.MetalamaProfessionalPersonal}" );
-            await this.TestCommandAsync( $"license register {TestLicenses.MetalamaUltimateOpenSourceRedistribution}" );
+            await this.TestCommandAsync( $"license register {TestLicenseKeys.MetalamaStarterBusiness}" );
+            await this.TestCommandAsync( $"license register {TestLicenseKeys.MetalamaProfessionalPersonal}" );
+            await this.TestCommandAsync( $"license register {TestLicenseKeys.MetalamaUltimateOpenSourceRedistribution}" );
 
-            await this.TestCommandAsync( "license list", TestLicenses.MetalamaUltimateOpenSourceRedistribution );
+            await this.TestCommandAsync( "license list", TestLicenseKeys.MetalamaUltimateOpenSourceRedistribution );
         }
     }
 }

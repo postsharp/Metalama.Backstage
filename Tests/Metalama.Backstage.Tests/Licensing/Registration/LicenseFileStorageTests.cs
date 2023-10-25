@@ -81,19 +81,19 @@ namespace Metalama.Backstage.Tests.Licensing.Registration
         public void NonEmptyStorageCanBeCreated()
         {
             var storage = this.OpenOrCreateStorage();
-            this.Add( storage, TestLicenses.PostSharpUltimate );
+            this.Add( storage, TestLicenseKeys.PostSharpUltimate );
 
-            this.AssertFileContains( TestLicenses.PostSharpUltimate );
+            this.AssertFileContains( TestLicenseKeys.PostSharpUltimate );
         }
 
         [Fact]
         public void ValidLicenseKeyCanBeRetrieved()
         {
-            this.SetStoredLicenseString( TestLicenses.PostSharpUltimate );
+            this.SetStoredLicenseString( TestLicenseKeys.PostSharpUltimate );
 
             var storage = this.OpenOrCreateStorage();
 
-            this.AssertStorageContains( storage, TestLicenses.PostSharpUltimate );
+            this.AssertStorageContains( storage, TestLicenseKeys.PostSharpUltimate );
         }
 
         [Fact]
@@ -113,22 +113,22 @@ namespace Metalama.Backstage.Tests.Licensing.Registration
             this.SetStoredLicenseString( "dummy" );
 
             var storage = this.OpenOrCreateStorage();
-            this.Add( storage, TestLicenses.PostSharpUltimate );
+            this.Add( storage, TestLicenseKeys.PostSharpUltimate );
 
-            this.AssertStorageContains( storage, TestLicenses.PostSharpUltimate );
-            this.AssertFileContains( TestLicenses.PostSharpUltimate );
+            this.AssertStorageContains( storage, TestLicenseKeys.PostSharpUltimate );
+            this.AssertFileContains( TestLicenseKeys.PostSharpUltimate );
         }
 
         [Fact]
         public void PreviousValidLicenseKeysAreReplaced()
         {
-            this.SetStoredLicenseString( TestLicenses.PostSharpUltimate );
+            this.SetStoredLicenseString( TestLicenseKeys.PostSharpUltimate );
 
             var storage = this.OpenOrCreateStorage();
-            this.Add( storage, TestLicenses.MetalamaStarterPersonal );
+            this.Add( storage, TestLicenseKeys.MetalamaStarterPersonal );
 
-            this.AssertStorageContains( storage, TestLicenses.MetalamaStarterPersonal );
-            this.AssertFileContains( TestLicenses.MetalamaStarterPersonal );
+            this.AssertStorageContains( storage, TestLicenseKeys.MetalamaStarterPersonal );
+            this.AssertFileContains( TestLicenseKeys.MetalamaStarterPersonal );
         }
     }
 }
