@@ -37,7 +37,7 @@ public static class TestLicenseKeys
             _testLicenseKeys = root.XPathSelectElements( "//PropertyGroup/*" )
                 .Select( e => (e.Name.LocalName, e.Value) )
                 .Where( p => p.LocalName.EndsWith( "LicenseKey", StringComparison.OrdinalIgnoreCase ) )
-                .ToDictionary( p => p.LocalName.Substring( 0, p.LocalName.Length - "LicenseKey".Length ), p => p.Value );
+                .ToDictionary( p => p.LocalName[..^"LicenseKey".Length], p => p.Value );
         }
     }
 
