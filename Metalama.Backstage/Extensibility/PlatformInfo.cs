@@ -82,8 +82,41 @@ namespace Metalama.Backstage.Extensibility
                 }
             }
 
+            // Explicitly resolve PATH, because in the Rider process, "dotnet" alone would resolve to Rider's limited dotnet.
+            // While doing so, ignore Rider's ReSharperHost paths, which contain that dotnet.
+            
+            var path = Environment.GetEnvironmentVariable( "PATH" );
+
+            if ( path != null )
+            {
+                var splitCharacter = RuntimeInformation.IsOSPlatform( OSPlatform.Windows ) ? ';' : ':';
+
+                foreach ( var directory in path.Split( splitCharacter ) )
+                {
+                    if ( directory.ContainsOrdinal( "ReSharperHost" ) )
+                    {
+                        logger.Trace?.Log( $"Rider directory '{directory}' excluded." );
+
+                        continue;
+                    }
+
+                    var dotnetPath = Path.Combine( directory, dotnetFileName );
+
+                    if ( File.Exists( dotnetPath ) )
+                    {
+                        logger.Trace?.Log( $"{dotnetFileName} found in '{dotnetPath}'." );
+
+                        return dotnetPath;
+                    }
+                    else
+                    {
+                        logger.Trace?.Log( $"Looked for {dotnetFileName} in '{dotnetPath}', but it did not exist." );
+                    }
+                }
+            }
+
             // The file was not found.
-            logger.Warning?.Log( $"{dotnetFileName} was found nowhere. We hope it will be in the PATH." );
+            logger.Trace?.Log( $"{dotnetFileName} was found nowhere. We hope it will be in the PATH." );
 
             return "dotnet";
         }
