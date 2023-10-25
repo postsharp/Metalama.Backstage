@@ -4,6 +4,7 @@ using PostSharp.Engineering.BuildTools;
 using PostSharp.Engineering.BuildTools.Build.Model;
 using PostSharp.Engineering.BuildTools.Build.Solutions;
 using PostSharp.Engineering.BuildTools.Dependencies.Definitions;
+using PostSharp.Engineering.BuildTools.Utilities;
 using Spectre.Console.Cli;
 using MetalamaDependencies = PostSharp.Engineering.BuildTools.Dependencies.Definitions.MetalamaDependencies.V2024_0;
 
@@ -17,6 +18,8 @@ var product = new Product( MetalamaDependencies.MetalamaBackstage )
         "Metalama.Backstage.$(PackageVersion).nupkg" ),
     Dependencies = new[] { DevelopmentDependencies.PostSharpEngineering }
 };
+
+product.PrepareCompleted += TestLicensesCache.FetchOnPrepareCompleted;
 
 var commandApp = new CommandApp();
 

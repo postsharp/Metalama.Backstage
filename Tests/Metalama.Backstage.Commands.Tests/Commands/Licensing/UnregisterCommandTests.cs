@@ -26,7 +26,7 @@ namespace Metalama.Tools.Config.Tests.Commands.Licensing
         [Fact]
         public async Task RegisteredLicenseUnregisters()
         {
-            await this.TestCommandAsync( $"license register {TestLicenses.MetalamaStarterBusiness}" );
+            await this.TestCommandAsync( $"license register {TestLicenseKeys.MetalamaStarterBusiness}" );
 
             await this.TestCommandAsync( "license list", "Metalama Starter" );
 

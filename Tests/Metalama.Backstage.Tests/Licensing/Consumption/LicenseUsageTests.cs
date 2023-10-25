@@ -18,10 +18,10 @@ public class LicenseUsageTests : LicenseConsumptionManagerTestsBase
     [Fact]
     public void FirstOfDifferentLicensesFromMultipleSourcesUsedForAllowedFeature()
     {
-        var license1 = this.CreateLicense( TestLicenses.MetalamaFreePersonal );
+        var license1 = this.CreateLicense( TestLicenseKeys.MetalamaFreePersonal );
         var source1 = new TestLicenseSource( "source1", license1 );
 
-        var license2 = this.CreateLicense( TestLicenses.MetalamaStarterBusiness );
+        var license2 = this.CreateLicense( TestLicenseKeys.MetalamaStarterBusiness );
         var source2 = new TestLicenseSource( "source2", license2 );
 
         var manager = this.CreateConsumptionManager( source1, source2 );
@@ -35,10 +35,10 @@ public class LicenseUsageTests : LicenseConsumptionManagerTestsBase
     [Fact]
     public void OneOfDifferentLicensesFromMultipleSourcesUsedForForbiddenFeature()
     {
-        var license1 = this.CreateLicense( TestLicenses.MetalamaFreePersonal );
+        var license1 = this.CreateLicense( TestLicenseKeys.MetalamaFreePersonal );
         var source1 = new TestLicenseSource( "source1", license1 );
 
-        var license2 = this.CreateLicense( TestLicenses.MetalamaStarterBusiness );
+        var license2 = this.CreateLicense( TestLicenseKeys.MetalamaStarterBusiness );
         var source2 = new TestLicenseSource( "source2", license2 );
 
         var manager = this.CreateConsumptionManager( source1, source2 );
@@ -52,7 +52,7 @@ public class LicenseUsageTests : LicenseConsumptionManagerTestsBase
     [Fact]
     public void NamespaceLicenseConsideredForForbiddenFeature()
     {
-        var license = this.CreateLicense( TestLicenses.MetalamaUltimatePersonalProjectBound );
+        var license = this.CreateLicense( TestLicenseKeys.MetalamaUltimatePersonalProjectBound );
         var manager = this.CreateConsumptionManager( license );
         TestConsumption( manager, LicenseRequirementTestEnum.Ultimate, "Foo", false );
         AssertAllUsed( license );
