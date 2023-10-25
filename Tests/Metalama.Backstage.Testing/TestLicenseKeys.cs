@@ -20,7 +20,7 @@ public static class TestLicenseKeys
 
     static TestLicenseKeys()
     {
-        // This is the same as in PostSharp.Engineering.BuildTools.Utilities.TestLicensesCacheTestLicensesCache.FetchOnPrepareCompleted method,
+        // This is the same file name as in PostSharp.Engineering.BuildTools.Utilities.TestLicensesCache.FetchOnPrepareCompleted method,
         // and has to be changed when the content should change.
         const string testLicenseKeysCacheFileName = "TestLicenseKeys1.g.props";
 
