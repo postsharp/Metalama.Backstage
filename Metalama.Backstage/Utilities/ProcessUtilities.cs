@@ -237,28 +237,33 @@ public static class ProcessUtilities
                 "rider" // Rider needs to be checked, because it can have Java as its parent process.
             };
 
-            logger.Trace?.Log( "Parent processes:" );
-
-            foreach ( var process in parentProcesses )
+            if ( logger.Trace != null )
             {
-                logger.Trace?.Log(
-                    $"- {process.ProcessName ?? process.ProcessId.ToString( CultureInfo.InvariantCulture )}: {process.ImagePath ?? "<unknown>"}" );
+                logger.Trace?.Log( "Parent processes:" );
+
+                foreach ( var process in parentProcesses )
+                {
+                    logger.Trace?.Log(
+                        process.ImagePath == null ? $"- Unknown process ID {process.ProcessId}" : $"- {process.ProcessName}: {process.ImagePath}" );
+                }
             }
-            
-            var notUnattendedProcessInfo = parentProcesses.FirstOrDefault( p => p.ImagePath != null && notUnattendedProcesses.Contains( p.ImagePath ) );
 
-            if ( notUnattendedProcessInfo != null )
+            var parentProcessNames = parentProcesses.Where( p => p.ProcessName != null ).Select( p => p.ProcessName! ).ToArray();
+
+            var notUnattendedProcessName = parentProcessNames.FirstOrDefault( p => notUnattendedProcesses.Contains( p ) );
+
+            if ( notUnattendedProcessName != null )
             {
-                logger.Trace?.Log( $"Unattended mode not detected because of parent process '{notUnattendedProcessInfo.ProcessName}'." );
+                logger.Trace?.Log( $"Unattended mode NOT detected because of parent process '{notUnattendedProcessName}'." );
 
                 return false;
             }
             
-            var unattendedProcessInfo = parentProcesses.FirstOrDefault( p => p.ImagePath != null && unattendedProcesses.Contains( p.ImagePath ) );
+            var unattendedProcessName = parentProcessNames.FirstOrDefault( p => unattendedProcesses.Contains( p ) );
 
-            if ( unattendedProcessInfo != null )
+            if ( unattendedProcessName != null )
             {
-                logger.Trace?.Log( $"Unattended mode detected because of parent process '{unattendedProcessInfo.ProcessName}'." );
+                logger.Trace?.Log( $"Unattended mode detected because of parent process '{unattendedProcessName}'." );
 
                 return true;
             }
