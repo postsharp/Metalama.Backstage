@@ -219,35 +219,46 @@ public static class ProcessUtilities
             }
 
             // Check the parent processes.
-            var unattendedProcesses = new HashSet<string>(
-                new[]
-                {
-                    "services",
-                    "java",               // TeamCity, Atlassian Bamboo (can also be "bamboo"), Jenkins, GoCD
-                    "bamboo",             // Atlassian Bamboo
-                    "agent.worker",       // Azure Pipelines
-                    "runner.worker",      // GitHub Actions
-                    "buildkite-agent",    // BuildKite
-                    "circleci-agent",     // CircleCI (Docker, but has specific process name)
-                    "agent",              // Semaphore CI (Linux)
-                    "sshd: travis [priv]" // Travis CI (Linux)
-                } );
+            var unattendedProcesses = new HashSet<string>
+            {
+                "services",
+                "java",               // TeamCity, Atlassian Bamboo (can also be "bamboo"), Jenkins, GoCD
+                "bamboo",             // Atlassian Bamboo
+                "agent.worker",       // Azure Pipelines
+                "runner.worker",      // GitHub Actions
+                "buildkite-agent",    // BuildKite
+                "circleci-agent",     // CircleCI (Docker, but has specific process name)
+                "agent",              // Semaphore CI (Linux)
+                "sshd: travis [priv]" // Travis CI (Linux)
+            };
+            
+            var notUnattendedProcesses = new HashSet<string>
+            {
+                "rider" // Rider needs to be checked, because it can have Java as its parent process.
+            };
 
-            logger.Trace?.Log(
-                string.Format(
-                    CultureInfo.InvariantCulture,
-                    "Parent processes: {0}. ",
-                    string.Join( ", ", parentProcesses.Select( p => p.ProcessName ?? p.ProcessId.ToString( CultureInfo.InvariantCulture ) ).ToArray() ) ) );
+            logger.Trace?.Log( "Parent processes:" );
 
+            foreach ( var process in parentProcesses )
+            {
+                logger.Trace?.Log(
+                    $"- {process.ProcessName ?? process.ProcessId.ToString( CultureInfo.InvariantCulture )}: {process.ImagePath ?? "<unknown>"}" );
+            }
+            
+            var notUnattendedProcessInfo = parentProcesses.FirstOrDefault( p => p.ImagePath != null && notUnattendedProcesses.Contains( p.ImagePath ) );
+
+            if ( notUnattendedProcessInfo != null )
+            {
+                logger.Trace?.Log( $"Unattended mode not detected because of parent process '{notUnattendedProcessInfo.ProcessName}'." );
+
+                return false;
+            }
+            
             var unattendedProcessInfo = parentProcesses.FirstOrDefault( p => p.ImagePath != null && unattendedProcesses.Contains( p.ImagePath ) );
 
             if ( unattendedProcessInfo != null )
             {
-                logger.Trace?.Log(
-                    string.Format(
-                        CultureInfo.InvariantCulture,
-                        " Unattended mode detected because of parent process '{0}'.",
-                        unattendedProcessInfo.ProcessName ) );
+                logger.Trace?.Log( $"Unattended mode detected because of parent process '{unattendedProcessInfo.ProcessName}'." );
 
                 return true;
             }
