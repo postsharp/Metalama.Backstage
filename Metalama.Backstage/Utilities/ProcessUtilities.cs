@@ -219,35 +219,51 @@ public static class ProcessUtilities
             }
 
             // Check the parent processes.
-            var unattendedProcesses = new HashSet<string>(
-                new[]
-                {
-                    "services",
-                    "java",               // TeamCity, Atlassian Bamboo (can also be "bamboo"), Jenkins, GoCD
-                    "bamboo",             // Atlassian Bamboo
-                    "agent.worker",       // Azure Pipelines
-                    "runner.worker",      // GitHub Actions
-                    "buildkite-agent",    // BuildKite
-                    "circleci-agent",     // CircleCI (Docker, but has specific process name)
-                    "agent",              // Semaphore CI (Linux)
-                    "sshd: travis [priv]" // Travis CI (Linux)
-                } );
-
-            logger.Trace?.Log(
-                string.Format(
-                    CultureInfo.InvariantCulture,
-                    "Parent processes: {0}. ",
-                    string.Join( ", ", parentProcesses.Select( p => p.ProcessName ?? p.ProcessId.ToString( CultureInfo.InvariantCulture ) ).ToArray() ) ) );
-
-            var unattendedProcessInfo = parentProcesses.FirstOrDefault( p => p.ImagePath != null && unattendedProcesses.Contains( p.ImagePath ) );
-
-            if ( unattendedProcessInfo != null )
+            var unattendedProcesses = new HashSet<string>
             {
-                logger.Trace?.Log(
-                    string.Format(
-                        CultureInfo.InvariantCulture,
-                        " Unattended mode detected because of parent process '{0}'.",
-                        unattendedProcessInfo.ProcessName ) );
+                "services",
+                "java",               // TeamCity, Atlassian Bamboo (can also be "bamboo"), Jenkins, GoCD
+                "bamboo",             // Atlassian Bamboo
+                "agent.worker",       // Azure Pipelines
+                "runner.worker",      // GitHub Actions
+                "buildkite-agent",    // BuildKite
+                "circleci-agent",     // CircleCI (Docker, but has specific process name)
+                "agent",              // Semaphore CI (Linux)
+                "sshd: travis [priv]" // Travis CI (Linux)
+            };
+            
+            var notUnattendedProcesses = new HashSet<string>
+            {
+                "rider" // Rider needs to be checked, because it can have Java as its parent process.
+            };
+
+            if ( logger.Trace != null )
+            {
+                logger.Trace?.Log( "Parent processes:" );
+
+                foreach ( var process in parentProcesses )
+                {
+                    logger.Trace?.Log(
+                        process.ImagePath == null ? $"- Unknown process ID {process.ProcessId}" : $"- {process.ProcessName}: {process.ImagePath}" );
+                }
+            }
+
+            var parentProcessNames = parentProcesses.Where( p => p.ProcessName != null ).Select( p => p.ProcessName! ).ToArray();
+
+            var notUnattendedProcessName = parentProcessNames.FirstOrDefault( p => notUnattendedProcesses.Contains( p ) );
+
+            if ( notUnattendedProcessName != null )
+            {
+                logger.Trace?.Log( $"Unattended mode NOT detected because of parent process '{notUnattendedProcessName}'." );
+
+                return false;
+            }
+            
+            var unattendedProcessName = parentProcessNames.FirstOrDefault( p => unattendedProcesses.Contains( p ) );
+
+            if ( unattendedProcessName != null )
+            {
+                logger.Trace?.Log( $"Unattended mode detected because of parent process '{unattendedProcessName}'." );
 
                 return true;
             }
