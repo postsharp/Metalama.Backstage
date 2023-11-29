@@ -36,15 +36,52 @@
         <PackageReference Include="JetBrains.Profiler.SelfApi " Version="2.5.0" />
     </ItemGroup>
 
-
     <Target Name="ResolveZipInputFiles" AfterTargets="Build" Condition="'$(IsCrossTargetingBuild)'!='true'">
         <ItemGroup>
             <ZipInputFiles Include="$(OutDir)\**\*" />
         </ItemGroup>
     </Target>
 
+    <UsingTask TaskName="CreateDeterministicZip" TaskFactory="RoslynCodeTaskFactory" AssemblyFile="$(MSBuildToolsPath)\Microsoft.Build.Tasks.Core.dll">
+        <ParameterGroup>
+            <SourceDirectory ParameterType="System.String" Required="true" />
+            <DestinationFile ParameterType="System.String" Required="true" />
+            <PackageBuildDate ParameterType="System.String" Required="true" />
+        </ParameterGroup>
+        <Task>
+            <!-- <Reference Include="System.IO.Compression" />
+            <Reference Include="System.IO.Compression.FileSystem" /> -->
+            <Using Namespace="System" />
+            <Using Namespace="System.Globalization" />
+            <Using Namespace="System.IO" />
+            <Using Namespace="System.IO.Compression" />
+            <Using Namespace="System.Reflection" />
+            <Code Type="Fragment" Language="cs">
+                <![CDATA[
+                var packageBuildDate = DateTime.Parse(PackageBuildDate, CultureInfo.InvariantCulture);
+
+                File.Delete(DestinationFile);
+
+                using (var zipArchive = ZipFile.Open(DestinationFile, ZipArchiveMode.Update))
+                {
+                    var files = Directory.GetFiles(SourceDirectory, "*.*") ?? throw new InvalidOperationException("Now files to pack.");
+
+                    Array.Sort(files);
+
+                    foreach (var file in files)
+                    {
+                        var entryName = Path.GetFileName(file) ?? throw new InvalidOperationException($"Failed to calculate entry name of '{file}'.");
+                        var entry = zipArchive.CreateEntryFromFile(file, entryName);
+                        entry.LastWriteTime = packageBuildDate;
+                    }
+                }
+                ]]>
+            </Code>
+        </Task>
+    </UsingTask>
+
     <Target Name="Zip" Inputs="@(ZipInputFiles)" Outputs="$(OutputZipFile)" AfterTargets="Build" DependsOnTargets="ResolveZipInputFiles" Condition="'$(IsCrossTargetingBuild)'!='true'">
-        <ZipDirectory SourceDirectory="$(OutDir)" Overwrite="true" DestinationFile="$(OutputZipFile)" />
+        <CreateDeterministicZip SourceDirectory="$(OutDir)" DestinationFile="$(OutputZipFile)" PackageBuildDate="$(_PackageBuildDate)" />
         <Message Text="$(MSBuildProjectName) -&gt; $(MSBuildProjectDirectory)\$(OutputZipFile)" Importance="High" />
     </Target>
 
