@@ -50,7 +50,6 @@ internal class ProfilingService : IBackstageService
     private void StartProfiler()
     {
 #if NETFRAMEWORK || NET6_0_OR_GREATER
-
         if ( Interlocked.CompareExchange( ref _isProfiling, 1, 0 ) != 0 )
         {
             this._logger.Trace?.Log( $"Profiling is already in progress." );

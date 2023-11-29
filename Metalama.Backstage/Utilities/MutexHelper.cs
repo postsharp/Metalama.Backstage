@@ -98,6 +98,7 @@ public static class MutexHelper
             if ( Mutex.TryOpenExisting( mutexName, out var existingMutex ) )
             {
                 logger?.Trace?.Log( $"  Opened existing mutex." );
+
                 return existingMutex;
             }
             else
@@ -106,6 +107,7 @@ public static class MutexHelper
                 try
                 {
                     logger?.Trace?.Log( $"  Creating new mutex." );
+
                     return new Mutex( false, mutexName );
                 }
                 catch ( UnauthorizedAccessException )
@@ -114,12 +116,14 @@ public static class MutexHelper
                     {
                         // Mutex was probably created in the meantime and is not accessible - we will restart.
                         logger?.Trace?.Log( $"  Mutex was probably created and current process has restricted access to it, restarting." );
+
                         continue;
                     }
                     else
                     {
                         // There were too many restarts - just rethrow.
                         logger?.Trace?.Log( $"  Tried to open mutex too many times - throwing the exception received." );
+
                         throw;
                     }
                 }
