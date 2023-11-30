@@ -24,6 +24,5 @@ CSC : warning CS8002: Referenced assembly 'Spectre.Console.Cli, Version=0.0.0.0,
 
     <Import Sdk="PostSharp.Engineering.Sdk" Project="BuildOptions.props"/>
     <Import Sdk="PostSharp.Engineering.Sdk" Project="SourceLink.props"/>
-    <Import Sdk="PostSharp.Engineering.Sdk" Project="TeamCity.props"/>
 
 </Project>
