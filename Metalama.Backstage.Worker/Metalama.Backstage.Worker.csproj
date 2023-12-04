@@ -8,8 +8,6 @@
 
     <Import Sdk="PostSharp.Engineering.Sdk" Project="SystemTypes.props" />
 
-
-    <!-- <Import Project="$(MetalamaBackstageDirectory)\Metalama.Backstage.csproj" /> -->
     <Import Project="$(MetalamaBackstageDirectory)\Metalama.Backstage.Common.props" />
 
     <PropertyGroup>
@@ -49,8 +47,6 @@
             <PackageBuildDate ParameterType="System.String" Required="true" />
         </ParameterGroup>
         <Task>
-            <!-- <Reference Include="System.IO.Compression" />
-            <Reference Include="System.IO.Compression.FileSystem" /> -->
             <Using Namespace="System" />
             <Using Namespace="System.Globalization" />
             <Using Namespace="System.IO" />
