@@ -93,7 +93,7 @@ internal class ExceptionReporter : IExceptionReporter, IDisposable
         return true;
     }
 
-    private string ComputeExceptionHash( string? version, string exceptionTypeName, IEnumerable<string> stackTraces )
+    private string ComputeExceptionHash( string? version, string exceptionTypeName, IEnumerable<string?> stackTraces )
     {
         var signature = new StringBuilder( 1024 );
         signature.Append( version ?? "?" );
@@ -201,7 +201,7 @@ internal class ExceptionReporter : IExceptionReporter, IDisposable
             } );
     }
 
-    private static void PopulateStackTraces( List<string> stackTraces, Exception exception )
+    private static void PopulateStackTraces( List<string?> stackTraces, Exception exception )
     {
         if ( exception.StackTrace != null )
         {
@@ -246,7 +246,7 @@ internal class ExceptionReporter : IExceptionReporter, IDisposable
             var applicationInfo = this._applicationInfoProvider.CurrentApplication;
 
             // Get stack traces.
-            var stackTraces = new List<string>();
+            var stackTraces = new List<string?>();
             PopulateStackTraces( stackTraces, reportedException );
 
             // Compute a signature for this exception.
