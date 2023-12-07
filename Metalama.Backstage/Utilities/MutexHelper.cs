@@ -91,7 +91,7 @@ public static class MutexHelper
         // The probability of mutex being destroyed when we call TryOpenExisting again is fairly low.
 
 #pragma warning disable IDE0059 // Unnecessary assignment of a value
-        for ( var i = 0;; i++ )
+        for ( var i = 0; ; i++ )
 #pragma warning restore IDE0059 // Unnecessary assignment of a value
         {
             // First try opening the mutex.
