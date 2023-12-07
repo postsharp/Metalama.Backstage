@@ -84,7 +84,7 @@ namespace Metalama.Backstage.Extensibility
 
             // Explicitly resolve PATH, because in the Rider process, "dotnet" alone would resolve to Rider's limited dotnet.
             // While doing so, ignore Rider's ReSharperHost paths, which contain that dotnet.
-            
+
             var path = Environment.GetEnvironmentVariable( "PATH" );
 
             if ( path != null )

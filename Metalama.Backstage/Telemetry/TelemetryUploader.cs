@@ -299,10 +299,7 @@ namespace Metalama.Backstage.Telemetry
 
             var processStartInfo = new ProcessStartInfo()
             {
-                FileName = executableFileName,
-                Arguments = arguments,
-                UseShellExecute = true,
-                WindowStyle = ProcessWindowStyle.Hidden
+                FileName = executableFileName, Arguments = arguments, UseShellExecute = true, WindowStyle = ProcessWindowStyle.Hidden
             };
 
             this._logger.Info?.Log( $"Starting '{executableFileName}{(arguments == "" ? "" : " ")}{arguments}'." );

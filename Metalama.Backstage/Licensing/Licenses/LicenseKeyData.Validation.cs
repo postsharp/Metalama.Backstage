@@ -29,10 +29,10 @@ namespace Metalama.Backstage.Licensing.Licenses
             if ( this.LicenseId is not 0 and < 20 )
             {
                 errorDescription = "has been revoked";
-            
+
                 return false;
             }
-            
+
             if ( !this.VerifySignature() )
             {
                 errorDescription = "has invalid signature";

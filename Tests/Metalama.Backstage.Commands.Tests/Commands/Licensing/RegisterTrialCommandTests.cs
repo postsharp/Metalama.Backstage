@@ -14,7 +14,7 @@ namespace Metalama.Tools.Config.Tests.Commands.Licensing
         private static readonly DateTime _invalidNextEvaluationStart = new( 2020, 1, 14 );
 
         private static readonly DateTime _validNextEvaluationStart = new( 2021, 1, 1 );
-        
+
         public RegisterTrialCommandTests( ITestOutputHelper logger )
             : base( logger )
         {

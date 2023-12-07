@@ -160,7 +160,7 @@ public class WelcomeServiceTests : TestsBase
         welcomeService.ExecuteFirstStartSetup( registerEvaluationLicense );
 
         void AssertNotOpened() => Assert.Empty( this.ProcessExecutor.StartedProcesses );
-        
+
         if ( !shouldBeOpened )
         {
             AssertNotOpened();

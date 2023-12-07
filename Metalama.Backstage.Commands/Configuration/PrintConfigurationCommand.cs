@@ -4,6 +4,5 @@ namespace Metalama.Backstage.Commands.Configuration;
 
 internal class PrintConfigurationCommand : BaseConfigurationCommand
 {
-    protected override void Execute( ExtendedCommandContext context, ConfigurationFileCommandAdapter adapter )
-        => adapter.Print( context );
+    protected override void Execute( ExtendedCommandContext context, ConfigurationFileCommandAdapter adapter ) => adapter.Print( context );
 }

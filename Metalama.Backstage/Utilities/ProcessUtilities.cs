@@ -248,7 +248,7 @@ public static class ProcessUtilities
                 "agent",              // Semaphore CI (Linux)
                 "sshd: travis [priv]" // Travis CI (Linux)
             };
-            
+
             var notUnattendedProcesses = new HashSet<string>
             {
                 "rider" // Rider needs to be checked, because it can have Java as its parent process.
@@ -275,7 +275,7 @@ public static class ProcessUtilities
 
                 return false;
             }
-            
+
             var unattendedProcessName = parentProcessNames.FirstOrDefault( p => unattendedProcesses.Contains( p ) );
 
             if ( unattendedProcessName != null )
