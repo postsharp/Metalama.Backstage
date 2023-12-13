@@ -24,6 +24,10 @@ CSC : warning CS8002: Referenced assembly 'Spectre.Console.Cli, Version=0.0.0.0,
 
     <Import Sdk="PostSharp.Engineering.Sdk" Project="BuildOptions.props"/>
     <Import Sdk="PostSharp.Engineering.Sdk" Project="SourceLink.props"/>
-    <Import Sdk="PostSharp.Engineering.Sdk" Project="TeamCity.props"/>
+    
+    <PropertyGroup>
+        <!-- Symbol NuGet packages are enabled since Metalama 2024.0. -->
+        <IncludeSymbols>false</IncludeSymbols>
+    </PropertyGroup>
 
 </Project>
