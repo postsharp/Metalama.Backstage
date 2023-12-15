@@ -20,8 +20,6 @@
                           LogicalName="Metalama.Backstage.Telemetry.public.key" />
         <EmbeddedResource Include="..\Metalama.Backstage.Worker\bin\Metalama.Backstage.Worker.net6.0.zip"
                           Condition="'$(IsWorkerBuild)'!='true'" />
-        <EmbeddedResource Include="..\Metalama.Backstage.Worker\bin\Metalama.Backstage.Worker.netframework4.7.2.zip"
-                          Condition="'$(IsWorkerBuild)'!='true'" />
     </ItemGroup>
 
     <ItemGroup>
@@ -37,13 +35,7 @@
                           SetTargetFramework="TargetFramework=net6.0"
                           PrivateAssets="all"
                           Condition="'$(IsWorkerBuild)'!='true'" />
-
-        <ProjectReference Include="..\Metalama.Backstage.Worker\Metalama.Backstage.Worker.csproj"
-                          ReferenceOutputAssembly="false"
-                          SkipGetTargetFrameworkProperties="true"
-                          SetTargetFramework="TargetFramework=netframework4.7.2"
-                          PrivateAssets="all"
-                          Condition="'$(IsWorkerBuild)'!='true'" />
+        
     </ItemGroup>
 
     <ItemGroup>

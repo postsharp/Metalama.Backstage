@@ -2,6 +2,7 @@
 
 using Metalama.Backstage.Configuration;
 using Metalama.Backstage.Diagnostics;
+using Metalama.Backstage.Licensing;
 using Metalama.Backstage.Licensing.Audit;
 using Metalama.Backstage.Licensing.Consumption;
 using Metalama.Backstage.Maintenance;
@@ -155,6 +156,7 @@ public static class RegisterServiceExtensions
             options );
 
         serviceProviderBuilder.AddSingleton( licenseConsumptionManager );
+        serviceProviderBuilder.AddSingleton<ILicenseRegistrationService>( new LicenseRegistrationService( serviceProviderBuilder.ServiceProvider ) );
     }
 
     public static ServiceProviderBuilder AddBackstageServices(
@@ -234,7 +236,8 @@ public static class RegisterServiceExtensions
         serviceProviderBuilder
             .AddSingleton<IExceptionReporter>( new ExceptionReporter( queue, serviceProviderBuilder.ServiceProvider ) )
             .AddSingleton<ITelemetryUploader>( new TelemetryUploader( serviceProviderBuilder.ServiceProvider ) )
-            .AddSingleton<IUsageReporter>( new UsageReporter( serviceProviderBuilder.ServiceProvider ) );
+            .AddSingleton<IUsageReporter>( new UsageReporter( serviceProviderBuilder.ServiceProvider ) )
+            .AddSingleton<ITelemetryConfigurationService>( new TelemetryConfigurationService( serviceProviderBuilder.ServiceProvider ) );
     }
 
     private static void TryAddProcessManagerService( this ServiceProviderBuilder serviceProviderBuilder )

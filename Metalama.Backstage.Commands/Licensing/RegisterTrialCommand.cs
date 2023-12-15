@@ -1,5 +1,7 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. See the LICENSE.md file in the root directory of this repository root for details.
 
+using Metalama.Backstage.Extensibility;
+using Metalama.Backstage.Licensing;
 using Metalama.Backstage.Licensing.Registration.Evaluation;
 
 namespace Metalama.Backstage.Commands.Licensing;
@@ -8,11 +10,11 @@ internal class RegisterTrialCommand : BaseCommand<BaseCommandSettings>
 {
     protected override void Execute( ExtendedCommandContext context, BaseCommandSettings settings )
     {
-        var registrar = new EvaluationLicenseRegistrar( context.ServiceProvider );
+        var service = context.ServiceProvider.GetRequiredBackstageService<ILicenseRegistrationService>();
 
-        if ( !registrar.TryActivateLicense() )
+        if ( !service.TryRegisterTrialEdition( out var errorMessage ) )
         {
-            throw new CommandException( "Cannot start the trial period." );
+            throw new CommandException( errorMessage );
         }
 
         context.Console.WriteSuccess( "You are now using Metalama Trial." );

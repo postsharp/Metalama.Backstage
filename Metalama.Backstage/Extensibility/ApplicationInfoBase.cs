@@ -4,6 +4,7 @@ using Metalama.Backstage.Diagnostics;
 using Metalama.Backstage.Utilities;
 using System.Collections.Immutable;
 using System.Reflection;
+using ILoggerFactory = Metalama.Backstage.Diagnostics.ILoggerFactory;
 
 namespace Metalama.Backstage.Extensibility
 {

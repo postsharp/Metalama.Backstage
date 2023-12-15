@@ -17,6 +17,7 @@ using System.Net.Mime;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
+using IHttpClientFactory = Metalama.Backstage.Extensibility.IHttpClientFactory;
 
 namespace Metalama.Backstage.Telemetry
 {
@@ -299,10 +300,7 @@ namespace Metalama.Backstage.Telemetry
 
             var processStartInfo = new ProcessStartInfo()
             {
-                FileName = executableFileName,
-                Arguments = arguments,
-                UseShellExecute = true,
-                WindowStyle = ProcessWindowStyle.Hidden
+                FileName = executableFileName, Arguments = arguments, UseShellExecute = true, WindowStyle = ProcessWindowStyle.Hidden
             };
 
             this._logger.Info?.Log( $"Starting '{executableFileName}{(arguments == "" ? "" : " ")}{arguments}'." );
@@ -332,8 +330,10 @@ namespace Metalama.Backstage.Telemetry
                 ? "net6.0"
                 : "netframework4.7.2";
 
-            var workerDirectory =
-                this._tempFileManager.GetTempDirectory( "BackstageWorker", subdirectory: targetFramework, cleanUpStrategy: CleanUpStrategy.WhenUnused );
+            var workerDirectory = this._tempFileManager.GetTempDirectory(
+                "BackstageWorker",
+                subdirectory: targetFramework,
+                cleanUpStrategy: CleanUpStrategy.WhenUnused );
 
             this.ExtractWorker( workerDirectory, targetFramework );
 
