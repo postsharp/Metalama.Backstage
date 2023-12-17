@@ -30,9 +30,9 @@ internal class ProfilingService : IBackstageService
     private readonly ITempFileManager _tempFileManager;
 #endif
 
-    public ProfilingService( IServiceProvider serviceProvider, ProcessKind options )
+    public ProfilingService( IServiceProvider serviceProvider )
     {
-        this._options = options;
+        this._options = serviceProvider.GetRequiredBackstageService<IApplicationInfoProvider>().CurrentApplication.ProcessKind;
         this._configuration = serviceProvider.GetRequiredBackstageService<IConfigurationManager>().Get<DiagnosticsConfiguration>();
         this._logger = serviceProvider.GetLoggerFactory().GetLogger( "Profiling" );
 

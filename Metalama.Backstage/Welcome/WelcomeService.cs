@@ -12,7 +12,7 @@ using System.Diagnostics;
 
 namespace Metalama.Backstage.Welcome;
 
-public class WelcomeService
+public class WelcomeService : IBackstageService
 {
     private readonly IServiceProvider _serviceProvider;
     private readonly ILoggerFactory _loggerFactory;
@@ -22,10 +22,12 @@ public class WelcomeService
     private readonly IProcessExecutor _processExecutor;
     private readonly bool _canIgnoreRecoverableExceptions;
     private readonly IUserInteractionService _userInteractionService;
+    private readonly BackstageInitializationOptions _options;
 
     public WelcomeService( IServiceProvider serviceProvider )
     {
         this._serviceProvider = serviceProvider;
+        this._options = serviceProvider.GetRequiredBackstageService<BackstageInitializationOptionsProvider>().Options;
         this._loggerFactory = serviceProvider.GetLoggerFactory();
         this._logger = this._loggerFactory.GetLogger( "Welcome" );
         this._configurationManager = serviceProvider.GetRequiredBackstageService<IConfigurationManager>();
@@ -68,11 +70,11 @@ public class WelcomeService
         }
     }
 
-    public void ExecuteFirstStartSetup( BackstageInitializationOptions options )
+    public void Initialize()
     {
-        var ignoreUserProfileLicenses = options.LicensingOptions.IgnoreUserProfileLicenses;
-        var isPreviewLicenseEligible = options.ApplicationInfo.IsPreviewLicenseEligible();
-        var isUnattendedProcess = options.ApplicationInfo.IsUnattendedProcess( this._loggerFactory );
+        var ignoreUserProfileLicenses = this._options.LicensingOptions.IgnoreUserProfileLicenses;
+        var isPreviewLicenseEligible = this._options.ApplicationInfo.IsPreviewLicenseEligible();
+        var isUnattendedProcess = this._options.ApplicationInfo.IsUnattendedProcess( this._loggerFactory );
 
         var registerEvaluationLicense = !ignoreUserProfileLicenses
                                         && !isPreviewLicenseEligible
@@ -83,7 +85,7 @@ public class WelcomeService
         this._logger.Trace?.Log( $"{nameof(isUnattendedProcess)}: {isUnattendedProcess}" );
         this._logger.Trace?.Log( $"{nameof(registerEvaluationLicense)}: {registerEvaluationLicense}" );
 
-        this.ExecuteFirstStartSetup( registerEvaluationLicense, options.OpenWelcomePage );
+        this.ExecuteFirstStartSetup( registerEvaluationLicense, this._options.OpenWelcomePage );
     }
 
     public void ExecuteFirstStartSetup( bool registerEvaluationLicense = true, bool openWelcomePage = true )
@@ -139,6 +141,7 @@ public class WelcomeService
                 c => c with
                 {
                     // Enable telemetry except if it has been disabled by the command line.
+                    DeviceId = Guid.NewGuid(),
                     ExceptionReportingAction = c.ExceptionReportingAction == ReportingAction.Ask ? ReportingAction.Yes : c.ExceptionReportingAction,
                     PerformanceProblemReportingAction =
                     c.PerformanceProblemReportingAction == ReportingAction.Ask ? ReportingAction.Yes : c.PerformanceProblemReportingAction,

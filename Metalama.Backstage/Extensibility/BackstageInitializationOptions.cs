@@ -43,5 +43,5 @@ public record BackstageInitializationOptions( IApplicationInfo ApplicationInfo, 
     /// <summary>
     /// Gets an optional action that registers the <see cref="ILoggerFactory"/>. Considered only when <see cref="AddSupportServices"/> is <c>true</c>.
     /// </summary>
-    public Action<ServiceProviderBuilder>? AddLoggerFactoryAction { get; init; }
+    public Func<IServiceProvider, ILoggerFactory>? CreateLoggingFactory { get; init; }
 }

@@ -5,6 +5,8 @@
 		<!-- Packaging -->
 		<PackageDescription>A Metalama package providing licensing, telemetry and other configuration settings for projects using Metalama.</PackageDescription>
         <PackageReadmeFile>README.md</PackageReadmeFile>
+        <MetalamaBackstageDirectory Condition="'$(MetalamaBackstageDirectory)'==''">$(MSBuildProjectDirectory)</MetalamaBackstageDirectory>
+
     </PropertyGroup>
 
     <ItemGroup>
@@ -12,12 +14,32 @@
     </ItemGroup>
 
     <ItemGroup>
+        <PackageReference Include="K4os.Hash.xxHash" Version="1.0.8" />
         <PackageReference Include="System.Collections.Immutable" Version="$(SystemImmutableCollectionsVersion)" />
         <PackageReference Include="JetBrains.Annotations" Version="2022.3.1" PrivateAssets="all" />
         <PackageReference Include="JetBrains.Profiler.SelfApi " Version="2.5.0" Condition="'$(TargetFramework)'!='netstandard2.0'" />
+        <PackageReference Include="Microsoft.Bcl.HashCode" Version="$(MicrosoftBclHashCodeVersion)" />
+        <PackageReference Include="Newtonsoft.Json" Version="$(NewtonsoftJsonVersion)" />
+        <PackageReference Include="System.IO.Packaging" Version="6.0.0" />
     </ItemGroup>
 
-    <Import Project="Metalama.Backstage.Common.props" />
+    <PropertyGroup>
+        <RootNamespace>Metalama.Backstage</RootNamespace>
+        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <None Remove="Telemetry\public.key" />
+        <EmbeddedResource Include="$(MetalamaBackstageDirectory)\Telemetry\public.key"
+                          LogicalName="Metalama.Backstage.Telemetry.public.key" />
+    </ItemGroup>
+    
+
+    <ItemGroup>
+        <InternalsVisibleTo Include="Metalama.Backstage.Tests" />
+        <InternalsVisibleTo Include="Metalama.Backstage.Testing" />
+    </ItemGroup>
+    
     <Import Sdk="PostSharp.Engineering.Sdk" Project="SystemTypes.props" />
 
 </Project>

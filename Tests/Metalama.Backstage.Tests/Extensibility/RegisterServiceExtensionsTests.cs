@@ -14,15 +14,7 @@ namespace Metalama.Backstage.Tests.Extensibility;
 
 public class RegisterServiceExtensionsTests
 {
-    private static ServiceProviderBuilder CreateServiceProviderBuilder()
-    {
-        var serviceCollection = new ServiceCollection();
-
-        return
-            new ServiceProviderBuilder(
-                ( type, instance ) => serviceCollection.AddSingleton( type, instance ),
-                () => serviceCollection.BuildServiceProvider() );
-    }
+    private static ServiceCollectionBuilder CreateServiceCollectionBuilder() => new();
 
     [Theory]
     [InlineData( true, true )]
@@ -38,8 +30,9 @@ public class RegisterServiceExtensionsTests
             LicensingOptions = new LicensingInitializationOptions() { DisableLicenseAudit = disableLicenseAudit }
         };
 
-        var serviceProviderBuilder = CreateServiceProviderBuilder().AddBackstageServices( options );
-        var serviceProvider = serviceProviderBuilder.ServiceProvider;
+        var serviceProviderBuilder = CreateServiceCollectionBuilder();
+        serviceProviderBuilder.AddBackstageServices( options );
+        var serviceProvider = serviceProviderBuilder.ServiceCollection.BuildServiceProvider();
         Assert.NotNull( serviceProvider.GetBackstageService<IPlatformInfo>() );
 
         if ( addLicensing )

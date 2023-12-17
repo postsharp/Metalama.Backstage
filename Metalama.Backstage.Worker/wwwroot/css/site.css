@@ -1,0 +1,32 @@
+html {
+  font-size: 14px;
+}
+
+@media (min-width: 768px) {
+  html {
+    font-size: 16px;
+  }
+}
+
+html {
+  position: relative;
+  min-height: 100%;
+}
+
+body {
+  margin-bottom: 60px;
+  background-color: #130722;
+  color: white;
+}
+
+a {
+  color: white;
+}
+
+div.logo
+{
+  background-image: url("/img/metalama.svg");
+  background-position: center center;
+  background-repeat: no-repeat;
+  height: 200px;
+}

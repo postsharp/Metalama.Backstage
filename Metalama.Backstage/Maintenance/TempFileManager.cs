@@ -27,7 +27,7 @@ public class TempFileManager : ITempFileManager
         this._configurationManager = serviceProvider.GetRequiredBackstageService<IConfigurationManager>();
         this._configuration = this._configurationManager.Get<CleanUpConfiguration>();
         this._fileSystem = serviceProvider.GetRequiredBackstageService<IFileSystem>();
-        this._logger = serviceProvider.GetLoggerFactory().GetLogger( "TempFileManager" );
+        this._logger = serviceProvider.GetRequiredBackstageService<EarlyLoggerFactory>().GetLogger( "Configuration" );
         this._time = serviceProvider.GetRequiredBackstageService<IDateTimeProvider>();
         this._standardDirectories = serviceProvider.GetRequiredBackstageService<IStandardDirectories>();
 

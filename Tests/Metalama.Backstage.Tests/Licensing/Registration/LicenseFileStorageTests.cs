@@ -1,5 +1,7 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. See the LICENSE.md file in the root directory of this repository root for details.
 
+using Metalama.Backstage.Configuration;
+using Metalama.Backstage.Extensibility;
 using Metalama.Backstage.Licensing.Registration;
 using Metalama.Backstage.Testing;
 using Xunit;
@@ -11,6 +13,12 @@ namespace Metalama.Backstage.Tests.Licensing.Registration
     {
         public LicenseFileStorageTests( ITestOutputHelper logger )
             : base( logger ) { }
+
+        protected override void ConfigureServices( ServiceProviderBuilder services )
+        {
+            base.ConfigureServices( services );
+            services.AddSingleton<IConfigurationManager>( serviceProvider => new Configuration.ConfigurationManager( serviceProvider ) );
+        }
 
         private ParsedLicensingConfiguration OpenOrCreateStorage()
         {

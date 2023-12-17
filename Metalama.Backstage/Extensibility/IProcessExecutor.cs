@@ -4,7 +4,7 @@ using System.Diagnostics;
 
 namespace Metalama.Backstage.Extensibility;
 
-internal interface IProcessExecutor : IBackstageService
+public interface IProcessExecutor : IBackstageService
 {
     Process? Start( ProcessStartInfo startInfo );
 }

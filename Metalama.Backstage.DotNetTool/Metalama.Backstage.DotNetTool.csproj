@@ -5,10 +5,11 @@
         <TargetFramework>net6.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
+        <RootNamespace>Metalama.Backstage.Tool</RootNamespace>
     </PropertyGroup>
 
     <ItemGroup>
-      <PackageReference Include="Spectre.Console.Cli" Version="0.45.0" />
+      <PackageReference Include="Spectre.Console.Cli" Version="0.48.0" />
     </ItemGroup>
 
     <ItemGroup>

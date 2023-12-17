@@ -32,17 +32,17 @@ public class CleanUpTests : TestsBase
         { "Tests", CleanUpStrategy.WhenUnused }
     }.ToImmutableDictionary();
 
-    public CleanUpTests( ITestOutputHelper logger ) : base(
-        logger,
-        builder =>
-        {
-            builder
-                .AddSingleton<IApplicationInfoProvider>( new ApplicationInfoProvider( new TestApplicationInfo() ) )
-                .AddConfigurationManager();
-        } )
+    public CleanUpTests( ITestOutputHelper logger ) : base( logger )
     {
         this._standardDirectories = this.ServiceProvider.GetRequiredBackstageService<IStandardDirectories>();
         this.SetupTempDirectory();
+    }
+
+    protected override void ConfigureServices( ServiceProviderBuilder services )
+    {
+        services
+            .AddSingleton<IApplicationInfoProvider>( new ApplicationInfoProvider( new TestApplicationInfo() ) )
+            .AddConfigurationManager();
     }
 
     private void SetupTempDirectory()

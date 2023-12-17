@@ -33,7 +33,6 @@ namespace Metalama.Backstage.Configuration
 
         // Named semaphore to handle many instances.
         private readonly Mutex _mutex;
-        private ILoggerFactory _loggerFactory;
         private volatile int _fileChangeProcessingTaskStatus;
 
         public ConfigurationManager( IServiceProvider serviceProvider )
@@ -46,17 +45,9 @@ namespace Metalama.Backstage.Configuration
             // We pass no logger here, we will be unable to read the log anyway if this throws an exception.
             this._mutex = MutexHelper.OpenOrCreateMutex( $"{this._fileSystem.SynchronizationPrefix}Metalama.Configuration", null );
 
-            // In a production use, the logger factory is created after the configuration manager, so we cannot
-            // report diagnostics while getting the configuration. To work around this problem, we buffer
+            // There is a cyclic dependency between the logger factory and the configuration manager. To work around this problem, we buffer
             // the reported messages and we report them when the real logging service is available.
-            this._loggerFactory = serviceProvider.GetLoggerFactory();
-
-            if ( this._loggerFactory is NullLogger )
-            {
-                this._loggerFactory = new BufferingLoggerFactory();
-            }
-
-            this.Logger = this._loggerFactory.GetLogger( "Configuration" );
+            this.Logger = serviceProvider.GetRequiredBackstageService<EarlyLoggerFactory>().GetLogger( "Configuration" );
 
             this.ApplicationDataDirectory = serviceProvider.GetRequiredBackstageService<IStandardDirectories>().ApplicationDataDirectory;
 
@@ -69,17 +60,6 @@ namespace Metalama.Backstage.Configuration
             {
                 this._fileSystemWatcher = this._fileSystem.WatchChanges( this.ApplicationDataDirectory, "*.json", this.OnFileChanged );
             }
-        }
-
-        public void SetLoggerFactory( ILoggerFactory loggerFactory )
-        {
-            if ( this._loggerFactory is BufferingLoggerFactory bufferingLoggerFactory )
-            {
-                bufferingLoggerFactory.Replay( loggerFactory );
-            }
-
-            this._loggerFactory = loggerFactory;
-            this.Logger = loggerFactory.GetLogger( "Configuration" );
         }
 
         private void OnFileChanged( FileSystemEventArgs e )

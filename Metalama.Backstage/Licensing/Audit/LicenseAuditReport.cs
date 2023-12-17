@@ -1,5 +1,6 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. See the LICENSE.md file in the root directory of this repository root for details.
 
+using K4os.Hash.xxHash;
 using Metalama.Backstage.Configuration;
 using Metalama.Backstage.Extensibility;
 using Metalama.Backstage.Licensing.Licenses;
@@ -7,12 +8,13 @@ using Metalama.Backstage.Telemetry;
 using Metalama.Backstage.Telemetry.Metrics;
 using System;
 using System.Globalization;
+using System.Text;
 
 namespace Metalama.Backstage.Licensing.Audit;
 
 internal class LicenseAuditReport : MetricsBase
 {
-    public int AuditHashCode { get; }
+    public ulong AuditHashCode { get; }
 
     public IComponentInfo ReportedComponent { get; }
 
@@ -37,12 +39,12 @@ internal class LicenseAuditReport : MetricsBase
         var userHash = LicenseCryptography.ComputeStringHash64( Environment.UserName );
         var machineHash = LicenseCryptography.ComputeStringHash64( telemetryConfiguration.DeviceId.ToString() );
 
-        HashCode auditHashCodeBuilder = default;
+        var auditHashCodeBuilder = new XXH64();
 
         void AddToMetricsAndHashCode( Metric metric )
         {
             this.Metrics.Add( metric );
-            auditHashCodeBuilder.Add( metric.ToString() );
+            auditHashCodeBuilder.Update( Encoding.UTF8.GetBytes( metric.ToString() ?? "" ) );
         }
 
         // Audit date is not part of the audit hash code. 
@@ -55,7 +57,7 @@ internal class LicenseAuditReport : MetricsBase
         AddToMetricsAndHashCode( new BoolMetric( "CEIP", usageReporter.IsUsageReportingEnabled ) );
         AddToMetricsAndHashCode( new StringMetric( "ApplicationName", this.ReportedComponent.Name ) );
 
-        this.AuditHashCode = auditHashCodeBuilder.ToHashCode();
+        this.AuditHashCode = auditHashCodeBuilder.Digest();
     }
 
     /// <summary>

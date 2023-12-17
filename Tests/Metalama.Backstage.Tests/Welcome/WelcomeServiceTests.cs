@@ -9,6 +9,7 @@ using Metalama.Backstage.Licensing.Licenses;
 using Metalama.Backstage.Telemetry;
 using Metalama.Backstage.Testing;
 using Metalama.Backstage.Welcome;
+using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -24,13 +25,16 @@ public class WelcomeServiceTests : TestsBase
 
     private readonly TestApplicationInfo _applicationInfo;
 
-    public WelcomeServiceTests( ITestOutputHelper logger ) : base(
-        logger,
-        builder => builder
-            .AddSingleton<IEnvironmentVariableProvider>( new TestEnvironmentVariableProvider() )
-            .AddSingleton<IApplicationInfoProvider>( new ApplicationInfoProvider( new TestApplicationInfo() ) ) )
+    public WelcomeServiceTests( ITestOutputHelper logger ) : base( logger )
     {
         this._applicationInfo = (TestApplicationInfo) this.ServiceProvider.GetRequiredBackstageService<IApplicationInfoProvider>().CurrentApplication;
+    }
+
+    protected override void ConfigureServices( ServiceProviderBuilder services )
+    {
+        services
+            .AddSingleton<IEnvironmentVariableProvider>( new TestEnvironmentVariableProvider() )
+            .AddSingleton<IApplicationInfoProvider>( new ApplicationInfoProvider( new TestApplicationInfo() ) );
     }
 
     [Theory]
@@ -44,16 +48,6 @@ public class WelcomeServiceTests : TestsBase
         bool isUnattendedProcess,
         bool expectLicenseRegistered )
     {
-        ILicense? GetLicense()
-        {
-            var licenseSource = new UserProfileLicenseSource( this.ServiceProvider );
-            var messages = new List<LicensingMessage>();
-            var license = licenseSource.GetLicense( m => messages.Add( m ) );
-            Assert.Empty( messages );
-
-            return license;
-        }
-
         this._applicationInfo.IsPrerelease = isPrerelease;
         this._applicationInfo.IsUnattendedProcess = isUnattendedProcess;
 
@@ -62,8 +56,21 @@ public class WelcomeServiceTests : TestsBase
             LicensingOptions = new LicensingInitializationOptions { IgnoreUserProfileLicenses = ignoreUserProfileLicenses }
         };
 
-        var welcomeService = new WelcomeService( this.ServiceProvider );
-        welcomeService.ExecuteFirstStartSetup( options );
+        var serviceCollection = this.CreateServiceCollection( options: options );
+        var serviceProvider = serviceCollection.BuildServiceProvider();
+
+        ILicense? GetLicense()
+        {
+            var licenseSource = new UserProfileLicenseSource( serviceProvider );
+            var messages = new List<LicensingMessage>();
+            var license = licenseSource.GetLicense( m => messages.Add( m ) );
+            Assert.Empty( messages );
+
+            return license;
+        }
+
+        var welcomeService = new WelcomeService( serviceProvider );
+        welcomeService.Initialize();
 
         var license = GetLicense();
 
@@ -75,7 +82,7 @@ public class WelcomeServiceTests : TestsBase
             Assert.Equal( LicenseType.Evaluation, data!.LicenseType );
 
             // Unregister the license before second run.
-            this.ConfigurationManager.Update<LicensingConfiguration>( c => c with { License = null } );
+            serviceProvider.GetRequiredBackstageService<IConfigurationManager>().Update<LicensingConfiguration>( c => c with { License = null } );
         }
         else
         {
@@ -83,8 +90,8 @@ public class WelcomeServiceTests : TestsBase
         }
 
         // Second run
-        welcomeService = new WelcomeService( this.ServiceProvider );
-        welcomeService.ExecuteFirstStartSetup( options );
+        welcomeService = new WelcomeService( serviceProvider );
+        welcomeService.Initialize();
         license = GetLicense();
         Assert.Null( license );
     }
@@ -98,13 +105,13 @@ public class WelcomeServiceTests : TestsBase
     {
         void SetTelemetry( ReportingAction action )
         {
-            this.ConfigurationManager.Update<TelemetryConfiguration>(
+            this.ConfigurationManager!.Update<TelemetryConfiguration>(
                 c => c with { ExceptionReportingAction = action, UsageReportingAction = action, PerformanceProblemReportingAction = action } );
         }
 
         void CheckTelemetry( ReportingAction expectedAction )
         {
-            var telemetryConfiguration = this.ConfigurationManager.Get<TelemetryConfiguration>();
+            var telemetryConfiguration = this.ConfigurationManager!.Get<TelemetryConfiguration>();
             var testedPropertiesCount = 0;
 
             foreach ( var property in telemetryConfiguration.GetType().GetProperties() )
@@ -160,7 +167,7 @@ public class WelcomeServiceTests : TestsBase
         welcomeService.ExecuteFirstStartSetup( registerEvaluationLicense );
 
         void AssertNotOpened() => Assert.Empty( this.ProcessExecutor.StartedProcesses );
-        
+
         if ( !shouldBeOpened )
         {
             AssertNotOpened();

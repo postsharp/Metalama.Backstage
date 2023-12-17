@@ -25,14 +25,16 @@ public static class BackstageServiceFactory
             {
                 _serviceProvider.GetLoggerFactory()
                     .GetLogger( "BackstageServiceFactory" )
-                    .Trace?.Log( $"Support services initialization requested from {caller}. The services are initialized already." );
+                    .Trace?.Log( $"Support services initialization requested from {caller}. The services are already initialized." );
 
                 return false;
             }
 
-            _serviceProvider = new ServiceProviderBuilder()
-                .AddBackstageServices( options )
-                .ServiceProvider;
+            var serviceProviderBuilder = new SimpleServiceProviderBuilder();
+            serviceProviderBuilder.AddBackstageServices( options );
+
+            _serviceProvider = serviceProviderBuilder.ServiceProvider;
+            _serviceProvider.GetRequiredBackstageService<BackstageServicesInitializer>().Initialize();
 
             _serviceProvider.GetLoggerFactory()
                 .GetLogger( "BackstageServiceFactory" )

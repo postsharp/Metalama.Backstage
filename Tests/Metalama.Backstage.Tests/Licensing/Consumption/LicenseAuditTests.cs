@@ -5,6 +5,7 @@ using Metalama.Backstage.Licensing;
 using Metalama.Backstage.Licensing.Audit;
 using Metalama.Backstage.Testing;
 using Metalama.Backstage.Tests.Licensing.Licenses;
+using Metalama.Backstage.Welcome;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -16,9 +17,20 @@ namespace Metalama.Backstage.Tests.Licensing.Consumption;
 
 public class LicenseAuditTests : LicenseConsumptionManagerTestsBase
 {
-    public LicenseAuditTests( ITestOutputHelper logger ) : base(
-        logger,
-        serviceBuilder => serviceBuilder.AddSingleton<ILicenseAuditManager>( new LicenseAuditManager( serviceBuilder.ServiceProvider ) ) ) { }
+    public LicenseAuditTests( ITestOutputHelper logger ) : base( logger )
+    {
+        // Make sure that the telemetry configuration is initialized so we get a stable DeviceId.
+        this.ServiceProvider.GetRequiredBackstageService<BackstageServicesInitializer>().Initialize();
+    }
+
+    protected override void ConfigureServices( ServiceProviderBuilder services )
+    {
+        base.ConfigureServices( services );
+
+        services.AddSingleton<ILicenseAuditManager>( serviceProvider => new LicenseAuditManager( serviceProvider ) );
+        services.AddSingleton( serviceProvider => new BackstageServicesInitializer( serviceProvider ) );
+        services.AddSingleton( serviceProvider => new WelcomeService( serviceProvider ) );
+    }
 
     private TestLicense CreateAndConsumeLicense( string licenseKey )
     {

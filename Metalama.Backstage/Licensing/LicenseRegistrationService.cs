@@ -3,6 +3,7 @@
 using Metalama.Backstage.Licensing.Licenses;
 using Metalama.Backstage.Licensing.Registration;
 using Metalama.Backstage.Licensing.Registration.Evaluation;
+using Metalama.Backstage.Licensing.Registration.Free;
 using System;
 using System.Diagnostics.CodeAnalysis;
 
@@ -19,9 +20,9 @@ internal class LicenseRegistrationService : ILicenseRegistrationService
 
     public bool TryRegisterFreeEdition( [NotNullWhen( false )] out string? errorMessage )
     {
-        var registrar = new EvaluationLicenseRegistrar( this._serviceProvider );
+        var registrar = new FreeLicenseRegistrar( this._serviceProvider );
 
-        if ( !registrar.TryActivateLicense() )
+        if ( !registrar.TryRegisterLicense() )
         {
             errorMessage = "Cannot activate Metalama Free.";
 

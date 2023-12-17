@@ -2,7 +2,6 @@
 
 using Metalama.Backstage.Extensibility;
 using Metalama.Backstage.Licensing;
-using Metalama.Backstage.Licensing.Registration.Free;
 
 namespace Metalama.Backstage.Commands.Licensing;
 

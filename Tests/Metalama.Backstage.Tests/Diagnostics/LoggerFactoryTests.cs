@@ -17,13 +17,13 @@ namespace Metalama.Backstage.Tests.Diagnostics;
 
 public class LoggerFactoryTests : TestsBase
 {
-    public LoggerFactoryTests( ITestOutputHelper logger ) : base(
-        logger,
-        builder =>
-        {
-            builder.AddSingleton<IApplicationInfoProvider>( new ApplicationInfoProvider( new TestApplicationInfo() ) );
-            builder.AddSingleton<ITempFileManager>( new TempFileManager( builder.ServiceProvider ) );
-        } ) { }
+    public LoggerFactoryTests( ITestOutputHelper logger ) : base( logger ) { }
+
+    protected override void ConfigureServices( ServiceProviderBuilder services )
+    {
+        services.AddSingleton<IApplicationInfoProvider>( new ApplicationInfoProvider( new TestApplicationInfo() ) );
+        services.AddSingleton<ITempFileManager>( serviceProvider => new TempFileManager( serviceProvider ) );
+    }
 
     [Fact]
     public void Test()

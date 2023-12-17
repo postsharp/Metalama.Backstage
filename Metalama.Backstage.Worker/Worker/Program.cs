@@ -23,8 +23,7 @@ internal static class Program
 
 #pragma warning disable ASP0000
         var serviceProviderBuilder = new ServiceProviderBuilder(
-            ( type, instance ) => serviceCollection.Add( new ServiceDescriptor( type, instance ) ),
-            () => serviceCollection.BuildServiceProvider() );
+            ( type, instance ) => serviceCollection.Add( new ServiceDescriptor( type, instance, ServiceLifetime.Singleton ) ) );
 #pragma warning restore ASP0000
 
         var initializationOptions =
@@ -32,7 +31,9 @@ internal static class Program
 
         serviceProviderBuilder.AddBackstageServices( initializationOptions );
 
-        var serviceProvider = serviceProviderBuilder.ServiceProvider;
+#pragma warning disable ASP0000
+        var serviceProvider = serviceCollection.BuildServiceProvider();
+#pragma warning restore ASP0000
         _canIgnoreRecoverableExceptions = serviceProvider.GetRequiredBackstageService<IRecoverableExceptionService>().CanIgnore;
 
         try
@@ -111,7 +112,7 @@ internal static class Program
 
         try
         {
-            var log = serviceProvider?.GetLoggerFactory().Telemetry().Error;
+            var log = serviceProvider?.GetLoggerFactory().GetLogger( "BackstageWorker" ).Error;
 
             if ( log != null )
             {

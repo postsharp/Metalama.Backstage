@@ -14,14 +14,16 @@ namespace Metalama.Backstage.Tests.MiniDump;
 
 public class MiniDumpTests : TestsBase
 {
-    public MiniDumpTests( ITestOutputHelper logger ) : base(
-        logger,
-        builder =>
-            builder
-                .AddSingleton<IApplicationInfoProvider>( new ApplicationInfoProvider( new TestApplicationInfo() ) )
-                .AddSingleton<IConfigurationManager>( new InMemoryConfigurationManager( builder.ServiceProvider ) )
-                .AddSingleton<ITempFileManager>( new TempFileManager( builder.ServiceProvider ) )
-                .AddSingleton<IPlatformInfo>( new PlatformInfo( builder.ServiceProvider, null ) ) ) { }
+    public MiniDumpTests( ITestOutputHelper logger ) : base( logger ) { }
+
+    protected override void ConfigureServices( ServiceProviderBuilder services )
+    {
+        services
+            .AddSingleton<IApplicationInfoProvider>( new ApplicationInfoProvider( new TestApplicationInfo() ) )
+            .AddSingleton<IConfigurationManager>( serviceProvider => new InMemoryConfigurationManager( serviceProvider ) )
+            .AddSingleton<ITempFileManager>( serviceProvider => new TempFileManager( serviceProvider ) )
+            .AddSingleton<IPlatformInfo>( serviceProvider => new PlatformInfo( serviceProvider, null ) );
+    }
 
     [Fact( Skip = "Required dotnet dump on the build agent." )]
     public void WhenWriteFileExists()

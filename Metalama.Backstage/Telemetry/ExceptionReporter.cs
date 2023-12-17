@@ -236,7 +236,8 @@ internal class ExceptionReporter : IExceptionReporter, IDisposable
                 ? this._configuration.ExceptionReportingAction
                 : this._configuration.PerformanceProblemReportingAction;
 
-            if ( reportingAction != ReportingAction.Yes )
+            // Telemetry is opt out, i.e. we report even if the user did not specifically opt in.
+            if ( reportingAction == ReportingAction.No )
             {
                 this._logger.Trace?.Log( $"The issue will not be reported because the reporting action in the user profile is set to {reportingAction}." );
 

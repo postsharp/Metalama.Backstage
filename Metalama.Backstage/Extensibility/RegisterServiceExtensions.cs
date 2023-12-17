@@ -31,6 +31,16 @@ public static class RegisterServiceExtensions
         return serviceProviderBuilder;
     }
 
+    internal static ServiceProviderBuilder AddSingleton<T>(
+        this ServiceProviderBuilder serviceProviderBuilder,
+        Func<IServiceProvider, T> func )
+        where T : IBackstageService
+    {
+        serviceProviderBuilder.AddService( typeof(T), serviceProvider => func( serviceProvider ) );
+
+        return serviceProviderBuilder;
+    }
+
     /// <summary>
     /// Adds a service providing current date and time using <see cref="DateTime.Now" /> to the specified <see cref="ServiceProviderBuilder" />.
     /// </summary>
@@ -61,7 +71,7 @@ public static class RegisterServiceExtensions
     /// <param name="serviceProviderBuilder">The <see cref="ServiceProviderBuilder" /> to add services to.</param>
     /// <returns>The <see cref="ServiceProviderBuilder" /> so that additional calls can be chained.</returns>
     private static ServiceProviderBuilder AddRecoverableExceptionService( this ServiceProviderBuilder serviceProviderBuilder )
-        => serviceProviderBuilder.AddSingleton<IRecoverableExceptionService>( new RecoverableExceptionService( serviceProviderBuilder.ServiceProvider ) );
+        => serviceProviderBuilder.AddSingleton<IRecoverableExceptionService>( serviceProvider => new RecoverableExceptionService( serviceProvider ) );
 
     /// <summary>
     /// Adds a service providing paths of standard directories to the specified <see cref="ServiceProviderBuilder" />.
@@ -76,34 +86,37 @@ public static class RegisterServiceExtensions
         ProcessKind processKind,
         string? projectName = null )
     {
-        var serviceProvider = serviceProviderBuilder.ServiceProvider;
+        serviceProviderBuilder.AddSingleton<ILoggerFactory>(
+            serviceProvider =>
+            {
+                var dateTimeProvider = serviceProvider.GetRequiredBackstageService<IDateTimeProvider>();
 
-        var dateTimeProvider = serviceProvider.GetRequiredBackstageService<IDateTimeProvider>();
+                var configurationManager = serviceProvider.GetRequiredBackstageService<IConfigurationManager>();
+                var configuration = configurationManager.Get<DiagnosticsConfiguration>();
 
-        var configurationManager = serviceProvider.GetRequiredBackstageService<IConfigurationManager>();
-        var configuration = configurationManager.Get<DiagnosticsConfiguration>();
+                DebuggerHelper.Launch( configuration, processKind );
 
-        DebuggerHelper.Launch( configuration, processKind );
+                // Automatically stop logging after a while.
+                if ( configuration.LastModified != null &&
+                     configuration.LastModified < dateTimeProvider.Now.AddHours( -configuration.Logging.StopLoggingAfterHours ) )
+                {
+                    configurationManager.UpdateIf<DiagnosticsConfiguration>(
+                        c => c.Logging.Processes.Any( p => p.Value ),
+                        c => c with { Logging = c.Logging with { Processes = c.Logging.Processes.ToImmutableDictionary( x => x.Key, _ => false ) } } );
 
-        // Automatically stop logging after a while.
-        if ( configuration.LastModified != null &&
-             configuration.LastModified < dateTimeProvider.Now.AddHours( -configuration.Logging.StopLoggingAfterHours ) )
-        {
-            configurationManager.UpdateIf<DiagnosticsConfiguration>(
-                c => c.Logging.Processes.Any( p => p.Value ),
-                c => c with { Logging = c.Logging with { Processes = c.Logging.Processes.ToImmutableDictionary( x => x.Key, _ => false ) } } );
+                    configuration = configurationManager.Get<DiagnosticsConfiguration>();
+                }
 
-            configuration = configurationManager.Get<DiagnosticsConfiguration>();
-        }
+                var applicationInfo = serviceProvider.GetRequiredBackstageService<IApplicationInfoProvider>().CurrentApplication;
 
-        var applicationInfo = serviceProvider.GetRequiredBackstageService<IApplicationInfoProvider>().CurrentApplication;
-        var loggerFactory = new LoggerFactory( serviceProvider, configuration, applicationInfo.ProcessKind, projectName );
+                var loggerFactory = new LoggerFactory( serviceProvider, configuration, applicationInfo.ProcessKind, projectName );
 
-        serviceProviderBuilder.AddSingleton<ILoggerFactory>( loggerFactory );
+                serviceProvider.GetBackstageService<EarlyLoggerFactory>()?.Replace( loggerFactory );
 
-        (configurationManager as ConfigurationManager)?.SetLoggerFactory( loggerFactory );
+                return loggerFactory;
+            } );
 
-        new ProfilingService( serviceProviderBuilder.ServiceProvider, processKind ).Initialize();
+        serviceProviderBuilder.AddSingleton( serviceProvider => new ProfilingService( serviceProvider ) );
 
         return serviceProviderBuilder;
     }
@@ -127,19 +140,19 @@ public static class RegisterServiceExtensions
             .AddSingleton<IHttpClientFactory>( new HttpClientFactory() )
             .AddConfigurationManager();
 
-        serviceProviderBuilder.AddSingleton<ITempFileManager>( new TempFileManager( serviceProviderBuilder.ServiceProvider ) );
+        serviceProviderBuilder.AddSingleton<ITempFileManager>( serviceProvider => new TempFileManager( serviceProvider ) );
 
         return serviceProviderBuilder;
     }
 
     internal static ServiceProviderBuilder AddConfigurationManager( this ServiceProviderBuilder serviceProviderBuilder )
-        => serviceProviderBuilder.AddSingleton<IConfigurationManager>( new ConfigurationManager( serviceProviderBuilder.ServiceProvider ) );
+        => serviceProviderBuilder.AddSingleton<IConfigurationManager>( serviceProvider => new ConfigurationManager( serviceProvider ) );
 
     private static void AddPlatformInfo(
         this ServiceProviderBuilder serviceProviderBuilder,
         string? dotnetSdkDirectory )
     {
-        serviceProviderBuilder.AddSingleton<IPlatformInfo>( new PlatformInfo( serviceProviderBuilder.ServiceProvider, dotnetSdkDirectory ) );
+        serviceProviderBuilder.AddSingleton<IPlatformInfo>( serviceProvider => new PlatformInfo( serviceProvider, dotnetSdkDirectory ) );
     }
 
     private static void AddLicensing(
@@ -148,23 +161,20 @@ public static class RegisterServiceExtensions
     {
         if ( !options.DisableLicenseAudit )
         {
-            serviceProviderBuilder.AddSingleton<ILicenseAuditManager>( new LicenseAuditManager( serviceProviderBuilder.ServiceProvider ) );
+            serviceProviderBuilder.AddSingleton<ILicenseAuditManager>( serviceProvider => new LicenseAuditManager( serviceProvider ) );
         }
 
-        var licenseConsumptionManager = LicenseConsumptionServiceFactory.Create(
-            serviceProviderBuilder.ServiceProvider,
-            options );
-
-        serviceProviderBuilder.AddSingleton( licenseConsumptionManager );
-        serviceProviderBuilder.AddSingleton<ILicenseRegistrationService>( new LicenseRegistrationService( serviceProviderBuilder.ServiceProvider ) );
+        serviceProviderBuilder.AddSingleton( serviceProvider => LicenseConsumptionServiceFactory.Create( serviceProvider, options ) );
+        serviceProviderBuilder.AddSingleton<ILicenseRegistrationService>( serviceProvider => new LicenseRegistrationService( serviceProvider ) );
     }
 
-    public static ServiceProviderBuilder AddBackstageServices(
-        this ServiceProviderBuilder serviceProviderBuilder,
-        BackstageInitializationOptions options )
+    public static ServiceProviderBuilder AddBackstageServices( this ServiceProviderBuilder serviceProviderBuilder, BackstageInitializationOptions options )
     {
         // Add base services.
         var applicationInfo = options.ApplicationInfo;
+
+        serviceProviderBuilder.AddSingleton( new BackstageInitializationOptionsProvider( options ) );
+        serviceProviderBuilder.AddSingleton( new EarlyLoggerFactory() );
 
         serviceProviderBuilder = serviceProviderBuilder
             .AddDiagnosticsRequirements( applicationInfo );
@@ -172,27 +182,25 @@ public static class RegisterServiceExtensions
         // Add diagnostics.
         if ( options.AddSupportServices )
         {
-            if ( options.AddLoggerFactoryAction == null )
+            if ( options.CreateLoggingFactory == null )
             {
                 serviceProviderBuilder = serviceProviderBuilder
                     .AddDiagnostics( applicationInfo.ProcessKind, options.ProjectName );
-
-                var serviceProvider = serviceProviderBuilder.ServiceProvider;
-
-                // First-run configuration. This must be done before initializing licensing and telemetry.
-                var welcomeService = new WelcomeService( serviceProvider );
-                welcomeService.ExecuteFirstStartSetup( options );
             }
             else
             {
-                options.AddLoggerFactoryAction( serviceProviderBuilder );
+                serviceProviderBuilder.AddSingleton<ILoggerFactory>(
+                    serviceProvider =>
+                    {
+                        var loggerFactory = options.CreateLoggingFactory( serviceProvider );
+                        serviceProvider.GetBackstageService<EarlyLoggerFactory>()?.Replace( loggerFactory );
 
-                var configurationManager = serviceProviderBuilder.ServiceProvider.GetBackstageService<IConfigurationManager>();
-
-                (configurationManager as ConfigurationManager)?.SetLoggerFactory(
-                    serviceProviderBuilder.ServiceProvider.GetRequiredBackstageService<ILoggerFactory>() );
+                        return loggerFactory;
+                    } );
             }
         }
+
+        serviceProviderBuilder.AddSingleton( serviceProvider => new WelcomeService( serviceProvider ) );
 
         // Add platform info.
         serviceProviderBuilder.AddPlatformInfo( options.DotNetSdkDirectory );
@@ -206,7 +214,7 @@ public static class RegisterServiceExtensions
         // Add support services.
         if ( options.AddSupportServices )
         {
-            serviceProviderBuilder.AddService( typeof(IMiniDumper), new MiniDumper( serviceProviderBuilder.ServiceProvider ) );
+            serviceProviderBuilder.AddService( typeof(IMiniDumper), serviceProvider => new MiniDumper( serviceProvider ) );
 
             serviceProviderBuilder.AddTelemetryServices();
         }
@@ -225,34 +233,34 @@ public static class RegisterServiceExtensions
             serviceProviderBuilder.AddLicensing( options.LicensingOptions );
         }
 
+        serviceProviderBuilder.AddSingleton( serviceProvider => new BackstageServicesInitializer( serviceProvider ) );
+
         return serviceProviderBuilder;
     }
 
     internal static void AddTelemetryServices( this ServiceProviderBuilder serviceProviderBuilder )
     {
         // Add telemetry.
-        var queue = new TelemetryQueue( serviceProviderBuilder.ServiceProvider );
-
         serviceProviderBuilder
-            .AddSingleton<IExceptionReporter>( new ExceptionReporter( queue, serviceProviderBuilder.ServiceProvider ) )
-            .AddSingleton<ITelemetryUploader>( new TelemetryUploader( serviceProviderBuilder.ServiceProvider ) )
-            .AddSingleton<IUsageReporter>( new UsageReporter( serviceProviderBuilder.ServiceProvider ) )
-            .AddSingleton<ITelemetryConfigurationService>( new TelemetryConfigurationService( serviceProviderBuilder.ServiceProvider ) );
+            .AddSingleton<IExceptionReporter>( serviceProvider => new ExceptionReporter( new TelemetryQueue( serviceProvider ), serviceProvider ) )
+            .AddSingleton<ITelemetryUploader>( serviceProvider => new TelemetryUploader( serviceProvider ) )
+            .AddSingleton<IUsageReporter>( serviceProvider => new UsageReporter( serviceProvider ) )
+            .AddSingleton<ITelemetryConfigurationService>( serviceProvider => new TelemetryConfigurationService( serviceProvider ) );
     }
 
     private static void TryAddProcessManagerService( this ServiceProviderBuilder serviceProviderBuilder )
     {
         if ( RuntimeInformation.IsOSPlatform( OSPlatform.Windows ) )
         {
-            serviceProviderBuilder.AddSingleton<IProcessManager>( new WindowsProcessManager( serviceProviderBuilder.ServiceProvider ) );
+            serviceProviderBuilder.AddSingleton<IProcessManager>( serviceProvider => new WindowsProcessManager( serviceProvider ) );
         }
         else if ( RuntimeInformation.IsOSPlatform( OSPlatform.Linux ) )
         {
-            serviceProviderBuilder.AddSingleton<IProcessManager>( new LinuxProcessManager( serviceProviderBuilder.ServiceProvider ) );
+            serviceProviderBuilder.AddSingleton<IProcessManager>( serviceProvider => new LinuxProcessManager( serviceProvider ) );
         }
         else if ( RuntimeInformation.IsOSPlatform( OSPlatform.OSX ) )
         {
-            serviceProviderBuilder.AddSingleton<IProcessManager>( new MacProcessManager( serviceProviderBuilder.ServiceProvider ) );
+            serviceProviderBuilder.AddSingleton<IProcessManager>( serviceProvider => new MacProcessManager( serviceProvider ) );
         }
         else
         {

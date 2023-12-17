@@ -1,6 +1,5 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. See the LICENSE.md file in the root directory of this repository root for details.
 
-using Metalama.Backstage.Extensibility;
 using Metalama.Backstage.Licensing.Licenses;
 using Metalama.Backstage.Licensing.Registration;
 using Metalama.Backstage.Licensing.Registration.Evaluation;
@@ -16,12 +15,7 @@ namespace Metalama.Backstage.Tests.Licensing.Evaluation
 
         private EvaluationLicenseRegistrar Registrar { get; }
 
-        private protected EvaluationLicenseRegistrationTestsBase(
-            ITestOutputHelper logger,
-            Action<ServiceProviderBuilder>? serviceBuilder = null ) :
-            base(
-                logger,
-                serviceCollection => serviceBuilder?.Invoke( serviceCollection ) )
+        private protected EvaluationLicenseRegistrationTestsBase( ITestOutputHelper logger ) : base( logger )
         {
             this.Registrar = new EvaluationLicenseRegistrar( this.ServiceProvider );
         }
