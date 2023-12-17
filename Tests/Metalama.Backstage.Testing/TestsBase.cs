@@ -8,7 +8,7 @@ using Metalama.Backstage.Infrastructure;
 using Metalama.Backstage.Licensing;
 using Metalama.Backstage.Maintenance;
 using Metalama.Backstage.Telemetry;
-using Metalama.Backstage.Utilities;
+using Metalama.Backstage.UserInterface;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using System;
@@ -42,7 +42,7 @@ namespace Metalama.Backstage.Testing
 
         public TestProcessExecutor ProcessExecutor { get; } = new();
 
-        public TestUserInteractionService UserInteraction { get; } = new();
+        public TestUserDeviceDetectionService UserDeviceDetection { get; } = new();
 
         protected IServiceCollection CloneServiceCollection()
         {
@@ -95,7 +95,7 @@ namespace Metalama.Backstage.Testing
                 .AddSingleton<IFileSystem>( serviceProvider => this.FileSystem ?? new TestFileSystem( serviceProvider ) )
                 .AddSingleton<IEnvironmentVariableProvider>( this.EnvironmentVariableProvider )
                 .AddSingleton<IRecoverableExceptionService>( new TestRecoverableExceptionService() )
-                .AddSingleton<IUserInteractionService>( this.UserInteraction )
+                .AddSingleton<IUserDeviceDetectionService>( this.UserDeviceDetection )
                 .AddSingleton<ITelemetryUploader>( this.TelemetryUploader )
                 .AddSingleton<IUsageReporter>( this.UsageReporter )
                 .AddSingleton<IConfigurationManager>( serviceProvider => new InMemoryConfigurationManager( serviceProvider ) )

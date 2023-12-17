@@ -10,6 +10,7 @@ using Metalama.Backstage.Licensing.Consumption;
 using Metalama.Backstage.Maintenance;
 using Metalama.Backstage.Telemetry;
 using Metalama.Backstage.Tools;
+using Metalama.Backstage.UserInterface;
 using Metalama.Backstage.Utilities;
 using Metalama.Backstage.Welcome;
 using System;
@@ -135,7 +136,7 @@ public static class RegisterServiceExtensions
             .AddEnvironmentVariableProvider()
             .AddRecoverableExceptionService()
             .AddSingleton<IApplicationInfoProvider>( new ApplicationInfoProvider( applicationInfo ) )
-            .AddSingleton<IUserInteractionService>( new UserInteractionService() )
+            .AddSingleton<IUserDeviceDetectionService>( serviceProvider => new WindowsUserDeviceDetectionService( serviceProvider ) )
             .AddCurrentDateTimeProvider()
             .AddFileSystem()
             .AddStandardDirectories()
@@ -233,6 +234,23 @@ public static class RegisterServiceExtensions
 
             serviceProviderBuilder.AddService( typeof(IBackstageToolsExecutor), serviceProvider => new BackstageToolsExecutor( serviceProvider ) );
             options.AddToolsExtractor?.Invoke( serviceProviderBuilder );
+        }
+
+        // Add user interface.
+        if ( options.AddUserInterface )
+        {
+            if ( RuntimeInformation.IsOSPlatform( OSPlatform.Windows ) )
+            {
+                serviceProviderBuilder.AddService(
+                    typeof(IToastNotificationService),
+                    serviceProvider => new WindowsToastNotificationService( serviceProvider ) );
+
+                serviceProviderBuilder.AddService( typeof(IUserInterfaceService), serviceProvider => new WindowsUserInterfaceService( serviceProvider ) );
+            }
+            else
+            {
+                // TODO: on other OSes we may support a purely browser-based UI.
+            }
         }
 
         // Add process management service.

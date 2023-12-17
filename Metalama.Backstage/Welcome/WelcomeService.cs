@@ -6,8 +6,8 @@ using Metalama.Backstage.Diagnostics;
 using Metalama.Backstage.Extensibility;
 using Metalama.Backstage.Infrastructure;
 using Metalama.Backstage.Licensing;
-using Metalama.Backstage.Licensing.Registration.Evaluation;
 using Metalama.Backstage.Telemetry;
+using Metalama.Backstage.UserInterface;
 using Metalama.Backstage.Utilities;
 using System;
 using System.Diagnostics;
@@ -23,7 +23,7 @@ public class WelcomeService : IBackstageService
     private readonly WelcomeConfiguration _welcomeConfiguration;
     private readonly IProcessExecutor _processExecutor;
     private readonly bool _canIgnoreRecoverableExceptions;
-    private readonly IUserInteractionService _userInteractionService;
+    private readonly IUserDeviceDetectionService _userDeviceDetectionService;
     private readonly BackstageInitializationOptions _options;
 
     public WelcomeService( IServiceProvider serviceProvider )
@@ -36,7 +36,7 @@ public class WelcomeService : IBackstageService
         this._welcomeConfiguration = this._configurationManager.Get<WelcomeConfiguration>();
         this._processExecutor = serviceProvider.GetRequiredBackstageService<IProcessExecutor>();
         this._canIgnoreRecoverableExceptions = serviceProvider.GetRequiredBackstageService<IRecoverableExceptionService>().CanIgnore;
-        this._userInteractionService = serviceProvider.GetRequiredBackstageService<IUserInteractionService>();
+        this._userDeviceDetectionService = serviceProvider.GetRequiredBackstageService<IUserDeviceDetectionService>();
     }
 
     private void ExecuteOnce(
@@ -87,50 +87,25 @@ public class WelcomeService : IBackstageService
         this._logger.Trace?.Log( $"{nameof(isUnattendedProcess)}: {isUnattendedProcess}" );
         this._logger.Trace?.Log( $"{nameof(registerEvaluationLicense)}: {registerEvaluationLicense}" );
 
-        this.ExecuteFirstStartSetup( registerEvaluationLicense, this._options.OpenWelcomePage );
+        this.ExecuteFirstStartSetup( this._options.OpenWelcomePage );
     }
 
-    public void ExecuteFirstStartSetup( bool registerEvaluationLicense = true, bool openWelcomePage = true )
+    public void ExecuteFirstStartSetup( bool openWelcomePage = true )
     {
-        if ( registerEvaluationLicense )
-        {
-            this.ExecuteOnce(
-                this.RegisterEvaluationLicense,
-                nameof(this.RegisterEvaluationLicense),
-                c => c.IsFirstTimeEvaluationLicenseRegistrationPending,
-                c => c with { IsFirstTimeEvaluationLicenseRegistrationPending = false } );
-        }
-
         this.ExecuteOnce(
             this.ActivateTelemetry,
             nameof(this.ActivateTelemetry),
             c => c.IsFirstStart,
             c => c with { IsFirstStart = false } );
 
-        if ( openWelcomePage )
+        if ( openWelcomePage && this._userDeviceDetectionService.IsInteractiveDevice )
         {
-            // To reduce the chance of opening the page in an unattended virtual machine, we
-            // don't open it if there has been no recent user interaction. We also skip monitors
-            // smaller than 1280 pixels since this is likely to be an unattended or test VM.
-            var hasRecentUserInput = this._userInteractionService.GetLastInputTime() is null or { TotalMinutes: < 15 };
-            var hasLargeMonitor = this._userInteractionService.GetTotalMonitorWidth() is null or >= 1280;
-            this._logger.Trace?.Log( $"HasRecentUserInput={hasRecentUserInput}, HasLargeMonitor={hasLargeMonitor}" );
-
-            if ( hasRecentUserInput && hasLargeMonitor )
-            {
-                this.ExecuteOnce(
-                    this.OpenWelcomePage,
-                    nameof(this.OpenWelcomePage),
-                    c => c.IsWelcomePagePending,
-                    c => c with { IsWelcomePagePending = false } );
-            }
+            this.ExecuteOnce(
+                this.OpenWelcomePage,
+                nameof(this.OpenWelcomePage),
+                c => c.IsWelcomePagePending,
+                c => c with { IsWelcomePagePending = false } );
         }
-    }
-
-    private void RegisterEvaluationLicense()
-    {
-        var evaluationLicenseRegistrar = new EvaluationLicenseRegistrar( this._serviceProvider );
-        evaluationLicenseRegistrar.TryActivateLicense();
     }
 
     private void ActivateTelemetry()

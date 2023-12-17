@@ -2,6 +2,7 @@
 
 using Metalama.Backstage.Diagnostics;
 using Metalama.Backstage.Telemetry;
+using Metalama.Backstage.UserInterface;
 using Metalama.Backstage.Welcome;
 using System;
 
@@ -18,10 +19,14 @@ internal sealed class BackstageServicesInitializer : IBackstageService
 
     public void Initialize()
     {
+        // TODO: Not sure that WelcomeService is still useful.
         this._serviceProvider.GetBackstageService<WelcomeService>()?.Initialize();
+
         this._serviceProvider.GetBackstageService<ProfilingService>()?.Initialize();
 
         // The license manager may enqueue a file but be unable to start the process.
         this._serviceProvider.GetBackstageService<TelemetryUploader>()?.StartUpload();
+
+        this._serviceProvider.GetBackstageService<IUserInterfaceService>()?.Initialize();
     }
 }

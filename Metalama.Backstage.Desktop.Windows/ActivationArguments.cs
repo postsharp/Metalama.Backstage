@@ -6,7 +6,7 @@ namespace Metalama.Backstage.Desktop.Windows;
 
 internal class ActivationArguments
 {
-    private string _options;
+    private readonly string _options;
 
     public ActivationArguments( BaseSettings settings )
     {

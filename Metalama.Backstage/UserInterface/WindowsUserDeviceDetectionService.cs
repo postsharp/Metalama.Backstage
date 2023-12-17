@@ -1,6 +1,14 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. See the LICENSE.md file in the root directory of this repository root for details.
 
+using Metalama.Backstage.Diagnostics;
+using Metalama.Backstage.Utilities;
 using System;
+
+#if NETCOREAPP || NETFRAMEWORK
+using Microsoft.Win32;
+using System.Globalization;
+#endif
+
 using System.Runtime.InteropServices;
 
 // ReSharper disable IdentifierTypo
@@ -8,10 +16,19 @@ using System.Runtime.InteropServices;
 #pragma warning disable CS0649 // Field is never assigned to, and will always have its default value
 #pragma warning disable SA1401
 
-namespace Metalama.Backstage.Utilities;
+namespace Metalama.Backstage.UserInterface;
 
-internal class UserInteractionService : IUserInteractionService
+internal class WindowsUserDeviceDetectionService : IUserDeviceDetectionService
 {
+    private readonly ILogger _logger;
+    private readonly ILoggerFactory _loggerFactory;
+
+    public WindowsUserDeviceDetectionService( IServiceProvider serviceProvider )
+    {
+        this._loggerFactory = serviceProvider.GetLoggerFactory();
+        this._logger = this._loggerFactory.GetLogger( nameof(WindowsUserDeviceDetectionService) );
+    }
+
     [StructLayout( LayoutKind.Sequential )]
     private struct LastInputInfo
     {
@@ -49,7 +66,7 @@ internal class UserInteractionService : IUserInteractionService
         public uint Flags;
     }
 
-    public int? GetTotalMonitorWidth()
+    private static int? GetTotalMonitorWidth()
     {
         try
         {
@@ -80,7 +97,7 @@ internal class UserInteractionService : IUserInteractionService
     }
 
     // Method to get the last input time in seconds
-    public TimeSpan? GetLastInputTime()
+    private static TimeSpan? GetLastInputTime()
     {
         try
         {
@@ -100,6 +117,71 @@ internal class UserInteractionService : IUserInteractionService
         catch
         {
             return null;
+        }
+    }
+
+    public bool IsInteractiveDevice
+    {
+        get
+        {
+            if ( !ProcessUtilities.IsCurrentProcessUnattended( this._loggerFactory ) )
+            {
+                return false;
+            }
+
+            // To reduce the chance of opening a UI in an unattended virtual machine, we
+            // don't open it if there has been no recent user interaction. We also skip monitors
+            // smaller than 1280 pixels since this is likely to be an unattended or test VM.
+
+/* Unmerged change from project 'Metalama.Backstage'
+Before:
+            var hasRecentUserInput = this.GetLastInputTime() is null or { TotalMinutes: < 15 };
+After:
+            var hasRecentUserInput = GetLastInputTime() is null or { TotalMinutes: < 15 };
+*/
+            var hasRecentUserInput = GetLastInputTime() is null or { TotalMinutes: < 15 };
+
+/* Unmerged change from project 'Metalama.Backstage'
+Before:
+            var hasLargeMonitor = this.GetTotalMonitorWidth() is null or >= 1280;
+After:
+            var hasLargeMonitor = GetTotalMonitorWidth() is null or >= 1280;
+*/
+            var hasLargeMonitor = GetTotalMonitorWidth() is null or >= 1280;
+            this._logger.Trace?.Log( $"HasRecentUserInput={hasRecentUserInput}, HasLargeMonitor={hasLargeMonitor}" );
+
+            return hasRecentUserInput && hasLargeMonitor;
+        }
+    }
+
+    public bool? IsVisualStudioInstalled
+    {
+        get
+        {
+#if NETCOREAPP || NETFRAMEWORK
+
+#pragma warning disable CA1416
+            using var key = Registry.LocalMachine.OpenSubKey( @"SOFTWARE\WOW6432Node\Microsoft\VisualStudio" );
+
+            if ( key == null )
+            {
+                return false;
+            }
+
+            foreach ( var keyName in key.GetSubKeyNames() )
+            {
+                if ( decimal.TryParse( keyName, NumberStyles.Any, CultureInfo.InvariantCulture, out var version ) && version >= 17 )
+                {
+                    return true;
+                }
+            }
+#pragma warning restore CA1416
+
+            return false;
+
+#else
+            return null;
+#endif
         }
     }
 }

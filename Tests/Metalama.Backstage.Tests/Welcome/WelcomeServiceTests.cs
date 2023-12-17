@@ -4,16 +4,10 @@ using Metalama.Backstage.Application;
 using Metalama.Backstage.Configuration;
 using Metalama.Backstage.Extensibility;
 using Metalama.Backstage.Infrastructure;
-using Metalama.Backstage.Licensing;
-using Metalama.Backstage.Licensing.Consumption;
-using Metalama.Backstage.Licensing.Consumption.Sources;
-using Metalama.Backstage.Licensing.Licenses;
 using Metalama.Backstage.Telemetry;
 using Metalama.Backstage.Testing;
 using Metalama.Backstage.Welcome;
-using Microsoft.Extensions.DependencyInjection;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using Xunit;
 using Xunit.Abstractions;
@@ -22,9 +16,6 @@ namespace Metalama.Backstage.Tests.Welcome;
 
 public class WelcomeServiceTests : TestsBase
 {
-    private const int _maxRecentUserInteractionMinutes = 14;
-    private const int _minLargeScreenWidth = 1280;
-
     private readonly TestApplicationInfo _applicationInfo;
 
     public WelcomeServiceTests( ITestOutputHelper logger ) : base( logger )
@@ -40,70 +31,9 @@ public class WelcomeServiceTests : TestsBase
     }
 
     [Theory]
-    [InlineData( false, false, false, true )]
-    [InlineData( true, false, false, false )]
-    [InlineData( false, true, false, false )]
-    [InlineData( false, false, true, false )]
-    public void EvaluationLicenseIsRegisteredOnFirstRun(
-        bool ignoreUserProfileLicenses,
-        bool isPrerelease,
-        bool isUnattendedProcess,
-        bool expectLicenseRegistered )
-    {
-        this._applicationInfo.IsPrerelease = isPrerelease;
-        this._applicationInfo.IsUnattendedProcess = isUnattendedProcess;
-
-        var options = new BackstageInitializationOptions( this._applicationInfo, "TestProject" )
-        {
-            LicensingOptions = new LicensingInitializationOptions { IgnoreUserProfileLicenses = ignoreUserProfileLicenses }
-        };
-
-        var serviceCollection = this.CreateServiceCollection( options: options );
-        var serviceProvider = serviceCollection.BuildServiceProvider();
-
-        ILicense? GetLicense()
-        {
-            var licenseSource = new UserProfileLicenseSource( serviceProvider );
-            var messages = new List<LicensingMessage>();
-            var license = licenseSource.GetLicense( m => messages.Add( m ) );
-            Assert.Empty( messages );
-
-            return license;
-        }
-
-        var welcomeService = new WelcomeService( serviceProvider );
-        welcomeService.Initialize();
-
-        var license = GetLicense();
-
-        if ( expectLicenseRegistered )
-        {
-            Assert.NotNull( license );
-            Assert.True( license!.TryGetLicenseConsumptionData( out var data, out var errorMessage ) );
-            Assert.Null( errorMessage );
-            Assert.Equal( LicenseType.Evaluation, data!.LicenseType );
-
-            // Unregister the license before second run.
-            serviceProvider.GetRequiredBackstageService<IConfigurationManager>().Update<LicensingConfiguration>( c => c with { License = null } );
-        }
-        else
-        {
-            Assert.Null( license );
-        }
-
-        // Second run
-        welcomeService = new WelcomeService( serviceProvider );
-        welcomeService.Initialize();
-        license = GetLicense();
-        Assert.Null( license );
-    }
-
-    [Theory]
-    [InlineData( true, true )]
-    [InlineData( true, false )]
-    [InlineData( false, true )]
-    [InlineData( false, false )]
-    public void TelemetryIsConfigured( bool registerEvaluationLicense, bool isTelemetryDisabled )
+    [InlineData( true )]
+    [InlineData( false )]
+    public void TelemetryIsConfigured( bool isTelemetryDisabled )
     {
         void SetTelemetry( ReportingAction action )
         {
@@ -134,7 +64,7 @@ public class WelcomeServiceTests : TestsBase
         }
 
         var welcomeService = new WelcomeService( this.ServiceProvider );
-        welcomeService.ExecuteFirstStartSetup( registerEvaluationLicense );
+        welcomeService.ExecuteFirstStartSetup();
         CheckTelemetry( isTelemetryDisabled ? ReportingAction.No : ReportingAction.Yes );
 
         // Reset telemetry before second run
@@ -142,31 +72,24 @@ public class WelcomeServiceTests : TestsBase
 
         // Second run
         welcomeService = new WelcomeService( this.ServiceProvider );
-        welcomeService.ExecuteFirstStartSetup( registerEvaluationLicense );
+        welcomeService.ExecuteFirstStartSetup();
         CheckTelemetry( ReportingAction.Ask );
     }
 
     [Theory]
-    [InlineData( true, true, _maxRecentUserInteractionMinutes, _minLargeScreenWidth, true )]
-    [InlineData( true, false, _maxRecentUserInteractionMinutes, _minLargeScreenWidth, true )]
-    [InlineData( false, true, _maxRecentUserInteractionMinutes, _minLargeScreenWidth, true )]
-    [InlineData( false, false, _maxRecentUserInteractionMinutes, _minLargeScreenWidth, true )]
-    [InlineData( true, false, _maxRecentUserInteractionMinutes + 1, _minLargeScreenWidth, false )]
-    [InlineData( true, false, _maxRecentUserInteractionMinutes, _minLargeScreenWidth - 1, false )]
-    [InlineData( true, false, _maxRecentUserInteractionMinutes + 1, _minLargeScreenWidth - 1, false )]
+    [InlineData( true, true, true )]
+    [InlineData( false, true, true )]
+    [InlineData( false, false, false )]
     public void IsWelcomePageOpenedOnFirstRun(
-        bool registerEvaluationLicense,
         bool isPrerelease,
-        int? lastInputTimeMinutes,
-        int? totalMonitorWidth,
+        bool isUserInteractive,
         bool shouldBeOpened )
     {
         this._applicationInfo.IsPrerelease = isPrerelease;
-        this.UserInteraction.LastInputTime = lastInputTimeMinutes == null ? null : TimeSpan.FromMinutes( lastInputTimeMinutes.Value );
-        this.UserInteraction.TotalMonitorWidth = totalMonitorWidth;
+        this.UserDeviceDetection.IsInteractiveDevice = isUserInteractive;
 
         var welcomeService = new WelcomeService( this.ServiceProvider );
-        welcomeService.ExecuteFirstStartSetup( registerEvaluationLicense );
+        welcomeService.ExecuteFirstStartSetup();
 
         void AssertNotOpened() => Assert.Empty( this.ProcessExecutor.StartedProcesses );
 
@@ -194,7 +117,7 @@ public class WelcomeServiceTests : TestsBase
 
         // Second run
         welcomeService = new WelcomeService( this.ServiceProvider );
-        welcomeService.ExecuteFirstStartSetup( registerEvaluationLicense );
+        welcomeService.ExecuteFirstStartSetup();
 
         AssertNotOpened();
     }

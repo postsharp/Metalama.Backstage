@@ -5,6 +5,7 @@ using Metalama.Backstage.Extensibility;
 using Metalama.Backstage.Licensing.Audit;
 using Metalama.Backstage.Licensing.Consumption.Sources;
 using Metalama.Backstage.Licensing.Licenses;
+using Metalama.Backstage.UserInterface;
 using System;
 using System.Collections.Generic;
 
@@ -20,10 +21,13 @@ internal partial class LicenseConsumptionService
         private readonly Dictionary<string, NamespaceLicenseInfo> _embeddedRedistributionLicensesCache = new();
         private readonly LicenseConsumptionData? _license;
         private readonly NamespaceLicenseInfo? _licensedNamespace;
+        private readonly IUserInterfaceService? _userInterfaceService;
 
         public ImmutableImpl( IServiceProvider services, IReadOnlyList<ILicenseSource> licenseSources )
         {
             this._logger = services.GetLoggerFactory().Licensing();
+            this._userInterfaceService = services.GetBackstageService<IUserInterfaceService>();
+
             this._licenseFactory = new LicenseFactory( services );
 
             foreach ( var source in licenseSources )
@@ -66,6 +70,9 @@ internal partial class LicenseConsumptionService
 
                 return;
             }
+
+            // If we get here, it means that we don't have a valid license.
+            this._userInterfaceService?.OnLicenseMissing();
         }
 
         private void ReportMessage( LicensingMessage message )
@@ -101,8 +108,10 @@ internal partial class LicenseConsumptionService
             {
                 this.ReportMessage(
                     new LicensingMessage(
-                        $"Project '{consumerProjectName}' is not licensed. Your license is limited to project names beginning with '{this._licensedNamespace.AllowedNamespace}'.",
-                        true ) );
+                        $"Project '{consumerProjectName}' is not licensed. Your license is limited to project names beginning with '{this._licensedNamespace.AllowedNamespace}'." )
+                    {
+                        IsError = true
+                    } );
 
                 return false;
             }
@@ -124,14 +133,14 @@ internal partial class LicenseConsumptionService
             {
                 if ( !this._licenseFactory.TryCreate( redistributionLicenseKey, out var license, out var errorMessage ) )
                 {
-                    this.ReportMessage( new LicensingMessage( errorMessage, true ) );
+                    this.ReportMessage( new LicensingMessage( errorMessage ) { IsError = true } );
 
                     return false;
                 }
 
                 if ( !license.TryGetLicenseConsumptionData( out var licenseConsumptionData, out errorMessage ) )
                 {
-                    this.ReportMessage( new LicensingMessage( errorMessage, true ) );
+                    this.ReportMessage( new LicensingMessage( errorMessage ) { IsError = true } );
 
                     return false;
                 }

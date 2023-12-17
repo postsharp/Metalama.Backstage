@@ -54,8 +54,10 @@ internal sealed class PreviewLicenseSource : ILicenseSource, ILicense
 
             reportMessage(
                 new LicensingMessage(
-                    $"Your preview build of {latestPrereleaseComponent.Name} {latestPrereleaseComponent.Version} has expired on {latestPrereleaseComponent.BuildDate!.Value.AddDays( PreviewLicensePeriod ):d}. To continue using {latestPrereleaseComponent.Name}, update it to a newer preview build, register a license key, or switch to Metalama Free. See https://postsharp.net/links/metalama-register-license for details.",
-                    true ) );
+                    $"Your preview build of {latestPrereleaseComponent.Name} {latestPrereleaseComponent.Version} has expired on {latestPrereleaseComponent.BuildDate!.Value.AddDays( PreviewLicensePeriod ):d}. To continue using {latestPrereleaseComponent.Name}, update it to a newer preview build, register a license key, or switch to Metalama Free. See https://postsharp.net/links/metalama-register-license for details." )
+                {
+                    IsError = true
+                } );
 
             this._messageReported = true;
 
