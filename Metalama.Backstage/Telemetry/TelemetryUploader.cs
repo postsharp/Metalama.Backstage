@@ -3,8 +3,9 @@
 using Metalama.Backstage.Configuration;
 using Metalama.Backstage.Diagnostics;
 using Metalama.Backstage.Extensibility;
-using Metalama.Backstage.Program;
 using Metalama.Backstage.Utilities;
+using Metalama.Backstage.Infrastructure;
+using Metalama.Backstage.Tools;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -15,7 +16,7 @@ using System.Net.Mime;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
-using IHttpClientFactory = Metalama.Backstage.Extensibility.IHttpClientFactory;
+using IHttpClientFactory = Metalama.Backstage.Infrastructure.IHttpClientFactory;
 
 namespace Metalama.Backstage.Telemetry
 {
@@ -247,9 +248,9 @@ namespace Metalama.Backstage.Telemetry
         /// <inheritdoc />
         public void StartUpload( bool force = false )
         {
-            var workerProgram = this._serviceProvider.GetBackstageService<IWorkerProgram>();
+            var toolExecutor = this._serviceProvider.GetBackstageService<IBackstageToolsExecutor>();
 
-            if ( workerProgram == null )
+            if ( toolExecutor == null )
             {
                 this._logger.Trace?.Log( $"Do not upload now because there is no IWorkerProgram service." );
 
@@ -271,7 +272,7 @@ namespace Metalama.Backstage.Telemetry
                 return;
             }
 
-            workerProgram.Start( "upload" );
+            toolExecutor.Start( BackstageTool.Worker, "upload" );
         }
 
         internal static string ComputeHash( string packageName )

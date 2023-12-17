@@ -3,6 +3,7 @@
 // ReSharper disable StringLiteralTypo
 
 using Metalama.Backstage.Extensibility;
+using Metalama.Backstage.Infrastructure;
 using System;
 using System.Collections.Generic;
 using System.IO;

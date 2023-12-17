@@ -4,10 +4,20 @@ using Metalama.Backstage.Desktop.Windows.Commands;
 
 namespace Metalama.Backstage.Desktop.Windows;
 
-internal static class ActivationArguments
+internal class ActivationArguments
 {
-    public const string VsxInstall = "activate " + InstallVsxCommand.Name;
-    public const string VsxForget = "activate " + SnoozeVsxNotificationCommand.Name;
-    public const string VsxSnooze = "activate " + SnoozeVsxNotificationCommand.Name;
-    public const string LicenseActivate = "license/activate";
+    private string _options;
+
+    public ActivationArguments( BaseSettings settings )
+    {
+        this._options = settings.IsDevelopmentEnvironment ? "--dev" : "";
+    }
+
+    public string VsxInstall => $"activate {InstallVsxCommand.Name} {this._options}";
+
+    public string VsxForget => $"activate {SnoozeVsxNotificationCommand.Name} {this._options}";
+
+    public string VsxSnooze => $"activate {SnoozeVsxNotificationCommand.Name} {this._options}";
+
+    public string Setup => $"activate {SetupWizardCommand.Name} {this._options}";
 }

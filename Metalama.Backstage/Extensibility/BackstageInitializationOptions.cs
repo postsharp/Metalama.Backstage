@@ -1,6 +1,7 @@
 // Copyright (c) SharpCrafters s.r.o. See the LICENSE.md file in the root directory of this repository root for details.
 
 using JetBrains.Annotations;
+using Metalama.Backstage.Application;
 using Metalama.Backstage.Diagnostics;
 using Metalama.Backstage.Licensing.Consumption;
 using System;
@@ -34,6 +35,16 @@ public record BackstageInitializationOptions( IApplicationInfo ApplicationInfo, 
     /// Gets a value indicating whether licensing services should be registered.
     /// </summary>
     public bool AddLicensing { get; init; }
+
+    public bool AddUserInterface { get; init; }
+
+    /// <summary>
+    /// Gets a value indicating whether the current program executes from a development environment,
+    /// i.e. tools are located under the bin directory of their respective projects. 
+    /// </summary>
+    public bool IsDevelopmentEnvironment { get; init; }
+
+    public Action<ServiceProviderBuilder>? AddToolsExtractor { get; init; }
 
     /// <summary>
     /// Gets the licensing options, when <see cref="AddLicensing"/> is <c>true</c>.

@@ -4,4 +4,8 @@ using Spectre.Console.Cli;
 
 namespace Metalama.Backstage.Desktop.Windows.Commands;
 
-public class BaseSettings : CommandSettings { }
+public class BaseSettings : CommandSettings
+{
+    [CommandOption( "--dev" )]
+    public bool IsDevelopmentEnvironment { get; init; }
+}

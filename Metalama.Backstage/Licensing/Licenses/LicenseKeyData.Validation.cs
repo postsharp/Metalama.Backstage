@@ -1,6 +1,7 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. See the LICENSE.md file in the root directory of this repository root for details.
 
-using Metalama.Backstage.Extensibility;
+using Metalama.Backstage.Application;
+using Metalama.Backstage.Infrastructure;
 using Metalama.Backstage.Licensing.Licenses.LicenseFields;
 using System;
 using System.Diagnostics.CodeAnalysis;
@@ -29,10 +30,10 @@ namespace Metalama.Backstage.Licensing.Licenses
             if ( this.LicenseId is not 0 and < 20 )
             {
                 errorDescription = "has been revoked";
-            
+
                 return false;
             }
-            
+
             if ( !this.VerifySignature() )
             {
                 errorDescription = "has invalid signature";

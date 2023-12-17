@@ -1,12 +1,15 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. See the LICENSE.md file in the root directory of this repository root for details.
 
+using Metalama.Backstage.Application;
 using Metalama.Backstage.Configuration;
 using Metalama.Backstage.Diagnostics;
+using Metalama.Backstage.Infrastructure;
 using Metalama.Backstage.Licensing;
 using Metalama.Backstage.Licensing.Audit;
 using Metalama.Backstage.Licensing.Consumption;
 using Metalama.Backstage.Maintenance;
 using Metalama.Backstage.Telemetry;
+using Metalama.Backstage.Tools;
 using Metalama.Backstage.Utilities;
 using Metalama.Backstage.Welcome;
 using System;
@@ -200,8 +203,6 @@ public static class RegisterServiceExtensions
             }
         }
 
-        serviceProviderBuilder.AddSingleton( serviceProvider => new WelcomeService( serviceProvider ) );
-
         // Add platform info.
         serviceProviderBuilder.AddPlatformInfo( options.DotNetSdkDirectory );
 
@@ -215,8 +216,23 @@ public static class RegisterServiceExtensions
         if ( options.AddSupportServices )
         {
             serviceProviderBuilder.AddService( typeof(IMiniDumper), serviceProvider => new MiniDumper( serviceProvider ) );
-
             serviceProviderBuilder.AddTelemetryServices();
+        }
+
+        // Add tools.
+        if ( options.AddSupportServices || options.AddUserInterface )
+        {
+            if ( options.IsDevelopmentEnvironment )
+            {
+                serviceProviderBuilder.AddService( typeof(IBackstageToolsLocator), serviceProvider => new DevBackstageToolsLocator() );
+            }
+            else
+            {
+                serviceProviderBuilder.AddService( typeof(IBackstageToolsLocator), serviceProvider => new BackstageToolsLocator( serviceProvider ) );
+            }
+
+            serviceProviderBuilder.AddService( typeof(IBackstageToolsExecutor), serviceProvider => new BackstageToolsExecutor( serviceProvider ) );
+            options.AddToolsExtractor?.Invoke( serviceProviderBuilder );
         }
 
         // Add process management service.
@@ -233,6 +249,8 @@ public static class RegisterServiceExtensions
             serviceProviderBuilder.AddLicensing( options.LicensingOptions );
         }
 
+        // Add initialization services.
+        serviceProviderBuilder.AddSingleton( serviceProvider => new WelcomeService( serviceProvider ) );
         serviceProviderBuilder.AddSingleton( serviceProvider => new BackstageServicesInitializer( serviceProvider ) );
 
         return serviceProviderBuilder;

@@ -1,6 +1,7 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. See the LICENSE.md file in the root directory of this repository root for details.
 
 using Metalama.Backstage.Extensibility;
+using Metalama.Backstage.Infrastructure;
 using Metalama.Backstage.Telemetry;
 using Metalama.Backstage.Testing;
 using Metalama.Backstage.Tools;
@@ -35,7 +36,7 @@ public class TelemetryUploaderTests : TestsBase
                     new TestHttpClientFactory( new TelemetryTestsPutMessageHandler( serviceProvider, _feedbackDirectory ) ) )
             .AddTelemetryServices();
 
-        services.AddPrograms();
+        services.AddTools();
     }
 
     private async Task AssertUploadedAsync( bool uploadedFileExpected )

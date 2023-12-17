@@ -16,8 +16,16 @@
     </ItemGroup>
 
     <ItemGroup>
-        <EmbeddedResource Include="..\Metalama.Backstage.Worker\bin\Metalama.Backstage.Worker.net6.0.zip" />
+        <EmbeddedResource Include="..\Metalama.Backstage.Worker\bin\Metalama.Backstage.Worker.zip" />
+        
         <ProjectReference Include="..\Metalama.Backstage.Worker\Metalama.Backstage.Worker.csproj"
+                          ReferenceOutputAssembly="false"
+                          SkipGetTargetFrameworkProperties="true"
+                          PrivateAssets="all" />
+
+        <EmbeddedResource Include="..\Metalama.Backstage.Desktop.Windows\bin\Metalama.Backstage.Desktop.Windows.zip" />
+        
+        <ProjectReference Include="..\Metalama.Backstage.Desktop.Windows\Metalama.Backstage.Desktop.Windows.csproj"
                           ReferenceOutputAssembly="false"
                           SkipGetTargetFrameworkProperties="true"
                           PrivateAssets="all" />

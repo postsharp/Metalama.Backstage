@@ -17,10 +17,12 @@ public sealed class NotificationCommand : Command<NotificationCommandSettings>
         var logoPath = Path.Combine( Path.GetDirectoryName( Environment.GetCommandLineArgs()[0] )!, "logo.png" );
         builder.AddInlineImage( new Uri( "file:///" + logoPath ) );
 
+        var activationArguments = new ActivationArguments( settings );
+
         switch ( settings.Kind )
         {
             case ToastNotificationKind.RequiresLicense:
-                builder.AddArgument( ActivationArguments.LicenseActivate );
+                builder.AddArgument( activationArguments.Setup );
 
                 builder.AddVisualChild( new AdaptiveText() { Text = "Activate Metalama", HintStyle = AdaptiveTextStyle.Title } );
 
@@ -35,14 +37,14 @@ public sealed class NotificationCommand : Command<NotificationCommandSettings>
                         HintStyle = AdaptiveTextStyle.Body
                     } );
 
-                builder.AddButton( "Activate", ToastActivationType.Foreground, ActivationArguments.LicenseActivate );
+                builder.AddButton( "Activate", ToastActivationType.Foreground, activationArguments.Setup );
 
                 builder.SetToastScenario( ToastScenario.Alarm );
 
                 break;
 
             case ToastNotificationKind.VsxNotInstalled:
-                builder.AddArgument( ActivationArguments.VsxInstall );
+                builder.AddArgument( activationArguments.VsxInstall );
 
                 builder.AddVisualChild( new AdaptiveText() { Text = "Install Metalama Tools for Visual Studio", HintStyle = AdaptiveTextStyle.Header } );
 
@@ -56,9 +58,9 @@ public sealed class NotificationCommand : Command<NotificationCommandSettings>
                         HintMinLines = 4
                     } );
 
-                builder.AddButton( "Install", ToastActivationType.Foreground, ActivationArguments.VsxInstall );
-                builder.AddButton( "Later", ToastActivationType.Foreground, ActivationArguments.VsxSnooze );
-                builder.AddButton( "Never", ToastActivationType.Foreground, ActivationArguments.VsxForget );
+                builder.AddButton( "Install", ToastActivationType.Foreground, activationArguments.VsxInstall );
+                builder.AddButton( "Later", ToastActivationType.Foreground, activationArguments.VsxSnooze );
+                builder.AddButton( "Never", ToastActivationType.Foreground, activationArguments.VsxForget );
 
                 break;
         }

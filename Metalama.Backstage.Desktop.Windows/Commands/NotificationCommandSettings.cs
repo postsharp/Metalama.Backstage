@@ -5,7 +5,7 @@ using Spectre.Console.Cli;
 
 namespace Metalama.Backstage.Desktop.Windows.Commands;
 
-public class NotificationCommandSettings : CommandSettings
+public class NotificationCommandSettings : BaseSettings
 {
     [CommandArgument( 0, "<kind>" )]
     public ToastNotificationKind Kind { get; set; }

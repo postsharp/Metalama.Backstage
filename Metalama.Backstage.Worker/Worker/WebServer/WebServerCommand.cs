@@ -3,8 +3,11 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Hosting;
 using Spectre.Console.Cli;
+using System.Diagnostics;
+using System.IO;
 using System.Threading.Tasks;
 
 namespace Metalama.Backstage.Worker.WebServer;
@@ -34,7 +37,20 @@ internal class WebServerCommand : AsyncCommand<WebServerCommandSettings>
 
         app.UseCors();
         app.UseHttpsRedirection();
-        app.UseStaticFiles();
+
+        // If the program was started from the wrong directory, fix the path of static files.
+        var contentRootPath = builder.Environment.ContentRootPath;
+
+        if ( !Directory.Exists( Path.Combine( contentRootPath, "wwwroot" ) ) )
+        {
+            var binaryDirectory = Path.GetDirectoryName( this.GetType().Assembly.Location );
+            contentRootPath = Path.Combine( binaryDirectory, "wwwroot" );
+            app.UseStaticFiles( new StaticFileOptions() { FileProvider = new PhysicalFileProvider( contentRootPath ) } );
+        }
+        else
+        {
+            app.UseStaticFiles();
+        }
 
         // Configure the HTTP request pipeline.
         if ( !app.Environment.IsDevelopment() )
@@ -44,9 +60,6 @@ internal class WebServerCommand : AsyncCommand<WebServerCommandSettings>
             // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
             app.UseHsts();
         }
-
-        app.UseHttpsRedirection();
-        app.UseStaticFiles();
 
         app.UseRouting();
         app.UseAuthorization();

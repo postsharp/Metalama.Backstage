@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace Metalama.Backstage.Extensibility;
 
-public class SimpleServiceProviderBuilder : ServiceProviderBuilder
+internal class SimpleServiceProviderBuilder : ServiceProviderBuilder
 {
     /// <summary>
     /// Initializes a new instance of the <see cref="SimpleServiceProviderBuilder"/> class.

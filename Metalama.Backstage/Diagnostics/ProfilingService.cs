@@ -4,6 +4,7 @@
 #define PROFILING_ENABLED
 #endif
 
+using Metalama.Backstage.Application;
 using Metalama.Backstage.Configuration;
 using Metalama.Backstage.Extensibility;
 using System;
