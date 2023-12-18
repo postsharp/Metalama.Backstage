@@ -2,7 +2,6 @@
 
 using Metalama.Backstage.Commands;
 using Metalama.Backstage.Diagnostics;
-using Metalama.Backstage.Extensibility;
 using Metalama.Backstage.Testing;
 using Spectre.Console;
 using Spectre.Console.Cli;

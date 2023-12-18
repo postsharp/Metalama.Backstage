@@ -2,15 +2,15 @@
 
 using Metalama.Backstage.Extensibility;
 using Metalama.Backstage.UserInterface;
-using System.Threading.Tasks;
 
 namespace Metalama.Backstage.Commands;
 
-public class WebUICommand : BaseAsyncCommand<BaseCommandSettings>
+public class DocsCommand : BaseCommand<BaseCommandSettings>
 {
-    protected override Task ExecuteAsync( ExtendedCommandContext context, BaseCommandSettings settings )
+    protected override void Execute( ExtendedCommandContext context, BaseCommandSettings settings )
     {
-        return context.ServiceProvider.GetRequiredBackstageService<IUserInterfaceService>().OpenConfigurationWebPageAsync( "/" );
+        var links = context.ServiceProvider.GetRequiredBackstageService<WebLinks>();
+        context.ServiceProvider.GetRequiredBackstageService<IUserInterfaceService>().OpenExternalWebPage( links.Documentation, BrowserMode.Default );
     }
 
     protected override BackstageInitializationOptions AddBackstageOptions( BackstageInitializationOptions options ) => options with { AddUserInterface = true };

@@ -2,11 +2,11 @@
 
     <PropertyGroup>
         <MetalamaBackstageDirectory>$(MSBuildProjectDirectory)\..\Metalama.Backstage</MetalamaBackstageDirectory>
-        <IsWorkerBuild>true</IsWorkerBuild>
         <OutputType>exe</OutputType>
         <RootNamespace>Metalama.Backstage</RootNamespace>
         <Nullable>enable</Nullable>
-        <IsPackable>true</IsPackable>
+        <IsPackable>false</IsPackable>
+        <WarnOnPackingNonPackableProject>false</WarnOnPackingNonPackableProject>
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
         <!-- Embedded pdb seems to be incompatible with `dotnet pack`. -->
         <DebugType>portable</DebugType>

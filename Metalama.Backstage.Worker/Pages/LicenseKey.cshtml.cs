@@ -11,11 +11,13 @@ using System.Linq;
 
 namespace Metalama.Backstage.Pages;
 
+#pragma warning disable SA1649
 public class LicenseKeyPageModel : PageModel
 {
-    private ILicenseRegistrationService _licenseRegistrationService;
+    private readonly ILicenseRegistrationService _licenseRegistrationService;
 
-    public LicenseKeyPageModel( ILicenseRegistrationService licenseRegistrationService ) {
+    public LicenseKeyPageModel( ILicenseRegistrationService licenseRegistrationService )
+    {
         this._licenseRegistrationService = licenseRegistrationService;
     }
 
@@ -26,7 +28,7 @@ public class LicenseKeyPageModel : PageModel
         get => GlobalState.LicenseKey;
         set => GlobalState.LicenseKey = value;
     }
-    
+
     public List<string> ErrorMessages { get; } = new();
 
     public IActionResult OnPost()
@@ -37,7 +39,7 @@ public class LicenseKeyPageModel : PageModel
 
             return this.Page();
         }
-        
+
         if ( !this._licenseRegistrationService.TryValidateLicenseKey( this.LicenseKey!, out var errorMessage ) )
         {
             this.ErrorMessages.Add( errorMessage );
@@ -49,5 +51,4 @@ public class LicenseKeyPageModel : PageModel
             return this.Redirect( "/Consents" );
         }
     }
-    
 }

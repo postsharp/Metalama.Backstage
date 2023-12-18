@@ -1,4 +1,6 @@
-﻿using JetBrains.Annotations;
+﻿// Copyright (c) SharpCrafters s.r.o. See the LICENSE.md file in the root directory of this repository root for details.
+
+using JetBrains.Annotations;
 using Metalama.Backstage.Diagnostics;
 using Metalama.Backstage.Extensibility;
 using Metalama.Backstage.Infrastructure;
@@ -15,8 +17,6 @@ namespace Metalama.Backstage.Commands;
 public abstract class BaseAsyncCommand<T> : AsyncCommand<T>
     where T : BaseCommandSettings
 {
-         
-
 #pragma warning disable CS8765
     public override async Task<int> ExecuteAsync( CommandContext context, T settings )
 #pragma warning restore CS8765
@@ -85,5 +85,6 @@ public abstract class BaseAsyncCommand<T> : AsyncCommand<T>
     }
 
     protected abstract Task ExecuteAsync( ExtendedCommandContext context, T settings );
+
     protected virtual BackstageInitializationOptions AddBackstageOptions( BackstageInitializationOptions options ) => options;
 }
