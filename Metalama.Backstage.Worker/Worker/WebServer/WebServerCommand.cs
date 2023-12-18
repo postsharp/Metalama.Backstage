@@ -2,10 +2,12 @@
 
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Hosting;
 using Spectre.Console.Cli;
+using System;
 using System.IO;
 using System.Threading.Tasks;
 
@@ -42,7 +44,7 @@ internal class WebServerCommand : AsyncCommand<WebServerCommandSettings>
 
         if ( !Directory.Exists( Path.Combine( contentRootPath, "wwwroot" ) ) )
         {
-            var binaryDirectory = Path.GetDirectoryName( this.GetType().Assembly.Location );
+            var binaryDirectory = Path.GetDirectoryName( this.GetType().Assembly.Location )!;
             contentRootPath = Path.Combine( binaryDirectory, "wwwroot" );
             app.UseStaticFiles( new StaticFileOptions() { FileProvider = new PhysicalFileProvider( contentRootPath ) } );
         }
@@ -63,9 +65,31 @@ internal class WebServerCommand : AsyncCommand<WebServerCommandSettings>
         app.UseRouting();
         app.UseAuthorization();
         app.MapRazorPages();
+        app.MapGet( "ping", KeepAlive );
 
-        await app.RunAsync();
+        var serverTask = app.RunAsync();
+        var shutDownTime = DateTime.Now.AddMinutes( 1 );
+
+        while ( shutDownTime > DateTime.Now )
+        {
+            if ( serverTask.IsCompleted )
+            {
+                // This would happen if the server cannot start.
+                await serverTask;
+                
+                break;
+            }
+            
+            await Task.Delay( shutDownTime - DateTime.Now );
+        }
+
+        await app.StopAsync();
 
         return 0;
+
+        void KeepAlive()
+        {
+            shutDownTime = DateTime.Now.AddMinutes( 1 );
+        }
     }
 }
