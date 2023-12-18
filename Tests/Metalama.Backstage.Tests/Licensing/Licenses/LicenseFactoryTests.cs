@@ -39,16 +39,21 @@ namespace Metalama.Backstage.Tests.Licensing.Licenses
             Assert.True( license is License );
             Assert.False( license!.TryGetLicenseConsumptionData( out _, out _ ) );
         }
-        
+
         [Fact]
         public void RevokedLicenseStringCreatesInvalidLicense()
         {
-            const string revokedLicenseString = "1-ZEQQQQQQZTQEQCRCE4UW3UFEB4URXMHRB8KQBJJSB64LX7EAEJZWKEM8SCXJK6KJLFD92CAJFQKCGC67A9NVYA2JGNEHLB8QQG4JAF94J58KUJQZW8ZQQDTFJJPA";
+            // ReSharper disable StringLiteralTypo
+            const string revokedLicenseString =
+                "1-ZEQQQQQQZTQEQCRCE4UW3UFEB4URXMHRB8KQBJJSB64LX7EAEJZWKEM8SCXJK6KJLFD92CAJFQKCGC67A9NVYA2JGNEHLB8QQG4JAF94J58KUJQZW8ZQQDTFJJPA";
+
+            // ReSharper restore StringLiteralTypo
+
             Assert.True( this.LicenseFactory.TryCreate( revokedLicenseString, out var license, out var errorMessage ) );
             Assert.Null( errorMessage );
             Assert.True( license is License );
             Assert.False( license!.TryGetLicenseConsumptionData( out _, out _ ) );
-        }        
+        }
 
         [Fact]
         public void ValidLicenseKeyCreatesValidLicense()

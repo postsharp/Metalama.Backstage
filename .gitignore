@@ -376,3 +376,5 @@ FodyWeavers.xsd
 /eng/BackstageVersion.props
 /Metalama.Backstage.Import.props
 /eng/tools
+/.tools/signclient-appsettings.json
+/.config/dotnet-tools.json

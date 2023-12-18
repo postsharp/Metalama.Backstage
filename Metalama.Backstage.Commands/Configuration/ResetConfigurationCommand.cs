@@ -4,6 +4,5 @@ namespace Metalama.Backstage.Commands.Configuration;
 
 internal class ResetConfigurationCommand : BaseConfigurationCommand
 {
-    protected override void Execute( ExtendedCommandContext context, ConfigurationFileCommandAdapter adapter )
-        => adapter.Reset( context );
+    protected override void Execute( ExtendedCommandContext context, ConfigurationFileCommandAdapter adapter ) => adapter.Reset( context );
 }

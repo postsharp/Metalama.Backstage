@@ -70,7 +70,7 @@ public enum ProcessKind
     /// A test runner process of Rider or Resharper.
     /// </summary>
     ResharperTestRunner,
-    
+
     /// <summary>
     /// LinqPad driver proxy process.
     /// </summary>
