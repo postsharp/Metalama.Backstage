@@ -43,7 +43,7 @@
         </ItemGroup>
     </Target>
 
-    <Import Project="../eng/DetermisticZip.tasks"/>
+    <Import Project="../eng/DeterministicZip.tasks"/>
 
     <Target Name="Zip" Inputs="@(ZipInputFiles)" Outputs="$(OutputZipFile)" AfterTargets="Build" DependsOnTargets="ResolveZipInputFiles" Condition="'$(IsCrossTargetingBuild)'!='true'">
         <CreateDeterministicZip SourceDirectory="$(OutDir)" DestinationFile="$(OutputZipFile)" PackageBuildDate="$(_PackageBuildDate)" />

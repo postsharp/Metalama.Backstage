@@ -65,7 +65,7 @@
     </ItemGroup>
 
     
-    <Import Project="../eng/DetermisticZip.tasks"/>
+    <Import Project="../eng/DeterministicZip.tasks"/>
 
     <Target Name="PackAndZip" AfterTargets="Build">
         
