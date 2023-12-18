@@ -1,0 +1,22 @@
+﻿@page
+@using Metalama.Backstage.UserInterface
+@inject WebLinks WebLinks
+
+<p>Install <b>Metalama Tools for Visual Studio</b> for an enhanced development experience:</p>
+<ul>
+    <li>Syntax highlighting of aspects,</li>
+    <li>CodeLens integration,</li>
+    <li>Generated code preview and diff.</li>
+</ul>
+
+<div class="arrow-buttons" style="margin: 40px 0">
+    <div onclick="window.open('@WebLinks.VisualStudioMarketplace', '_blank')">
+        <h4>Go To Visual Studio Marketplace</h4>
+    </div>
+</div>
+
+<p>You can install it later at any time.</p>
+
+<div class="continue-button">
+    <button type="button" onclick="window.location.href='@WebLinks.AfterSetup'">Continue</button>
+</div>

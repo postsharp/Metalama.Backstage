@@ -1,0 +1,48 @@
+﻿@page
+@model ChooseLicenseKindPageModel
+
+<script>
+    function submitForm(buttonValue) {
+        document.getElementById('action').value = buttonValue;
+        document.forms[0].submit();
+    }
+</script>
+
+<form method="POST">
+
+    <input type="hidden" id="action" name="action" value=""/>
+
+    <div class="arrow-buttons">
+        <div onclick="submitForm('StartFree')">
+            <h4>Use Metalama Free</h4>
+            <p>
+                Free as in beer (a source-available one), but limited in features. Recommended to get
+                started, so you can start the trial when you feel you will need the extra features.
+            </p>
+        </div>
+
+        <div onclick="submitForm('StartTrial')">
+            <h4>Try Metalama Ultimate</h4>
+            <p>Start your 45-day evaluation of Metalama Ultimate</p>
+            <p>
+                Or, if you have a long procurement process, you can request a
+                <a href="@Model.WebLinks.GetTeamTeamTrial" target="_blank">
+                    60-day renewable team
+                    evaluation key
+                </a>. For teams of 5 or more devs.
+            </p>
+        </div>
+
+        <div onclick="submitForm('RegisterKey')">
+            <h4>Register a license key</h4>
+            <p>Register a license in your user profile on the current device.</p>
+        </div>
+
+        <div onclick="submitForm('Skip')">
+            <h4>Skip</h4>
+            <p>Choose this path if you plan to add license keys to your source repos.</p>
+        </div>
+
+    </div>
+
+</form>

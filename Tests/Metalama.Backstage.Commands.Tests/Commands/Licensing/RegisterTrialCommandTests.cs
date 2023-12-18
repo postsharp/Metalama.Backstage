@@ -14,7 +14,7 @@ namespace Metalama.Tools.Config.Tests.Commands.Licensing
         private static readonly DateTime _invalidNextEvaluationStart = new( 2020, 1, 14 );
 
         private static readonly DateTime _validNextEvaluationStart = new( 2021, 1, 1 );
-        
+
         public RegisterTrialCommandTests( ITestOutputHelper logger )
             : base( logger )
         {
@@ -39,7 +39,7 @@ namespace Metalama.Tools.Config.Tests.Commands.Licensing
             await this.TestCommandAsync(
                 "license try",
                 null,
-                "Cannot start the trial period.",
+                "You cannot start a new trial period until 6/14/2020 12:00:00 AM.",
                 1 );
 
             await this.TestCommandAsync( "license list", "Evaluation License" );

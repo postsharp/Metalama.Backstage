@@ -1,44 +1,119 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. See the LICENSE.md file in the root directory of this repository root for details.
 
-using Metalama.Backstage.Configuration;
 using Metalama.Backstage.Extensibility;
+using Metalama.Backstage.Infrastructure;
+using Metalama.Backstage.Licensing.Licenses;
+using Metalama.Backstage.Licensing.Registration;
 using System;
+using System.Diagnostics.CodeAnalysis;
+
+#if NETFRAMEWORK || NETCOREAPP
+using Microsoft.Win32;
+using System.Diagnostics;
+using System.IO;
+#endif
 
 namespace Metalama.Backstage.UserInterface;
 
-internal class WindowsUserInterfaceService : IUserInterfaceService
+#pragma warning disable CA1416
+
+internal class WindowsUserInterfaceService : UserInterfaceService
 {
     private readonly IToastNotificationService _toastNotificationService;
-    private readonly IConfigurationManager _configurationManager;
-    private readonly IUserDeviceDetectionService _userDeviceDetectionService;
 
-    private bool _notificationShown;
-
-    public WindowsUserInterfaceService( IServiceProvider serviceProvider )
+    public WindowsUserInterfaceService( IServiceProvider serviceProvider ) : base( serviceProvider )
     {
         this._toastNotificationService = serviceProvider.GetRequiredBackstageService<IToastNotificationService>();
-        this._configurationManager = serviceProvider.GetRequiredBackstageService<IConfigurationManager>();
-        this._userDeviceDetectionService = serviceProvider.GetRequiredBackstageService<IUserDeviceDetectionService>();
     }
 
-    public void OnLicenseMissing()
+    protected override void Notify( ToastNotificationKind kind, ref bool notificationReported )
     {
-        if ( this._userDeviceDetectionService.IsInteractiveDevice )
+        this._toastNotificationService.Show( new ToastNotification( kind ) );
+        notificationReported = true;
+    }
+
+#if NETFRAMEWORK || NETCOREAPP
+    protected override ProcessStartInfo GetProcessStartInfoForUrl( string url, BrowserMode browserMode )
+    {
+        if ( browserMode == BrowserMode.Default || !this.TryGetDefaultBrowser( out var browserPath ) )
         {
-            this._toastNotificationService.Show( new ToastNotification( ToastNotificationKinds.RequiresLicense ) );
-            this._notificationShown = true;
+            return base.GetProcessStartInfoForUrl( url, browserMode );
+        }
+
+        switch ( Path.GetFileNameWithoutExtension( browserPath ) )
+        {
+            // ReSharper disable StringLiteralTypo
+            case "msedge": // --window-size does not seem to work on Edge
+            case "chrome":
+            case "opera":
+            case "brave":
+            case "vivaldi":
+            case "blisk":
+            case "browser":
+                // ReSharper restore StringLiteralTypo
+
+                // For Chromium-based browsers, we know how to open the page in a new window or in an app window.
+                var arg = browserMode switch
+                {
+                    BrowserMode.Application => $"--app={url} --window-size=400,400",
+                    BrowserMode.NewWindow => $"--new-window {url}",
+                    _ => throw new ArgumentOutOfRangeException( nameof(browserMode) )
+                };
+
+                return new ProcessStartInfo( browserPath, arg );
+
+            default:
+                return base.GetProcessStartInfoForUrl( url, browserMode );
         }
     }
 
-    public void Initialize()
+    private bool TryGetDefaultBrowser( [NotNullWhen( true )] out string? path )
     {
-        if ( this._userDeviceDetectionService is { IsInteractiveDevice: true, IsVisualStudioInstalled: true } )
+        try
         {
-            if ( !this._notificationShown &&
-                 !this._configurationManager.Get<IdeExtensionsStatusConfiguration>().IsVisualStudioExtensionInstalled )
+            using ( var userChoiceKey = Registry.CurrentUser.OpenSubKey( @"Software\Microsoft\Windows\Shell\Associations\UrlAssociations\http\UserChoice" ) )
             {
-                this._toastNotificationService.Show( new ToastNotification( ToastNotificationKinds.VsxNotInstalled ) );
+                var progIdValue = userChoiceKey?.GetValue( "ProgId" );
+
+                if ( progIdValue == null )
+                {
+                    path = null;
+
+                    return false;
+                }
+
+                var browser = progIdValue.ToString();
+
+                using ( var progIdKey = Registry.ClassesRoot.OpenSubKey( browser + @"\shell\open\command" ) )
+                {
+#pragma warning disable CA1307
+                    path = progIdKey?.GetValue( null )?.ToString()?.Replace( "\"", "" );
+#pragma warning restore CA1307
+
+                    if ( string.IsNullOrEmpty( path ) )
+                    {
+                        path = null;
+
+                        return false;
+                    }
+
+                    // Handling paths with arguments. That's not bullet proof but this should be enough.
+                    if ( !path.EndsWith( ".exe", StringComparison.OrdinalIgnoreCase ) )
+                    {
+                        path = path.Substring( 0, path.LastIndexOf( ".exe", StringComparison.OrdinalIgnoreCase ) + 4 );
+                    }
+
+                    return true;
+                }
             }
         }
+        catch ( Exception exception )
+        {
+            this.Logger.Error?.Log( exception.ToString() );
+            path = null;
+
+            return false;
+        }
     }
+#endif
 }

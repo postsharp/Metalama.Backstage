@@ -5,10 +5,12 @@ using Metalama.Backstage.Configuration;
 using Metalama.Backstage.Diagnostics;
 using Metalama.Backstage.Extensibility;
 using Metalama.Backstage.Infrastructure;
-using Metalama.Backstage.Licensing;
+using Metalama.Backstage.Licensing.Registration;
 using Metalama.Backstage.Maintenance;
 using Metalama.Backstage.Telemetry;
+using Metalama.Backstage.Tools;
 using Metalama.Backstage.UserInterface;
+using Metalama.Backstage.Welcome;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using System;
@@ -25,7 +27,7 @@ namespace Metalama.Backstage.Testing
 
         public TestDateTimeProvider Time { get; } = new();
 
-        public TestFileSystem FileSystem { get; }
+        public TestFileSystem? FileSystem { get; }
 
         public TestEnvironmentVariableProvider EnvironmentVariableProvider { get; } = new();
 
@@ -43,6 +45,10 @@ namespace Metalama.Backstage.Testing
         public TestProcessExecutor ProcessExecutor { get; } = new();
 
         public TestUserDeviceDetectionService UserDeviceDetection { get; } = new();
+
+        public TestUserInterfaceService UserInterface { get; }
+
+        public TestToastNotificationService ToastNotifications { get; }
 
         protected IServiceCollection CloneServiceCollection()
         {
@@ -74,6 +80,8 @@ namespace Metalama.Backstage.Testing
             this.ServiceProvider = this._serviceCollection.BuildServiceProvider();
             this.ConfigurationManager = this.ServiceProvider.GetRequiredBackstageService<IConfigurationManager>() as InMemoryConfigurationManager;
             this.FileSystem = (TestFileSystem) this.ServiceProvider.GetRequiredBackstageService<IFileSystem>();
+            this.UserInterface = (TestUserInterfaceService) this.ServiceProvider.GetRequiredBackstageService<IUserInterfaceService>();
+            this.ToastNotifications = (TestToastNotificationService) this.ServiceProvider.GetRequiredBackstageService<IToastNotificationService>();
         }
 
         protected ServiceCollection CreateServiceCollection(
@@ -90,6 +98,7 @@ namespace Metalama.Backstage.Testing
                 .AddSingleton<BackstageInitializationOptionsProvider>( new BackstageInitializationOptionsProvider( options ) )
                 .AddSingleton<IDateTimeProvider>( this.Time )
                 .AddSingleton<IProcessExecutor>( this.ProcessExecutor )
+                .AddSingleton<IPlatformInfo>( serviceProvider => new PlatformInfo( serviceProvider, null ) )
 
                 // We must always have a single instance of the file system even if we use CloneServiceCollection.
                 .AddSingleton<IFileSystem>( serviceProvider => this.FileSystem ?? new TestFileSystem( serviceProvider ) )
@@ -100,7 +109,14 @@ namespace Metalama.Backstage.Testing
                 .AddSingleton<IUsageReporter>( this.UsageReporter )
                 .AddSingleton<IConfigurationManager>( serviceProvider => new InMemoryConfigurationManager( serviceProvider ) )
                 .AddSingleton<ITempFileManager>( serviceProvider => new TempFileManager( serviceProvider ) )
-                .AddSingleton<ILicenseRegistrationService>( serviceProvider => new LicenseRegistrationService( serviceProvider ) );
+                .AddSingleton<ILicenseRegistrationService>( serviceProvider => new LicenseRegistrationService( serviceProvider ) )
+                .AddSingleton<IBackstageToolsExecutor>( serviceProvider => new BackstageToolsExecutor( serviceProvider ) )
+                .AddSingleton<IBackstageToolsLocator>( serviceProvider => new BackstageToolsLocator( serviceProvider ) )
+                .AddSingleton<IUserInterfaceService>( serviceProvider => new TestUserInterfaceService( serviceProvider ) )
+                .AddSingleton<IToastNotificationService>( serviceProvider => new TestToastNotificationService( serviceProvider ) )
+                .AddSingleton<BackstageServicesInitializer>( serviceProvider => new BackstageServicesInitializer( serviceProvider ) )
+                .AddSingleton<WelcomeService>( serviceProvider => new WelcomeService( serviceProvider ) )
+                .AddSingleton<IIdeExtensionStatusService>( serviceProvider => new IdeExtensionStatusService( serviceProvider ) );
 
             var serviceProviderBuilder =
                 new ServiceProviderBuilder( ( type, instance ) => serviceCollection.AddSingleton( type, instance ) );

@@ -8,19 +8,28 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Threading;
 
 namespace Metalama.Backstage.Desktop.Windows;
 
 public partial class App
 {
-    public App() { }
+    public App()
+    {
+        this.DispatcherUnhandledException += this.OnUnhandledException;
+    }
+
+    private void OnUnhandledException( object sender, DispatcherUnhandledExceptionEventArgs e )
+    {
+        MessageBox.Show( e.Exception.Message );
+    }
 
     public static IServiceProvider GetBackstageServices( BaseSettings settings )
     {
         BackstageServiceFactory.Initialize(
             new BackstageInitializationOptions( new DesktopWindowsApplicationInfo() )
             {
-                AddLicensing = true, IsDevelopmentEnvironment = settings.IsDevelopmentEnvironment, AddSupportServices = true
+                AddLicensing = true, IsDevelopmentEnvironment = settings.IsDevelopmentEnvironment, AddSupportServices = true, AddUserInterface = true
             },
             "App" );
 

@@ -42,5 +42,7 @@ namespace Metalama.Backstage.Licensing.Consumption
         string? LicenseString { get; }
 
         event Action? Changed;
+
+        void Initialize();
     }
 }

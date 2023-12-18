@@ -10,10 +10,8 @@ public class TestProcessExecutor : IProcessExecutor
 {
     public List<ProcessStartInfo> StartedProcesses { get; } = new();
 
-    public Process? Start( ProcessStartInfo startInfo )
+    public void Start( ProcessStartInfo startInfo )
     {
         this.StartedProcesses.Add( startInfo );
-
-        return null;
     }
 }

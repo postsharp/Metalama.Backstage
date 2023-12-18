@@ -116,8 +116,8 @@ internal sealed class PreviewLicenseSource : ILicenseSource, ILicense
         return true;
     }
 
-    bool ILicense.TryGetLicenseRegistrationData(
-        [MaybeNullWhen( false )] out LicenseRegistrationData licenseRegistrationData,
+    bool ILicense.TryGetProperties(
+        [MaybeNullWhen( false )] out LicenseProperties licenseProperties,
         [MaybeNullWhen( true )] out string errorMessage )
         => throw new NotSupportedException( "Preview license source doesn't support license registration." );
 }

@@ -4,9 +4,9 @@ using Metalama.Backstage.Application;
 using Metalama.Backstage.Configuration;
 using Metalama.Backstage.Diagnostics;
 using Metalama.Backstage.Infrastructure;
-using Metalama.Backstage.Licensing;
 using Metalama.Backstage.Licensing.Audit;
 using Metalama.Backstage.Licensing.Consumption;
+using Metalama.Backstage.Licensing.Registration;
 using Metalama.Backstage.Maintenance;
 using Metalama.Backstage.Telemetry;
 using Metalama.Backstage.Tools;
@@ -225,7 +225,7 @@ public static class RegisterServiceExtensions
         {
             if ( options.IsDevelopmentEnvironment )
             {
-                serviceProviderBuilder.AddService( typeof(IBackstageToolsLocator), serviceProvider => new DevBackstageToolsLocator() );
+                serviceProviderBuilder.AddService( typeof(IBackstageToolsLocator), _ => new DevBackstageToolsLocator() );
             }
             else
             {
@@ -239,17 +239,24 @@ public static class RegisterServiceExtensions
         // Add user interface.
         if ( options.AddUserInterface )
         {
+            serviceProviderBuilder.AddService( typeof(WebLinks), _ => new WebLinks() );
+
             if ( RuntimeInformation.IsOSPlatform( OSPlatform.Windows ) )
             {
                 serviceProviderBuilder.AddService(
                     typeof(IToastNotificationService),
                     serviceProvider => new WindowsToastNotificationService( serviceProvider ) );
 
+                serviceProviderBuilder.AddService( typeof(IIdeExtensionStatusService), serviceProvider => new IdeExtensionStatusService( serviceProvider ) );
                 serviceProviderBuilder.AddService( typeof(IUserInterfaceService), serviceProvider => new WindowsUserInterfaceService( serviceProvider ) );
             }
             else
             {
-                // TODO: on other OSes we may support a purely browser-based UI.
+                serviceProviderBuilder.AddService(
+                    typeof(IToastNotificationService),
+                    serviceProvider => new ToastNotificationService( serviceProvider ) );
+
+                serviceProviderBuilder.AddService( typeof(IUserInterfaceService), serviceProvider => new BrowserBasedUserInterfaceService( serviceProvider ) );
             }
         }
 

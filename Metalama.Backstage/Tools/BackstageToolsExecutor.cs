@@ -16,6 +16,7 @@ internal class BackstageToolsExecutor : IBackstageToolsExecutor
     private readonly ILogger _logger;
     private readonly IProcessExecutor _processExecutor;
     private readonly IBackstageToolsLocator _locator;
+    private readonly IFileSystem _fileSystem;
 
     public BackstageToolsExecutor( IServiceProvider serviceProvider )
     {
@@ -24,9 +25,10 @@ internal class BackstageToolsExecutor : IBackstageToolsExecutor
         this._logger = serviceProvider.GetLoggerFactory().GetLogger( "BackstageToolExecutor" );
         this._processExecutor = serviceProvider.GetRequiredBackstageService<IProcessExecutor>();
         this._locator = serviceProvider.GetRequiredBackstageService<IBackstageToolsLocator>();
+        this._fileSystem = serviceProvider.GetRequiredBackstageService<IFileSystem>();
     }
 
-    public Process Start( BackstageTool tool, string arguments )
+    public void Start( BackstageTool tool, string arguments )
     {
         if ( this._locator.ToolsMustBeExtracted )
         {
@@ -40,7 +42,7 @@ internal class BackstageToolsExecutor : IBackstageToolsExecutor
         var dotnetPath = this._platformInfo.DotNetExePath;
         var programPath = Path.Combine( workerDirectory, $"{tool.Name}.dll" );
 
-        if ( !File.Exists( programPath ) )
+        if ( !this._fileSystem.FileExists( programPath ) )
         {
             throw new FileNotFoundException( $"The file '{programPath}' does not exist.", programPath );
         }
@@ -54,13 +56,6 @@ internal class BackstageToolsExecutor : IBackstageToolsExecutor
 
         this._logger.Info?.Log( $"Starting '{dotnetPath}{(arguments == "" ? "" : " ")}{allArguments}'." );
 
-        var process = this._processExecutor.Start( processStartInfo );
-
-        if ( process == null )
-        {
-            throw new Exception( $"Cannot start {tool.Name}." );
-        }
-
-        return process;
+        this._processExecutor.Start( processStartInfo );
     }
 }

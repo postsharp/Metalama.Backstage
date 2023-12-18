@@ -49,7 +49,10 @@ public class LicenseSourcePriorityTests : LicensingTestsBase
 
         var options = new LicensingInitializationOptions() { ProjectLicense = projectLicense, DisableLicenseAudit = true };
 
-        return LicenseConsumptionServiceFactory.Create( serviceProvider, options );
+        var manager = LicenseConsumptionServiceFactory.Create( serviceProvider, options );
+        manager.Initialize();
+
+        return manager;
     }
 
     [Fact]

@@ -6,7 +6,14 @@ namespace Metalama.Backstage.UserInterface;
 
 public interface IToastNotificationService : IBackstageService
 {
+    bool CanShow { get; }
+
     void Show( ToastNotification notification );
+
+    /// <summary>
+    /// Tries to acquire the right to display a notification, and updates the snooze period.
+    /// </summary>
+    bool TryAcquire( ToastNotificationKind kind );
 
     void Snooze( ToastNotificationKind kind );
 

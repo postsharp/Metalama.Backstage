@@ -124,7 +124,7 @@ internal class WindowsUserDeviceDetectionService : IUserDeviceDetectionService
     {
         get
         {
-            if ( !ProcessUtilities.IsCurrentProcessUnattended( this._loggerFactory ) )
+            if ( ProcessUtilities.IsCurrentProcessUnattended( this._loggerFactory ) )
             {
                 return false;
             }
@@ -133,21 +133,9 @@ internal class WindowsUserDeviceDetectionService : IUserDeviceDetectionService
             // don't open it if there has been no recent user interaction. We also skip monitors
             // smaller than 1280 pixels since this is likely to be an unattended or test VM.
 
-/* Unmerged change from project 'Metalama.Backstage'
-Before:
-            var hasRecentUserInput = this.GetLastInputTime() is null or { TotalMinutes: < 15 };
-After:
             var hasRecentUserInput = GetLastInputTime() is null or { TotalMinutes: < 15 };
-*/
-            var hasRecentUserInput = GetLastInputTime() is null or { TotalMinutes: < 15 };
+            var hasLargeMonitor = GetTotalMonitorWidth() is null or >= 1280;
 
-/* Unmerged change from project 'Metalama.Backstage'
-Before:
-            var hasLargeMonitor = this.GetTotalMonitorWidth() is null or >= 1280;
-After:
-            var hasLargeMonitor = GetTotalMonitorWidth() is null or >= 1280;
-*/
-            var hasLargeMonitor = GetTotalMonitorWidth() is null or >= 1280;
             this._logger.Trace?.Log( $"HasRecentUserInput={hasRecentUserInput}, HasLargeMonitor={hasLargeMonitor}" );
 
             return hasRecentUserInput && hasLargeMonitor;

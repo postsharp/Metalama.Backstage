@@ -6,5 +6,5 @@ namespace Metalama.Backstage.Infrastructure;
 
 internal class ProcessExecutor : IProcessExecutor
 {
-    public Process? Start( ProcessStartInfo startInfo ) => Process.Start( startInfo );
+    public void Start( ProcessStartInfo startInfo ) => Process.Start( startInfo );
 }

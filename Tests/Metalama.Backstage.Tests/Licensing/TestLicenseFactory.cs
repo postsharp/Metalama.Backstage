@@ -3,7 +3,7 @@
 using Metalama.Backstage.Application;
 using Metalama.Backstage.Infrastructure;
 using Metalama.Backstage.Licensing.Consumption.Sources;
-using Metalama.Backstage.Licensing.Licenses;
+using Metalama.Backstage.Licensing.Registration;
 using Metalama.Backstage.Testing;
 using Microsoft.Extensions.DependencyInjection;
 using System;

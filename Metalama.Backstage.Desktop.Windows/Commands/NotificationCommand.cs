@@ -16,6 +16,7 @@ public sealed class NotificationCommand : Command<NotificationCommandSettings>
 
         var logoPath = Path.Combine( Path.GetDirectoryName( Environment.GetCommandLineArgs()[0] )!, "logo.png" );
         builder.AddInlineImage( new Uri( "file:///" + logoPath ) );
+        builder.SetToastDuration( ToastDuration.Long );
 
         var activationArguments = new ActivationArguments( settings );
 
@@ -37,8 +38,6 @@ public sealed class NotificationCommand : Command<NotificationCommandSettings>
                 } );
 
             builder.AddButton( "Activate", ToastActivationType.Foreground, activationArguments.Setup );
-
-            builder.SetToastScenario( ToastScenario.Alarm );
         }
         else if ( settings.Kind == ToastNotificationKinds.VsxNotInstalled.Name )
         {

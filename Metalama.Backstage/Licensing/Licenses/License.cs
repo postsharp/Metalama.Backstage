@@ -111,18 +111,18 @@ namespace Metalama.Backstage.Licensing.Licenses
         }
 
         /// <inheritdoc />
-        public bool TryGetLicenseRegistrationData(
-            [MaybeNullWhen( false )] out LicenseRegistrationData licenseRegistrationData,
+        public bool TryGetProperties(
+            [MaybeNullWhen( false )] out LicenseProperties licenseProperties,
             [MaybeNullWhen( true )] out string errorMessage )
         {
             if ( !this.TryGetLicenseKeyDataWithVerifiedSignature( out var licenseKeyData, out errorMessage ) )
             {
-                licenseRegistrationData = null;
+                licenseProperties = null;
 
                 return false;
             }
 
-            licenseRegistrationData = licenseKeyData.ToRegistrationData();
+            licenseProperties = licenseKeyData.ToLicenseProperties();
 
             return true;
         }

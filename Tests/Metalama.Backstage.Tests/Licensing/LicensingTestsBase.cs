@@ -29,11 +29,11 @@ namespace Metalama.Backstage.Tests.Licensing
         protected void SetStoredLicenseString( string licenseString )
             => TestLicensingConfigurationHelpers.SetStoredLicenseString( this.ServiceProvider, licenseString );
 
-        internal LicenseRegistrationData GetLicenseRegistrationData( string licenseString )
+        internal LicenseProperties GetLicenseRegistrationData( string licenseString )
         {
             Assert.True( this.LicenseFactory.TryCreate( licenseString, out var license, out var errorMessage ) );
             Assert.Null( errorMessage );
-            Assert.True( license!.TryGetLicenseRegistrationData( out var data, out errorMessage ) );
+            Assert.True( license!.TryGetProperties( out var data, out errorMessage ) );
             Assert.Null( errorMessage );
 
             return data!;

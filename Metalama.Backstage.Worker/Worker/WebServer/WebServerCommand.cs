@@ -6,7 +6,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Hosting;
 using Spectre.Console.Cli;
-using System.Diagnostics;
 using System.IO;
 using System.Threading.Tasks;
 

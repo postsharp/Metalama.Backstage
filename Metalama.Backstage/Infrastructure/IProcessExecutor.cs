@@ -7,5 +7,5 @@ namespace Metalama.Backstage.Infrastructure;
 
 public interface IProcessExecutor : IBackstageService
 {
-    Process? Start( ProcessStartInfo startInfo );
+    void Start( ProcessStartInfo startInfo );
 }

@@ -5,7 +5,6 @@ using Metalama.Backstage.Extensibility;
 using Metalama.Backstage.Licensing.Audit;
 using Metalama.Backstage.Licensing.Consumption.Sources;
 using Metalama.Backstage.Licensing.Licenses;
-using Metalama.Backstage.UserInterface;
 using System;
 using System.Collections.Generic;
 
@@ -21,12 +20,10 @@ internal partial class LicenseConsumptionService
         private readonly Dictionary<string, NamespaceLicenseInfo> _embeddedRedistributionLicensesCache = new();
         private readonly LicenseConsumptionData? _license;
         private readonly NamespaceLicenseInfo? _licensedNamespace;
-        private readonly IUserInterfaceService? _userInterfaceService;
 
         public ImmutableImpl( IServiceProvider services, IReadOnlyList<ILicenseSource> licenseSources )
         {
             this._logger = services.GetLoggerFactory().Licensing();
-            this._userInterfaceService = services.GetBackstageService<IUserInterfaceService>();
 
             this._licenseFactory = new LicenseFactory( services );
 
@@ -43,7 +40,7 @@ internal partial class LicenseConsumptionService
 
                 if ( !license.TryGetLicenseConsumptionData( out var data, out var errorMessage ) )
                 {
-                    _ = license.TryGetLicenseRegistrationData( out var registrationData, out _ );
+                    _ = license.TryGetProperties( out var registrationData, out _ );
                     var message = registrationData == null ? "A license" : $"The {registrationData.Description}";
                     message += $" {errorMessage}.";
 
@@ -70,9 +67,6 @@ internal partial class LicenseConsumptionService
 
                 return;
             }
-
-            // If we get here, it means that we don't have a valid license.
-            this._userInterfaceService?.OnLicenseMissing();
         }
 
         private void ReportMessage( LicensingMessage message )
@@ -169,6 +163,8 @@ internal partial class LicenseConsumptionService
         public string? LicenseString => this._license?.LicenseString;
 
         event Action? ILicenseConsumptionService.Changed { add { } remove { } }
+
+        public void Initialize() { }
 
         /// <inheritdoc />
         public IReadOnlyList<LicensingMessage> Messages => this._messages;

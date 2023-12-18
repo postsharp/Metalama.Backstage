@@ -1,8 +1,9 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. See the LICENSE.md file in the root directory of this repository root for details.
 
-using Metalama.Backstage.Licensing;
+using Metalama.Backstage.Licensing.Registration;
+using Metalama.Backstage.Pages.Shared;
 using Metalama.Backstage.Telemetry;
-using Metalama.Backstage.Worker.WebServer;
+using Metalama.Backstage.UserInterface;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -12,17 +13,23 @@ using System.Linq;
 
 namespace Metalama.Backstage.Pages;
 
-#pragma warning disable SA1649
-
-public class RegisterModel : PageModel
+public class ConsentsPageModel : PageModel
 {
     private readonly ILicenseRegistrationService _licenseRegistrationService;
     private readonly ITelemetryConfigurationService _telemetryConfigurationService;
+    private readonly IIdeExtensionStatusService _ideExtensionStatusService;
+    private readonly IToastNotificationService _toastNotificationService;
 
-    public RegisterModel( ILicenseRegistrationService licenseRegistrationService, ITelemetryConfigurationService telemetryConfigurationService )
+    public ConsentsPageModel(
+        ILicenseRegistrationService licenseRegistrationService,
+        ITelemetryConfigurationService telemetryConfigurationService,
+        IIdeExtensionStatusService ideExtensionStatusService,
+        IToastNotificationService toastNotificationService )
     {
         this._licenseRegistrationService = licenseRegistrationService;
         this._telemetryConfigurationService = telemetryConfigurationService;
+        this._ideExtensionStatusService = ideExtensionStatusService;
+        this._toastNotificationService = toastNotificationService;
     }
 
     public List<string> ErrorMessages { get; } = new();
@@ -32,17 +39,11 @@ public class RegisterModel : PageModel
     public string? RecaptchaResponse { get; set; }
 
     [BindProperty]
+    public bool EnableTelemetry { get; set; }
+
+    [BindProperty]
     [EmailAddress]
     public string EmailAddress { get; set; } = "test@example.com";
-
-    [BindProperty]
-    public LicenseKind LicenseKind { get; set; } = LicenseKind.Trial;
-
-    [BindProperty]
-    public string? License { get; set; }
-
-    [BindProperty]
-    public bool EnableTelemetry { get; set; }
 
     [BindProperty]
     public bool SubscribeToNewsletter { get; set; }
@@ -67,7 +68,7 @@ public class RegisterModel : PageModel
         }
 
         // Register the license.
-        switch ( this.LicenseKind )
+        switch ( GlobalState.LicenseKind )
         {
             case LicenseKind.Trial:
                 {
@@ -93,16 +94,16 @@ public class RegisterModel : PageModel
                     break;
                 }
 
+            case LicenseKind.Skip:
+                {
+                    this._toastNotificationService.Disable( ToastNotificationKinds.RequiresLicense );
+
+                    break;
+                }
+
             default:
                 {
-                    if ( string.IsNullOrEmpty( this.License ) )
-                    {
-                        this.ErrorMessages.Add( "The license key must be provided." );
-
-                        return this.Page();
-                    }
-
-                    if ( !this._licenseRegistrationService.TryRegisterLicense( this.License, out var errorMessage ) )
+                    if ( !this._licenseRegistrationService.TryRegisterLicense( GlobalState.LicenseKey, out var errorMessage ) )
                     {
                         this.ErrorMessages.Add( errorMessage );
 
@@ -115,6 +116,12 @@ public class RegisterModel : PageModel
 
         // Configure telemetry.
         this._telemetryConfigurationService.SetStatus( this.EnableTelemetry );
+
+        // Should we recommend to install Visual Studio
+        if ( this._ideExtensionStatusService.ShouldRecommendToInstallVisualStudioExtension )
+        {
+            return this.Redirect( "/InstallVsx" );
+        }
 
         return this.Redirect( "/Okay" );
     }

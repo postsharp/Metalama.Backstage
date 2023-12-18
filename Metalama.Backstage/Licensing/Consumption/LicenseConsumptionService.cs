@@ -11,18 +11,30 @@ internal partial class LicenseConsumptionService : ILicenseConsumptionService
 {
     private readonly IServiceProvider _services;
     private readonly IReadOnlyList<ILicenseSource> _sources;
-    private ImmutableImpl _impl;
+    private ILicenseConsumptionService _impl;
 
     public LicenseConsumptionService( IServiceProvider services, IReadOnlyList<ILicenseSource> licenseSources )
     {
         this._services = services;
         this._sources = licenseSources;
-        this._impl = new ImmutableImpl( services, this._sources );
 
         foreach ( var source in this._sources )
         {
             source.Changed += this.OnSourceChanged;
         }
+
+        // The component should be manually initialized, as
+        this._impl = new UninitializedImpl();
+    }
+
+    public void Initialize()
+    {
+        if ( this._impl is not UninitializedImpl )
+        {
+            throw new InvalidOperationException();
+        }
+
+        this.OnSourceChanged();
     }
 
     private void OnSourceChanged()
@@ -46,4 +58,23 @@ internal partial class LicenseConsumptionService : ILicenseConsumptionService
     public string? LicenseString => this._impl.LicenseString;
 
     public event Action? Changed;
+
+    private class UninitializedImpl : ILicenseConsumptionService
+    {
+        public IReadOnlyList<LicensingMessage> Messages => throw new InvalidOperationException();
+
+        public bool CanConsume( LicenseRequirement requirement, string? consumerNamespace = null ) => throw new InvalidOperationException();
+
+        public bool ValidateRedistributionLicenseKey( string redistributionLicenseKey, string aspectClassNamespace ) => throw new InvalidOperationException();
+
+        public bool IsTrialLicense => throw new InvalidOperationException();
+
+        public bool IsRedistributionLicense => throw new InvalidOperationException();
+
+        public string? LicenseString => throw new InvalidOperationException();
+
+        public event Action? Changed;
+
+        public void Initialize() => throw new InvalidOperationException();
+    }
 }

@@ -2,11 +2,10 @@
 
 using Metalama.Backstage.Extensibility;
 using Metalama.Backstage.Infrastructure;
-using Metalama.Backstage.Licensing.Registration;
-using Metalama.Backstage.Licensing.Registration.Evaluation;
+using Metalama.Backstage.Licensing.Licenses;
 using System;
 
-namespace Metalama.Backstage.Licensing.Licenses
+namespace Metalama.Backstage.Licensing.Registration
 {
     /// <summary>
     /// Creates unsigned licenses for self-registration.
@@ -28,10 +27,10 @@ namespace Metalama.Backstage.Licensing.Licenses
         /// Creates an unsigned evaluation license.
         /// </summary>
         /// <returns>The unsigned evaluation license.</returns>
-        public (string LicenseKey, LicenseRegistrationData Data) CreateEvaluationLicense()
+        public (string LicenseKey, LicenseProperties Data) CreateEvaluationLicense()
         {
             var start = this._time.Now.Date;
-            var end = start + EvaluationLicenseRegistrar.EvaluationPeriod;
+            var end = start + LicensingConstants.EvaluationPeriod;
 
             var licenseKeyData = new LicenseKeyData
             {
@@ -44,7 +43,7 @@ namespace Metalama.Backstage.Licensing.Licenses
             };
 
             var licenseKey = licenseKeyData.Serialize();
-            var licenseRegistrationData = licenseKeyData.ToRegistrationData();
+            var licenseRegistrationData = licenseKeyData.ToLicenseProperties();
 
             return (licenseKey, licenseRegistrationData);
         }
@@ -53,7 +52,7 @@ namespace Metalama.Backstage.Licensing.Licenses
         /// Creates an unsigned Metalama Free license.
         /// </summary>
         /// <returns>The unsigned Metalama Free license.</returns>
-        public (string LicenseKey, LicenseRegistrationData Data) CreateFreeLicense()
+        public (string LicenseKey, LicenseProperties Data) CreateFreeLicense()
         {
             var start = this._time.Now;
 
@@ -63,7 +62,7 @@ namespace Metalama.Backstage.Licensing.Licenses
             };
 
             var licenseKey = licenseKeyData.Serialize();
-            var licenseRegistrationData = licenseKeyData.ToRegistrationData();
+            var licenseRegistrationData = licenseKeyData.ToLicenseProperties();
 
             return (licenseKey, licenseRegistrationData);
         }

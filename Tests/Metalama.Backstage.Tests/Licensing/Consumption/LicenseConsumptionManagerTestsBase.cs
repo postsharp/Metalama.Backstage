@@ -28,14 +28,26 @@ public abstract class LicenseConsumptionManagerTestsBase : LicensingTestsBase
         // ReSharper disable once CoVariantArrayConversion
         var licenseSource = new TestLicenseSource( "test", license );
 
-        return this.CreateConsumptionManager( licenseSource );
+        var manager = this.CreateConsumptionManager( licenseSource );
+
+        return manager;
     }
 
     private protected ILicenseConsumptionService CreateConsumptionManager( params ILicenseSource[] licenseSources )
-        => new LicenseConsumptionService( this.ServiceProvider, licenseSources );
+    {
+        var manager = new LicenseConsumptionService( this.ServiceProvider, licenseSources );
+        manager.Initialize();
+
+        return manager;
+    }
 
     private protected ILicenseConsumptionService CreateConsumptionManager()
-        => new LicenseConsumptionService( this.ServiceProvider, Array.Empty<ILicenseSource>() );
+    {
+        var manager = new LicenseConsumptionService( this.ServiceProvider, Array.Empty<ILicenseSource>() );
+        manager.Initialize();
+
+        return manager;
+    }
 
     private protected static void TestConsumption(
         ILicenseConsumptionService service,

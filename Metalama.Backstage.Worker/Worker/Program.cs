@@ -28,7 +28,10 @@ internal static class Program
 #pragma warning restore ASP0000
 
         var initializationOptions =
-            new BackstageInitializationOptions( new BackstageWorkerApplicationInfo() ) { AddSupportServices = true, AddLicensing = true };
+            new BackstageInitializationOptions( new BackstageWorkerApplicationInfo() )
+            {
+                AddSupportServices = true, AddLicensing = true, AddUserInterface = true
+            };
 
         serviceProviderBuilder.AddBackstageServices( initializationOptions );
 

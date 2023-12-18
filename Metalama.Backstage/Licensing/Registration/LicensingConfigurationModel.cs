@@ -3,6 +3,7 @@
 using JetBrains.Annotations;
 using Metalama.Backstage.Configuration;
 using Metalama.Backstage.Extensibility;
+using Metalama.Backstage.Infrastructure;
 using Metalama.Backstage.Licensing.Licenses;
 using System;
 
@@ -12,15 +13,18 @@ namespace Metalama.Backstage.Licensing.Registration
     /// Manages license file for license registration purposes.
     /// </summary>
     [PublicAPI]
-    public class ParsedLicensingConfiguration
+    internal class LicensingConfigurationModel
     {
         private readonly IServiceProvider _services;
         private readonly IConfigurationManager _configurationManager;
+        private readonly IDateTimeProvider _dateTimeProvider;
+
         private LicensingConfiguration _configuration = null!;
 
-        private ParsedLicensingConfiguration( IServiceProvider services )
+        private LicensingConfigurationModel( IServiceProvider services )
         {
             this._services = services;
+            this._dateTimeProvider = services.GetRequiredBackstageService<IDateTimeProvider>();
             this._configurationManager = services.GetRequiredBackstageService<IConfigurationManager>();
             this._configurationManager.ConfigurationFileChanged += this.OnConfigurationFileChanged;
 
@@ -35,7 +39,7 @@ namespace Metalama.Backstage.Licensing.Registration
 
             if ( string.IsNullOrWhiteSpace( this.LicenseString ) )
             {
-                this.LicenseData = null;
+                this.LicenseProperties = null;
                 this.LicenseString = null;
             }
             else
@@ -44,12 +48,12 @@ namespace Metalama.Backstage.Licensing.Registration
 
                 if ( licenseFactory.TryCreate( this.LicenseString, out var license, out _ ) )
                 {
-                    _ = license.TryGetLicenseRegistrationData( out var licenseRegistrationData, out _ );
-                    this.LicenseData = licenseRegistrationData;
+                    _ = license.TryGetProperties( out var licenseRegistrationData, out _ );
+                    this.LicenseProperties = licenseRegistrationData;
                 }
                 else
                 {
-                    this.LicenseData = null;
+                    this.LicenseProperties = null;
                 }
             }
         }
@@ -73,7 +77,7 @@ namespace Metalama.Backstage.Licensing.Registration
         /// <summary>
         /// Gets the registration data of the license contained in the storage or to be stored to the storage.
         /// </summary>
-        public LicenseRegistrationData? LicenseData { get; private set; }
+        public LicenseProperties? LicenseProperties { get; private set; }
 
         public DateTime? LastEvaluationStartDate
         {
@@ -81,14 +85,36 @@ namespace Metalama.Backstage.Licensing.Registration
             set => this._configurationManager.Update<LicensingConfiguration>( c => c with { LastEvaluationStartDate = value } );
         }
 
+        public bool IsEvaluationActive
+            => this.LicenseProperties is { LicenseType: LicenseType.Evaluation } &&
+               this.LicenseProperties?.ValidFrom == this._dateTimeProvider.Now.Date;
+
+        public bool CanStartEvaluation => this.NextEvaluationStartDate <= this._dateTimeProvider.Now;
+
+        public DateTime NextEvaluationStartDate
+        {
+            get
+            {
+                if ( this.LastEvaluationStartDate != null )
+                {
+                    return
+                        this.LastEvaluationStartDate.Value + LicensingConstants.NoEvaluationPeriod + LicensingConstants.EvaluationPeriod;
+                }
+                else
+                {
+                    return this._dateTimeProvider.Now;
+                }
+            }
+        }
+
         /// <summary>
         /// Opens a license file or creates empty storage if the license file doesn't exist.
         /// </summary>
         /// <param name="services">Services.</param>
         /// <returns></returns>
-        public static ParsedLicensingConfiguration OpenOrCreate( IServiceProvider services )
+        public static LicensingConfigurationModel Create( IServiceProvider services )
         {
-            return new ParsedLicensingConfiguration( services );
+            return new LicensingConfigurationModel( services );
         }
 
         /// <summary>
@@ -96,10 +122,10 @@ namespace Metalama.Backstage.Licensing.Registration
         /// </summary>
         /// <param name="licenseString">String representing the license to be stored in the license file.</param>
         /// <param name="data">Data represented by the <paramref name="licenseString"/>.</param>
-        public void SetLicense( string licenseString, LicenseRegistrationData data )
+        public void SetLicense( string licenseString, LicenseProperties data )
         {
             this.LicenseString = licenseString;
-            this.LicenseData = data;
+            this.LicenseProperties = data;
             this.Save();
         }
 
@@ -114,7 +140,7 @@ namespace Metalama.Backstage.Licensing.Registration
             if ( this.LicenseString != null )
             {
                 this.LicenseString = null;
-                this.LicenseData = null;
+                this.LicenseProperties = null;
                 this.Save();
 
                 return true;
