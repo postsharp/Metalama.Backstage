@@ -43,8 +43,10 @@
         </ItemGroup>
     </Target>
 
+    <Import Project="../eng/DetermisticZip.tasks"/>
+
     <Target Name="Zip" Inputs="@(ZipInputFiles)" Outputs="$(OutputZipFile)" AfterTargets="Build" DependsOnTargets="ResolveZipInputFiles" Condition="'$(IsCrossTargetingBuild)'!='true'">
-        <ZipDirectory SourceDirectory="$(OutDir)" Overwrite="true" DestinationFile="$(OutputZipFile)" />
+        <CreateDeterministicZip SourceDirectory="$(OutDir)" DestinationFile="$(OutputZipFile)" PackageBuildDate="$(_PackageBuildDate)" />
         <Message Text="$(MSBuildProjectName) -&gt; $(MSBuildProjectDirectory)\$(OutputZipFile)" Importance="High" />
     </Target>
 

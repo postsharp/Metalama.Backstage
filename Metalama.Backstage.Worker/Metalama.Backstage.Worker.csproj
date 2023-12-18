@@ -13,7 +13,7 @@
     </PropertyGroup>
 
     <Import Sdk="PostSharp.Engineering.Sdk" Project="SystemTypes.props" />
-
+    
 
     <!-- <Import Project="$(MetalamaBackstageDirectory)\Metalama.Backstage.csproj" /> -->
     <Import Project="$(MetalamaBackstageDirectory)\Metalama.Backstage.Common.props" />
@@ -64,15 +64,8 @@
       <None Remove="Properties\launchSettings.json" />
     </ItemGroup>
 
-   
-
-    <Target Name="ResolveZipInputFiles" AfterTargets="Build" Condition="'$(IsCrossTargetingBuild)'!='true'">
-      
-    </Target>
-
-    <Target Name="Zip" Inputs="@(ZipInputFiles)" Outputs="$(OutputZipFile)" AfterTargets="Build" DependsOnTargets="ResolveZipInputFiles" Condition="'$(IsCrossTargetingBuild)'!='true'">
-       
-    </Target>
+    
+    <Import Project="../eng/DetermisticZip.tasks"/>
 
     <Target Name="PackAndZip" AfterTargets="Build">
         
@@ -83,7 +76,7 @@
             <ZipInputFiles Include="$(OutputPath)Packed\**\*" />
         </ItemGroup>
         
-        <ZipDirectory SourceDirectory="$(OutputPath)Packed" Overwrite="true" DestinationFile="$(OutputZipFile)" />
+        <CreateDeterministicZip SourceDirectory="$(OutputPath)Packed" DestinationFile="$(OutputZipFile)" PackageBuildDate="$(_PackageBuildDate)" />
         <Message Text="$(MSBuildProjectName) -&gt; $(MSBuildProjectDirectory)\$(OutputZipFile)" Importance="High" />
     </Target>
     
