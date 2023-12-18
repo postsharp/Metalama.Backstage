@@ -27,7 +27,7 @@ namespace Metalama.Backstage.Testing
 
         public TestDateTimeProvider Time { get; } = new();
 
-        public TestFileSystem? FileSystem { get; }
+        public TestFileSystem FileSystem { get; }
 
         public TestEnvironmentVariableProvider EnvironmentVariableProvider { get; } = new();
 

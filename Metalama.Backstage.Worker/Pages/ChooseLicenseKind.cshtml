@@ -11,43 +11,40 @@
 </script>
 
 <form method="POST">
-
     <input type="hidden" id="action" name="action" value=""/>
 
     <div class="arrow-buttons">
         <div onclick="submitForm('StartFree')">
-            <h4>Use Metalama Free</h4>
+            <h4>Use Metalama [Free]</h4>
             <p>
-                Free as in beer (a source-available one), but limited in features. Recommended to get
-                started, so you can start the trial when you feel you will need the extra features.
+                Discover the essentials with Metalama [Free] — your gateway to cleaner code.
+                Ideal for an initial foray, with an easy upgrade path when you're ready for more.
             </p>
         </div>
 
-        @if (this.LicenseRegistrationService.CanRegisterTrialEdition)
+        @if (LicenseRegistrationService.CanRegisterTrialEdition)
         {
             <div onclick="submitForm('StartTrial')">
-                <h4>Try Metalama Ultimate</h4>
-                <p>Start your 45-day evaluation of Metalama Ultimate</p>
+                <h4>Start a 45-day Trial of Metalama [Ultimate]</h4>
+                <p>Discover the full capabilities of Metalama Ultimate.</p>
                 <p>
-                    Or, if you have a long procurement process, you can request a
+                    For teams with extended procurement processes, request a
                     <a href="@Model.WebLinks.GetTeamTeamTrial" target="_blank">
-                        60-day renewable team
-                        evaluation key
-                    </a>. For teams of 5 or more devs.
+                        60-day renewable team evaluation key
+                    </a> (available for teams of 5 or more developers).
                 </p>
             </div>
         }
 
         <div onclick="submitForm('RegisterKey')">
-            <h4>Register a license key on this device</h4>
-            <p>Register a license in your user profile on the current device.</p>
+            <h4>Activate Your License Key</h4>
+            <p>Register your license key and associate it with your user profile on this device.</p>
         </div>
 
         <div onclick="submitForm('Skip')">
-            <h4>Use project-based licensing</h4>
-            <p>Choose this path if you plan to configure Metalama license keys in your source repos.</p>
+            <h4>Choose Repository-Based Licensing</h4>
+            <p>Go for this option to streamline Metalama license key management through your source repositories, eliminating those 'Activate Metalama' notifications.</p>
+
         </div>
-
     </div>
-
 </form>
