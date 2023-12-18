@@ -18,7 +18,7 @@ namespace Metalama.Backstage.Commands
             this._applicationInfo = applicationInfo;
         }
 
-        public IServiceProvider GetServiceProvider( ConsoleWriter console, BaseCommandSettings settings )
+        public IServiceProvider GetServiceProvider( CommandServiceProviderArgs args )
         {
             // ReSharper disable RedundantTypeArgumentsOfMethod
 
@@ -27,13 +27,18 @@ namespace Metalama.Backstage.Commands
             var serviceProviderBuilder = new ServiceProviderBuilder(
                 ( type, func ) => serviceCollection.Add( new ServiceDescriptor( type, func, ServiceLifetime.Singleton ) ) );
 
-            var loggerFactory = serviceCollection.BuildServiceProvider().GetService<ILoggerFactory>();
-            serviceProviderBuilder.AddService( typeof(ILoggerFactory), new AnsiConsoleLoggerFactory( console, settings ) );
+            var loggerFactory = serviceCollection.BuildServiceProvider().GetLoggerFactory();
+            serviceProviderBuilder.AddService( typeof(ILoggerFactory), new AnsiConsoleLoggerFactory( args.Console, args.Settings ) );
 
             var initializationOptions = new BackstageInitializationOptions( this._applicationInfo )
             {
-                AddLicensing = true, AddSupportServices = true, CreateLoggingFactory = _ => loggerFactory
+                AddLicensing = true,
+                AddSupportServices = true,
+                CreateLoggingFactory = _ => loggerFactory,
+                IsDevelopmentEnvironment = args.Settings.IsDevelopmentEnvironment
             };
+
+            initializationOptions = args.TransformOptions( initializationOptions );
 
             serviceProviderBuilder.AddBackstageServices( initializationOptions );
 

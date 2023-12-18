@@ -18,4 +18,6 @@ public interface ILicenseRegistrationService : IBackstageService
     bool TryRemoveCurrentLicense( [NotNullWhen( true )] out string? licenseString );
 
     LicenseProperties? RegisteredLicense { get; }
+
+    bool TryValidateLicenseKey( string licenseKey, [NotNullWhen(false)] out string? errorMessage );
 }

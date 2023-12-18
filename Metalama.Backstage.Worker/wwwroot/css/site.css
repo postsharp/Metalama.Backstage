@@ -76,7 +76,7 @@ div.checkbox input {
 
 
 /* Style for all text inputs */
-input[type="text"], input[type="email"], input[type="password"] {
+input[type="text"], input[type="email"], input[type="password"], textarea {
   width: 100%;
   padding: 10px;
   margin: 10px 0;
@@ -117,12 +117,12 @@ button:hover {
 }
 
 /* Adding some hover effects for text inputs */
-input[type="text"]:hover, input[type="email"]:hover, input[type="password"]:hover {
+input[type="text"]:hover, input[type="email"]:hover, input[type="password"]:hover, textarea {
   box-shadow: 0 0 8px rgba(255, 255, 255, 0.4);
 }
 
 /* Focus effect for text inputs */
-input[type="text"]:focus, input[type="email"]:focus, input[type="password"]:focus {
+input[type="text"]:focus, input[type="email"]:focus, input[type="password"]:focus, textarea {
   outline: none;
   box-shadow: 0 0 10px rgba(77, 77, 255, 0.6);
 }

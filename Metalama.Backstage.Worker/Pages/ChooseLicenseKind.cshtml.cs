@@ -40,7 +40,7 @@ public class ChooseLicenseKindPageModel : PageModel
             case "RegisterKey":
                 GlobalState.LicenseKind = LicenseKind.Register;
 
-                return this.Redirect( "/RegisterKey" );
+                return this.Redirect( "/LicenseKey" );
         }
 
         return this.Page();

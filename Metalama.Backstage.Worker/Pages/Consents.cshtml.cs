@@ -105,6 +105,13 @@ public class ConsentsPageModel : PageModel
 
             default:
                 {
+                    if ( GlobalState.LicenseKey == null )
+                    {
+                        this.ErrorMessages.Add( "No license key was provided." );
+
+                        return this.Page();
+                    }
+                    
                     if ( !this._licenseRegistrationService.TryRegisterLicense( GlobalState.LicenseKey, out var errorMessage ) )
                     {
                         this.ErrorMessages.Add( errorMessage );

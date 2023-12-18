@@ -20,4 +20,7 @@ public class BaseCommandSettings : CommandSettings
     [Description( "Attaches a debugger." )]
     [CommandOption( "--debug", IsHidden = true )]
     public bool Debug { get; protected set; }
+    
+    [CommandOption( "--dev", IsHidden = true )]
+    public bool IsDevelopmentEnvironment { get; init; }
 }

@@ -17,4 +17,6 @@ public class WebLinks : IBackstageService
     public string PrivacyPolicy => "https://www.postsharp.net/links/TODO";
     
     public string LicenseAgreement => "https://www.postsharp.net/links/TODO";
+
+    public string Documentation => "https://www.postsharp.net/links/TODO";
 }

@@ -131,7 +131,7 @@ namespace Metalama.Backstage.Licensing.Licenses
         {
             this._logger.Trace?.Log( $"Deserializing license '{this._licenseKey}'." );
 
-            if ( LicenseKeyData.TryDeserialize( this._licenseKey, out data, out var serializationErrorMessage ) )
+            if ( LicenseKeyData.TryDeserialize( this._licenseKey, out data, out _ ) )
             {
                 this._logger.Trace?.Log( $"Deserialized license: {data}" );
 
@@ -143,11 +143,11 @@ namespace Metalama.Backstage.Licensing.Licenses
             {
                 if ( TryGetLicenseId( this._licenseKey, out var id ) )
                 {
-                    errorMessage = $"Cannot parse license key ID {id}: {serializationErrorMessage}";
+                    errorMessage = $"Cannot parse license key ID {id}.";
                 }
                 else
                 {
-                    errorMessage = $"Cannot parse license key {this._licenseKey}: {serializationErrorMessage}";
+                    errorMessage = $"Cannot parse license key {this._licenseKey}.";
                 }
 
                 this._logger.Error?.Log( errorMessage );

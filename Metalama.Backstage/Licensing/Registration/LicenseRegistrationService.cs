@@ -165,4 +165,12 @@ internal class LicenseRegistrationService : ILicenseRegistrationService
             return licenseStorage.LicenseProperties;
         }
     }
+
+    public bool TryValidateLicenseKey( string licenseKey, [NotNullWhen(false)] out string? errorMessage )
+    {
+        var factory = new LicenseFactory( this._serviceProvider );
+
+        return factory.TryCreate( licenseKey, out var license, out errorMessage )
+               && license.TryGetProperties( out var _, out errorMessage );
+    }
 }

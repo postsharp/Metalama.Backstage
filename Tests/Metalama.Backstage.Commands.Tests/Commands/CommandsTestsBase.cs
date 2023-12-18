@@ -2,6 +2,7 @@
 
 using Metalama.Backstage.Commands;
 using Metalama.Backstage.Diagnostics;
+using Metalama.Backstage.Extensibility;
 using Metalama.Backstage.Testing;
 using Spectre.Console;
 using Spectre.Console.Cli;
@@ -62,6 +63,6 @@ namespace Metalama.Tools.Config.Tests.Commands
             this.Log.Clear();
         }
 
-        public IServiceProvider GetServiceProvider( ConsoleWriter console, BaseCommandSettings settings ) => this.ServiceProvider;
+        IServiceProvider ICommandServiceProviderProvider.GetServiceProvider( CommandServiceProviderArgs args ) => this.ServiceProvider;
     }
 }
