@@ -7,6 +7,8 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace Metalama.Backstage.Pages;
 
+#pragma warning disable SA1649
+
 public class ChooseLicenseKindPageModel : PageModel
 {
     public ChooseLicenseKindPageModel( WebLinks webLinks )

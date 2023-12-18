@@ -1,15 +1,12 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. See the LICENSE.md file in the root directory of this repository root for details.
 
 using Metalama.Backstage.Extensibility;
-using Metalama.Backstage.Infrastructure;
-using Metalama.Backstage.Licensing.Licenses;
-using Metalama.Backstage.Licensing.Registration;
 using System;
-using System.Diagnostics.CodeAnalysis;
 
 #if NETFRAMEWORK || NETCOREAPP
 using Microsoft.Win32;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 #endif
 
@@ -92,13 +89,11 @@ internal class WindowsUserInterfaceService : UserInterfaceService
 
                     if ( string.IsNullOrEmpty( path ) )
                     {
-                        path = null;
-
                         return false;
                     }
 
                     // Handling paths with arguments. That's not bullet proof but this should be enough.
-                    if ( !path.EndsWith( ".exe", StringComparison.OrdinalIgnoreCase ) )
+                    if ( !path!.EndsWith( ".exe", StringComparison.OrdinalIgnoreCase ) )
                     {
                         path = path.Substring( 0, path.LastIndexOf( ".exe", StringComparison.OrdinalIgnoreCase ) + 4 );
                     }

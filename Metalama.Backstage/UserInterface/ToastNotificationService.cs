@@ -38,7 +38,6 @@ public class ToastNotificationService : IToastNotificationService
         }
 
         if ( kindConfiguration.SnoozeUntil != null && kindConfiguration.SnoozeUntil > this._dateTimeProvider.Now )
-
         {
             return false;
         }

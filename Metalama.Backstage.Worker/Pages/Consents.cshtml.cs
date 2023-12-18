@@ -13,6 +13,8 @@ using System.Linq;
 
 namespace Metalama.Backstage.Pages;
 
+#pragma warning disable SA1649
+
 public class ConsentsPageModel : PageModel
 {
     private readonly ILicenseRegistrationService _licenseRegistrationService;

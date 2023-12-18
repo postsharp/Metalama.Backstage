@@ -12,7 +12,7 @@ public class TestToastNotificationService : ToastNotificationService
 
     public override bool CanShow => true;
 
-    public List<ToastNotification> Notifications { get; }
+    public List<ToastNotification> Notifications { get; } = new();
 
     protected override void ShowCore( ToastNotification notification ) => this.Notifications.Add( notification );
 }

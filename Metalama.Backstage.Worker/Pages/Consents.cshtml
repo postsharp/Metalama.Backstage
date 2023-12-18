@@ -1,5 +1,7 @@
 ﻿@page
+@using Metalama.Backstage.UserInterface
 @model ConsentsPageModel
+@inject WebLinks WebLinks;
 
 @section Scripts {
     <!--
@@ -40,7 +42,7 @@
     <div class="checkbox">
         <input type="checkbox" asp-for="EnableTelemetry ">
         <div class="label">
-            <label asp-for="EnableTelemetry ">Help improve Metalama by sending <a href="https://www.postsharp.net/company/legal/privacy-policy">anonymous usage and performance statistics</a>.</label>
+            <label asp-for="EnableTelemetry ">Help improve Metalama by sending <a href="@WebLinks.PrivacyPolicy">anonymous usage and performance statistics</a>.</label>
         </div>
     </div>
 
@@ -48,7 +50,7 @@
         <input type="checkbox" asp-for="AcceptLicense ">
         <div class="label">
             <label asp-for="AcceptLicense ">
-                I accept the terms of the License Agreement and the Privacy Policy. I understand
+                I accept the terms of the <a href="@WebLinks.LicenseAgreement">License Agreement</a> and the <a href="@WebLinks.PrivacyPolicy">Privacy Policy</a>. I understand
                 that the software is subject to License Audit and I consent with the collection of usage data.
             </label>
         </div>

@@ -168,7 +168,9 @@ internal class WindowsUserDeviceDetectionService : IUserDeviceDetectionService
             return false;
 
 #else
+#pragma warning disable IDE0025
             return null;
+#pragma warning restore IDE0025
 #endif
         }
     }

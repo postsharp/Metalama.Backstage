@@ -6,11 +6,12 @@ public static class GlobalState
 {
     public static LicenseKind LicenseKind { get; set; }
 
-    public static string LicenseKey { get; set; }
+    public static string? LicenseKey { get; set; }
 }
 
 public enum LicenseKind
 {
+    None,
     Trial,
     Free,
     Register,

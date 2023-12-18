@@ -7,7 +7,7 @@ namespace Metalama.Backstage.Desktop.Windows.Commands;
 public class NotificationCommandSettings : BaseSettings
 {
     [CommandArgument( 0, "<kind>" )]
-    public string Kind { get; set; }
+    public string Kind { get; set; } = null!;
 
     [CommandOption( "--text" )]
     public string? Text { get; set; }

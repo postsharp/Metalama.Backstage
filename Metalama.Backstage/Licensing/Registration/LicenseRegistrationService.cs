@@ -149,7 +149,7 @@ internal class LicenseRegistrationService : ILicenseRegistrationService
         }
         else
         {
-            licenseString = licenseStorage.LicenseString;
+            licenseString = licenseStorage.LicenseString!;
             licenseStorage.RemoveLicense();
 
             return true;

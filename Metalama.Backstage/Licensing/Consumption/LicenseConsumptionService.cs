@@ -73,7 +73,11 @@ internal partial class LicenseConsumptionService : ILicenseConsumptionService
 
         public string? LicenseString => throw new InvalidOperationException();
 
-        public event Action? Changed;
+        public event Action? Changed
+        {
+            add => throw new InvalidOperationException();
+            remove => throw new InvalidOperationException();
+        }
 
         public void Initialize() => throw new InvalidOperationException();
     }

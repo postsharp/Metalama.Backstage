@@ -12,7 +12,7 @@ namespace Metalama.Backstage.Licensing.Registration
     /// Properties returning a null value are not intended to be presented to a user.
     /// </remarks>
     public record LicenseProperties(
-        string LicenseString,
+        string? LicenseString,
         string UniqueId,
         bool IsSelfCreated,
         int? LicenseId,

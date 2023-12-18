@@ -3,9 +3,9 @@
 using Metalama.Backstage.Configuration;
 using Metalama.Backstage.Diagnostics;
 using Metalama.Backstage.Extensibility;
-using Metalama.Backstage.Utilities;
 using Metalama.Backstage.Infrastructure;
 using Metalama.Backstage.Tools;
+using Metalama.Backstage.Utilities;
 using System;
 using System.Collections.Generic;
 using System.Globalization;

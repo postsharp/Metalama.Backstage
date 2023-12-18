@@ -3,8 +3,6 @@
 using Metalama.Backstage.Diagnostics;
 using Metalama.Backstage.Extensibility;
 using Metalama.Backstage.Infrastructure;
-using Metalama.Backstage.Licensing;
-using Metalama.Backstage.Licensing.Consumption;
 using Metalama.Backstage.Licensing.Licenses;
 using Metalama.Backstage.Licensing.Registration;
 using Metalama.Backstage.Tools;
