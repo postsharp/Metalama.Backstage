@@ -22,6 +22,7 @@ namespace Metalama.Backstage.Tests.Licensing
                 new DateTime( 2021, 1, 1 ) ) { IsTelemetryEnabled = isTelemetryEnabled } )
         {
             this.LicenseFactory = new LicenseFactory( this.ServiceProvider );
+            this.UserDeviceDetection.IsInteractiveDevice = true;
         }
 
         protected string? ReadStoredLicenseString() => TestLicensingConfigurationHelpers.ReadStoredLicenseString( this.ServiceProvider );

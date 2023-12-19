@@ -5,6 +5,7 @@ using Metalama.Backstage.Application;
 using Metalama.Backstage.Commands.Configuration;
 using Metalama.Backstage.Configuration;
 using Metalama.Backstage.Diagnostics;
+using Metalama.Backstage.UserInterface;
 using Spectre.Console;
 using System;
 using System.Collections.Generic;
@@ -34,6 +35,7 @@ public sealed class BackstageCommandOptions
         this.StandardOutput = standardOutput ?? Console.Out;
         this.ErrorOutput = errorOutput ?? Console.Error;
         this.AddConfigurationFileAdapter<DiagnosticsConfiguration>();
+        this.AddConfigurationFileAdapter<ToastNotificationsConfiguration>();
     }
 
     internal void ConfigureConsole( AnsiConsoleSettings settings )

@@ -29,7 +29,11 @@ public partial class App
         BackstageServiceFactory.Initialize(
             new BackstageInitializationOptions( new DesktopWindowsApplicationInfo() )
             {
-                AddLicensing = true, IsDevelopmentEnvironment = settings.IsDevelopmentEnvironment, AddSupportServices = true, AddUserInterface = true
+                AddLicensing = true,
+                IsDevelopmentEnvironment = settings.IsDevelopmentEnvironment,
+                AddSupportServices = true,
+                AddUserInterface = true,
+                Initialize = false
             },
             "App" );
 

@@ -4,6 +4,7 @@ using Metalama.Backstage.Diagnostics;
 using Metalama.Backstage.Extensibility;
 using Metalama.Backstage.Infrastructure;
 using Metalama.Backstage.Licensing.Licenses;
+using Metalama.Backstage.UserInterface;
 using Metalama.Backstage.Utilities;
 using System;
 using System.Diagnostics.CodeAnalysis;
@@ -15,12 +16,30 @@ internal class LicenseRegistrationService : ILicenseRegistrationService
     private readonly IServiceProvider _serviceProvider;
     private readonly ILogger _logger;
     private readonly IDateTimeProvider _dateTimeProvider;
+    private readonly IUserDeviceDetectionService _userDeviceDetectionService;
 
     public LicenseRegistrationService( IServiceProvider serviceProvider )
     {
         this._serviceProvider = serviceProvider;
         this._logger = serviceProvider.GetLoggerFactory().GetLogger( this.GetType().Name );
         this._dateTimeProvider = serviceProvider.GetRequiredBackstageService<IDateTimeProvider>();
+        this._userDeviceDetectionService = serviceProvider.GetRequiredBackstageService<IUserDeviceDetectionService>();
+    }
+
+    private bool RequiresAttendedSession( [NotNullWhen( false )] out string? errorMessage )
+    {
+        if ( !this._userDeviceDetectionService.IsInteractiveDevice )
+        {
+            errorMessage = "This command must be executed from an interactive session.";
+
+            return false;
+        }
+        else
+        {
+            errorMessage = null;
+
+            return true;
+        }
     }
 
     /// <summary>
@@ -36,6 +55,11 @@ internal class LicenseRegistrationService : ILicenseRegistrationService
         void TraceFailure( string message )
         {
             this._logger.Trace?.Log( $"Failed to register Metalama Free license: {message}" );
+        }
+
+        if ( !this.RequiresAttendedSession( out errorMessage ) )
+        {
+            return false;
         }
 
         this._logger.Trace?.Log( "Registering Metalama Free license." );
@@ -74,6 +98,11 @@ internal class LicenseRegistrationService : ILicenseRegistrationService
 
     public bool TryRegisterTrialEdition( [NotNullWhen( false )] out string? errorMessage )
     {
+        if ( !this.RequiresAttendedSession( out errorMessage ) )
+        {
+            return false;
+        }
+
         this._logger.Trace?.Log( "Attempting to register an evaluation license." );
 
         using ( MutexHelper.WithGlobalLock( "Evaluation" ) )
@@ -113,6 +142,11 @@ internal class LicenseRegistrationService : ILicenseRegistrationService
 
     public bool TryRegisterLicense( string licenseString, [NotNullWhen( false )] out string? errorMessage )
     {
+        if ( !this.RequiresAttendedSession( out errorMessage ) )
+        {
+            return false;
+        }
+
         var factory = new LicenseFactory( this._serviceProvider );
 
         if ( !factory.TryCreate( licenseString, out var license, out errorMessage )
@@ -166,7 +200,7 @@ internal class LicenseRegistrationService : ILicenseRegistrationService
         }
     }
 
-    public bool TryValidateLicenseKey( string licenseKey, [NotNullWhen(false)] out string? errorMessage )
+    public bool TryValidateLicenseKey( string licenseKey, [NotNullWhen( false )] out string? errorMessage )
     {
         var factory = new LicenseFactory( this._serviceProvider );
 

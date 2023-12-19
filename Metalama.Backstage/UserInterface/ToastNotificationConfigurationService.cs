@@ -63,7 +63,7 @@ public class ToastNotificationConfigurationService : IToastNotificationConfigura
             {
                 Notifications = config.Notifications.SetItem(
                     kind.Name,
-                    new ToastNotificationConfiguration { SnoozeUntil = this._dateTimeProvider.Now + kind.AutoSnoozePeriod } )
+                    new ToastNotificationConfiguration { SnoozeUntil = this._dateTimeProvider.Now + kind.ManualSnoozePeriod } )
             } );
 
     public void Mute( ToastNotificationKind kind )

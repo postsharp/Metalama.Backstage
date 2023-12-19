@@ -11,11 +11,14 @@ public static class ToastNotificationKinds
 
     public static ToastNotificationKind VsxNotInstalled { get; } = new( nameof(VsxNotInstalled) ) { AutoSnoozePeriod = TimeSpan.FromHours( 1 ) };
 
-    public static ToastNotificationKind SubscriptionExpiring { get; } = new( nameof(SubscriptionExpiring) ) { AutoSnoozePeriod = TimeSpan.FromDays( 1 ) };
+    public static ToastNotificationKind SubscriptionExpiring { get; } =
+        new( nameof(SubscriptionExpiring) ) { AutoSnoozePeriod = TimeSpan.FromDays( 1 ), ManualSnoozePeriod = TimeSpan.FromDays( 7 ) };
 
-    public static ToastNotificationKind TrialExpiring { get; } = new( nameof(TrialExpiring) ) { AutoSnoozePeriod = TimeSpan.FromDays( 1 ) };
+    public static ToastNotificationKind TrialExpiring { get; } =
+        new( nameof(TrialExpiring) ) { AutoSnoozePeriod = TimeSpan.FromDays( 1 ), ManualSnoozePeriod = TimeSpan.FromDays( 3 ) };
 
-    public static ToastNotificationKind LicenseExpiring { get; } = new( nameof(LicenseExpiring) ) { AutoSnoozePeriod = TimeSpan.FromDays( 1 ) };
+    public static ToastNotificationKind LicenseExpiring { get; } =
+        new( nameof(LicenseExpiring) ) { AutoSnoozePeriod = TimeSpan.FromDays( 1 ), ManualSnoozePeriod = TimeSpan.FromDays( 3 ) };
 
     public static ImmutableDictionary<string, ToastNotificationKind> All { get; } =
         new[] { RequiresLicense, VsxNotInstalled, SubscriptionExpiring, TrialExpiring, LicenseExpiring }.ToImmutableDictionary( i => i.Name, i => i );

@@ -46,7 +46,7 @@ public class ToastNotificationConfigurationServiceTests : TestsBase
         Assert.False( this.ToastNotificationsConfiguration.TryAcquire( ToastNotificationKinds.LicenseExpiring ) );
 
         // Advance the clock.
-        this.Time.AddTime( ToastNotificationKinds.LicenseExpiring.AutoSnoozePeriod );
+        this.Time.AddTime( ToastNotificationKinds.LicenseExpiring.ManualSnoozePeriod );
 
         // Now this should work again.
         Assert.True( this.ToastNotificationsConfiguration.TryAcquire( ToastNotificationKinds.LicenseExpiring ) );

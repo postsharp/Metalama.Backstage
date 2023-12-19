@@ -10,4 +10,6 @@ public record ToastNotificationKind( string Name )
     /// Gets the period when the notification should not be displayed after it has been displayed.
     /// </summary>
     internal TimeSpan AutoSnoozePeriod { get; init; } = TimeSpan.FromHours( 1 );
+
+    public TimeSpan ManualSnoozePeriod { get; init; } = TimeSpan.FromDays( 1 );
 }
