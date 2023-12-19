@@ -29,12 +29,6 @@ internal static class LicenseConsumptionServiceFactory
             licenseSources.Add( new UserProfileLicenseSource( serviceProvider ) );
         }
 
-        if ( !options.IgnoreUserProfileLicenses )
-        {
-            // Must be added last.
-            licenseSources.Add( new PreviewLicenseSource( serviceProvider ) );
-        }
-
         return new LicenseConsumptionService( serviceProvider, licenseSources );
     }
 }

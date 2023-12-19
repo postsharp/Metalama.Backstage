@@ -160,34 +160,4 @@ public class SingleLicenseKeyTests : LicenseConsumptionManagerTestsBase
     [InlineData( LicenseRequirementTestEnum.Ultimate, true )]
     public void UnattendedLicenseAllowsRequirements( LicenseRequirementTestEnum requestedRequirement, bool expectedCanConsume )
         => this.TestOneLicenseSource( TestLicenseFactory.CreateUnattendedLicenseSource(), requestedRequirement, expectedCanConsume );
-
-    [Theory]
-    [InlineData( LicenseRequirementTestEnum.Free, true )]
-    [InlineData( LicenseRequirementTestEnum.Starter, true )]
-    [InlineData( LicenseRequirementTestEnum.Professional, true )]
-    [InlineData( LicenseRequirementTestEnum.Ultimate, true )]
-    public void PreviewLicenseAllowsRequirementsForPreviewBeforeTimeBomb( LicenseRequirementTestEnum requestedRequirement, bool expectedCanConsume )
-        => this.TestOneLicenseSource( TestLicenseFactory.CreatePreviewLicenseSource( true, 0 ), requestedRequirement, expectedCanConsume );
-
-    [Theory]
-    [InlineData( LicenseRequirementTestEnum.Free, false )]
-    [InlineData( LicenseRequirementTestEnum.Starter, false )]
-    [InlineData( LicenseRequirementTestEnum.Professional, false )]
-    [InlineData( LicenseRequirementTestEnum.Ultimate, false )]
-    public void PreviewLicenseDisallowsRequirementsForPreviewAfterTimeBomb( LicenseRequirementTestEnum requestedRequirement, bool expectedCanConsume )
-        => this.TestOneLicenseSource(
-            TestLicenseFactory.CreatePreviewLicenseSource( true, PreviewLicenseSource.PreviewLicensePeriod + 1 ),
-            requestedRequirement,
-            expectedCanConsume );
-
-    [Theory]
-    [InlineData( LicenseRequirementTestEnum.Free, false )]
-    [InlineData( LicenseRequirementTestEnum.Starter, false )]
-    [InlineData( LicenseRequirementTestEnum.Professional, false )]
-    [InlineData( LicenseRequirementTestEnum.Ultimate, false )]
-    public void PreviewLicenseDisallowsRequirementsForNotPreviewBeforeTimeBomb( LicenseRequirementTestEnum requestedRequirement, bool expectedCanConsume )
-        => this.TestOneLicenseSource(
-            TestLicenseFactory.CreatePreviewLicenseSource( false, 0 ),
-            requestedRequirement,
-            expectedCanConsume );
 }
