@@ -8,14 +8,14 @@ using System;
 namespace Metalama.Backstage.UserInterface;
 
 /// <summary>
-/// The production implementation of <see cref="IToastNotificationConfigurationService"/>. 
+/// The production implementation of <see cref="IToastNotificationStatusService"/>. 
 /// </summary>
-public class ToastNotificationConfigurationService : IToastNotificationConfigurationService
+public class ToastNotificationStatusService : IToastNotificationStatusService
 {
     private readonly IConfigurationManager _configurationManager;
     private readonly IDateTimeProvider _dateTimeProvider;
 
-    public ToastNotificationConfigurationService( IServiceProvider serviceProvider )
+    public ToastNotificationStatusService( IServiceProvider serviceProvider )
     {
         this._configurationManager = serviceProvider.GetRequiredBackstageService<IConfigurationManager>();
         this._dateTimeProvider = serviceProvider.GetRequiredBackstageService<IDateTimeProvider>();

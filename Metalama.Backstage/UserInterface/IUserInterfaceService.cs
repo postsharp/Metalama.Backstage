@@ -15,7 +15,7 @@ public interface IUserInterfaceService : IBackstageService
 
     /// <summary>
     /// Shows a toast notification. This method does not take the mute and snooze status into account.
-    /// This is the job of the <see cref="IToastNotificationConfigurationService"/>.
+    /// This is the job of the <see cref="IToastNotificationService"/>.
     /// </summary>
     void ShowToastNotification( ToastNotification notification, ref bool notificationReported );
 }

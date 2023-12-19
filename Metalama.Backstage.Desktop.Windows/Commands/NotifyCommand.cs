@@ -1,19 +1,20 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. See the LICENSE.md file in the root directory of this repository root for details.
 
 using Microsoft.Toolkit.Uwp.Notifications;
-using Spectre.Console.Cli;
 using System;
 using System.IO;
 
 namespace Metalama.Backstage.Desktop.Windows.Commands;
 
-public sealed class NotifyCommand : Command<NotifyCommandSettings>
+public sealed class NotifyCommand : BaseCommand<NotifyCommandSettings>
 {
     public const string Name = "notify";
 
-    public override int Execute( CommandContext context, NotifyCommandSettings settings )
+    protected override int Execute( ExtendedCommandContext context, NotifyCommandSettings settings )
     {
-        if ( !ViewModelBuilder.TryGetNotificationViewModel( settings, out var notificationViewModel ) )
+        var logger = context.Logger;
+
+        if ( !ViewModelBuilder.TryGetNotificationViewModel( context.ServiceProvider, settings, out var notificationViewModel ) )
         {
             return -1;
         }
@@ -46,6 +47,8 @@ public sealed class NotifyCommand : Command<NotifyCommandSettings>
 
         builder.AddButton( "Snooze", ToastActivationType.Foreground, activationArguments.Snooze );
         builder.AddButton( "Mute", ToastActivationType.Foreground, activationArguments.Mute );
+
+        logger.Trace?.Log( builder.Content.GetXml().GetXml() );
 
         builder.Show();
 

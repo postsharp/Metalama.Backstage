@@ -242,8 +242,10 @@ public static class RegisterServiceExtensions
             serviceProviderBuilder.AddService( typeof(WebLinks), _ => new WebLinks() );
 
             serviceProviderBuilder.AddService(
-                typeof(IToastNotificationConfigurationService),
-                serviceProvider => new ToastNotificationConfigurationService( serviceProvider ) );
+                typeof(IToastNotificationStatusService),
+                serviceProvider => new ToastNotificationStatusService( serviceProvider ) );
+
+            serviceProviderBuilder.AddService( typeof(IToastNotificationService), serviceProvider => new ToastNotificationService( serviceProvider ) );
 
             if ( RuntimeInformation.IsOSPlatform( OSPlatform.Windows ) )
             {

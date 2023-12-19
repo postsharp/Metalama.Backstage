@@ -39,9 +39,16 @@ internal class WindowsUserInterfaceService : UserInterfaceService
             arguments += $" --text \"{notification.Text}\"";
         }
 
-        // Start the UI process.
-        this._toolsExecutor.Start( BackstageTool.DesktopWindows, arguments );
-        notificationReported = true;
+        try
+        {
+            // Start the UI process.
+            this._toolsExecutor.Start( BackstageTool.DesktopWindows, arguments );
+            notificationReported = true;
+        }
+        catch ( Exception e )
+        {
+            this.Logger.Error?.Log( "Cannot show notification: " + e.Message );
+        }
     }
 
 #if NETFRAMEWORK || NETCOREAPP

@@ -20,18 +20,18 @@ public class ConsentsPageModel : PageModel
     private readonly ILicenseRegistrationService _licenseRegistrationService;
     private readonly ITelemetryConfigurationService _telemetryConfigurationService;
     private readonly IIdeExtensionStatusService _ideExtensionStatusService;
-    private readonly IToastNotificationConfigurationService _toastNotificationConfigurationService;
+    private readonly IToastNotificationStatusService _toastNotificationStatusService;
 
     public ConsentsPageModel(
         ILicenseRegistrationService licenseRegistrationService,
         ITelemetryConfigurationService telemetryConfigurationService,
         IIdeExtensionStatusService ideExtensionStatusService,
-        IToastNotificationConfigurationService toastNotificationConfigurationService )
+        IToastNotificationStatusService toastNotificationStatusService )
     {
         this._licenseRegistrationService = licenseRegistrationService;
         this._telemetryConfigurationService = telemetryConfigurationService;
         this._ideExtensionStatusService = ideExtensionStatusService;
-        this._toastNotificationConfigurationService = toastNotificationConfigurationService;
+        this._toastNotificationStatusService = toastNotificationStatusService;
     }
 
     public List<string> ErrorMessages { get; } = new();
@@ -98,7 +98,7 @@ public class ConsentsPageModel : PageModel
 
             case LicenseKind.Skip:
                 {
-                    this._toastNotificationConfigurationService.Mute( ToastNotificationKinds.RequiresLicense );
+                    this._toastNotificationStatusService.Mute( ToastNotificationKinds.RequiresLicense );
 
                     break;
                 }

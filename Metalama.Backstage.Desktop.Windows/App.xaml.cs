@@ -1,6 +1,7 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. See the LICENSE.md file in the root directory of this repository root for details.
 
 using Metalama.Backstage.Desktop.Windows.Commands;
+using Metalama.Backstage.Diagnostics;
 using Metalama.Backstage.Extensibility;
 using Microsoft.Toolkit.Uwp.Notifications;
 using Spectre.Console.Cli;
@@ -29,13 +30,16 @@ public partial class App
         BackstageServiceFactory.Initialize(
             new BackstageInitializationOptions( new DesktopWindowsApplicationInfo() )
             {
-                AddLicensing = true,
+                AddLicensing = false,
                 IsDevelopmentEnvironment = settings.IsDevelopmentEnvironment,
                 AddSupportServices = true,
                 AddUserInterface = true,
                 Initialize = false
             },
-            "App" );
+            "Metalama.Backstage.Desktop.Windows" );
+
+        var logger = BackstageServiceFactory.ServiceProvider.GetLoggerFactory().GetLogger( "App" );
+        logger.Trace?.Log( $"Executing: {string.Join( ' ', Environment.GetCommandLineArgs() )}" );
 
         return BackstageServiceFactory.ServiceProvider;
     }

@@ -22,4 +22,7 @@ public static class ToastNotificationKinds
 
     public static ImmutableDictionary<string, ToastNotificationKind> All { get; } =
         new[] { RequiresLicense, VsxNotInstalled, SubscriptionExpiring, TrialExpiring, LicenseExpiring }.ToImmutableDictionary( i => i.Name, i => i );
+
+    public static ToastNotificationKind Exception { get; } =
+        new( nameof(Exception) ) { AutoSnoozePeriod = TimeSpan.FromSeconds( 5 ), ManualSnoozePeriod = TimeSpan.FromHours( 1 ) };
 }

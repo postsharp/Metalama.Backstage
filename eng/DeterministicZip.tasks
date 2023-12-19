@@ -19,13 +19,13 @@
 
                 using (var zipArchive = ZipFile.Open(DestinationFile, ZipArchiveMode.Update))
                 {
-                    var files = Directory.GetFiles(SourceDirectory, "*.*") ?? throw new InvalidOperationException("Now files to pack.");
+                    var files = Directory.GetFiles(SourceDirectory, "*.*", SearchOption.AllDirectories ) ?? throw new InvalidOperationException("No files to pack.");
 
                     Array.Sort(files);
 
                     foreach (var file in files)
                     {
-                        var entryName = Path.GetFileName(file) ?? throw new InvalidOperationException($"Failed to calculate entry name of '{file}'.");
+                        var entryName = file.Substring(SourceDirectory.Length).TrimStart(Path.DirectorySeparatorChar).Replace('\\', '/');
                         var entry = zipArchive.CreateEntryFromFile(file, entryName);
                         entry.LastWriteTime = packageBuildDate;
                     }

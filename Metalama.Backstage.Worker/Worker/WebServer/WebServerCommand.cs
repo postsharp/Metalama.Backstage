@@ -1,10 +1,12 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. See the LICENSE.md file in the root directory of this repository root for details.
 
+using Metalama.Backstage.Worker.Logger;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using Spectre.Console.Cli;
 using System;
 using System.IO;
@@ -23,6 +25,9 @@ internal class WebServerCommand : AsyncCommand<WebServerCommandSettings>
         builder.Services.AddCors();
         builder.Services.AddControllers();
         builder.Services.AddRazorPages();
+
+        builder.Services.Add(
+            new ServiceDescriptor( typeof(ILoggerProvider), serviceProvider => new DotNetLoggerProvider( serviceProvider ), ServiceLifetime.Singleton ) );
 
         // Inject backstage services into the ASP.NET service collection.
         foreach ( var service in appData.ServiceCollection )
@@ -75,10 +80,10 @@ internal class WebServerCommand : AsyncCommand<WebServerCommandSettings>
             {
                 // This would happen if the server cannot start.
                 await serverTask;
-                
+
                 break;
             }
-            
+
             await Task.Delay( shutDownTime - DateTime.Now );
         }
 

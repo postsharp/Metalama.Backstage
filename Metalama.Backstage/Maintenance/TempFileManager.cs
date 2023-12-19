@@ -22,7 +22,10 @@ public class TempFileManager : ITempFileManager
     private readonly IStandardDirectories _standardDirectories;
     private readonly IDateTimeProvider _time;
     private readonly IConfigurationManager _configurationManager;
-    private readonly string _version;
+    private readonly string _applicationVersion;
+
+    private readonly string _backstageVersion = AssemblyMetadataReader.GetInstance( typeof(TempFileManager).Assembly ).PackageVersion
+                                                ?? throw new InvalidOperationException();
 
     public TempFileManager( IServiceProvider serviceProvider )
     {
@@ -35,8 +38,8 @@ public class TempFileManager : ITempFileManager
 
         var application = serviceProvider.GetRequiredBackstageService<IApplicationInfoProvider>().CurrentApplication;
 
-        this._version = application.GetLatestComponentMadeByPostSharp().Version ??
-                        throw new InvalidOperationException( "The application version is not set." );
+        this._applicationVersion = application.GetLatestComponentMadeByPostSharp().Version ??
+                                   throw new InvalidOperationException( "The application version is not set." );
     }
 
     /// <summary>
@@ -235,12 +238,20 @@ public class TempFileManager : ITempFileManager
         string directory,
         CleanUpStrategy cleanUpStrategy,
         string? subdirectory = null,
-        bool versionNeutral = false )
+        TempFileVersionScope versionScope = TempFileVersionScope.Default )
     {
+        var version = versionScope switch
+        {
+            TempFileVersionScope.Backstage => this._backstageVersion,
+            TempFileVersionScope.Default => this._applicationVersion,
+            TempFileVersionScope.None => "",
+            _ => throw new ArgumentOutOfRangeException( nameof(versionScope) )
+        };
+
         var directoryFullPath = Path.Combine(
             this._standardDirectories.TempDirectory,
             directory,
-            versionNeutral ? "" : this._version,
+            version,
             subdirectory ?? "" );
 
         var cleanUpFilePath = Path.Combine( directoryFullPath, "cleanup.json" );

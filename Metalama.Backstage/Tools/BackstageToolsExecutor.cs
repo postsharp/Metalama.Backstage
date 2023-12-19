@@ -28,7 +28,7 @@ internal class BackstageToolsExecutor : IBackstageToolsExecutor
         this._fileSystem = serviceProvider.GetRequiredBackstageService<IFileSystem>();
     }
 
-    public void Start( BackstageTool tool, string arguments )
+    public IProcess Start( BackstageTool tool, string arguments )
     {
         if ( this._locator.ToolsMustBeExtracted )
         {
@@ -39,23 +39,35 @@ internal class BackstageToolsExecutor : IBackstageToolsExecutor
 
         var workerDirectory = this._locator.GetToolDirectory( tool );
 
-        var dotnetPath = this._platformInfo.DotNetExePath;
-        var programPath = Path.Combine( workerDirectory, $"{tool.Name}.dll" );
+        var programPath = Path.Combine( workerDirectory, $"{tool.Name}.{(tool.IsExe ? "exe" : "dll")}" );
 
         if ( !this._fileSystem.FileExists( programPath ) )
         {
             throw new FileNotFoundException( $"The file '{programPath}' does not exist.", programPath );
         }
 
-        var allArguments = $"\"{programPath}\" " + arguments;
+        ProcessStartInfo processStartInfo;
 
-        var processStartInfo = new ProcessStartInfo()
+        if ( tool.IsExe )
         {
-            FileName = dotnetPath, Arguments = allArguments, UseShellExecute = true, WindowStyle = ProcessWindowStyle.Hidden
-        };
+            processStartInfo = new ProcessStartInfo()
+            {
+                FileName = programPath, Arguments = arguments, UseShellExecute = tool.UseShellExecute, WindowStyle = tool.WindowStyle
+            };
+        }
+        else
+        {
+            var dotnetPath = this._platformInfo.DotNetExePath;
+            var allArguments = $"\"{programPath}\" " + arguments;
 
-        this._logger.Info?.Log( $"Starting '{dotnetPath}{(arguments == "" ? "" : " ")}{allArguments}'." );
+            processStartInfo = new ProcessStartInfo()
+            {
+                FileName = dotnetPath, Arguments = allArguments, UseShellExecute = tool.UseShellExecute, WindowStyle = tool.WindowStyle
+            };
+        }
 
-        this._processExecutor.Start( processStartInfo );
+        this._logger.Info?.Log( $"Starting '{processStartInfo.FileName} {processStartInfo.Arguments}." );
+
+        return this._processExecutor.Start( processStartInfo );
     }
 }

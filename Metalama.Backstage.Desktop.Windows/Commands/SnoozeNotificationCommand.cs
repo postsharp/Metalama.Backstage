@@ -2,27 +2,23 @@
 
 using Metalama.Backstage.Extensibility;
 using Metalama.Backstage.UserInterface;
-using Spectre.Console.Cli;
-using System;
 
 namespace Metalama.Backstage.Desktop.Windows.Commands;
 
-internal class SnoozeNotificationCommand : Command<MuteNotificationCommandSettings>
+internal class SnoozeNotificationCommand : BaseCommand<MuteNotificationCommandSettings>
 {
     public const string Name = "snooze";
 
-    public override int Execute( CommandContext context, MuteNotificationCommandSettings settings )
+    protected override int Execute( ExtendedCommandContext context, MuteNotificationCommandSettings settings )
     {
-        var serviceProvider = App.GetBackstageServices( settings );
-
         if ( !ToastNotificationKinds.All.TryGetValue( settings.Kind, out var kind ) )
         {
-            Console.WriteLine( $"Invalid notification kind: {settings.Kind}." );
+            context.Logger.Error?.Log( $"Invalid notification kind: {settings.Kind}." );
 
             return 1;
         }
 
-        serviceProvider.GetRequiredBackstageService<IToastNotificationConfigurationService>().Snooze( kind );
+        context.ServiceProvider.GetRequiredBackstageService<IToastNotificationStatusService>().Snooze( kind );
 
         return 0;
     }

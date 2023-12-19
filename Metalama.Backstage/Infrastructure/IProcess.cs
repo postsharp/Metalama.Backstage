@@ -1,11 +1,10 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. See the LICENSE.md file in the root directory of this repository root for details.
 
-using Metalama.Backstage.Extensibility;
-using System.Diagnostics;
+using System;
 
 namespace Metalama.Backstage.Infrastructure;
 
-public interface IProcessExecutor : IBackstageService
+public interface IProcess : IDisposable
 {
-    IProcess Start( ProcessStartInfo startInfo );
+    event Action Exited;
 }

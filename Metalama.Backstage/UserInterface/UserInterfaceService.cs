@@ -44,18 +44,12 @@ public abstract class UserInterfaceService : IUserInterfaceService
     {
         var daysToExpiration = (int) Math.Floor( (expiration - this._dateTimeProvider.Now).TotalDays );
 
-        if ( daysToExpiration == 0 )
+        return daysToExpiration switch
         {
-            return "today";
-        }
-        else if ( daysToExpiration == 1 )
-        {
-            return "tomorrow";
-        }
-        else
-        {
-            return $"in {daysToExpiration} days";
-        }
+            0 => "today",
+            1 => "tomorrow",
+            _ => $"in {daysToExpiration} days"
+        };
     }
 
     private void ValidateRegisteredLicense( LicenseProperties? license, ref bool notificationReported )
@@ -150,7 +144,9 @@ public abstract class UserInterfaceService : IUserInterfaceService
         // TODO: Find a free port. 
         const int port = 5252;
 
-        this._backstageToolExecutor.Start( BackstageTool.Worker, $"web --port {port} " );
+        var processHasExited = false;
+        using var webServerProcess = this._backstageToolExecutor.Start( BackstageTool.Worker, $"web --port {port} " );
+        webServerProcess.Exited += () => processHasExited = true;
 
         // Wait until the server has started.
         var baseAddress = new Uri( $"https://localhost:{port}/" );
@@ -159,9 +155,34 @@ public abstract class UserInterfaceService : IUserInterfaceService
 
         var stopwatch = Stopwatch.StartNew();
 
-        while ( !(await httpClient.GetAsync( baseAddress )).IsSuccessStatusCode )
+        this.Logger.Info?.Log( "Waiting for the HTTP server." );
+
+        while ( true )
         {
-            this.Logger.Info?.Log( "Waiting for the HTTP server." );
+            try
+            {
+                if ( processHasExited )
+                {
+                    this.Logger.Error?.Log( "The server process has exited prematurely." );
+
+                    return;
+                }
+
+                var response = await httpClient.GetAsync( baseAddress );
+
+                if ( response.IsSuccessStatusCode )
+                {
+                    break;
+                }
+            }
+            catch ( TaskCanceledException )
+            {
+                // This happens because of the timeout.
+            }
+            catch ( HttpRequestException e )
+            {
+                this.Logger.Warning?.Log( e.Message );
+            }
 
             if ( stopwatch.Elapsed.TotalSeconds > 30 )
             {

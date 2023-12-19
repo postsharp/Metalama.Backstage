@@ -4,7 +4,7 @@ using Metalama.Backstage.Extensibility;
 
 namespace Metalama.Backstage.UserInterface;
 
-public interface IToastNotificationConfigurationService : IBackstageService
+public interface IToastNotificationStatusService : IBackstageService
 {
     /// <summary>
     /// Tries to acquire the right to display a notification, and updates the snooze period.

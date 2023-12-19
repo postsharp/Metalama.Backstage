@@ -2,19 +2,16 @@
 
 using Metalama.Backstage.Extensibility;
 using Metalama.Backstage.UserInterface;
-using Spectre.Console.Cli;
 using System;
 
 namespace Metalama.Backstage.Desktop.Windows.Commands;
 
-internal class MuteNotificationCommand : Command<MuteNotificationCommandSettings>
+internal class MuteNotificationCommand : BaseCommand<MuteNotificationCommandSettings>
 {
     public const string Name = "mute";
 
-    public override int Execute( CommandContext context, MuteNotificationCommandSettings settings )
+    protected override int Execute( ExtendedCommandContext context, MuteNotificationCommandSettings settings )
     {
-        var serviceProvider = App.GetBackstageServices( settings );
-
         if ( !ToastNotificationKinds.All.TryGetValue( settings.Kind, out var kind ) )
         {
             Console.WriteLine( $"Invalid notification kind: {settings.Kind}." );
@@ -22,7 +19,7 @@ internal class MuteNotificationCommand : Command<MuteNotificationCommandSettings
             return 1;
         }
 
-        serviceProvider.GetRequiredBackstageService<IToastNotificationConfigurationService>().Mute( kind );
+        context.ServiceProvider.GetRequiredBackstageService<IToastNotificationStatusService>().Mute( kind );
 
         return 0;
     }

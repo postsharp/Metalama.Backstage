@@ -48,7 +48,7 @@ namespace Metalama.Backstage.Testing
 
         public TestUserInterfaceService UserInterface { get; }
 
-        public TestToastNotificationConfigurationService ToastNotificationsConfiguration { get; }
+        public TestToastNotificationStatusService ToastNotificationsStatus { get; }
 
         protected IServiceCollection CloneServiceCollection()
         {
@@ -82,8 +82,8 @@ namespace Metalama.Backstage.Testing
             this.FileSystem = (TestFileSystem) this.ServiceProvider.GetRequiredBackstageService<IFileSystem>();
             this.UserInterface = (TestUserInterfaceService) this.ServiceProvider.GetRequiredBackstageService<IUserInterfaceService>();
 
-            this.ToastNotificationsConfiguration =
-                (TestToastNotificationConfigurationService) this.ServiceProvider.GetRequiredBackstageService<IToastNotificationConfigurationService>();
+            this.ToastNotificationsStatus =
+                (TestToastNotificationStatusService) this.ServiceProvider.GetRequiredBackstageService<IToastNotificationStatusService>();
         }
 
         protected ServiceCollection CreateServiceCollection(
@@ -115,7 +115,7 @@ namespace Metalama.Backstage.Testing
                 .AddSingleton<IBackstageToolsExecutor>( serviceProvider => new BackstageToolsExecutor( serviceProvider ) )
                 .AddSingleton<IBackstageToolsLocator>( serviceProvider => new BackstageToolsLocator( serviceProvider ) )
                 .AddSingleton<IUserInterfaceService>( serviceProvider => new TestUserInterfaceService( serviceProvider ) )
-                .AddSingleton<IToastNotificationConfigurationService>( serviceProvider => new TestToastNotificationConfigurationService( serviceProvider ) )
+                .AddSingleton<IToastNotificationStatusService>( serviceProvider => new TestToastNotificationStatusService( serviceProvider ) )
                 .AddSingleton<BackstageServicesInitializer>( serviceProvider => new BackstageServicesInitializer( serviceProvider ) )
                 .AddSingleton<WelcomeService>( serviceProvider => new WelcomeService( serviceProvider ) )
                 .AddSingleton<IIdeExtensionStatusService>( serviceProvider => new IdeExtensionStatusService( serviceProvider ) );

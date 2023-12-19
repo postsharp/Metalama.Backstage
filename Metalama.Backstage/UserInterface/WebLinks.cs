@@ -23,4 +23,6 @@ public class WebLinks : IBackstageService
     public string InstallVsx => "https://www.postsharp.net/links/TODO";
 
     public string RenewSubscription => "https://www.postsharp.net/links/TODO";
+
+    public string UnhandledException => "https://www.postsharp.net/links/TODO";
 }

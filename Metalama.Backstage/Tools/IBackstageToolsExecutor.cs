@@ -1,12 +1,13 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. See the LICENSE.md file in the root directory of this repository root for details.
 
 using Metalama.Backstage.Extensibility;
+using Metalama.Backstage.Infrastructure;
 
 namespace Metalama.Backstage.Tools;
 
 public interface IBackstageToolsExecutor : IBackstageService
 {
-    void Start( BackstageTool tool, string arguments );
+    IProcess Start( BackstageTool tool, string arguments );
 }
 
 public interface IBackstageToolsLocator : IBackstageService

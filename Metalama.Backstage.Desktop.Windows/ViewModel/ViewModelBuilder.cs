@@ -2,16 +2,19 @@
 
 using Metalama.Backstage.Extensibility;
 using Metalama.Backstage.UserInterface;
+using System;
 using System.Diagnostics.CodeAnalysis;
 
 namespace Metalama.Backstage.Desktop.Windows.Commands;
 
 internal static class ViewModelBuilder
 {
-    public static bool TryGetNotificationViewModel( NotifyCommandSettings settings, [NotNullWhen( true )] out NotificationViewModel? viewModel )
+    public static bool TryGetNotificationViewModel(
+        IServiceProvider serviceProvider,
+        NotifyCommandSettings settings,
+        [NotNullWhen( true )] out NotificationViewModel? viewModel )
     {
         var activationArguments = new ActivationArguments( settings );
-        var serviceProvider = App.GetBackstageServices( settings );
         var webLinks = serviceProvider.GetRequiredBackstageService<WebLinks>();
 
         if ( settings.Kind == ToastNotificationKinds.RequiresLicense.Name )
@@ -66,6 +69,16 @@ internal static class ViewModelBuilder
                 settings.Title ?? "Your Metalama subscription is expiring",
                 settings.Text ?? "Renew your subscription to benefit from continued updates and support.",
                 new CommandActionViewModel( "Open", activationArguments.Setup ) );
+
+            return true;
+        }
+        else if ( settings.Kind == ToastNotificationKinds.Exception.Name )
+        {
+            viewModel = new NotificationViewModel(
+                settings.Kind,
+                "Metalama failed",
+                "Metalama encountered an unhandled exception.",
+                new OpenWebPageActionViewModel( "Open", webLinks.UnhandledException ) );
 
             return true;
         }

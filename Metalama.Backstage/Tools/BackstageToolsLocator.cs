@@ -20,6 +20,7 @@ internal sealed class BackstageToolsLocator : IBackstageToolsLocator
     public string GetToolDirectory( BackstageTool tool )
         => this._tempFileManager.GetTempDirectory(
             "Tools",
+            cleanUpStrategy: CleanUpStrategy.WhenUnused,
             subdirectory: tool.Name,
-            cleanUpStrategy: CleanUpStrategy.WhenUnused );
+            TempFileVersionScope.Backstage );
 }

@@ -7,18 +7,18 @@ namespace Metalama.Backstage.UserInterface;
 
 internal class BrowserBasedUserInterfaceService : UserInterfaceService
 {
-    private readonly IToastNotificationConfigurationService _toastNotificationConfigurationService;
+    private readonly IToastNotificationStatusService _toastNotificationStatusService;
 
     public BrowserBasedUserInterfaceService( IServiceProvider serviceProvider ) : base( serviceProvider )
     {
-        this._toastNotificationConfigurationService = serviceProvider.GetRequiredBackstageService<IToastNotificationConfigurationService>();
+        this._toastNotificationStatusService = serviceProvider.GetRequiredBackstageService<IToastNotificationStatusService>();
     }
 
     public override void ShowToastNotification( ToastNotification notification, ref bool notificationReported )
     {
         if ( notification.Kind == ToastNotificationKinds.RequiresLicense )
         {
-            if ( this._toastNotificationConfigurationService.TryAcquire( ToastNotificationKinds.RequiresLicense ) )
+            if ( this._toastNotificationStatusService.TryAcquire( ToastNotificationKinds.RequiresLicense ) )
             {
                 _ = this.OpenConfigurationWebPageAsync( "Setup" );
                 notificationReported = true;

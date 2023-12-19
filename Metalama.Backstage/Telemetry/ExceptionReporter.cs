@@ -5,6 +5,7 @@ using Metalama.Backstage.Configuration;
 using Metalama.Backstage.Diagnostics;
 using Metalama.Backstage.Extensibility;
 using Metalama.Backstage.Infrastructure;
+using Metalama.Backstage.UserInterface;
 using Metalama.Backstage.Utilities;
 using System;
 using System.Collections.Generic;
@@ -31,6 +32,7 @@ internal class ExceptionReporter : IExceptionReporter, IDisposable
     private readonly IConfigurationManager _configurationManager;
     private readonly IFileSystem _fileSystem;
     private readonly bool _canIgnoreRecoverableExceptions;
+    private readonly IToastNotificationService? _toastNotificationService;
     private TelemetryConfiguration _configuration;
 
     public ExceptionReporter( TelemetryQueue uploadManager, IServiceProvider serviceProvider )
@@ -45,6 +47,7 @@ internal class ExceptionReporter : IExceptionReporter, IDisposable
         this._logger = serviceProvider.GetLoggerFactory().Telemetry();
         this._fileSystem = serviceProvider.GetRequiredBackstageService<IFileSystem>();
         this._canIgnoreRecoverableExceptions = serviceProvider.GetRequiredBackstageService<IRecoverableExceptionService>().CanIgnore;
+        this._toastNotificationService = serviceProvider.GetBackstageService<IToastNotificationService>();
     }
 
     private void OnConfigurationChanged( ConfigurationFile configuration )
@@ -227,6 +230,8 @@ internal class ExceptionReporter : IExceptionReporter, IDisposable
     {
         try
         {
+            this._toastNotificationService?.Show( new ToastNotification( ToastNotificationKinds.Exception ) );
+
             if ( !this.ShouldReportException( reportedException ) )
             {
                 return;

@@ -2,16 +2,15 @@
 
 using Metalama.Backstage.Extensibility;
 using Metalama.Backstage.UserInterface;
-using Spectre.Console.Cli;
 using System.Threading.Tasks;
 
 namespace Metalama.Backstage.Desktop.Windows.Commands;
 
-internal class SetupWizardCommand : AsyncCommand<BaseSettings>
+internal class SetupWizardCommand : BaseAsyncCommand<BaseSettings>
 {
     public const string Name = "setup";
 
-    public override async Task<int> ExecuteAsync( CommandContext context, BaseSettings settings )
+    protected override async Task<int> ExecuteAsync( ExtendedCommandContext context, BaseSettings settings )
     {
         // Start the web server.
         var serviceProvider = App.GetBackstageServices( settings );
