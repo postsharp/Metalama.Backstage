@@ -8,8 +8,7 @@ using System;
 namespace Metalama.Backstage.UserInterface;
 
 /// <summary>
-/// A base implementation of <see cref="IToastNotificationConfigurationService"/> that does not support the <see cref="Show"/>
-/// method but manages the configuration and snoozing. 
+/// The production implementation of <see cref="IToastNotificationConfigurationService"/>. 
 /// </summary>
 public class ToastNotificationConfigurationService : IToastNotificationConfigurationService
 {

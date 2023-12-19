@@ -57,7 +57,7 @@ public record BackstageInitializationOptions( IApplicationInfo ApplicationInfo, 
     public Func<IServiceProvider, ILoggerFactory>? CreateLoggingFactory { get; init; }
 
     /// <summary>
-    /// Gets an value indicating whether the services should be initialized. The default value is <c>true</c>.
+    /// Gets a value indicating whether the services should be initialized. The default value is <c>true</c>.
     /// It can be set to <c>false</c> in scenarios where it is not necessary to build up the whole application
     /// because just a few services will be used.
     /// </summary>

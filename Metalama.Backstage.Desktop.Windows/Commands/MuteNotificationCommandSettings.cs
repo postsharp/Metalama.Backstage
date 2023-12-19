@@ -7,5 +7,5 @@ namespace Metalama.Backstage.Desktop.Windows.Commands;
 internal class MuteNotificationCommandSettings : BaseSettings
 {
     [CommandArgument( 0, "<kind>" )]
-    public string Kind { get; init; }
+    public string Kind { get; init; } = null!;
 }

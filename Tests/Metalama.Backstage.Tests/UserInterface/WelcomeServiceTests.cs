@@ -97,7 +97,9 @@ public class WelcomeServiceTests : TestsBase
         var initializerService = this.ServiceProvider.GetRequiredBackstageService<BackstageServicesInitializer>();
         initializerService.Initialize();
 
+#pragma warning disable CA1307
         Assert.Single( this.UserInterface.Notifications, n => n.Kind == ToastNotificationKinds.TrialExpiring && n.Title?.Contains( "6 days" ) == true );
+#pragma warning restore CA1307
     }
 
     [Theory]
