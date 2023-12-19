@@ -22,8 +22,8 @@ public sealed class NotifyCommand : BaseCommand<NotifyCommandSettings>
         var activationArguments = new ActivationArguments( settings );
         var builder = new ToastContentBuilder();
 
-        var logoPath = Path.Combine( Path.GetDirectoryName( Environment.GetCommandLineArgs()[0] )!, "logo.png" );
-        builder.AddInlineImage( new Uri( "file:///" + logoPath ) );
+        var logoPath = Path.Combine( Path.GetDirectoryName( Environment.GetCommandLineArgs()[0] )!, "Resources", "logo.png" );
+        builder.AddAppLogoOverride( new Uri( "file:///" + logoPath ) );
         builder.SetToastDuration( ToastDuration.Long );
 
         builder.AddVisualChild( new AdaptiveText() { Text = notificationViewModel.Title, HintStyle = AdaptiveTextStyle.Title } );
