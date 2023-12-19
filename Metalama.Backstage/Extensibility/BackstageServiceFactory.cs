@@ -34,7 +34,11 @@ public static class BackstageServiceFactory
             serviceProviderBuilder.AddBackstageServices( options );
 
             _serviceProvider = serviceProviderBuilder.ServiceProvider;
-            _serviceProvider.GetRequiredBackstageService<BackstageServicesInitializer>().Initialize();
+
+            if ( options.Initialize )
+            {
+                _serviceProvider.GetRequiredBackstageService<BackstageServicesInitializer>().Initialize();
+            }
 
             _serviceProvider.GetLoggerFactory()
                 .GetLogger( "BackstageServiceFactory" )

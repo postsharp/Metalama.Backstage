@@ -78,7 +78,7 @@ public class WelcomeServiceTests : TestsBase
         }
         else
         {
-            Assert.Single( this.UserInterface.Notifications, ToastNotificationKinds.RequiresLicense );
+            Assert.Single( this.UserInterface.Notifications, n => n.Kind == ToastNotificationKinds.RequiresLicense );
         }
     }
 
@@ -97,7 +97,7 @@ public class WelcomeServiceTests : TestsBase
         var initializerService = this.ServiceProvider.GetRequiredBackstageService<BackstageServicesInitializer>();
         initializerService.Initialize();
 
-        Assert.Single( this.UserInterface.Notifications, ToastNotificationKinds.TrialExpiring );
+        Assert.Single( this.UserInterface.Notifications, n => n.Kind == ToastNotificationKinds.TrialExpiring && n.Title?.Contains( "6 days" ) == true );
     }
 
     [Theory]
@@ -122,7 +122,7 @@ public class WelcomeServiceTests : TestsBase
         }
         else
         {
-            Assert.Single( this.UserInterface.Notifications, ToastNotificationKinds.VsxNotInstalled );
+            Assert.Single( this.UserInterface.Notifications, n => n.Kind == ToastNotificationKinds.VsxNotInstalled );
         }
     }
 }

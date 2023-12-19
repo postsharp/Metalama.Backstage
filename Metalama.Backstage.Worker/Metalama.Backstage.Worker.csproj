@@ -75,6 +75,10 @@
         <ItemGroup>
             <ZipInputFiles Include="$(OutputPath)Packed\**\*" />
         </ItemGroup>
+
+        <Exec Command="git log -1 --format=%25%25cd --date=iso-strict" WorkingDirectory="$(MSBuildProjectDirectory)" ConsoleToMSBuild="true" EchoOff="true" StandardOutputImportance="low" Condition="'$(_PackageBuildDate)'==''">
+            <Output TaskParameter="ConsoleOutput" PropertyName="_PackageBuildDate" />
+        </Exec>
         
         <CreateDeterministicZip SourceDirectory="$(OutputPath)Packed" DestinationFile="$(OutputZipFile)" PackageBuildDate="$(_PackageBuildDate)" />
         <Message Text="$(MSBuildProjectName) -&gt; $(MSBuildProjectDirectory)\$(OutputZipFile)" Importance="High" />

@@ -46,6 +46,11 @@
     <Import Project="../eng/DeterministicZip.tasks"/>
 
     <Target Name="Zip" Inputs="@(ZipInputFiles)" Outputs="$(OutputZipFile)" AfterTargets="Build" DependsOnTargets="ResolveZipInputFiles" Condition="'$(IsCrossTargetingBuild)'!='true'">
+
+        <Exec Command="git log -1 --format=%25%25cd --date=iso-strict" WorkingDirectory="$(MSBuildProjectDirectory)" ConsoleToMSBuild="true" EchoOff="true" StandardOutputImportance="low" Condition="'$(_PackageBuildDate)'==''">
+            <Output TaskParameter="ConsoleOutput" PropertyName="_PackageBuildDate" />
+        </Exec>
+        
         <CreateDeterministicZip SourceDirectory="$(OutDir)" DestinationFile="$(OutputZipFile)" PackageBuildDate="$(_PackageBuildDate)" />
         <Message Text="$(MSBuildProjectName) -&gt; $(MSBuildProjectDirectory)\$(OutputZipFile)" Importance="High" />
     </Target>

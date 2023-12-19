@@ -1,6 +1,7 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. See the LICENSE.md file in the root directory of this repository root for details.
 
 using Metalama.Backstage.Extensibility;
+using Metalama.Backstage.Tools;
 using System;
 
 #if NETFRAMEWORK || NETCOREAPP
@@ -16,16 +17,30 @@ namespace Metalama.Backstage.UserInterface;
 
 internal class WindowsUserInterfaceService : UserInterfaceService
 {
-    private readonly IToastNotificationService _toastNotificationService;
+    private readonly IBackstageToolsExecutor _toolsExecutor;
 
     public WindowsUserInterfaceService( IServiceProvider serviceProvider ) : base( serviceProvider )
     {
-        this._toastNotificationService = serviceProvider.GetRequiredBackstageService<IToastNotificationService>();
+        this._toolsExecutor = serviceProvider.GetRequiredBackstageService<IBackstageToolsExecutor>();
     }
 
-    protected override void Notify( ToastNotificationKind kind, ref bool notificationReported )
+    public override void ShowToastNotification( ToastNotification notification, ref bool notificationReported )
     {
-        this._toastNotificationService.Show( new ToastNotification( kind ) );
+        // Build arguments.
+        var arguments = $"notify {notification.Kind.Name}";
+
+        if ( !string.IsNullOrEmpty( notification.Title ) )
+        {
+            arguments += $" --title \"{notification.Title}\"";
+        }
+
+        if ( !string.IsNullOrEmpty( notification.Text ) )
+        {
+            arguments += $" --text \"{notification.Text}\"";
+        }
+
+        // Start the UI process.
+        this._toolsExecutor.Start( BackstageTool.DesktopWindows, arguments );
         notificationReported = true;
     }
 

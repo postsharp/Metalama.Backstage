@@ -13,10 +13,14 @@ public class WebLinks : IBackstageService
     public string GetTeamTeamTrial => "https://www.postsharp.net/links/TODO";
 
     public string VisualStudioMarketplace => "https://www.postsharp.net/links/TODO";
-    
+
     public string PrivacyPolicy => "https://www.postsharp.net/links/TODO";
-    
+
     public string LicenseAgreement => "https://www.postsharp.net/links/TODO";
 
     public string Documentation => "https://www.postsharp.net/links/TODO";
+
+    public string InstallVsx => "https://www.postsharp.net/links/TODO";
+
+    public string RenewSubscription => "https://www.postsharp.net/links/TODO";
 }

@@ -4,12 +4,8 @@ using Metalama.Backstage.Extensibility;
 
 namespace Metalama.Backstage.UserInterface;
 
-public interface IToastNotificationService : IBackstageService
+public interface IToastNotificationConfigurationService : IBackstageService
 {
-    bool CanShow { get; }
-
-    void Show( ToastNotification notification );
-
     /// <summary>
     /// Tries to acquire the right to display a notification, and updates the snooze period.
     /// </summary>
@@ -17,5 +13,5 @@ public interface IToastNotificationService : IBackstageService
 
     void Snooze( ToastNotificationKind kind );
 
-    void Disable( ToastNotificationKind kind );
+    void Mute( ToastNotificationKind kind );
 }

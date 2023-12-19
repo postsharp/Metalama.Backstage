@@ -8,15 +8,15 @@ using System;
 namespace Metalama.Backstage.UserInterface;
 
 /// <summary>
-/// A base implementation of <see cref="IToastNotificationService"/> that does not support the <see cref="Show"/>
+/// A base implementation of <see cref="IToastNotificationConfigurationService"/> that does not support the <see cref="Show"/>
 /// method but manages the configuration and snoozing. 
 /// </summary>
-public class ToastNotificationService : IToastNotificationService
+public class ToastNotificationConfigurationService : IToastNotificationConfigurationService
 {
     private readonly IConfigurationManager _configurationManager;
     private readonly IDateTimeProvider _dateTimeProvider;
 
-    public ToastNotificationService( IServiceProvider serviceProvider )
+    public ToastNotificationConfigurationService( IServiceProvider serviceProvider )
     {
         this._configurationManager = serviceProvider.GetRequiredBackstageService<IConfigurationManager>();
         this._dateTimeProvider = serviceProvider.GetRequiredBackstageService<IDateTimeProvider>();
@@ -55,14 +55,6 @@ public class ToastNotificationService : IToastNotificationService
                     new ToastNotificationConfiguration() { SnoozeUntil = this._dateTimeProvider.Now + kind.AutoSnoozePeriod } )
             } );
 
-    public virtual void Show( ToastNotification notification )
-    {
-        if ( this.TryAcquire( notification.Kind ) )
-        {
-            this.ShowCore( notification );
-        }
-    }
-
     protected virtual void ShowCore( ToastNotification notification ) => throw new NotSupportedException();
 
     public void Snooze( ToastNotificationKind kind )
@@ -74,7 +66,7 @@ public class ToastNotificationService : IToastNotificationService
                     new ToastNotificationConfiguration { SnoozeUntil = this._dateTimeProvider.Now + kind.AutoSnoozePeriod } )
             } );
 
-    public void Disable( ToastNotificationKind kind )
+    public void Mute( ToastNotificationKind kind )
         => this._configurationManager.Update<ToastNotificationsConfiguration>(
             config => config with
             {

@@ -12,6 +12,12 @@ public interface IUserInterfaceService : IBackstageService
     void OpenExternalWebPage( string url, BrowserMode browserMode );
 
     Task OpenConfigurationWebPageAsync( string path );
+
+    /// <summary>
+    /// Shows a toast notification. This method does not take the mute and snooze status into account.
+    /// This is the job of the <see cref="IToastNotificationConfigurationService"/>.
+    /// </summary>
+    void ShowToastNotification( ToastNotification notification, ref bool notificationReported );
 }
 
 public enum BrowserMode

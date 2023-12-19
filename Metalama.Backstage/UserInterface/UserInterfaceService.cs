@@ -26,7 +26,7 @@ public abstract class UserInterfaceService : IUserInterfaceService
     private readonly IDateTimeProvider _dateTimeProvider;
     private readonly IIdeExtensionStatusService? _ideExtensionStatusService;
 
-    public UserInterfaceService( IServiceProvider serviceProvider )
+    protected UserInterfaceService( IServiceProvider serviceProvider )
     {
         this._processExecutor = serviceProvider.GetRequiredBackstageService<IProcessExecutor>();
         this.Logger = serviceProvider.GetLoggerFactory().GetLogger( this.GetType().Name );
@@ -38,27 +38,65 @@ public abstract class UserInterfaceService : IUserInterfaceService
         this._ideExtensionStatusService = serviceProvider.GetBackstageService<IIdeExtensionStatusService>();
     }
 
-    protected abstract void Notify( ToastNotificationKind kind, ref bool notificationReported );
+    public abstract void ShowToastNotification( ToastNotification notification, ref bool notificationReported );
+
+    private string FormatExpiration( DateTime expiration )
+    {
+        var daysToExpiration = (int) Math.Floor( (expiration - this._dateTimeProvider.Now).TotalDays );
+
+        if ( daysToExpiration == 0 )
+        {
+            return "today";
+        }
+        else if ( daysToExpiration == 1 )
+        {
+            return "tomorrow";
+        }
+        else
+        {
+            return $"in {daysToExpiration} days";
+        }
+    }
 
     private void ValidateRegisteredLicense( LicenseProperties? license, ref bool notificationReported )
     {
         if ( license == null )
         {
-            this.Notify( ToastNotificationKinds.RequiresLicense, ref notificationReported );
+            this.ShowToastNotification( new ToastNotification( ToastNotificationKinds.RequiresLicense ), ref notificationReported );
         }
         else
         {
             if ( license is { ValidTo: not null }
                  && license.ValidTo.Value.Subtract( LicensingConstants.LicenseExpirationWarningPeriod ) < this._dateTimeProvider.Now )
             {
-                this.Notify(
-                    license.LicenseType == LicenseType.Evaluation ? ToastNotificationKinds.TrialExpiring : ToastNotificationKinds.LicenseExpiring,
-                    ref notificationReported );
+                if ( license.LicenseType == LicenseType.Evaluation )
+                {
+                    this.ShowToastNotification(
+                        new ToastNotification(
+                            ToastNotificationKinds.TrialExpiring,
+                            $"Your Metalama trial expires {this.FormatExpiration( license.ValidTo.Value )}",
+                            "Switch to Metalama [Free] or register a license key to avoid loosing functionality." ),
+                        ref notificationReported );
+                }
+                else
+                {
+                    this.ShowToastNotification(
+                        new ToastNotification(
+                            ToastNotificationKinds.LicenseExpiring,
+                            $"Your Metalama license expires {this.FormatExpiration( license.ValidTo.Value )}",
+                            "Register a new license license key  to avoid loosing functionality." ),
+                        ref notificationReported );
+                }
             }
             else if ( license is { SubscriptionEndDate: not null }
                       && license.SubscriptionEndDate.Value.Subtract( LicensingConstants.SubscriptionExpirationWarningPeriod ) < this._dateTimeProvider.Now )
             {
-                this.Notify( ToastNotificationKinds.SubscriptionExpiring, ref notificationReported );
+                this.ShowToastNotification(
+                    new ToastNotification(
+                        ToastNotificationKinds.SubscriptionExpiring,
+                        $"Your Metalama subscription expires {this.FormatExpiration( license.SubscriptionEndDate.Value )}",
+                        "Renew your subscription and register a new license key to continue benefiting from updates." ),
+                    ref notificationReported );
             }
         }
     }
@@ -77,7 +115,7 @@ public abstract class UserInterfaceService : IUserInterfaceService
 
             if ( !notificationReported && this._ideExtensionStatusService?.ShouldRecommendToInstallVisualStudioExtension == true )
             {
-                this.Notify( ToastNotificationKinds.VsxNotInstalled, ref notificationReported );
+                this.ShowToastNotification( new ToastNotification( ToastNotificationKinds.VsxNotInstalled ), ref notificationReported );
             }
         }
     }

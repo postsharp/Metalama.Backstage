@@ -7,17 +7,17 @@ namespace Metalama.Backstage.Desktop.Windows;
 internal class ActivationArguments
 {
     private readonly string _options;
+    private readonly string _kind;
 
-    public ActivationArguments( BaseSettings settings )
+    public ActivationArguments( NotifyCommandSettings settings )
     {
         this._options = settings.IsDevelopmentEnvironment ? "--dev" : "";
+        this._kind = settings.Kind;
     }
 
-    public string VsxInstall => $"activate {InstallVsxCommand.Name} {this._options}";
+    public string Mute => $"{MuteNotificationCommand.Name} {this._kind} {this._options}";
 
-    public string VsxForget => $"activate {SnoozeVsxNotificationCommand.Name} {this._options}";
+    public string Snooze => $"{SnoozeNotificationCommand.Name} {this._kind} {this._options}";
 
-    public string VsxSnooze => $"activate {SnoozeVsxNotificationCommand.Name} {this._options}";
-
-    public string Setup => $"activate {SetupWizardCommand.Name} {this._options}";
+    public string Setup => $"{SetupWizardCommand.Name} {this._options}";
 }

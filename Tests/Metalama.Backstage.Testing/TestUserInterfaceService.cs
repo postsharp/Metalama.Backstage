@@ -8,13 +8,13 @@ namespace Metalama.Backstage.Testing;
 
 public class TestUserInterfaceService : UserInterfaceService
 {
-    public List<ToastNotificationKind> Notifications { get; } = new();
+    public List<ToastNotification> Notifications { get; } = new();
 
     public TestUserInterfaceService( IServiceProvider serviceProvider ) : base( serviceProvider ) { }
 
-    protected override void Notify( ToastNotificationKind kind, ref bool notificationReported )
+    public override void ShowToastNotification( ToastNotification notification, ref bool notificationReported )
     {
-        this.Notifications.Add( kind );
+        this.Notifications.Add( notification );
         notificationReported = true;
     }
 }

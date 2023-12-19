@@ -20,18 +20,18 @@ public class ConsentsPageModel : PageModel
     private readonly ILicenseRegistrationService _licenseRegistrationService;
     private readonly ITelemetryConfigurationService _telemetryConfigurationService;
     private readonly IIdeExtensionStatusService _ideExtensionStatusService;
-    private readonly IToastNotificationService _toastNotificationService;
+    private readonly IToastNotificationConfigurationService _toastNotificationConfigurationService;
 
     public ConsentsPageModel(
         ILicenseRegistrationService licenseRegistrationService,
         ITelemetryConfigurationService telemetryConfigurationService,
         IIdeExtensionStatusService ideExtensionStatusService,
-        IToastNotificationService toastNotificationService )
+        IToastNotificationConfigurationService toastNotificationConfigurationService )
     {
         this._licenseRegistrationService = licenseRegistrationService;
         this._telemetryConfigurationService = telemetryConfigurationService;
         this._ideExtensionStatusService = ideExtensionStatusService;
-        this._toastNotificationService = toastNotificationService;
+        this._toastNotificationConfigurationService = toastNotificationConfigurationService;
     }
 
     public List<string> ErrorMessages { get; } = new();
@@ -98,7 +98,7 @@ public class ConsentsPageModel : PageModel
 
             case LicenseKind.Skip:
                 {
-                    this._toastNotificationService.Disable( ToastNotificationKinds.RequiresLicense );
+                    this._toastNotificationConfigurationService.Mute( ToastNotificationKinds.RequiresLicense );
 
                     break;
                 }
@@ -111,7 +111,7 @@ public class ConsentsPageModel : PageModel
 
                         return this.Page();
                     }
-                    
+
                     if ( !this._licenseRegistrationService.TryRegisterLicense( GlobalState.LicenseKey, out var errorMessage ) )
                     {
                         this.ErrorMessages.Add( errorMessage );

@@ -6,9 +6,9 @@ using System.Collections.Generic;
 
 namespace Metalama.Backstage.Testing;
 
-public class TestToastNotificationService : ToastNotificationService
+public class TestToastNotificationConfigurationService : ToastNotificationConfigurationService
 {
-    public TestToastNotificationService( IServiceProvider serviceProvider ) : base( serviceProvider ) { }
+    public TestToastNotificationConfigurationService( IServiceProvider serviceProvider ) : base( serviceProvider ) { }
 
     public override bool CanShow => true;
 

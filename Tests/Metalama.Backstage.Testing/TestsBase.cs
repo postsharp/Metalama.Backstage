@@ -48,7 +48,7 @@ namespace Metalama.Backstage.Testing
 
         public TestUserInterfaceService UserInterface { get; }
 
-        public TestToastNotificationService ToastNotifications { get; }
+        public TestToastNotificationConfigurationService ToastNotificationsConfiguration { get; }
 
         protected IServiceCollection CloneServiceCollection()
         {
@@ -81,7 +81,9 @@ namespace Metalama.Backstage.Testing
             this.ConfigurationManager = this.ServiceProvider.GetRequiredBackstageService<IConfigurationManager>() as InMemoryConfigurationManager;
             this.FileSystem = (TestFileSystem) this.ServiceProvider.GetRequiredBackstageService<IFileSystem>();
             this.UserInterface = (TestUserInterfaceService) this.ServiceProvider.GetRequiredBackstageService<IUserInterfaceService>();
-            this.ToastNotifications = (TestToastNotificationService) this.ServiceProvider.GetRequiredBackstageService<IToastNotificationService>();
+
+            this.ToastNotificationsConfiguration =
+                (TestToastNotificationConfigurationService) this.ServiceProvider.GetRequiredBackstageService<IToastNotificationConfigurationService>();
         }
 
         protected ServiceCollection CreateServiceCollection(
@@ -113,7 +115,7 @@ namespace Metalama.Backstage.Testing
                 .AddSingleton<IBackstageToolsExecutor>( serviceProvider => new BackstageToolsExecutor( serviceProvider ) )
                 .AddSingleton<IBackstageToolsLocator>( serviceProvider => new BackstageToolsLocator( serviceProvider ) )
                 .AddSingleton<IUserInterfaceService>( serviceProvider => new TestUserInterfaceService( serviceProvider ) )
-                .AddSingleton<IToastNotificationService>( serviceProvider => new TestToastNotificationService( serviceProvider ) )
+                .AddSingleton<IToastNotificationConfigurationService>( serviceProvider => new TestToastNotificationConfigurationService( serviceProvider ) )
                 .AddSingleton<BackstageServicesInitializer>( serviceProvider => new BackstageServicesInitializer( serviceProvider ) )
                 .AddSingleton<WelcomeService>( serviceProvider => new WelcomeService( serviceProvider ) )
                 .AddSingleton<IIdeExtensionStatusService>( serviceProvider => new IdeExtensionStatusService( serviceProvider ) );

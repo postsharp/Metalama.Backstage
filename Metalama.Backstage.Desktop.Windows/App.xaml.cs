@@ -47,17 +47,10 @@ public partial class App
                 commandApp.Configure(
                     configuration =>
                     {
-                        configuration.AddCommand<NotificationCommand>( "notify" );
-
-                        configuration.AddBranch(
-                            "activate",
-                            branch =>
-                            {
-                                branch.AddCommand<InstallVsxCommand>( InstallVsxCommand.Name );
-                                branch.AddCommand<SnoozeVsxNotificationCommand>( SnoozeVsxNotificationCommand.Name );
-                                branch.AddCommand<DismissVsxNotificationCommand>( DismissVsxNotificationCommand.Name );
-                                branch.AddCommand<SetupWizardCommand>( SetupWizardCommand.Name );
-                            } );
+                        configuration.AddCommand<NotifyCommand>( NotifyCommand.Name );
+                        configuration.AddCommand<SnoozeNotificationCommand>( SnoozeNotificationCommand.Name );
+                        configuration.AddCommand<MuteNotificationCommand>( MuteNotificationCommand.Name );
+                        configuration.AddCommand<SetupWizardCommand>( SetupWizardCommand.Name );
                     } );
 
                 return commandApp.RunAsync( args );

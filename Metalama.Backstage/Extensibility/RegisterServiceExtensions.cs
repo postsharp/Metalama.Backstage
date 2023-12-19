@@ -177,8 +177,8 @@ public static class RegisterServiceExtensions
         // Add base services.
         var applicationInfo = options.ApplicationInfo;
 
-        serviceProviderBuilder.AddSingleton( new BackstageInitializationOptionsProvider( options ) );
-        serviceProviderBuilder.AddSingleton( new EarlyLoggerFactory() );
+        serviceProviderBuilder.AddSingleton( _ => new BackstageInitializationOptionsProvider( options ) );
+        serviceProviderBuilder.AddSingleton( _ => new EarlyLoggerFactory() );
 
         serviceProviderBuilder = serviceProviderBuilder
             .AddDiagnosticsRequirements( applicationInfo );
@@ -210,7 +210,7 @@ public static class RegisterServiceExtensions
         // Add file locking detection.
         if ( LockingProcessDetector.IsSupported )
         {
-            serviceProviderBuilder.AddService( typeof(ILockingProcessDetector), new LockingProcessDetector() );
+            serviceProviderBuilder.AddService( typeof(ILockingProcessDetector), _ => new LockingProcessDetector() );
         }
 
         // Add support services.
@@ -241,21 +241,17 @@ public static class RegisterServiceExtensions
         {
             serviceProviderBuilder.AddService( typeof(WebLinks), _ => new WebLinks() );
 
+            serviceProviderBuilder.AddService(
+                typeof(IToastNotificationConfigurationService),
+                serviceProvider => new ToastNotificationConfigurationService( serviceProvider ) );
+
             if ( RuntimeInformation.IsOSPlatform( OSPlatform.Windows ) )
             {
-                serviceProviderBuilder.AddService(
-                    typeof(IToastNotificationService),
-                    serviceProvider => new WindowsToastNotificationService( serviceProvider ) );
-
                 serviceProviderBuilder.AddService( typeof(IIdeExtensionStatusService), serviceProvider => new IdeExtensionStatusService( serviceProvider ) );
                 serviceProviderBuilder.AddService( typeof(IUserInterfaceService), serviceProvider => new WindowsUserInterfaceService( serviceProvider ) );
             }
             else
             {
-                serviceProviderBuilder.AddService(
-                    typeof(IToastNotificationService),
-                    serviceProvider => new ToastNotificationService( serviceProvider ) );
-
                 serviceProviderBuilder.AddService( typeof(IUserInterfaceService), serviceProvider => new BrowserBasedUserInterfaceService( serviceProvider ) );
             }
         }
