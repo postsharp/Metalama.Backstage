@@ -42,9 +42,14 @@ internal class ToastNotificationDetectionService : IBackstageService
 
     private void ValidateRegisteredLicense( LicenseProperties? license, ref bool notificationReported )
     {
+        // We set notificationReported to true even if the notification is not reported because of snoozing
+        // because the reason of this flag is to avoid displaying VsxNotInstalled.
+        
         if ( license == null )
         {
-            notificationReported |= this._toastNotificationService.Show( new ToastNotification( ToastNotificationKinds.RequiresLicense ) );
+            this._toastNotificationService.Show( new ToastNotification( ToastNotificationKinds.RequiresLicense ) );
+            
+            notificationReported = true;
         }
         else
         {
@@ -53,7 +58,7 @@ internal class ToastNotificationDetectionService : IBackstageService
             {
                 if ( license.LicenseType == LicenseType.Evaluation )
                 {
-                    notificationReported |= this._toastNotificationService.Show(
+                    this._toastNotificationService.Show(
                         new ToastNotification(
                             ToastNotificationKinds.TrialExpiring,
                             $"Your Metalama trial expires {this.FormatExpiration( license.ValidTo.Value )}",
@@ -61,21 +66,25 @@ internal class ToastNotificationDetectionService : IBackstageService
                 }
                 else
                 {
-                    notificationReported |= this._toastNotificationService.Show(
+                    this._toastNotificationService.Show(
                         new ToastNotification(
                             ToastNotificationKinds.LicenseExpiring,
                             $"Your Metalama license expires {this.FormatExpiration( license.ValidTo.Value )}",
                             "Register a new license license key  to avoid loosing functionality." ) );
                 }
+                
+                notificationReported = true;
             }
             else if ( license is { SubscriptionEndDate: not null }
                       && license.SubscriptionEndDate.Value.Subtract( LicensingConstants.SubscriptionExpirationWarningPeriod ) < this._dateTimeProvider.Now )
             {
-                notificationReported |= this._toastNotificationService.Show(
+                this._toastNotificationService.Show(
                     new ToastNotification(
                         ToastNotificationKinds.SubscriptionExpiring,
                         $"Your Metalama subscription expires {this.FormatExpiration( license.SubscriptionEndDate.Value )}",
                         "Renew your subscription and register a new license key to continue benefiting from updates." ) );
+                
+                notificationReported = true;
             }
         }
     }

@@ -79,7 +79,7 @@ internal class WindowsUserInterfaceService : UserInterfaceService
                 // For Chromium-based browsers, we know how to open the page in a new window or in an app window.
                 var arg = browserMode switch
                 {
-                    BrowserMode.Application => $"--app={url} --window-size=680,800 --allow-insecure-localhost",
+                    BrowserMode.Application => $"--app={url} --window-size=820,940 --allow-insecure-localhost",
                     BrowserMode.NewWindow => $"--new-window {url}",
                     _ => throw new ArgumentOutOfRangeException( nameof(browserMode) )
                 };

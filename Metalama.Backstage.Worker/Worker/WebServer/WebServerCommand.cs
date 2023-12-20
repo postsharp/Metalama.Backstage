@@ -35,14 +35,13 @@ internal class WebServerCommand : AsyncCommand<WebServerCommandSettings>
             builder.Services.Add( service );
         }
 
-        builder.WebHost.ConfigureKestrel( serverOptions => serverOptions.ListenLocalhost( settings.Port, listenOptions => listenOptions.UseHttps() ) );
+        builder.WebHost.ConfigureKestrel( serverOptions => serverOptions.ListenLocalhost( settings.Port ) );
 
         // Add services to the container.
         var app = builder.Build();
 
         app.UseCors();
-        app.UseHttpsRedirection();
-
+        
         // If the program was started from the wrong directory, fix the path of static files.
         var contentRootPath = builder.Environment.ContentRootPath;
 

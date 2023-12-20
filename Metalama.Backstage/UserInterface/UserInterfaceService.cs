@@ -65,7 +65,7 @@ public abstract class UserInterfaceService : IUserInterfaceService
         webServerProcess.Exited += () => processHasExited = true;
 
         // Wait until the server has started.
-        var baseAddress = new Uri( $"https://localhost:{port}/" );
+        var baseAddress = new Uri( $"http://localhost:{port}/" );
 
         var handler = new HttpClientHandler();
         handler.ServerCertificateCustomValidationCallback = ( _, _, _, _ ) => true;
