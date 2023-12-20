@@ -31,10 +31,26 @@ internal partial class LicenseConsumptionService : ILicenseConsumptionService
     {
         if ( this._impl is not UninitializedImpl )
         {
-            throw new InvalidOperationException();
+            throw new InvalidOperationException( "The service cannot be initialized twice." );
         }
 
         this.OnSourceChanged();
+    }
+
+    public ILicenseConsumptionService WithAdditionalLicense( string? licenseKey )
+    {
+        if ( string.IsNullOrWhiteSpace( licenseKey ) )
+        {
+            return this;
+        }
+        
+        var sources = new List<ILicenseSource>( this._sources.Count + 1 );
+        sources.AddRange( this._sources );
+        sources.Add( new ExplicitLicenseSource( licenseKey!, this._services ) );
+        var newService = new LicenseConsumptionService( this._services, sources );
+        newService.Initialize();
+
+        return newService;
     }
 
     private void OnSourceChanged()
@@ -61,24 +77,29 @@ internal partial class LicenseConsumptionService : ILicenseConsumptionService
 
     private class UninitializedImpl : ILicenseConsumptionService
     {
-        public IReadOnlyList<LicensingMessage> Messages => throw new InvalidOperationException();
+        private const string _message = "The LicenseConsumptionService has not been initialized.";
 
-        public bool CanConsume( LicenseRequirement requirement, string? consumerNamespace = null ) => throw new InvalidOperationException();
+        public IReadOnlyList<LicensingMessage> Messages => throw new InvalidOperationException( _message );
 
-        public bool ValidateRedistributionLicenseKey( string redistributionLicenseKey, string aspectClassNamespace ) => throw new InvalidOperationException();
+        public bool CanConsume( LicenseRequirement requirement, string? consumerNamespace = null ) => throw new InvalidOperationException( _message );
 
-        public bool IsTrialLicense => throw new InvalidOperationException();
+        public bool ValidateRedistributionLicenseKey( string redistributionLicenseKey, string aspectClassNamespace )
+            => throw new InvalidOperationException( _message );
 
-        public bool IsRedistributionLicense => throw new InvalidOperationException();
+        public bool IsTrialLicense => throw new InvalidOperationException( _message );
 
-        public string? LicenseString => throw new InvalidOperationException();
+        public bool IsRedistributionLicense => throw new InvalidOperationException( _message );
+
+        public string? LicenseString => throw new InvalidOperationException( _message );
 
         public event Action? Changed
         {
-            add => throw new InvalidOperationException();
-            remove => throw new InvalidOperationException();
+            add => throw new InvalidOperationException( _message );
+            remove => throw new InvalidOperationException( _message );
         }
 
-        public void Initialize() => throw new InvalidOperationException();
+        public void Initialize() => throw new InvalidOperationException( _message );
+
+        public ILicenseConsumptionService WithAdditionalLicense( string? licenseKey ) => throw new NotSupportedException();
     }
 }

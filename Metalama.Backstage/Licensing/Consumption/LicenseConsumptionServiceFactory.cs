@@ -18,7 +18,7 @@ internal static class LicenseConsumptionServiceFactory
         {
             licenseSources.Add( new UnattendedLicenseSource( serviceProvider ) );
         }
-
+        
         if ( !string.IsNullOrWhiteSpace( options.ProjectLicense ) )
         {
             licenseSources.Add( new ExplicitLicenseSource( options.ProjectLicense!, serviceProvider ) );

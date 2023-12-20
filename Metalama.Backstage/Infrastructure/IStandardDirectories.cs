@@ -33,5 +33,7 @@ namespace Metalama.Backstage.Infrastructure
         /// Gets the directory where package files to be uploaded to the server have to be stored.
         /// </summary>
         string TelemetryUploadPackagesDirectory { get; }
+
+        string CrashReportsDirectory { get; }
     }
 }

@@ -11,5 +11,5 @@ internal class DesktopWindowsApplicationInfo : ApplicationInfoBase
 
     public override string Name => "Metalama.Backstage.Desktop.Windows";
 
-    public override ProcessKind ProcessKind => ProcessKind.BackstageDesktopWindow;
+    public override ProcessKind ProcessKind => ProcessKind.BackstageDesktopWindows;
 }

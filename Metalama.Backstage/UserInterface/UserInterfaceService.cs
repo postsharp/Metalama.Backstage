@@ -3,8 +3,6 @@
 using Metalama.Backstage.Diagnostics;
 using Metalama.Backstage.Extensibility;
 using Metalama.Backstage.Infrastructure;
-using Metalama.Backstage.Licensing.Licenses;
-using Metalama.Backstage.Licensing.Registration;
 using Metalama.Backstage.Tools;
 using System;
 using System.Diagnostics;
@@ -21,10 +19,6 @@ public abstract class UserInterfaceService : IUserInterfaceService
 
     private readonly IBackstageToolsExecutor _backstageToolExecutor;
     private readonly bool _canIgnoreRecoverableExceptions;
-    private readonly ILicenseRegistrationService? _licenseRegistrationService;
-    private readonly IUserDeviceDetectionService _userDeviceDetectionService;
-    private readonly IDateTimeProvider _dateTimeProvider;
-    private readonly IIdeExtensionStatusService? _ideExtensionStatusService;
 
     protected UserInterfaceService( IServiceProvider serviceProvider )
     {
@@ -32,87 +26,9 @@ public abstract class UserInterfaceService : IUserInterfaceService
         this.Logger = serviceProvider.GetLoggerFactory().GetLogger( this.GetType().Name );
         this._backstageToolExecutor = serviceProvider.GetRequiredBackstageService<IBackstageToolsExecutor>();
         this._canIgnoreRecoverableExceptions = serviceProvider.GetRequiredBackstageService<IRecoverableExceptionService>().CanIgnore;
-        this._licenseRegistrationService = serviceProvider.GetBackstageService<ILicenseRegistrationService>();
-        this._userDeviceDetectionService = serviceProvider.GetRequiredBackstageService<IUserDeviceDetectionService>();
-        this._dateTimeProvider = serviceProvider.GetRequiredBackstageService<IDateTimeProvider>();
-        this._ideExtensionStatusService = serviceProvider.GetBackstageService<IIdeExtensionStatusService>();
     }
 
     public abstract void ShowToastNotification( ToastNotification notification, ref bool notificationReported );
-
-    private string FormatExpiration( DateTime expiration )
-    {
-        var daysToExpiration = (int) Math.Floor( (expiration - this._dateTimeProvider.Now).TotalDays );
-
-        return daysToExpiration switch
-        {
-            0 => "today",
-            1 => "tomorrow",
-            _ => $"in {daysToExpiration} days"
-        };
-    }
-
-    private void ValidateRegisteredLicense( LicenseProperties? license, ref bool notificationReported )
-    {
-        if ( license == null )
-        {
-            this.ShowToastNotification( new ToastNotification( ToastNotificationKinds.RequiresLicense ), ref notificationReported );
-        }
-        else
-        {
-            if ( license is { ValidTo: not null }
-                 && license.ValidTo.Value.Subtract( LicensingConstants.LicenseExpirationWarningPeriod ) < this._dateTimeProvider.Now )
-            {
-                if ( license.LicenseType == LicenseType.Evaluation )
-                {
-                    this.ShowToastNotification(
-                        new ToastNotification(
-                            ToastNotificationKinds.TrialExpiring,
-                            $"Your Metalama trial expires {this.FormatExpiration( license.ValidTo.Value )}",
-                            "Switch to Metalama [Free] or register a license key to avoid loosing functionality." ),
-                        ref notificationReported );
-                }
-                else
-                {
-                    this.ShowToastNotification(
-                        new ToastNotification(
-                            ToastNotificationKinds.LicenseExpiring,
-                            $"Your Metalama license expires {this.FormatExpiration( license.ValidTo.Value )}",
-                            "Register a new license license key  to avoid loosing functionality." ),
-                        ref notificationReported );
-                }
-            }
-            else if ( license is { SubscriptionEndDate: not null }
-                      && license.SubscriptionEndDate.Value.Subtract( LicensingConstants.SubscriptionExpirationWarningPeriod ) < this._dateTimeProvider.Now )
-            {
-                this.ShowToastNotification(
-                    new ToastNotification(
-                        ToastNotificationKinds.SubscriptionExpiring,
-                        $"Your Metalama subscription expires {this.FormatExpiration( license.SubscriptionEndDate.Value )}",
-                        "Renew your subscription and register a new license key to continue benefiting from updates." ),
-                    ref notificationReported );
-            }
-        }
-    }
-
-    public virtual void Initialize()
-    {
-        var notificationReported = false;
-
-        // Validate the current license.
-        if ( this._userDeviceDetectionService.IsInteractiveDevice )
-        {
-            if ( this._licenseRegistrationService != null )
-            {
-                this.ValidateRegisteredLicense( this._licenseRegistrationService.RegisteredLicense, ref notificationReported );
-            }
-
-            if ( !notificationReported && this._ideExtensionStatusService?.ShouldRecommendToInstallVisualStudioExtension == true )
-            {
-                this.ShowToastNotification( new ToastNotification( ToastNotificationKinds.VsxNotInstalled ), ref notificationReported );
-            }
-        }
-    }
 
     protected virtual ProcessStartInfo GetProcessStartInfoForUrl( string url, BrowserMode browserMode ) => new( url ) { UseShellExecute = true };
 
@@ -150,8 +66,10 @@ public abstract class UserInterfaceService : IUserInterfaceService
 
         // Wait until the server has started.
         var baseAddress = new Uri( $"https://localhost:{port}/" );
-        Console.WriteLine( baseAddress );
-        var httpClient = new HttpClient() { Timeout = TimeSpan.FromSeconds( 1 ) };
+
+        var handler = new HttpClientHandler();
+        handler.ServerCertificateCustomValidationCallback = ( _, _, _, _ ) => true;
+        var httpClient = new HttpClient( handler ) { Timeout = TimeSpan.FromSeconds( 1 ) };
 
         var stopwatch = Stopwatch.StartNew();
 

@@ -3,6 +3,7 @@
 using JetBrains.Annotations;
 using Metalama.Backstage.Diagnostics;
 using Metalama.Backstage.Licensing.Consumption;
+using Metalama.Backstage.UserInterface;
 using System;
 
 namespace Metalama.Backstage.Extensibility;
@@ -27,6 +28,13 @@ public static class BackstageServiceFactory
                     .GetLogger( "BackstageServiceFactory" )
                     .Trace?.Log( $"Support services initialization requested from {caller}. The services are already initialized." );
 
+                if ( options.DetectToastNotifications )
+                {
+                    // We need to run the to detect notifications every time time because the service provider can be cached in the
+                    // compiler background process, and we need the UI logic to run often.
+                    _serviceProvider.GetBackstageService<ToastNotificationDetectionService>()?.Detect();
+                }
+
                 return false;
             }
 
@@ -47,7 +55,4 @@ public static class BackstageServiceFactory
             return true;
         }
     }
-
-    public static ILicenseConsumptionService CreateLicenseConsumptionService( LicensingInitializationOptions options )
-        => LicenseConsumptionServiceFactory.Create( ServiceProvider, options );
 }

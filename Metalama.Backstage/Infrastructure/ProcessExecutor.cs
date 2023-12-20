@@ -8,7 +8,15 @@ namespace Metalama.Backstage.Infrastructure;
 internal class ProcessExecutor : IProcessExecutor
 {
     public IProcess Start( ProcessStartInfo startInfo )
-        => new ProcessWrapper( Process.Start( startInfo ) ?? throw new InvalidOperationException( "The process could not be started." ) );
+    {
+        // Reset a few environment variables set by the Visual Studio process.
+        startInfo.Environment["DOTNET_MULTILEVEL_LOOKUP"] = "";
+        startInfo.Environment["DOTNET_ROOT"] = "";
+        startInfo.Environment["DOTNET_STARTUP_HOOKS"] = "";
+        startInfo.Environment["DOTNET_TC_CallCountThreshold"] = "";
+
+        return new ProcessWrapper( Process.Start( startInfo ) ?? throw new InvalidOperationException( "The process could not be started." ) );
+    }
 
     private class ProcessWrapper : IProcess
     {

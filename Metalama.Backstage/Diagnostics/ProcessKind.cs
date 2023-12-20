@@ -47,7 +47,7 @@ public enum ProcessKind
     /// <summary>
     /// <c>Metalama.Backstage.Desktop.Windows</c>.
     /// </summary>
-    BackstageDesktopWindow,
+    BackstageDesktopWindows,
 
     /// <summary>
     /// The <c>metalama</c> global CLI too.

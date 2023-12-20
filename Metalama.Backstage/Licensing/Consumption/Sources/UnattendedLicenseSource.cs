@@ -66,4 +66,6 @@ internal class UnattendedLicenseSource : ILicenseSource, ILicense
         => throw new NotSupportedException( "Unattended license source doesn't support license registration." );
 
     event Action? ILicenseSource.Changed { add { } remove { } }
+
+    public LicenseSourcePriority Priority => LicenseSourcePriority.Unattended;
 }

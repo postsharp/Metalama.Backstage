@@ -34,7 +34,9 @@ public partial class App
                 IsDevelopmentEnvironment = settings.IsDevelopmentEnvironment,
                 AddSupportServices = true,
                 AddUserInterface = true,
-                Initialize = false
+
+                // We don't want to open more toast notifications.
+                DetectToastNotifications = false
             },
             "Metalama.Backstage.Desktop.Windows" );
 

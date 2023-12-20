@@ -5,7 +5,6 @@ using Metalama.Backstage.Configuration;
 using Metalama.Backstage.Diagnostics;
 using Metalama.Backstage.Extensibility;
 using Metalama.Backstage.Infrastructure;
-using Metalama.Backstage.UserInterface;
 using Metalama.Backstage.Utilities;
 using System;
 using System.Collections.Generic;
@@ -32,7 +31,7 @@ internal class ExceptionReporter : IExceptionReporter, IDisposable
     private readonly IConfigurationManager _configurationManager;
     private readonly IFileSystem _fileSystem;
     private readonly bool _canIgnoreRecoverableExceptions;
-    private readonly IToastNotificationService? _toastNotificationService;
+    private readonly LocalExceptionReporter? _localExceptionReporter;
     private TelemetryConfiguration _configuration;
 
     public ExceptionReporter( TelemetryQueue uploadManager, IServiceProvider serviceProvider )
@@ -47,7 +46,7 @@ internal class ExceptionReporter : IExceptionReporter, IDisposable
         this._logger = serviceProvider.GetLoggerFactory().Telemetry();
         this._fileSystem = serviceProvider.GetRequiredBackstageService<IFileSystem>();
         this._canIgnoreRecoverableExceptions = serviceProvider.GetRequiredBackstageService<IRecoverableExceptionService>().CanIgnore;
-        this._toastNotificationService = serviceProvider.GetBackstageService<IToastNotificationService>();
+        this._localExceptionReporter = serviceProvider.GetBackstageService<LocalExceptionReporter>();
     }
 
     private void OnConfigurationChanged( ConfigurationFile configuration )
@@ -226,18 +225,24 @@ internal class ExceptionReporter : IExceptionReporter, IDisposable
         }
     }
 
-    public void ReportException( Exception reportedException, ExceptionReportingKind exceptionReportingKind = ExceptionReportingKind.Exception )
+    public void ReportException(
+        Exception reportedException,
+        ExceptionReportingKind exceptionReportingKind = ExceptionReportingKind.Exception,
+        string? localReportPath = null )
     {
         try
         {
-            this._toastNotificationService?.Show( new ToastNotification( ToastNotificationKinds.Exception ) );
-
             if ( !this.ShouldReportException( reportedException ) )
             {
                 return;
             }
 
             this._logger.Trace?.Log( $"Reporting an exception of type {reportedException.GetType().Name}." );
+
+            if ( exceptionReportingKind == ExceptionReportingKind.Exception )
+            {
+                this._localExceptionReporter?.ReportException( reportedException, localReportPath );
+            }
 
             var reportingAction = exceptionReportingKind == ExceptionReportingKind.Exception
                 ? this._configuration.ExceptionReportingAction

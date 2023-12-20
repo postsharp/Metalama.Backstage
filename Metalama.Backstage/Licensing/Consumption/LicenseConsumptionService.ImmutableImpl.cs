@@ -7,6 +7,7 @@ using Metalama.Backstage.Licensing.Consumption.Sources;
 using Metalama.Backstage.Licensing.Licenses;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Metalama.Backstage.Licensing.Consumption;
 
@@ -27,7 +28,7 @@ internal partial class LicenseConsumptionService
 
             this._licenseFactory = new LicenseFactory( services );
 
-            foreach ( var source in licenseSources )
+            foreach ( var source in licenseSources.OrderBy( s => s.Priority ) )
             {
                 var license = source.GetLicense( this.ReportMessage );
 
@@ -165,6 +166,8 @@ internal partial class LicenseConsumptionService
         event Action? ILicenseConsumptionService.Changed { add { } remove { } }
 
         public void Initialize() { }
+
+        public ILicenseConsumptionService WithAdditionalLicense( string licenseKey ) => throw new NotSupportedException();
 
         /// <inheritdoc />
         public IReadOnlyList<LicensingMessage> Messages => this._messages;

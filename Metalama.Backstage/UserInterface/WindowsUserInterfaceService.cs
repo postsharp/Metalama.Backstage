@@ -39,6 +39,11 @@ internal class WindowsUserInterfaceService : UserInterfaceService
             arguments += $" --text \"{notification.Text}\"";
         }
 
+        if ( !string.IsNullOrEmpty( notification.Uri ) )
+        {
+            arguments += $" --uri \"{notification.Uri}\"";
+        }
+
         try
         {
             // Start the UI process.
@@ -74,7 +79,7 @@ internal class WindowsUserInterfaceService : UserInterfaceService
                 // For Chromium-based browsers, we know how to open the page in a new window or in an app window.
                 var arg = browserMode switch
                 {
-                    BrowserMode.Application => $"--app={url} --window-size=400,400",
+                    BrowserMode.Application => $"--app={url} --window-size=400,400 --allow-insecure-localhost",
                     BrowserMode.NewWindow => $"--new-window {url}",
                     _ => throw new ArgumentOutOfRangeException( nameof(browserMode) )
                 };

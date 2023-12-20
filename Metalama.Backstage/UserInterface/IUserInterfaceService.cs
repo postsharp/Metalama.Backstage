@@ -7,8 +7,6 @@ namespace Metalama.Backstage.UserInterface;
 
 public interface IUserInterfaceService : IBackstageService
 {
-    void Initialize();
-
     void OpenExternalWebPage( string url, BrowserMode browserMode );
 
     Task OpenConfigurationWebPageAsync( string path );

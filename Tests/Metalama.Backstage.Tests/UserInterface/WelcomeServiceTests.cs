@@ -80,6 +80,26 @@ public class WelcomeServiceTests : TestsBase
         {
             Assert.Single( this.UserInterface.Notifications, n => n.Kind == ToastNotificationKinds.RequiresLicense );
         }
+
+        // Initializing a second time should not show a notification because of snoozing.
+        this.UserInterface.Notifications.Clear();
+
+        this.ServiceProvider.GetRequiredBackstageService<ToastNotificationDetectionService>().Detect();
+        Assert.Empty( this.UserInterface.Notifications );
+
+        // After the snooze period, we should see a notification.
+        this.Time.AddTime( ToastNotificationKinds.RequiresLicense.AutoSnoozePeriod );
+
+        this.ServiceProvider.GetRequiredBackstageService<ToastNotificationDetectionService>().Detect();
+
+        if ( !shouldBeOpened )
+        {
+            Assert.Empty( this.UserInterface.Notifications );
+        }
+        else
+        {
+            Assert.Single( this.UserInterface.Notifications, n => n.Kind == ToastNotificationKinds.RequiresLicense );
+        }
     }
 
     [Fact]

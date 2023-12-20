@@ -22,6 +22,7 @@ public sealed class NotifyCommand : BaseCommand<NotifyCommandSettings>
         var activationArguments = new ActivationArguments( settings );
         var builder = new ToastContentBuilder();
 
+        // TODO: serve a different icon in light theme (this one is for the dark theme). The different is only slight.
         var logoPath = Path.Combine( Path.GetDirectoryName( Environment.GetCommandLineArgs()[0] )!, "Resources", "logo.png" );
         builder.AddAppLogoOverride( new Uri( "file:///" + logoPath ) );
         builder.SetToastDuration( ToastDuration.Long );
@@ -38,9 +39,9 @@ public sealed class NotifyCommand : BaseCommand<NotifyCommandSettings>
 
                 break;
 
-            case OpenWebPageActionViewModel openWebPageAction:
-                builder.SetProtocolActivation( new Uri( openWebPageAction.Url ) );
-                builder.AddButton( openWebPageAction.Text, ToastActivationType.Protocol, openWebPageAction.Url );
+            case UriActionViewModel uriActionViewModel:
+                builder.SetProtocolActivation( uriActionViewModel.Uri );
+                builder.AddButton( uriActionViewModel.Text, ToastActivationType.Protocol, uriActionViewModel.Uri.ToString() );
 
                 break;
         }

@@ -1,5 +1,7 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. See the LICENSE.md file in the root directory of this repository root for details.
 
+using Metalama.Backstage.Extensibility;
+using Metalama.Backstage.Maintenance;
 using Metalama.Backstage.Utilities;
 using System;
 using System.IO;
@@ -13,11 +15,14 @@ namespace Metalama.Backstage.Infrastructure
     /// <inheritdoc />
     internal class StandardDirectories : IStandardDirectories
     {
+        private readonly IServiceProvider _serviceProvider;
+
         /// <summary>
         /// Initializes a new instance of the <see cref="StandardDirectories"/> class.
         /// </summary>
-        public StandardDirectories()
+        public StandardDirectories( IServiceProvider serviceProvider )
         {
+            this._serviceProvider = serviceProvider;
             var applicationDataParentDirectory = Environment.GetFolderPath( Environment.SpecialFolder.ApplicationData );
 
             if ( string.IsNullOrEmpty( applicationDataParentDirectory ) )
@@ -51,5 +56,9 @@ namespace Metalama.Backstage.Infrastructure
 
         /// <inheritdoc />
         public string TelemetryUploadPackagesDirectory => Path.Combine( this.ApplicationDataDirectory, "Telemetry", "Packages" );
+
+        public string CrashReportsDirectory
+            => this._serviceProvider.GetRequiredBackstageService<ITempFileManager>()
+                .GetTempDirectory( "CrashReports", CleanUpStrategy.FileOneMonthAfterCreation, versionScope: TempFileVersionScope.None );
     }
 }

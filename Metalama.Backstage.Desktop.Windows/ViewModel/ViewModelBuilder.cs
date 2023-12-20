@@ -38,7 +38,7 @@ internal static class ViewModelBuilder
                 """
                 to enhance your Metalama coding experience: syntax highlighting, CodeLens, and diff preview.
                 """,
-                new OpenWebPageActionViewModel( "Install", webLinks.InstallVsx ) );
+                new UriActionViewModel( "Install", webLinks.InstallVsx ) );
 
             return true;
         }
@@ -48,7 +48,7 @@ internal static class ViewModelBuilder
                 settings.Kind,
                 settings.Title ?? "Your Metalama license is expiring",
                 settings.Text ?? "Renew your Metalama subscription",
-                new OpenWebPageActionViewModel( "Renew", webLinks.RenewSubscription ) );
+                new UriActionViewModel( "Renew", webLinks.RenewSubscription ) );
 
             return true;
         }
@@ -76,9 +76,9 @@ internal static class ViewModelBuilder
         {
             viewModel = new NotificationViewModel(
                 settings.Kind,
-                "Metalama failed",
-                "Metalama encountered an unhandled exception.",
-                new OpenWebPageActionViewModel( "Open", webLinks.UnhandledException ) );
+                settings.Title ?? "Metalama failed",
+                settings.Text ?? "Metalama encountered an unhandled exception.",
+                new UriActionViewModel( "Open", settings.Uri! ) );
 
             return true;
         }

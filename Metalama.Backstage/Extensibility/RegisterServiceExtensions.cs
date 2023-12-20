@@ -83,7 +83,7 @@ public static class RegisterServiceExtensions
     /// <param name="serviceProviderBuilder">The <see cref="ServiceProviderBuilder" /> to add services to.</param>
     /// <returns>The <see cref="ServiceProviderBuilder" /> so that additional calls can be chained.</returns>
     internal static ServiceProviderBuilder AddStandardDirectories( this ServiceProviderBuilder serviceProviderBuilder )
-        => serviceProviderBuilder.AddSingleton<IStandardDirectories>( new StandardDirectories() );
+        => serviceProviderBuilder.AddSingleton<IStandardDirectories>( serviceProvider => new StandardDirectories( serviceProvider ) );
 
     internal static ServiceProviderBuilder AddDiagnostics(
         this ServiceProviderBuilder serviceProviderBuilder,
@@ -247,6 +247,10 @@ public static class RegisterServiceExtensions
 
             serviceProviderBuilder.AddService( typeof(IToastNotificationService), serviceProvider => new ToastNotificationService( serviceProvider ) );
 
+            serviceProviderBuilder.AddService(
+                typeof(ToastNotificationDetectionService),
+                serviceProvider => new ToastNotificationDetectionService( serviceProvider ) );
+
             if ( RuntimeInformation.IsOSPlatform( OSPlatform.Windows ) )
             {
                 serviceProviderBuilder.AddService( typeof(IIdeExtensionStatusService), serviceProvider => new IdeExtensionStatusService( serviceProvider ) );
@@ -283,6 +287,7 @@ public static class RegisterServiceExtensions
     {
         // Add telemetry.
         serviceProviderBuilder
+            .AddSingleton<LocalExceptionReporter>( serviceProvider => new LocalExceptionReporter( serviceProvider ) )
             .AddSingleton<IExceptionReporter>( serviceProvider => new ExceptionReporter( new TelemetryQueue( serviceProvider ), serviceProvider ) )
             .AddSingleton<ITelemetryUploader>( serviceProvider => new TelemetryUploader( serviceProvider ) )
             .AddSingleton<IUsageReporter>( serviceProvider => new UsageReporter( serviceProvider ) )

@@ -4,6 +4,7 @@ using JetBrains.Annotations;
 using Metalama.Backstage.Application;
 using Metalama.Backstage.Diagnostics;
 using Metalama.Backstage.Licensing.Consumption;
+using Metalama.Backstage.UserInterface;
 using System;
 
 namespace Metalama.Backstage.Extensibility;
@@ -20,12 +21,7 @@ public record BackstageInitializationOptions( IApplicationInfo ApplicationInfo, 
     /// Gets the full path of the .NET SDK directory of the current process.
     /// </summary>
     public string? DotNetSdkDirectory { get; init; }
-
-    /// <summary>
-    /// Gets a value indicating whether the Welcome web page should be opened upon the first run of Metalama.
-    /// </summary>
-    public bool OpenWelcomePage { get; init; }
-
+    
     /// <summary>
     /// Gets a value indicating whether logging and telemetry services should be registered.
     /// </summary>
@@ -62,4 +58,10 @@ public record BackstageInitializationOptions( IApplicationInfo ApplicationInfo, 
     /// because just a few services will be used.
     /// </summary>
     public bool Initialize { get; init; } = true;
+
+    /// <summary>
+    /// Gets a value indicating whether toast notifications like <see cref="ToastNotificationKinds.RequiresLicense"/> or
+    /// <see cref="ToastNotificationKinds.VsxNotInstalled"/> should be detected and opened. The default value is <c>true</c>.
+    /// </summary>
+    public bool DetectToastNotifications { get; init; } = true;
 }

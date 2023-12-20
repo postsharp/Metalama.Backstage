@@ -6,5 +6,5 @@ namespace Metalama.Backstage.UserInterface;
 
 public interface IToastNotificationService : IBackstageService
 {
-    void Show( ToastNotification notification );
+    bool Show( ToastNotification notification );
 }

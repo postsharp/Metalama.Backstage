@@ -3,6 +3,7 @@
     <PropertyGroup>
         <OutputType>WinExe</OutputType>
         <TargetFramework>net6.0-windows10.0.17763.0</TargetFramework>
+        <RollForward>LatestMajor</RollForward>
         <Nullable>enable</Nullable>
         <UseWPF>true</UseWPF>
         <AssemblyTitle>Metalama</AssemblyTitle>
@@ -12,42 +13,42 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <PackageReference Include="JetBrains.Annotations" Version="2022.3.1" />
-      <PackageReference Include="Microsoft.Toolkit.Uwp.Notifications" Version="7.1.3" />
-      <PackageReference Include="Microsoft.Web.WebView2" Version="1.0.2210.55" />
-        <PackageReference Include="Spectre.Console.Cli" Version="0.48.0" />
+        <PackageReference Include="JetBrains.Annotations" Version="2022.3.1"/>
+        <PackageReference Include="Microsoft.Toolkit.Uwp.Notifications" Version="7.1.3"/>
+        <PackageReference Include="Microsoft.Web.WebView2" Version="1.0.2210.55"/>
+        <PackageReference Include="Spectre.Console.Cli" Version="0.48.0"/>
     </ItemGroup>
 
     <ItemGroup>
-      <None Remove="logo.png" />
+        <None Remove="logo.png"/>
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\Metalama.Backstage\Metalama.Backstage.csproj" />
+        <ProjectReference Include="..\Metalama.Backstage\Metalama.Backstage.csproj"/>
 
         <!-- We need the Worker project to be built first because we invoke it as an executable. -->
-    <ProjectReference Include="..\Metalama.Backstage.Worker\Metalama.Backstage.Worker.csproj"
-                      ReferenceOutputAssembly="false"
-                      SkipGetTargetFrameworkProperties="true"
-                      PrivateAssets="all" />
+        <ProjectReference Include="..\Metalama.Backstage.Worker\Metalama.Backstage.Worker.csproj"
+                          ReferenceOutputAssembly="false"
+                          SkipGetTargetFrameworkProperties="true"
+                          PrivateAssets="all"/>
 
     </ItemGroup>
 
     <ItemGroup>
-      <None Remove="Resources\logo.svg" />
+        <None Remove="Resources\logo.svg"/>
     </ItemGroup>
 
     <ItemGroup>
-      <None Remove="Resources\logo.png" />
-      <Content Include="Resources\logo.png">
-        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      </Content>
+        <None Remove="Resources\logo.png"/>
+        <Content Include="Resources\logo.png">
+            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+        </Content>
     </ItemGroup>
 
 
     <Target Name="ResolveZipInputFiles" AfterTargets="Build" Condition="'$(IsCrossTargetingBuild)'!='true'">
         <ItemGroup>
-            <ZipInputFiles Include="$(OutDir)\**\*" />
+            <ZipInputFiles Include="$(OutDir)\**\*"/>
         </ItemGroup>
     </Target>
 
@@ -56,11 +57,11 @@
     <Target Name="Zip" Inputs="@(ZipInputFiles)" Outputs="$(OutputZipFile)" AfterTargets="Build" DependsOnTargets="ResolveZipInputFiles" Condition="'$(IsCrossTargetingBuild)'!='true'">
 
         <Exec Command="git log -1 --format=%25%25cd --date=iso-strict" WorkingDirectory="$(MSBuildProjectDirectory)" ConsoleToMSBuild="true" EchoOff="true" StandardOutputImportance="low" Condition="'$(_PackageBuildDate)'==''">
-            <Output TaskParameter="ConsoleOutput" PropertyName="_PackageBuildDate" />
+            <Output TaskParameter="ConsoleOutput" PropertyName="_PackageBuildDate"/>
         </Exec>
-        
-        <CreateDeterministicZip SourceDirectory="$(OutDir)" DestinationFile="$(OutputZipFile)" PackageBuildDate="$(_PackageBuildDate)" />
-        <Message Text="$(MSBuildProjectName) -&gt; $(MSBuildProjectDirectory)\$(OutputZipFile)" Importance="High" />
+
+        <CreateDeterministicZip SourceDirectory="$(OutDir)" DestinationFile="$(OutputZipFile)" PackageBuildDate="$(_PackageBuildDate)"/>
+        <Message Text="$(MSBuildProjectName) -&gt; $(MSBuildProjectDirectory)\$(OutputZipFile)" Importance="High"/>
     </Target>
 
 </Project>

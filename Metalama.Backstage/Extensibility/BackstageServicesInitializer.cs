@@ -12,10 +12,12 @@ namespace Metalama.Backstage.Extensibility;
 internal sealed class BackstageServicesInitializer : IBackstageService
 {
     private readonly IServiceProvider _serviceProvider;
+    private readonly BackstageInitializationOptionsProvider _optionsProvider;
 
     public BackstageServicesInitializer( IServiceProvider serviceProvider )
     {
         this._serviceProvider = serviceProvider;
+        this._optionsProvider = serviceProvider.GetRequiredBackstageService<BackstageInitializationOptionsProvider>();
     }
 
     public void Initialize()
@@ -29,7 +31,9 @@ internal sealed class BackstageServicesInitializer : IBackstageService
 
         this._serviceProvider.GetBackstageService<ILicenseConsumptionService>()?.Initialize();
 
-        // This should run after LicenseConsumptionService.
-        this._serviceProvider.GetBackstageService<IUserInterfaceService>()?.Initialize();
+        if ( this._optionsProvider.Options.DetectToastNotifications )
+        {
+            this._serviceProvider.GetBackstageService<ToastNotificationDetectionService>()?.Detect();
+        }
     }
 }

@@ -116,9 +116,11 @@ namespace Metalama.Backstage.Testing
                 .AddSingleton<IBackstageToolsLocator>( serviceProvider => new BackstageToolsLocator( serviceProvider ) )
                 .AddSingleton<IUserInterfaceService>( serviceProvider => new TestUserInterfaceService( serviceProvider ) )
                 .AddSingleton<IToastNotificationStatusService>( serviceProvider => new TestToastNotificationStatusService( serviceProvider ) )
+                .AddSingleton<IToastNotificationService>( serviceProvider => new ToastNotificationService( serviceProvider ) )
                 .AddSingleton<BackstageServicesInitializer>( serviceProvider => new BackstageServicesInitializer( serviceProvider ) )
                 .AddSingleton<WelcomeService>( serviceProvider => new WelcomeService( serviceProvider ) )
-                .AddSingleton<IIdeExtensionStatusService>( serviceProvider => new IdeExtensionStatusService( serviceProvider ) );
+                .AddSingleton<IIdeExtensionStatusService>( serviceProvider => new IdeExtensionStatusService( serviceProvider ) )
+                .AddSingleton<ToastNotificationDetectionService>( serviceProvider => new ToastNotificationDetectionService( serviceProvider ) );
 
             var serviceProviderBuilder =
                 new ServiceProviderBuilder( ( type, instance ) => serviceCollection.AddSingleton( type, instance ) );

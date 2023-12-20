@@ -16,12 +16,18 @@ internal class ToastNotificationService : IToastNotificationService
         this._userInterfaceService = serviceProvider.GetRequiredBackstageService<IUserInterfaceService>();
     }
 
-    public void Show( ToastNotification notification )
+    public bool Show( ToastNotification notification )
     {
         if ( this._toastNotificationStatusService.TryAcquire( notification.Kind ) )
         {
             var notified = false;
             this._userInterfaceService.ShowToastNotification( notification, ref notified );
+
+            return true;
+        }
+        else
+        {
+            return false;
         }
     }
 }
