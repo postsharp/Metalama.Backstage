@@ -45,46 +45,7 @@ public static class RegisterServiceExtensions
         return serviceProviderBuilder;
     }
 
-    /// <summary>
-    /// Adds a service providing current date and time using <see cref="DateTime.Now" /> to the specified <see cref="ServiceProviderBuilder" />.
-    /// </summary>
-    /// <param name="serviceProviderBuilder">The <see cref="ServiceProviderBuilder" /> to add services to.</param>
-    /// <returns>The <see cref="ServiceProviderBuilder" /> so that additional calls can be chained.</returns>
-    private static ServiceProviderBuilder AddCurrentDateTimeProvider( this ServiceProviderBuilder serviceProviderBuilder )
-        => serviceProviderBuilder.AddSingleton<IDateTimeProvider>( new CurrentDateTimeProvider() );
-
-    /// <summary>
-    /// Adds a service providing access to file system using API in <see cref="System.IO" /> namespace to the specified <see cref="ServiceProviderBuilder" />.
-    /// </summary>
-    /// <param name="serviceProviderBuilder">The <see cref="ServiceProviderBuilder" /> to add services to.</param>
-    /// <returns>The <see cref="ServiceProviderBuilder" /> so that additional calls can be chained.</returns>
-    private static ServiceProviderBuilder AddFileSystem( this ServiceProviderBuilder serviceProviderBuilder )
-        => serviceProviderBuilder.AddSingleton<IFileSystem>( new FileSystem() );
-
-    /// <summary>
-    /// Adds a service providing access to environment using API in <see cref="System" /> namespace to the specified <see cref="ServiceProviderBuilder" />.
-    /// </summary>
-    /// <param name="serviceProviderBuilder">The <see cref="ServiceProviderBuilder" /> to add services to.</param>
-    /// <returns>The <see cref="ServiceProviderBuilder" /> so that additional calls can be chained.</returns>
-    private static ServiceProviderBuilder AddEnvironmentVariableProvider( this ServiceProviderBuilder serviceProviderBuilder )
-        => serviceProviderBuilder.AddSingleton<IEnvironmentVariableProvider>( new EnvironmentVariableProvider() );
-
-    /// <summary>
-    /// Adds a service providing information if a recoverable exception can be ignored.
-    /// </summary>
-    /// <param name="serviceProviderBuilder">The <see cref="ServiceProviderBuilder" /> to add services to.</param>
-    /// <returns>The <see cref="ServiceProviderBuilder" /> so that additional calls can be chained.</returns>
-    private static ServiceProviderBuilder AddRecoverableExceptionService( this ServiceProviderBuilder serviceProviderBuilder )
-        => serviceProviderBuilder.AddSingleton<IRecoverableExceptionService>( serviceProvider => new RecoverableExceptionService( serviceProvider ) );
-
-    /// <summary>
-    /// Adds a service providing paths of standard directories to the specified <see cref="ServiceProviderBuilder" />.
-    /// </summary>
-    /// <param name="serviceProviderBuilder">The <see cref="ServiceProviderBuilder" /> to add services to.</param>
-    /// <returns>The <see cref="ServiceProviderBuilder" /> so that additional calls can be chained.</returns>
-    internal static ServiceProviderBuilder AddStandardDirectories( this ServiceProviderBuilder serviceProviderBuilder )
-        => serviceProviderBuilder.AddSingleton<IStandardDirectories>( serviceProvider => new StandardDirectories( serviceProvider ) );
-
+    
     internal static ServiceProviderBuilder AddDiagnostics(
         this ServiceProviderBuilder serviceProviderBuilder,
         ProcessKind processKind,
@@ -128,35 +89,27 @@ public static class RegisterServiceExtensions
     /// <summary>
     /// Adds the minimal set of services required by logging and telemetry.
     /// </summary>
-    private static ServiceProviderBuilder AddDiagnosticsRequirements(
+    private static void AddCommonServices(
         this ServiceProviderBuilder serviceProviderBuilder,
-        IApplicationInfo applicationInfo )
+        IApplicationInfo applicationInfo,
+        BackstageInitializationOptions options )
     {
         serviceProviderBuilder = serviceProviderBuilder
-            .AddEnvironmentVariableProvider()
-            .AddRecoverableExceptionService()
+            .AddSingleton( _ => new BackstageInitializationOptionsProvider( options ) )
+            .AddSingleton( _ => new EarlyLoggerFactory() )
+            .AddSingleton<IEnvironmentVariableProvider>( new EnvironmentVariableProvider() )
+            .AddSingleton<IRecoverableExceptionService>( serviceProvider => new RecoverableExceptionService( serviceProvider ) )
             .AddSingleton<IApplicationInfoProvider>( new ApplicationInfoProvider( applicationInfo ) )
             .AddSingleton<IUserDeviceDetectionService>( serviceProvider => new WindowsUserDeviceDetectionService( serviceProvider ) )
-            .AddCurrentDateTimeProvider()
-            .AddFileSystem()
-            .AddStandardDirectories()
+            .AddSingleton<IDateTimeProvider>( new CurrentDateTimeProvider() )
+            .AddSingleton<IFileSystem>( new FileSystem() )
+            .AddSingleton<IStandardDirectories>( serviceProvider => new StandardDirectories( serviceProvider ) )
             .AddSingleton<IProcessExecutor>( new ProcessExecutor() )
             .AddSingleton<IHttpClientFactory>( new HttpClientFactory() )
-            .AddConfigurationManager();
+            .AddSingleton<IConfigurationManager>( serviceProvider => new ConfigurationManager( serviceProvider ) )
+            .AddSingleton<IPlatformInfo>( serviceProvider => new PlatformInfo( serviceProvider, options.DotNetSdkDirectory ) );
 
         serviceProviderBuilder.AddSingleton<ITempFileManager>( serviceProvider => new TempFileManager( serviceProvider ) );
-
-        return serviceProviderBuilder;
-    }
-
-    internal static ServiceProviderBuilder AddConfigurationManager( this ServiceProviderBuilder serviceProviderBuilder )
-        => serviceProviderBuilder.AddSingleton<IConfigurationManager>( serviceProvider => new ConfigurationManager( serviceProvider ) );
-
-    private static void AddPlatformInfo(
-        this ServiceProviderBuilder serviceProviderBuilder,
-        string? dotnetSdkDirectory )
-    {
-        serviceProviderBuilder.AddSingleton<IPlatformInfo>( serviceProvider => new PlatformInfo( serviceProvider, dotnetSdkDirectory ) );
     }
 
     private static void AddLicensing(
@@ -176,20 +129,15 @@ public static class RegisterServiceExtensions
     {
         // Add base services.
         var applicationInfo = options.ApplicationInfo;
-
-        serviceProviderBuilder.AddSingleton( _ => new BackstageInitializationOptionsProvider( options ) );
-        serviceProviderBuilder.AddSingleton( _ => new EarlyLoggerFactory() );
-
-        serviceProviderBuilder = serviceProviderBuilder
-            .AddDiagnosticsRequirements( applicationInfo );
+        
+        serviceProviderBuilder.AddCommonServices( applicationInfo, options );
 
         // Add diagnostics.
         if ( options.AddSupportServices )
         {
             if ( options.CreateLoggingFactory == null )
             {
-                serviceProviderBuilder = serviceProviderBuilder
-                    .AddDiagnostics( applicationInfo.ProcessKind, options.ProjectName );
+                serviceProviderBuilder.AddDiagnostics( applicationInfo.ProcessKind, options.ProjectName );
             }
             else
             {
@@ -203,10 +151,7 @@ public static class RegisterServiceExtensions
                     } );
             }
         }
-
-        // Add platform info.
-        serviceProviderBuilder.AddPlatformInfo( options.DotNetSdkDirectory );
-
+        
         // Add file locking detection.
         if ( LockingProcessDetector.IsSupported )
         {

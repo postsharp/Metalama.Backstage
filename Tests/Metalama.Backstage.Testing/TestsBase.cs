@@ -48,8 +48,6 @@ namespace Metalama.Backstage.Testing
 
         public TestUserInterfaceService UserInterface { get; }
 
-        public TestToastNotificationStatusService ToastNotificationsStatus { get; }
-
         protected IServiceCollection CloneServiceCollection()
         {
             var services = new ServiceCollection();
@@ -81,9 +79,6 @@ namespace Metalama.Backstage.Testing
             this.ConfigurationManager = this.ServiceProvider.GetRequiredBackstageService<IConfigurationManager>() as InMemoryConfigurationManager;
             this.FileSystem = (TestFileSystem) this.ServiceProvider.GetRequiredBackstageService<IFileSystem>();
             this.UserInterface = (TestUserInterfaceService) this.ServiceProvider.GetRequiredBackstageService<IUserInterfaceService>();
-
-            this.ToastNotificationsStatus =
-                (TestToastNotificationStatusService) this.ServiceProvider.GetRequiredBackstageService<IToastNotificationStatusService>();
         }
 
         protected ServiceCollection CreateServiceCollection(
@@ -103,6 +98,7 @@ namespace Metalama.Backstage.Testing
                 .AddSingleton<IPlatformInfo>( serviceProvider => new PlatformInfo( serviceProvider, null ) )
 
                 // We must always have a single instance of the file system even if we use CloneServiceCollection.
+                // ReSharper disable once NullCoalescingConditionIsAlwaysNotNullAccordingToAPIContract
                 .AddSingleton<IFileSystem>( serviceProvider => this.FileSystem ?? new TestFileSystem( serviceProvider ) )
                 .AddSingleton<IEnvironmentVariableProvider>( this.EnvironmentVariableProvider )
                 .AddSingleton<IRecoverableExceptionService>( new TestRecoverableExceptionService() )
@@ -115,18 +111,17 @@ namespace Metalama.Backstage.Testing
                 .AddSingleton<IBackstageToolsExecutor>( serviceProvider => new BackstageToolsExecutor( serviceProvider ) )
                 .AddSingleton<IBackstageToolsLocator>( serviceProvider => new BackstageToolsLocator( serviceProvider ) )
                 .AddSingleton<IUserInterfaceService>( serviceProvider => new TestUserInterfaceService( serviceProvider ) )
-                .AddSingleton<IToastNotificationStatusService>( serviceProvider => new TestToastNotificationStatusService( serviceProvider ) )
                 .AddSingleton<IToastNotificationService>( serviceProvider => new ToastNotificationService( serviceProvider ) )
+                .AddSingleton<IToastNotificationStatusService>( serviceProvider => new ToastNotificationStatusService( serviceProvider ) )
                 .AddSingleton<BackstageServicesInitializer>( serviceProvider => new BackstageServicesInitializer( serviceProvider ) )
                 .AddSingleton<WelcomeService>( serviceProvider => new WelcomeService( serviceProvider ) )
                 .AddSingleton<IIdeExtensionStatusService>( serviceProvider => new IdeExtensionStatusService( serviceProvider ) )
-                .AddSingleton<ToastNotificationDetectionService>( serviceProvider => new ToastNotificationDetectionService( serviceProvider ) );
+                .AddSingleton<ToastNotificationDetectionService>( serviceProvider => new ToastNotificationDetectionService( serviceProvider ) )
+                .AddSingleton<IStandardDirectories>( serviceProvider => new StandardDirectories( serviceProvider ) );
 
             var serviceProviderBuilder =
                 new ServiceProviderBuilder( ( type, instance ) => serviceCollection.AddSingleton( type, instance ) );
-
-            serviceProviderBuilder.AddStandardDirectories();
-
+            
             // The test implementation may replace some services.
             serviceBuilder?.Invoke( serviceProviderBuilder );
 

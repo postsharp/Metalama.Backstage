@@ -11,7 +11,7 @@ internal partial class LicenseConsumptionService : ILicenseConsumptionService
 {
     private readonly IServiceProvider _services;
     private readonly IReadOnlyList<ILicenseSource> _sources;
-    private ILicenseConsumptionService _impl;
+    private ILicenseConsumptionService? _impl;
 
     public LicenseConsumptionService( IServiceProvider services, IReadOnlyList<ILicenseSource> licenseSources )
     {
@@ -22,19 +22,16 @@ internal partial class LicenseConsumptionService : ILicenseConsumptionService
         {
             source.Changed += this.OnSourceChanged;
         }
-
-        // The component should be manually initialized, as
-        this._impl = new UninitializedImpl();
     }
 
-    public void Initialize()
+    private ILicenseConsumptionService GetInitializedImpl()
     {
-        if ( this._impl is not UninitializedImpl )
+        if ( this._impl == null )
         {
-            throw new InvalidOperationException( "The service cannot be initialized twice." );
+            this.OnSourceChanged();
         }
 
-        this.OnSourceChanged();
+        return this._impl!;
     }
 
     public ILicenseConsumptionService WithAdditionalLicense( string? licenseKey )
@@ -48,7 +45,6 @@ internal partial class LicenseConsumptionService : ILicenseConsumptionService
         sources.AddRange( this._sources );
         sources.Add( new ExplicitLicenseSource( licenseKey!, this._services ) );
         var newService = new LicenseConsumptionService( this._services, sources );
-        newService.Initialize();
 
         return newService;
     }
@@ -60,46 +56,18 @@ internal partial class LicenseConsumptionService : ILicenseConsumptionService
         this.Changed?.Invoke();
     }
 
-    public IReadOnlyList<LicensingMessage> Messages => this._impl.Messages;
+    public IReadOnlyList<LicensingMessage> Messages => this.GetInitializedImpl().Messages;
 
-    public bool CanConsume( LicenseRequirement requirement, string? consumerNamespace = null ) => this._impl.CanConsume( requirement, consumerNamespace );
+    public bool CanConsume( LicenseRequirement requirement, string? consumerNamespace = null ) => this.GetInitializedImpl().CanConsume( requirement, consumerNamespace );
 
     public bool ValidateRedistributionLicenseKey( string redistributionLicenseKey, string aspectClassNamespace )
-        => this._impl.ValidateRedistributionLicenseKey( redistributionLicenseKey, aspectClassNamespace );
+        => this.GetInitializedImpl().ValidateRedistributionLicenseKey( redistributionLicenseKey, aspectClassNamespace );
 
-    public bool IsTrialLicense => this._impl.IsTrialLicense;
+    public bool IsTrialLicense => this.GetInitializedImpl().IsTrialLicense;
 
-    public bool IsRedistributionLicense => this._impl.IsRedistributionLicense;
+    public bool IsRedistributionLicense => this.GetInitializedImpl().IsRedistributionLicense;
 
-    public string? LicenseString => this._impl.LicenseString;
+    public string? LicenseString => this.GetInitializedImpl().LicenseString;
 
     public event Action? Changed;
-
-    private class UninitializedImpl : ILicenseConsumptionService
-    {
-        private const string _message = "The LicenseConsumptionService has not been initialized.";
-
-        public IReadOnlyList<LicensingMessage> Messages => throw new InvalidOperationException( _message );
-
-        public bool CanConsume( LicenseRequirement requirement, string? consumerNamespace = null ) => throw new InvalidOperationException( _message );
-
-        public bool ValidateRedistributionLicenseKey( string redistributionLicenseKey, string aspectClassNamespace )
-            => throw new InvalidOperationException( _message );
-
-        public bool IsTrialLicense => throw new InvalidOperationException( _message );
-
-        public bool IsRedistributionLicense => throw new InvalidOperationException( _message );
-
-        public string? LicenseString => throw new InvalidOperationException( _message );
-
-        public event Action? Changed
-        {
-            add => throw new InvalidOperationException( _message );
-            remove => throw new InvalidOperationException( _message );
-        }
-
-        public void Initialize() => throw new InvalidOperationException( _message );
-
-        public ILicenseConsumptionService WithAdditionalLicense( string? licenseKey ) => throw new NotSupportedException();
-    }
 }

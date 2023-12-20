@@ -15,7 +15,7 @@ public sealed class BackstageTool
     }
 
     // We use shell execute otherwise it displays a console window during one second.
-    public static BackstageTool Worker { get; } = new( "Metalama.Backstage.Worker", false, ProcessWindowStyle.Hidden, true );
+    public static BackstageTool Worker { get; } = new( "Metalama.Backstage.Worker", false, ProcessWindowStyle.Hidden, false );
 
     public static BackstageTool DesktopWindows { get; } = new( "Metalama.Backstage.Desktop.Windows", true, ProcessWindowStyle.Normal, false );
 

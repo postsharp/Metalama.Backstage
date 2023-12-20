@@ -23,4 +23,8 @@ public class BaseCommandSettings : CommandSettings
     
     [CommandOption( "--dev", IsHidden = true )]
     public bool IsDevelopmentEnvironment { get; init; }
+    
+    // For testing only, adds backstage UI services.
+    [CommandOption( "--with-ui", IsHidden = true )]
+    public bool AddUserInterface { get; init; }
 }

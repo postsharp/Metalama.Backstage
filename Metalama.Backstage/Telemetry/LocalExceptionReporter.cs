@@ -7,6 +7,8 @@ using Metalama.Backstage.Infrastructure;
 using Metalama.Backstage.UserInterface;
 using System;
 using System.IO;
+using System.Runtime.InteropServices;
+using System.Text;
 
 namespace Metalama.Backstage.Telemetry;
 
@@ -16,6 +18,7 @@ internal class LocalExceptionReporter : IBackstageService
     private readonly IApplicationInfoProvider _applicationInfoProvider;
     private readonly IToastNotificationService? _toastNotificationService;
     private readonly ILogger _logger;
+    private readonly IFileSystem _fileSystem;
 
     public LocalExceptionReporter( IServiceProvider serviceProvider )
     {
@@ -23,21 +26,46 @@ internal class LocalExceptionReporter : IBackstageService
         this._applicationInfoProvider = serviceProvider.GetRequiredBackstageService<IApplicationInfoProvider>();
         this._toastNotificationService = serviceProvider.GetBackstageService<IToastNotificationService>();
         this._logger = serviceProvider.GetLoggerFactory().GetLogger( this.GetType().Name );
+        this._fileSystem = serviceProvider.GetRequiredBackstageService<IFileSystem>();
     }
 
     public void ReportException( Exception exception, string? localReportPath )
     {
         this._logger.Error?.Log( exception.ToString() );
-        
+
         try
         {
-            if ( localReportPath != null )
+            if ( localReportPath == null )
             {
                 // If the caller did not create the report file, create it ourselves.
                 localReportPath = Path.Combine( this._standardDirectories.CrashReportsDirectory, $"exception-{Guid.NewGuid()}.txt" );
 
-                File.WriteAllText( localReportPath, exception.ToString() );
-                
+                var exceptionText = new StringBuilder();
+
+#pragma warning disable CA1305
+                exceptionText.AppendLine( $"Metalama Application: {this._applicationInfoProvider.CurrentApplication.Name}" );
+                exceptionText.AppendLine( $"Metalama Version: {this._applicationInfoProvider.CurrentApplication.Version}" );
+                exceptionText.AppendLine( $"Runtime: {RuntimeInformation.FrameworkDescription}" );
+                exceptionText.AppendLine( $"Processor Architecture: {RuntimeInformation.ProcessArchitecture}" );
+                exceptionText.AppendLine( $"OS Description: {RuntimeInformation.OSDescription}" );
+                exceptionText.AppendLine( $"OS Architecture: {RuntimeInformation.OSArchitecture}" );
+                exceptionText.AppendLine( $"Exception type: {exception.GetType()}" );
+                exceptionText.AppendLine( $"Exception message: {exception.Message}" );
+
+                try
+                {
+                    // The next line may fail.
+                    var exceptionToString = exception.ToString();
+                    exceptionText.AppendLine( "===== Exception ===== " );
+                    exceptionText.AppendLine( exceptionToString );
+                }
+
+                // ReSharper disable once EmptyGeneralCatchClause
+                catch { }
+#pragma warning restore CA1305
+
+                this._fileSystem.WriteAllText( localReportPath, exceptionText.ToString() );
+
                 this._logger.Info?.Log( $"Creating an exception report in '{localReportPath}'." );
             }
 

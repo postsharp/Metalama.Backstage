@@ -1,6 +1,7 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. See the LICENSE.md file in the root directory of this repository root for details.
 
 using Metalama.Backstage.Application;
+using Metalama.Backstage.Configuration;
 using Metalama.Backstage.Extensibility;
 using Metalama.Backstage.Licensing;
 using Metalama.Backstage.Licensing.Consumption;
@@ -38,7 +39,7 @@ public class LicenseSourcePriorityTests : LicensingTestsBase
                     {
                         IsUnattendedProcess = isUnattendedProcess
                     } ) )
-            .AddConfigurationManager();
+            .AddSingleton<IConfigurationManager>( serviceProvider => new Configuration.ConfigurationManager( serviceProvider )  );
 
         var serviceProvider = serviceCollection.BuildServiceProvider();
 
@@ -50,8 +51,7 @@ public class LicenseSourcePriorityTests : LicensingTestsBase
         var options = new LicensingInitializationOptions() { DisableLicenseAudit = true };
 
         var manager = LicenseConsumptionServiceFactory.Create( serviceProvider, options );
-        manager.Initialize();
-
+        
         if ( projectLicense != null )
         {
             manager = manager.WithAdditionalLicense( projectLicense );

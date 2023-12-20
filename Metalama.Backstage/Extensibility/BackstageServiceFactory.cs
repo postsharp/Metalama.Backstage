@@ -3,6 +3,7 @@
 using JetBrains.Annotations;
 using Metalama.Backstage.Diagnostics;
 using Metalama.Backstage.Licensing.Consumption;
+using Metalama.Backstage.Licensing.Consumption.Sources;
 using Metalama.Backstage.UserInterface;
 using System;
 
@@ -18,6 +19,8 @@ public static class BackstageServiceFactory
     public static IServiceProvider ServiceProvider
         => _serviceProvider ?? throw new InvalidOperationException( "BackstageServiceFactory has not been initialized." );
 
+    public static bool IsInitialized => _serviceProvider != null;
+    
     public static bool Initialize( BackstageInitializationOptions options, string caller )
     {
         lock ( _initializeSync )
@@ -28,7 +31,7 @@ public static class BackstageServiceFactory
                     .GetLogger( "BackstageServiceFactory" )
                     .Trace?.Log( $"Support services initialization requested from {caller}. The services are already initialized." );
 
-                if ( options.DetectToastNotifications )
+                if ( options is { AddUserInterface: true, DetectToastNotifications: true } )
                 {
                     // We need to run the to detect notifications every time time because the service provider can be cached in the
                     // compiler background process, and we need the UI logic to run often.
@@ -54,5 +57,14 @@ public static class BackstageServiceFactory
 
             return true;
         }
+    }
+
+    public static ILicenseConsumptionService CreateTestLicenseConsumptionService( IServiceProvider serviceProvider, string? licenseKey )
+    {
+        var sources = licenseKey == null ? Array.Empty<ExplicitLicenseSource>() : new[] { new ExplicitLicenseSource( licenseKey, serviceProvider ) };
+
+        var service = new LicenseConsumptionService( serviceProvider, sources );
+
+        return service;
     }
 }

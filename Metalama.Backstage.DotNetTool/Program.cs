@@ -10,7 +10,13 @@ internal static class Program
     public static int Main( string[] args )
     {
         var app = new CommandApp();
-        BackstageCommandFactory.ConfigureCommandApp( app, new BackstageCommandOptions( new ApplicationInfo() ) );
+
+        var options = new BackstageCommandOptions( new ApplicationInfo() );
+
+        BackstageCommandFactory.ConfigureCommandApp(
+            app,
+            options,
+            builder => builder.AddCommand<ThrowCommand>( "throw" ).WithData( options ) );
 
         return app.Run( args );
     }

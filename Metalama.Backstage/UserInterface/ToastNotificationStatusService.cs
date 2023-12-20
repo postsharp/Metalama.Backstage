@@ -21,8 +21,6 @@ public class ToastNotificationStatusService : IToastNotificationStatusService
         this._dateTimeProvider = serviceProvider.GetRequiredBackstageService<IDateTimeProvider>();
     }
 
-    public virtual bool CanShow => false;
-
     private bool IsEnabled( ToastNotificationKind kind, ToastNotificationsConfiguration configuration )
     {
         if ( !configuration.Notifications.TryGetValue( kind.Name, out var kindConfiguration ) )
@@ -53,8 +51,6 @@ public class ToastNotificationStatusService : IToastNotificationStatusService
                     kind.Name,
                     new ToastNotificationConfiguration() { SnoozeUntil = this._dateTimeProvider.Now + kind.AutoSnoozePeriod } )
             } );
-
-    protected virtual void ShowCore( ToastNotification notification ) => throw new NotSupportedException();
 
     public void Snooze( ToastNotificationKind kind )
         => this._configurationManager.Update<ToastNotificationsConfiguration>(

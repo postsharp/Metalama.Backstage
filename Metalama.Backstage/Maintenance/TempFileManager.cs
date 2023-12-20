@@ -256,21 +256,21 @@ public class TempFileManager : ITempFileManager
 
         var cleanUpFilePath = Path.Combine( directoryFullPath, "cleanup.json" );
 
-        if ( !Directory.Exists( directoryFullPath ) || !File.Exists( cleanUpFilePath ) )
+        if ( !this._fileSystem.DirectoryExists( directoryFullPath ) || !this._fileSystem.FileExists( cleanUpFilePath ) )
         {
             using ( MutexHelper.WithGlobalLock( directoryFullPath ) )
             {
-                if ( !Directory.Exists( directoryFullPath ) || !File.Exists( cleanUpFilePath ) )
+                if ( !this._fileSystem.DirectoryExists( directoryFullPath ) || !this._fileSystem.FileExists( cleanUpFilePath ) )
                 {
-                    if ( !Directory.Exists( directoryFullPath ) )
+                    if ( !this._fileSystem.DirectoryExists( directoryFullPath ) )
                     {
-                        Directory.CreateDirectory( directoryFullPath );
+                        this._fileSystem.CreateDirectory( directoryFullPath );
                     }
 
-                    if ( !File.Exists( cleanUpFilePath ) )
+                    if ( !this._fileSystem.FileExists( cleanUpFilePath ) )
                     {
                         var file = new CleanUpFile() { Strategy = cleanUpStrategy };
-                        File.WriteAllText( cleanUpFilePath, JsonConvert.SerializeObject( file ) );
+                        this._fileSystem.WriteAllText( cleanUpFilePath, JsonConvert.SerializeObject( file ) );
 
                         return directoryFullPath;
                     }
@@ -278,11 +278,11 @@ public class TempFileManager : ITempFileManager
             }
         }
 
-        if ( cleanUpStrategy == CleanUpStrategy.WhenUnused && File.GetLastAccessTime( cleanUpFilePath ) > DateTime.Now.AddDays( -1 ) )
+        if ( cleanUpStrategy == CleanUpStrategy.WhenUnused && this._fileSystem.GetFileLastWriteTime( cleanUpFilePath ) > this._time.Now.AddDays( -1 ) )
         {
             using ( MutexHelper.WithGlobalLock( cleanUpFilePath ) )
             {
-                RetryHelper.Retry( () => File.SetLastWriteTime( cleanUpFilePath, DateTime.Now ) );
+                RetryHelper.Retry( () => this._fileSystem.SetFileLastWriteTime( cleanUpFilePath, DateTime.Now ) );
             }
         }
 

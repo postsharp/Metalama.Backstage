@@ -78,7 +78,7 @@ internal static class ViewModelBuilder
                 settings.Kind,
                 settings.Title ?? "Metalama failed",
                 settings.Text ?? "Metalama encountered an unhandled exception.",
-                new UriActionViewModel( "Open", settings.Uri! ) );
+                new UriActionViewModel( "View", settings.Uri! ) );
 
             return true;
         }

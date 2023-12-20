@@ -165,8 +165,6 @@ internal partial class LicenseConsumptionService
 
         event Action? ILicenseConsumptionService.Changed { add { } remove { } }
 
-        public void Initialize() { }
-
         public ILicenseConsumptionService WithAdditionalLicense( string licenseKey ) => throw new NotSupportedException();
 
         /// <inheritdoc />

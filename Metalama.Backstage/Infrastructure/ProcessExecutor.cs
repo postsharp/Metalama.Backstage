@@ -9,11 +9,18 @@ internal class ProcessExecutor : IProcessExecutor
 {
     public IProcess Start( ProcessStartInfo startInfo )
     {
-        // Reset a few environment variables set by the Visual Studio process.
-        startInfo.Environment["DOTNET_MULTILEVEL_LOOKUP"] = "";
-        startInfo.Environment["DOTNET_ROOT"] = "";
-        startInfo.Environment["DOTNET_STARTUP_HOOKS"] = "";
-        startInfo.Environment["DOTNET_TC_CallCountThreshold"] = "";
+        if ( !startInfo.UseShellExecute )
+        {
+            // Reset a few environment variables set by the Visual Studio process.
+            startInfo.Environment["DOTNET_MULTILEVEL_LOOKUP"] = "";
+            startInfo.Environment["DOTNET_ROOT"] = "";
+            startInfo.Environment["DOTNET_STARTUP_HOOKS"] = "";
+            startInfo.Environment["DOTNET_TC_CallCountThreshold"] = "";
+        }
+        else
+        {
+            // We can't set environment variables with ShellExecute=true and this is also probably useless.
+        }
 
         return new ProcessWrapper( Process.Start( startInfo ) ?? throw new InvalidOperationException( "The process could not be started." ) );
     }

@@ -43,8 +43,7 @@ public class CleanUpTests : TestsBase
     protected override void ConfigureServices( ServiceProviderBuilder services )
     {
         services
-            .AddSingleton<IApplicationInfoProvider>( new ApplicationInfoProvider( new TestApplicationInfo() ) )
-            .AddConfigurationManager();
+            .AddSingleton<IApplicationInfoProvider>( new ApplicationInfoProvider( new TestApplicationInfo() ) );
     }
 
     private void SetupTempDirectory()

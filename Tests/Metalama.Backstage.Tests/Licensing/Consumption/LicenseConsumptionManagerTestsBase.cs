@@ -35,18 +35,12 @@ public abstract class LicenseConsumptionManagerTestsBase : LicensingTestsBase
 
     private protected ILicenseConsumptionService CreateConsumptionManager( params ILicenseSource[] licenseSources )
     {
-        var manager = new LicenseConsumptionService( this.ServiceProvider, licenseSources );
-        manager.Initialize();
-
-        return manager;
+        return new LicenseConsumptionService( this.ServiceProvider, licenseSources );
     }
 
     private protected ILicenseConsumptionService CreateConsumptionManager()
     {
-        var manager = new LicenseConsumptionService( this.ServiceProvider, Array.Empty<ILicenseSource>() );
-        manager.Initialize();
-
-        return manager;
+        return new LicenseConsumptionService( this.ServiceProvider, Array.Empty<ILicenseSource>() );
     }
 
     private protected static void TestConsumption(
