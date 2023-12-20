@@ -14,10 +14,10 @@ public sealed class BackstageTool
         this.UseShellExecute = useShellExecute;
     }
 
-    // We use shell execute otherwise it displays a console window during one second.
-    public static BackstageTool Worker { get; } = new( "Metalama.Backstage.Worker", false, ProcessWindowStyle.Hidden, false );
+    // We use have to use shell execute so that we don't inherit the environment variable of the parent process, which causes problems in case of the VS processes.
+    public static BackstageTool Worker { get; } = new( "Metalama.Backstage.Worker", false, ProcessWindowStyle.Hidden, true );
 
-    public static BackstageTool DesktopWindows { get; } = new( "Metalama.Backstage.Desktop.Windows", true, ProcessWindowStyle.Normal, false );
+    public static BackstageTool DesktopWindows { get; } = new( "Metalama.Backstage.Desktop.Windows", true, ProcessWindowStyle.Normal, true );
 
     public string Name { get; }
 
