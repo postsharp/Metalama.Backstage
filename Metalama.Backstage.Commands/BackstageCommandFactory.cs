@@ -115,7 +115,7 @@ public static class BackstageCommandFactory
                     } );
 
                 appConfig.AddCommand<DocsCommand>( "docs" ).WithData( options ).WithDescription( "Opens the Metalama documentation." );
-                appConfig.AddCommand<WebUICommand>( "webui" ).WithData( options ).WithDescription( "Opens the configuration web UI." );
+                appConfig.AddCommand<OpenUICommand>( "ui" ).WithData( options ).WithDescription( "Opens the configuration browser-based UI." );
 
                 configureMoreCommands?.Invoke( appConfig );
             } );

@@ -35,6 +35,8 @@ internal class EarlyLoggerFactory : ILoggerFactory
 
     public ILogger GetLogger( string category ) => this._loggers.GetOrAdd( category, category => new Logger( this.LoggerFactory.GetLogger( category ) ) );
 
+    public void Flush() { }
+
     private class Logger : ILogger
     {
         public ILogger Underlying { get; set; }

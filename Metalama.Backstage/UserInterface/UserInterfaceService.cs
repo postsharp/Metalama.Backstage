@@ -60,9 +60,7 @@ public abstract class UserInterfaceService : IUserInterfaceService
         // TODO: Find a free port. 
         const int port = 5252;
 
-        var processHasExited = false;
         using var webServerProcess = this._backstageToolExecutor.Start( BackstageTool.Worker, $"web --port {port} " );
-        webServerProcess.Exited += () => processHasExited = true;
 
         // Wait until the server has started.
         var baseAddress = new Uri( $"http://localhost:{port}/" );
@@ -79,7 +77,7 @@ public abstract class UserInterfaceService : IUserInterfaceService
         {
             try
             {
-                if ( processHasExited )
+                if ( webServerProcess.HasExited )
                 {
                     this.Logger.Error?.Log( "The server process has exited prematurely." );
 

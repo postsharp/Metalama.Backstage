@@ -41,7 +41,7 @@ internal class WebServerCommand : AsyncCommand<WebServerCommandSettings>
         var app = builder.Build();
 
         app.UseCors();
-        
+
         // If the program was started from the wrong directory, fix the path of static files.
         var contentRootPath = builder.Environment.ContentRootPath;
 
@@ -56,14 +56,7 @@ internal class WebServerCommand : AsyncCommand<WebServerCommandSettings>
             app.UseStaticFiles();
         }
 
-        // Configure the HTTP request pipeline.
-        if ( !app.Environment.IsDevelopment() )
-        {
-            app.UseExceptionHandler( "/Error" );
-
-            // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
-            app.UseHsts();
-        }
+        app.UseDeveloperExceptionPage();
 
         app.UseRouting();
         app.UseAuthorization();

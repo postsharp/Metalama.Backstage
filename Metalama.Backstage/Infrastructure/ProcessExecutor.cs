@@ -42,6 +42,8 @@ internal class ProcessExecutor : IProcessExecutor
 
         public event Action? Exited;
 
+        public bool HasExited => this._process.HasExited;
+
         public void Dispose()
         {
             this._process.Exited -= this.OnExited;

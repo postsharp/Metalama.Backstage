@@ -19,18 +19,21 @@ public class ConsentsPageModel : PageModel
 {
     private readonly ILicenseRegistrationService _licenseRegistrationService;
     private readonly ITelemetryConfigurationService _telemetryConfigurationService;
-    private readonly IIdeExtensionStatusService _ideExtensionStatusService;
+    private readonly IIdeExtensionStatusService? _ideExtensionStatusService;
     private readonly IToastNotificationStatusService _toastNotificationStatusService;
+    private readonly WebLinks _webLinks;
 
     public ConsentsPageModel(
         ILicenseRegistrationService licenseRegistrationService,
         ITelemetryConfigurationService telemetryConfigurationService,
-        IIdeExtensionStatusService ideExtensionStatusService,
-        IToastNotificationStatusService toastNotificationStatusService )
+        IToastNotificationStatusService toastNotificationStatusService,
+        WebLinks webLinks,
+        IIdeExtensionStatusService? ideExtensionStatusService = null )
     {
         this._licenseRegistrationService = licenseRegistrationService;
         this._telemetryConfigurationService = telemetryConfigurationService;
         this._ideExtensionStatusService = ideExtensionStatusService;
+        this._webLinks = webLinks;
         this._toastNotificationStatusService = toastNotificationStatusService;
     }
 
@@ -127,11 +130,11 @@ public class ConsentsPageModel : PageModel
         this._telemetryConfigurationService.SetStatus( this.EnableTelemetry );
 
         // Should we recommend to install Visual Studio
-        if ( this._ideExtensionStatusService.ShouldRecommendToInstallVisualStudioExtension )
+        if ( this._ideExtensionStatusService?.ShouldRecommendToInstallVisualStudioExtension == true )
         {
             return this.Redirect( "/InstallVsx" );
         }
 
-        return this.Redirect( "/Okay" );
+        return this.Redirect( this._webLinks.AfterSetup );
     }
 }

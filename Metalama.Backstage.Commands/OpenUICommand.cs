@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Metalama.Backstage.Commands;
 
-public class WebUICommand : BaseAsyncCommand<BaseCommandSettings>
+public class OpenUICommand : BaseAsyncCommand<BaseCommandSettings>
 {
     protected override Task ExecuteAsync( ExtendedCommandContext context, BaseCommandSettings settings )
     {

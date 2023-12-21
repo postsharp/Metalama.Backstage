@@ -10,6 +10,7 @@
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
         <!-- Embedded pdb seems to be incompatible with `dotnet pack`. -->
         <DebugType>portable</DebugType>
+        <RollForward>Major</RollForward>
     </PropertyGroup>
 
     <Import Sdk="PostSharp.Engineering.Sdk" Project="SystemTypes.props" />

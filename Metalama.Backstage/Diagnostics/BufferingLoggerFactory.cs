@@ -26,6 +26,8 @@ internal class BufferingLoggerFactory : ILoggerFactory
         }
     }
 
+    void ILoggerFactory.Flush() { }
+
     private class Logger : ILogger
     {
         private readonly BufferingLoggerFactory _parent;

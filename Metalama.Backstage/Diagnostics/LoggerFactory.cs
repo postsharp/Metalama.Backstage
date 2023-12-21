@@ -143,7 +143,7 @@ namespace Metalama.Backstage.Diagnostics
             }
         }
 
-        public void Dispose()
+        public void Flush()
         {
             if ( this._backgroundTaskStatus != _inactiveStatus )
             {
@@ -155,6 +155,12 @@ namespace Metalama.Backstage.Diagnostics
                 }
             }
 
+            this._textWriter?.Flush();
+        }
+
+        public void Dispose()
+        {
+            this.Flush();
             this._textWriter?.Close();
         }
     }

@@ -1,5 +1,6 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. See the LICENSE.md file in the root directory of this repository root for details.
 
+using Metalama.Backstage.Diagnostics;
 using Metalama.Backstage.Extensibility;
 using Metalama.Backstage.Infrastructure;
 using Metalama.Backstage.Licensing.Licenses;
@@ -16,8 +17,9 @@ internal class ToastNotificationDetectionService : IBackstageService
     private readonly IIdeExtensionStatusService? _ideExtensionStatusService;
     private readonly ILicenseRegistrationService? _licenseRegistrationService;
     private readonly object _initializationSync = new();
+    private readonly ILogger _logger;
 
-    private DateTime _lastTimeInitialized;
+    private DateTime _lastTimeDetectionStarted;
 
     public ToastNotificationDetectionService( IServiceProvider serviceProvider )
     {
@@ -26,6 +28,7 @@ internal class ToastNotificationDetectionService : IBackstageService
         this._dateTimeProvider = serviceProvider.GetRequiredBackstageService<IDateTimeProvider>();
         this._ideExtensionStatusService = serviceProvider.GetBackstageService<IIdeExtensionStatusService>();
         this._toastNotificationService = serviceProvider.GetRequiredBackstageService<IToastNotificationService>();
+        this._logger = serviceProvider.GetLoggerFactory().GetLogger( this.GetType().Name );
     }
 
     private string FormatExpiration( DateTime expiration )
@@ -44,11 +47,11 @@ internal class ToastNotificationDetectionService : IBackstageService
     {
         // We set notificationReported to true even if the notification is not reported because of snoozing
         // because the reason of this flag is to avoid displaying VsxNotInstalled.
-        
+
         if ( license == null )
         {
             this._toastNotificationService.Show( new ToastNotification( ToastNotificationKinds.RequiresLicense ) );
-            
+
             notificationReported = true;
         }
         else
@@ -72,7 +75,7 @@ internal class ToastNotificationDetectionService : IBackstageService
                             $"Your Metalama license expires {this.FormatExpiration( license.ValidTo.Value )}",
                             "Register a new license license key  to avoid loosing functionality." ) );
                 }
-                
+
                 notificationReported = true;
             }
             else if ( license is { SubscriptionEndDate: not null }
@@ -83,7 +86,7 @@ internal class ToastNotificationDetectionService : IBackstageService
                         ToastNotificationKinds.SubscriptionExpiring,
                         $"Your Metalama subscription expires {this.FormatExpiration( license.SubscriptionEndDate.Value )}",
                         "Renew your subscription and register a new license key to continue benefiting from updates." ) );
-                
+
                 notificationReported = true;
             }
         }
@@ -95,28 +98,36 @@ internal class ToastNotificationDetectionService : IBackstageService
         // than the lowest auto-snooze period of a toast notification.
         lock ( this._initializationSync )
         {
-            if ( this._lastTimeInitialized > this._dateTimeProvider.Now.Subtract( TimeSpan.FromSeconds( 15 ) ) )
+            if ( this._lastTimeDetectionStarted > this._dateTimeProvider.Now.Subtract( TimeSpan.FromSeconds( 15 ) ) )
             {
+                this._logger.Trace?.Log( "Skipping detection because it has been performed recently." );
+
                 return;
             }
 
-            this._lastTimeInitialized = this._dateTimeProvider.Now;
+            this._lastTimeDetectionStarted = this._dateTimeProvider.Now;
         }
 
         var notificationReported = false;
 
         // Validate the current license.
-        if ( this._userDeviceDetectionService.IsInteractiveDevice )
+        if ( !this._userDeviceDetectionService.IsInteractiveDevice )
         {
-            if ( this._licenseRegistrationService != null )
-            {
-                this.ValidateRegisteredLicense( this._licenseRegistrationService.RegisteredLicense, ref notificationReported );
-            }
+            this._logger.Trace?.Log( "Skipping detection because the session is not interactive." );
 
-            if ( !notificationReported && this._ideExtensionStatusService?.ShouldRecommendToInstallVisualStudioExtension == true )
-            {
-                this._toastNotificationService.Show( new ToastNotification( ToastNotificationKinds.VsxNotInstalled ) );
-            }
+            return;
+        }
+
+        this._logger.Trace?.Log( "Detecting relevant toast notifications." );
+
+        if ( this._licenseRegistrationService != null )
+        {
+            this.ValidateRegisteredLicense( this._licenseRegistrationService.RegisteredLicense, ref notificationReported );
+        }
+
+        if ( !notificationReported && this._ideExtensionStatusService?.ShouldRecommendToInstallVisualStudioExtension == true )
+        {
+            this._toastNotificationService.Show( new ToastNotification( ToastNotificationKinds.VsxNotInstalled ) );
         }
     }
 }

@@ -1,6 +1,7 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. See the LICENSE.md file in the root directory of this repository root for details.
 
 using Metalama.Backstage.Configuration;
+using Metalama.Backstage.Diagnostics;
 using Metalama.Backstage.Extensibility;
 using Metalama.Backstage.Infrastructure;
 using System;
@@ -14,30 +15,40 @@ public class ToastNotificationStatusService : IToastNotificationStatusService
 {
     private readonly IConfigurationManager _configurationManager;
     private readonly IDateTimeProvider _dateTimeProvider;
+    private readonly ILogger _logger;
 
     public ToastNotificationStatusService( IServiceProvider serviceProvider )
     {
         this._configurationManager = serviceProvider.GetRequiredBackstageService<IConfigurationManager>();
         this._dateTimeProvider = serviceProvider.GetRequiredBackstageService<IDateTimeProvider>();
+        this._logger = serviceProvider.GetLoggerFactory().GetLogger( this.GetType().Name );
     }
 
     private bool IsEnabled( ToastNotificationKind kind, ToastNotificationsConfiguration configuration )
     {
         if ( !configuration.Notifications.TryGetValue( kind.Name, out var kindConfiguration ) )
         {
+            this._logger.Trace?.Log( $"The notification kind {kind.Name} is not configured." );
+
             // A notification is enabled by default.
             return true;
         }
 
         if ( kindConfiguration.Disabled )
         {
+            this._logger.Trace?.Log( $"The notification kind {kind.Name} is disabled." );
+
             return false;
         }
 
         if ( kindConfiguration.SnoozeUntil != null && kindConfiguration.SnoozeUntil > this._dateTimeProvider.Now )
         {
+            this._logger.Trace?.Log( $"The notification kind {kind.Name} is snoozed until {kindConfiguration.SnoozeUntil}." );
+
             return false;
         }
+
+        this._logger.Trace?.Log( $"The notification kind {kind.Name} is active." );
 
         return true;
     }

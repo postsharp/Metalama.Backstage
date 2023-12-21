@@ -7,7 +7,10 @@
         <Nullable>enable</Nullable>
         <RootNamespace>Metalama.Backstage.DotNetTool</RootNamespace>
         <PackAsTool>true</PackAsTool>
+        <DebugType>portable</DebugType>
+        <!--
         <PackageType>DotNetCliTool</PackageType>
+        -->
         <ToolCommandName>metalama-backstage</ToolCommandName>
         <PackageDescription>A limited set of Metalama commands for internal use and testing only.</PackageDescription>
         <RollForward>Major</RollForward>

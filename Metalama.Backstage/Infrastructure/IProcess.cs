@@ -7,4 +7,6 @@ namespace Metalama.Backstage.Infrastructure;
 public interface IProcess : IDisposable
 {
     event Action Exited;
+
+    bool HasExited { get; }
 }
