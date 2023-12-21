@@ -45,7 +45,6 @@ public static class RegisterServiceExtensions
         return serviceProviderBuilder;
     }
 
-    
     internal static ServiceProviderBuilder AddDiagnostics(
         this ServiceProviderBuilder serviceProviderBuilder,
         ProcessKind processKind,
@@ -129,7 +128,7 @@ public static class RegisterServiceExtensions
     {
         // Add base services.
         var applicationInfo = options.ApplicationInfo;
-        
+
         serviceProviderBuilder.AddCommonServices( applicationInfo, options );
 
         // Add diagnostics.
@@ -151,7 +150,7 @@ public static class RegisterServiceExtensions
                     } );
             }
         }
-        
+
         // Add file locking detection.
         if ( LockingProcessDetector.IsSupported )
         {

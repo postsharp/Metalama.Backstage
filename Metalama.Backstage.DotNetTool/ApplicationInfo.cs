@@ -2,7 +2,7 @@
 
 using Metalama.Backstage.Application;
 
-namespace Metalama.Backstage.Tool;
+namespace Metalama.Backstage.DotNetTool;
 
 internal class ApplicationInfo : ApplicationInfoBase
 {

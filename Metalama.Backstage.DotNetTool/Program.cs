@@ -3,7 +3,7 @@
 using Metalama.Backstage.Commands;
 using Spectre.Console.Cli;
 
-namespace Metalama.Backstage.Tool;
+namespace Metalama.Backstage.DotNetTool;
 
 internal static class Program
 {

@@ -19,7 +19,6 @@ public class ToastNotificationStatusServiceTests : TestsBase
         this._toastService = this.ServiceProvider.GetRequiredBackstageService<IToastNotificationStatusService>();
     }
 
-    
     [Fact]
     public void AutoSnooze()
     {
@@ -51,7 +50,7 @@ public class ToastNotificationStatusServiceTests : TestsBase
 
         // This should be snoozed.
         Assert.False( this._toastService.TryAcquire( ToastNotificationKinds.LicenseExpiring ) );
-        
+
         // Advance the clock to the auto snooze. It should still be snoozed.
         this.Time.AddTime( ToastNotificationKinds.LicenseExpiring.AutoSnoozePeriod );
         Assert.False( this._toastService.TryAcquire( ToastNotificationKinds.LicenseExpiring ) );

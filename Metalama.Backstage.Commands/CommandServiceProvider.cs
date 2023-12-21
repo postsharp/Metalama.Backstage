@@ -37,7 +37,6 @@ namespace Metalama.Backstage.Commands
                 CreateLoggingFactory = _ => loggerFactory,
                 IsDevelopmentEnvironment = args.Settings.IsDevelopmentEnvironment,
                 AddUserInterface = args.Settings.AddUserInterface
-                
             };
 
             initializationOptions = args.TransformOptions( initializationOptions );

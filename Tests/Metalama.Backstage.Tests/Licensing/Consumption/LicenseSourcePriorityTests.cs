@@ -39,7 +39,7 @@ public class LicenseSourcePriorityTests : LicensingTestsBase
                     {
                         IsUnattendedProcess = isUnattendedProcess
                     } ) )
-            .AddSingleton<IConfigurationManager>( serviceProvider => new Configuration.ConfigurationManager( serviceProvider )  );
+            .AddSingleton<IConfigurationManager>( serviceProvider => new Configuration.ConfigurationManager( serviceProvider ) );
 
         var serviceProvider = serviceCollection.BuildServiceProvider();
 
@@ -51,7 +51,7 @@ public class LicenseSourcePriorityTests : LicensingTestsBase
         var options = new LicensingInitializationOptions() { DisableLicenseAudit = true };
 
         var manager = LicenseConsumptionServiceFactory.Create( serviceProvider, options );
-        
+
         if ( projectLicense != null )
         {
             manager = manager.WithAdditionalLicense( projectLicense );

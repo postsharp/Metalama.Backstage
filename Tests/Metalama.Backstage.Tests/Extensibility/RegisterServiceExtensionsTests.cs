@@ -24,7 +24,7 @@ public class RegisterServiceExtensionsTests
     [InlineData( false, false, true )]
     [InlineData( true, true, false )]
     [InlineData( false, true, false )]
-    [InlineData( false, false, false  )]
+    [InlineData( false, false, false )]
     [InlineData( true, false, true, true )]
     public void AddBackstageServices( bool addLicensing, bool addSupportServices, bool addUserInterface, bool disableLicenseAudit = false )
     {

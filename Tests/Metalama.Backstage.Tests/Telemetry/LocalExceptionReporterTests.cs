@@ -24,17 +24,17 @@ public class LocalExceptionReporterTests : TestsBase
     {
         var reporter = new LocalExceptionReporter( this.ServiceProvider );
         reporter.ReportException( new InvalidOperationException(), null );
-        
-        Assert.NotEmpty( this.FileSystem.EnumerateFiles( this._crashReportsDirectory, "*.txt") );
+
+        Assert.NotEmpty( this.FileSystem.EnumerateFiles( this._crashReportsDirectory, "*.txt" ) );
     }
-    
+
     [Fact]
     public void CrashReportNotCreatedWhenProvided()
     {
         var reporter = new LocalExceptionReporter( this.ServiceProvider );
         reporter.ReportException( new InvalidOperationException(), "currentReport.txt" );
-        
-        Assert.Empty( this.FileSystem.EnumerateFiles( this._crashReportsDirectory, "*.txt") );
+
+        Assert.Empty( this.FileSystem.EnumerateFiles( this._crashReportsDirectory, "*.txt" ) );
     }
 
     [Fact]
@@ -44,6 +44,4 @@ public class LocalExceptionReporterTests : TestsBase
         reporter.ReportException( new InvalidOperationException(), "currentReport.txt" );
         Assert.NotEmpty( this.UserInterface.Notifications );
     }
-
-    
 }
