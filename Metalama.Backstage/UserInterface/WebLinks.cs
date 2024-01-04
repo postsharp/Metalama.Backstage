@@ -25,4 +25,6 @@ public class WebLinks : IBackstageService
     public string RenewSubscription => "https://www.postsharp.net/links/TODO";
 
     public string UnhandledException => "https://www.postsharp.net/links/TODO";
+
+    public string DotNetTool => "https://doc.metalama.net/conceptual/installing/dotnet-tool";
 }

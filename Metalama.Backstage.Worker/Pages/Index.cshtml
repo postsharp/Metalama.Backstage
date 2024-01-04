@@ -1,4 +1,7 @@
 ﻿@page
+@using Metalama.Backstage.UserInterface
+@inject WebLinks WebLinks
+
 @{
     ViewData["Title"] = "Index";
 }
@@ -13,9 +16,6 @@
     </div>
 </div>
 
-<p style="margin-top: 40px">
-    It's almost empty here!
-</p>
 <p>
-    Please use the <code>metalama</code> CLI tool for most configuration commands.
+    Other commands are available from the <code>metalama</code> CLI tool. <a href="@WebLinks.DotNetTool" target="_blank">Read more.</a> 
 </p>
