@@ -1,0 +1,35 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>netstandard2.0</TargetFramework>
+        <RootNamespace>Metalama.Backstage.Tools</RootNamespace>
+       
+        <!-- Workaround for having Metalama.Backstage.Worker.runtimeconfig.json copied to the output directory.
+             TODO: Figure out why this file doesn't respect the "PrivateAssets=all" flag. -->
+        <_GetChildProjectCopyToOutputDirectoryItems>false</_GetChildProjectCopyToOutputDirectoryItems>
+        <_GetChildProjectCopyToPublishDirectoryItems>false</_GetChildProjectCopyToPublishDirectoryItems>
+
+    </PropertyGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\Metalama.Backstage\Metalama.Backstage.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <EmbeddedResource Include="..\Metalama.Backstage.Worker\bin\Metalama.Backstage.Worker.zip" />
+        
+        <ProjectReference Include="..\Metalama.Backstage.Worker\Metalama.Backstage.Worker.csproj"
+                          ReferenceOutputAssembly="false"
+                          SkipGetTargetFrameworkProperties="true"
+                          PrivateAssets="all" />
+
+        <EmbeddedResource Include="..\Metalama.Backstage.Desktop.Windows\bin\Metalama.Backstage.Desktop.Windows.zip" />
+        
+        <ProjectReference Include="..\Metalama.Backstage.Desktop.Windows\Metalama.Backstage.Desktop.Windows.csproj"
+                          ReferenceOutputAssembly="false"
+                          SkipGetTargetFrameworkProperties="true"
+                          PrivateAssets="all" />
+
+    </ItemGroup>
+
+</Project>

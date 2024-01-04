@@ -30,7 +30,9 @@ public record DiagnosticsConfiguration : ConfigurationFile
 
     public DiagnosticsConfiguration()
     {
-        var processes = Enum.GetValues( typeof(ProcessKind) ).Cast<ProcessKind>().ToImmutableDictionary( x => x.ToString(), _ => false );
+        var processes = Enum.GetValues( typeof(ProcessKind) )
+            .Cast<ProcessKind>()
+            .ToImmutableDictionary( x => x.ToString(), _ => false );
 
         this.Logging = new LoggingConfiguration
         {

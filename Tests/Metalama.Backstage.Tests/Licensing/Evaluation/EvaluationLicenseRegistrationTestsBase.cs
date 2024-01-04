@@ -1,9 +1,7 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. See the LICENSE.md file in the root directory of this repository root for details.
 
-using Metalama.Backstage.Extensibility;
 using Metalama.Backstage.Licensing.Licenses;
 using Metalama.Backstage.Licensing.Registration;
-using Metalama.Backstage.Licensing.Registration.Evaluation;
 using System;
 using Xunit;
 using Xunit.Abstractions;
@@ -14,36 +12,31 @@ namespace Metalama.Backstage.Tests.Licensing.Evaluation
     {
         protected static readonly DateTime TestStart = new( 2020, 1, 1 );
 
-        private EvaluationLicenseRegistrar Registrar { get; }
+        private LicenseRegistrationService Registrar { get; }
 
-        private protected EvaluationLicenseRegistrationTestsBase(
-            ITestOutputHelper logger,
-            Action<ServiceProviderBuilder>? serviceBuilder = null ) :
-            base(
-                logger,
-                serviceCollection => serviceBuilder?.Invoke( serviceCollection ) )
+        private protected EvaluationLicenseRegistrationTestsBase( ITestOutputHelper logger ) : base( logger )
         {
-            this.Registrar = new EvaluationLicenseRegistrar( this.ServiceProvider );
+            this.Registrar = new LicenseRegistrationService( this.ServiceProvider );
         }
 
         protected void AssertEvaluationEligible()
         {
-            Assert.True( this.Registrar.TryActivateLicense() );
+            Assert.True( this.Registrar.TryRegisterTrialEdition( out _ ) );
             var expectedStart = this.Time.Now.Date;
-            var expectedEnd = expectedStart + EvaluationLicenseRegistrar.EvaluationPeriod;
+            var expectedEnd = expectedStart + LicensingConstants.EvaluationPeriod;
 
-            var licenses = ParsedLicensingConfiguration.OpenOrCreate( this.ServiceProvider );
+            var licenses = LicensingConfigurationModel.Create( this.ServiceProvider );
 
-            Assert.NotNull( licenses.LicenseData );
-            Assert.Equal( LicenseType.Evaluation, licenses.LicenseData!.LicenseType );
-            Assert.Equal( expectedStart, licenses.LicenseData!.ValidFrom!.Value.Date );
-            Assert.Equal( expectedEnd, licenses.LicenseData!.ValidTo!.Value.Date );
-            Assert.Equal( expectedEnd, licenses.LicenseData!.SubscriptionEndDate );
+            Assert.NotNull( licenses.LicenseProperties );
+            Assert.Equal( LicenseType.Evaluation, licenses.LicenseProperties!.LicenseType );
+            Assert.Equal( expectedStart, licenses.LicenseProperties!.ValidFrom!.Value.Date );
+            Assert.Equal( expectedEnd, licenses.LicenseProperties!.ValidTo!.Value.Date );
+            Assert.Equal( expectedEnd, licenses.LicenseProperties!.SubscriptionEndDate );
         }
 
         protected void AssertEvaluationNotEligible( string reason )
         {
-            Assert.False( this.Registrar.TryActivateLicense(), reason );
+            Assert.False( this.Registrar.TryRegisterTrialEdition( out _ ), reason );
         }
     }
 }

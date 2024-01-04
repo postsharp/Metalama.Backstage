@@ -1,10 +1,11 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. See the LICENSE.md file in the root directory of this repository root for details.
 
 using JetBrains.Annotations;
+using Metalama.Backstage.Application;
 using Metalama.Backstage.Commands.Configuration;
 using Metalama.Backstage.Configuration;
 using Metalama.Backstage.Diagnostics;
-using Metalama.Backstage.Extensibility;
+using Metalama.Backstage.UserInterface;
 using Spectre.Console;
 using System;
 using System.Collections.Generic;
@@ -34,6 +35,7 @@ public sealed class BackstageCommandOptions
         this.StandardOutput = standardOutput ?? Console.Out;
         this.ErrorOutput = errorOutput ?? Console.Error;
         this.AddConfigurationFileAdapter<DiagnosticsConfiguration>();
+        this.AddConfigurationFileAdapter<ToastNotificationsConfiguration>();
     }
 
     internal void ConfigureConsole( AnsiConsoleSettings settings )

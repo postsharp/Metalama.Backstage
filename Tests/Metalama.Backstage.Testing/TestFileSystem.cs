@@ -1,6 +1,7 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. See the LICENSE.md file in the root directory of this repository root for details.
 
 using Metalama.Backstage.Extensibility;
+using Metalama.Backstage.Infrastructure;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -10,13 +11,13 @@ using System.IO.Compression;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading;
-using IFileSystem = Metalama.Backstage.Extensibility.IFileSystem;
+using Infrastructure_IFileSystem = Metalama.Backstage.Infrastructure.IFileSystem;
 
 namespace Metalama.Backstage.Testing
 {
     // Resharper disable UnusedMember.Global
 
-    public partial class TestFileSystem : IFileSystem
+    public partial class TestFileSystem : Infrastructure_IFileSystem
     {
         private enum ExecutionKind
         {

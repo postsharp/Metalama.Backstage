@@ -18,7 +18,7 @@ internal static class LicenseConsumptionServiceFactory
         {
             licenseSources.Add( new UnattendedLicenseSource( serviceProvider ) );
         }
-
+        
         if ( !string.IsNullOrWhiteSpace( options.ProjectLicense ) )
         {
             licenseSources.Add( new ExplicitLicenseSource( options.ProjectLicense!, serviceProvider ) );
@@ -27,12 +27,6 @@ internal static class LicenseConsumptionServiceFactory
         if ( !options.IgnoreUserProfileLicenses )
         {
             licenseSources.Add( new UserProfileLicenseSource( serviceProvider ) );
-        }
-
-        if ( !options.IgnoreUserProfileLicenses )
-        {
-            // Must be added last.
-            licenseSources.Add( new PreviewLicenseSource( serviceProvider ) );
         }
 
         return new LicenseConsumptionService( serviceProvider, licenseSources );

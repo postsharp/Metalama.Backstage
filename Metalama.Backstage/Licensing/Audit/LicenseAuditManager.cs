@@ -1,8 +1,10 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. See the LICENSE.md file in the root directory of this repository root for details.
 
+using Metalama.Backstage.Application;
 using Metalama.Backstage.Configuration;
 using Metalama.Backstage.Diagnostics;
 using Metalama.Backstage.Extensibility;
+using Metalama.Backstage.Infrastructure;
 using Metalama.Backstage.Licensing.Consumption;
 using System;
 
@@ -50,7 +52,7 @@ internal class LicenseAuditManager : ILicenseAuditManager
             return;
         }
 
-        if ( this._applicationInfo.IsTelemetryEnabled )
+        if ( !this._applicationInfo.IsTelemetryEnabled )
         {
             this._logger.Trace?.Log( $"License audit disabled because telemetry is disabled for the current build." );
 

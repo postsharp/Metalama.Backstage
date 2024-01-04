@@ -1,6 +1,7 @@
 // Copyright (c) SharpCrafters s.r.o. See the LICENSE.md file in the root directory of this repository root for details.
 
 using JetBrains.Annotations;
+using Metalama.Backstage.Extensibility;
 using Spectre.Console.Cli;
 using System;
 
@@ -15,11 +16,16 @@ public class ExtendedCommandContext
 
     public BackstageCommandOptions BackstageCommandOptions { get; }
 
-    internal ExtendedCommandContext( CommandContext commandContext, BaseCommandSettings settings )
+    internal ExtendedCommandContext(
+        CommandContext commandContext,
+        BaseCommandSettings settings,
+        Func<BackstageInitializationOptions, BackstageInitializationOptions> transformOptions )
     {
         this.BackstageCommandOptions = (BackstageCommandOptions) commandContext.Data!;
         this.Console = new ConsoleWriter( this.BackstageCommandOptions );
-        this.ServiceProvider = this.BackstageCommandOptions.ServiceProvider.GetServiceProvider( this.Console, settings );
+
+        this.ServiceProvider =
+            this.BackstageCommandOptions.ServiceProvider.GetServiceProvider( new CommandServiceProviderArgs( this.Console, settings, transformOptions ) );
     }
 
     protected ExtendedCommandContext( ExtendedCommandContext prototype )

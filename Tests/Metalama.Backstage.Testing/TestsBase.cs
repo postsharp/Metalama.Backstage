@@ -1,10 +1,16 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. See the LICENSE.md file in the root directory of this repository root for details.
 
+using Metalama.Backstage.Application;
 using Metalama.Backstage.Configuration;
+using Metalama.Backstage.Diagnostics;
 using Metalama.Backstage.Extensibility;
+using Metalama.Backstage.Infrastructure;
+using Metalama.Backstage.Licensing.Registration;
 using Metalama.Backstage.Maintenance;
 using Metalama.Backstage.Telemetry;
-using Metalama.Backstage.Utilities;
+using Metalama.Backstage.Tools;
+using Metalama.Backstage.UserInterface;
+using Metalama.Backstage.Welcome;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using System;
@@ -33,13 +39,16 @@ namespace Metalama.Backstage.Testing
 
         public IServiceProvider ServiceProvider { get; }
 
-        public InMemoryConfigurationManager ConfigurationManager { get; }
+        // May be null if the different implementation of IConfigurationManager is used.
+        public InMemoryConfigurationManager? ConfigurationManager { get; }
 
         public TestProcessExecutor ProcessExecutor { get; } = new();
 
-        public TestUserInteractionService UserInteraction { get; } = new();
+        public TestUserDeviceDetectionService UserDeviceDetection { get; } = new();
 
-        protected IServiceCollection CreateServiceCollectionClone()
+        public TestUserInterfaceService UserInterface { get; }
+
+        protected IServiceCollection CloneServiceCollection()
         {
             var services = new ServiceCollection();
 
@@ -51,7 +60,12 @@ namespace Metalama.Backstage.Testing
             return services;
         }
 
-        protected TestsBase( ITestOutputHelper logger, Action<ServiceProviderBuilder>? serviceBuilder = null, IApplicationInfo? applicationInfo = null )
+        protected TestsBase( ITestOutputHelper logger, IApplicationInfo? applicationInfo = null )
+            : this( logger, new BackstageInitializationOptions( applicationInfo ?? new TestApplicationInfo() ) ) { }
+
+        protected virtual void ConfigureServices( ServiceProviderBuilder services ) { }
+
+        protected TestsBase( ITestOutputHelper logger, BackstageInitializationOptions? options )
         {
             this.Logger = logger;
 
@@ -59,45 +73,59 @@ namespace Metalama.Backstage.Testing
 
             // ReSharper disable RedundantTypeArgumentsOfMethod
 
-            this._serviceCollection = new ServiceCollection()
-                .AddSingleton<IApplicationInfoProvider>( new ApplicationInfoProvider( applicationInfo ?? new TestApplicationInfo() ) )
-                .AddSingleton<IDateTimeProvider>( this.Time )
-                .AddSingleton<IProcessExecutor>( this.ProcessExecutor );
-
-            if ( applicationInfo != null )
-            {
-                this._serviceCollection.AddSingleton<IApplicationInfoProvider>( new ApplicationInfoProvider( applicationInfo ) );
-            }
-
-            this.FileSystem = new TestFileSystem( this._serviceCollection.BuildServiceProvider() );
-
-            this._serviceCollection
-                .AddSingleton<IEnvironmentVariableProvider>( this.EnvironmentVariableProvider )
-                .AddSingleton<IRecoverableExceptionService>( new TestRecoverableExceptionService() )
-                .AddSingleton<IUserInteractionService>( this.UserInteraction )
-                .AddSingleton<IFileSystem>( this.FileSystem );
-
-            var serviceProviderBuilder =
-                new ServiceProviderBuilder(
-                    ( type, instance ) => this._serviceCollection.AddSingleton( type, instance ),
-                    () => this._serviceCollection.BuildServiceProvider() );
-
-            serviceProviderBuilder.AddService( typeof(ILoggerFactory), this.Log );
-            serviceProviderBuilder.AddStandardDirectories();
-
-            this._serviceCollection.AddSingleton<ITelemetryUploader>( this.TelemetryUploader );
-            this._serviceCollection.AddSingleton<IUsageReporter>( this.UsageReporter );
-
-            this.ConfigurationManager = new InMemoryConfigurationManager( this._serviceCollection.BuildServiceProvider() );
-
-            this._serviceCollection.AddSingleton<IConfigurationManager>( this.ConfigurationManager );
-            this._serviceCollection.AddSingleton<ITempFileManager>( new TempFileManager( serviceProviderBuilder.ServiceProvider ) );
-
-            // ReSharper restore RedundantTypeArgumentsOfMethod
-
-            serviceBuilder?.Invoke( serviceProviderBuilder );
+            this._serviceCollection = this.CreateServiceCollection( this.ConfigureServices, options );
 
             this.ServiceProvider = this._serviceCollection.BuildServiceProvider();
+            this.ConfigurationManager = this.ServiceProvider.GetRequiredBackstageService<IConfigurationManager>() as InMemoryConfigurationManager;
+            this.FileSystem = (TestFileSystem) this.ServiceProvider.GetRequiredBackstageService<IFileSystem>();
+            this.UserInterface = (TestUserInterfaceService) this.ServiceProvider.GetRequiredBackstageService<IUserInterfaceService>();
+        }
+
+        protected ServiceCollection CreateServiceCollection(
+            Action<ServiceProviderBuilder>? serviceBuilder = null,
+            BackstageInitializationOptions? options = null )
+        {
+            var serviceCollection = new ServiceCollection();
+            options ??= new BackstageInitializationOptions( new TestApplicationInfo() );
+
+            serviceCollection
+                .AddSingleton( new EarlyLoggerFactory( this.Log ) )
+                .AddSingleton<ILoggerFactory>( this.Log )
+                .AddSingleton<IApplicationInfoProvider>( new ApplicationInfoProvider( options.ApplicationInfo ) )
+                .AddSingleton<BackstageInitializationOptionsProvider>( new BackstageInitializationOptionsProvider( options ) )
+                .AddSingleton<IDateTimeProvider>( this.Time )
+                .AddSingleton<IProcessExecutor>( this.ProcessExecutor )
+                .AddSingleton<IPlatformInfo>( serviceProvider => new PlatformInfo( serviceProvider, null ) )
+
+                // We must always have a single instance of the file system even if we use CloneServiceCollection.
+                // ReSharper disable once NullCoalescingConditionIsAlwaysNotNullAccordingToAPIContract
+                .AddSingleton<IFileSystem>( serviceProvider => this.FileSystem ?? new TestFileSystem( serviceProvider ) )
+                .AddSingleton<IEnvironmentVariableProvider>( this.EnvironmentVariableProvider )
+                .AddSingleton<IRecoverableExceptionService>( new TestRecoverableExceptionService() )
+                .AddSingleton<IUserDeviceDetectionService>( this.UserDeviceDetection )
+                .AddSingleton<ITelemetryUploader>( this.TelemetryUploader )
+                .AddSingleton<IUsageReporter>( this.UsageReporter )
+                .AddSingleton<IConfigurationManager>( serviceProvider => new InMemoryConfigurationManager( serviceProvider ) )
+                .AddSingleton<ITempFileManager>( serviceProvider => new TempFileManager( serviceProvider ) )
+                .AddSingleton<ILicenseRegistrationService>( serviceProvider => new LicenseRegistrationService( serviceProvider ) )
+                .AddSingleton<IBackstageToolsExecutor>( serviceProvider => new BackstageToolsExecutor( serviceProvider ) )
+                .AddSingleton<IBackstageToolsLocator>( serviceProvider => new BackstageToolsLocator( serviceProvider ) )
+                .AddSingleton<IUserInterfaceService>( serviceProvider => new TestUserInterfaceService( serviceProvider ) )
+                .AddSingleton<IToastNotificationService>( serviceProvider => new ToastNotificationService( serviceProvider ) )
+                .AddSingleton<IToastNotificationStatusService>( serviceProvider => new ToastNotificationStatusService( serviceProvider ) )
+                .AddSingleton<BackstageServicesInitializer>( serviceProvider => new BackstageServicesInitializer( serviceProvider ) )
+                .AddSingleton<WelcomeService>( serviceProvider => new WelcomeService( serviceProvider ) )
+                .AddSingleton<IIdeExtensionStatusService>( serviceProvider => new IdeExtensionStatusService( serviceProvider ) )
+                .AddSingleton<ToastNotificationDetectionService>( serviceProvider => new ToastNotificationDetectionService( serviceProvider ) )
+                .AddSingleton<IStandardDirectories>( serviceProvider => new StandardDirectories( serviceProvider ) );
+
+            var serviceProviderBuilder =
+                new ServiceProviderBuilder( ( type, instance ) => serviceCollection.AddSingleton( type, instance ) );
+            
+            // The test implementation may replace some services.
+            serviceBuilder?.Invoke( serviceProviderBuilder );
+
+            return serviceCollection;
         }
     }
 }

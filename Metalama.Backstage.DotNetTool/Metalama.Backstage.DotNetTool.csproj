@@ -1,0 +1,27 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <OutputType>Exe</OutputType>
+        <TargetFramework>net6.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <RootNamespace>Metalama.Backstage.DotNetTool</RootNamespace>
+        <PackAsTool>true</PackAsTool>
+        <DebugType>portable</DebugType>
+        <!--
+        <PackageType>DotNetCliTool</PackageType>
+        -->
+        <ToolCommandName>metalama-backstage</ToolCommandName>
+        <PackageDescription>A limited set of Metalama commands for internal use and testing only.</PackageDescription>
+        <RollForward>Major</RollForward>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <PackageReference Include="Spectre.Console.Cli" Version="0.48.0" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\Metalama.Backstage.Commands\Metalama.Backstage.Commands.csproj" />
+    </ItemGroup>
+
+</Project>

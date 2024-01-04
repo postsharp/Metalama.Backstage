@@ -1,7 +1,9 @@
 // Copyright (c) SharpCrafters s.r.o. See the LICENSE.md file in the root directory of this repository root for details.
 
+using Metalama.Backstage.Application;
 using Metalama.Backstage.Diagnostics;
 using Metalama.Backstage.Extensibility;
+using Metalama.Backstage.Infrastructure;
 using Metalama.Backstage.Licensing.Consumption;
 using Metalama.Backstage.Licensing.Registration;
 using Metalama.Backstage.Utilities;
@@ -109,18 +111,18 @@ namespace Metalama.Backstage.Licensing.Licenses
         }
 
         /// <inheritdoc />
-        public bool TryGetLicenseRegistrationData(
-            [MaybeNullWhen( false )] out LicenseRegistrationData licenseRegistrationData,
+        public bool TryGetProperties(
+            [MaybeNullWhen( false )] out LicenseProperties licenseProperties,
             [MaybeNullWhen( true )] out string errorMessage )
         {
             if ( !this.TryGetLicenseKeyDataWithVerifiedSignature( out var licenseKeyData, out errorMessage ) )
             {
-                licenseRegistrationData = null;
+                licenseProperties = null;
 
                 return false;
             }
 
-            licenseRegistrationData = licenseKeyData.ToRegistrationData();
+            licenseProperties = licenseKeyData.ToLicenseProperties();
 
             return true;
         }
@@ -129,7 +131,7 @@ namespace Metalama.Backstage.Licensing.Licenses
         {
             this._logger.Trace?.Log( $"Deserializing license '{this._licenseKey}'." );
 
-            if ( LicenseKeyData.TryDeserialize( this._licenseKey, out data, out var serializationErrorMessage ) )
+            if ( LicenseKeyData.TryDeserialize( this._licenseKey, out data, out _ ) )
             {
                 this._logger.Trace?.Log( $"Deserialized license: {data}" );
 
@@ -141,11 +143,11 @@ namespace Metalama.Backstage.Licensing.Licenses
             {
                 if ( TryGetLicenseId( this._licenseKey, out var id ) )
                 {
-                    errorMessage = $"Cannot parse license key ID {id}: {serializationErrorMessage}";
+                    errorMessage = $"Cannot parse license key ID {id}.";
                 }
                 else
                 {
-                    errorMessage = $"Cannot parse license key {this._licenseKey}: {serializationErrorMessage}";
+                    errorMessage = $"Cannot parse license key {this._licenseKey}.";
                 }
 
                 this._logger.Error?.Log( errorMessage );

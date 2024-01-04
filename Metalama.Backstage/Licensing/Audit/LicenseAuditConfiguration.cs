@@ -11,6 +11,6 @@ namespace Metalama.Backstage.Licensing.Audit;
 [PublicAPI]
 public record LicenseAuditConfiguration : ConfigurationFile
 {
-    public ImmutableDictionary<int, DateTime> LastAuditTimes { get; init; } =
-        ImmutableDictionary<int, DateTime>.Empty;
+    public ImmutableDictionary<ulong, DateTime> LastAuditTimes { get; init; } =
+        ImmutableDictionary<ulong, DateTime>.Empty;
 }

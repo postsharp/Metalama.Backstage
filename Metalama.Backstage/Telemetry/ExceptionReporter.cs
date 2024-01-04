@@ -1,8 +1,10 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. See the LICENSE.md file in the root directory of this repository root for details.
 
+using Metalama.Backstage.Application;
 using Metalama.Backstage.Configuration;
 using Metalama.Backstage.Diagnostics;
 using Metalama.Backstage.Extensibility;
+using Metalama.Backstage.Infrastructure;
 using Metalama.Backstage.Utilities;
 using System;
 using System.Collections.Generic;
@@ -29,6 +31,7 @@ internal class ExceptionReporter : IExceptionReporter, IDisposable
     private readonly IConfigurationManager _configurationManager;
     private readonly IFileSystem _fileSystem;
     private readonly bool _canIgnoreRecoverableExceptions;
+    private readonly LocalExceptionReporter? _localExceptionReporter;
     private TelemetryConfiguration _configuration;
 
     public ExceptionReporter( TelemetryQueue uploadManager, IServiceProvider serviceProvider )
@@ -43,6 +46,7 @@ internal class ExceptionReporter : IExceptionReporter, IDisposable
         this._logger = serviceProvider.GetLoggerFactory().Telemetry();
         this._fileSystem = serviceProvider.GetRequiredBackstageService<IFileSystem>();
         this._canIgnoreRecoverableExceptions = serviceProvider.GetRequiredBackstageService<IRecoverableExceptionService>().CanIgnore;
+        this._localExceptionReporter = serviceProvider.GetBackstageService<LocalExceptionReporter>();
     }
 
     private void OnConfigurationChanged( ConfigurationFile configuration )
@@ -221,7 +225,10 @@ internal class ExceptionReporter : IExceptionReporter, IDisposable
         }
     }
 
-    public void ReportException( Exception reportedException, ExceptionReportingKind exceptionReportingKind = ExceptionReportingKind.Exception )
+    public void ReportException(
+        Exception reportedException,
+        ExceptionReportingKind exceptionReportingKind = ExceptionReportingKind.Exception,
+        string? localReportPath = null )
     {
         try
         {
@@ -232,11 +239,17 @@ internal class ExceptionReporter : IExceptionReporter, IDisposable
 
             this._logger.Trace?.Log( $"Reporting an exception of type {reportedException.GetType().Name}." );
 
+            if ( exceptionReportingKind == ExceptionReportingKind.Exception )
+            {
+                this._localExceptionReporter?.ReportException( reportedException, localReportPath );
+            }
+
             var reportingAction = exceptionReportingKind == ExceptionReportingKind.Exception
                 ? this._configuration.ExceptionReportingAction
                 : this._configuration.PerformanceProblemReportingAction;
 
-            if ( reportingAction != ReportingAction.Yes )
+            // Telemetry is opt out, i.e. we report even if the user did not specifically opt in.
+            if ( reportingAction == ReportingAction.No )
             {
                 this._logger.Trace?.Log( $"The issue will not be reported because the reporting action in the user profile is set to {reportingAction}." );
 

@@ -3,6 +3,7 @@
 // ReSharper disable StringLiteralTypo
 
 using Metalama.Backstage.Extensibility;
+using Metalama.Backstage.Infrastructure;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -26,7 +27,9 @@ public static class TestLicenseKeys
 
         var dummyApplicationInfo = new TestApplicationInfo( "DummyForTestLicenseKeys", false, "1.0", DateTime.UtcNow );
         var servicesOptions = new BackstageInitializationOptions( dummyApplicationInfo );
-        var services = new ServiceProviderBuilder().AddBackstageServices( servicesOptions ).ServiceProvider;
+        var serviceProviderBuilder = new SimpleServiceProviderBuilder();
+        serviceProviderBuilder.AddBackstageServices( servicesOptions );
+        var services = serviceProviderBuilder.ServiceProvider;
         var applicationDataDirectory = services.GetRequiredBackstageService<IStandardDirectories>().ApplicationDataDirectory;
         var testLicenseKeysCacheFile = Path.Combine( applicationDataDirectory, "TestLicenseKeysCache", testLicenseKeysCacheFileName );
 

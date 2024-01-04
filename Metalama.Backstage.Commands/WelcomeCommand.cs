@@ -11,6 +11,6 @@ internal class WelcomeCommand : BaseCommand<BaseCommandSettings>
     protected override void Execute( ExtendedCommandContext context, BaseCommandSettings settings )
     {
         var welcomeService = new WelcomeService( context.ServiceProvider );
-        welcomeService.ExecuteFirstStartSetup();
+        welcomeService.Initialize();
     }
 }

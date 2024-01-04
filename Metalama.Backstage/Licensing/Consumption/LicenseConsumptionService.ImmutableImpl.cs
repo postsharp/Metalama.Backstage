@@ -7,6 +7,7 @@ using Metalama.Backstage.Licensing.Consumption.Sources;
 using Metalama.Backstage.Licensing.Licenses;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Metalama.Backstage.Licensing.Consumption;
 
@@ -24,9 +25,10 @@ internal partial class LicenseConsumptionService
         public ImmutableImpl( IServiceProvider services, IReadOnlyList<ILicenseSource> licenseSources )
         {
             this._logger = services.GetLoggerFactory().Licensing();
+
             this._licenseFactory = new LicenseFactory( services );
 
-            foreach ( var source in licenseSources )
+            foreach ( var source in licenseSources.OrderBy( s => s.Priority ) )
             {
                 var license = source.GetLicense( this.ReportMessage );
 
@@ -39,7 +41,7 @@ internal partial class LicenseConsumptionService
 
                 if ( !license.TryGetLicenseConsumptionData( out var data, out var errorMessage ) )
                 {
-                    _ = license.TryGetLicenseRegistrationData( out var registrationData, out _ );
+                    _ = license.TryGetProperties( out var registrationData, out _ );
                     var message = registrationData == null ? "A license" : $"The {registrationData.Description}";
                     message += $" {errorMessage}.";
 
@@ -101,8 +103,10 @@ internal partial class LicenseConsumptionService
             {
                 this.ReportMessage(
                     new LicensingMessage(
-                        $"Project '{consumerProjectName}' is not licensed. Your license is limited to project names beginning with '{this._licensedNamespace.AllowedNamespace}'.",
-                        true ) );
+                        $"Project '{consumerProjectName}' is not licensed. Your license is limited to project names beginning with '{this._licensedNamespace.AllowedNamespace}'." )
+                    {
+                        IsError = true
+                    } );
 
                 return false;
             }
@@ -124,14 +128,14 @@ internal partial class LicenseConsumptionService
             {
                 if ( !this._licenseFactory.TryCreate( redistributionLicenseKey, out var license, out var errorMessage ) )
                 {
-                    this.ReportMessage( new LicensingMessage( errorMessage, true ) );
+                    this.ReportMessage( new LicensingMessage( errorMessage ) { IsError = true } );
 
                     return false;
                 }
 
                 if ( !license.TryGetLicenseConsumptionData( out var licenseConsumptionData, out errorMessage ) )
                 {
-                    this.ReportMessage( new LicensingMessage( errorMessage, true ) );
+                    this.ReportMessage( new LicensingMessage( errorMessage ) { IsError = true } );
 
                     return false;
                 }
@@ -160,6 +164,8 @@ internal partial class LicenseConsumptionService
         public string? LicenseString => this._license?.LicenseString;
 
         event Action? ILicenseConsumptionService.Changed { add { } remove { } }
+
+        public ILicenseConsumptionService WithAdditionalLicense( string? licenseKey ) => throw new NotSupportedException();
 
         /// <inheritdoc />
         public IReadOnlyList<LicensingMessage> Messages => this._messages;

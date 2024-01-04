@@ -1,5 +1,6 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. See the LICENSE.md file in the root directory of this repository root for details.
 
+using Metalama.Backstage.Application;
 using Metalama.Backstage.Configuration;
 using Metalama.Backstage.Extensibility;
 using Metalama.Backstage.Telemetry;
@@ -18,10 +19,12 @@ namespace Metalama.Backstage.Tests.Telemetry;
 
 public class ReportExceptionTests : TestsBase
 {
-    public ReportExceptionTests( ITestOutputHelper logger ) : base(
-        logger,
-        builder => builder.AddSingleton<IApplicationInfoProvider>(
-            new ApplicationInfoProvider( new TestApplicationInfo() { IsTelemetryEnabled = true } ) ) ) { }
+    public ReportExceptionTests( ITestOutputHelper logger ) : base( logger ) { }
+
+    protected override void ConfigureServices( ServiceProviderBuilder services )
+    {
+        services.AddSingleton<IApplicationInfoProvider>( new ApplicationInfoProvider( new TestApplicationInfo() { IsTelemetryEnabled = true } ) );
+    }
 
     [Fact]
     public async Task ShouldReportExceptionConcurrent()
@@ -33,7 +36,7 @@ public class ReportExceptionTests : TestsBase
             bool ShouldReportIssue()
             {
                 // To simulate a multi-process situation, each iteration of the test should have its own ConfigurationManager.
-                var serviceProvider = this.CreateServiceCollectionClone()
+                var serviceProvider = this.CloneServiceCollection()
                     .AddSingleton<IConfigurationManager>( new Configuration.ConfigurationManager( this.ServiceProvider ) )
                     .BuildServiceProvider();
 
@@ -71,7 +74,7 @@ public class ReportExceptionTests : TestsBase
     [Fact]
     public void ReportException()
     {
-        this.ConfigurationManager.Update<TelemetryConfiguration>( c => c with { ExceptionReportingAction = ReportingAction.Yes } );
+        this.ConfigurationManager!.Update<TelemetryConfiguration>( c => c with { ExceptionReportingAction = ReportingAction.Yes } );
         var reporter = new ExceptionReporter( new TelemetryQueue( this.ServiceProvider ), this.ServiceProvider );
         reporter.ReportException( new InvalidOperationException() );
 

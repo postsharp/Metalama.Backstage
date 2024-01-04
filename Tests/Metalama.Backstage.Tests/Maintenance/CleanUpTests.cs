@@ -1,7 +1,9 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. See the LICENSE.md file in the root directory of this repository root for details.
 
+using Metalama.Backstage.Application;
 using Metalama.Backstage.Configuration;
 using Metalama.Backstage.Extensibility;
+using Metalama.Backstage.Infrastructure;
 using Metalama.Backstage.Maintenance;
 using Metalama.Backstage.Testing;
 using Newtonsoft.Json;
@@ -32,17 +34,16 @@ public class CleanUpTests : TestsBase
         { "Tests", CleanUpStrategy.WhenUnused }
     }.ToImmutableDictionary();
 
-    public CleanUpTests( ITestOutputHelper logger ) : base(
-        logger,
-        builder =>
-        {
-            builder
-                .AddSingleton<IApplicationInfoProvider>( new ApplicationInfoProvider( new TestApplicationInfo() ) )
-                .AddConfigurationManager();
-        } )
+    public CleanUpTests( ITestOutputHelper logger ) : base( logger )
     {
         this._standardDirectories = this.ServiceProvider.GetRequiredBackstageService<IStandardDirectories>();
         this.SetupTempDirectory();
+    }
+
+    protected override void ConfigureServices( ServiceProviderBuilder services )
+    {
+        services
+            .AddSingleton<IApplicationInfoProvider>( new ApplicationInfoProvider( new TestApplicationInfo() ) );
     }
 
     private void SetupTempDirectory()

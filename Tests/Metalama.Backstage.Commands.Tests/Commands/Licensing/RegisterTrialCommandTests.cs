@@ -39,7 +39,7 @@ namespace Metalama.Tools.Config.Tests.Commands.Licensing
             await this.TestCommandAsync(
                 "license try",
                 null,
-                "Cannot start the trial period.",
+                "You cannot start a new trial period until 6/14/2020 12:00:00 AM.",
                 1 );
 
             await this.TestCommandAsync( "license list", "Evaluation License" );

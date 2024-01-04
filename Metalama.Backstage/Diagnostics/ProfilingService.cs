@@ -1,10 +1,15 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. See the LICENSE.md file in the root directory of this repository root for details.
 
+#if !WORKER_PROCESS && (NETFRAMEWORK || NET6_0_OR_GREATER)
+#define PROFILING_ENABLED
+#endif
+
+using Metalama.Backstage.Application;
 using Metalama.Backstage.Configuration;
 using Metalama.Backstage.Extensibility;
 using System;
 
-#if NETFRAMEWORK || NET6_0_OR_GREATER
+#if PROFILING_ENABLED
 using JetBrains.Profiler.SelfApi;
 using Metalama.Backstage.Maintenance;
 using System.Threading;
@@ -14,7 +19,7 @@ namespace Metalama.Backstage.Diagnostics;
 
 internal class ProfilingService : IBackstageService
 {
-#if NETFRAMEWORK || NET6_0_OR_GREATER
+#if PROFILING_ENABLED
     private static int _isProfiling;
 #endif
 
@@ -22,17 +27,17 @@ internal class ProfilingService : IBackstageService
     private readonly DiagnosticsConfiguration _configuration;
     private readonly ILogger _logger;
 
-#if NETFRAMEWORK || NET6_0_OR_GREATER
+#if PROFILING_ENABLED
     private readonly ITempFileManager _tempFileManager;
 #endif
 
-    public ProfilingService( IServiceProvider serviceProvider, ProcessKind options )
+    public ProfilingService( IServiceProvider serviceProvider )
     {
-        this._options = options;
+        this._options = serviceProvider.GetRequiredBackstageService<IApplicationInfoProvider>().CurrentApplication.ProcessKind;
         this._configuration = serviceProvider.GetRequiredBackstageService<IConfigurationManager>().Get<DiagnosticsConfiguration>();
         this._logger = serviceProvider.GetLoggerFactory().GetLogger( "Profiling" );
 
-#if NETFRAMEWORK || NET6_0_OR_GREATER
+#if PROFILING_ENABLED
         this._tempFileManager = serviceProvider.GetRequiredBackstageService<ITempFileManager>();
 #endif
     }
@@ -49,7 +54,7 @@ internal class ProfilingService : IBackstageService
 
     private void StartProfiler()
     {
-#if NETFRAMEWORK || NET6_0_OR_GREATER
+#if PROFILING_ENABLED
         if ( Interlocked.CompareExchange( ref _isProfiling, 1, 0 ) != 0 )
         {
             this._logger.Trace?.Log( $"Profiling is already in progress." );

@@ -1,6 +1,7 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. See the LICENSE.md file in the root directory of this repository root for details.
 
-using Metalama.Backstage.Licensing.Registration.Free;
+using Metalama.Backstage.Extensibility;
+using Metalama.Backstage.Licensing.Registration;
 
 namespace Metalama.Backstage.Commands.Licensing;
 
@@ -8,15 +9,13 @@ internal class RegisterFreeCommand : BaseCommand<BaseCommandSettings>
 {
     protected override void Execute( ExtendedCommandContext context, BaseCommandSettings settings )
     {
-        var registrar = new FreeLicenseRegistrar( context.ServiceProvider );
+        var service = context.ServiceProvider.GetRequiredBackstageService<ILicenseRegistrationService>();
 
-        if ( !registrar.TryRegisterLicense() )
+        if ( !service.TryRegisterFreeEdition( out var errorMessage ) )
         {
-            throw new CommandException( "Cannot switch to the Metalama Free." );
+            throw new CommandException( errorMessage );
         }
-        else
-        {
-            context.Console.WriteSuccess( "You are now using Metalama Free edition." );
-        }
+
+        context.Console.WriteSuccess( "You are now using Metalama Free." );
     }
 }

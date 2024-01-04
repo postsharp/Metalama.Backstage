@@ -1,9 +1,12 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. See the LICENSE.md file in the root directory of this repository root for details.
 
+using Metalama.Backstage.Application;
+using Metalama.Backstage.Configuration;
 using Metalama.Backstage.Extensibility;
 using Metalama.Backstage.Licensing;
 using Metalama.Backstage.Licensing.Consumption;
 using Metalama.Backstage.Testing;
+using Metalama.Backstage.Tests.Extensibility;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using Xunit;
@@ -19,16 +22,16 @@ public class LicenseSourcePriorityTests : LicensingTestsBase
 
     private static readonly LicenseRequirement _testLicenseRequirement = LicenseRequirement.Ultimate;
 
-    public LicenseSourcePriorityTests( ITestOutputHelper logger ) : base( logger, initializeConfiguration: false ) { }
+    public LicenseSourcePriorityTests( ITestOutputHelper logger ) : base( logger ) { }
+
+    protected override void ConfigureServices( ServiceProviderBuilder services ) { }
 
     private ILicenseConsumptionService CreateConsumptionManager( bool isUnattendedProcess, string? projectLicense, string? userLicense, bool isPreview )
     {
-        var serviceCollection = this.CreateServiceCollectionClone();
+        var serviceCollection = this.CloneServiceCollection();
 
         var serviceProviderBuilder =
-            new ServiceProviderBuilder(
-                ( type, instance ) => serviceCollection.AddSingleton( type, instance ),
-                () => serviceCollection.BuildServiceProvider() );
+            new ServiceCollectionBuilder( serviceCollection );
 
         serviceProviderBuilder.AddSingleton<IApplicationInfoProvider>(
                 new ApplicationInfoProvider(
@@ -36,16 +39,25 @@ public class LicenseSourcePriorityTests : LicensingTestsBase
                     {
                         IsUnattendedProcess = isUnattendedProcess
                     } ) )
-            .AddConfigurationManager();
+            .AddSingleton<IConfigurationManager>( serviceProvider => new Configuration.ConfigurationManager( serviceProvider ) );
+
+        var serviceProvider = serviceCollection.BuildServiceProvider();
 
         if ( userLicense != null )
         {
-            TestLicensingConfigurationHelpers.SetStoredLicenseString( serviceProviderBuilder.ServiceProvider, userLicense );
+            TestLicensingConfigurationHelpers.SetStoredLicenseString( serviceProvider, userLicense );
         }
 
-        var options = new LicensingInitializationOptions() { ProjectLicense = projectLicense, DisableLicenseAudit = true };
+        var options = new LicensingInitializationOptions() { DisableLicenseAudit = true };
 
-        return LicenseConsumptionServiceFactory.Create( serviceProviderBuilder.ServiceProvider, options );
+        var manager = LicenseConsumptionServiceFactory.Create( serviceProvider, options );
+
+        if ( projectLicense != null )
+        {
+            manager = manager.WithAdditionalLicense( projectLicense );
+        }
+
+        return manager;
     }
 
     [Fact]
