@@ -6,7 +6,9 @@ using Metalama.Backstage.Infrastructure;
 using Metalama.Backstage.Tools;
 using System;
 using System.Diagnostics;
+using System.Net;
 using System.Net.Http;
+using System.Net.Sockets;
 using System.Threading.Tasks;
 
 namespace Metalama.Backstage.UserInterface;
@@ -55,10 +57,25 @@ public abstract class UserInterfaceService : IUserInterfaceService
         }
     }
 
+    private static int GetFreePort()
+    {
+        // Create a new socket
+        using ( var socket = new Socket( AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp ) )
+        {
+            // Bind to an IP address and port 0, which tells the OS to choose a free port
+            socket.Bind( new IPEndPoint( IPAddress.Loopback, 0 ) );
+
+            // Get the local endpoint of the socket and cast it to IPEndPoint
+            var localEndPoint = (IPEndPoint) socket.LocalEndPoint!;
+
+            // Return the assigned port number
+            return localEndPoint.Port;
+        }
+    }
+
     public async Task OpenConfigurationWebPageAsync( string path )
     {
-        // TODO: Find a free port. 
-        const int port = 5252;
+        var port = GetFreePort();
 
         using var webServerProcess = this._backstageToolExecutor.Start( BackstageTool.Worker, $"web --port {port} " );
 
