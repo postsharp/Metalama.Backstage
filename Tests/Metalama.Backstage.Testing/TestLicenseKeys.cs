@@ -44,7 +44,7 @@ public static class TestLicenseKeys
         }
     }
 
-    private static string GetLicenseKey( string keyName )
+    public static string GetLicenseKey( string keyName )
         => _testLicenseKeys?.TryGetValue( keyName, out var key ) ?? false
             ? key
             : throw new InvalidOperationException(
