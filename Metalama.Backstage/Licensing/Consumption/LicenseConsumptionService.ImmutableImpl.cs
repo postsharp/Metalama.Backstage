@@ -70,6 +70,7 @@ internal partial class LicenseConsumptionService
             }
         }
 
+        // Note that ReportMessage can only be invoked during initialization.
         private void ReportMessage( LicensingMessage message )
         {
             this._messages.Add( message );
@@ -101,12 +102,8 @@ internal partial class LicenseConsumptionService
                  && this._licensedNamespace != null
                  && !this._licensedNamespace.AllowsNamespace( consumerProjectName ) )
             {
-                this.ReportMessage(
-                    new LicensingMessage(
-                        $"Project '{consumerProjectName}' is not licensed. Your license is limited to project names beginning with '{this._licensedNamespace.AllowedNamespace}'." )
-                    {
-                        IsError = true
-                    } );
+                this._logger.Error?.Log(
+                    $"Project '{consumerProjectName}' is not licensed. Your license is limited to project names beginning with '{this._licensedNamespace.AllowedNamespace}'." );
 
                 return false;
             }
@@ -165,7 +162,9 @@ internal partial class LicenseConsumptionService
 
         event Action? ILicenseConsumptionService.Changed { add { } remove { } }
 
-        public ILicenseConsumptionService WithAdditionalLicense( string? licenseKey ) => throw new NotSupportedException();
+        ILicenseConsumptionService ILicenseConsumptionService.WithAdditionalLicense( string? licenseKey ) => throw new NotSupportedException();
+
+        ILicenseConsumptionService ILicenseConsumptionService.WithoutLicense() => throw new NotSupportedException();
 
         /// <inheritdoc />
         public IReadOnlyList<LicensingMessage> Messages => this._messages;

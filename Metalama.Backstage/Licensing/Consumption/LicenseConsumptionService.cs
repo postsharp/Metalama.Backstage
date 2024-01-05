@@ -49,6 +49,9 @@ internal partial class LicenseConsumptionService : ILicenseConsumptionService
         return newService;
     }
 
+    public ILicenseConsumptionService WithoutLicense() 
+        => new LicenseConsumptionService( this._services, Array.Empty<ILicenseSource>() );
+
     private void OnSourceChanged()
     {
         this._impl = new ImmutableImpl( this._services, this._sources );

@@ -50,10 +50,11 @@ public class LicenseAuditTests : LicenseConsumptionManagerTestsBase
     }
 
     [Theory]
-    [TestLicensesInlineData( nameof(TestLicenseKeys.MetalamaUltimateBusiness) )]
-    [TestLicensesInlineData( nameof(TestLicenseKeys.MetalamaUltimateBusinessNotAuditable) )]
-    public void LicenseIsAudited( string licenseKey )
+    [InlineData( nameof(TestLicenseKeys.MetalamaUltimateBusiness) )]
+    [InlineData( nameof(TestLicenseKeys.MetalamaUltimateBusinessNotAuditable) )]
+    public void LicenseIsAudited( string licenseKeyName )
     {
+        var licenseKey = TestLicenseKeys.GetLicenseKey( licenseKeyName );
         var license = this.CreateAndConsumeLicense( licenseKey );
 
         license.ResetUsage();
