@@ -162,7 +162,9 @@ internal partial class LicenseConsumptionService
 
         event Action? ILicenseConsumptionService.Changed { add { } remove { } }
 
-        public ILicenseConsumptionService WithAdditionalLicense( string? licenseKey ) => throw new NotSupportedException();
+        ILicenseConsumptionService ILicenseConsumptionService.WithAdditionalLicense( string? licenseKey ) => throw new NotSupportedException();
+
+        ILicenseConsumptionService ILicenseConsumptionService.WithoutLicense() => throw new NotSupportedException();
 
         /// <inheritdoc />
         public IReadOnlyList<LicensingMessage> Messages => this._messages;

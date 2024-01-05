@@ -47,5 +47,7 @@ namespace Metalama.Backstage.Licensing.Consumption
         event Action? Changed;
 
         ILicenseConsumptionService WithAdditionalLicense( string? licenseKey );
+
+        ILicenseConsumptionService WithoutLicense();
     }
 }
