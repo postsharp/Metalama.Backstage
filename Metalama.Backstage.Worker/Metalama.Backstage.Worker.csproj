@@ -71,7 +71,7 @@
     <Target Name="PackAndZip" AfterTargets="Build">
         
         <!-- We need to create a web archive that contains static assets. -->
-        <Exec Command="dotnet publish $(ProjectPath) --no-build -o $(OutputPath)Packed" />
+        <Exec Command="dotnet publish $(ProjectPath) --no-build -o $(OutputPath)Packed -c $(Configuration)" />
 
         <ItemGroup>
             <ZipInputFiles Include="$(OutputPath)Packed\**\*" />
