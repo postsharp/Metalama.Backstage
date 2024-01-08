@@ -7,5 +7,7 @@ namespace Metalama.Backstage.Extensibility;
 /// </summary>
 public interface IProfilingService : IBackstageService 
 {
+    void Initialize();
+
     void CreateMemorySnapshot( string? snapshotName = null );
 }
