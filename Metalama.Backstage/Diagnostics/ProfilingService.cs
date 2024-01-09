@@ -10,6 +10,7 @@ using Metalama.Backstage.Extensibility;
 using System;
 
 #if PROFILING_ENABLED
+using JetBrains.Profiler.Api;
 using JetBrains.Profiler.SelfApi;
 using Metalama.Backstage.Maintenance;
 using System.Runtime.CompilerServices;
@@ -112,13 +113,23 @@ internal class ProfilingService : IProfilingService
 
             logger.Warning?.Log( $"Starting the profiler. Data will be stored in '{directory}'." );
 
-            switch ( configuration.Profiling.Kind?.ToLowerInvariant() )
+            var kind = configuration.Profiling.Kind?.ToLowerInvariant();
+
+            switch ( kind )
             {
-                case null or "performance" or "performance-tracing":
+                case null or "performance" or "performance-tracing" or "performance-timeline":
                     try
                     {
                         DotTrace.EnsurePrerequisite();
-                        DotTrace.Attach( new DotTrace.Config().SaveToDir( directory ) );
+
+                        var config = new DotTrace.Config().SaveToDir( directory );
+
+                        if ( kind is "performance-timeline" )
+                        {
+                            config = config.UseTimelineProfilingType( true );
+                        }
+
+                        DotTrace.Attach( config );
                         DotTrace.StartCollectingData();
                     }
                     catch ( Exception e )
@@ -127,25 +138,21 @@ internal class ProfilingService : IProfilingService
                     }
 
                     break;
-                case "performance-timeline":
-                    try
-                    {
-                        DotTrace.EnsurePrerequisite();
-                        DotTrace.Attach( new DotTrace.Config().SaveToDir( directory ).UseTimelineProfilingType( true ) );
-                        DotTrace.StartCollectingData();
-                    }
-                    catch ( Exception e )
-                    {
-                        logger.Error?.Log( $"Cannot start the profiler: {e}" );
-                    }
 
-                    break;
-
-                case "memory":
+                case "memory" or "memory-allocations":
                     try
                     {
                         DotMemory.EnsurePrerequisite();
-                        DotMemory.Attach( new DotMemory.Config().SaveToDir( directory ) );
+
+                        var config = new DotMemory.Config().SaveToDir( directory );
+
+                        DotMemory.Attach( config );
+
+                        if ( kind is "memory-allocations" )
+                        {
+                            MemoryProfiler.CollectAllocations( true );
+                        }
+
                         DotMemory.GetSnapshot( "initial" );
                     }
                     catch ( Exception e )
