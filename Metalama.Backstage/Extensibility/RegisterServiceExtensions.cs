@@ -80,7 +80,7 @@ public static class RegisterServiceExtensions
                 return loggerFactory;
             } );
 
-        serviceProviderBuilder.AddSingleton( serviceProvider => new ProfilingService( serviceProvider ) );
+        serviceProviderBuilder.AddSingleton<IProfilingService>( serviceProvider => new ProfilingService( serviceProvider ) );
 
         return serviceProviderBuilder;
     }
