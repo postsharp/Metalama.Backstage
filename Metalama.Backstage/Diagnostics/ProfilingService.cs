@@ -83,7 +83,7 @@ internal class ProfilingService : IProfilingService
             {
                 switch ( configuration.Profiling.Kind?.ToLowerInvariant() )
                 {
-                    case "memory":
+                    case "memory" or "memory-allocation":
                         logger.Error?.Log( $"Getting snapshot \"{snapshotName}\"." );
                         try
                         {
@@ -139,7 +139,7 @@ internal class ProfilingService : IProfilingService
 
                     break;
 
-                case "memory" or "memory-allocations":
+                case "memory" or "memory-allocation":
                     try
                     {
                         DotMemory.EnsurePrerequisite();
@@ -148,7 +148,7 @@ internal class ProfilingService : IProfilingService
 
                         DotMemory.Attach( config );
 
-                        if ( kind is "memory-allocations" )
+                        if ( kind is "memory-allocation" )
                         {
                             MemoryProfiler.CollectAllocations( true );
                         }
