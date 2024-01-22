@@ -8,23 +8,25 @@ namespace Metalama.Backstage.UserInterface;
 
 public class WebLinks : IBackstageService
 {
-    public string AfterSetup => "https://www.postsharp.net/links/TODO";
+    private const string _notImplemented = "https://www.postsharp.net/error/not-implemented";
+    
+    public string AfterSetup => _notImplemented;
 
-    public string GetTeamTeamTrial => "https://www.postsharp.net/links/TODO";
+    public string GetTeamTeamTrial => _notImplemented;
 
-    public string VisualStudioMarketplace => "https://www.postsharp.net/links/TODO";
+    public string VisualStudioMarketplace => _notImplemented;
 
-    public string PrivacyPolicy => "https://www.postsharp.net/links/TODO";
+    public string PrivacyPolicy => _notImplemented;
 
-    public string LicenseAgreement => "https://www.postsharp.net/links/TODO";
+    public string LicenseAgreement => _notImplemented;
 
-    public string Documentation => "https://www.postsharp.net/links/TODO";
+    public string Documentation => _notImplemented;
 
-    public string InstallVsx => "https://www.postsharp.net/links/TODO";
+    public string InstallVsx => _notImplemented;
 
-    public string RenewSubscription => "https://www.postsharp.net/links/TODO";
+    public string RenewSubscription => _notImplemented;
 
-    public string UnhandledException => "https://www.postsharp.net/links/TODO";
+    public string UnhandledException => _notImplemented;
 
     public string DotNetTool => "https://doc.metalama.net/conceptual/installing/dotnet-tool";
 }
