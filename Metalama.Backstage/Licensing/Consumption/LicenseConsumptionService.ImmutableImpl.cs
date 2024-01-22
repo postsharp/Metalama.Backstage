@@ -64,7 +64,15 @@ internal partial class LicenseConsumptionService
                 this._licensedNamespace = string.IsNullOrEmpty( data.LicensedNamespace ) ? null : new NamespaceLicenseInfo( data.LicensedNamespace! );
 
                 var licenseAuditManager = services.GetBackstageService<ILicenseAuditManager>();
-                licenseAuditManager?.ReportLicense( data );
+
+                if ( licenseAuditManager != null )
+                {
+                    licenseAuditManager.ReportLicense( data );
+                }
+                else
+                {
+                    this._logger.Warning?.Log( $"License audit is skipped because there is no {nameof(ILicenseAuditManager)}." );
+                }
 
                 return;
             }
