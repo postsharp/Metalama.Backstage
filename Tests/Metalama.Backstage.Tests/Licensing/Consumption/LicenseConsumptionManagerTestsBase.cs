@@ -14,9 +14,8 @@ public abstract class LicenseConsumptionManagerTestsBase : LicensingTestsBase
 {
     private protected LicenseConsumptionManagerTestsBase(
         ITestOutputHelper logger,
-        Action<ServiceProviderBuilder>? serviceBuilder = null,
         bool isTelemetryEnabled = false )
-        : base( logger, serviceBuilder, isTelemetryEnabled: isTelemetryEnabled ) { }
+        : base( logger, isTelemetryEnabled: isTelemetryEnabled ) { }
 
     private protected TestLicense CreateLicense( string licenseString )
     {
