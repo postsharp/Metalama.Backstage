@@ -18,7 +18,8 @@ public class LicenseAuditTests : LicenseConsumptionManagerTestsBase
 {
     public LicenseAuditTests( ITestOutputHelper logger ) : base(
         logger,
-        serviceBuilder => serviceBuilder.AddSingleton<ILicenseAuditManager>( new LicenseAuditManager( serviceBuilder.ServiceProvider ) ) ) { }
+        serviceBuilder => serviceBuilder.AddSingleton<ILicenseAuditManager>( new LicenseAuditManager( serviceBuilder.ServiceProvider ) ),
+        isTelemetryEnabled: true ) { }
 
     private TestLicense CreateAndConsumeLicense( string licenseKey )
     {

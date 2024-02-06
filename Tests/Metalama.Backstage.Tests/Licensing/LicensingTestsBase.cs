@@ -17,7 +17,8 @@ namespace Metalama.Backstage.Tests.Licensing
         private protected LicensingTestsBase(
             ITestOutputHelper logger,
             Action<ServiceProviderBuilder>? serviceBuilder = null,
-            bool initializeConfiguration = true )
+            bool initializeConfiguration = true,
+            bool isTelemetryEnabled = false )
             : base(
                 logger,
                 initializeConfiguration
@@ -31,7 +32,7 @@ namespace Metalama.Backstage.Tests.Licensing
                                         "Licensing Test App",
                                         false,
                                         "1.0",
-                                        new DateTime( 2021, 1, 1 ) ) ) )
+                                        new DateTime( 2021, 1, 1 ) ) { IsTelemetryEnabled = isTelemetryEnabled } ) )
                             .AddConfigurationManager();
 
                         serviceBuilder?.Invoke( services );
