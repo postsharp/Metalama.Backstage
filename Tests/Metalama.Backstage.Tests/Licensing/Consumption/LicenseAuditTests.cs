@@ -17,7 +17,7 @@ namespace Metalama.Backstage.Tests.Licensing.Consumption;
 
 public class LicenseAuditTests : LicenseConsumptionManagerTestsBase
 {
-    public LicenseAuditTests( ITestOutputHelper logger ) : base( logger )
+    public LicenseAuditTests( ITestOutputHelper logger ) : base( logger, isTelemetryEnabled: true )
     {
         // Make sure that the telemetry configuration is initialized so we get a stable DeviceId.
         this.ServiceProvider.GetRequiredBackstageService<BackstageServicesInitializer>().Initialize();

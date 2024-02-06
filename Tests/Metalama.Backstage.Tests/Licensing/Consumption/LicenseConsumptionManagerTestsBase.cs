@@ -12,8 +12,11 @@ namespace Metalama.Backstage.Tests.Licensing.Consumption;
 
 public abstract class LicenseConsumptionManagerTestsBase : LicensingTestsBase
 {
-    private protected LicenseConsumptionManagerTestsBase( ITestOutputHelper logger )
-        : base( logger, true ) { }
+    private protected LicenseConsumptionManagerTestsBase(
+        ITestOutputHelper logger,
+        Action<ServiceProviderBuilder>? serviceBuilder = null,
+        bool isTelemetryEnabled = false )
+        : base( logger, serviceBuilder, isTelemetryEnabled: isTelemetryEnabled ) { }
 
     private protected TestLicense CreateLicense( string licenseString )
     {
