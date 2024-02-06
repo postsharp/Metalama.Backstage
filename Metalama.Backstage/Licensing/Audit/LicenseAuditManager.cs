@@ -50,7 +50,7 @@ internal class LicenseAuditManager : ILicenseAuditManager
             return;
         }
 
-        if ( this._applicationInfo.IsTelemetryEnabled )
+        if ( !this._applicationInfo.IsTelemetryEnabled )
         {
             this._logger.Trace?.Log( $"License audit disabled because telemetry is disabled for the current build." );
 
