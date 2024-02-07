@@ -14,7 +14,7 @@ namespace Metalama.Backstage.Licensing.Audit;
 
 internal class LicenseAuditReport : MetricsBase
 {
-    public ulong AuditHashCode { get; }
+    public long AuditHashCode { get; }
 
     public IComponentInfo ReportedComponent { get; }
 
@@ -57,7 +57,7 @@ internal class LicenseAuditReport : MetricsBase
         AddToMetricsAndHashCode( new BoolMetric( "CEIP", usageReporter.IsUsageReportingEnabled ) );
         AddToMetricsAndHashCode( new StringMetric( "ApplicationName", this.ReportedComponent.Name ) );
 
-        this.AuditHashCode = auditHashCodeBuilder.Digest();
+        this.AuditHashCode = unchecked((long) auditHashCodeBuilder.Digest());
     }
 
     /// <summary>
