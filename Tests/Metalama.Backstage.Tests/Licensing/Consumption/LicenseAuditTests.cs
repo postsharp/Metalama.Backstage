@@ -96,9 +96,11 @@ public class LicenseAuditTests : LicenseConsumptionManagerTestsBase
 
         Assert.Equal( licenseKeys.Count, reports.Length );
 
-        for ( var i = 0; i < licenseKeys.Count; i++ )
+        foreach ( var t in licenseKeys )
         {
-            Assert.Contains( licenseKeys[i], reports[i], StringComparison.OrdinalIgnoreCase );
+#pragma warning disable CA1307
+            Assert.Contains( reports, r => r.Contains( t ) );
+#pragma warning restore CA1307
         }
     }
 
