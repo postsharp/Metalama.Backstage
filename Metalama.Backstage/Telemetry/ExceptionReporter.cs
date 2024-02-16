@@ -205,30 +205,33 @@ internal class ExceptionReporter : IExceptionReporter, IDisposable
             } );
     }
 
-    private static void PopulateStackTraces( List<string?> stackTraces, Exception exception )
+    private static void PopulateStackTraces( List<string?> stackTraces, Exception exception, IExceptionAdapter adapter )
     {
-        if ( exception.StackTrace != null )
+        var stackTrace = adapter.GetStackTrace( exception );
+        
+        if ( stackTrace != null )
         {
-            stackTraces.Add( exception.StackTrace );
+            stackTraces.Add( stackTrace );
         }
 
         if ( exception is AggregateException aggregateException )
         {
             foreach ( var child in aggregateException.InnerExceptions )
             {
-                PopulateStackTraces( stackTraces, child );
+                PopulateStackTraces( stackTraces, child, adapter );
             }
         }
         else if ( exception.InnerException != null )
         {
-            PopulateStackTraces( stackTraces, exception.InnerException );
+            PopulateStackTraces( stackTraces, exception.InnerException, adapter );
         }
     }
 
     public void ReportException(
         Exception reportedException,
         ExceptionReportingKind exceptionReportingKind = ExceptionReportingKind.Exception,
-        string? localReportPath = null )
+        string? localReportPath = null,
+        IExceptionAdapter? adapter = null )
     {
         try
         {
@@ -256,16 +259,17 @@ internal class ExceptionReporter : IExceptionReporter, IDisposable
                 return;
             }
 
+            adapter ??= DefaultExceptionAdapter.Instance;
             var applicationInfo = this._applicationInfoProvider.CurrentApplication;
 
             // Get stack traces.
             var stackTraces = new List<string?>();
-            PopulateStackTraces( stackTraces, reportedException );
-
+            PopulateStackTraces( stackTraces, reportedException, adapter );
+            
             // Compute a signature for this exception.
             var hash = this.ComputeExceptionHash(
                 applicationInfo.PackageVersion,
-                reportedException.GetType().FullName!,
+                adapter.GetTypeFullName( reportedException )!,
                 stackTraces );
 
             // Check if this exception has already been reported.
@@ -316,7 +320,7 @@ internal class ExceptionReporter : IExceptionReporter, IDisposable
 
             xmlWriter.WriteStartElement( "Exception" );
 
-            ExceptionXmlFormatter.WriteException( xmlWriter, reportedException );
+            adapter.WriteException( xmlWriter, reportedException );
 
             xmlWriter.WriteEndElement();
 
