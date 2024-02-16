@@ -9,27 +9,22 @@ using System.Text;
 
 namespace Metalama.Backstage.Telemetry;
 
-internal abstract class MetricsBase
+internal class TelemetryReportUploader : IBackstageService
 {
     private readonly IStandardDirectories _directories;
     private readonly IFileSystem _fileSystem;
     private readonly ITelemetryUploader _uploader;
     private readonly ILogger _logger;
-    private readonly string _feedbackKind;
 
-    protected MetricCollection Metrics { get; } = new();
-
-    protected MetricsBase( IServiceProvider serviceProvider, string feedbackKind )
+    public TelemetryReportUploader( IServiceProvider serviceProvider )
     {
-        this._feedbackKind = feedbackKind;
-
         this._directories = serviceProvider.GetRequiredBackstageService<IStandardDirectories>();
         this._fileSystem = serviceProvider.GetRequiredBackstageService<IFileSystem>();
         this._uploader = serviceProvider.GetRequiredBackstageService<ITelemetryUploader>();
         this._logger = serviceProvider.GetLoggerFactory().GetLogger( "Metrics" );
     }
 
-    public void Upload()
+    public void Upload( TelemetryReport report )
     {
         // If no filename was provided, we have to write metrics to the standard reporting directory.
 
@@ -37,8 +32,8 @@ internal abstract class MetricsBase
 
         try
         {
-            var fileName = Path.Combine( this._directories.TelemetryUploadQueueDirectory, $"{this._feedbackKind}-{Guid.NewGuid()}.log" );
-            this.Write( fileName );
+            var fileName = Path.Combine( this._directories.TelemetryUploadQueueDirectory, $"{report.Kind}-{Guid.NewGuid()}.log" );
+            this.Write( report, fileName );
         }
         catch ( Exception e )
         {
@@ -51,7 +46,7 @@ internal abstract class MetricsBase
         this._uploader.StartUpload();
     }
 
-    private void Write( string fileName )
+    private void Write( TelemetryReport report, string fileName )
     {
         this._logger.Trace?.Log( $"Flushing usage to '{fileName}' file." );
 
@@ -65,7 +60,24 @@ internal abstract class MetricsBase
         using ( var stream = this._fileSystem.Open( fileName, FileMode.Append, FileAccess.Write, FileShare.None ) )
         using ( var writer = new StreamWriter( stream, Encoding.UTF8 ) )
         {
-            this.Metrics.Write( writer );
+            var first = true;
+
+            foreach ( var metric in report.Metrics )
+            {
+                if ( first )
+                {
+                    first = false;
+                }
+                else
+                {
+                    writer.Write( ';' );
+                }
+
+                writer.Write( metric.Name );
+                writer.Write( '=' );
+                metric.WriteValue( writer );
+            }
+
             writer.Write( Environment.NewLine );
         }
 

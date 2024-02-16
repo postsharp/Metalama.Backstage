@@ -16,9 +16,9 @@ namespace Metalama.Backstage.Application
     {
         protected ApplicationInfoBase( Assembly metadataAssembly ) : base( metadataAssembly )
         {
-            if ( this.Version != null )
+            if ( this.PackageVersion != null )
             {
-                this.IsTelemetryEnabled = !VersionHelper.IsDevelopmentVersion( this.Version );
+                this.IsTelemetryEnabled = !VersionHelper.IsDevelopmentVersion( this.PackageVersion );
             }
         }
 

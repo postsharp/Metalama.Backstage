@@ -19,6 +19,7 @@ public class UsageReporterTests : TestsBase
     protected override void ConfigureServices( ServiceProviderBuilder services )
     {
         services.AddSingleton<IApplicationInfoProvider>( new ApplicationInfoProvider( new TestApplicationInfo() { IsTelemetryEnabled = true } ) );
+        services.AddSingleton<TelemetryReportUploader>( serviceProvider => new TelemetryReportUploader( serviceProvider ) );
     }
 
     [Fact]

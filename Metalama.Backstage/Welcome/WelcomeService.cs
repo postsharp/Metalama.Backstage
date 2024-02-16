@@ -4,7 +4,6 @@ using Metalama.Backstage.Configuration;
 using Metalama.Backstage.Diagnostics;
 using Metalama.Backstage.Extensibility;
 using Metalama.Backstage.Telemetry;
-using Metalama.Backstage.Utilities;
 using System;
 
 namespace Metalama.Backstage.Welcome;
@@ -13,13 +12,16 @@ public class WelcomeService : IBackstageService
 {
     private readonly ILogger _logger;
     private readonly IConfigurationManager _configurationManager;
-    private readonly WelcomeConfiguration _welcomeConfiguration;
+    private readonly Guid? _newDeviceId;
 
-    public WelcomeService( IServiceProvider serviceProvider )
+    public WelcomeService( IServiceProvider serviceProvider ) : this( serviceProvider, null ) { }
+
+    // For test only.
+    internal WelcomeService( IServiceProvider serviceProvider, Guid? newDeviceId )
     {
+        this._newDeviceId = newDeviceId;
         this._logger = serviceProvider.GetLoggerFactory().GetLogger( "Welcome" );
         this._configurationManager = serviceProvider.GetRequiredBackstageService<IConfigurationManager>();
-        this._welcomeConfiguration = this._configurationManager.Get<WelcomeConfiguration>();
     }
 
     private void ExecuteOnce(
@@ -28,31 +30,18 @@ public class WelcomeService : IBackstageService
         Func<WelcomeConfiguration, bool> getIsFirst,
         Func<WelcomeConfiguration, WelcomeConfiguration> setIsNotFirst )
     {
-        if ( !getIsFirst( this._welcomeConfiguration ) )
+        if ( !this._configurationManager.UpdateIf(
+                c => getIsFirst( c ),
+                setIsNotFirst ) )
         {
-            this._logger.Trace?.Log( $"The {actionName} action has already been executed." );
+            // Another process has won the race.
+
+            this._logger.Trace?.Log( $"{actionName} action has been executed by a concurrent process." );
 
             return;
         }
 
-        // We need a global lock to start the welcome service because several process may attempt to start the evaluation
-        // license. We need the processes who lost the race to wait, so they can read the configuration file.
-
-        using ( MutexHelper.WithGlobalLock( $"Welcome{actionName}" ) )
-        {
-            if ( !this._configurationManager.UpdateIf(
-                    c => getIsFirst( c ),
-                    setIsNotFirst ) )
-            {
-                // Another process has won the race.
-
-                this._logger.Trace?.Log( $"{actionName} action has been executed by a concurrent process." );
-
-                return;
-            }
-
-            action();
-        }
+        action();
     }
 
     public void Initialize()
@@ -74,7 +63,7 @@ public class WelcomeService : IBackstageService
                 c => c with
                 {
                     // Enable telemetry except if it has been disabled by the command line.
-                    DeviceId = Guid.NewGuid(),
+                    DeviceId = this._newDeviceId ?? Guid.NewGuid(),
                     ExceptionReportingAction = c.ExceptionReportingAction == ReportingAction.Ask ? ReportingAction.Yes : c.ExceptionReportingAction,
                     PerformanceProblemReportingAction =
                     c.PerformanceProblemReportingAction == ReportingAction.Ask ? ReportingAction.Yes : c.PerformanceProblemReportingAction,

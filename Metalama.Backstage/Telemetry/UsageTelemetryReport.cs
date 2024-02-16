@@ -14,12 +14,11 @@ using System.Runtime.InteropServices;
 
 namespace Metalama.Backstage.Telemetry
 {
-    internal class UsageSample : MetricsBase
+    internal class UsageTelemetryReport : TelemetryReport
     {
-        public new MetricCollection Metrics => base.Metrics;
+        public override string Kind => "Usage";
 
-        internal UsageSample( IServiceProvider serviceProvider, string eventKind )
-            : base( serviceProvider, "Usage" )
+        internal UsageTelemetryReport( IServiceProvider serviceProvider, string eventKind )
         {
             var time = serviceProvider.GetRequiredBackstageService<IDateTimeProvider>();
 
@@ -39,7 +38,7 @@ namespace Metalama.Backstage.Telemetry
             this.Metrics.Add( new StringMetric( "Net.Version", Environment.Version.ToString() ) );
 
             this.Metrics.Add( new StringMetric( "Application.Name", reportedComponent.Name ) );
-            this.Metrics.Add( new StringMetric( "Application.Version", reportedComponent.Version ) );
+            this.Metrics.Add( new StringMetric( "Application.Version", reportedComponent.PackageVersion ) );
             this.Metrics.Add( new BoolMetric( "Application.IsUnattended", applicationInfo.IsUnattendedProcess( loggerFactory ) ) );
             this.Metrics.Add( new StringMetric( "Application.ProcessName", Process.GetCurrentProcess().ProcessName ) );
             this.Metrics.Add( new StringMetric( "Application.ProcessKind", applicationInfo.ProcessKind.ToString() ) );

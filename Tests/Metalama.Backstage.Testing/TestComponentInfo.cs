@@ -11,7 +11,7 @@ namespace Metalama.Backstage.Testing
         {
             this.Company = company;
             this.Name = name;
-            this.Version = version;
+            this.PackageVersion = version;
             this.IsPrerelease = isPrerelease;
             this.BuildDate = buildDate;
         }
@@ -20,7 +20,9 @@ namespace Metalama.Backstage.Testing
 
         public string Name { get; }
 
-        public string? Version { get; }
+        public string? PackageVersion { get; }
+
+        public Version? AssemblyVersion => TestVersionHelper.GetAssemblyVersionFromPackageVersion( this.PackageVersion );
 
         public bool? IsPrerelease { get; }
 

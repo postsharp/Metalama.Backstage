@@ -12,12 +12,13 @@ public abstract class ComponentInfoBase : IComponentInfo
     protected ComponentInfoBase( Assembly metadataAssembly )
     {
         var reader = AssemblyMetadataReader.GetInstance( metadataAssembly );
-        this.Version = reader.PackageVersion;
+        this.PackageVersion = reader.PackageVersion;
+        this.AssemblyVersion = reader.AssemblyVersion;
 
         // IsPrerelease flag can be overridden for testing purposes.
         var isPrereleaseEnvironmentVariableValue = Environment.GetEnvironmentVariable( "METALAMA_IS_PRERELEASE" );
         bool? isPrereleaseOverriddenValue = isPrereleaseEnvironmentVariableValue == null ? null : bool.Parse( isPrereleaseEnvironmentVariableValue );
-        this.IsPrerelease = isPrereleaseOverriddenValue ?? (this.Version != null && VersionHelper.IsPrereleaseVersion( this.Version ));
+        this.IsPrerelease = isPrereleaseOverriddenValue ?? (this.PackageVersion != null && VersionHelper.IsPrereleaseVersion( this.PackageVersion ));
 
         // BuildDate value can be overridden for testing purposes.
         var buildDateEnvironmentVariableValue = Environment.GetEnvironmentVariable( "METALAMA_BUILD_DATE" );
@@ -37,7 +38,9 @@ public abstract class ComponentInfoBase : IComponentInfo
     public abstract string Name { get; }
 
     /// <inheritdoc />
-    public string? Version { get; }
+    public string? PackageVersion { get; }
+
+    public Version? AssemblyVersion { get; }
 
     /// <inheritdoc />
     public bool? IsPrerelease { get; }

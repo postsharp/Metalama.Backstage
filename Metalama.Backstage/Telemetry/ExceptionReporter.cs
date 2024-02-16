@@ -264,7 +264,7 @@ internal class ExceptionReporter : IExceptionReporter, IDisposable
 
             // Compute a signature for this exception.
             var hash = this.ComputeExceptionHash(
-                applicationInfo.Version,
+                applicationInfo.PackageVersion,
                 reportedException.GetType().FullName!,
                 stackTraces );
 
@@ -295,7 +295,7 @@ internal class ExceptionReporter : IExceptionReporter, IDisposable
             xmlWriter.WriteElementString( "ClientId", this._configuration.DeviceId.ToString() );
             xmlWriter.WriteStartElement( "Application" );
             xmlWriter.WriteElementString( "Name", applicationInfo.Name );
-            xmlWriter.WriteElementString( "Version", applicationInfo.Version );
+            xmlWriter.WriteElementString( "Version", applicationInfo.PackageVersion );
             xmlWriter.WriteEndElement();
 
             var currentProcess = Process.GetCurrentProcess();

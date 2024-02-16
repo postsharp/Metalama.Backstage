@@ -44,7 +44,7 @@ internal class LocalExceptionReporter : IBackstageService
 
 #pragma warning disable CA1305
                 exceptionText.AppendLine( $"Metalama Application: {this._applicationInfoProvider.CurrentApplication.Name}" );
-                exceptionText.AppendLine( $"Metalama Version: {this._applicationInfoProvider.CurrentApplication.Version}" );
+                exceptionText.AppendLine( $"Metalama Version: {this._applicationInfoProvider.CurrentApplication.PackageVersion}" );
                 exceptionText.AppendLine( $"Runtime: {RuntimeInformation.FrameworkDescription}" );
                 exceptionText.AppendLine( $"Processor Architecture: {RuntimeInformation.ProcessArchitecture}" );
                 exceptionText.AppendLine( $"OS Description: {RuntimeInformation.OSDescription}" );
