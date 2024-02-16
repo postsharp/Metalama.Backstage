@@ -11,11 +11,13 @@ internal sealed class BackstageServicesInitializer : IBackstageService
 {
     private readonly IServiceProvider _serviceProvider;
     private readonly BackstageInitializationOptionsProvider _optionsProvider;
+    private readonly BackstageBackgroundTasksService _backgroundTasksService;
 
     public BackstageServicesInitializer( IServiceProvider serviceProvider )
     {
         this._serviceProvider = serviceProvider;
         this._optionsProvider = serviceProvider.GetRequiredBackstageService<BackstageInitializationOptionsProvider>();
+        this._backgroundTasksService = serviceProvider.GetRequiredBackstageService<BackstageBackgroundTasksService>();
     }
 
     public void Initialize()
@@ -24,12 +26,16 @@ internal sealed class BackstageServicesInitializer : IBackstageService
 
         this._serviceProvider.GetBackstageService<IProfilingService>()?.Initialize();
 
-        // The license manager may enqueue a file but be unable to start the process.
-        this._serviceProvider.GetBackstageService<ITelemetryUploader>()?.StartUpload();
+        this._backgroundTasksService.Enqueue(
+            () =>
+            {
+                // The license manager may enqueue a file but be unable to start the process.
+                this._serviceProvider.GetBackstageService<ITelemetryUploader>()?.StartUpload();
 
-        if ( this._optionsProvider.Options.DetectToastNotifications )
-        {
-            this._serviceProvider.GetBackstageService<ToastNotificationDetectionService>()?.Detect();
-        }
+                if ( this._optionsProvider.Options.DetectToastNotifications )
+                {
+                    this._serviceProvider.GetBackstageService<ToastNotificationDetectionService>()?.Detect();
+                }
+            } );
     }
 }

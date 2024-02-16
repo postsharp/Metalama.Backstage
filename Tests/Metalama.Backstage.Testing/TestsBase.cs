@@ -48,6 +48,10 @@ namespace Metalama.Backstage.Testing
 
         public TestUserInterfaceService UserInterface { get; }
 
+        public BackstageBackgroundTasksService BackgroundTasks { get; } = new();
+
+        public TestHttpClientFactory HttpClientFactory { get; }
+
         protected IServiceCollection CloneServiceCollection()
         {
             var services = new ServiceCollection();
@@ -79,6 +83,7 @@ namespace Metalama.Backstage.Testing
             this.ConfigurationManager = this.ServiceProvider.GetRequiredBackstageService<IConfigurationManager>() as InMemoryConfigurationManager;
             this.FileSystem = (TestFileSystem) this.ServiceProvider.GetRequiredBackstageService<IFileSystem>();
             this.UserInterface = (TestUserInterfaceService) this.ServiceProvider.GetRequiredBackstageService<IUserInterfaceService>();
+            this.HttpClientFactory = (TestHttpClientFactory) this.ServiceProvider.GetRequiredBackstageService<IHttpClientFactory>();
         }
 
         protected ServiceCollection CreateServiceCollection(
@@ -96,6 +101,8 @@ namespace Metalama.Backstage.Testing
                 .AddSingleton<IDateTimeProvider>( this.Time )
                 .AddSingleton<IProcessExecutor>( this.ProcessExecutor )
                 .AddSingleton<IPlatformInfo>( serviceProvider => new PlatformInfo( serviceProvider, null ) )
+                .AddSingleton( this.BackgroundTasks )
+                .AddSingleton<IHttpClientFactory>( _ => new TestHttpClientFactory() )
 
                 // We must always have a single instance of the file system even if we use CloneServiceCollection.
                 // ReSharper disable once NullCoalescingConditionIsAlwaysNotNullAccordingToAPIContract
@@ -114,14 +121,14 @@ namespace Metalama.Backstage.Testing
                 .AddSingleton<IToastNotificationService>( serviceProvider => new ToastNotificationService( serviceProvider ) )
                 .AddSingleton<IToastNotificationStatusService>( serviceProvider => new ToastNotificationStatusService( serviceProvider ) )
                 .AddSingleton<BackstageServicesInitializer>( serviceProvider => new BackstageServicesInitializer( serviceProvider ) )
-                .AddSingleton<WelcomeService>( serviceProvider => new WelcomeService( serviceProvider ) )
+                .AddSingleton<WelcomeService>( serviceProvider => new WelcomeService( serviceProvider, Guid.Empty ) )
                 .AddSingleton<IIdeExtensionStatusService>( serviceProvider => new IdeExtensionStatusService( serviceProvider ) )
                 .AddSingleton<ToastNotificationDetectionService>( serviceProvider => new ToastNotificationDetectionService( serviceProvider ) )
                 .AddSingleton<IStandardDirectories>( serviceProvider => new StandardDirectories( serviceProvider ) );
 
             var serviceProviderBuilder =
                 new ServiceProviderBuilder( ( type, instance ) => serviceCollection.AddSingleton( type, instance ) );
-            
+
             // The test implementation may replace some services.
             serviceBuilder?.Invoke( serviceProviderBuilder );
 

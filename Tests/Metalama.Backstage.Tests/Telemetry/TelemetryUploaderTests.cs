@@ -16,14 +16,11 @@ public class TelemetryUploaderTests : TestsBase
 {
     private const string _feedbackDirectory = @"C:\feedback";
 
-    private readonly TelemetryTestsPutMessageHandler _httpHandler;
     private readonly ITelemetryUploader _uploader;
 
     public TelemetryUploaderTests( ITestOutputHelper logger ) : base( logger, new TestApplicationInfo() { IsTelemetryEnabled = true } )
     {
         this.FileSystem.CreateDirectory( _feedbackDirectory );
-        var httpClientFactory = (TestHttpClientFactory) this.ServiceProvider.GetRequiredBackstageService<IHttpClientFactory>();
-        this._httpHandler = (TelemetryTestsPutMessageHandler) httpClientFactory.Handler;
         this._uploader = this.ServiceProvider.GetRequiredBackstageService<ITelemetryUploader>();
     }
 
@@ -35,7 +32,7 @@ public class TelemetryUploaderTests : TestsBase
             .AddSingleton<IPlatformInfo>( serviceProvider => new PlatformInfo( serviceProvider, null ) )
             .AddSingleton<IHttpClientFactory>(
                 serviceProvider =>
-                    new TestHttpClientFactory( new TelemetryTestsPutMessageHandler( serviceProvider, _feedbackDirectory ) ) )
+                    new TestHttpClientFactory( f => new TelemetryTestsPutMessageHandler( serviceProvider, _feedbackDirectory, f ) ) )
             .AddTelemetryServices();
 
         services.AddTools();
@@ -45,7 +42,7 @@ public class TelemetryUploaderTests : TestsBase
     {
         await this._uploader.UploadAsync();
 
-        var processedRequests = this._httpHandler.ProcessedRequests;
+        var processedRequests = this.HttpClientFactory.ProcessedRequests;
         var uploadedFiles = this.FileSystem.EnumerateFiles( _feedbackDirectory, "*.psf" );
 
         if ( uploadedFileExpected )

@@ -38,7 +38,7 @@ public class TempFileManager : ITempFileManager
 
         var application = serviceProvider.GetRequiredBackstageService<IApplicationInfoProvider>().CurrentApplication;
 
-        this._applicationVersion = application.GetLatestComponentMadeByPostSharp().Version ??
+        this._applicationVersion = application.GetLatestComponentMadeByPostSharp().PackageVersion ??
                                    throw new InvalidOperationException( "The application version is not set." );
     }
 

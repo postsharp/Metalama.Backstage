@@ -6,6 +6,7 @@ using Metalama.Backstage.Diagnostics;
 using Metalama.Backstage.Extensibility;
 using Metalama.Backstage.Infrastructure;
 using Metalama.Backstage.Licensing.Consumption;
+using Metalama.Backstage.Telemetry;
 using System;
 
 namespace Metalama.Backstage.Licensing.Audit;
@@ -18,6 +19,9 @@ internal class LicenseAuditManager : ILicenseAuditManager
     private readonly IDateTimeProvider _time;
     private readonly ILoggerFactory _loggerFactory;
     private readonly ILogger _logger;
+    private readonly TelemetryReportUploader _telemetryReportUploader;
+    private readonly MatomoAuditUploader? _matomoAuditUploader;
+    private readonly BackstageBackgroundTasksService _backgroundTasksService;
 
     public LicenseAuditManager( IServiceProvider serviceProvider )
     {
@@ -27,6 +31,9 @@ internal class LicenseAuditManager : ILicenseAuditManager
         this._time = serviceProvider.GetRequiredBackstageService<IDateTimeProvider>();
         this._loggerFactory = serviceProvider.GetLoggerFactory();
         this._logger = this._loggerFactory.Licensing();
+        this._telemetryReportUploader = serviceProvider.GetRequiredBackstageService<TelemetryReportUploader>();
+        this._matomoAuditUploader = serviceProvider.GetBackstageService<MatomoAuditUploader>();
+        this._backgroundTasksService = serviceProvider.GetRequiredBackstageService<BackstageBackgroundTasksService>();
     }
 
     public void ReportLicense( LicenseConsumptionData license )
@@ -59,9 +66,9 @@ internal class LicenseAuditManager : ILicenseAuditManager
             return;
         }
 
-        var report = new LicenseAuditReport( this._serviceProvider, license.LicenseString! );
+        var report = new LicenseAuditTelemetryReport( this._serviceProvider, license );
 
-        if ( report.ReportedComponent.Version == null )
+        if ( report.ReportedComponent.PackageVersion == null )
         {
             throw new InvalidOperationException( $"Version of '{report.ReportedComponent.Name}' application is unknown." );
         }
@@ -78,7 +85,12 @@ internal class LicenseAuditManager : ILicenseAuditManager
         else
         {
             this._logger.Trace?.Log( $"Uploading license audit report." );
-            report.Upload();
+            this._telemetryReportUploader.Upload( report );
+
+            if ( this._matomoAuditUploader != null )
+            {
+                this._backgroundTasksService.Enqueue( () => this._matomoAuditUploader.UploadAsync( report ) );
+            }
         }
     }
 }

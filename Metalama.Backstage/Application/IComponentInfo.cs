@@ -23,7 +23,9 @@ public interface IComponentInfo
     /// <summary>
     /// Gets a version of the component.
     /// </summary>
-    string? Version { get; }
+    string? PackageVersion { get; }
+
+    Version? AssemblyVersion { get; }
 
     /// <summary>
     /// Gets a value indicating whether the component is a pre-release.

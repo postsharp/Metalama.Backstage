@@ -21,10 +21,12 @@ internal partial class LicenseConsumptionService
         private readonly Dictionary<string, NamespaceLicenseInfo> _embeddedRedistributionLicensesCache = new();
         private readonly LicenseConsumptionData? _license;
         private readonly NamespaceLicenseInfo? _licensedNamespace;
+        private readonly BackstageBackgroundTasksService _backgroundTasksService;
 
         public ImmutableImpl( IServiceProvider services, IReadOnlyList<ILicenseSource> licenseSources )
         {
             this._logger = services.GetLoggerFactory().Licensing();
+            this._backgroundTasksService = services.GetRequiredBackstageService<BackstageBackgroundTasksService>();
 
             this._licenseFactory = new LicenseFactory( services );
 
@@ -67,7 +69,7 @@ internal partial class LicenseConsumptionService
 
                 if ( licenseAuditManager != null )
                 {
-                    licenseAuditManager.ReportLicense( data );
+                    this._backgroundTasksService.Enqueue( () => licenseAuditManager.ReportLicense( data ) );
                 }
                 else
                 {

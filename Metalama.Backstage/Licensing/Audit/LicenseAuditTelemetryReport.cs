@@ -5,6 +5,7 @@ using Metalama.Backstage.Application;
 using Metalama.Backstage.Configuration;
 using Metalama.Backstage.Extensibility;
 using Metalama.Backstage.Infrastructure;
+using Metalama.Backstage.Licensing.Consumption;
 using Metalama.Backstage.Licensing.Licenses;
 using Metalama.Backstage.Telemetry;
 using Metalama.Backstage.Telemetry.Metrics;
@@ -14,32 +15,53 @@ using System.Text;
 
 namespace Metalama.Backstage.Licensing.Audit;
 
-internal class LicenseAuditReport : MetricsBase
+internal class LicenseAuditTelemetryReport : TelemetryReport
 {
-    public long AuditHashCode { get; }
+    private readonly TelemetryConfiguration _telemetryConfiguration;
+    private readonly IUsageReporter _usageReporter;
+
+    public LicenseConsumptionData License { get; }
 
     public IComponentInfo ReportedComponent { get; }
 
-    public LicenseAuditReport(
+    public override string Kind => "LicenseAudit";
+
+    public DateTime BuildDate { get; }
+
+#pragma warning disable CA1822
+    public long UserHash => LicenseCryptography.ComputeStringHash64( Environment.UserName );
+#pragma warning restore CA1822
+
+    public long DeviceHash => LicenseCryptography.ComputeStringHash64( this._telemetryConfiguration.DeviceId.ToString() );
+
+    public DateTime Date { get; }
+
+    public Version? AssemblyVersion => this.ReportedComponent.AssemblyVersion;
+
+    public string ApplicationName => this.ReportedComponent.Name;
+
+    public bool IsUsageReportingEnabled => this._usageReporter.IsUsageReportingEnabled;
+
+    public long AuditHashCode { get; }
+
+    public LicenseAuditTelemetryReport(
         IServiceProvider serviceProvider,
-        string licenseString )
-        : base( serviceProvider, "LicenseAudit" )
+        LicenseConsumptionData license )
     {
-        var time = serviceProvider.GetRequiredBackstageService<IDateTimeProvider>();
+        this.License = license;
+        this.Date = serviceProvider.GetRequiredBackstageService<IDateTimeProvider>().Now;
 
         this.ReportedComponent = serviceProvider
             .GetRequiredBackstageService<IApplicationInfoProvider>()
             .CurrentApplication
             .GetLatestComponentMadeByPostSharp();
 
-        var usageReporter = serviceProvider.GetRequiredBackstageService<IUsageReporter>();
+        this._usageReporter = serviceProvider.GetRequiredBackstageService<IUsageReporter>();
 
-        var buildDate = this.ReportedComponent.BuildDate
-                        ?? throw new InvalidOperationException( $"Build date of '{this.ReportedComponent.Name}' application is unknown." );
+        this.BuildDate = this.ReportedComponent.BuildDate
+                         ?? throw new InvalidOperationException( $"Build date of '{this.ReportedComponent.Name}' application is unknown." );
 
-        var telemetryConfiguration = serviceProvider.GetRequiredBackstageService<IConfigurationManager>().Get<TelemetryConfiguration>();
-        var userHash = LicenseCryptography.ComputeStringHash64( Environment.UserName );
-        var machineHash = LicenseCryptography.ComputeStringHash64( telemetryConfiguration.DeviceId.ToString() );
+        this._telemetryConfiguration = serviceProvider.GetRequiredBackstageService<IConfigurationManager>().Get<TelemetryConfiguration>();
 
         var auditHashCodeBuilder = new XXH64();
 
@@ -50,14 +72,14 @@ internal class LicenseAuditReport : MetricsBase
         }
 
         // Audit date is not part of the audit hash code. 
-        this.Metrics.Add( new LicenseAuditDateMetric( "Date", time.Now.Date ) );
-        AddToMetricsAndHashCode( new StringMetric( "Version", this.ReportedComponent.Version ) );
-        AddToMetricsAndHashCode( new LicenseAuditDateMetric( "BuildDate", buildDate ) );
-        AddToMetricsAndHashCode( new StringMetric( "License", licenseString ) );
-        AddToMetricsAndHashCode( new LicenseAuditHashMetric( "User", userHash ) );
-        AddToMetricsAndHashCode( new LicenseAuditHashMetric( "Machine", machineHash ) );
-        AddToMetricsAndHashCode( new BoolMetric( "CEIP", usageReporter.IsUsageReportingEnabled ) );
-        AddToMetricsAndHashCode( new StringMetric( "ApplicationName", this.ReportedComponent.Name ) );
+        this.Metrics.Add( new LicenseAuditDateMetric( "Date", this.Date ) );
+        AddToMetricsAndHashCode( new StringMetric( "Version", this.ReportedComponent.PackageVersion ) );
+        AddToMetricsAndHashCode( new LicenseAuditDateMetric( "BuildDate", this.BuildDate ) );
+        AddToMetricsAndHashCode( new StringMetric( "License", this.License.LicenseString ) );
+        AddToMetricsAndHashCode( new LicenseAuditHashMetric( "User", this.UserHash ) );
+        AddToMetricsAndHashCode( new LicenseAuditHashMetric( "Machine", this.DeviceHash ) );
+        AddToMetricsAndHashCode( new BoolMetric( "CEIP", this.IsUsageReportingEnabled ) );
+        AddToMetricsAndHashCode( new StringMetric( "ApplicationName", this.ApplicationName ) );
 
         this.AuditHashCode = unchecked((long) auditHashCodeBuilder.Digest());
     }

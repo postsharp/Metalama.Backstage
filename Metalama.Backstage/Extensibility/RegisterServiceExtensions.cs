@@ -106,7 +106,8 @@ public static class RegisterServiceExtensions
             .AddSingleton<IProcessExecutor>( new ProcessExecutor() )
             .AddSingleton<IHttpClientFactory>( new HttpClientFactory() )
             .AddSingleton<IConfigurationManager>( serviceProvider => new ConfigurationManager( serviceProvider ) )
-            .AddSingleton<IPlatformInfo>( serviceProvider => new PlatformInfo( serviceProvider, options.DotNetSdkDirectory ) );
+            .AddSingleton<IPlatformInfo>( serviceProvider => new PlatformInfo( serviceProvider, options.DotNetSdkDirectory ) )
+            .AddSingleton<BackstageBackgroundTasksService>( _ => BackstageBackgroundTasksService.Default );
 
         serviceProviderBuilder.AddSingleton<ITempFileManager>( serviceProvider => new TempFileManager( serviceProvider ) );
     }
@@ -235,7 +236,9 @@ public static class RegisterServiceExtensions
             .AddSingleton<IExceptionReporter>( serviceProvider => new ExceptionReporter( new TelemetryQueue( serviceProvider ), serviceProvider ) )
             .AddSingleton<ITelemetryUploader>( serviceProvider => new TelemetryUploader( serviceProvider ) )
             .AddSingleton<IUsageReporter>( serviceProvider => new UsageReporter( serviceProvider ) )
-            .AddSingleton<ITelemetryConfigurationService>( serviceProvider => new TelemetryConfigurationService( serviceProvider ) );
+            .AddSingleton<ITelemetryConfigurationService>( serviceProvider => new TelemetryConfigurationService( serviceProvider ) )
+            .AddSingleton<TelemetryReportUploader>( serviceProvider => new TelemetryReportUploader( serviceProvider ) )
+            .AddSingleton<MatomoAuditUploader>( serviceProvider => new MatomoAuditUploader( serviceProvider ) );
     }
 
     private static void TryAddProcessManagerService( this ServiceProviderBuilder serviceProviderBuilder )

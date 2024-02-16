@@ -71,6 +71,7 @@ public class WelcomeServiceTests : TestsBase
         var initializerService = this.ServiceProvider.GetRequiredBackstageService<BackstageServicesInitializer>();
 
         initializerService.Initialize();
+        this.BackgroundTasks.WhenNoPendingTaskAsync().Wait();
 
         if ( !shouldBeOpened )
         {
@@ -117,6 +118,8 @@ public class WelcomeServiceTests : TestsBase
         var initializerService = this.ServiceProvider.GetRequiredBackstageService<BackstageServicesInitializer>();
         initializerService.Initialize();
 
+        this.BackgroundTasks.WhenNoPendingTaskAsync().Wait();
+
 #pragma warning disable CA1307
         Assert.Single( this.UserInterface.Notifications, n => n.Kind == ToastNotificationKinds.TrialExpiring && n.Title?.Contains( "6 days" ) == true );
 #pragma warning restore CA1307
@@ -137,6 +140,8 @@ public class WelcomeServiceTests : TestsBase
         // Initialize
         var initializerService = this.ServiceProvider.GetRequiredBackstageService<BackstageServicesInitializer>();
         initializerService.Initialize();
+
+        this.BackgroundTasks.WhenNoPendingTaskAsync().Wait();
 
         if ( extensionInstalled )
         {
