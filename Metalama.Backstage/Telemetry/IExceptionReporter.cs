@@ -10,5 +10,6 @@ public interface IExceptionReporter : IBackstageService
     void ReportException(
         Exception reportedException,
         ExceptionReportingKind exceptionReportingKind = ExceptionReportingKind.Exception,
-        string? localReportPath = null );
+        string? localReportPath = null,
+        IExceptionAdapter? exceptionAdapter = null );
 }
