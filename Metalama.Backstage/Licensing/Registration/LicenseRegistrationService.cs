@@ -1,5 +1,6 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. See the LICENSE.md file in the root directory of this repository root for details.
 
+using Metalama.Backstage.Configuration;
 using Metalama.Backstage.Diagnostics;
 using Metalama.Backstage.Extensibility;
 using Metalama.Backstage.Infrastructure;
@@ -7,7 +8,9 @@ using Metalama.Backstage.Licensing.Licenses;
 using Metalama.Backstage.UserInterface;
 using Metalama.Backstage.Utilities;
 using System;
+using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
+using System.Runtime.CompilerServices;
 
 namespace Metalama.Backstage.Licensing.Registration;
 
@@ -24,6 +27,15 @@ internal class LicenseRegistrationService : ILicenseRegistrationService
         this._logger = serviceProvider.GetLoggerFactory().GetLogger( this.GetType().Name );
         this._dateTimeProvider = serviceProvider.GetRequiredBackstageService<IDateTimeProvider>();
         this._userDeviceDetectionService = serviceProvider.GetRequiredBackstageService<IUserDeviceDetectionService>();
+        serviceProvider.GetRequiredBackstageService<IConfigurationManager>().ConfigurationFileChanged += this.OnConfigurationChanged;
+    }
+
+    private void OnConfigurationChanged( ConfigurationFile obj )
+    {
+        if ( obj is LicensingConfiguration )
+        {
+            this.OnPropertyChanged();
+        }
     }
 
     private bool RequiresAttendedSession( [NotNullWhen( false )] out string? errorMessage )
@@ -206,5 +218,12 @@ internal class LicenseRegistrationService : ILicenseRegistrationService
 
         return factory.TryCreate( licenseKey, out var license, out errorMessage )
                && license.TryGetProperties( out var _, out errorMessage );
+    }
+
+    public event PropertyChangedEventHandler? PropertyChanged;
+
+    private void OnPropertyChanged( [CallerMemberName] string? propertyName = null )
+    {
+        this.PropertyChanged?.Invoke( this, new PropertyChangedEventArgs( propertyName ) );
     }
 }
