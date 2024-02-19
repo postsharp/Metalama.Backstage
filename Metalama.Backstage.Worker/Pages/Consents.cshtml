@@ -36,7 +36,7 @@
             <input type="checkbox" asp-for="SubscribeToNewsletter ">
             <div class="label">
                 <p>
-                    <label asp-for="SubscribeToNewsletter ">Subscribe to the Metalama newsletter and welcome course</label>
+                    <label asp-for="SubscribeToNewsletter ">Subscribe to the Metalama newsletter and the welcome e-mail course.</label>
                     <small>You can unsubscribe or change your preferences at any time.</small>
                 </p>
                 <p>
@@ -49,7 +49,7 @@
     <div class="checkbox">
         <input type="checkbox" asp-for="EnableTelemetry ">
         <div class="label">
-            <label asp-for="EnableTelemetry ">Help improve Metalama by sending <a href="@WebLinks.PrivacyPolicy">anonymous usage and performance statistics</a>.</label>
+            <label asp-for="EnableTelemetry ">Help improve Metalama by sending <a href="@WebLinks.PrivacyPolicy" target="_blank">anonymous usage and performance statistics</a>.</label>
         </div>
     </div>
 
@@ -57,7 +57,7 @@
         <input type="checkbox" asp-for="AcceptLicense ">
         <div class="label">
             <label asp-for="AcceptLicense ">
-                I accept the terms of the <a href="@WebLinks.LicenseAgreement">License Agreement</a> and the <a href="@WebLinks.PrivacyPolicy">Privacy Policy</a>. I understand
+                I accept the terms of the <a href="@WebLinks.LicenseAgreement"  target="_blank">License Agreement</a> and the <a href="@WebLinks.PrivacyPolicy"  target="_blank">Privacy Policy</a>. I understand
                 that the software is subject to License Audit and I consent with the collection of usage data.
             </label>
         </div>
@@ -67,7 +67,7 @@
     <div class="checkbox">
         <input type="checkbox" id="AcceptAll" name="AcceptLicense" value="true">
         <div class="label">
-            <label for="AcceptAll">
+            <label for="AcceptAll" style="font-size: 110%">
                 <b>Accept All</b>
             </label>
         </div>
