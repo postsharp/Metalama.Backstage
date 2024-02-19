@@ -1,5 +1,6 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. See the LICENSE.md file in the root directory of this repository root for details.
 
+using Metalama.Backstage.Application;
 using Metalama.Backstage.Licensing.Registration;
 using Metalama.Backstage.Pages.Shared;
 using Metalama.Backstage.Telemetry;
@@ -7,9 +8,13 @@ using Metalama.Backstage.UserInterface;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
+using System.Net;
+using System.Threading.Tasks;
+using IHttpClientFactory = Metalama.Backstage.Infrastructure.IHttpClientFactory;
 
 namespace Metalama.Backstage.Pages;
 
@@ -22,26 +27,32 @@ public class ConsentsPageModel : PageModel
     private readonly IIdeExtensionStatusService? _ideExtensionStatusService;
     private readonly IToastNotificationStatusService _toastNotificationStatusService;
     private readonly WebLinks _webLinks;
+    private readonly IHttpClientFactory _httpClientFactory;
+    private IApplicationInfo _applicationInfo;
+
+    private static string? cachedCaptchaSiteKey;
 
     public ConsentsPageModel(
         ILicenseRegistrationService licenseRegistrationService,
         ITelemetryConfigurationService telemetryConfigurationService,
         IToastNotificationStatusService toastNotificationStatusService,
         WebLinks webLinks,
+        IHttpClientFactory httpClientFactory,
+        IApplicationInfoProvider applicationInfoProvider,
         IIdeExtensionStatusService? ideExtensionStatusService = null )
     {
         this._licenseRegistrationService = licenseRegistrationService;
         this._telemetryConfigurationService = telemetryConfigurationService;
         this._ideExtensionStatusService = ideExtensionStatusService;
         this._webLinks = webLinks;
+        this._httpClientFactory = httpClientFactory;
         this._toastNotificationStatusService = toastNotificationStatusService;
+        this._applicationInfo = applicationInfoProvider.CurrentApplication;
     }
 
     public List<string> ErrorMessages { get; } = new();
 
-    public string RecaptchaSiteKey { get; set; } = "abcd";
-
-    public string? RecaptchaResponse { get; set; }
+    public string RecaptchaSiteKey { get; set; } = "<not set>";
 
     [BindProperty]
     public bool EnableTelemetry { get; set; }
@@ -56,8 +67,44 @@ public class ConsentsPageModel : PageModel
     [BindProperty]
     public bool AcceptLicense { get; set; }
 
-    public IActionResult OnPost()
+    [BindProperty]
+    public string RecaptchaResponse { get; set; }
+
+    public bool NewsletterAvailable { get; set; }
+
+    private async Task PrepareCaptchaAsync()
     {
+        if ( cachedCaptchaSiteKey != null )
+        {
+            this.RecaptchaSiteKey = cachedCaptchaSiteKey;
+            this.NewsletterAvailable = true;
+        }
+        else
+        {
+            try
+            {
+                var httpClient = this._httpClientFactory.Create();
+                this.RecaptchaSiteKey = cachedCaptchaSiteKey = await httpClient.GetStringAsync( this._webLinks.NewsletterGetCaptchaSiteKeyApi );
+                this.NewsletterAvailable = true;
+            }
+            catch
+            {
+                this.NewsletterAvailable = false;
+            }
+        }
+    }
+
+    public async Task<IActionResult> OnGetAsync()
+    {
+        await this.PrepareCaptchaAsync();
+
+        return this.Page();
+    }
+
+    public async Task<IActionResult> OnPostAsync()
+    {
+        await this.PrepareCaptchaAsync();
+
         if ( !this.ModelState.IsValid )
         {
             this.ErrorMessages.AddRange( this.ModelState.SelectMany( e => e.Value?.Errors ?? Enumerable.Empty<ModelError>() ).Select( e => e.ErrorMessage ) );
@@ -70,6 +117,34 @@ public class ConsentsPageModel : PageModel
             this.ErrorMessages.Add( "You must accept the license agreement." );
 
             return this.Page();
+        }
+
+        if ( this.SubscribeToNewsletter )
+        {
+            if ( string.IsNullOrEmpty( this.RecaptchaResponse ) )
+            {
+                this.ErrorMessages.Add( "The reCaptcha challenge was invalid." );
+
+                return this.Page();
+            }
+
+            var httpClient = this._httpClientFactory.Create();
+
+            try
+            {
+                await httpClient.GetStringAsync(
+                    this._webLinks.NewsletterSubscribeApi
+                    + $"?captcha={WebUtility.UrlEncode( this.RecaptchaResponse )}"
+                    + $"&version={this._applicationInfo.PackageVersion}"
+                    + $"&email={WebUtility.UrlEncode( this.EmailAddress )}"
+                    + $"&registration={GlobalState.LicenseKind.ToString().ToLowerInvariant()}" );
+            }
+            catch ( Exception e )
+            {
+                this.ErrorMessages.Add( $"Cannot subscribe to the newsletter: {e.Message}" );
+
+                return this.Page();
+            }
         }
 
         // Register the license.
@@ -90,6 +165,7 @@ public class ConsentsPageModel : PageModel
             case LicenseKind.Free:
                 {
                     if ( !this._licenseRegistrationService.TryRegisterFreeEdition( out var errorMessage ) )
+
                     {
                         this.ErrorMessages.Add( errorMessage );
 
