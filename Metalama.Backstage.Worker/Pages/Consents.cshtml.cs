@@ -28,9 +28,9 @@ public class ConsentsPageModel : PageModel
     private readonly IToastNotificationStatusService _toastNotificationStatusService;
     private readonly WebLinks _webLinks;
     private readonly IHttpClientFactory _httpClientFactory;
-    private IApplicationInfo _applicationInfo;
+    private readonly IApplicationInfo _applicationInfo;
 
-    private static string? cachedCaptchaSiteKey;
+    private static string? _cachedCaptchaSiteKey;
 
     public ConsentsPageModel(
         ILicenseRegistrationService licenseRegistrationService,
@@ -68,15 +68,15 @@ public class ConsentsPageModel : PageModel
     public bool AcceptLicense { get; set; }
 
     [BindProperty]
-    public string RecaptchaResponse { get; set; }
+    public string? RecaptchaResponse { get; set; }
 
     public bool NewsletterAvailable { get; set; }
 
     private async Task PrepareCaptchaAsync()
     {
-        if ( cachedCaptchaSiteKey != null )
+        if ( _cachedCaptchaSiteKey != null )
         {
-            this.RecaptchaSiteKey = cachedCaptchaSiteKey;
+            this.RecaptchaSiteKey = _cachedCaptchaSiteKey;
             this.NewsletterAvailable = true;
         }
         else
@@ -84,7 +84,7 @@ public class ConsentsPageModel : PageModel
             try
             {
                 var httpClient = this._httpClientFactory.Create();
-                this.RecaptchaSiteKey = cachedCaptchaSiteKey = await httpClient.GetStringAsync( this._webLinks.NewsletterGetCaptchaSiteKeyApi );
+                this.RecaptchaSiteKey = _cachedCaptchaSiteKey = await httpClient.GetStringAsync( this._webLinks.NewsletterGetCaptchaSiteKeyApi );
                 this.NewsletterAvailable = true;
             }
             catch
@@ -165,7 +165,6 @@ public class ConsentsPageModel : PageModel
             case LicenseKind.Free:
                 {
                     if ( !this._licenseRegistrationService.TryRegisterFreeEdition( out var errorMessage ) )
-
                     {
                         this.ErrorMessages.Add( errorMessage );
 
