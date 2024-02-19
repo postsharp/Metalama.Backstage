@@ -12,16 +12,11 @@ namespace Metalama.Backstage.Tests.Licensing.Evaluation
     {
         protected static readonly DateTime TestStart = new( 2020, 1, 1 );
 
-        private LicenseRegistrationService Registrar { get; }
-
-        private protected EvaluationLicenseRegistrationTestsBase( ITestOutputHelper logger ) : base( logger )
-        {
-            this.Registrar = new LicenseRegistrationService( this.ServiceProvider );
-        }
+        private protected EvaluationLicenseRegistrationTestsBase( ITestOutputHelper logger ) : base( logger ) { }
 
         protected void AssertEvaluationEligible()
         {
-            Assert.True( this.Registrar.TryRegisterTrialEdition( out _ ) );
+            Assert.True( this.LicenseRegistrationService.TryRegisterTrialEdition( out _ ) );
             var expectedStart = this.Time.Now.Date;
             var expectedEnd = expectedStart + LicensingConstants.EvaluationPeriod;
 
@@ -36,7 +31,7 @@ namespace Metalama.Backstage.Tests.Licensing.Evaluation
 
         protected void AssertEvaluationNotEligible( string reason )
         {
-            Assert.False( this.Registrar.TryRegisterTrialEdition( out _ ), reason );
+            Assert.False( this.LicenseRegistrationService.TryRegisterTrialEdition( out _ ), reason );
         }
     }
 }

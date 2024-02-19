@@ -1,8 +1,8 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. See the LICENSE.md file in the root directory of this repository root for details.
 
 using Metalama.Backstage.Licensing;
-using Metalama.Backstage.Licensing.Registration;
 using System;
+using System.Threading.Tasks;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -10,13 +10,8 @@ namespace Metalama.Backstage.Tests.Licensing.Essentials
 {
     public class FreeLicenseRegistrationTests : LicensingTestsBase
     {
-        private readonly LicenseRegistrationService _registrar;
-
         public FreeLicenseRegistrationTests( ITestOutputHelper logger )
-            : base( logger )
-        {
-            this._registrar = new LicenseRegistrationService( this.ServiceProvider );
-        }
+            : base( logger ) { }
 
         private void AssertSingleFreeLicenseRegistered()
         {
@@ -33,15 +28,15 @@ namespace Metalama.Backstage.Tests.Licensing.Essentials
         [Fact]
         public void FreeLicenseRegistersInCleanEnvironment()
         {
-            Assert.True( this._registrar.TryRegisterFreeEdition( out _ ) );
+            Assert.True( this.LicenseRegistrationService.TryRegisterFreeEdition( out _ ) );
             this.AssertSingleFreeLicenseRegistered();
         }
 
         [Fact]
         public void RepeatedFreeLicenseRegistrationKeepsSingleLicenseRegistered()
         {
-            Assert.True( this._registrar.TryRegisterFreeEdition( out _ ) );
-            Assert.True( this._registrar.TryRegisterFreeEdition( out _ ) );
+            Assert.True( this.LicenseRegistrationService.TryRegisterFreeEdition( out _ ) );
+            Assert.True( this.LicenseRegistrationService.TryRegisterFreeEdition( out _ ) );
             this.AssertSingleFreeLicenseRegistered();
 
 #pragma warning disable CA1307
@@ -49,6 +44,17 @@ namespace Metalama.Backstage.Tests.Licensing.Essentials
                 this.Log.Entries,
                 x => x.Message.Contains( "Failed to register Metalama Free license: A Metalama Free license is registered already." ) );
 #pragma warning restore CA1307
+        }
+
+        [Fact]
+        public async Task NotifyPropertyChanged()
+        {
+            var gotPropertyChanged = new TaskCompletionSource<bool>();
+            this.LicenseRegistrationService.PropertyChanged += ( _, _ ) => gotPropertyChanged.TrySetResult( true );
+
+            Assert.True( this.LicenseRegistrationService.TryRegisterFreeEdition( out _ ) );
+
+            Assert.Equal( gotPropertyChanged.Task, await Task.WhenAny( gotPropertyChanged.Task, Task.Delay( 30000 ) ) );
         }
     }
 }

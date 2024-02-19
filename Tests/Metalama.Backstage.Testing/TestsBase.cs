@@ -23,34 +23,36 @@ namespace Metalama.Backstage.Testing
     {
         private readonly IServiceCollection _serviceCollection;
 
-        public ITestOutputHelper Logger { get; }
+        protected ITestOutputHelper Logger { get; }
 
-        public TestDateTimeProvider Time { get; } = new();
+        protected TestDateTimeProvider Time { get; } = new();
 
-        public TestFileSystem FileSystem { get; }
+        protected TestFileSystem FileSystem { get; }
 
-        public TestEnvironmentVariableProvider EnvironmentVariableProvider { get; } = new();
+        protected TestEnvironmentVariableProvider EnvironmentVariableProvider { get; } = new();
 
-        public TestLoggerFactory Log { get; }
+        protected TestLoggerFactory Log { get; }
 
-        public NullTelemetryUploader TelemetryUploader { get; } = new();
+        private NullTelemetryUploader TelemetryUploader { get; } = new();
 
-        public TestUsageReporter UsageReporter { get; } = new();
+        private TestUsageReporter UsageReporter { get; } = new();
 
-        public IServiceProvider ServiceProvider { get; }
+        protected IServiceProvider ServiceProvider { get; }
 
         // May be null if the different implementation of IConfigurationManager is used.
-        public InMemoryConfigurationManager? ConfigurationManager { get; }
+        protected InMemoryConfigurationManager? ConfigurationManager { get; }
 
-        public TestProcessExecutor ProcessExecutor { get; } = new();
+        protected TestProcessExecutor ProcessExecutor { get; } = new();
 
-        public TestUserDeviceDetectionService UserDeviceDetection { get; } = new();
+        protected TestUserDeviceDetectionService UserDeviceDetection { get; } = new();
 
-        public TestUserInterfaceService UserInterface { get; }
+        protected TestUserInterfaceService UserInterface { get; }
 
-        public BackstageBackgroundTasksService BackgroundTasks { get; } = new();
+        protected BackstageBackgroundTasksService BackgroundTasks { get; } = new();
 
-        public TestHttpClientFactory HttpClientFactory { get; }
+        protected TestHttpClientFactory HttpClientFactory { get; }
+
+        protected ILicenseRegistrationService LicenseRegistrationService { get; }
 
         protected IServiceCollection CloneServiceCollection()
         {
@@ -69,7 +71,7 @@ namespace Metalama.Backstage.Testing
 
         protected virtual void ConfigureServices( ServiceProviderBuilder services ) { }
 
-        protected TestsBase( ITestOutputHelper logger, BackstageInitializationOptions? options )
+        internal TestsBase( ITestOutputHelper logger, BackstageInitializationOptions? options )
         {
             this.Logger = logger;
 
@@ -84,9 +86,10 @@ namespace Metalama.Backstage.Testing
             this.FileSystem = (TestFileSystem) this.ServiceProvider.GetRequiredBackstageService<IFileSystem>();
             this.UserInterface = (TestUserInterfaceService) this.ServiceProvider.GetRequiredBackstageService<IUserInterfaceService>();
             this.HttpClientFactory = (TestHttpClientFactory) this.ServiceProvider.GetRequiredBackstageService<IHttpClientFactory>();
+            this.LicenseRegistrationService = this.ServiceProvider.GetRequiredBackstageService<ILicenseRegistrationService>();
         }
 
-        protected ServiceCollection CreateServiceCollection(
+        private ServiceCollection CreateServiceCollection(
             Action<ServiceProviderBuilder>? serviceBuilder = null,
             BackstageInitializationOptions? options = null )
         {

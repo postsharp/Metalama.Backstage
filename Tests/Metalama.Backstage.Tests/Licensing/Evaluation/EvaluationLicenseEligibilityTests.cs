@@ -3,6 +3,7 @@
 using Metalama.Backstage.Licensing.Consumption.Sources;
 using Metalama.Backstage.Licensing.Registration;
 using System;
+using System.Threading.Tasks;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -133,6 +134,19 @@ namespace Metalama.Backstage.Tests.Licensing.Evaluation
                 TimeSpan.FromDays( 1 ),
                 true,
                 true );
+        }
+
+        [Fact]
+        public async Task NotifyPropertyChanged()
+        {
+            Assert.True( this.LicenseRegistrationService.TryRegisterTrialEdition( out _ ) );
+
+            var gotPropertyChanged = new TaskCompletionSource<bool>();
+            this.LicenseRegistrationService.PropertyChanged += ( _, _ ) => gotPropertyChanged.TrySetResult( true );
+
+            Assert.True( this.LicenseRegistrationService.TryRegisterFreeEdition( out _ ) );
+
+            Assert.Equal( gotPropertyChanged.Task, await Task.WhenAny( gotPropertyChanged.Task, Task.Delay( 30000 ) ) );
         }
     }
 }
