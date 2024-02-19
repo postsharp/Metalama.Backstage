@@ -142,7 +142,7 @@ namespace Metalama.Backstage.Tests.Licensing.Evaluation
             Assert.True( this.LicenseRegistrationService.TryRegisterTrialEdition( out _ ) );
 
             var gotPropertyChanged = new TaskCompletionSource<bool>();
-            this.LicenseRegistrationService.PropertyChanged += ( _, _ ) => gotPropertyChanged.SetResult( true );
+            this.LicenseRegistrationService.PropertyChanged += ( _, _ ) => gotPropertyChanged.TrySetResult( true );
 
             Assert.True( this.LicenseRegistrationService.TryRegisterFreeEdition( out _ ) );
 
