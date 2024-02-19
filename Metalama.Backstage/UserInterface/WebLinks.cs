@@ -10,23 +10,29 @@ public class WebLinks : IBackstageService
 {
     private const string _notImplemented = "https://www.postsharp.net/error/not-implemented";
     
-    public string AfterSetup => _notImplemented;
+    public string AfterSetup => GetLink( "metalama-after-activation" );
 
-    public string GetTeamTeamTrial => _notImplemented;
+    public string GetTeamTeamTrial => GetLink( "metalama-team-evaluation" );
 
-    public string VisualStudioMarketplace => _notImplemented;
+    public string VisualStudioMarketplace => GetLink( "metalama-download-vsx" );
 
-    public string PrivacyPolicy => _notImplemented;
+    public string PrivacyPolicy => GetLink( "metalama-privacy-policy" );
 
-    public string LicenseAgreement => _notImplemented;
+    public string LicenseAgreement => GetLink( "metalama-license-agreement" );
 
-    public string Documentation => _notImplemented;
+    public string Documentation => GetLink( "metalama-documentation" );
 
-    public string InstallVsx => _notImplemented;
+    public string InstallVsx => this.VisualStudioMarketplace;
 
-    public string RenewSubscription => _notImplemented;
+    public string RenewSubscription => GetLink( "metalama-renew-subscription" );
 
     public string UnhandledException => _notImplemented;
 
-    public string DotNetTool => "https://doc.metalama.net/conceptual/installing/dotnet-tool";
+    public string DotNetTool => GetLink( "metalama-dotnet_tool" );
+
+    public string NewsletterGetCaptchaSiteKeyApi => "https://licensing.postsharp.net/GetCaptchaSiteKey.ashx";
+
+    public string NewsletterSubscribeApi => "https://licensing.postsharp.net/MetalamaNewsletter.ashx";
+
+    private static string GetLink( string alias ) => $"https://www.postsharp.net/links/{alias}?mtm_campaign=setup&mtm_source=app";
 }
