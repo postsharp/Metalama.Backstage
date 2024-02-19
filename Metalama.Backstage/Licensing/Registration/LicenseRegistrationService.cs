@@ -27,6 +27,9 @@ internal class LicenseRegistrationService : ILicenseRegistrationService
         this._logger = serviceProvider.GetLoggerFactory().GetLogger( this.GetType().Name );
         this._dateTimeProvider = serviceProvider.GetRequiredBackstageService<IDateTimeProvider>();
         this._userDeviceDetectionService = serviceProvider.GetRequiredBackstageService<IUserDeviceDetectionService>();
+        
+        // We intentionally omit to unsubscribe from the event because this service has generally the same lifetime as the application
+        // and is never disposed of.
         serviceProvider.GetRequiredBackstageService<IConfigurationManager>().ConfigurationFileChanged += this.OnConfigurationChanged;
     }
 
@@ -34,7 +37,8 @@ internal class LicenseRegistrationService : ILicenseRegistrationService
     {
         if ( obj is LicensingConfiguration )
         {
-            this.OnPropertyChanged();
+            this.OnPropertyChanged( nameof(this.RegisteredLicense) );
+            this.OnPropertyChanged( nameof(this.CanRegisterTrialEdition) );
         }
     }
 
