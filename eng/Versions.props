@@ -12,7 +12,8 @@
     <!-- Set the default versions of dependencies -->
     <PropertyGroup>
         <PostSharpEngineeringVersion>2023.2.70</PostSharpEngineeringVersion>
-        <NewtonsoftJsonVersion>13.0.1</NewtonsoftJsonVersion>
+        <!-- We must match the version used by the lowest version of Visual Studion supported by the VSX. -->
+        <NewtonsoftJsonVersion>12.0.1</NewtonsoftJsonVersion>
         <MicrosoftBclHashCodeVersion>1.1.1</MicrosoftBclHashCodeVersion>
         <MicrosoftNETTestSdkVersion>17.1.0</MicrosoftNETTestSdkVersion>
         <XunitVersion>2.4.1</XunitVersion>
