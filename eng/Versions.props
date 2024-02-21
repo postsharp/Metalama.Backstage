@@ -12,7 +12,10 @@
     <!-- Set the default versions of dependencies -->
     <PropertyGroup>
         <PostSharpEngineeringVersion>2023.2.70</PostSharpEngineeringVersion>
-        <NewtonsoftJsonVersion>13.0.1</NewtonsoftJsonVersion>
+        <!-- We must match the version used by the lowest version of Visual Studion supported by the VSX. -->
+        <NewtonsoftJsonMinVersion>12.0.1</NewtonsoftJsonMinVersion>
+        <!-- This is the version used in the programs (not in libraries) and it should be the latest. -->
+        <NewtonsoftJsonVersion>13.0.3</NewtonsoftJsonVersion>
         <MicrosoftBclHashCodeVersion>1.1.1</MicrosoftBclHashCodeVersion>
         <MicrosoftNETTestSdkVersion>17.1.0</MicrosoftNETTestSdkVersion>
         <XunitVersion>2.4.1</XunitVersion>
@@ -22,6 +25,7 @@
         <!-- The version should not be higher than the one in Metalama.Compiler, otherwise we
              downgrade the package. -->
         <SystemImmutableCollectionsVersion>5.0.0</SystemImmutableCollectionsVersion>
+        <SpectreConsoleVersion>0.48.0</SpectreConsoleVersion>
     </PropertyGroup>
 
     <!-- Set the deafult versions of auto-updated dependencies -->
