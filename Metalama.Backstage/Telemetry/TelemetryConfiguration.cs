@@ -16,7 +16,7 @@ public record TelemetryConfiguration : ConfigurationFile
 
     public ReportingAction PerformanceProblemReportingAction { get; init; } = ReportingAction.Ask;
 
-    public Guid DeviceId { get; init; } = Guid.NewGuid();
+    public Guid DeviceId { get; init; }
 
     public DateTime? LastUploadTime { get; init; }
 

@@ -34,6 +34,8 @@ public class TestLoggerFactory : ILoggerFactory
 
     public ILogger GetLogger( string category ) => this._loggers.GetOrAdd( category, c => new Logger( c, this ) );
 
+    public void Flush() { }
+
     private class Logger : ILogger
     {
         private readonly string _category;

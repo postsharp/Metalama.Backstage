@@ -1,5 +1,6 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. See the LICENSE.md file in the root directory of this repository root for details.
 
+using Metalama.Backstage.Extensibility;
 using System;
 
 namespace Metalama.Backstage.Commands
@@ -9,6 +10,11 @@ namespace Metalama.Backstage.Commands
     /// </summary>
     internal interface ICommandServiceProviderProvider
     {
-        IServiceProvider GetServiceProvider( ConsoleWriter console, BaseCommandSettings settings );
+        IServiceProvider GetServiceProvider( CommandServiceProviderArgs args );
     }
+
+    internal record CommandServiceProviderArgs(
+        ConsoleWriter Console,
+        BaseCommandSettings Settings,
+        Func<BackstageInitializationOptions, BackstageInitializationOptions> TransformOptions );
 }

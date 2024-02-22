@@ -1,8 +1,10 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. See the LICENSE.md file in the root directory of this repository root for details.
 
+using Metalama.Backstage.Application;
 using Metalama.Backstage.Configuration;
 using Metalama.Backstage.Diagnostics;
 using Metalama.Backstage.Extensibility;
+using Metalama.Backstage.Infrastructure;
 using System;
 
 namespace Metalama.Backstage.Telemetry;
@@ -14,7 +16,9 @@ internal class UsageReporter : IUsageReporter
     private readonly IConfigurationManager _configurationManager;
     private readonly IDateTimeProvider _time;
     private readonly ILogger _logger;
-    private UsageSample? _currentSample;
+    private readonly TelemetryReportUploader _telemetryReportUploader;
+
+    private UsageTelemetryReport? _currentSample;
 
     public bool IsUsageReportingEnabled { get; }
 
@@ -25,12 +29,14 @@ internal class UsageReporter : IUsageReporter
         this._configuration = this._configurationManager.Get<TelemetryConfiguration>();
         this._time = serviceProvider.GetRequiredBackstageService<IDateTimeProvider>();
         this._logger = serviceProvider.GetLoggerFactory().Telemetry();
+        this._telemetryReportUploader = serviceProvider.GetRequiredBackstageService<TelemetryReportUploader>();
 
         var applicationInfo = serviceProvider.GetRequiredBackstageService<IApplicationInfoProvider>().CurrentApplication;
 
         if ( !applicationInfo.IsTelemetryEnabled )
         {
-            this._logger.Trace?.Log( $"Usage should not be reported because telemetry is disabled for '{applicationInfo.Name} {applicationInfo.Version}'." );
+            this._logger.Trace?.Log(
+                $"Usage should not be reported because telemetry is disabled for '{applicationInfo.Name} {applicationInfo.PackageVersion}'." );
         }
         else if ( TelemetryConfiguration.IsOptOutEnvironmentVariableSet() )
         {
@@ -91,7 +97,7 @@ internal class UsageReporter : IUsageReporter
             return false;
         }
 
-        this._currentSample = new UsageSample( this._serviceProvider, kind );
+        this._currentSample = new UsageTelemetryReport( this._serviceProvider, kind );
 
         if ( this._logger.Trace != null )
         {
@@ -114,7 +120,7 @@ internal class UsageReporter : IUsageReporter
                 this.TraceCurrentSample();
             }
 
-            this._currentSample.Upload();
+            this._telemetryReportUploader.Upload( this._currentSample );
             this._currentSample = null;
         }
     }

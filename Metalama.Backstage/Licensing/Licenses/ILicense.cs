@@ -27,13 +27,13 @@ namespace Metalama.Backstage.Licensing.Licenses
         /// <summary>
         /// Tries to deserialize data relevant to license registration.
         /// </summary>
-        /// <param name="licenseRegistrationData">The license data relevant to license registration.</param>
+        /// <param name="licenseProperties">The license data relevant to license registration.</param>
         /// <param name="errorMessage">Description of a failure when the return value is <c>false</c>.</param>
         /// <returns>
         /// <c>true</c> if the object represents a consistent license.
         /// </returns>
-        bool TryGetLicenseRegistrationData(
-            [MaybeNullWhen( false )] out LicenseRegistrationData licenseRegistrationData,
+        bool TryGetProperties(
+            [MaybeNullWhen( false )] out LicenseProperties licenseProperties,
             [MaybeNullWhen( true )] out string errorMessage );
     }
 }

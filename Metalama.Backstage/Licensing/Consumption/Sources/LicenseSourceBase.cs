@@ -33,7 +33,7 @@ namespace Metalama.Backstage.Licensing.Consumption.Sources
 
             if ( !licenseFactory.TryCreate( licenseString, out var license, out var errorMessage ) )
             {
-                reportMessage( new LicensingMessage( errorMessage, true ) );
+                reportMessage( new LicensingMessage( errorMessage ) { IsError = true } );
 
                 return null;
             }
@@ -42,6 +42,8 @@ namespace Metalama.Backstage.Licensing.Consumption.Sources
         }
 
         public event Action? Changed;
+
+        public abstract LicenseSourcePriority Priority { get; }
 
         protected virtual void OnChanged() => this.Changed?.Invoke();
 

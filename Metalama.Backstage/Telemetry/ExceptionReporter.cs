@@ -1,8 +1,10 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. See the LICENSE.md file in the root directory of this repository root for details.
 
+using Metalama.Backstage.Application;
 using Metalama.Backstage.Configuration;
 using Metalama.Backstage.Diagnostics;
 using Metalama.Backstage.Extensibility;
+using Metalama.Backstage.Infrastructure;
 using Metalama.Backstage.Utilities;
 using System;
 using System.Collections.Generic;
@@ -29,6 +31,7 @@ internal class ExceptionReporter : IExceptionReporter, IDisposable
     private readonly IConfigurationManager _configurationManager;
     private readonly IFileSystem _fileSystem;
     private readonly bool _canIgnoreRecoverableExceptions;
+    private readonly LocalExceptionReporter? _localExceptionReporter;
     private TelemetryConfiguration _configuration;
 
     public ExceptionReporter( TelemetryQueue uploadManager, IServiceProvider serviceProvider )
@@ -43,6 +46,7 @@ internal class ExceptionReporter : IExceptionReporter, IDisposable
         this._logger = serviceProvider.GetLoggerFactory().Telemetry();
         this._fileSystem = serviceProvider.GetRequiredBackstageService<IFileSystem>();
         this._canIgnoreRecoverableExceptions = serviceProvider.GetRequiredBackstageService<IRecoverableExceptionService>().CanIgnore;
+        this._localExceptionReporter = serviceProvider.GetBackstageService<LocalExceptionReporter>();
     }
 
     private void OnConfigurationChanged( ConfigurationFile configuration )
@@ -201,27 +205,33 @@ internal class ExceptionReporter : IExceptionReporter, IDisposable
             } );
     }
 
-    private static void PopulateStackTraces( List<string?> stackTraces, Exception exception )
+    private static void PopulateStackTraces( List<string?> stackTraces, Exception exception, IExceptionAdapter adapter )
     {
-        if ( exception.StackTrace != null )
+        var stackTrace = adapter.GetStackTrace( exception );
+        
+        if ( stackTrace != null )
         {
-            stackTraces.Add( exception.StackTrace );
+            stackTraces.Add( stackTrace );
         }
 
         if ( exception is AggregateException aggregateException )
         {
             foreach ( var child in aggregateException.InnerExceptions )
             {
-                PopulateStackTraces( stackTraces, child );
+                PopulateStackTraces( stackTraces, child, adapter );
             }
         }
         else if ( exception.InnerException != null )
         {
-            PopulateStackTraces( stackTraces, exception.InnerException );
+            PopulateStackTraces( stackTraces, exception.InnerException, adapter );
         }
     }
 
-    public void ReportException( Exception reportedException, ExceptionReportingKind exceptionReportingKind = ExceptionReportingKind.Exception )
+    public void ReportException(
+        Exception reportedException,
+        ExceptionReportingKind exceptionReportingKind = ExceptionReportingKind.Exception,
+        string? localReportPath = null,
+        IExceptionAdapter? adapter = null )
     {
         try
         {
@@ -232,27 +242,34 @@ internal class ExceptionReporter : IExceptionReporter, IDisposable
 
             this._logger.Trace?.Log( $"Reporting an exception of type {reportedException.GetType().Name}." );
 
+            if ( exceptionReportingKind == ExceptionReportingKind.Exception )
+            {
+                this._localExceptionReporter?.ReportException( reportedException, localReportPath );
+            }
+
             var reportingAction = exceptionReportingKind == ExceptionReportingKind.Exception
                 ? this._configuration.ExceptionReportingAction
                 : this._configuration.PerformanceProblemReportingAction;
 
-            if ( reportingAction != ReportingAction.Yes )
+            // Telemetry is opt out, i.e. we report even if the user did not specifically opt in.
+            if ( reportingAction == ReportingAction.No )
             {
                 this._logger.Trace?.Log( $"The issue will not be reported because the reporting action in the user profile is set to {reportingAction}." );
 
                 return;
             }
 
+            adapter ??= DefaultExceptionAdapter.Instance;
             var applicationInfo = this._applicationInfoProvider.CurrentApplication;
 
             // Get stack traces.
             var stackTraces = new List<string?>();
-            PopulateStackTraces( stackTraces, reportedException );
-
+            PopulateStackTraces( stackTraces, reportedException, adapter );
+            
             // Compute a signature for this exception.
             var hash = this.ComputeExceptionHash(
-                applicationInfo.Version,
-                reportedException.GetType().FullName!,
+                applicationInfo.PackageVersion,
+                adapter.GetTypeFullName( reportedException )!,
                 stackTraces );
 
             // Check if this exception has already been reported.
@@ -282,7 +299,7 @@ internal class ExceptionReporter : IExceptionReporter, IDisposable
             xmlWriter.WriteElementString( "ClientId", this._configuration.DeviceId.ToString() );
             xmlWriter.WriteStartElement( "Application" );
             xmlWriter.WriteElementString( "Name", applicationInfo.Name );
-            xmlWriter.WriteElementString( "Version", applicationInfo.Version );
+            xmlWriter.WriteElementString( "Version", applicationInfo.PackageVersion );
             xmlWriter.WriteEndElement();
 
             var currentProcess = Process.GetCurrentProcess();
@@ -303,7 +320,7 @@ internal class ExceptionReporter : IExceptionReporter, IDisposable
 
             xmlWriter.WriteStartElement( "Exception" );
 
-            ExceptionXmlFormatter.WriteException( xmlWriter, reportedException );
+            adapter.WriteException( xmlWriter, reportedException );
 
             xmlWriter.WriteEndElement();
 

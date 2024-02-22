@@ -1,6 +1,6 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. See the LICENSE.md file in the root directory of this repository root for details.
 
-using Metalama.Backstage.Extensibility;
+using Metalama.Backstage.Infrastructure;
 using System;
 using System.Diagnostics;
 
@@ -18,5 +18,7 @@ namespace Metalama.Backstage.Testing
             this._lastResetTime = now;
             this._stopwatch = keepRunning ? Stopwatch.StartNew() : null;
         }
+
+        public void AddTime( TimeSpan timeSpan ) => this.Set( this.Now + timeSpan );
     }
 }

@@ -2,17 +2,9 @@
 
 namespace Metalama.Backstage.Licensing.Consumption;
 
-public class LicensingMessage
+public record LicensingMessage( string Text )
 {
-    public string Text { get; }
-
-    public bool IsError { get; }
-
-    public LicensingMessage( string text, bool isError = false )
-    {
-        this.Text = text;
-        this.IsError = isError;
-    }
+    public bool IsError { get; init; }
 
     public override string ToString() => $"{(this.IsError ? "Error" : "Warning")}: {this.Text}";
 }

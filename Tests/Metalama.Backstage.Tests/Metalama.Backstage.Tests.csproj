@@ -17,9 +17,11 @@
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 			<PrivateAssets>all</PrivateAssets>
 		</PackageReference>
+		<PackageReference Include="Newtonsoft.Json" Version="$(NewtonsoftJsonVersion)" />
     </ItemGroup>
 
     <ItemGroup>
+        <ProjectReference Include="..\..\Metalama.Backstage.Tools\Metalama.Backstage.Tools.csproj" />
         <ProjectReference Include="..\..\Metalama.Backstage\Metalama.Backstage.csproj" />
         <ProjectReference Include="..\Metalama.Backstage.Testing\Metalama.Backstage.Testing.csproj" />
     </ItemGroup>

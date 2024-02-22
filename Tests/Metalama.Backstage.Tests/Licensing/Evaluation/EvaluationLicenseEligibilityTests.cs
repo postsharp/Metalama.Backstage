@@ -2,8 +2,8 @@
 
 using Metalama.Backstage.Licensing.Consumption.Sources;
 using Metalama.Backstage.Licensing.Registration;
-using Metalama.Backstage.Licensing.Registration.Evaluation;
 using System;
+using System.Threading.Tasks;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -28,7 +28,7 @@ namespace Metalama.Backstage.Tests.Licensing.Evaluation
 
             if ( unregisterBeforeRetry )
             {
-                ParsedLicensingConfiguration.OpenOrCreate( this.ServiceProvider ).RemoveLicense();
+                LicensingConfigurationModel.Create( this.ServiceProvider ).RemoveLicense();
             }
 
             var license = new UserProfileLicenseSource( this.ServiceProvider ).GetLicense(
@@ -71,20 +71,20 @@ namespace Metalama.Backstage.Tests.Licensing.Evaluation
         [Fact]
         public void EvaluationLicenseRegistrationWithinRunningEvaluationFails()
         {
-            this.TestRepetitiveRegistration( new TimeSpan( EvaluationLicenseRegistrar.EvaluationPeriod.Ticks / 2 ), false, false );
+            this.TestRepetitiveRegistration( new TimeSpan( LicensingConstants.EvaluationPeriod.Ticks / 2 ), false, false );
         }
 
         [Fact]
         public void EvaluationLicenseRegistrationWithinRunningEvaluationFailsAfterUnregistration()
         {
-            this.TestRepetitiveRegistration( new TimeSpan( EvaluationLicenseRegistrar.EvaluationPeriod.Ticks / 2 ), true, false );
+            this.TestRepetitiveRegistration( new TimeSpan( LicensingConstants.EvaluationPeriod.Ticks / 2 ), true, false );
         }
 
         [Fact]
         public void EvaluationLicenseRegistrationWithinNoEvaluationPeriodFails()
         {
             this.TestRepetitiveRegistration(
-                EvaluationLicenseRegistrar.EvaluationPeriod + new TimeSpan( EvaluationLicenseRegistrar.NoEvaluationPeriod.Ticks / 2 ),
+                LicensingConstants.EvaluationPeriod + new TimeSpan( LicensingConstants.NoEvaluationPeriod.Ticks / 2 ),
                 false,
                 false );
         }
@@ -93,7 +93,7 @@ namespace Metalama.Backstage.Tests.Licensing.Evaluation
         public void EvaluationLicenseRegistrationWithinNoEvaluationPeriodFailsAfterUnregistration()
         {
             this.TestRepetitiveRegistration(
-                EvaluationLicenseRegistrar.EvaluationPeriod + new TimeSpan( EvaluationLicenseRegistrar.NoEvaluationPeriod.Ticks / 2 ),
+                LicensingConstants.EvaluationPeriod + new TimeSpan( LicensingConstants.NoEvaluationPeriod.Ticks / 2 ),
                 true,
                 false );
         }
@@ -102,7 +102,7 @@ namespace Metalama.Backstage.Tests.Licensing.Evaluation
         public void EvaluationLicenseRegistrationAtTheEndOfNoEvaluationPeriodFails()
         {
             this.TestRepetitiveRegistration(
-                EvaluationLicenseRegistrar.EvaluationPeriod + EvaluationLicenseRegistrar.NoEvaluationPeriod.Subtract( TimeSpan.FromMinutes( 1 ) ),
+                LicensingConstants.EvaluationPeriod + LicensingConstants.NoEvaluationPeriod.Subtract( TimeSpan.FromMinutes( 1 ) ),
                 false,
                 false );
         }
@@ -111,7 +111,7 @@ namespace Metalama.Backstage.Tests.Licensing.Evaluation
         public void EvaluationLicenseRegistrationAtTheEndOfNoEvaluationPeriodFailsAfterUnregistration()
         {
             this.TestRepetitiveRegistration(
-                EvaluationLicenseRegistrar.EvaluationPeriod + EvaluationLicenseRegistrar.NoEvaluationPeriod.Subtract( TimeSpan.FromMinutes( 1 ) ),
+                LicensingConstants.EvaluationPeriod + LicensingConstants.NoEvaluationPeriod.Subtract( TimeSpan.FromMinutes( 1 ) ),
                 true,
                 false );
         }
@@ -120,7 +120,7 @@ namespace Metalama.Backstage.Tests.Licensing.Evaluation
         public void EvaluationLicenseRegistrationAfterNoEvaluationPeriodSucceeds()
         {
             this.TestRepetitiveRegistration(
-                EvaluationLicenseRegistrar.EvaluationPeriod + EvaluationLicenseRegistrar.NoEvaluationPeriod +
+                LicensingConstants.EvaluationPeriod + LicensingConstants.NoEvaluationPeriod +
                 TimeSpan.FromDays( 1 ),
                 false,
                 true );
@@ -130,10 +130,23 @@ namespace Metalama.Backstage.Tests.Licensing.Evaluation
         public void EvaluationLicenseRegistrationAfterNoEvaluationPeriodSucceedsAfterUnregistration()
         {
             this.TestRepetitiveRegistration(
-                EvaluationLicenseRegistrar.EvaluationPeriod + EvaluationLicenseRegistrar.NoEvaluationPeriod +
+                LicensingConstants.EvaluationPeriod + LicensingConstants.NoEvaluationPeriod +
                 TimeSpan.FromDays( 1 ),
                 true,
                 true );
+        }
+
+        [Fact]
+        public async Task NotifyPropertyChanged()
+        {
+            Assert.True( this.LicenseRegistrationService.TryRegisterTrialEdition( out _ ) );
+
+            var gotPropertyChanged = new TaskCompletionSource<bool>();
+            this.LicenseRegistrationService.PropertyChanged += ( _, _ ) => gotPropertyChanged.TrySetResult( true );
+
+            Assert.True( this.LicenseRegistrationService.TryRegisterFreeEdition( out _ ) );
+
+            Assert.Equal( gotPropertyChanged.Task, await Task.WhenAny( gotPropertyChanged.Task, Task.Delay( 30000 ) ) );
         }
     }
 }

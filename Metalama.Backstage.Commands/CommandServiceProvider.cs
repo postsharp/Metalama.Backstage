@@ -1,8 +1,10 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. See the LICENSE.md file in the root directory of this repository root for details.
 
+using Metalama.Backstage.Application;
 using Metalama.Backstage.Diagnostics;
 using Metalama.Backstage.Extensibility;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using System;
 
 namespace Metalama.Backstage.Commands
@@ -16,31 +18,28 @@ namespace Metalama.Backstage.Commands
             this._applicationInfo = applicationInfo;
         }
 
-        public IServiceProvider GetServiceProvider( ConsoleWriter console, BaseCommandSettings settings )
+        public IServiceProvider GetServiceProvider( CommandServiceProviderArgs args )
         {
             // ReSharper disable RedundantTypeArgumentsOfMethod
 
             var serviceCollection = new ServiceCollection();
 
             var serviceProviderBuilder = new ServiceProviderBuilder(
-                ( type, instance ) => serviceCollection.AddSingleton( type, instance ),
-                () => serviceCollection.BuildServiceProvider() );
+                ( type, func ) => serviceCollection.Add( new ServiceDescriptor( type, func, ServiceLifetime.Singleton ) ) );
 
-            var loggerFactory = serviceCollection.BuildServiceProvider().GetService<ILoggerFactory>();
-            serviceProviderBuilder.AddService( typeof(ILoggerFactory), new AnsiConsoleLoggerFactory( console, settings ) );
+            var loggerFactory = serviceCollection.BuildServiceProvider().GetLoggerFactory();
+            serviceProviderBuilder.AddService( typeof(ILoggerFactory), new AnsiConsoleLoggerFactory( args.Console, args.Settings ) );
 
             var initializationOptions = new BackstageInitializationOptions( this._applicationInfo )
             {
                 AddLicensing = true,
                 AddSupportServices = true,
-                AddLoggerFactoryAction = builder =>
-                {
-                    if ( loggerFactory != null )
-                    {
-                        builder.AddService( typeof(ILoggerFactory), loggerFactory );
-                    }
-                }
+                CreateLoggingFactory = _ => loggerFactory,
+                IsDevelopmentEnvironment = args.Settings.IsDevelopmentEnvironment,
+                AddUserInterface = args.Settings.AddUserInterface
             };
+
+            initializationOptions = args.TransformOptions( initializationOptions );
 
             serviceProviderBuilder.AddBackstageServices( initializationOptions );
 

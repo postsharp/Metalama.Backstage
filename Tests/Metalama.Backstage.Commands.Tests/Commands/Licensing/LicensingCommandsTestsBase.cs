@@ -7,6 +7,9 @@ namespace Metalama.Tools.Config.Tests.Commands.Licensing
     public abstract class LicensingCommandsTestsBase : CommandsTestsBase
     {
         protected LicensingCommandsTestsBase( ITestOutputHelper logger )
-            : base( logger ) { }
+            : base( logger )
+        {
+            this.UserDeviceDetection.IsInteractiveDevice = true;
+        }
     }
 }

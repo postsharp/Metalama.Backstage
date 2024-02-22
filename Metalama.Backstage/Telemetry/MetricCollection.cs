@@ -2,7 +2,6 @@
 
 using System;
 using System.Collections.ObjectModel;
-using System.IO;
 
 namespace Metalama.Backstage.Telemetry
 {
@@ -16,31 +15,6 @@ namespace Metalama.Backstage.Telemetry
         protected override string GetKeyForItem( Metric item )
         {
             return item.Name;
-        }
-
-        /// <summary>
-        /// Writes the content of the current collection to a <see cref="TextWriter"/>.
-        /// </summary>
-        /// <param name="writer">A <see cref="TextWriter"/>.</param>
-        public void Write( TextWriter writer )
-        {
-            var first = true;
-
-            foreach ( var metric in this )
-            {
-                if ( first )
-                {
-                    first = false;
-                }
-                else
-                {
-                    writer.Write( ';' );
-                }
-
-                writer.Write( metric.Name );
-                writer.Write( '=' );
-                metric.WriteValue( writer );
-            }
         }
     }
 }

@@ -17,4 +17,6 @@ internal class ExplicitLicenseSource : LicenseSourceBase
     }
 
     protected override string? GetLicenseString() => this._licenseString;
+
+    public override LicenseSourcePriority Priority => LicenseSourcePriority.Explicit;
 }

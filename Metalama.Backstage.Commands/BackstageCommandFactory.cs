@@ -114,6 +114,9 @@ public static class BackstageCommandFactory
                         configureBranch?.Invoke( "telemetry", telemetry );
                     } );
 
+                appConfig.AddCommand<DocsCommand>( "docs" ).WithData( options ).WithDescription( "Opens the Metalama documentation." );
+                appConfig.AddCommand<OpenUICommand>( "ui" ).WithData( options ).WithDescription( "Opens the configuration browser-based UI." );
+
                 configureMoreCommands?.Invoke( appConfig );
             } );
     }

@@ -13,6 +13,9 @@ namespace Metalama.Backstage.Licensing.Consumption
     [PublicAPI]
     public interface ILicenseConsumptionService : IBackstageService
     {
+        // Note that this collection of Messages is a design anomaly. We should have an Initialize method accepting a message sink,
+        // or something similar, but adding the initialization step would require more testing.
+        
         /// <summary>
         /// Gets the list of licensing messages that have been emitted when calling <see cref="CanConsume"/> or when initializing the component.
         /// </summary>
@@ -42,5 +45,9 @@ namespace Metalama.Backstage.Licensing.Consumption
         string? LicenseString { get; }
 
         event Action? Changed;
+
+        ILicenseConsumptionService WithAdditionalLicense( string? licenseKey );
+
+        ILicenseConsumptionService WithoutLicense();
     }
 }

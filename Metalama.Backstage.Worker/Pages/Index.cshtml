@@ -1,0 +1,21 @@
+﻿@page
+@using Metalama.Backstage.UserInterface
+@inject WebLinks WebLinks
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+
+<div class="arrow-buttons">
+    <div onclick="location.href='/Setup'">
+        <h4>Activate Metalama</h4>
+        <p>
+            Execute the initial configuration wizard.
+        </p>
+    </div>
+</div>
+
+<p>
+    Other commands are available from the <code>metalama</code> CLI tool. <a href="@WebLinks.DotNetTool" target="_blank">Read more.</a> 
+</p>

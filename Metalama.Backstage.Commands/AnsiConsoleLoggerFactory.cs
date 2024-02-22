@@ -28,6 +28,8 @@ internal class AnsiConsoleLoggerFactory : ILoggerFactory, ILogger
 
     public ILogger GetLogger( string category ) => this;
 
+    void ILoggerFactory.Flush() { }
+
     private class LogWriter : ILogWriter
     {
         private readonly Action<string> _action;

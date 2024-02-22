@@ -23,7 +23,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Metalama.Backstage.Commands
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Metalama.Backstage.Worker", "Metalama.Backstage.Worker\Metalama.Backstage.Worker.csproj", "{B1D5955D-CB60-4233-8C95-D0CC456C6939}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Metalama.Backstage.Tool", "Metalama.Backstage.Tool\Metalama.Backstage.Tool.csproj", "{34D564FB-8BDB-4187-8FCD-249C99E70FDA}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Metalama.Backstage.DotNetTool", "Metalama.Backstage.DotNetTool\Metalama.Backstage.DotNetTool.csproj", "{34D564FB-8BDB-4187-8FCD-249C99E70FDA}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Metalama.Backstage.Desktop.Windows", "Metalama.Backstage.Desktop.Windows\Metalama.Backstage.Desktop.Windows.csproj", "{313F720E-D5DF-4755-8325-A9A251A29735}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Metalama.Backstage.Tools", "Metalama.Backstage.Tools\Metalama.Backstage.Tools.csproj", "{4BF41C96-7870-44B4-84AB-709F2FDDEFB7}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -67,6 +71,14 @@ Global
 		{34D564FB-8BDB-4187-8FCD-249C99E70FDA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{34D564FB-8BDB-4187-8FCD-249C99E70FDA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{34D564FB-8BDB-4187-8FCD-249C99E70FDA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{313F720E-D5DF-4755-8325-A9A251A29735}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{313F720E-D5DF-4755-8325-A9A251A29735}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{313F720E-D5DF-4755-8325-A9A251A29735}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{313F720E-D5DF-4755-8325-A9A251A29735}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4BF41C96-7870-44B4-84AB-709F2FDDEFB7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4BF41C96-7870-44B4-84AB-709F2FDDEFB7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4BF41C96-7870-44B4-84AB-709F2FDDEFB7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4BF41C96-7870-44B4-84AB-709F2FDDEFB7}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

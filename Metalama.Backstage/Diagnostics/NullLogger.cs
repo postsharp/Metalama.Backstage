@@ -20,5 +20,7 @@ public class NullLogger : ILogger, ILoggerFactory
 
     ILogger ILoggerFactory.GetLogger( string category ) => this;
 
+    public void Flush() { }
+
     public void Dispose() { }
 }

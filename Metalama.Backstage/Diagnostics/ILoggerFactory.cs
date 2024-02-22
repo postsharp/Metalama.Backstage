@@ -8,5 +8,7 @@ namespace Metalama.Backstage.Diagnostics
     public interface ILoggerFactory : IDisposable, IBackstageService
     {
         ILogger GetLogger( string category );
+
+        void Flush();
     }
 }

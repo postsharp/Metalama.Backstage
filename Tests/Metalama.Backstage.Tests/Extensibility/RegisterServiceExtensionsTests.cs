@@ -2,10 +2,12 @@
 
 using Metalama.Backstage.Diagnostics;
 using Metalama.Backstage.Extensibility;
+using Metalama.Backstage.Infrastructure;
 using Metalama.Backstage.Licensing.Audit;
 using Metalama.Backstage.Licensing.Consumption;
 using Metalama.Backstage.Telemetry;
 using Metalama.Backstage.Testing;
+using Metalama.Backstage.UserInterface;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using Xunit;
@@ -14,22 +16,17 @@ namespace Metalama.Backstage.Tests.Extensibility;
 
 public class RegisterServiceExtensionsTests
 {
-    private static ServiceProviderBuilder CreateServiceProviderBuilder()
-    {
-        var serviceCollection = new ServiceCollection();
-
-        return
-            new ServiceProviderBuilder(
-                ( type, instance ) => serviceCollection.AddSingleton( type, instance ),
-                () => serviceCollection.BuildServiceProvider() );
-    }
+    private static ServiceCollectionBuilder CreateServiceCollectionBuilder() => new();
 
     [Theory]
-    [InlineData( true, true )]
-    [InlineData( false, true )]
-    [InlineData( false, false )]
-    [InlineData( true, false, true )]
-    public void AddBackstageServices( bool addLicensing, bool addSupportServices, bool disableLicenseAudit = false )
+    [InlineData( true, true, true )]
+    [InlineData( false, true, true )]
+    [InlineData( false, false, true )]
+    [InlineData( true, true, false )]
+    [InlineData( false, true, false )]
+    [InlineData( false, false, false )]
+    [InlineData( true, false, true, true )]
+    public void AddBackstageServices( bool addLicensing, bool addSupportServices, bool addUserInterface, bool disableLicenseAudit = false )
     {
         var options = new BackstageInitializationOptions( new TestApplicationInfo( "Test", true, "1.0", DateTime.Today ) )
         {
@@ -38,8 +35,9 @@ public class RegisterServiceExtensionsTests
             LicensingOptions = new LicensingInitializationOptions() { DisableLicenseAudit = disableLicenseAudit }
         };
 
-        var serviceProviderBuilder = CreateServiceProviderBuilder().AddBackstageServices( options );
-        var serviceProvider = serviceProviderBuilder.ServiceProvider;
+        var serviceProviderBuilder = CreateServiceCollectionBuilder();
+        serviceProviderBuilder.AddBackstageServices( options );
+        var serviceProvider = serviceProviderBuilder.ServiceCollection.BuildServiceProvider();
         Assert.NotNull( serviceProvider.GetBackstageService<IPlatformInfo>() );
 
         if ( addLicensing )
@@ -74,6 +72,13 @@ public class RegisterServiceExtensionsTests
             Assert.Null( serviceProvider.GetBackstageService<IExceptionReporter>() );
             Assert.Null( serviceProvider.GetBackstageService<IUsageReporter>() );
             Assert.Null( serviceProvider.GetBackstageService<ITelemetryUploader>() );
+        }
+
+        if ( addUserInterface )
+        {
+            Assert.Null( serviceProvider.GetBackstageService<IToastNotificationService>() );
+            Assert.Null( serviceProvider.GetBackstageService<IUserInterfaceService>() );
+            Assert.Null( serviceProvider.GetBackstageService<ToastNotificationDetectionService>() );
         }
     }
 }
