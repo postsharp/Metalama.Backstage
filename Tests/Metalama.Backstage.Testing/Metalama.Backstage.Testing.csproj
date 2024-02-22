@@ -18,6 +18,7 @@
         <PackageReference Include="xunit" Version="$(XunitVersion)" />
         <PackageReference Include="System.IO.Abstractions" Version="13.2.29" />
         <PackageReference Include="System.IO.Abstractions.TestingHelpers" Version="13.2.29" />
+		<PackageReference Include="Newtonsoft.Json" Version="$(NewtonsoftJsonVersion)" />
     </ItemGroup>
 
 	<ItemGroup Condition="'$(TargetFramework)'=='netframework4.7.2'">
