@@ -118,9 +118,9 @@ namespace Metalama.Backstage.Licensing.Licenses
         }
 
         /// <summary>
-        /// Creates a new object of <see cref="LicenseProperties"/> based on the given <see cref="LicenseKeyData"/>.
+        /// Creates a new object of <see cref="LicenseRegistrationData"/> based on the given <see cref="LicenseKeyData"/>.
         /// </summary>
-        public static LicenseProperties ToLicenseProperties( this LicenseKeyData licenseKeyData )
+        public static LicenseRegistrationData ToRegistrationData( this LicenseKeyData licenseKeyData )
         {
             var description = $"{licenseKeyData.GetProductName()} {licenseKeyData.LicenseType.GetLicenseTypeName()}";
 
@@ -149,8 +149,7 @@ namespace Metalama.Backstage.Licensing.Licenses
                 _ => licenseKeyData.Auditable ?? true
             };
 
-            LicenseProperties data = new(
-                licenseKeyData.LicenseString,
+            LicenseRegistrationData data = new(
                 licenseKeyData.LicenseUniqueId,
                 licenseKeyData.LicenseGuid != null,
                 licenseKeyData.LicenseGuid == null ? licenseKeyData.LicenseId : null,

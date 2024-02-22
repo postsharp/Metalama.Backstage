@@ -1,10 +1,8 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. See the LICENSE.md file in the root directory of this repository root for details.
 
-using Metalama.Backstage.Application;
 using Metalama.Backstage.Configuration;
 using Metalama.Backstage.Diagnostics;
 using Metalama.Backstage.Extensibility;
-using Metalama.Backstage.Infrastructure;
 using Metalama.Backstage.Testing;
 using System.Collections.Immutable;
 using Xunit;
@@ -16,7 +14,12 @@ public class EnvironmentVariableConfigurationTests : TestsBase
 {
     private readonly IConfigurationManager _configurationManager;
 
-    public EnvironmentVariableConfigurationTests( ITestOutputHelper logger ) : base( logger )
+    public EnvironmentVariableConfigurationTests( ITestOutputHelper logger ) : base(
+        logger,
+        builder =>
+            builder
+                .AddSingleton<IApplicationInfoProvider>( new ApplicationInfoProvider( new TestApplicationInfo() ) )
+                .AddSingleton<IConfigurationManager>( new Configuration.ConfigurationManager( builder.ServiceProvider ) ) )
     {
         this._configurationManager = this.ServiceProvider.GetRequiredBackstageService<IConfigurationManager>();
         var standardDirectories = this.ServiceProvider.GetRequiredBackstageService<IStandardDirectories>();
@@ -32,13 +35,6 @@ public class EnvironmentVariableConfigurationTests : TestsBase
         };
 
         this.EnvironmentVariableProvider.Environment.Add( DiagnosticsConfiguration.EnvironmentVariableName, environmentConfiguration.ToJson() );
-    }
-
-    protected override void ConfigureServices( ServiceProviderBuilder services )
-    {
-        services
-            .AddSingleton<IApplicationInfoProvider>( new ApplicationInfoProvider( new TestApplicationInfo() ) )
-            .AddSingleton<IConfigurationManager>( serviceProvider => new Configuration.ConfigurationManager( serviceProvider ) );
     }
 
     [Fact]

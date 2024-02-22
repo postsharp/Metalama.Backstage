@@ -12,11 +12,7 @@ public interface ITempFileManager : IBackstageService
     /// <param name="directory">The principal name of the directory, before the version number.</param>
     /// <param name="cleanUpStrategy">The <see cref="CleanUpStrategy"/>.</param>
     /// <param name="subdirectory">An optional directory name after the version number.</param>
-    /// <param name="versionScope"></param>
+    /// <param name="versionNeutral">Indicates whether the Metalama version number should be included in the path.</param>
     /// <returns></returns>
-    string GetTempDirectory(
-        string directory,
-        CleanUpStrategy cleanUpStrategy,
-        string? subdirectory = null,
-        TempFileVersionScope versionScope = TempFileVersionScope.Default );
+    string GetTempDirectory( string directory, CleanUpStrategy cleanUpStrategy, string? subdirectory = null, bool versionNeutral = false );
 }

@@ -1,7 +1,5 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. See the LICENSE.md file in the root directory of this repository root for details.
 
-using Metalama.Backstage.Configuration;
-using Metalama.Backstage.Extensibility;
 using Metalama.Backstage.Licensing.Registration;
 using Metalama.Backstage.Testing;
 using Xunit;
@@ -14,15 +12,9 @@ namespace Metalama.Backstage.Tests.Licensing.Registration
         public LicenseFileStorageTests( ITestOutputHelper logger )
             : base( logger ) { }
 
-        protected override void ConfigureServices( ServiceProviderBuilder services )
+        private ParsedLicensingConfiguration OpenOrCreateStorage()
         {
-            base.ConfigureServices( services );
-            services.AddSingleton<IConfigurationManager>( serviceProvider => new Configuration.ConfigurationManager( serviceProvider ) );
-        }
-
-        private LicensingConfigurationModel OpenOrCreateStorage()
-        {
-            return LicensingConfigurationModel.Create( this.ServiceProvider );
+            return ParsedLicensingConfiguration.OpenOrCreate( this.ServiceProvider );
         }
 
         private void AssertFileContains( string? expectedLicenseString )
@@ -30,35 +22,35 @@ namespace Metalama.Backstage.Tests.Licensing.Registration
             Assert.Equal( expectedLicenseString, this.ReadStoredLicenseString() );
         }
 
-        private void AssertStorageContains( LicensingConfigurationModel storage, string? expectedLicenseString )
+        private void AssertStorageContains( ParsedLicensingConfiguration storage, string? expectedLicenseString )
         {
             Assert.Equal( expectedLicenseString, storage.LicenseString );
 
             if ( expectedLicenseString == null )
             {
-                Assert.Null( storage.LicenseProperties );
+                Assert.Null( storage.LicenseData );
             }
             else
             {
                 if ( !this.LicenseFactory.TryCreate( expectedLicenseString, out var expectedLicense, out _ ) )
                 {
-                    Assert.Null( storage.LicenseProperties );
+                    Assert.Null( storage.LicenseData );
 
                     return;
                 }
 
-                if ( !expectedLicense.TryGetProperties( out var expectedData, out _ ) )
+                if ( !expectedLicense.TryGetLicenseRegistrationData( out var expectedData, out _ ) )
                 {
-                    Assert.Null( storage.LicenseProperties );
+                    Assert.Null( storage.LicenseData );
 
                     return;
                 }
 
-                Assert.Equal( expectedData, storage.LicenseProperties );
+                Assert.Equal( expectedData, storage.LicenseData );
             }
         }
 
-        private void Add( LicensingConfigurationModel storage, string licenseString )
+        private void Add( ParsedLicensingConfiguration storage, string licenseString )
         {
             var data = this.GetLicenseRegistrationData( licenseString );
             storage.SetLicense( licenseString, data );

@@ -7,9 +7,5 @@ namespace Metalama.Backstage.Telemetry;
 
 public interface IExceptionReporter : IBackstageService
 {
-    void ReportException(
-        Exception reportedException,
-        ExceptionReportingKind exceptionReportingKind = ExceptionReportingKind.Exception,
-        string? localReportPath = null,
-        IExceptionAdapter? exceptionAdapter = null );
+    void ReportException( Exception reportedException, ExceptionReportingKind exceptionReportingKind = ExceptionReportingKind.Exception );
 }

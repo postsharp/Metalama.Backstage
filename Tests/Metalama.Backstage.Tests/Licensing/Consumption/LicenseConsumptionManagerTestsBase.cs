@@ -1,5 +1,6 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. See the LICENSE.md file in the root directory of this repository root for details.
 
+using Metalama.Backstage.Extensibility;
 using Metalama.Backstage.Licensing.Consumption;
 using Metalama.Backstage.Licensing.Consumption.Sources;
 using Metalama.Backstage.Tests.Licensing.Licenses;
@@ -14,8 +15,9 @@ public abstract class LicenseConsumptionManagerTestsBase : LicensingTestsBase
 {
     private protected LicenseConsumptionManagerTestsBase(
         ITestOutputHelper logger,
+        Action<ServiceProviderBuilder>? serviceBuilder = null,
         bool isTelemetryEnabled = false )
-        : base( logger, isTelemetryEnabled: isTelemetryEnabled ) { }
+        : base( logger, serviceBuilder, isTelemetryEnabled: isTelemetryEnabled ) { }
 
     private protected TestLicense CreateLicense( string licenseString )
     {
@@ -30,20 +32,14 @@ public abstract class LicenseConsumptionManagerTestsBase : LicensingTestsBase
         // ReSharper disable once CoVariantArrayConversion
         var licenseSource = new TestLicenseSource( "test", license );
 
-        var manager = this.CreateConsumptionManager( licenseSource );
-
-        return manager;
+        return this.CreateConsumptionManager( licenseSource );
     }
 
     private protected ILicenseConsumptionService CreateConsumptionManager( params ILicenseSource[] licenseSources )
-    {
-        return new LicenseConsumptionService( this.ServiceProvider, licenseSources );
-    }
+        => new LicenseConsumptionService( this.ServiceProvider, licenseSources );
 
     private protected ILicenseConsumptionService CreateConsumptionManager()
-    {
-        return new LicenseConsumptionService( this.ServiceProvider, Array.Empty<ILicenseSource>() );
-    }
+        => new LicenseConsumptionService( this.ServiceProvider, Array.Empty<ILicenseSource>() );
 
     private protected static void TestConsumption(
         ILicenseConsumptionService service,

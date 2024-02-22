@@ -11,46 +11,19 @@ internal partial class LicenseConsumptionService : ILicenseConsumptionService
 {
     private readonly IServiceProvider _services;
     private readonly IReadOnlyList<ILicenseSource> _sources;
-    private ILicenseConsumptionService? _impl;
+    private ImmutableImpl _impl;
 
     public LicenseConsumptionService( IServiceProvider services, IReadOnlyList<ILicenseSource> licenseSources )
     {
         this._services = services;
         this._sources = licenseSources;
+        this._impl = new ImmutableImpl( services, this._sources );
 
         foreach ( var source in this._sources )
         {
             source.Changed += this.OnSourceChanged;
         }
     }
-
-    private ILicenseConsumptionService GetInitializedImpl()
-    {
-        if ( this._impl == null )
-        {
-            this.OnSourceChanged();
-        }
-
-        return this._impl!;
-    }
-
-    public ILicenseConsumptionService WithAdditionalLicense( string? licenseKey )
-    {
-        if ( string.IsNullOrWhiteSpace( licenseKey ) )
-        {
-            return this;
-        }
-        
-        var sources = new List<ILicenseSource>( this._sources.Count + 1 );
-        sources.AddRange( this._sources );
-        sources.Add( new ExplicitLicenseSource( licenseKey!, this._services ) );
-        var newService = new LicenseConsumptionService( this._services, sources );
-
-        return newService;
-    }
-
-    public ILicenseConsumptionService WithoutLicense() 
-        => new LicenseConsumptionService( this._services, Array.Empty<ILicenseSource>() );
 
     private void OnSourceChanged()
     {
@@ -59,18 +32,18 @@ internal partial class LicenseConsumptionService : ILicenseConsumptionService
         this.Changed?.Invoke();
     }
 
-    public IReadOnlyList<LicensingMessage> Messages => this.GetInitializedImpl().Messages;
+    public IReadOnlyList<LicensingMessage> Messages => this._impl.Messages;
 
-    public bool CanConsume( LicenseRequirement requirement, string? consumerNamespace = null ) => this.GetInitializedImpl().CanConsume( requirement, consumerNamespace );
+    public bool CanConsume( LicenseRequirement requirement, string? consumerNamespace = null ) => this._impl.CanConsume( requirement, consumerNamespace );
 
     public bool ValidateRedistributionLicenseKey( string redistributionLicenseKey, string aspectClassNamespace )
-        => this.GetInitializedImpl().ValidateRedistributionLicenseKey( redistributionLicenseKey, aspectClassNamespace );
+        => this._impl.ValidateRedistributionLicenseKey( redistributionLicenseKey, aspectClassNamespace );
 
-    public bool IsTrialLicense => this.GetInitializedImpl().IsTrialLicense;
+    public bool IsTrialLicense => this._impl.IsTrialLicense;
 
-    public bool IsRedistributionLicense => this.GetInitializedImpl().IsRedistributionLicense;
+    public bool IsRedistributionLicense => this._impl.IsRedistributionLicense;
 
-    public string? LicenseString => this.GetInitializedImpl().LicenseString;
+    public string? LicenseString => this._impl.LicenseString;
 
     public event Action? Changed;
 }
