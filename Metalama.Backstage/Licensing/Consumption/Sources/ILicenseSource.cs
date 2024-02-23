@@ -26,14 +26,5 @@ namespace Metalama.Backstage.Licensing.Consumption.Sources
         /// Event raised when the current source has changed.
         /// </summary>
         event Action? Changed;
-        
-        LicenseSourcePriority Priority { get; }
-    }
-
-    public enum LicenseSourcePriority 
-    {
-        Unattended,
-        Explicit,
-        UserProfile
     }
 }

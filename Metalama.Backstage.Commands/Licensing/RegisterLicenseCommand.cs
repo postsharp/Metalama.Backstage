@@ -1,6 +1,6 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. See the LICENSE.md file in the root directory of this repository root for details.
 
-using Metalama.Backstage.Extensibility;
+using Metalama.Backstage.Licensing.Licenses;
 using Metalama.Backstage.Licensing.Registration;
 
 namespace Metalama.Backstage.Commands.Licensing;
@@ -12,12 +12,17 @@ internal class RegisterLicenseCommand : BaseCommand<RegisterLicenseCommandSettin
 
     protected override void Execute( ExtendedCommandContext context, RegisterLicenseCommandSettings settings )
     {
-        var service = context.ServiceProvider.GetRequiredBackstageService<ILicenseRegistrationService>();
+        var factory = new LicenseFactory( context.ServiceProvider );
 
-        if ( !service.TryRegisterLicense( settings.License, out var errorMessage ) )
+        if ( !factory.TryCreate( settings.License, out var license, out var errorMessage )
+             || !license.TryGetLicenseRegistrationData( out var data, out errorMessage ) )
         {
             throw new CommandException( $"Invalid license string: {errorMessage}" );
         }
+
+        var storage = ParsedLicensingConfiguration.OpenOrCreate( context.ServiceProvider );
+
+        storage.SetLicense( settings.License, data );
 
         context.Console.WriteSuccess( $"The license key '{settings.License}' has been registered." );
     }

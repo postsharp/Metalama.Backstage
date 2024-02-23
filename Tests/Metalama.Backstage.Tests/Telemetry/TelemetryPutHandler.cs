@@ -2,7 +2,6 @@
 
 #if NET
 using Metalama.Backstage.Extensibility;
-using Metalama.Backstage.Infrastructure;
 using Metalama.Backstage.Telemetry;
 using Microsoft.AspNetCore.Http;
 using System;

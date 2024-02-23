@@ -2,6 +2,7 @@
 
 using JetBrains.Annotations;
 using System;
+using System.Collections.Generic;
 
 namespace Metalama.Backstage.Extensibility
 {
@@ -10,20 +11,47 @@ namespace Metalama.Backstage.Extensibility
     /// register services in an arbitrary provider. 
     /// </summary>
     [PublicAPI]
-    public class ServiceProviderBuilder
+    public sealed class ServiceProviderBuilder
     {
-        private readonly Action<Type, Func<IServiceProvider, object>> _addService;
+        private readonly Action<Type, object> _addService;
+        private readonly Func<IServiceProvider> _getServiceProvider;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ServiceProviderBuilder"/> class backed by an arbitrary implementation of <see cref="IServiceProvider"/>.
         /// </summary>
-        public ServiceProviderBuilder( Action<Type, Func<IServiceProvider, object>> addService )
+        public ServiceProviderBuilder( Action<Type, object> addService, Func<IServiceProvider> getServiceProvider )
         {
             this._addService = addService;
+            this._getServiceProvider = getServiceProvider;
         }
 
-        public void AddService( Type type, object instance ) => this._addService( type, _ => instance );
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ServiceProviderBuilder"/> class backed by a default implementation of <see cref="IServiceProvider"/>.
+        /// </summary>
+        public ServiceProviderBuilder()
+        {
+            var impl = new ServiceProviderImpl();
+            this._addService = ( type, o ) => impl[type] = o;
+            this._getServiceProvider = () => impl;
+        }
 
-        public void AddService( Type type, Func<IServiceProvider, object> func ) => this._addService( type, func );
+        public void AddService( Type type, object instance ) => this._addService( type, instance );
+
+        public IServiceProvider ServiceProvider => this._getServiceProvider();
+
+        private class ServiceProviderImpl : Dictionary<Type, object>, IServiceProvider
+        {
+            object? IServiceProvider.GetService( Type serviceType )
+            {
+                if ( this.TryGetValue( serviceType, out var serviceValue ) )
+                {
+                    return serviceValue;
+                }
+                else
+                {
+                    return null;
+                }
+            }
+        }
     }
 }

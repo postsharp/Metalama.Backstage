@@ -3,7 +3,6 @@
 using JetBrains.Annotations;
 using Metalama.Backstage.Diagnostics;
 using Metalama.Backstage.Extensibility;
-using Metalama.Backstage.Infrastructure;
 using Metalama.Backstage.Telemetry;
 using Spectre.Console.Cli;
 using System;
@@ -25,7 +24,7 @@ namespace Metalama.Backstage.Commands
                 Debugger.Launch();
             }
 
-            var extendedContext = new ExtendedCommandContext( context, settings, this.AddBackstageOptions );
+            var extendedContext = new ExtendedCommandContext( context, settings );
             var canIgnoreRecoverableExceptions = extendedContext.ServiceProvider.GetRequiredBackstageService<IRecoverableExceptionService>().CanIgnore;
 
             try
@@ -84,7 +83,5 @@ namespace Metalama.Backstage.Commands
         }
 
         protected abstract void Execute( ExtendedCommandContext context, T settings );
-
-        protected virtual BackstageInitializationOptions AddBackstageOptions( BackstageInitializationOptions options ) => options;
     }
 }

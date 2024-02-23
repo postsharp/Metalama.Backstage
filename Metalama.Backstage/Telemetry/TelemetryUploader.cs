@@ -3,20 +3,20 @@
 using Metalama.Backstage.Configuration;
 using Metalama.Backstage.Diagnostics;
 using Metalama.Backstage.Extensibility;
-using Metalama.Backstage.Infrastructure;
-using Metalama.Backstage.Tools;
+using Metalama.Backstage.Maintenance;
 using Metalama.Backstage.Utilities;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Globalization;
 using System.IO;
+using System.IO.Compression;
 using System.IO.Packaging;
 using System.Net.Http;
 using System.Net.Mime;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
-using IHttpClientFactory = Metalama.Backstage.Infrastructure.IHttpClientFactory;
 
 namespace Metalama.Backstage.Telemetry
 {
@@ -25,8 +25,11 @@ namespace Metalama.Backstage.Telemetry
         private readonly IServiceProvider _serviceProvider;
         private readonly IStandardDirectories _directories;
         private readonly IFileSystem _fileSystem;
+        private readonly ITempFileManager _tempFileManager;
+        private readonly IProcessExecutor _processExecutor;
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly IDateTimeProvider _time;
+        private readonly IPlatformInfo _platformInfo;
         private readonly ILogger _logger;
         private readonly Uri _requestUri = new( "https://bits.postsharp.net:44301/upload" );
         private readonly IConfigurationManager _configurationManager;
@@ -40,8 +43,11 @@ namespace Metalama.Backstage.Telemetry
             this._serviceProvider = serviceProvider;
             this._directories = serviceProvider.GetRequiredBackstageService<IStandardDirectories>();
             this._fileSystem = serviceProvider.GetRequiredBackstageService<IFileSystem>();
+            this._processExecutor = serviceProvider.GetRequiredBackstageService<IProcessExecutor>();
             this._httpClientFactory = serviceProvider.GetRequiredBackstageService<IHttpClientFactory>();
             this._time = serviceProvider.GetRequiredBackstageService<IDateTimeProvider>();
+            this._platformInfo = serviceProvider.GetRequiredBackstageService<IPlatformInfo>();
+            this._tempFileManager = serviceProvider.GetRequiredBackstageService<ITempFileManager>();
             this._logger = serviceProvider.GetLoggerFactory().Telemetry();
             this._exceptionReporter = serviceProvider.GetRequiredBackstageService<IExceptionReporter>();
         }
@@ -245,18 +251,65 @@ namespace Metalama.Backstage.Telemetry
             }
         }
 
+        private void ExtractWorker( string workerDirectory, string targetFramework )
+        {
+            var touchFile = Path.Combine( workerDirectory, "unzipped.touch" );
+
+            if ( !this._fileSystem.FileExists( touchFile ) )
+            {
+                using ( MutexHelper.WithGlobalLock( touchFile ) )
+                {
+                    if ( !this._fileSystem.FileExists( touchFile ) )
+                    {
+                        this._fileSystem.CreateDirectory( workerDirectory );
+
+                        var zipResourceName = $"Metalama.Backstage.Metalama.Backstage.Worker.{targetFramework}.zip";
+                        var assembly = this.GetType().Assembly;
+                        using var resourceStream = assembly.GetManifestResourceStream( zipResourceName );
+
+                        if ( resourceStream == null )
+                        {
+                            throw new InvalidOperationException( $"Resource '{zipResourceName}' not found in '{assembly.Location}'." );
+                        }
+
+                        using var zipStream = new ZipArchive( resourceStream );
+                        this._fileSystem.ExtractZipArchiveToDirectory( zipStream, workerDirectory );
+
+                        this._fileSystem.WriteAllText( touchFile, "" );
+                    }
+                }
+            }
+        }
+
+        private void StartWorker( string workerDirectory )
+        {
+            string executableFileName;
+            string arguments;
+
+            if ( ProcessUtilities.IsNetCore() )
+            {
+                executableFileName = this._platformInfo.DotNetExePath;
+                arguments = $"\"{Path.Combine( workerDirectory, "Metalama.Backstage.Worker.dll" )}\"";
+            }
+            else
+            {
+                executableFileName = Path.Combine( workerDirectory, "Metalama.Backstage.Worker.exe" );
+                arguments = "";
+            }
+
+            var processStartInfo = new ProcessStartInfo()
+            {
+                FileName = executableFileName, Arguments = arguments, UseShellExecute = true, WindowStyle = ProcessWindowStyle.Hidden
+            };
+
+            this._logger.Info?.Log( $"Starting '{executableFileName}{(arguments == "" ? "" : " ")}{arguments}'." );
+
+            _ = this._processExecutor.Start( processStartInfo );
+        }
+
         /// <inheritdoc />
         public void StartUpload( bool force = false )
         {
-            var toolExecutor = this._serviceProvider.GetBackstageService<IBackstageToolsExecutor>();
-
-            if ( toolExecutor == null )
-            {
-                this._logger.Trace?.Log( $"Do not upload now because there is no IWorkerProgram service." );
-
-                return;
-            }
-
             var now = this._time.Now;
 
             this._logger.Trace?.Log( "Acquiring mutex." );
@@ -272,7 +325,16 @@ namespace Metalama.Backstage.Telemetry
                 return;
             }
 
-            toolExecutor.Start( BackstageTool.Worker, "upload" );
+            var targetFramework = ProcessUtilities.IsNetCore()
+                ? "net6.0"
+                : "netframework4.7.2";
+
+            var workerDirectory =
+                this._tempFileManager.GetTempDirectory( "BackstageWorker", subdirectory: targetFramework, cleanUpStrategy: CleanUpStrategy.WhenUnused );
+
+            this.ExtractWorker( workerDirectory, targetFramework );
+
+            this.StartWorker( workerDirectory );
         }
 
         internal static string ComputeHash( string packageName )

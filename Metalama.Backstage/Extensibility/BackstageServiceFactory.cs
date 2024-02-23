@@ -3,8 +3,6 @@
 using JetBrains.Annotations;
 using Metalama.Backstage.Diagnostics;
 using Metalama.Backstage.Licensing.Consumption;
-using Metalama.Backstage.Licensing.Consumption.Sources;
-using Metalama.Backstage.UserInterface;
 using System;
 
 namespace Metalama.Backstage.Extensibility;
@@ -19,8 +17,6 @@ public static class BackstageServiceFactory
     public static IServiceProvider ServiceProvider
         => _serviceProvider ?? throw new InvalidOperationException( "BackstageServiceFactory has not been initialized." );
 
-    public static bool IsInitialized => _serviceProvider != null;
-    
     public static bool Initialize( BackstageInitializationOptions options, string caller )
     {
         lock ( _initializeSync )
@@ -29,27 +25,14 @@ public static class BackstageServiceFactory
             {
                 _serviceProvider.GetLoggerFactory()
                     .GetLogger( "BackstageServiceFactory" )
-                    .Trace?.Log( $"Support services initialization requested from {caller}. The services are already initialized." );
-
-                if ( options is { AddUserInterface: true, DetectToastNotifications: true } )
-                {
-                    // We need to run the to detect notifications every time time because the service provider can be cached in the
-                    // compiler background process, and we need the UI logic to run often.
-                    _serviceProvider.GetBackstageService<ToastNotificationDetectionService>()?.Detect();
-                }
+                    .Trace?.Log( $"Support services initialization requested from {caller}. The services are initialized already." );
 
                 return false;
             }
 
-            var serviceProviderBuilder = new SimpleServiceProviderBuilder();
-            serviceProviderBuilder.AddBackstageServices( options );
-
-            _serviceProvider = serviceProviderBuilder.ServiceProvider;
-
-            if ( options.Initialize )
-            {
-                _serviceProvider.GetRequiredBackstageService<BackstageServicesInitializer>().Initialize();
-            }
+            _serviceProvider = new ServiceProviderBuilder()
+                .AddBackstageServices( options )
+                .ServiceProvider;
 
             _serviceProvider.GetLoggerFactory()
                 .GetLogger( "BackstageServiceFactory" )
@@ -59,12 +42,6 @@ public static class BackstageServiceFactory
         }
     }
 
-    public static ILicenseConsumptionService CreateTestLicenseConsumptionService( IServiceProvider serviceProvider, string? licenseKey )
-    {
-        var sources = licenseKey == null ? Array.Empty<ExplicitLicenseSource>() : new[] { new ExplicitLicenseSource( licenseKey, serviceProvider ) };
-
-        var service = new LicenseConsumptionService( serviceProvider, sources );
-
-        return service;
-    }
+    public static ILicenseConsumptionService CreateLicenseConsumptionService( LicensingInitializationOptions options )
+        => LicenseConsumptionServiceFactory.Create( ServiceProvider, options );
 }

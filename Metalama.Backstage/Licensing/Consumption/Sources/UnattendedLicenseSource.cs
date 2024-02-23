@@ -1,6 +1,5 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. See the LICENSE.md file in the root directory of this repository root for details.
 
-using Metalama.Backstage.Application;
 using Metalama.Backstage.Diagnostics;
 using Metalama.Backstage.Extensibility;
 using Metalama.Backstage.Licensing.Licenses;
@@ -60,12 +59,10 @@ internal class UnattendedLicenseSource : ILicenseSource, ILicense
         return true;
     }
 
-    bool ILicense.TryGetProperties(
-        [MaybeNullWhen( false )] out LicenseProperties licenseProperties,
+    bool ILicense.TryGetLicenseRegistrationData(
+        [MaybeNullWhen( false )] out LicenseRegistrationData licenseRegistrationData,
         [MaybeNullWhen( true )] out string errorMessage )
         => throw new NotSupportedException( "Unattended license source doesn't support license registration." );
 
     event Action? ILicenseSource.Changed { add { } remove { } }
-
-    public LicenseSourcePriority Priority => LicenseSourcePriority.Unattended;
 }

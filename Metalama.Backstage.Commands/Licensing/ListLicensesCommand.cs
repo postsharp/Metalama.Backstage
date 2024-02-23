@@ -1,6 +1,5 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. See the LICENSE.md file in the root directory of this repository root for details.
 
-using Metalama.Backstage.Extensibility;
 using Metalama.Backstage.Licensing.Registration;
 using Spectre.Console;
 using System;
@@ -12,9 +11,9 @@ namespace Metalama.Backstage.Commands.Licensing
     {
         protected override void Execute( ExtendedCommandContext context, BaseCommandSettings settings )
         {
-            var license = context.ServiceProvider.GetRequiredBackstageService<ILicenseRegistrationService>().RegisteredLicense;
+            var storage = ParsedLicensingConfiguration.OpenOrCreate( context.ServiceProvider );
 
-            if ( license != null )
+            if ( storage.LicenseString != null )
             {
                 context.Console.WriteMessage( "The following license is currently registered:" + Environment.NewLine );
 
@@ -40,13 +39,13 @@ namespace Metalama.Backstage.Commands.Licensing
                     }
                 }
 
-                var data = license;
+                var data = storage.LicenseData;
 
                 Write( "License ID", data?.LicenseId?.ToString( CultureInfo.InvariantCulture ) );
 
                 if ( data == null || data.LicenseId != null )
                 {
-                    Write( "License Key", license.LicenseString );
+                    Write( "License Key", storage.LicenseString );
                 }
 
                 if ( data != null )

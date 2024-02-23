@@ -1,10 +1,8 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. See the LICENSE.md file in the root directory of this repository root for details.
 
-using Metalama.Backstage.Application;
 using Metalama.Backstage.Configuration;
 using Metalama.Backstage.Diagnostics;
 using Metalama.Backstage.Extensibility;
-using Metalama.Backstage.Infrastructure;
 using Metalama.Backstage.Maintenance;
 using Metalama.Backstage.Testing;
 using System;
@@ -16,16 +14,14 @@ namespace Metalama.Backstage.Tests.MiniDump;
 
 public class MiniDumpTests : TestsBase
 {
-    public MiniDumpTests( ITestOutputHelper logger ) : base( logger ) { }
-
-    protected override void ConfigureServices( ServiceProviderBuilder services )
-    {
-        services
-            .AddSingleton<IApplicationInfoProvider>( new ApplicationInfoProvider( new TestApplicationInfo() ) )
-            .AddSingleton<IConfigurationManager>( serviceProvider => new InMemoryConfigurationManager( serviceProvider ) )
-            .AddSingleton<ITempFileManager>( serviceProvider => new TempFileManager( serviceProvider ) )
-            .AddSingleton<IPlatformInfo>( serviceProvider => new PlatformInfo( serviceProvider, null ) );
-    }
+    public MiniDumpTests( ITestOutputHelper logger ) : base(
+        logger,
+        builder =>
+            builder
+                .AddSingleton<IApplicationInfoProvider>( new ApplicationInfoProvider( new TestApplicationInfo() ) )
+                .AddSingleton<IConfigurationManager>( new InMemoryConfigurationManager( builder.ServiceProvider ) )
+                .AddSingleton<ITempFileManager>( new TempFileManager( builder.ServiceProvider ) )
+                .AddSingleton<IPlatformInfo>( new PlatformInfo( builder.ServiceProvider, null ) ) ) { }
 
     [Fact( Skip = "Required dotnet dump on the build agent." )]
     public void WhenWriteFileExists()
