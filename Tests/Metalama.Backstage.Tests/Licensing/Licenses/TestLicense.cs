@@ -36,8 +36,8 @@ namespace Metalama.Backstage.Tests.Licensing.Licenses
 
         // MaybeNullWhenAttribute cannot be used here since the Metalama.Backstage assembly shares internals with this assembly.
         // That causes CS0433 error. (Same type defined in two referenced assemblies.)
-        public bool TryGetProperties( /* [MaybeNullWhenAttribute( false )] */
-            out LicenseProperties licenseProperties,
+        public bool TryGetLicenseRegistrationData( /* [MaybeNullWhenAttribute( false )] */
+            out LicenseRegistrationData licenseRegistrationData,
             out string errorMessage )
         {
             throw new NotImplementedException();

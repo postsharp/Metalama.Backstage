@@ -8,9 +8,6 @@ namespace Metalama.Backstage.Diagnostics;
 
 public record ProfilingConfiguration
 {
-    [JsonProperty( "kind" )]
-    public string? Kind { get; set; }
-
     /// <summary>
     /// Gets a value indicating whether profiling is enabled.
     /// </summary>

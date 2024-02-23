@@ -1,10 +1,8 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. See the LICENSE.md file in the root directory of this repository root for details.
 
-using Metalama.Backstage.Application;
 using Metalama.Backstage.Configuration;
 using Metalama.Backstage.Diagnostics;
 using Metalama.Backstage.Extensibility;
-using Metalama.Backstage.Infrastructure;
 using Metalama.Backstage.Licensing;
 using Metalama.Backstage.Utilities;
 using Newtonsoft.Json;
@@ -22,24 +20,21 @@ public class TempFileManager : ITempFileManager
     private readonly IStandardDirectories _standardDirectories;
     private readonly IDateTimeProvider _time;
     private readonly IConfigurationManager _configurationManager;
-    private readonly string _applicationVersion;
-
-    private readonly string _backstageVersion = AssemblyMetadataReader.GetInstance( typeof(TempFileManager).Assembly ).PackageVersion
-                                                ?? throw new InvalidOperationException();
+    private readonly string _version;
 
     public TempFileManager( IServiceProvider serviceProvider )
     {
         this._configurationManager = serviceProvider.GetRequiredBackstageService<IConfigurationManager>();
         this._configuration = this._configurationManager.Get<CleanUpConfiguration>();
         this._fileSystem = serviceProvider.GetRequiredBackstageService<IFileSystem>();
-        this._logger = serviceProvider.GetRequiredBackstageService<EarlyLoggerFactory>().GetLogger( "Configuration" );
+        this._logger = serviceProvider.GetLoggerFactory().GetLogger( "TempFileManager" );
         this._time = serviceProvider.GetRequiredBackstageService<IDateTimeProvider>();
         this._standardDirectories = serviceProvider.GetRequiredBackstageService<IStandardDirectories>();
 
         var application = serviceProvider.GetRequiredBackstageService<IApplicationInfoProvider>().CurrentApplication;
 
-        this._applicationVersion = application.GetLatestComponentMadeByPostSharp().PackageVersion ??
-                                   throw new InvalidOperationException( "The application version is not set." );
+        this._version = application.GetLatestComponentMadeByPostSharp().Version ??
+                        throw new InvalidOperationException( "The application version is not set." );
     }
 
     /// <summary>
@@ -238,39 +233,31 @@ public class TempFileManager : ITempFileManager
         string directory,
         CleanUpStrategy cleanUpStrategy,
         string? subdirectory = null,
-        TempFileVersionScope versionScope = TempFileVersionScope.Default )
+        bool versionNeutral = false )
     {
-        var version = versionScope switch
-        {
-            TempFileVersionScope.Backstage => this._backstageVersion,
-            TempFileVersionScope.Default => this._applicationVersion,
-            TempFileVersionScope.None => "",
-            _ => throw new ArgumentOutOfRangeException( nameof(versionScope) )
-        };
-
         var directoryFullPath = Path.Combine(
             this._standardDirectories.TempDirectory,
             directory,
-            version,
+            versionNeutral ? "" : this._version,
             subdirectory ?? "" );
 
         var cleanUpFilePath = Path.Combine( directoryFullPath, "cleanup.json" );
 
-        if ( !this._fileSystem.DirectoryExists( directoryFullPath ) || !this._fileSystem.FileExists( cleanUpFilePath ) )
+        if ( !Directory.Exists( directoryFullPath ) || !File.Exists( cleanUpFilePath ) )
         {
             using ( MutexHelper.WithGlobalLock( directoryFullPath ) )
             {
-                if ( !this._fileSystem.DirectoryExists( directoryFullPath ) || !this._fileSystem.FileExists( cleanUpFilePath ) )
+                if ( !Directory.Exists( directoryFullPath ) || !File.Exists( cleanUpFilePath ) )
                 {
-                    if ( !this._fileSystem.DirectoryExists( directoryFullPath ) )
+                    if ( !Directory.Exists( directoryFullPath ) )
                     {
-                        this._fileSystem.CreateDirectory( directoryFullPath );
+                        Directory.CreateDirectory( directoryFullPath );
                     }
 
-                    if ( !this._fileSystem.FileExists( cleanUpFilePath ) )
+                    if ( !File.Exists( cleanUpFilePath ) )
                     {
                         var file = new CleanUpFile() { Strategy = cleanUpStrategy };
-                        this._fileSystem.WriteAllText( cleanUpFilePath, JsonConvert.SerializeObject( file ) );
+                        File.WriteAllText( cleanUpFilePath, JsonConvert.SerializeObject( file ) );
 
                         return directoryFullPath;
                     }
@@ -278,11 +265,11 @@ public class TempFileManager : ITempFileManager
             }
         }
 
-        if ( cleanUpStrategy == CleanUpStrategy.WhenUnused && this._fileSystem.GetFileLastWriteTime( cleanUpFilePath ) > this._time.Now.AddDays( -1 ) )
+        if ( cleanUpStrategy == CleanUpStrategy.WhenUnused && File.GetLastAccessTime( cleanUpFilePath ) > DateTime.Now.AddDays( -1 ) )
         {
             using ( MutexHelper.WithGlobalLock( cleanUpFilePath ) )
             {
-                RetryHelper.Retry( () => this._fileSystem.SetFileLastWriteTime( cleanUpFilePath, DateTime.Now ) );
+                RetryHelper.Retry( () => File.SetLastWriteTime( cleanUpFilePath, DateTime.Now ) );
             }
         }
 

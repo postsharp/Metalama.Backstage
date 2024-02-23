@@ -33,7 +33,5 @@ namespace Metalama.Backstage.Tests.Licensing.LicenseSources
         }
 
         event Action? ILicenseSource.Changed { add { } remove { } }
-
-        public LicenseSourcePriority Priority => LicenseSourcePriority.UserProfile;
     }
 }

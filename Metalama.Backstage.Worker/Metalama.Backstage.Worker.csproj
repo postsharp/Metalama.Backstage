@@ -1,33 +1,28 @@
-﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
         <MetalamaBackstageDirectory>$(MSBuildProjectDirectory)\..\Metalama.Backstage</MetalamaBackstageDirectory>
+        <IsWorkerBuild>true</IsWorkerBuild>
         <OutputType>exe</OutputType>
-        <RootNamespace>Metalama.Backstage</RootNamespace>
-        <Nullable>enable</Nullable>
-        <IsPackable>false</IsPackable>
-        <WarnOnPackingNonPackableProject>false</WarnOnPackingNonPackableProject>
-        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-        <!-- Embedded pdb seems to be incompatible with `dotnet pack`. -->
-        <DebugType>portable</DebugType>
-        <RollForward>Major</RollForward>
     </PropertyGroup>
 
     <Import Sdk="PostSharp.Engineering.Sdk" Project="SystemTypes.props" />
-    
 
-    <!-- <Import Project="$(MetalamaBackstageDirectory)\Metalama.Backstage.csproj" /> -->
     <Import Project="$(MetalamaBackstageDirectory)\Metalama.Backstage.Common.props" />
 
     <PropertyGroup>
-        <TargetFramework>net6.0</TargetFramework>
+        <TargetFrameworks>netframework4.7.2;net6.0</TargetFrameworks>
+        <!-- We're going to execute the dll using dotnet command on .NET Core. -->
         <UseAppHost>false</UseAppHost>
         <GenerateRuntimeConfigurationFiles>true</GenerateRuntimeConfigurationFiles>
-        <OutputZipFile>bin\$(MSBuildProjectName).zip</OutputZipFile>
+        <OutputZipFile>bin\$(MSBuildProjectName).$(TargetFramework).zip</OutputZipFile>
+        <IsPackable>false</IsPackable>
     </PropertyGroup>
 
-   
-    
+    <ItemGroup>
+        <Compile Include="$(MetalamaBackstageDirectory)\**\*.cs" Exclude="$(MetalamaBackstageDirectory)\obj\**\*;$(MetalamaBackstageDirectory)\bin\**\*" />
+    </ItemGroup>
+
     <ItemGroup Condition="'$(TargetFramework)'=='netframework4.7.2'">
         <Reference Include="System.IO.Compression" />
         <Reference Include="System.Net.Http" />
@@ -37,54 +32,57 @@
         <PackageReference Include="K4os.Hash.xxHash" Version="$(K4osHashxxHashVersion)" />
         <PackageReference Include="System.Collections.Immutable" Version="$(SystemImmutableCollectionsVersion)" />
         <PackageReference Include="JetBrains.Annotations" Version="2022.3.1" PrivateAssets="all" />
-        <PackageReference Include="Newtonsoft.Json" Version="$(NewtonsoftJsonVersion)" />
-    	<PackageReference Include="Spectre.Console.Cli" Version="$(SpectreConsoleVersion)" />
+        <PackageReference Include="JetBrains.Profiler.SelfApi " Version="2.5.0" />
     </ItemGroup>
 
-    <ItemGroup>
-      <_ContentIncludedByDefault Remove="Worker\WebServer\Pages\Error.cshtml" />
-      <_ContentIncludedByDefault Remove="Worker\WebServer\Pages\Index.cshtml" />
-      <_ContentIncludedByDefault Remove="Worker\WebServer\Pages\Shared\_Layout.cshtml" />
-      <_ContentIncludedByDefault Remove="Worker\WebServer\Pages\Shared\_ValidationScriptsPartial.cshtml" />
-      <_ContentIncludedByDefault Remove="Worker\WebServer\Pages\_ViewImports.cshtml" />
-      <_ContentIncludedByDefault Remove="Worker\WebServer\Pages\_ViewStart.cshtml" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <AdditionalFiles Include="Pages\Error.cshtml" />
-      <AdditionalFiles Include="Pages\Index.cshtml" />
-      <AdditionalFiles Include="Pages\Shared\_Layout.cshtml" />
-      <AdditionalFiles Include="Pages\Shared\_ValidationScriptsPartial.cshtml" />
-      <AdditionalFiles Include="Pages\_ViewImports.cshtml" />
-      <AdditionalFiles Include="Pages\_ViewStart.cshtml" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <ProjectReference Include="..\Metalama.Backstage\Metalama.Backstage.csproj" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <None Remove="Properties\launchSettings.json" />
-    </ItemGroup>
-
-    
-    <Import Project="../eng/DeterministicZip.tasks"/>
-
-    <Target Name="PackAndZip" AfterTargets="Build">
-        
-        <!-- We need to create a web archive that contains static assets. -->
-        <Exec Command="dotnet publish $(ProjectPath) --no-build -o $(OutputPath)Packed -c $(Configuration)" />
-
+    <Target Name="ResolveZipInputFiles" AfterTargets="Build" Condition="'$(IsCrossTargetingBuild)'!='true'">
         <ItemGroup>
-            <ZipInputFiles Include="$(OutputPath)Packed\**\*" />
+            <ZipInputFiles Include="$(OutDir)\**\*" />
         </ItemGroup>
+    </Target>
 
+    <UsingTask TaskName="CreateDeterministicZip" TaskFactory="RoslynCodeTaskFactory" AssemblyFile="$(MSBuildToolsPath)\Microsoft.Build.Tasks.Core.dll">
+        <ParameterGroup>
+            <SourceDirectory ParameterType="System.String" Required="true" />
+            <DestinationFile ParameterType="System.String" Required="true" />
+            <PackageBuildDate ParameterType="System.String" Required="true" />
+        </ParameterGroup>
+        <Task>
+            <Using Namespace="System" />
+            <Using Namespace="System.Globalization" />
+            <Using Namespace="System.IO" />
+            <Using Namespace="System.IO.Compression" />
+            <Using Namespace="System.Reflection" />
+            <Code Type="Fragment" Language="cs">
+                <![CDATA[
+                var packageBuildDate = DateTime.Parse(PackageBuildDate, CultureInfo.InvariantCulture);
+
+                File.Delete(DestinationFile);
+
+                using (var zipArchive = ZipFile.Open(DestinationFile, ZipArchiveMode.Update))
+                {
+                    var files = Directory.GetFiles(SourceDirectory, "*.*") ?? throw new InvalidOperationException("Now files to pack.");
+
+                    Array.Sort(files);
+
+                    foreach (var file in files)
+                    {
+                        var entryName = Path.GetFileName(file) ?? throw new InvalidOperationException($"Failed to calculate entry name of '{file}'.");
+                        var entry = zipArchive.CreateEntryFromFile(file, entryName);
+                        entry.LastWriteTime = packageBuildDate;
+                    }
+                }
+                ]]>
+            </Code>
+        </Task>
+    </UsingTask>
+
+    <Target Name="Zip" Inputs="@(ZipInputFiles)" Outputs="$(OutputZipFile)" AfterTargets="Build" DependsOnTargets="ResolveZipInputFiles" Condition="'$(IsCrossTargetingBuild)'!='true'">
         <Exec Command="git log -1 --format=%25%25cd --date=iso-strict" WorkingDirectory="$(MSBuildProjectDirectory)" ConsoleToMSBuild="true" EchoOff="true" StandardOutputImportance="low" Condition="'$(_PackageBuildDate)'==''">
             <Output TaskParameter="ConsoleOutput" PropertyName="_PackageBuildDate" />
         </Exec>
-        
-        <CreateDeterministicZip SourceDirectory="$(OutputPath)Packed" DestinationFile="$(OutputZipFile)" PackageBuildDate="$(_PackageBuildDate)" />
+        <CreateDeterministicZip SourceDirectory="$(OutDir)" DestinationFile="$(OutputZipFile)" PackageBuildDate="$(_PackageBuildDate)" />
         <Message Text="$(MSBuildProjectName) -&gt; $(MSBuildProjectDirectory)\$(OutputZipFile)" Importance="High" />
     </Target>
-    
+
 </Project>

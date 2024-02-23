@@ -1,12 +1,9 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. See the LICENSE.md file in the root directory of this repository root for details.
 
-using Metalama.Backstage.Application;
-using Metalama.Backstage.Configuration;
 using Metalama.Backstage.Extensibility;
 using Metalama.Backstage.Licensing;
 using Metalama.Backstage.Licensing.Consumption;
 using Metalama.Backstage.Testing;
-using Metalama.Backstage.Tests.Extensibility;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using Xunit;
@@ -22,16 +19,16 @@ public class LicenseSourcePriorityTests : LicensingTestsBase
 
     private static readonly LicenseRequirement _testLicenseRequirement = LicenseRequirement.Ultimate;
 
-    public LicenseSourcePriorityTests( ITestOutputHelper logger ) : base( logger ) { }
-
-    protected override void ConfigureServices( ServiceProviderBuilder services ) { }
+    public LicenseSourcePriorityTests( ITestOutputHelper logger ) : base( logger, initializeConfiguration: false ) { }
 
     private ILicenseConsumptionService CreateConsumptionManager( bool isUnattendedProcess, string? projectLicense, string? userLicense, bool isPreview )
     {
-        var serviceCollection = this.CloneServiceCollection();
+        var serviceCollection = this.CreateServiceCollectionClone();
 
         var serviceProviderBuilder =
-            new ServiceCollectionBuilder( serviceCollection );
+            new ServiceProviderBuilder(
+                ( type, instance ) => serviceCollection.AddSingleton( type, instance ),
+                () => serviceCollection.BuildServiceProvider() );
 
         serviceProviderBuilder.AddSingleton<IApplicationInfoProvider>(
                 new ApplicationInfoProvider(
@@ -39,25 +36,16 @@ public class LicenseSourcePriorityTests : LicensingTestsBase
                     {
                         IsUnattendedProcess = isUnattendedProcess
                     } ) )
-            .AddSingleton<IConfigurationManager>( serviceProvider => new Configuration.ConfigurationManager( serviceProvider ) );
-
-        var serviceProvider = serviceCollection.BuildServiceProvider();
+            .AddConfigurationManager();
 
         if ( userLicense != null )
         {
-            TestLicensingConfigurationHelpers.SetStoredLicenseString( serviceProvider, userLicense );
+            TestLicensingConfigurationHelpers.SetStoredLicenseString( serviceProviderBuilder.ServiceProvider, userLicense );
         }
 
-        var options = new LicensingInitializationOptions() { DisableLicenseAudit = true };
+        var options = new LicensingInitializationOptions() { ProjectLicense = projectLicense, DisableLicenseAudit = true };
 
-        var manager = LicenseConsumptionServiceFactory.Create( serviceProvider, options );
-
-        if ( projectLicense != null )
-        {
-            manager = manager.WithAdditionalLicense( projectLicense );
-        }
-
-        return manager;
+        return LicenseConsumptionServiceFactory.Create( serviceProviderBuilder.ServiceProvider, options );
     }
 
     [Fact]

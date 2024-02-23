@@ -1,7 +1,6 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. See the LICENSE.md file in the root directory of this repository root for details.
 
-using Metalama.Backstage.Application;
-using Metalama.Backstage.Infrastructure;
+using Metalama.Backstage.Extensibility;
 using Metalama.Backstage.Licensing.Licenses.LicenseFields;
 using System;
 using System.Diagnostics.CodeAnalysis;
@@ -108,7 +107,7 @@ namespace Metalama.Backstage.Licensing.Licenses
                 if ( this.SubscriptionEndDate < latestComponentMadeByPostSharp.BuildDate )
                 {
                     errorDescription =
-                        $"does not allow to use the licensed product '{latestComponentMadeByPostSharp.Name}' version {latestComponentMadeByPostSharp.PackageVersion} released on {latestComponentMadeByPostSharp.BuildDate:d} - only versions released before {this.SubscriptionEndDate:d} are allowed to use by this license";
+                        $"does not allow to use the licensed product '{latestComponentMadeByPostSharp.Name}' version {latestComponentMadeByPostSharp.Version} released on {latestComponentMadeByPostSharp.BuildDate:d} - only versions released before {this.SubscriptionEndDate:d} are allowed to use by this license";
 
                     return false;
                 }

@@ -45,11 +45,6 @@ public enum ProcessKind
     BackstageWorker,
 
     /// <summary>
-    /// <c>Metalama.Backstage.Desktop.Windows</c>.
-    /// </summary>
-    BackstageDesktopWindows,
-
-    /// <summary>
     /// The <c>metalama</c> global CLI too.
     /// </summary>
     [PublicAPI]

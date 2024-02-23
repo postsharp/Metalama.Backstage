@@ -3,15 +3,12 @@
 using Metalama.Backstage.Extensibility;
 using Metalama.Backstage.Licensing;
 using Metalama.Backstage.Licensing.Audit;
-using Metalama.Backstage.Telemetry;
 using Metalama.Backstage.Testing;
 using Metalama.Backstage.Tests.Licensing.Licenses;
-using Metalama.Backstage.Welcome;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Net.Http;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -19,22 +16,10 @@ namespace Metalama.Backstage.Tests.Licensing.Consumption;
 
 public class LicenseAuditTests : LicenseConsumptionManagerTestsBase
 {
-    public LicenseAuditTests( ITestOutputHelper logger ) : base( logger, isTelemetryEnabled: true )
-    {
-        // Make sure that the telemetry configuration is initialized so we get a stable DeviceId.
-        this.ServiceProvider.GetRequiredBackstageService<BackstageServicesInitializer>().Initialize();
-    }
-
-    protected override void ConfigureServices( ServiceProviderBuilder services )
-    {
-        base.ConfigureServices( services );
-
-        services.AddSingleton<ILicenseAuditManager>( serviceProvider => new LicenseAuditManager( serviceProvider ) );
-        services.AddSingleton<TelemetryReportUploader>( serviceProvider => new TelemetryReportUploader( serviceProvider ) );
-        services.AddSingleton( serviceProvider => new MatomoAuditUploader( serviceProvider ) );
-        services.AddSingleton( serviceProvider => new BackstageServicesInitializer( serviceProvider ) );
-        services.AddSingleton( serviceProvider => new WelcomeService( serviceProvider, Guid.Empty ) );
-    }
+    public LicenseAuditTests( ITestOutputHelper logger ) : base(
+        logger,
+        serviceBuilder => serviceBuilder.AddSingleton<ILicenseAuditManager>( new LicenseAuditManager( serviceBuilder.ServiceProvider ) ),
+        isTelemetryEnabled: true ) { }
 
     private TestLicense CreateAndConsumeLicense( string licenseKey )
     {
@@ -47,8 +32,6 @@ public class LicenseAuditTests : LicenseConsumptionManagerTestsBase
 
     private string[] GetReports()
     {
-        this.BackgroundTasks.WhenNoPendingTaskAsync().Wait();
-
         var files = this.FileSystem.Mock.AllFiles.Where( path => Path.GetFileName( path ).StartsWith( "LicenseAudit-", StringComparison.Ordinal ) );
         var reports = files.SelectMany( f => this.FileSystem.ReadAllLines( f ) ).ToArray();
 
@@ -56,11 +39,10 @@ public class LicenseAuditTests : LicenseConsumptionManagerTestsBase
     }
 
     [Theory]
-    [InlineData( nameof(TestLicenseKeys.MetalamaUltimateBusiness) )]
-    [InlineData( nameof(TestLicenseKeys.MetalamaUltimateBusinessNotAuditable) )]
-    public void LicenseIsAudited( string licenseKeyName )
+    [TestLicensesInlineData( nameof(TestLicenseKeys.MetalamaUltimateBusiness) )]
+    [TestLicensesInlineData( nameof(TestLicenseKeys.MetalamaUltimateBusinessNotAuditable) )]
+    public void LicenseIsAudited( string licenseKey )
     {
-        var licenseKey = TestLicenseKeys.GetLicenseKey( licenseKeyName );
         var license = this.CreateAndConsumeLicense( licenseKey );
 
         license.ResetUsage();
@@ -72,12 +54,6 @@ public class LicenseAuditTests : LicenseConsumptionManagerTestsBase
             var reports = this.GetReports();
             Assert.Single( reports );
             Assert.Contains( licenseKey, reports[0], StringComparison.OrdinalIgnoreCase );
-            var matomoRequest = Assert.Single( this.HttpClientFactory.ProcessedRequests.Where( r => r.Request.RequestUri?.Host == "postsharp.matomo.cloud" ) );
-            Assert.Equal( HttpMethod.Get, matomoRequest.Request.Method );
-
-            Assert.Equal(
-                "https://postsharp.matomo.cloud/matomo.php?idsite=6&rec=1&_id=36579f554ac8899f&dimension1=MetalamaUltimate&dimension2=PerUser&dimension3=LicensingTestApp&dimension4=1.0",
-                matomoRequest.Request.RequestUri?.ToString() );
         }
         else
         {
@@ -96,11 +72,9 @@ public class LicenseAuditTests : LicenseConsumptionManagerTestsBase
 
         Assert.Equal( licenseKeys.Count, reports.Length );
 
-        foreach ( var t in licenseKeys )
+        for ( var i = 0; i < licenseKeys.Count; i++ )
         {
-#pragma warning disable CA1307
-            Assert.Contains( reports, r => r.Contains( t ) );
-#pragma warning restore CA1307
+            Assert.Contains( licenseKeys[i], reports[i], StringComparison.OrdinalIgnoreCase );
         }
     }
 

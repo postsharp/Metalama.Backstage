@@ -30,9 +30,7 @@ public record DiagnosticsConfiguration : ConfigurationFile
 
     public DiagnosticsConfiguration()
     {
-        var processes = Enum.GetValues( typeof(ProcessKind) )
-            .Cast<ProcessKind>()
-            .ToImmutableDictionary( x => x.ToString(), _ => false );
+        var processes = Enum.GetValues( typeof(ProcessKind) ).Cast<ProcessKind>().ToImmutableDictionary( x => x.ToString(), _ => false );
 
         this.Logging = new LoggingConfiguration
         {
@@ -42,7 +40,7 @@ public record DiagnosticsConfiguration : ConfigurationFile
 
         this.Debugging = new DebuggerConfiguration() { Processes = processes };
 
-        this.Profiling = new ProfilingConfiguration() { Kind="performance", Processes = processes };
+        this.Profiling = new ProfilingConfiguration() { Processes = processes };
 
         this.CrashDumps = new CrashDumpConfiguration() { Processes = processes, ExceptionTypes = ImmutableArray.Create( "*" ) };
     }
