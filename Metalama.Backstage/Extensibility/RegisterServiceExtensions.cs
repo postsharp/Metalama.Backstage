@@ -107,7 +107,8 @@ public static class RegisterServiceExtensions
             .AddSingleton<IHttpClientFactory>( new HttpClientFactory() )
             .AddSingleton<IConfigurationManager>( serviceProvider => new ConfigurationManager( serviceProvider ) )
             .AddSingleton<IPlatformInfo>( serviceProvider => new PlatformInfo( serviceProvider, options.DotNetSdkDirectory ) )
-            .AddSingleton<BackstageBackgroundTasksService>( _ => BackstageBackgroundTasksService.Default );
+            .AddSingleton<BackstageBackgroundTasksService>( _ => BackstageBackgroundTasksService.Default )
+            .AddSingleton<WebLinks>( _ => new WebLinks() );
 
         serviceProviderBuilder.AddSingleton<ITempFileManager>( serviceProvider => new TempFileManager( serviceProvider ) );
     }
@@ -184,8 +185,6 @@ public static class RegisterServiceExtensions
         // Add user interface.
         if ( options.AddUserInterface )
         {
-            serviceProviderBuilder.AddService( typeof(WebLinks), _ => new WebLinks() );
-
             serviceProviderBuilder.AddService(
                 typeof(IToastNotificationStatusService),
                 serviceProvider => new ToastNotificationStatusService( serviceProvider ) );
