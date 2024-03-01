@@ -210,6 +210,6 @@ public class ConsentsPageModel : PageModel
             return this.Redirect( "/InstallVsx" );
         }
 
-        return this.Redirect( this._webLinks.AfterSetup );
+        return this.Redirect( "/Done" );
     }
 }

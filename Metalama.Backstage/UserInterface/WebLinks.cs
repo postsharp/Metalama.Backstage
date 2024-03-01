@@ -10,7 +10,7 @@ public class WebLinks : IBackstageService
 {
     private const string _notImplemented = "https://www.postsharp.net/error/not-implemented";
     
-    public string AfterSetup => GetLink( "metalama-after-activation" );
+    public string AfterSetup(bool wasPageDisplayed) => GetLink( "metalama-after-activation", wasPageDisplayed ? "fresh=0" : null );
 
     public string GetTeamTeamTrial => GetLink( "metalama-team-evaluation" );
 
@@ -34,5 +34,15 @@ public class WebLinks : IBackstageService
 
     public string NewsletterSubscribeApi => "https://licensing.postsharp.net/MetalamaNewsletter.ashx";
 
-    private static string GetLink( string alias ) => $"https://www.postsharp.net/links/{alias}?mtm_campaign=setup&mtm_source=app";
+    private static string GetLink( string alias, string? queryString = null )
+    {
+        var url = $"https://www.postsharp.net/links/{alias}?mtm_campaign=setup&mtm_source=app";
+
+        if ( !string.IsNullOrEmpty( queryString ) )
+        {
+            url += "&" + queryString;
+        }
+
+        return url;
+    }
 }
