@@ -106,6 +106,7 @@ namespace Metalama.Backstage.Testing
                 .AddSingleton<IPlatformInfo>( serviceProvider => new PlatformInfo( serviceProvider, null ) )
                 .AddSingleton( this.BackgroundTasks )
                 .AddSingleton<IHttpClientFactory>( _ => new TestHttpClientFactory() )
+                .AddSingleton<WebLinks>( _ => new WebLinks() )
 
                 // We must always have a single instance of the file system even if we use CloneServiceCollection.
                 // ReSharper disable once NullCoalescingConditionIsAlwaysNotNullAccordingToAPIContract
