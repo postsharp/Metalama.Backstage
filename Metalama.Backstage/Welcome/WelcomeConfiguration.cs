@@ -2,6 +2,7 @@
 
 using JetBrains.Annotations;
 using Metalama.Backstage.Configuration;
+using System;
 
 namespace Metalama.Backstage.Welcome;
 
@@ -13,5 +14,9 @@ internal record WelcomeConfiguration : ConfigurationFile
 
     public bool IsFirstTimeEvaluationLicenseRegistrationPending { get; init; } = true;
 
+    public bool WelcomePageDisplayed { get; init; }
+
+    // This property is no longer used but we keep it here so that users don't get warnings during deserialization.
+    [Obsolete]
     public bool IsWelcomePagePending { get; init; } = true;
 }

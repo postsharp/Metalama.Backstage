@@ -4,6 +4,7 @@ using Metalama.Backstage.Configuration;
 using Metalama.Backstage.Diagnostics;
 using Metalama.Backstage.Extensibility;
 using Metalama.Backstage.Telemetry;
+using Metalama.Backstage.UserInterface;
 using System;
 
 namespace Metalama.Backstage.Welcome;
@@ -13,6 +14,7 @@ public class WelcomeService : IBackstageService
     private readonly ILogger _logger;
     private readonly IConfigurationManager _configurationManager;
     private readonly Guid? _newDeviceId;
+    private readonly WebLinks _webLinks;
 
     public WelcomeService( IServiceProvider serviceProvider ) : this( serviceProvider, null ) { }
 
@@ -22,6 +24,7 @@ public class WelcomeService : IBackstageService
         this._newDeviceId = newDeviceId;
         this._logger = serviceProvider.GetLoggerFactory().GetLogger( "Welcome" );
         this._configurationManager = serviceProvider.GetRequiredBackstageService<IConfigurationManager>();
+        this._webLinks = serviceProvider.GetRequiredBackstageService<WebLinks>();
     }
 
     private void ExecuteOnce(
@@ -42,6 +45,14 @@ public class WelcomeService : IBackstageService
         }
 
         action();
+    }
+
+    public string GetWelcomePageUrlAndRemember()
+    {
+        var url = this._webLinks.AfterSetup( this._configurationManager.Get<WelcomeConfiguration>().WelcomePageDisplayed );
+        this._configurationManager.Update<WelcomeConfiguration>( c => c with { WelcomePageDisplayed = true } );
+
+        return url;
     }
 
     public void Initialize()
