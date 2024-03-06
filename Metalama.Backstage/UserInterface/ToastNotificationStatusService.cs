@@ -96,8 +96,15 @@ public class ToastNotificationStatusService : IToastNotificationStatusService
     {
         var id = Guid.NewGuid().ToString();
 
+        // We clean up non-disposed pauses, and we add our.
+
         this._configurationManager.Update<ToastNotificationsConfiguration>(
-            config => config with { Pauses = config.Pauses.Add( id, this._dateTimeProvider.Now.Add( timeSpan ) ) } );
+            config => config with
+            {
+                Pauses = config.Pauses
+                    .RemoveRange( config.Pauses.Where( c => c.Value < this._dateTimeProvider.Now ).Select( c => c.Key ) )
+                    .Add( id, this._dateTimeProvider.Now.Add( timeSpan ) )
+            } );
 
         return new DisposableAction( Resume );
 
