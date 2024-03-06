@@ -1,6 +1,7 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. See the LICENSE.md file in the root directory of this repository root for details.
 
 using Metalama.Backstage.Extensibility;
+using System;
 
 namespace Metalama.Backstage.UserInterface;
 
@@ -14,4 +15,11 @@ public interface IToastNotificationStatusService : IBackstageService
     void Snooze( ToastNotificationKind kind );
 
     void Mute( ToastNotificationKind kind );
+
+    /// <summary>
+    /// Pause all notifications. This is used when the VSX setup wizard is scheduled or open, and
+    /// should take care of activation. This method returns a cookie that must be disposed to resume operations.
+    /// </summary>
+    /// <param name="timeSpan">The <see cref="TimeSpan"/> during which notifications should be paused.</param>
+    IDisposable PauseAll( TimeSpan timeSpan );
 }

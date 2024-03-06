@@ -4,7 +4,9 @@ using Metalama.Backstage.Configuration;
 using Metalama.Backstage.Diagnostics;
 using Metalama.Backstage.Extensibility;
 using Metalama.Backstage.Infrastructure;
+using Metalama.Backstage.Utilities;
 using System;
+using System.Linq;
 
 namespace Metalama.Backstage.UserInterface;
 
@@ -54,7 +56,15 @@ public class ToastNotificationStatusService : IToastNotificationStatusService
     }
 
     public bool TryAcquire( ToastNotificationKind kind )
-        => this._configurationManager.UpdateIf<ToastNotificationsConfiguration>(
+    {
+        if ( this.IsPaused )
+        {
+            this._logger.Trace?.Log( "Notifications are paused." );
+
+            return false;
+        }
+
+        return this._configurationManager.UpdateIf<ToastNotificationsConfiguration>(
             c => this.IsEnabled( kind, c ),
             c => c with
             {
@@ -62,6 +72,7 @@ public class ToastNotificationStatusService : IToastNotificationStatusService
                     kind.Name,
                     new ToastNotificationConfiguration() { SnoozeUntil = this._dateTimeProvider.Now + kind.AutoSnoozePeriod } )
             } );
+    }
 
     public void Snooze( ToastNotificationKind kind )
         => this._configurationManager.Update<ToastNotificationsConfiguration>(
@@ -80,4 +91,36 @@ public class ToastNotificationStatusService : IToastNotificationStatusService
                     kind.Name,
                     new ToastNotificationConfiguration { Disabled = true } )
             } );
+
+    public IDisposable PauseAll( TimeSpan timeSpan )
+    {
+        var id = Guid.NewGuid().ToString();
+
+        // We clean up non-disposed pauses, and we add our.
+
+        this._configurationManager.Update<ToastNotificationsConfiguration>(
+            config => config with
+            {
+                Pauses = config.Pauses
+                    .RemoveRange( config.Pauses.Where( c => c.Value < this._dateTimeProvider.Now ).Select( c => c.Key ) )
+                    .Add( id, this._dateTimeProvider.Now.Add( timeSpan ) )
+            } );
+
+        return new DisposableAction( Resume );
+
+        void Resume()
+        {
+            this._configurationManager.Update<ToastNotificationsConfiguration>( config => config with { Pauses = config.Pauses.Remove( id ) } );
+        }
+    }
+
+    private bool IsPaused
+    {
+        get
+        {
+            var pauses = this._configurationManager.Get<ToastNotificationsConfiguration>().Pauses;
+
+            return pauses.Any( p => p.Value > this._dateTimeProvider.Now );
+        }
+    }
 }
