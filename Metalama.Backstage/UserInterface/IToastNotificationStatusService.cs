@@ -18,10 +18,8 @@ public interface IToastNotificationStatusService : IBackstageService
 
     /// <summary>
     /// Pause all notifications. This is used when the VSX setup wizard is scheduled or open, and
-    /// should take care of activation.
+    /// should take care of activation. This method returns a cookie that must be disposed to resume operations.
     /// </summary>
     /// <param name="timeSpan">The <see cref="TimeSpan"/> during which notifications should be paused.</param>
-    void PauseAll( TimeSpan timeSpan );
-
-    void ResumeAll();
+    IDisposable PauseAll( TimeSpan timeSpan );
 }

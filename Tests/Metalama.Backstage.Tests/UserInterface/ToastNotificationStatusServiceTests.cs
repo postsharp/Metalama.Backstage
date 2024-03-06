@@ -80,12 +80,12 @@ public class ToastNotificationStatusServiceTests : TestsBase
     {
         var pausePeriod = TimeSpan.FromMinutes( 10 );
 
-        this._toastService.PauseAll( pausePeriod );
+        var cookie = this._toastService.PauseAll( pausePeriod );
 
         // This should be paused.
         Assert.False( this._toastService.TryAcquire( ToastNotificationKinds.LicenseExpiring ) );
 
-        this._toastService.ResumeAll();
+        cookie.Dispose();
 
         Assert.True( this._toastService.TryAcquire( ToastNotificationKinds.LicenseExpiring ) );
     }

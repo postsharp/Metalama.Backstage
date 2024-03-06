@@ -4,7 +4,9 @@ using Metalama.Backstage.Configuration;
 using Metalama.Backstage.Diagnostics;
 using Metalama.Backstage.Extensibility;
 using Metalama.Backstage.Infrastructure;
+using Metalama.Backstage.Utilities;
 using System;
+using System.Linq;
 
 namespace Metalama.Backstage.UserInterface;
 
@@ -90,19 +92,28 @@ public class ToastNotificationStatusService : IToastNotificationStatusService
                     new ToastNotificationConfiguration { Disabled = true } )
             } );
 
-    public void PauseAll( TimeSpan timeSpan )
-        => this._configurationManager.Update<ToastNotificationsConfiguration>(
-            config => config with { PausedUntil = this._dateTimeProvider.Now.Add( timeSpan ) } );
+    public IDisposable PauseAll( TimeSpan timeSpan )
+    {
+        var id = Guid.NewGuid().ToString();
+
+        this._configurationManager.Update<ToastNotificationsConfiguration>(
+            config => config with { Pauses = config.Pauses.Add( id, this._dateTimeProvider.Now.Add( timeSpan ) ) } );
+
+        return new DisposableAction( Resume );
+
+        void Resume()
+        {
+            this._configurationManager.Update<ToastNotificationsConfiguration>( config => config with { Pauses = config.Pauses.Remove( id ) } );
+        }
+    }
 
     private bool IsPaused
     {
         get
         {
-            var pausedUntil = this._configurationManager.Get<ToastNotificationsConfiguration>().PausedUntil;
+            var pauses = this._configurationManager.Get<ToastNotificationsConfiguration>().Pauses;
 
-            return pausedUntil != null && pausedUntil.Value > this._dateTimeProvider.Now;
+            return pauses.Any( p => p.Value > this._dateTimeProvider.Now );
         }
     }
-
-    public void ResumeAll() => this._configurationManager.Update<ToastNotificationsConfiguration>( config => config with { PausedUntil = null } );
 }
