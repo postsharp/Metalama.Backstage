@@ -4,6 +4,7 @@ using Metalama.Backstage.Application;
 using Metalama.Backstage.Extensibility;
 using Metalama.Backstage.Testing;
 using Metalama.Backstage.UserInterface;
+using System;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -57,6 +58,35 @@ public class ToastNotificationStatusServiceTests : TestsBase
 
         // Advance the clock to the manual snooze. Now this should work again.
         this.Time.AddTime( ToastNotificationKinds.LicenseExpiring.ManualSnoozePeriod );
+        Assert.True( this._toastService.TryAcquire( ToastNotificationKinds.LicenseExpiring ) );
+    }
+
+    [Fact]
+    public void Pause()
+    {
+        var pausePeriod = TimeSpan.FromMinutes( 10 );
+        this._toastService.PauseAll( pausePeriod );
+
+        // This should be paused.
+        Assert.False( this._toastService.TryAcquire( ToastNotificationKinds.LicenseExpiring ) );
+
+        this.Time.AddTime( pausePeriod );
+
+        Assert.True( this._toastService.TryAcquire( ToastNotificationKinds.LicenseExpiring ) );
+    }
+
+    [Fact]
+    public void PauseAndResume()
+    {
+        var pausePeriod = TimeSpan.FromMinutes( 10 );
+
+        this._toastService.PauseAll( pausePeriod );
+
+        // This should be paused.
+        Assert.False( this._toastService.TryAcquire( ToastNotificationKinds.LicenseExpiring ) );
+
+        this._toastService.ResumeAll();
+
         Assert.True( this._toastService.TryAcquire( ToastNotificationKinds.LicenseExpiring ) );
     }
 }

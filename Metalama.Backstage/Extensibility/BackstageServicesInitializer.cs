@@ -31,11 +31,7 @@ internal sealed class BackstageServicesInitializer : IBackstageService
             {
                 // The license manager may enqueue a file but be unable to start the process.
                 this._serviceProvider.GetBackstageService<ITelemetryUploader>()?.StartUpload();
-
-                if ( this._optionsProvider.Options.DetectToastNotifications )
-                {
-                    this._serviceProvider.GetBackstageService<ToastNotificationDetectionService>()?.Detect();
-                }
+                this._serviceProvider.GetBackstageService<ToastNotificationDetectionService>()?.Detect();
             } );
     }
 }

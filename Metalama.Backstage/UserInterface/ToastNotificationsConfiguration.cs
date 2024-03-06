@@ -12,6 +12,9 @@ namespace Metalama.Backstage.UserInterface;
 [Description( "Toast notifications." )]
 public record ToastNotificationsConfiguration : ConfigurationFile
 {
+    [JsonProperty( "pausedUntil" )]
+    public DateTime? PausedUntil { get; init; }
+
     [JsonProperty( "notifications" )]
     public ImmutableDictionary<string, ToastNotificationConfiguration> Notifications { get; init; } =
         ImmutableDictionary<string, ToastNotificationConfiguration>.Empty.WithComparers( StringComparer.OrdinalIgnoreCase );

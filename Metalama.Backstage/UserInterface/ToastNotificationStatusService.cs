@@ -54,7 +54,15 @@ public class ToastNotificationStatusService : IToastNotificationStatusService
     }
 
     public bool TryAcquire( ToastNotificationKind kind )
-        => this._configurationManager.UpdateIf<ToastNotificationsConfiguration>(
+    {
+        if ( this.IsPaused )
+        {
+            this._logger.Trace?.Log( "Notifications are paused." );
+
+            return false;
+        }
+
+        return this._configurationManager.UpdateIf<ToastNotificationsConfiguration>(
             c => this.IsEnabled( kind, c ),
             c => c with
             {
@@ -62,6 +70,7 @@ public class ToastNotificationStatusService : IToastNotificationStatusService
                     kind.Name,
                     new ToastNotificationConfiguration() { SnoozeUntil = this._dateTimeProvider.Now + kind.AutoSnoozePeriod } )
             } );
+    }
 
     public void Snooze( ToastNotificationKind kind )
         => this._configurationManager.Update<ToastNotificationsConfiguration>(
@@ -80,4 +89,20 @@ public class ToastNotificationStatusService : IToastNotificationStatusService
                     kind.Name,
                     new ToastNotificationConfiguration { Disabled = true } )
             } );
+
+    public void PauseAll( TimeSpan timeSpan )
+        => this._configurationManager.Update<ToastNotificationsConfiguration>(
+            config => config with { PausedUntil = this._dateTimeProvider.Now.Add( timeSpan ) } );
+
+    private bool IsPaused
+    {
+        get
+        {
+            var pausedUntil = this._configurationManager.Get<ToastNotificationsConfiguration>().PausedUntil;
+
+            return pausedUntil != null && pausedUntil.Value > this._dateTimeProvider.Now;
+        }
+    }
+
+    public void ResumeAll() => this._configurationManager.Update<ToastNotificationsConfiguration>( config => config with { PausedUntil = null } );
 }

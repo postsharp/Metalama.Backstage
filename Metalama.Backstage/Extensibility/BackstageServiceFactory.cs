@@ -20,7 +20,7 @@ public static class BackstageServiceFactory
         => _serviceProvider ?? throw new InvalidOperationException( "BackstageServiceFactory has not been initialized." );
 
     public static bool IsInitialized => _serviceProvider != null;
-    
+
     public static bool Initialize( BackstageInitializationOptions options, string caller )
     {
         lock ( _initializeSync )
@@ -31,12 +31,9 @@ public static class BackstageServiceFactory
                     .GetLogger( "BackstageServiceFactory" )
                     .Trace?.Log( $"Support services initialization requested from {caller}. The services are already initialized." );
 
-                if ( options is { AddUserInterface: true, DetectToastNotifications: true } )
-                {
-                    // We need to run the to detect notifications every time time because the service provider can be cached in the
-                    // compiler background process, and we need the UI logic to run often.
-                    _serviceProvider.GetBackstageService<ToastNotificationDetectionService>()?.Detect();
-                }
+                // We need to run the to detect notifications every time time because the service provider can be cached in the
+                // compiler background process, and we need the UI logic to run often.
+                _serviceProvider.GetBackstageService<ToastNotificationDetectionService>()?.Detect();
 
                 return false;
             }
