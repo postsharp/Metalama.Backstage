@@ -14,14 +14,19 @@ internal sealed class UserInfoService : IUserInfoService
     private readonly ILogger _logger;
     private readonly IExceptionReporter _exceptionReporter;
     private readonly UserInfoSource[] _orderedUserInfoSources;
+    private readonly ConfigurationUserInfoSource _configurationUserInfoSource;
 
     public UserInfoService( IServiceProvider serviceProvider )
     {
         this._logger = serviceProvider.GetLoggerFactory().GetLogger( nameof(UserInfoService) );
         this._exceptionReporter = serviceProvider.GetRequiredBackstageService<IExceptionReporter>();
-        
+        this._configurationUserInfoSource = new( serviceProvider );
+
         this._orderedUserInfoSources =
-            new UserInfoSource[] { new VisualStudioUserInfoSource(), new ActiveDirectoryUserInfoSource(), new WindowsProfileUserInfoSource() };
+            new UserInfoSource[]
+            {
+                this._configurationUserInfoSource, new VisualStudioUserInfoSource(), new ActiveDirectoryUserInfoSource(), new WindowsProfileUserInfoSource()
+            };
     }
     
     public bool TryGetUserInfo( [NotNullWhen( true )] out UserInfo? userInfo )
@@ -58,4 +63,6 @@ internal sealed class UserInfoService : IUserInfoService
         
         return false;
     }
+
+    public void SaveEmailAddress( string emailAddress ) => this._configurationUserInfoSource.SaveEmailAddress( emailAddress );
 }

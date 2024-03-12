@@ -127,6 +127,8 @@ public class ConsentsPageModel : PageModel
 
         if ( this.SubscribeToNewsletter )
         {
+            this._userInfoService.SaveEmailAddress( this.EmailAddress );
+            
             if ( string.IsNullOrEmpty( this.RecaptchaResponse ) )
             {
                 this.ErrorMessages.Add( "The reCaptcha challenge was invalid." );
