@@ -32,7 +32,7 @@ internal class BackstageToolsExecutor : IBackstageToolsExecutor
     {
         if ( this._locator.ToolsMustBeExtracted )
         {
-            // This method can be called from different processes, including tools themselves. These processes do not have 
+            // This method can be called from different processes, including the Worker processes. These processes do not have 
             // the IBackstageToolsExtractor service, but of course they are guaranteed to run when tools have already been extracted.
             this._serviceProvider.GetBackstageService<IBackstageToolsExtractor>()?.ExtractAll();
         }

@@ -9,6 +9,7 @@ using Metalama.Backstage.Licensing.Consumption;
 using Metalama.Backstage.Licensing.Registration;
 using Metalama.Backstage.Maintenance;
 using Metalama.Backstage.Telemetry;
+using Metalama.Backstage.Telemetry.User;
 using Metalama.Backstage.Tools;
 using Metalama.Backstage.UserInterface;
 using Metalama.Backstage.Utilities;
@@ -204,6 +205,8 @@ public static class RegisterServiceExtensions
             {
                 serviceProviderBuilder.AddService( typeof(IUserInterfaceService), serviceProvider => new BrowserBasedUserInterfaceService( serviceProvider ) );
             }
+
+            serviceProviderBuilder.AddService( typeof(IUserInfoService), serviceProvider => new UserInfoService( serviceProvider ) );
         }
 
         // Add process management service.

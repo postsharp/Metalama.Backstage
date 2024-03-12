@@ -4,6 +4,7 @@ using Metalama.Backstage.Application;
 using Metalama.Backstage.Licensing.Registration;
 using Metalama.Backstage.Pages.Shared;
 using Metalama.Backstage.Telemetry;
+using Metalama.Backstage.Telemetry.User;
 using Metalama.Backstage.UserInterface;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
@@ -29,6 +30,7 @@ public class ConsentsPageModel : PageModel
     private readonly WebLinks _webLinks;
     private readonly IHttpClientFactory _httpClientFactory;
     private readonly IApplicationInfo _applicationInfo;
+    private readonly IUserInfoService _userInfoService;
 
     private static string? _cachedCaptchaSiteKey;
 
@@ -39,6 +41,7 @@ public class ConsentsPageModel : PageModel
         WebLinks webLinks,
         IHttpClientFactory httpClientFactory,
         IApplicationInfoProvider applicationInfoProvider,
+        IUserInfoService userInfoService,
         IIdeExtensionStatusService? ideExtensionStatusService = null )
     {
         this._licenseRegistrationService = licenseRegistrationService;
@@ -48,6 +51,7 @@ public class ConsentsPageModel : PageModel
         this._httpClientFactory = httpClientFactory;
         this._toastNotificationStatusService = toastNotificationStatusService;
         this._applicationInfo = applicationInfoProvider.CurrentApplication;
+        this._userInfoService = userInfoService;
     }
 
     public List<string> ErrorMessages { get; } = new();
@@ -96,6 +100,8 @@ public class ConsentsPageModel : PageModel
 
     public async Task<IActionResult> OnGetAsync()
     {
+        this.EmailAddress = this._userInfoService.TryGetUserInfo( out var i ) ? i.EmailAddress : string.Empty;
+
         await this.PrepareCaptchaAsync();
 
         return this.Page();
