@@ -27,9 +27,6 @@ public class TelemetryUploaderTests : TestsBase
     protected override void ConfigureServices( ServiceProviderBuilder services )
     {
         services
-            .AddSingleton<IBackstageToolsLocator>( serviceProvider => new MockBackstageToolLocator( serviceProvider ) )
-            .AddSingleton<IBackstageToolsExecutor>( serviceProvider => new BackstageToolsExecutor( serviceProvider ) )
-            .AddSingleton<IPlatformInfo>( serviceProvider => new PlatformInfo( serviceProvider, null ) )
             .AddSingleton<IHttpClientFactory>(
                 serviceProvider =>
                     new TestHttpClientFactory( f => new TelemetryTestsPutMessageHandler( serviceProvider, _feedbackDirectory, f ) ) )

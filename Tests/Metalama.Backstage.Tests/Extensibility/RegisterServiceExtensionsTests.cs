@@ -7,6 +7,7 @@ using Metalama.Backstage.Licensing.Audit;
 using Metalama.Backstage.Licensing.Consumption;
 using Metalama.Backstage.Telemetry;
 using Metalama.Backstage.Testing;
+using Metalama.Backstage.Tools;
 using Metalama.Backstage.UserInterface;
 using Microsoft.Extensions.DependencyInjection;
 using System;
@@ -26,14 +27,26 @@ public class RegisterServiceExtensionsTests
     [InlineData( false, true, false )]
     [InlineData( false, false, false )]
     [InlineData( true, false, true, true )]
-    public void AddBackstageServices( bool addLicensing, bool addSupportServices, bool addUserInterface, bool disableLicenseAudit = false )
+    [InlineData( true, true, true, false, false )]
+    public void AddBackstageServices(
+        bool addLicensing,
+        bool addSupportServices,
+        bool addUserInterface,
+        bool disableLicenseAudit = false,
+        bool addToolsExtractor = true )
     {
         var options = new BackstageInitializationOptions( new TestApplicationInfo( "Test", true, "1.0", DateTime.Today ) )
         {
             AddLicensing = addLicensing,
             AddSupportServices = addSupportServices,
+            AddUserInterface = addUserInterface,
             LicensingOptions = new LicensingInitializationOptions() { DisableLicenseAudit = disableLicenseAudit }
         };
+
+        if ( addToolsExtractor && (addSupportServices || addUserInterface) )
+        {
+            options = options with { AddToolsExtractor = b => b.AddService( typeof(IBackstageToolsExtractor), p => new BackstageToolsExtractor( p ) ) };
+        }
 
         var serviceProviderBuilder = CreateServiceCollectionBuilder();
         serviceProviderBuilder.AddBackstageServices( options );
@@ -76,9 +89,24 @@ public class RegisterServiceExtensionsTests
 
         if ( addUserInterface )
         {
+            Assert.NotNull( serviceProvider.GetBackstageService<IToastNotificationService>() );
+            Assert.NotNull( serviceProvider.GetBackstageService<IUserInterfaceService>() );
+            Assert.NotNull( serviceProvider.GetBackstageService<ToastNotificationDetectionService>() );
+        }
+        else
+        {
             Assert.Null( serviceProvider.GetBackstageService<IToastNotificationService>() );
             Assert.Null( serviceProvider.GetBackstageService<IUserInterfaceService>() );
             Assert.Null( serviceProvider.GetBackstageService<ToastNotificationDetectionService>() );
+        }
+
+        if ( addToolsExtractor && (addSupportServices || addUserInterface) )
+        {
+            Assert.NotNull( serviceProvider.GetBackstageService<IBackstageToolsExtractor>() );
+        }
+        else
+        {
+            Assert.Null( serviceProvider.GetBackstageService<IBackstageToolsExtractor>() );
         }
     }
 }

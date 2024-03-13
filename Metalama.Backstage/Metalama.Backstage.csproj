@@ -21,6 +21,8 @@
         <PackageReference Include="Microsoft.Bcl.HashCode" Version="$(MicrosoftBclHashCodeVersion)" />
         <PackageReference Include="Newtonsoft.Json" Version="$(NewtonsoftJsonMinVersion)" />
         <PackageReference Include="System.IO.Packaging" Version="6.0.0" />
+        <PackageReference Include="System.DirectoryServices" Version="6.0.0" />
+        <PackageReference Include="Microsoft.Win32.Registry" Version="5.0.0" Condition="'$(TargetFramework)'=='netstandard2.0'" />
     </ItemGroup>
 
     <PropertyGroup>

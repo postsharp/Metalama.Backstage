@@ -32,5 +32,10 @@
                           PrivateAssets="all" />
 
     </ItemGroup>
+    
+    <ItemGroup>
+        <InternalsVisibleTo Include="Metalama.Backstage.Testing" />
+        <InternalsVisibleTo Include="Metalama.Backstage.Tests" />
+    </ItemGroup>
 
 </Project>

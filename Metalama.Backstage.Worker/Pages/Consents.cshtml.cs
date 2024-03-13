@@ -4,12 +4,14 @@ using Metalama.Backstage.Application;
 using Metalama.Backstage.Licensing.Registration;
 using Metalama.Backstage.Pages.Shared;
 using Metalama.Backstage.Telemetry;
+using Metalama.Backstage.Telemetry.User;
 using Metalama.Backstage.UserInterface;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Net;
@@ -29,6 +31,7 @@ public class ConsentsPageModel : PageModel
     private readonly WebLinks _webLinks;
     private readonly IHttpClientFactory _httpClientFactory;
     private readonly IApplicationInfo _applicationInfo;
+    private readonly IUserInfoService _userInfoService;
 
     private static string? _cachedCaptchaSiteKey;
 
@@ -39,6 +42,7 @@ public class ConsentsPageModel : PageModel
         WebLinks webLinks,
         IHttpClientFactory httpClientFactory,
         IApplicationInfoProvider applicationInfoProvider,
+        IUserInfoService userInfoService,
         IIdeExtensionStatusService? ideExtensionStatusService = null )
     {
         this._licenseRegistrationService = licenseRegistrationService;
@@ -48,6 +52,7 @@ public class ConsentsPageModel : PageModel
         this._httpClientFactory = httpClientFactory;
         this._toastNotificationStatusService = toastNotificationStatusService;
         this._applicationInfo = applicationInfoProvider.CurrentApplication;
+        this._userInfoService = userInfoService;
     }
 
     public List<string> ErrorMessages { get; } = new();
@@ -59,7 +64,8 @@ public class ConsentsPageModel : PageModel
 
     [BindProperty]
     [EmailAddress]
-    public string EmailAddress { get; set; } = "test@example.com";
+    [DisplayName( "Email" )]
+    public string? EmailAddress { get; set; }
 
     [BindProperty]
     public bool SubscribeToNewsletter { get; set; }
@@ -98,6 +104,12 @@ public class ConsentsPageModel : PageModel
     {
         await this.PrepareCaptchaAsync();
 
+        // If newsletter is not available, we keep the email address empty, so the field validation is not triggered.
+        if ( this.NewsletterAvailable )
+        {
+            this.EmailAddress = this._userInfoService.TryGetUserInfo( out var i ) ? i.EmailAddress : null;
+        }
+
         return this.Page();
     }
 
@@ -121,6 +133,16 @@ public class ConsentsPageModel : PageModel
 
         if ( this.SubscribeToNewsletter )
         {
+            // If the value is not null or empty, it gets validated by the web framework.
+            if ( string.IsNullOrEmpty( this.EmailAddress ) )
+            {
+                this.ErrorMessages.Add( "The email address is required to subscribe to the newsletter." );
+                
+                return this.Page();
+            }
+            
+            this._userInfoService.SaveEmailAddress( this.EmailAddress );
+            
             if ( string.IsNullOrEmpty( this.RecaptchaResponse ) )
             {
                 this.ErrorMessages.Add( "The reCaptcha challenge was invalid." );
