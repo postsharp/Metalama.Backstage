@@ -18,5 +18,5 @@ public record UserInfo : ConfigurationFile
     }
 
     [JsonProperty( "emailAddress" )]
-    public string EmailAddress { get; init; } = string.Empty;
+    public string? EmailAddress { get; init; }
 }
