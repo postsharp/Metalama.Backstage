@@ -72,6 +72,7 @@ public class WelcomeServiceTests : TestsBase
 
         initializerService.Initialize();
         this.BackgroundTasks.WhenNoPendingTaskAsync().Wait();
+        this.ServiceProvider.GetRequiredBackstageService<IToastNotificationDetectionService>().Detect();
 
         if ( !shouldBeOpened )
         {
@@ -117,8 +118,8 @@ public class WelcomeServiceTests : TestsBase
         // Initialize
         var initializerService = this.ServiceProvider.GetRequiredBackstageService<BackstageServicesInitializer>();
         initializerService.Initialize();
-
         this.BackgroundTasks.WhenNoPendingTaskAsync().Wait();
+        this.ServiceProvider.GetRequiredBackstageService<IToastNotificationDetectionService>().Detect();
 
 #pragma warning disable CA1307
         Assert.Single( this.UserInterface.Notifications, n => n.Kind == ToastNotificationKinds.TrialExpiring && n.Title?.Contains( "6 days" ) == true );
@@ -140,8 +141,8 @@ public class WelcomeServiceTests : TestsBase
         // Initialize
         var initializerService = this.ServiceProvider.GetRequiredBackstageService<BackstageServicesInitializer>();
         initializerService.Initialize();
-
         this.BackgroundTasks.WhenNoPendingTaskAsync().Wait();
+        this.ServiceProvider.GetRequiredBackstageService<IToastNotificationDetectionService>().Detect();
 
         if ( extensionInstalled )
         {
