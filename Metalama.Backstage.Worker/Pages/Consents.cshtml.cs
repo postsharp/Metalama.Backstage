@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Net;
@@ -63,7 +64,8 @@ public class ConsentsPageModel : PageModel
 
     [BindProperty]
     [EmailAddress]
-    public string EmailAddress { get; set; } = "test@example.com";
+    [DisplayName( "Email" )]
+    public string? EmailAddress { get; set; }
 
     [BindProperty]
     public bool SubscribeToNewsletter { get; set; }
@@ -100,9 +102,13 @@ public class ConsentsPageModel : PageModel
 
     public async Task<IActionResult> OnGetAsync()
     {
-        this.EmailAddress = this._userInfoService.TryGetUserInfo( out var i ) ? i.EmailAddress : string.Empty;
-
         await this.PrepareCaptchaAsync();
+
+        // If newsletter is not available, we keep the email address empty, so the field validation is not triggered.
+        if ( this.NewsletterAvailable )
+        {
+            this.EmailAddress = this._userInfoService.TryGetUserInfo( out var i ) ? i.EmailAddress : null;
+        }
 
         return this.Page();
     }
@@ -127,6 +133,14 @@ public class ConsentsPageModel : PageModel
 
         if ( this.SubscribeToNewsletter )
         {
+            // If the value is not null or empty, it gets validated by the web framework.
+            if ( string.IsNullOrEmpty( this.EmailAddress ) )
+            {
+                this.ErrorMessages.Add( "Email address is required to subscribe to the newsletter." );
+                
+                return this.Page();
+            }
+            
             this._userInfoService.SaveEmailAddress( this.EmailAddress );
             
             if ( string.IsNullOrEmpty( this.RecaptchaResponse ) )
