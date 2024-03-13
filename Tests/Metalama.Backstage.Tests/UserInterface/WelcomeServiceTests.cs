@@ -85,13 +85,13 @@ public class WelcomeServiceTests : TestsBase
         // Initializing a second time should not show a notification because of snoozing.
         this.UserInterface.Notifications.Clear();
 
-        this.ServiceProvider.GetRequiredBackstageService<ToastNotificationDetectionService>().Detect();
+        this.ServiceProvider.GetRequiredBackstageService<IToastNotificationDetectionService>().Detect();
         Assert.Empty( this.UserInterface.Notifications );
 
         // After the snooze period, we should see a notification.
         this.Time.AddTime( ToastNotificationKinds.RequiresLicense.AutoSnoozePeriod );
 
-        this.ServiceProvider.GetRequiredBackstageService<ToastNotificationDetectionService>().Detect();
+        this.ServiceProvider.GetRequiredBackstageService<IToastNotificationDetectionService>().Detect();
 
         if ( !shouldBeOpened )
         {

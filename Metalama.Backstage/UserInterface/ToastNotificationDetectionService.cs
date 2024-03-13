@@ -9,7 +9,7 @@ using System;
 
 namespace Metalama.Backstage.UserInterface;
 
-internal class ToastNotificationDetectionService : IBackstageService
+internal class ToastNotificationDetectionService : IToastNotificationDetectionService
 {
     private readonly IToastNotificationService _toastNotificationService;
     private readonly IDateTimeProvider _dateTimeProvider;
@@ -73,7 +73,7 @@ internal class ToastNotificationDetectionService : IBackstageService
                         new ToastNotification(
                             ToastNotificationKinds.LicenseExpiring,
                             $"Your Metalama license expires {this.FormatExpiration( license.ValidTo.Value )}",
-                            "Register a new license license key  to avoid loosing functionality." ) );
+                            "Register a new license license key to avoid loosing functionality." ) );
                 }
 
                 notificationReported = true;
@@ -110,7 +110,6 @@ internal class ToastNotificationDetectionService : IBackstageService
 
         var notificationReported = false;
 
-        // Validate the current license.
         if ( !this._userDeviceDetectionService.IsInteractiveDevice )
         {
             this._logger.Trace?.Log( "Skipping detection because the session is not interactive." );
