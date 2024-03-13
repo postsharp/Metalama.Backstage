@@ -136,7 +136,7 @@ public class ConsentsPageModel : PageModel
             // If the value is not null or empty, it gets validated by the web framework.
             if ( string.IsNullOrEmpty( this.EmailAddress ) )
             {
-                this.ErrorMessages.Add( "Email address is required to subscribe to the newsletter." );
+                this.ErrorMessages.Add( "The email address is required to subscribe to the newsletter." );
                 
                 return this.Page();
             }
