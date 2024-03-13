@@ -3,6 +3,7 @@
 using Metalama.Backstage.Application;
 using Metalama.Backstage.Diagnostics;
 using Metalama.Backstage.Extensibility;
+using Metalama.Backstage.Tools;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using System;
@@ -36,7 +37,8 @@ namespace Metalama.Backstage.Commands
                 AddSupportServices = true,
                 CreateLoggingFactory = _ => loggerFactory,
                 IsDevelopmentEnvironment = args.Settings.IsDevelopmentEnvironment,
-                AddUserInterface = args.Settings.AddUserInterface
+                AddUserInterface = args.Settings.AddUserInterface,
+                AddToolsExtractor = b => b.AddTools()
             };
 
             initializationOptions = args.TransformOptions( initializationOptions );

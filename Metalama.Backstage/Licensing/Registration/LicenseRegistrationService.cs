@@ -42,7 +42,7 @@ internal class LicenseRegistrationService : ILicenseRegistrationService
         }
     }
 
-    private bool RequiresAttendedSession( [NotNullWhen( false )] out string? errorMessage )
+    private bool RequireAttendedSession( [NotNullWhen( false )] out string? errorMessage )
     {
         if ( !this._userDeviceDetectionService.IsInteractiveDevice )
         {
@@ -73,7 +73,7 @@ internal class LicenseRegistrationService : ILicenseRegistrationService
             this._logger.Trace?.Log( $"Failed to register Metalama Free license: {message}" );
         }
 
-        if ( !this.RequiresAttendedSession( out errorMessage ) )
+        if ( !this.RequireAttendedSession( out errorMessage ) )
         {
             return false;
         }
@@ -114,7 +114,7 @@ internal class LicenseRegistrationService : ILicenseRegistrationService
 
     public bool TryRegisterTrialEdition( [NotNullWhen( false )] out string? errorMessage )
     {
-        if ( !this.RequiresAttendedSession( out errorMessage ) )
+        if ( !this.RequireAttendedSession( out errorMessage ) )
         {
             return false;
         }
@@ -158,7 +158,7 @@ internal class LicenseRegistrationService : ILicenseRegistrationService
 
     public bool TryRegisterLicense( string licenseString, [NotNullWhen( false )] out string? errorMessage )
     {
-        if ( !this.RequiresAttendedSession( out errorMessage ) )
+        if ( !this.RequireAttendedSession( out errorMessage ) )
         {
             return false;
         }
