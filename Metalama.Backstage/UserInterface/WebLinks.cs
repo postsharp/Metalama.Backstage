@@ -10,7 +10,7 @@ public class WebLinks : IBackstageService
 {
     private const string _notImplemented = "https://www.postsharp.net/error/not-implemented";
     
-    public string AfterSetup(bool wasPageDisplayed) => GetLink( "metalama-after-activation", wasPageDisplayed ? "fresh=0" : null );
+    public string AfterSetup( bool wasPageDisplayed ) => GetLink( "metalama-after-activation", wasPageDisplayed ? "fresh=0" : null );
 
     public string GetTeamTeamTrial => GetLink( "metalama-team-evaluation" );
 

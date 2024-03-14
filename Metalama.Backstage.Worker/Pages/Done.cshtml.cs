@@ -19,8 +19,17 @@ public class DonePageModel : PageModel
 
     public IActionResult OnGet()
     {
-        var url = this._welcomeService.GetWelcomePageUrlAndRemember();
-        
-        return this.Redirect( url );
+        var isDeviceOnline = bool.Parse( this.Request.Query["isDeviceOnline"] );
+
+        if ( isDeviceOnline )
+        {
+            var url = this._welcomeService.GetWelcomePageUrlAndRemember();
+
+            return this.Redirect( url );
+        }
+        else
+        {
+            return this.Page();
+        }
     }
 }

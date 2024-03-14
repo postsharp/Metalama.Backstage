@@ -27,7 +27,7 @@
 }
 
 <form method="post">
-    @if (Model.NewsletterAvailable)
+    @if (Model.IsDeviceOnline)
     {
         <input id="recaptchaResponse" type="hidden" asp-for="RecaptchaResponse "/>
 

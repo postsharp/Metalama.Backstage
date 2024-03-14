@@ -76,14 +76,14 @@ public class ConsentsPageModel : PageModel
     [BindProperty]
     public string? RecaptchaResponse { get; set; }
 
-    public bool NewsletterAvailable { get; set; }
+    public bool IsDeviceOnline { get; set; }
 
     private async Task PrepareCaptchaAsync()
     {
         if ( _cachedCaptchaSiteKey != null )
         {
             this.RecaptchaSiteKey = _cachedCaptchaSiteKey;
-            this.NewsletterAvailable = true;
+            this.IsDeviceOnline = true;
         }
         else
         {
@@ -91,11 +91,11 @@ public class ConsentsPageModel : PageModel
             {
                 var httpClient = this._httpClientFactory.Create();
                 this.RecaptchaSiteKey = _cachedCaptchaSiteKey = await httpClient.GetStringAsync( this._webLinks.NewsletterGetCaptchaSiteKeyApi );
-                this.NewsletterAvailable = true;
+                this.IsDeviceOnline = true;
             }
             catch
             {
-                this.NewsletterAvailable = false;
+                this.IsDeviceOnline = false;
             }
         }
     }
@@ -105,7 +105,7 @@ public class ConsentsPageModel : PageModel
         await this.PrepareCaptchaAsync();
 
         // If newsletter is not available, we keep the email address empty, so the field validation is not triggered.
-        if ( this.NewsletterAvailable )
+        if ( this.IsDeviceOnline )
         {
             this.EmailAddress = this._userInfoService.TryGetUserInfo( out var i ) ? i.EmailAddress : null;
         }
@@ -232,6 +232,6 @@ public class ConsentsPageModel : PageModel
             return this.Redirect( "/InstallVsx" );
         }
 
-        return this.Redirect( "/Done" );
+        return this.Redirect( $"/Done?isDeviceOnline={this.IsDeviceOnline}" );
     }
 }
