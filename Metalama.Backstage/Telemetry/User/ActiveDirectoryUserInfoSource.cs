@@ -26,7 +26,16 @@ internal class ActiveDirectoryUserInfoSource : UserInfoSource
         using var searcher = new DirectorySearcher();
         searcher.Filter = $"(samaccountname={Environment.UserName})";
         searcher.PropertiesToLoad.Add( "mail" );
-        var results = searcher.FindOne();
+        SearchResult? results;
+
+        try
+        {
+            results = searcher.FindOne();
+        }
+        catch ( COMException )
+        {
+            results = null;
+        }
 
         if ( results == null )
         {
