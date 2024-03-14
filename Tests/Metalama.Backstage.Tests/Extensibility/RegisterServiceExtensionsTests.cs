@@ -91,13 +91,13 @@ public class RegisterServiceExtensionsTests
         {
             Assert.NotNull( serviceProvider.GetBackstageService<IToastNotificationService>() );
             Assert.NotNull( serviceProvider.GetBackstageService<IUserInterfaceService>() );
-            Assert.NotNull( serviceProvider.GetBackstageService<ToastNotificationDetectionService>() );
+            Assert.NotNull( serviceProvider.GetBackstageService<IToastNotificationDetectionService>() );
         }
         else
         {
             Assert.Null( serviceProvider.GetBackstageService<IToastNotificationService>() );
             Assert.Null( serviceProvider.GetBackstageService<IUserInterfaceService>() );
-            Assert.Null( serviceProvider.GetBackstageService<ToastNotificationDetectionService>() );
+            Assert.Null( serviceProvider.GetBackstageService<IToastNotificationDetectionService>() );
         }
 
         if ( addToolsExtractor && (addSupportServices || addUserInterface) )

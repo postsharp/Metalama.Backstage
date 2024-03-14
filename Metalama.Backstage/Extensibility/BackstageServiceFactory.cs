@@ -4,7 +4,6 @@ using JetBrains.Annotations;
 using Metalama.Backstage.Diagnostics;
 using Metalama.Backstage.Licensing.Consumption;
 using Metalama.Backstage.Licensing.Consumption.Sources;
-using Metalama.Backstage.UserInterface;
 using System;
 
 namespace Metalama.Backstage.Extensibility;
@@ -30,10 +29,6 @@ public static class BackstageServiceFactory
                 _serviceProvider.GetLoggerFactory()
                     .GetLogger( "BackstageServiceFactory" )
                     .Trace?.Log( $"Support services initialization requested from {caller}. The services are already initialized." );
-
-                // We need to run the to detect notifications every time time because the service provider can be cached in the
-                // compiler background process, and we need the UI logic to run often.
-                _serviceProvider.GetBackstageService<ToastNotificationDetectionService>()?.Detect();
 
                 return false;
             }

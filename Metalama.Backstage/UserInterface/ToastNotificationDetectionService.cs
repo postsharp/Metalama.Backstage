@@ -9,13 +9,14 @@ using System;
 
 namespace Metalama.Backstage.UserInterface;
 
-internal class ToastNotificationDetectionService : IBackstageService
+internal class ToastNotificationDetectionService : IToastNotificationDetectionService
 {
     private readonly IToastNotificationService _toastNotificationService;
     private readonly IDateTimeProvider _dateTimeProvider;
     private readonly IUserDeviceDetectionService _userDeviceDetectionService;
     private readonly IIdeExtensionStatusService? _ideExtensionStatusService;
     private readonly ILicenseRegistrationService? _licenseRegistrationService;
+    private readonly BackstageBackgroundTasksService _backgroundTasksService;
     private readonly object _initializationSync = new();
     private readonly ILogger _logger;
 
@@ -28,6 +29,7 @@ internal class ToastNotificationDetectionService : IBackstageService
         this._dateTimeProvider = serviceProvider.GetRequiredBackstageService<IDateTimeProvider>();
         this._ideExtensionStatusService = serviceProvider.GetBackstageService<IIdeExtensionStatusService>();
         this._toastNotificationService = serviceProvider.GetRequiredBackstageService<IToastNotificationService>();
+        this._backgroundTasksService = serviceProvider.GetRequiredBackstageService<BackstageBackgroundTasksService>();
         this._logger = serviceProvider.GetLoggerFactory().GetLogger( this.GetType().Name );
     }
 
@@ -73,7 +75,7 @@ internal class ToastNotificationDetectionService : IBackstageService
                         new ToastNotification(
                             ToastNotificationKinds.LicenseExpiring,
                             $"Your Metalama license expires {this.FormatExpiration( license.ValidTo.Value )}",
-                            "Register a new license license key  to avoid loosing functionality." ) );
+                            "Register a new license license key to avoid loosing functionality." ) );
                 }
 
                 notificationReported = true;
@@ -92,9 +94,9 @@ internal class ToastNotificationDetectionService : IBackstageService
         }
     }
 
-    public void Detect()
+    private void DetectImpl()
     {
-        // Avoid too frequent initializations for performance reasons. The threshold (here 15 seconds) should be lower
+        // Avoid too frequent detections for performance reasons. The threshold (here 15 seconds) should be lower
         // than the lowest auto-snooze period of a toast notification.
         lock ( this._initializationSync )
         {
@@ -110,7 +112,6 @@ internal class ToastNotificationDetectionService : IBackstageService
 
         var notificationReported = false;
 
-        // Validate the current license.
         if ( !this._userDeviceDetectionService.IsInteractiveDevice )
         {
             this._logger.Trace?.Log( "Skipping detection because the session is not interactive." );
@@ -130,4 +131,6 @@ internal class ToastNotificationDetectionService : IBackstageService
             this._toastNotificationService.Show( new ToastNotification( ToastNotificationKinds.VsxNotInstalled ) );
         }
     }
+
+    public void Detect() => this._backgroundTasksService.Enqueue( this.DetectImpl );
 }

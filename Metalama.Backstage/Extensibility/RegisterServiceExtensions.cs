@@ -195,7 +195,7 @@ public static class RegisterServiceExtensions
             if ( options.DetectToastNotifications )
             {
                 serviceProviderBuilder.AddService(
-                    typeof(ToastNotificationDetectionService),
+                    typeof(IToastNotificationDetectionService),
                     serviceProvider => new ToastNotificationDetectionService( serviceProvider ) );
             }
 

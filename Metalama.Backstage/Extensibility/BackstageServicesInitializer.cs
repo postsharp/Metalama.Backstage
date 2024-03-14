@@ -1,7 +1,6 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. See the LICENSE.md file in the root directory of this repository root for details.
 
 using Metalama.Backstage.Telemetry;
-using Metalama.Backstage.UserInterface;
 using Metalama.Backstage.Welcome;
 using System;
 
@@ -24,12 +23,7 @@ internal sealed class BackstageServicesInitializer : IBackstageService
 
         this._serviceProvider.GetBackstageService<IProfilingService>()?.Initialize();
 
-        this._backgroundTasksService.Enqueue(
-            () =>
-            {
-                // The license manager may enqueue a file but be unable to start the process.
-                this._serviceProvider.GetBackstageService<ITelemetryUploader>()?.StartUpload();
-                this._serviceProvider.GetBackstageService<ToastNotificationDetectionService>()?.Detect();
-            } );
+        // The license manager may enqueue a file but be unable to start the process.
+        this._backgroundTasksService.Enqueue( () => this._serviceProvider.GetBackstageService<ITelemetryUploader>()?.StartUpload() );
     }
 }

@@ -127,7 +127,7 @@ namespace Metalama.Backstage.Testing
                 .AddSingleton<BackstageServicesInitializer>( serviceProvider => new BackstageServicesInitializer( serviceProvider ) )
                 .AddSingleton<WelcomeService>( serviceProvider => new WelcomeService( serviceProvider, Guid.Empty ) )
                 .AddSingleton<IIdeExtensionStatusService>( serviceProvider => new IdeExtensionStatusService( serviceProvider ) )
-                .AddSingleton<ToastNotificationDetectionService>( serviceProvider => new ToastNotificationDetectionService( serviceProvider ) )
+                .AddSingleton<IToastNotificationDetectionService>( serviceProvider => new ToastNotificationDetectionService( serviceProvider ) )
                 .AddSingleton<IStandardDirectories>( serviceProvider => new StandardDirectories( serviceProvider ) )
                 .AddSingleton<IBackstageToolsExtractor>( serviceProvider => new BackstageToolsExtractor( serviceProvider ) );
 
