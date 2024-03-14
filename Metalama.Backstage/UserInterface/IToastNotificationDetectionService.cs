@@ -4,6 +4,8 @@ using Metalama.Backstage.Extensibility;
 
 namespace Metalama.Backstage.UserInterface;
 
+// This service is used in Metalama.Framework.Engine.
+// The detection is not called when a project has no aspects or validators.
 public interface IToastNotificationDetectionService : IBackstageService
 {
     void Detect();
