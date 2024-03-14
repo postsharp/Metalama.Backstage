@@ -16,6 +16,7 @@ internal class ToastNotificationDetectionService : IToastNotificationDetectionSe
     private readonly IUserDeviceDetectionService _userDeviceDetectionService;
     private readonly IIdeExtensionStatusService? _ideExtensionStatusService;
     private readonly ILicenseRegistrationService? _licenseRegistrationService;
+    private readonly BackstageBackgroundTasksService _backgroundTasksService;
     private readonly object _initializationSync = new();
     private readonly ILogger _logger;
 
@@ -28,6 +29,7 @@ internal class ToastNotificationDetectionService : IToastNotificationDetectionSe
         this._dateTimeProvider = serviceProvider.GetRequiredBackstageService<IDateTimeProvider>();
         this._ideExtensionStatusService = serviceProvider.GetBackstageService<IIdeExtensionStatusService>();
         this._toastNotificationService = serviceProvider.GetRequiredBackstageService<IToastNotificationService>();
+        this._backgroundTasksService = serviceProvider.GetRequiredBackstageService<BackstageBackgroundTasksService>();
         this._logger = serviceProvider.GetLoggerFactory().GetLogger( this.GetType().Name );
     }
 
@@ -92,9 +94,9 @@ internal class ToastNotificationDetectionService : IToastNotificationDetectionSe
         }
     }
 
-    public void Detect()
+    private void DetectImpl()
     {
-        // Avoid too frequent initializations for performance reasons. The threshold (here 15 seconds) should be lower
+        // Avoid too frequent detections for performance reasons. The threshold (here 15 seconds) should be lower
         // than the lowest auto-snooze period of a toast notification.
         lock ( this._initializationSync )
         {
@@ -129,4 +131,6 @@ internal class ToastNotificationDetectionService : IToastNotificationDetectionSe
             this._toastNotificationService.Show( new ToastNotification( ToastNotificationKinds.VsxNotInstalled ) );
         }
     }
+
+    public void Detect() => this._backgroundTasksService.Enqueue( this.DetectImpl );
 }

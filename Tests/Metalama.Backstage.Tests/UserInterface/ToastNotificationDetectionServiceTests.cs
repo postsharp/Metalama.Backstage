@@ -4,6 +4,7 @@ using Metalama.Backstage.Extensibility;
 using Metalama.Backstage.Licensing.Registration;
 using Metalama.Backstage.Testing;
 using Metalama.Backstage.UserInterface;
+using System.Threading.Tasks;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -19,17 +20,22 @@ public class ToastNotificationDetectionServiceTests : TestsBase
         this._toastNotificationDetectionService = this.ServiceProvider.GetRequiredBackstageService<IToastNotificationDetectionService>();
         this._backstageServicesInitializer = this.ServiceProvider.GetRequiredBackstageService<BackstageServicesInitializer>();
     }
+
+    private async Task DetectToastNotificationsAsync()
+    {
+        this._toastNotificationDetectionService.Detect();
+        await this.BackgroundTasks.WhenNoPendingTaskAsync();
+    }
     
     [Theory]
     [InlineData( true, true )]
     [InlineData( false, false )]
-    public void IsActivationSuggestedOnFirstRun( bool isUserInteractive, bool shouldBeOpened )
+    public async Task IsActivationSuggestedOnFirstRunAsync( bool isUserInteractive, bool shouldBeOpened )
     {
         this.UserDeviceDetection.IsInteractiveDevice = isUserInteractive;
 
         this._backstageServicesInitializer.Initialize();
-        this.BackgroundTasks.WhenNoPendingTaskAsync().Wait();
-        this._toastNotificationDetectionService.Detect();
+        await this.DetectToastNotificationsAsync();
 
         if ( !shouldBeOpened )
         {
@@ -43,13 +49,13 @@ public class ToastNotificationDetectionServiceTests : TestsBase
         // Initializing a second time should not show a notification because of snoozing.
         this.UserInterface.Notifications.Clear();
 
-        this._toastNotificationDetectionService.Detect();
+        await this.DetectToastNotificationsAsync();
         Assert.Empty( this.UserInterface.Notifications );
 
         // After the snooze period, we should see a notification.
         this.Time.AddTime( ToastNotificationKinds.RequiresLicense.AutoSnoozePeriod );
 
-        this._toastNotificationDetectionService.Detect();
+        await this.DetectToastNotificationsAsync();
 
         if ( !shouldBeOpened )
         {
@@ -62,7 +68,7 @@ public class ToastNotificationDetectionServiceTests : TestsBase
     }
 
     [Fact]
-    public void IsUserNotifiedOfTrialExpiration()
+    public async Task IsUserNotifiedOfTrialExpirationAsync()
     {
         this.UserDeviceDetection.IsInteractiveDevice = true;
 
@@ -74,8 +80,7 @@ public class ToastNotificationDetectionServiceTests : TestsBase
 
         // Initialize
         this._backstageServicesInitializer.Initialize();
-        this.BackgroundTasks.WhenNoPendingTaskAsync().Wait();
-        this._toastNotificationDetectionService.Detect();
+        await this.DetectToastNotificationsAsync();
 
 #pragma warning disable CA1307
         Assert.Single( this.UserInterface.Notifications, n => n.Kind == ToastNotificationKinds.TrialExpiring && n.Title?.Contains( "6 days" ) == true );
@@ -85,7 +90,7 @@ public class ToastNotificationDetectionServiceTests : TestsBase
     [Theory]
     [InlineData( true )]
     [InlineData( false )]
-    public void IsVsxInstallationSuggested( bool extensionInstalled )
+    public async Task IsVsxInstallationSuggestedAsync( bool extensionInstalled )
     {
         this.UserDeviceDetection.IsInteractiveDevice = true;
         this.UserDeviceDetection.IsVisualStudioInstalled = true;
@@ -96,8 +101,7 @@ public class ToastNotificationDetectionServiceTests : TestsBase
 
         // Initialize
         this._backstageServicesInitializer.Initialize();
-        this.BackgroundTasks.WhenNoPendingTaskAsync().Wait();
-        this._toastNotificationDetectionService.Detect();
+        await this.DetectToastNotificationsAsync();
 
         if ( extensionInstalled )
         {
