@@ -9,8 +9,11 @@
 
     <script>
         function onSubmit(token) {
-         $('#recaptchaResponse').val(token);
-         $('form').submit();
+            if ($('#subscribeToNewsletterCheckbox').is(':checked')) {
+                $('#recaptchaResponse').val(token);
+            }
+         
+            $('form').submit();
         }
         
          $(document).ready(function() {
@@ -32,7 +35,7 @@
         <input id="recaptchaResponse" type="hidden" asp-for="RecaptchaResponse "/>
 
         <div class="checkbox">
-            <input type="checkbox" asp-for="SubscribeToNewsletter ">
+            <input id="subscribeToNewsletterCheckbox" type="checkbox" asp-for="SubscribeToNewsletter ">
             <div class="label">
                 <p>
                     <label asp-for="SubscribeToNewsletter ">Subscribe to the Metalama newsletter and the welcome e-mail course.</label>
@@ -72,7 +75,14 @@
         </div>
     </div>
     <div class="continue-button">
-        <button type="submit" class="g-recaptcha" data-sitekey="@Model.RecaptchaSiteKey" data-callback="onSubmit">Continue</button>
+        @if (Model.IsDeviceOnline)
+        {
+            <button type="submit" class="g-recaptcha" data-sitekey="@Model.RecaptchaSiteKey" data-callback="onSubmit">Continue</button>
+        }
+        else
+        {
+            <button type="submit">Continue</button>
+        }
     </div>
 
 </form>
