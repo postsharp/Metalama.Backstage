@@ -98,6 +98,12 @@ public class BackstageBackgroundTasksService : IBackstageService, IDisposable
 
     public void Dispose()
     {
+        // Don't allow disposing the global instance.
+        if ( ReferenceEquals( this, Default ) )
+        {
+            return;
+        }
+
         this._noPendingTaskSemaphore.Dispose();
     }
 }
