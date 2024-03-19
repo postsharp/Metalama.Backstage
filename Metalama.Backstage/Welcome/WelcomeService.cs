@@ -47,9 +47,9 @@ public class WelcomeService : IBackstageService
         action();
     }
 
-    public string GetWelcomePageUrlAndRemember()
+    public string? GetWelcomePageUrlAndRemember()
     {
-        var url = this._webLinks.AfterSetup( this._configurationManager.Get<WelcomeConfiguration>().WelcomePageDisplayed );
+        var url = this._configurationManager.Get<WelcomeConfiguration>().WelcomePageDisplayed ? null : this._webLinks.AfterSetup;
         this._configurationManager.Update<WelcomeConfiguration>( c => c with { WelcomePageDisplayed = true } );
 
         return url;
