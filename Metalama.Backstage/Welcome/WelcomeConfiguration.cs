@@ -8,7 +8,7 @@ namespace Metalama.Backstage.Welcome;
 
 [ConfigurationFile( "welcome.json" )]
 [UsedImplicitly]
-public record WelcomeConfiguration : ConfigurationFile
+internal record WelcomeConfiguration : ConfigurationFile
 {
     public bool IsFirstStart { get; init; } = true;
 
