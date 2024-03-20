@@ -58,7 +58,7 @@ internal class VisualStudioUserInfoSource : UserInfoSource
 
         Array.Sort( subKeysOrder, subKeyNames );
 
-        for ( var i = subKeyNames.Length - 1; i >= 0; i++ )
+        for ( var i = subKeyNames.Length - 1; i >= 0; i-- )
         {
             var cacheSubKeyName = $@"{subKeyNames[i]}\Cache";
             var cacheKey = connectedUserSubKey?.OpenSubKey( cacheSubKeyName );
