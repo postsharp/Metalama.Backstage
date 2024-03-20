@@ -33,15 +33,7 @@ public static class BackstageServiceFactory
                 return false;
             }
 
-            var serviceProviderBuilder = new SimpleServiceProviderBuilder();
-            serviceProviderBuilder.AddBackstageServices( options );
-
-            _serviceProvider = serviceProviderBuilder.ServiceProvider;
-
-            if ( options.Initialize )
-            {
-                _serviceProvider.GetRequiredBackstageService<BackstageServicesInitializer>().Initialize();
-            }
+            _serviceProvider = CreateServiceProvider( options );
 
             _serviceProvider.GetLoggerFactory()
                 .GetLogger( "BackstageServiceFactory" )
@@ -49,6 +41,21 @@ public static class BackstageServiceFactory
 
             return true;
         }
+    }
+    
+    public static IServiceProvider CreateServiceProvider( BackstageInitializationOptions options )
+    {
+        var serviceProviderBuilder = new SimpleServiceProviderBuilder();
+        serviceProviderBuilder.AddBackstageServices( options );
+
+        _serviceProvider = serviceProviderBuilder.ServiceProvider;
+
+        if ( options.Initialize )
+        {
+            _serviceProvider.GetRequiredBackstageService<BackstageServicesInitializer>().Initialize();
+        }
+
+        return _serviceProvider;
     }
 
     public static ILicenseConsumptionService CreateTestLicenseConsumptionService( IServiceProvider serviceProvider, string? licenseKey )
