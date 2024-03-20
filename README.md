@@ -18,3 +18,4 @@ It is released under a proprietary source-available license.
 | Package | License | Description |
 |--|--|--|
 | [Metalama.Backstage](https://www.nuget.org/packages/Metalama.Backstage) | Source available | Infrastructure services for Metalama. |
+| [Metalama.Backstage.Tools](https://www.nuget.org/packages/Metalama.Backstage.Tools) | Source available | Telemetry and UI services for Metalama. |
