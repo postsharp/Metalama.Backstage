@@ -15,7 +15,10 @@ var product = new Product( MetalamaDependencies.MetalamaBackstage )
         new DotNetSolution( "Metalama.Backstage.sln" ) { SupportsTestCoverage = true, CanFormatCode = true }
     },
     PublicArtifacts = Pattern.Create(
-        "Metalama.Backstage.$(PackageVersion).nupkg" ),
+        "Metalama.Backstage.$(PackageVersion).nupkg",
+
+        // Required by Metalama.Testing.AspectTesting via Metalama.Framework.Engine.
+        "Metalama.Backstage.Tools.$(PackageVersion).nupkg" ),
     Dependencies = new[] { DevelopmentDependencies.PostSharpEngineering }
 };
 
