@@ -16,6 +16,12 @@ public class WelcomeService : IBackstageService
     private readonly Guid? _newDeviceId;
     private readonly WebLinks _webLinks;
 
+    public bool WelcomePageDisplayed
+    {
+        get => this._configurationManager.Get<WelcomeConfiguration>().WelcomePageDisplayed;
+        set => this._configurationManager.Update<WelcomeConfiguration>( c => c with { WelcomePageDisplayed = value } );
+    }
+
     public WelcomeService( IServiceProvider serviceProvider ) : this( serviceProvider, null ) { }
 
     // For test only.
@@ -47,10 +53,10 @@ public class WelcomeService : IBackstageService
         action();
     }
 
-    public string GetWelcomePageUrlAndRemember()
+    public string? GetWelcomePageUrlAndRemember()
     {
-        var url = this._webLinks.AfterSetup( this._configurationManager.Get<WelcomeConfiguration>().WelcomePageDisplayed );
-        this._configurationManager.Update<WelcomeConfiguration>( c => c with { WelcomePageDisplayed = true } );
+        var url = this.WelcomePageDisplayed ? null : this._webLinks.AfterSetup;
+        this.WelcomePageDisplayed = true;
 
         return url;
     }

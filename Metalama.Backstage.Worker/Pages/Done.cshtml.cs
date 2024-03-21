@@ -25,11 +25,12 @@ public class DonePageModel : PageModel
         {
             var url = this._welcomeService.GetWelcomePageUrlAndRemember();
 
-            return this.Redirect( url );
+            if ( url != null )
+            {
+                return this.Redirect( url );
+            }
         }
-        else
-        {
-            return this.Page();
-        }
+        
+        return this.Page();
     }
 }
