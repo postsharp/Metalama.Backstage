@@ -18,6 +18,15 @@ CSC : warning CS8002: Referenced assembly 'Spectre.Console.Cli, Version=0.0.0.0,
 
     </PropertyGroup>
 
+    <ItemGroup>
+        <!-- We can't use the default PackageVersion metadata attribute because we are IL-merging all Metalama
+             assemblies in Metalama.Vsx and we can no longer distinguish between attributes of different assemblies. -->
+        <AssemblyAttribute Include="System.Reflection.AssemblyMetadataAttribute">
+            <_Parameter1>BackstagePackageVersion</_Parameter1>
+            <_Parameter2>$(Version)</_Parameter2>
+        </AssemblyAttribute>
+    </ItemGroup>
+
     <Import Project="eng\Versions.props"/>
     <Import Project="eng\StrongName.props"/>
     <Import Project="eng\Packaging.props"/>
