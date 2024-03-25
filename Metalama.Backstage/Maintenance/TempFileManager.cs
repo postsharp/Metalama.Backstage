@@ -24,8 +24,7 @@ public class TempFileManager : ITempFileManager
     private readonly IConfigurationManager _configurationManager;
     private readonly string _applicationVersion;
 
-    private readonly string _backstageVersion = AssemblyMetadataReader.GetInstance( typeof(TempFileManager).Assembly ).PackageVersion
-                                                ?? throw new InvalidOperationException();
+    private readonly string _backstageVersion;
 
     public TempFileManager( IServiceProvider serviceProvider )
     {
@@ -37,6 +36,13 @@ public class TempFileManager : ITempFileManager
         this._standardDirectories = serviceProvider.GetRequiredBackstageService<IStandardDirectories>();
 
         var application = serviceProvider.GetRequiredBackstageService<IApplicationInfoProvider>().CurrentApplication;
+
+        if ( !AssemblyMetadataReader.GetInstance( typeof(TempFileManager).Assembly ).TryGetValue( "BackstagePackageVersion", out var backstageVersion ) )
+        {
+            throw new InvalidOperationException();
+        }
+
+        this._backstageVersion = backstageVersion;
 
         this._applicationVersion = application.GetLatestComponentMadeByPostSharp().PackageVersion ??
                                    throw new InvalidOperationException( "The application version is not set." );

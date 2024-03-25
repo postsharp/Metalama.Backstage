@@ -77,7 +77,7 @@ namespace Metalama.Backstage.Utilities
 
             foreach ( var attribute in assembly.GetCustomAttributes( typeof(AssemblyMetadataAttribute) ).Cast<AssemblyMetadataAttribute>() )
             {
-                // In case of duplicates, we just ignore the first one. This happens with attributes describing package versions.
+                // In case of duplicates, we just ignore the first one. This happens with attributes describing package versions and when different assemblies are IL-merged.
                 this._metadata[attribute.Key] = attribute.Value;
             }
         }
