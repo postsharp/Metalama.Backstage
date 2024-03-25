@@ -24,7 +24,7 @@ public class TempFileManager : ITempFileManager
     private readonly IConfigurationManager _configurationManager;
     private readonly string _applicationVersion;
 
-    private readonly string _backstageVersion; 
+    private readonly string _backstageVersion;
 
     public TempFileManager( IServiceProvider serviceProvider )
     {
@@ -43,11 +43,9 @@ public class TempFileManager : ITempFileManager
         }
 
         this._backstageVersion = backstageVersion;
-        
+
         this._applicationVersion = application.GetLatestComponentMadeByPostSharp().PackageVersion ??
                                    throw new InvalidOperationException( "The application version is not set." );
-
-        
     }
 
     /// <summary>
