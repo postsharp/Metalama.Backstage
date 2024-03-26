@@ -53,6 +53,8 @@ namespace Metalama.Backstage.Testing
         protected TestHttpClientFactory HttpClientFactory { get; }
 
         protected ILicenseRegistrationService LicenseRegistrationService { get; }
+        
+        protected ITelemetryConfigurationService TelemetryConfigurationService { get; set; }
 
         protected IServiceCollection CloneServiceCollection()
         {
@@ -87,8 +89,10 @@ namespace Metalama.Backstage.Testing
             this.UserInterface = (TestUserInterfaceService) this.ServiceProvider.GetRequiredBackstageService<IUserInterfaceService>();
             this.HttpClientFactory = (TestHttpClientFactory) this.ServiceProvider.GetRequiredBackstageService<IHttpClientFactory>();
             this.LicenseRegistrationService = this.ServiceProvider.GetRequiredBackstageService<ILicenseRegistrationService>();
+            this.TelemetryConfigurationService = this.ServiceProvider.GetRequiredBackstageService<ITelemetryConfigurationService>();
         }
 
+        
         private ServiceCollection CreateServiceCollection(
             Action<ServiceProviderBuilder>? serviceBuilder = null,
             BackstageInitializationOptions? options = null )

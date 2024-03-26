@@ -21,9 +21,14 @@ internal class TelemetryConfigurationService : ITelemetryConfigurationService
         this._configurationManager = serviceProvider.GetRequiredBackstageService<IConfigurationManager>();
     }
 
-    public void SetStatus( bool enabled )
+    public void SetStatus( bool? enabled )
     {
-        var reportAction = enabled ? ReportingAction.Yes : ReportingAction.No;
+        var reportAction = enabled switch
+        {
+            null => ReportingAction.Ask,
+            true => ReportingAction.Yes,
+            false => ReportingAction.No
+        };
 
         this._configurationManager.Update<TelemetryConfiguration>(
             c => c with { UsageReportingAction = reportAction, ExceptionReportingAction = reportAction, PerformanceProblemReportingAction = reportAction } );

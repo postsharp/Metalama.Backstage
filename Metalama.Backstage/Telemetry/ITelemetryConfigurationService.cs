@@ -7,7 +7,7 @@ namespace Metalama.Backstage.Telemetry;
 
 public interface ITelemetryConfigurationService : IBackstageService
 {
-    void SetStatus( bool enabled );
+    void SetStatus( bool? enabled );
 
     Guid DeviceId { get; }
 
