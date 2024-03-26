@@ -20,11 +20,6 @@ public static class BackstageCommandFactory
         app.Configure(
             appConfig =>
             {
-                appConfig.AddCommand<WelcomeCommand>( "welcome" )
-                    .WithData( options )
-                    .WithDescription( "Executes the first-day initialization." )
-                    .IsHidden();
-
                 appConfig.AddBranch(
                     "license",
                     license =>

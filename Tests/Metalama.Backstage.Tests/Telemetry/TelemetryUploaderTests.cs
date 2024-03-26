@@ -76,6 +76,8 @@ public class TelemetryUploaderTests : TestsBase
     [Fact]
     public async Task ExceptionsAreUploaded()
     {
+        this.TelemetryConfigurationService.SetStatus( true );
+        
         var exceptionsReporter = this.ServiceProvider.GetRequiredBackstageService<IExceptionReporter>();
         exceptionsReporter.ReportException( new InvalidOperationException( "Test Exception" ) );
 
@@ -85,6 +87,8 @@ public class TelemetryUploaderTests : TestsBase
     [Fact]
     public async Task PerformanceProblemsAreUploaded()
     {
+        this.TelemetryConfigurationService.SetStatus( true );
+        
         var exceptionsReporter = this.ServiceProvider.GetRequiredBackstageService<IExceptionReporter>();
         exceptionsReporter.ReportException( new InvalidOperationException( "Test Performance Problem" ), ExceptionReportingKind.PerformanceProblem );
 

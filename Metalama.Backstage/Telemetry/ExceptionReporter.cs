@@ -32,6 +32,7 @@ internal class ExceptionReporter : IExceptionReporter, IDisposable
     private readonly IFileSystem _fileSystem;
     private readonly bool _canIgnoreRecoverableExceptions;
     private readonly LocalExceptionReporter? _localExceptionReporter;
+    private readonly ITelemetryConfigurationService _telemetryConfigurationService;
     private TelemetryConfiguration _configuration;
 
     public ExceptionReporter( TelemetryQueue uploadManager, IServiceProvider serviceProvider )
@@ -40,6 +41,7 @@ internal class ExceptionReporter : IExceptionReporter, IDisposable
         this._configurationManager = serviceProvider.GetRequiredBackstageService<IConfigurationManager>();
         this._configuration = this._configurationManager.Get<TelemetryConfiguration>();
         this._configurationManager.ConfigurationFileChanged += this.OnConfigurationChanged;
+        this._telemetryConfigurationService = serviceProvider.GetRequiredBackstageService<ITelemetryConfigurationService>();
         this._time = serviceProvider.GetRequiredBackstageService<IDateTimeProvider>();
         this._applicationInfoProvider = serviceProvider.GetRequiredBackstageService<IApplicationInfoProvider>();
         this._directories = serviceProvider.GetRequiredBackstageService<IStandardDirectories>();
@@ -208,7 +210,7 @@ internal class ExceptionReporter : IExceptionReporter, IDisposable
     private static void PopulateStackTraces( List<string?> stackTraces, Exception exception, IExceptionAdapter adapter )
     {
         var stackTrace = adapter.GetStackTrace( exception );
-        
+
         if ( stackTrace != null )
         {
             stackTraces.Add( stackTrace );
@@ -251,8 +253,7 @@ internal class ExceptionReporter : IExceptionReporter, IDisposable
                 ? this._configuration.ExceptionReportingAction
                 : this._configuration.PerformanceProblemReportingAction;
 
-            // Telemetry is opt out, i.e. we report even if the user did not specifically opt in.
-            if ( reportingAction == ReportingAction.No )
+            if ( reportingAction != ReportingAction.Yes )
             {
                 this._logger.Trace?.Log( $"The issue will not be reported because the reporting action in the user profile is set to {reportingAction}." );
 
@@ -265,7 +266,7 @@ internal class ExceptionReporter : IExceptionReporter, IDisposable
             // Get stack traces.
             var stackTraces = new List<string?>();
             PopulateStackTraces( stackTraces, reportedException, adapter );
-            
+
             // Compute a signature for this exception.
             var hash = this.ComputeExceptionHash(
                 applicationInfo.PackageVersion,
@@ -296,7 +297,7 @@ internal class ExceptionReporter : IExceptionReporter, IDisposable
             xmlWriter.WriteStartElement( "ErrorReport" );
             xmlWriter.WriteElementString( "InvariantHash", hash );
             xmlWriter.WriteElementString( "Time", XmlConvert.ToString( this._time.Now, XmlDateTimeSerializationMode.RoundtripKind ) );
-            xmlWriter.WriteElementString( "ClientId", this._configuration.DeviceId.ToString() );
+            xmlWriter.WriteElementString( "ClientId", this._telemetryConfigurationService.DeviceId.ToString() );
             xmlWriter.WriteStartElement( "Application" );
             xmlWriter.WriteElementString( "Name", applicationInfo.Name );
             xmlWriter.WriteElementString( "Version", applicationInfo.PackageVersion );

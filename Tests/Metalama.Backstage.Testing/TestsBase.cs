@@ -54,6 +54,8 @@ namespace Metalama.Backstage.Testing
 
         protected ILicenseRegistrationService LicenseRegistrationService { get; }
 
+        protected ITelemetryConfigurationService TelemetryConfigurationService { get; set; }
+
         protected IServiceCollection CloneServiceCollection()
         {
             var services = new ServiceCollection();
@@ -87,6 +89,7 @@ namespace Metalama.Backstage.Testing
             this.UserInterface = (TestUserInterfaceService) this.ServiceProvider.GetRequiredBackstageService<IUserInterfaceService>();
             this.HttpClientFactory = (TestHttpClientFactory) this.ServiceProvider.GetRequiredBackstageService<IHttpClientFactory>();
             this.LicenseRegistrationService = this.ServiceProvider.GetRequiredBackstageService<ILicenseRegistrationService>();
+            this.TelemetryConfigurationService = this.ServiceProvider.GetRequiredBackstageService<ITelemetryConfigurationService>();
         }
 
         private ServiceCollection CreateServiceCollection(
@@ -125,11 +128,12 @@ namespace Metalama.Backstage.Testing
                 .AddSingleton<IToastNotificationService>( serviceProvider => new ToastNotificationService( serviceProvider ) )
                 .AddSingleton<IToastNotificationStatusService>( serviceProvider => new ToastNotificationStatusService( serviceProvider ) )
                 .AddSingleton<BackstageServicesInitializer>( serviceProvider => new BackstageServicesInitializer( serviceProvider ) )
-                .AddSingleton<WelcomeService>( serviceProvider => new WelcomeService( serviceProvider, Guid.Empty ) )
+                .AddSingleton<WelcomeService>( serviceProvider => new WelcomeService( serviceProvider ) )
                 .AddSingleton<IIdeExtensionStatusService>( serviceProvider => new IdeExtensionStatusService( serviceProvider ) )
                 .AddSingleton<IToastNotificationDetectionService>( serviceProvider => new ToastNotificationDetectionService( serviceProvider ) )
                 .AddSingleton<IStandardDirectories>( serviceProvider => new StandardDirectories( serviceProvider ) )
-                .AddSingleton<IBackstageToolsExtractor>( serviceProvider => new BackstageToolsExtractor( serviceProvider ) );
+                .AddSingleton<IBackstageToolsExtractor>( serviceProvider => new BackstageToolsExtractor( serviceProvider ) )
+                .AddSingleton<ITelemetryConfigurationService>( serviceProvider => new TelemetryConfigurationService( serviceProvider, Guid.Empty ) );
 
             var serviceProviderBuilder =
                 new ServiceProviderBuilder( ( type, instance ) => serviceCollection.AddSingleton( type, instance ) );
