@@ -50,39 +50,42 @@ internal class ToastNotificationDetectionService : IToastNotificationDetectionSe
         // We set notificationReported to true even if the notification is not reported because of snoozing
         // because the reason of this flag is to avoid displaying VsxNotInstalled.
 
-        if ( license == null )
+        switch ( license )
         {
-            this._toastNotificationService.Show( new ToastNotification( ToastNotificationKinds.RequiresLicense ) );
-
-            notificationReported = true;
-        }
-        else
-        {
-            if ( license is { ValidTo: not null }
-                 && license.ValidTo.Value.Subtract( LicensingConstants.LicenseExpirationWarningPeriod ) < this._dateTimeProvider.Now )
-            {
-                if ( license.LicenseType == LicenseType.Evaluation )
-                {
-                    this._toastNotificationService.Show(
-                        new ToastNotification(
-                            ToastNotificationKinds.TrialExpiring,
-                            $"Your Metalama trial expires {this.FormatExpiration( license.ValidTo.Value )}",
-                            "Switch to Metalama [Free] or register a license key to avoid loosing functionality." ) );
-                }
-                else
-                {
-                    this._toastNotificationService.Show(
-                        new ToastNotification(
-                            ToastNotificationKinds.LicenseExpiring,
-                            $"Your Metalama license expires {this.FormatExpiration( license.ValidTo.Value )}",
-                            "Register a new license license key to avoid loosing functionality." ) );
-                }
+            case null:
+                this._toastNotificationService.Show( new ToastNotification( ToastNotificationKinds.RequiresLicense ) );
 
                 notificationReported = true;
-            }
-            else if ( license is { SubscriptionEndDate: not null }
-                      && license.SubscriptionEndDate.Value.Subtract( LicensingConstants.SubscriptionExpirationWarningPeriod ) < this._dateTimeProvider.Now )
-            {
+
+                break;
+
+            case { ValidTo: not null }
+                when license.ValidTo.Value.Subtract( LicensingConstants.LicenseExpirationWarningPeriod ) < this._dateTimeProvider.Now:
+                {
+                    if ( license.LicenseType == LicenseType.Evaluation )
+                    {
+                        this._toastNotificationService.Show(
+                            new ToastNotification(
+                                ToastNotificationKinds.TrialExpiring,
+                                $"Your Metalama trial expires {this.FormatExpiration( license.ValidTo.Value )}",
+                                "Switch to Metalama [Free] or register a license key to avoid loosing functionality." ) );
+                    }
+                    else
+                    {
+                        this._toastNotificationService.Show(
+                            new ToastNotification(
+                                ToastNotificationKinds.LicenseExpiring,
+                                $"Your Metalama license expires {this.FormatExpiration( license.ValidTo.Value )}",
+                                "Register a new license license key to avoid loosing functionality." ) );
+                    }
+
+                    notificationReported = true;
+
+                    break;
+                }
+
+            case { SubscriptionEndDate: not null }
+                when license.SubscriptionEndDate.Value.Subtract( LicensingConstants.SubscriptionExpirationWarningPeriod ) < this._dateTimeProvider.Now:
                 this._toastNotificationService.Show(
                     new ToastNotification(
                         ToastNotificationKinds.SubscriptionExpiring,
@@ -90,11 +93,12 @@ internal class ToastNotificationDetectionService : IToastNotificationDetectionSe
                         "Renew your subscription and register a new license key to continue benefiting from updates." ) );
 
                 notificationReported = true;
-            }
+
+                break;
         }
     }
 
-    private void DetectImpl()
+    private void DetectImpl( ToastNotificationDetectionOptions options )
     {
         // Avoid too frequent detections for performance reasons. The threshold (here 15 seconds) should be lower
         // than the lowest auto-snooze period of a toast notification.
@@ -121,10 +125,12 @@ internal class ToastNotificationDetectionService : IToastNotificationDetectionSe
 
         this._logger.Trace?.Log( "Detecting relevant toast notifications." );
 
-        if ( this._licenseRegistrationService != null )
+        if ( this._licenseRegistrationService != null && !options.HasValidLicense )
         {
             this.ValidateRegisteredLicense( this._licenseRegistrationService.RegisteredLicense, ref notificationReported );
         }
+
+        // TODO: Show a toast notification suggesting to subscribe the newsletter. (34701)
 
         if ( !notificationReported && this._ideExtensionStatusService?.ShouldRecommendToInstallVisualStudioExtension == true )
         {
@@ -132,5 +138,6 @@ internal class ToastNotificationDetectionService : IToastNotificationDetectionSe
         }
     }
 
-    public void Detect() => this._backgroundTasksService.Enqueue( this.DetectImpl );
+    public void Detect( ToastNotificationDetectionOptions? options )
+        => this._backgroundTasksService.Enqueue( () => this.DetectImpl( options ?? new ToastNotificationDetectionOptions() ) );
 }

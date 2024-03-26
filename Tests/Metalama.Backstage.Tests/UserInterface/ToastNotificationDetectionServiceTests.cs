@@ -13,7 +13,7 @@ namespace Metalama.Backstage.Tests.UserInterface;
 public class ToastNotificationDetectionServiceTests : TestsBase
 {
     private readonly IToastNotificationDetectionService _toastNotificationDetectionService;
-    private readonly BackstageServicesInitializer _backstageServicesInitializer; 
+    private readonly BackstageServicesInitializer _backstageServicesInitializer;
 
     public ToastNotificationDetectionServiceTests( ITestOutputHelper logger ) : base( logger )
     {
@@ -21,21 +21,23 @@ public class ToastNotificationDetectionServiceTests : TestsBase
         this._backstageServicesInitializer = this.ServiceProvider.GetRequiredBackstageService<BackstageServicesInitializer>();
     }
 
-    private async Task DetectToastNotificationsAsync()
+    private async Task DetectToastNotificationsAsync( bool hasValidLicense = false )
     {
-        this._toastNotificationDetectionService.Detect();
+        this._toastNotificationDetectionService.Detect( new ToastNotificationDetectionOptions { HasValidLicense = hasValidLicense } );
         await this.BackgroundTasks.WhenNoPendingTaskAsync();
     }
-    
+
     [Theory]
-    [InlineData( true, true )]
-    [InlineData( false, false )]
-    public async Task IsActivationSuggestedOnFirstRunAsync( bool isUserInteractive, bool shouldBeOpened )
+    [InlineData( true, false, true )]
+    [InlineData( false, false, false )]
+    [InlineData( true, true, false )]
+    [InlineData( false, true, false )]
+    public async Task IsActivationSuggestedOnFirstRunAsync( bool isUserInteractive, bool hasValidLicense, bool shouldBeOpened )
     {
         this.UserDeviceDetection.IsInteractiveDevice = isUserInteractive;
 
         this._backstageServicesInitializer.Initialize();
-        await this.DetectToastNotificationsAsync();
+        await this.DetectToastNotificationsAsync( hasValidLicense );
 
         if ( !shouldBeOpened )
         {
@@ -49,13 +51,13 @@ public class ToastNotificationDetectionServiceTests : TestsBase
         // Initializing a second time should not show a notification because of snoozing.
         this.UserInterface.Notifications.Clear();
 
-        await this.DetectToastNotificationsAsync();
+        await this.DetectToastNotificationsAsync( hasValidLicense );
         Assert.Empty( this.UserInterface.Notifications );
 
         // After the snooze period, we should see a notification.
         this.Time.AddTime( ToastNotificationKinds.RequiresLicense.AutoSnoozePeriod );
 
-        await this.DetectToastNotificationsAsync();
+        await this.DetectToastNotificationsAsync( hasValidLicense );
 
         if ( !shouldBeOpened )
         {
