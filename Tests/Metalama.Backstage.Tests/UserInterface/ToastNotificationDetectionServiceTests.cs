@@ -21,9 +21,9 @@ public class ToastNotificationDetectionServiceTests : TestsBase
         this._backstageServicesInitializer = this.ServiceProvider.GetRequiredBackstageService<BackstageServicesInitializer>();
     }
 
-    private async Task DetectToastNotificationsAsync( bool requireLicense = true )
+    private async Task DetectToastNotificationsAsync( bool hasValidLicense = false )
     {
-        this._toastNotificationDetectionService.Detect( new ToastNotificationDetectionOptions { HasValidLicense = requireLicense } );
+        this._toastNotificationDetectionService.Detect( new ToastNotificationDetectionOptions { HasValidLicense = hasValidLicense } );
         await this.BackgroundTasks.WhenNoPendingTaskAsync();
     }
 
