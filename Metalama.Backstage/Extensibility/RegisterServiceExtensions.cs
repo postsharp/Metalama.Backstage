@@ -186,6 +186,8 @@ public static class RegisterServiceExtensions
         // Add user interface.
         if ( options.AddUserInterface )
         {
+            serviceProviderBuilder.AddSingleton( serviceProvider => new WelcomeService( serviceProvider ) );
+
             serviceProviderBuilder.AddService(
                 typeof(IToastNotificationStatusService),
                 serviceProvider => new ToastNotificationStatusService( serviceProvider ) );
@@ -227,7 +229,6 @@ public static class RegisterServiceExtensions
         }
 
         // Add initialization services.
-        serviceProviderBuilder.AddSingleton( serviceProvider => new WelcomeService( serviceProvider ) );
         serviceProviderBuilder.AddSingleton( serviceProvider => new BackstageServicesInitializer( serviceProvider ) );
 
         return serviceProviderBuilder;

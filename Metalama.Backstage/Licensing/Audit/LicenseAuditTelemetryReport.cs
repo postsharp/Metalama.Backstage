@@ -2,7 +2,6 @@
 
 using K4os.Hash.xxHash;
 using Metalama.Backstage.Application;
-using Metalama.Backstage.Configuration;
 using Metalama.Backstage.Extensibility;
 using Metalama.Backstage.Infrastructure;
 using Metalama.Backstage.Licensing.Consumption;
@@ -17,7 +16,7 @@ namespace Metalama.Backstage.Licensing.Audit;
 
 internal class LicenseAuditTelemetryReport : TelemetryReport
 {
-    private readonly TelemetryConfiguration _telemetryConfiguration;
+    private readonly ITelemetryConfigurationService _telemetryConfigurationService;
     private readonly IUsageReporter _usageReporter;
 
     public LicenseConsumptionData License { get; }
@@ -32,7 +31,7 @@ internal class LicenseAuditTelemetryReport : TelemetryReport
     public long UserHash => LicenseCryptography.ComputeStringHash64( Environment.UserName );
 #pragma warning restore CA1822
 
-    public long DeviceHash => LicenseCryptography.ComputeStringHash64( this._telemetryConfiguration.DeviceId.ToString() );
+    public long DeviceHash => LicenseCryptography.ComputeStringHash64( this._telemetryConfigurationService.DeviceId.ToString() );
 
     public DateTime Date { get; }
 
@@ -61,7 +60,7 @@ internal class LicenseAuditTelemetryReport : TelemetryReport
         this.BuildDate = this.ReportedComponent.BuildDate
                          ?? throw new InvalidOperationException( $"Build date of '{this.ReportedComponent.Name}' application is unknown." );
 
-        this._telemetryConfiguration = serviceProvider.GetRequiredBackstageService<IConfigurationManager>().Get<TelemetryConfiguration>();
+        this._telemetryConfigurationService = serviceProvider.GetRequiredBackstageService<ITelemetryConfigurationService>();
 
         var auditHashCodeBuilder = new XXH64();
 

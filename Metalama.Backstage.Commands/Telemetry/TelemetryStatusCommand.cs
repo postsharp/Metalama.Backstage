@@ -22,7 +22,7 @@ internal class TelemetryStatusCommand : BaseCommand<BaseCommandSettings>
         table.AddRow( "Reporting Usage", configuration.UsageReportingAction.ToString() );
         table.AddRow( "Reporting Exceptions", configuration.ExceptionReportingAction.ToString() );
         table.AddRow( "Reporting Performance Problems", configuration.PerformanceProblemReportingAction.ToString() );
-        table.AddRow( "Device Id", configuration.DeviceId.ToString() );
+        table.AddRow( "Device Id", configuration.DeviceId?.ToString() ?? "unset" );
         table.AddRow( "Last Uploaded", configuration.LastUploadTime?.ToString( CultureInfo.InvariantCulture ) ?? "(Never)" );
 
         context.Console.Out.Write( table );

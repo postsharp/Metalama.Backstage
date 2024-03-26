@@ -6,7 +6,6 @@ using Metalama.Backstage.Licensing.Audit;
 using Metalama.Backstage.Telemetry;
 using Metalama.Backstage.Testing;
 using Metalama.Backstage.Tests.Licensing.Licenses;
-using Metalama.Backstage.Welcome;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -33,7 +32,6 @@ public class LicenseAuditTests : LicenseConsumptionManagerTestsBase
         services.AddSingleton<TelemetryReportUploader>( serviceProvider => new TelemetryReportUploader( serviceProvider ) );
         services.AddSingleton( serviceProvider => new MatomoAuditUploader( serviceProvider ) );
         services.AddSingleton( serviceProvider => new BackstageServicesInitializer( serviceProvider ) );
-        services.AddSingleton( serviceProvider => new WelcomeService( serviceProvider, Guid.Empty ) );
     }
 
     private TestLicense CreateAndConsumeLicense( string licenseKey )
