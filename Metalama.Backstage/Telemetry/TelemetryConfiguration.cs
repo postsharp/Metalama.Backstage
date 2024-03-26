@@ -17,7 +17,7 @@ public record TelemetryConfiguration : ConfigurationFile
     public ReportingAction PerformanceProblemReportingAction { get; init; } = ReportingAction.Ask;
 
     // Do not consume directly this property, as it may not be initialized. Consume it through ITelemetryConfigurationService.
-    public Guid? DeviceId { get; init; }
+    internal Guid? DeviceId { get; init; }
 
     public DateTime? LastUploadTime { get; init; }
 
