@@ -4,6 +4,6 @@ namespace Metalama.Backstage.Tests.Licensing
 {
     internal interface IUsable
     {
-        public bool IsUsed { get; }
+        public int NumberOfUses { get; }
     }
 }

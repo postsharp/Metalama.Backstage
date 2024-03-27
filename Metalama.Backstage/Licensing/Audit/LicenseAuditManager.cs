@@ -73,12 +73,13 @@ internal class LicenseAuditManager : ILicenseAuditManager
             throw new InvalidOperationException( $"Version of '{report.ReportedComponent.Name}' application is unknown." );
         }
 
-        var updated = this._configurationManager.UpdateIf<LicenseAuditConfiguration>(
+        // Perform detailed audit.
+        var mustPerformAudit = this._configurationManager.UpdateIf<LicenseAuditConfiguration>(
             c => !c.LastAuditTimes.TryGetValue( report.AuditHashCode, out var lastReportTime )
                  || lastReportTime <= this._time.Now.AddDays( -1 ),
             c => c with { LastAuditTimes = c.LastAuditTimes.SetItem( report.AuditHashCode, this._time.Now ) } );
 
-        if ( !updated )
+        if ( !mustPerformAudit )
         {
             this._logger.Trace?.Log( $"License audit disabled because the license '{license.DisplayName}' has been recently audited." );
         }
@@ -86,10 +87,24 @@ internal class LicenseAuditManager : ILicenseAuditManager
         {
             this._logger.Trace?.Log( $"Uploading license audit report." );
             this._telemetryReportUploader.Upload( report );
+        }
 
-            if ( this._matomoAuditUploader != null )
+        // Perform aggregate audit to Matomo. We intentionally upload one report per day irrespective of the version used 
+        // (which means that the version number being reported may be random if the user uses several version) because
+        // we are more interested in having correct aggregates on Matomo than correct version usage statistics.
+        if ( this._matomoAuditUploader != null )
+        {
+            var mustPerformAggregateAudit = this._configurationManager.UpdateIf<LicenseAuditConfiguration>(
+                c => c.LastMatomoAuditTime == null || c.LastMatomoAuditTime <= this._time.Now.AddDays( -1 ),
+                c => c with { LastMatomoAuditTime = this._time.Now } );
+
+            var isFirstMatomoAudit = this._configurationManager.UpdateIf<LicenseAuditConfiguration>(
+                c => c.IsFirstMatomoAudit,
+                c => c with { IsFirstMatomoAudit = false } );
+
+            if ( mustPerformAggregateAudit )
             {
-                this._backgroundTasksService.Enqueue( () => this._matomoAuditUploader.UploadAsync( report ) );
+                this._backgroundTasksService.Enqueue( () => this._matomoAuditUploader.UploadAsync( report, isFirstMatomoAudit ) );
             }
         }
     }

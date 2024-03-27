@@ -13,7 +13,7 @@ public class LicenseUsageTests : LicenseConsumptionManagerTestsBase
     public LicenseUsageTests( ITestOutputHelper logger )
         : base( logger ) { }
 
-    private static void AssertAllUsed( params IUsable[] usableObjects ) => Assert.Equal( usableObjects.Length, usableObjects.Count( l => l.IsUsed ) );
+    private static void AssertAllUsed( params IUsable[] usableObjects ) => Assert.Equal( usableObjects.Length, usableObjects.Count( l => l.NumberOfUses > 0 ) );
 
     [Fact]
     public void FirstOfDifferentLicensesFromMultipleSourcesUsedForAllowedFeature()
@@ -26,10 +26,10 @@ public class LicenseUsageTests : LicenseConsumptionManagerTestsBase
 
         var manager = this.CreateConsumptionManager( source1, source2 );
         TestConsumption( manager, LicenseRequirementTestEnum.Free, true );
-        Assert.True( license1.IsUsed );
-        Assert.False( license2.IsUsed );
-        Assert.True( source1.IsUsed );
-        Assert.False( source2.IsUsed );
+        Assert.Equal( 1, license1.NumberOfUses );
+        Assert.Equal( 0, license2.NumberOfUses );
+        Assert.Equal( 1, source1.NumberOfUses );
+        Assert.Equal( 0, source2.NumberOfUses );
     }
 
     [Fact]
@@ -43,10 +43,10 @@ public class LicenseUsageTests : LicenseConsumptionManagerTestsBase
 
         var manager = this.CreateConsumptionManager( source1, source2 );
         TestConsumption( manager, LicenseRequirementTestEnum.Ultimate, false );
-        Assert.True( license1.IsUsed );
-        Assert.False( license2.IsUsed );
-        Assert.True( source1.IsUsed );
-        Assert.False( source2.IsUsed );
+        Assert.Equal( 1, license1.NumberOfUses );
+        Assert.Equal( 0, license2.NumberOfUses );
+        Assert.Equal( 1, source1.NumberOfUses );
+        Assert.Equal( 0, source2.NumberOfUses );
     }
 
     [Fact]

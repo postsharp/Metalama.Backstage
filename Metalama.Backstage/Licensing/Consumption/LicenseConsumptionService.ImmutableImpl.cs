@@ -2,6 +2,7 @@
 
 using Metalama.Backstage.Diagnostics;
 using Metalama.Backstage.Extensibility;
+using Metalama.Backstage.Infrastructure;
 using Metalama.Backstage.Licensing.Audit;
 using Metalama.Backstage.Licensing.Consumption.Sources;
 using Metalama.Backstage.Licensing.Licenses;
@@ -22,10 +23,15 @@ internal partial class LicenseConsumptionService
         private readonly LicenseConsumptionData? _license;
         private readonly NamespaceLicenseInfo? _licensedNamespace;
         private readonly BackstageBackgroundTasksService _backgroundTasksService;
+        private readonly IDateTimeProvider _dateTimeProvider;
+        private readonly ILicenseAuditManager? _licenseAuditManager;
+        private DateTime _lastAuditTime = DateTime.MinValue;
 
         public ImmutableImpl( IServiceProvider services, IReadOnlyList<ILicenseSource> licenseSources )
         {
             this._logger = services.GetLoggerFactory().Licensing();
+            this._dateTimeProvider = services.GetRequiredBackstageService<IDateTimeProvider>();
+            this._licenseAuditManager = services.GetBackstageService<ILicenseAuditManager>();
             this._backgroundTasksService = services.GetRequiredBackstageService<BackstageBackgroundTasksService>();
 
             this._licenseFactory = new LicenseFactory( services );
@@ -65,17 +71,6 @@ internal partial class LicenseConsumptionService
                 this._license = data;
                 this._licensedNamespace = string.IsNullOrEmpty( data.LicensedNamespace ) ? null : new NamespaceLicenseInfo( data.LicensedNamespace! );
 
-                var licenseAuditManager = services.GetBackstageService<ILicenseAuditManager>();
-
-                if ( licenseAuditManager != null )
-                {
-                    this._backgroundTasksService.Enqueue( () => licenseAuditManager.ReportLicense( data ) );
-                }
-                else
-                {
-                    this._logger.Warning?.Log( $"License audit is skipped because there is no {nameof(ILicenseAuditManager)}." );
-                }
-
                 return;
             }
         }
@@ -105,6 +100,8 @@ internal partial class LicenseConsumptionService
                 return false;
             }
 
+            this.AuditIfNecessary();
+
             // Redistributable licenses allow building any namespace. Their namespace field limits the redistribution only.
             // Ie., the namespace of redistributed aspects built with the redistribution license key.
             if ( !this.IsRedistributionLicense
@@ -126,6 +123,24 @@ internal partial class LicenseConsumptionService
             }
 
             return true;
+        }
+
+        private void AuditIfNecessary()
+        {
+            // Audit the use of the license once per day (more time checks are performed by the license audit manager).
+            if ( this._license != null && this._lastAuditTime.AddDays( 1 ) < this._dateTimeProvider.Now )
+            {
+                this._lastAuditTime = this._dateTimeProvider.Now;
+
+                if ( this._licenseAuditManager != null )
+                {
+                    this._backgroundTasksService.Enqueue( () => this._licenseAuditManager.ReportLicense( this._license ) );
+                }
+                else
+                {
+                    this._logger.Warning?.Log( $"License audit is skipped because there is no {nameof(ILicenseAuditManager)}." );
+                }
+            }
         }
 
         /// <inheritdoc />

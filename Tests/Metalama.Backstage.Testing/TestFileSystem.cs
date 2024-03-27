@@ -40,7 +40,7 @@ namespace Metalama.Backstage.Testing
 
         private readonly FileWrapper _file;
 
-        public MockFileSystem Mock { get; } = new();
+        public MockFileSystem Mock { get; private set; } = new();
 
         public IReadOnlyList<string> FailedFileAccesses => this._failedAccesses;
 
@@ -51,6 +51,15 @@ namespace Metalama.Backstage.Testing
             this._time = serviceProvider.GetRequiredBackstageService<IDateTimeProvider>();
             this._directory = new DirectoryWrapper( this );
             this._file = new FileWrapper( this );
+        }
+
+        public void Reset()
+        {
+            this._changeWatchers.Clear();
+            this._failedAccesses.Clear();
+            this._blockedReads.Clear();
+            this._blockedWrites.Clear();
+            this.Mock = new MockFileSystem();
         }
 
         public ManualResetEventSlim BlockRead( string path )
