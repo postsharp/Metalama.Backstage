@@ -17,6 +17,7 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 using IHttpClientFactory = Metalama.Backstage.Infrastructure.IHttpClientFactory;
+using RandomNumberGenerator = System.Security.Cryptography.RandomNumberGenerator;
 
 namespace Metalama.Backstage.Telemetry
 {

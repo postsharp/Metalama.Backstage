@@ -15,4 +15,6 @@ public record LicenseAuditConfiguration : ConfigurationFile
         ImmutableDictionary<long, DateTime>.Empty;
 
     public DateTime? LastMatomoAuditTime { get; init; }
+
+    public bool IsFirstMatomoAudit { get; init; } = true;
 }

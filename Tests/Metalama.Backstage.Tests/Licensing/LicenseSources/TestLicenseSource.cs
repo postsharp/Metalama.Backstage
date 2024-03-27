@@ -17,7 +17,7 @@ namespace Metalama.Backstage.Tests.Licensing.LicenseSources
         [UsedImplicitly]
         public string Id { get; }
 
-        public bool IsUsed { get; private set; }
+        public int NumberOfUses { get; private set; }
 
         public TestLicenseSource( string id, ILicense? license )
         {
@@ -27,7 +27,7 @@ namespace Metalama.Backstage.Tests.Licensing.LicenseSources
 
         public ILicense? GetLicense( Action<LicensingMessage> reportWarning )
         {
-            this.IsUsed = true;
+            this.NumberOfUses++;
 
             return this._license;
         }

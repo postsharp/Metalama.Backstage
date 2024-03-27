@@ -13,7 +13,7 @@ namespace Metalama.Backstage.Tests.Licensing.Licenses
     {
         public ILicense License { get; }
 
-        public bool IsUsed { get; private set; }
+        public int NumberOfUses { get; private set; }
 
         public TestLicense( ILicense license )
         {
@@ -26,10 +26,7 @@ namespace Metalama.Backstage.Tests.Licensing.Licenses
             out LicenseConsumptionData licenseData,
             out string errorMessage )
         {
-            // Each license should always be used only once.
-            Assert.False( this.IsUsed );
-
-            this.IsUsed = true;
+            this.NumberOfUses++;
 
             return this.License.TryGetLicenseConsumptionData( out licenseData!, out errorMessage! );
         }
@@ -45,7 +42,7 @@ namespace Metalama.Backstage.Tests.Licensing.Licenses
 
         public void ResetUsage()
         {
-            this.IsUsed = false;
+            this.NumberOfUses = 0;
         }
 
         public override bool Equals( object? obj )

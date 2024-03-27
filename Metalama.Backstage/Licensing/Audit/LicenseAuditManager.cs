@@ -98,9 +98,13 @@ internal class LicenseAuditManager : ILicenseAuditManager
                 c => c.LastMatomoAuditTime == null || c.LastMatomoAuditTime <= this._time.Now.AddDays( -1 ),
                 c => c with { LastMatomoAuditTime = this._time.Now } );
 
+            var isFirstMatomoAudit = this._configurationManager.UpdateIf<LicenseAuditConfiguration>(
+                c => c.IsFirstMatomoAudit,
+                c => c with { IsFirstMatomoAudit = false } );
+
             if ( mustPerformAggregateAudit )
             {
-                this._backgroundTasksService.Enqueue( () => this._matomoAuditUploader.UploadAsync( report ) );
+                this._backgroundTasksService.Enqueue( () => this._matomoAuditUploader.UploadAsync( report, isFirstMatomoAudit ) );
             }
         }
     }

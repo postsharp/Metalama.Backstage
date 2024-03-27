@@ -71,11 +71,46 @@ public class LicenseAuditTests : LicenseConsumptionManagerTestsBase
             Assert.Single( reports );
             Assert.Contains( licenseKey, reports[0], StringComparison.OrdinalIgnoreCase );
             var matomoRequest = Assert.Single( this.HttpClientFactory.ProcessedRequests.Where( r => r.Request.RequestUri?.Host == "postsharp.matomo.cloud" ) );
+            var matomoRequestUri = matomoRequest.Request.RequestUri?.ToString();
+
+            this.Logger.WriteLine( matomoRequestUri );
+
             Assert.Equal( HttpMethod.Get, matomoRequest.Request.Method );
 
             Assert.Equal(
-                "https://postsharp.matomo.cloud/matomo.php?idsite=6&rec=1&_id=36579f554ac8899f&dimension1=MetalamaUltimate&dimension2=PerUser&dimension3=Metalama&dimension4=1.0",
-                matomoRequest.Request.RequestUri?.ToString() );
+                "https://postsharp.matomo.cloud/matomo.php?idsite=6&rec=1&_id=36579f554ac8899f&dimension1=MetalamaUltimate&dimension2=PerUser&dimension3=Metalama&dimension4=1.0&new_visit=1&rand=5cf58a1a689e1e0c",
+                matomoRequestUri );
+
+            // Second time in the same day.
+            this.FileSystem.Reset();
+
+            var secondLicense = this.CreateAndConsumeLicense( licenseKey );
+            Assert.True( secondLicense.TryGetLicenseConsumptionData( out _, out _ ) );
+            var secondReports = this.GetReports();
+            Assert.Empty( secondReports );
+
+            // Third time, one day later.
+            this.FileSystem.Reset();
+            this.HttpClientFactory.Reset();
+            this.Time.AddTime( TimeSpan.FromDays( 1 ) );
+
+            var thirdLicense = this.CreateAndConsumeLicense( licenseKey );
+            Assert.True( thirdLicense.TryGetLicenseConsumptionData( out _, out _ ) );
+            var thirdReports = this.GetReports();
+            Assert.Single( thirdReports );
+
+            var thirdMatomoRequest = Assert.Single(
+                this.HttpClientFactory.ProcessedRequests.Where( r => r.Request.RequestUri?.Host == "postsharp.matomo.cloud" ) );
+
+            var thirdMatomoRequestUri = thirdMatomoRequest.Request.RequestUri?.ToString();
+
+            this.Logger.WriteLine( thirdMatomoRequestUri );
+
+            Assert.Equal( HttpMethod.Get, thirdMatomoRequest.Request.Method );
+
+            Assert.Equal(
+                "https://postsharp.matomo.cloud/matomo.php?idsite=6&rec=1&_id=36579f554ac8899f&dimension1=MetalamaUltimate&dimension2=PerUser&dimension3=Metalama&dimension4=1.0&new_visit=0&rand=624e91464771d36f",
+                thirdMatomoRequestUri );
         }
         else
         {

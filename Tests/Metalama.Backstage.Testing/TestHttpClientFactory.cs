@@ -11,7 +11,9 @@ namespace Metalama.Backstage.Testing
     {
         private readonly Func<TestHttpClientFactory, TestHttpMessageHandler> _createHandler;
 
-        public ConcurrentBag<(HttpRequestMessage Request, HttpResponseMessage Response)> ProcessedRequests { get; } = new();
+        public ConcurrentBag<(HttpRequestMessage Request, HttpResponseMessage Response)> ProcessedRequests { get; private set; } = new();
+
+        public void Reset() => this.ProcessedRequests = new ConcurrentBag<(HttpRequestMessage Request, HttpResponseMessage Response)>();
 
         public TestHttpClientFactory( Func<TestHttpClientFactory, TestHttpMessageHandler>? createHandler = null )
         {

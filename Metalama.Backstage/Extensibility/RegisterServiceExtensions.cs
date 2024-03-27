@@ -97,6 +97,7 @@ public static class RegisterServiceExtensions
         serviceProviderBuilder = serviceProviderBuilder
             .AddSingleton( _ => new BackstageInitializationOptionsProvider( options ) )
             .AddSingleton( _ => new EarlyLoggerFactory() )
+            .AddSingleton( _ => new RandomNumberGenerator() )
             .AddSingleton<IEnvironmentVariableProvider>( new EnvironmentVariableProvider() )
             .AddSingleton<IRecoverableExceptionService>( serviceProvider => new RecoverableExceptionService( serviceProvider ) )
             .AddSingleton<IApplicationInfoProvider>( new ApplicationInfoProvider( applicationInfo ) )
