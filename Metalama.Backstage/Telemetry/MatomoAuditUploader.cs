@@ -31,10 +31,15 @@ internal class MatomoAuditUploader : IBackstageService
             LicensedProduct.Ultimate => "PostSharpUltimate",
             _ => report.License.LicensedProduct.ToString()
         };
-        
+
+        // Note that we are intentionally and "randomly" reporting the version of the first component that
+        // triggered audit, because prioritize having just one hit per day over having accurate version reporting
+        // (at least for Matomo reporting).
+        var reportedVersion = report.AssemblyVersion?.ToString( 2 );
+
         var request =
 #pragma warning disable CA1307
-            $"https://postsharp.matomo.cloud/matomo.php?idsite=6&rec=1&_id={report.DeviceHash:x}&dimension1={licensedProduct}&dimension2={report.License.LicenseType}&dimension3={report.ApplicationName?.Replace( " ", "" )}&dimension4={report.AssemblyVersion?.ToString( 2 )}";
+            $"https://postsharp.matomo.cloud/matomo.php?idsite=6&rec=1&_id={report.DeviceHash:x}&dimension1={licensedProduct}&dimension2={report.License.LicenseType}&dimension3=Metalama&dimension4={reportedVersion}";
 #pragma warning restore CA1307
 
         try
