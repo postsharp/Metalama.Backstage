@@ -8,9 +8,8 @@ namespace Metalama.Backstage.UserInterface;
 
 public class WebLinks : IBackstageService
 {
-    private const string _notImplemented = "https://www.postsharp.net/error/not-implemented";
-    
-    public string AfterSetup => GetLink( "metalama-after-activation" );
+    // We don't add campaign tracking query string parameters so we do not override the original campaign.
+    public string AfterSetup => GetLink( "metalama-after-activation", false );
 
     public string GetTeamTeamTrial => GetLink( "metalama-team-evaluation" );
 
@@ -25,22 +24,27 @@ public class WebLinks : IBackstageService
     public string InstallVsx => this.VisualStudioMarketplace;
 
     public string RenewSubscription => GetLink( "metalama-renew-subscription" );
-
-    public string UnhandledException => _notImplemented;
-
+    
     public string DotNetTool => GetLink( "metalama-dotnet_tool" );
 
     public string NewsletterGetCaptchaSiteKeyApi => "https://licensing.postsharp.net/GetCaptchaSiteKey.ashx";
 
     public string NewsletterSubscribeApi => "https://licensing.postsharp.net/MetalamaNewsletter.ashx";
 
-    private static string GetLink( string alias, string? queryString = null )
+    private static string GetLink( string alias, bool trackCampaign = true, string? queryString = null )
     {
-        var url = $"https://www.postsharp.net/links/{alias}?mtm_campaign=setup&mtm_source=app";
+        var url = $"https://www.postsharp.net/links/{alias}";
+        var queryStringSeparator = '?';
+
+        if ( trackCampaign )
+        {
+            url += "?mtm_campaign=backstage&mtm_source=app";
+            queryStringSeparator = '&';
+        }
 
         if ( !string.IsNullOrEmpty( queryString ) )
         {
-            url += "&" + queryString;
+            url += queryStringSeparator + queryString;
         }
 
         return url;
