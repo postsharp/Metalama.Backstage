@@ -5,7 +5,6 @@ using Metalama.Backstage.Licensing.Licenses;
 using Metalama.Backstage.Licensing.Registration;
 using System;
 using System.Collections.Generic;
-using Xunit;
 
 namespace Metalama.Backstage.Tests.Licensing.Licenses
 {

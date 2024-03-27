@@ -128,7 +128,7 @@ internal partial class LicenseConsumptionService
         private void AuditIfNecessary()
         {
             // Audit the use of the license once per day (more time checks are performed by the license audit manager).
-            if ( this._lastAuditTime.AddDays( 1 ) < this._dateTimeProvider.Now )
+            if ( this._license != null && this._lastAuditTime.AddDays( 1 ) < this._dateTimeProvider.Now )
             {
                 this._lastAuditTime = this._dateTimeProvider.Now;
 
