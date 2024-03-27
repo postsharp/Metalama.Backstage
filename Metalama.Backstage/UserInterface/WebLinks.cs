@@ -8,7 +8,7 @@ namespace Metalama.Backstage.UserInterface;
 
 public class WebLinks : IBackstageService
 {
-    // We don't add campaign tracking query string parameters so we do not override the original campaign.
+    // We don't add campaign tracking query string parameters so we do not override the attribution to the original campaign.
     public string AfterSetup => GetLink( "metalama-after-activation", false );
 
     public string GetTeamTeamTrial => GetLink( "metalama-team-evaluation" );
