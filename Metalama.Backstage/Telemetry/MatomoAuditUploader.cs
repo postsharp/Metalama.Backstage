@@ -3,6 +3,7 @@
 using Metalama.Backstage.Diagnostics;
 using Metalama.Backstage.Extensibility;
 using Metalama.Backstage.Infrastructure;
+using Metalama.Backstage.Licensing;
 using Metalama.Backstage.Licensing.Audit;
 using System;
 using System.Threading.Tasks;
@@ -24,9 +25,16 @@ internal class MatomoAuditUploader : IBackstageService
     {
         var http = this._httpClientFactory.Create();
 
+        var licensedProduct = report.License.LicensedProduct switch
+        {
+            LicensedProduct.Framework => "PostSharpFramework",
+            LicensedProduct.Ultimate => "PostSharpUltimate",
+            _ => report.License.LicensedProduct.ToString()
+        };
+        
         var request =
 #pragma warning disable CA1307
-            $"https://postsharp.matomo.cloud/matomo.php?idsite=6&rec=1&_id={report.DeviceHash:x}&dimension1={report.License.LicensedProduct}&dimension2={report.License.LicenseType}&dimension3={report.ApplicationName?.Replace( " ", "" )}&dimension4={report.AssemblyVersion?.ToString( 2 )}";
+            $"https://postsharp.matomo.cloud/matomo.php?idsite=6&rec=1&_id={report.DeviceHash:x}&dimension1={licensedProduct}&dimension2={report.License.LicenseType}&dimension3={report.ApplicationName?.Replace( " ", "" )}&dimension4={report.AssemblyVersion?.ToString( 2 )}";
 #pragma warning restore CA1307
 
         try
