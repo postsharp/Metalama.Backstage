@@ -74,7 +74,7 @@ public class LicenseAuditTests : LicenseConsumptionManagerTestsBase
             Assert.Equal( HttpMethod.Get, matomoRequest.Request.Method );
 
             Assert.Equal(
-                "https://postsharp.matomo.cloud/matomo.php?idsite=6&rec=1&_id=36579f554ac8899f&dimension1=MetalamaUltimate&dimension2=PerUser&dimension3=LicensingTestApp&dimension4=1.0",
+                "https://postsharp.matomo.cloud/matomo.php?idsite=6&rec=1&_id=36579f554ac8899f&dimension1=MetalamaUltimate&dimension2=PerUser&dimension3=Metalama&dimension4=1.0",
                 matomoRequest.Request.RequestUri?.ToString() );
         }
         else
