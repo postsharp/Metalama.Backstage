@@ -4,6 +4,7 @@ using Metalama.Backstage.Extensibility;
 using Metalama.Backstage.Licensing.Registration;
 using Metalama.Backstage.Testing;
 using Metalama.Backstage.UserInterface;
+using System;
 using System.Threading.Tasks;
 using Xunit;
 using Xunit.Abstractions;
@@ -69,24 +70,74 @@ public class ToastNotificationDetectionServiceTests : TestsBase
         }
     }
 
-    [Fact]
-    public async Task IsUserNotifiedOfTrialExpirationAsync()
+    [Theory]
+    [InlineData( 7, null )] // Before LicensingConstants.LicenseExpirationWarningPeriod
+    [InlineData( 6, "6 days" )]
+    [InlineData( 2, "2 days" )]
+    [InlineData( 1, "tomorrow" )]
+    [InlineData( 0, "today" )]
+    [InlineData( -1, "expired" )]
+    public async Task IsUserNotifiedOfTrialExpirationAsync( int daysBeforeExpiration, string? expectedTitleSubstring )
     {
         this.UserDeviceDetection.IsInteractiveDevice = true;
 
         // Register a trial version.
         Assert.True( this.LicenseRegistrationService.TryRegisterTrialEdition( out _ ) );
 
-        // Move the clock to the beginning of the warning period.
-        this.Time.AddTime( LicensingConstants.EvaluationPeriod - LicensingConstants.LicenseExpirationWarningPeriod );
+        // Move the clock.
+        this.Time.AddTime( LicensingConstants.EvaluationPeriod - TimeSpan.FromDays( daysBeforeExpiration + 1 ) );
 
         // Initialize
         this._backstageServicesInitializer.Initialize();
         await this.DetectToastNotificationsAsync();
 
+        if ( expectedTitleSubstring == null )
+        {
+            Assert.Empty( this.UserInterface.Notifications );
+        }
+        else
+        {
 #pragma warning disable CA1307
-        Assert.Single( this.UserInterface.Notifications, n => n.Kind == ToastNotificationKinds.TrialExpiring && n.Title?.Contains( "6 days" ) == true );
+            Assert.Single(
+                this.UserInterface.Notifications,
+                n => n.Kind == ToastNotificationKinds.TrialExpiring && n.Title?.Contains( expectedTitleSubstring ) == true );
 #pragma warning restore CA1307
+        }
+    }
+    
+    [Theory]
+    [InlineData( 30, null )] // Before LicensingConstants.SubscriptionExpirationWarningPeriod
+    [InlineData( 29, "29 days" )]
+    [InlineData( 2, "2 days" )]
+    [InlineData( 1, "tomorrow" )]
+    [InlineData( 0, "today" )]
+    [InlineData( -1, "expired" )]
+    public async Task IsUserNotifiedOfSubscriptionExpirationAsync( int daysBeforeExpiration, string? expectedTitleSubstring )
+    {
+        this.UserDeviceDetection.IsInteractiveDevice = true;
+
+        // Register a license key.
+        Assert.True( this.LicenseRegistrationService.TryRegisterLicense( TestLicenseKeys.MetalamaUltimateBusiness, out _ ) );
+
+        // Move the clock.
+        this.Time.Set( TestLicenseKeys.SubscriptionExpirationDate - TimeSpan.FromDays( daysBeforeExpiration ) );
+
+        // Initialize
+        this._backstageServicesInitializer.Initialize();
+        await this.DetectToastNotificationsAsync();
+
+        if ( expectedTitleSubstring == null )
+        {
+            Assert.Empty( this.UserInterface.Notifications );
+        }
+        else
+        {
+#pragma warning disable CA1307
+            Assert.Single(
+                this.UserInterface.Notifications,
+                n => n.Kind == ToastNotificationKinds.SubscriptionExpiring && n.Title?.Contains( expectedTitleSubstring ) == true );
+#pragma warning restore CA1307
+        }
     }
 
     [Theory]

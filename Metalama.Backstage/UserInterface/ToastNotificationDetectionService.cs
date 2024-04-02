@@ -39,9 +39,10 @@ internal class ToastNotificationDetectionService : IToastNotificationDetectionSe
 
         return daysToExpiration switch
         {
-            0 => "today",
-            1 => "tomorrow",
-            _ => $"in {daysToExpiration} days"
+            < 0 => "has expired",
+            0 => "expires today",
+            1 => "expires tomorrow",
+            _ => $"expires in {daysToExpiration} days"
         };
     }
 
@@ -67,7 +68,7 @@ internal class ToastNotificationDetectionService : IToastNotificationDetectionSe
                         this._toastNotificationService.Show(
                             new ToastNotification(
                                 ToastNotificationKinds.TrialExpiring,
-                                $"Your Metalama trial expires {this.FormatExpiration( license.ValidTo.Value )}",
+                                $"Your Metalama trial {this.FormatExpiration( license.ValidTo.Value )}",
                                 "Switch to Metalama [Free] or register a license key to avoid loosing functionality." ) );
                     }
                     else
@@ -75,7 +76,7 @@ internal class ToastNotificationDetectionService : IToastNotificationDetectionSe
                         this._toastNotificationService.Show(
                             new ToastNotification(
                                 ToastNotificationKinds.LicenseExpiring,
-                                $"Your Metalama license expires {this.FormatExpiration( license.ValidTo.Value )}",
+                                $"Your Metalama license {this.FormatExpiration( license.ValidTo.Value )}",
                                 "Register a new license license key to avoid loosing functionality." ) );
                     }
 
@@ -85,11 +86,12 @@ internal class ToastNotificationDetectionService : IToastNotificationDetectionSe
                 }
 
             case { SubscriptionEndDate: not null }
-                when license.SubscriptionEndDate.Value.Subtract( LicensingConstants.SubscriptionExpirationWarningPeriod ) < this._dateTimeProvider.Now:
+                when license.LicenseType != LicenseType.Evaluation // We only show license expiration warnings for evaluation licenses.
+                     && license.SubscriptionEndDate.Value.Subtract( LicensingConstants.SubscriptionExpirationWarningPeriod ) < this._dateTimeProvider.Now:
                 this._toastNotificationService.Show(
                     new ToastNotification(
                         ToastNotificationKinds.SubscriptionExpiring,
-                        $"Your Metalama subscription expires {this.FormatExpiration( license.SubscriptionEndDate.Value )}",
+                        $"Your Metalama subscription {this.FormatExpiration( license.SubscriptionEndDate.Value )}",
                         "Renew your subscription and register a new license key to continue benefiting from updates." ) );
 
                 notificationReported = true;
