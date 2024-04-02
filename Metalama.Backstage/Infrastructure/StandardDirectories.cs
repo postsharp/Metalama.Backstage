@@ -23,23 +23,41 @@ namespace Metalama.Backstage.Infrastructure
         public StandardDirectories( IServiceProvider serviceProvider )
         {
             this._serviceProvider = serviceProvider;
-            var applicationDataParentDirectory = Environment.GetFolderPath( Environment.SpecialFolder.ApplicationData );
-
-            if ( string.IsNullOrEmpty( applicationDataParentDirectory ) )
+            
+            static string GetApplicationDataDirectory( Environment.SpecialFolder applicationDataDirectory, string metalamaDirectoryName )
             {
-                // This is a fallback for Ubuntu on WSL and other platforms that don't provide
-                // the SpecialFolder.ApplicationData folder path.
-                applicationDataParentDirectory = Environment.GetFolderPath( Environment.SpecialFolder.UserProfile );
+                var applicationDataParentDirectory = Environment.GetFolderPath( applicationDataDirectory );
+
+                if ( string.IsNullOrEmpty( applicationDataParentDirectory ) )
+                {
+                    // This is a fallback for Ubuntu on WSL and other platforms that don't provide
+                    // the SpecialFolder.ApplicationData folder path.
+                    applicationDataParentDirectory = Environment.GetFolderPath( Environment.SpecialFolder.UserProfile );
+                }
+
+                if ( string.IsNullOrEmpty( applicationDataParentDirectory ) )
+                {
+                    // This will always fail on platforms which don't provide the special folders being discovered above.
+                    // We need to find another locations on such platforms.
+                    throw new InvalidOperationException( "Failed to find application data parent directory." );
+                }
+
+                return Path.Combine( applicationDataParentDirectory, metalamaDirectoryName );
             }
 
-            if ( string.IsNullOrEmpty( applicationDataParentDirectory ) )
-            {
-                // This will always fail on platforms which don't provide the special folders being discovered above.
-                // We need to find another locations on such platforms.
-                throw new InvalidOperationException( "Failed to find application data parent directory." );
-            }
+            // Till Metalama Backstage 2024.1.8, the application data directory was incorrect.
+            var incorrectApplicationDataDirectory = GetApplicationDataDirectory( Environment.SpecialFolder.ApplicationData, ".metalama" );
 
-            this.ApplicationDataDirectory = Path.Combine( applicationDataParentDirectory, ".metalama" );
+            if ( Directory.Exists( incorrectApplicationDataDirectory ) )
+            {
+                // In case the incorrect directory exists already, we won't start using the correct one.
+                this.ApplicationDataDirectory = incorrectApplicationDataDirectory;
+            }
+            else
+            {
+                var correctApplicationDataDirectory = GetApplicationDataDirectory( Environment.SpecialFolder.LocalApplicationData, "Metalama" );
+                this.ApplicationDataDirectory = correctApplicationDataDirectory;
+            }
         }
 
         /// <inheritdoc />
