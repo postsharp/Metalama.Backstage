@@ -12,11 +12,11 @@ namespace Metalama.Backstage.Testing;
 public class TestLoggerFactory : ILoggerFactory
 {
     private readonly ConcurrentDictionary<string, ILogger> _loggers = new();
-
-    // We use an immutable list to have thread-safe enumerations while items could still be added to the list.
-    private ImmutableList<Entry> _entries = ImmutableList<Entry>.Empty;
     private readonly object _sync = new();
     private readonly ITestOutputHelper _testOutputHelper;
+    
+    // We use an immutable list to have thread-safe enumerations while items could still be added to the list.
+    private ImmutableList<Entry> _entries = ImmutableList<Entry>.Empty;
 
     public TestLoggerFactory( ITestOutputHelper testOutputHelper )
     {
