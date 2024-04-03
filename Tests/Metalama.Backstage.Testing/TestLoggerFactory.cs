@@ -4,6 +4,7 @@ using JetBrains.Annotations;
 using Metalama.Backstage.Diagnostics;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using Xunit.Abstractions;
 
 namespace Metalama.Backstage.Testing;
@@ -11,8 +12,11 @@ namespace Metalama.Backstage.Testing;
 public class TestLoggerFactory : ILoggerFactory
 {
     private readonly ConcurrentDictionary<string, ILogger> _loggers = new();
-    private readonly List<Entry> _entries = new();
+    private readonly object _sync = new();
     private readonly ITestOutputHelper _testOutputHelper;
+    
+    // We use an immutable list to have thread-safe enumerations while items could still be added to the list.
+    private ImmutableList<Entry> _entries = ImmutableList<Entry>.Empty;
 
     public TestLoggerFactory( ITestOutputHelper testOutputHelper )
     {
@@ -22,9 +26,9 @@ public class TestLoggerFactory : ILoggerFactory
     [UsedImplicitly]
     public void Clear()
     {
-        lock ( this._entries )
+        lock ( this._sync )
         {
-            this._entries.Clear();
+            this._entries = ImmutableList<Entry>.Empty;
         }
     }
 
@@ -77,9 +81,9 @@ public class TestLoggerFactory : ILoggerFactory
 
         public void Log( string message )
         {
-            lock ( this._parent._entries )
+            lock ( this._parent._sync )
             {
-                this._parent._entries.Add( new Entry( this._severity, message ) );
+                this._parent._entries = this._parent._entries.Add( new Entry( this._severity, message ) );
             }
 
             this._parent._testOutputHelper.WriteLine( $"{this._severity.ToString().ToUpperInvariant()} {this._category}: {message}" );

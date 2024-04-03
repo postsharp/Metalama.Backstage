@@ -184,4 +184,13 @@ public class LicenseAuditTests : LicenseConsumptionManagerTestsBase
         ShiftTime( TimeSpan.FromMilliseconds( 1 ) );
         ConsumeAndAssertReportsCount( 3 );
     }
+
+    [Fact]
+    public void DeviceIdIsSerialized()
+    {
+        var guid = new Guid( "75c1ce19-e594-4bfe-ac39-e37b9dd62069" );
+        var configuration = new TelemetryConfiguration { DeviceId = guid };
+        var json = configuration.ToJson();
+        Assert.Contains( guid.ToString(), json, StringComparison.Ordinal );
+    }
 }
