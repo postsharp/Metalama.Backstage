@@ -35,6 +35,9 @@ namespace Metalama.Backstage.Application
         public virtual bool IsTelemetryEnabled { get; }
 
         /// <inheritdoc />
+        public virtual bool IsLicenseAuditEnabled => false;
+
+        /// <inheritdoc />
         public virtual bool ShouldCreateLocalCrashReports => true;
 
         public virtual ImmutableArray<IComponentInfo> Components => ImmutableArray<IComponentInfo>.Empty;

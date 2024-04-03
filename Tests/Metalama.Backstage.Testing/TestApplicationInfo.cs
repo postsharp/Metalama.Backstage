@@ -63,6 +63,9 @@ namespace Metalama.Backstage.Testing
         public bool IsTelemetryEnabled { get; init; }
 
         /// <inheritdoc />
+        public bool IsLicenseAuditEnabled { get; init; } = true;
+
+        /// <inheritdoc />
         public bool ShouldCreateLocalCrashReports => this.IsTelemetryEnabled;
 
         /// <inheritdoc />
