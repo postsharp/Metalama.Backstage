@@ -28,21 +28,26 @@ namespace Metalama.Backstage.Infrastructure
             {
                 var applicationDataParentDirectory = Environment.GetFolderPath( applicationDataDirectory );
 
-                if ( string.IsNullOrEmpty( applicationDataParentDirectory ) )
+                if ( !string.IsNullOrEmpty( applicationDataParentDirectory ) )
+                {
+                    return Path.Combine( applicationDataParentDirectory, metalamaDirectoryName );                    
+                }
+                else
                 {
                     // This is a fallback for Ubuntu on WSL and other platforms that don't provide
                     // the SpecialFolder.ApplicationData folder path.
                     applicationDataParentDirectory = Environment.GetFolderPath( Environment.SpecialFolder.UserProfile );
-                }
+                    
+                    if ( string.IsNullOrEmpty( applicationDataParentDirectory ) )
+                    {
+                        // This will always fail on platforms which don't provide the special folders being discovered above.
+                        // We need to find another locations on such platforms.
+                        throw new InvalidOperationException( "Failed to find application data parent directory." );
+                    }
 
-                if ( string.IsNullOrEmpty( applicationDataParentDirectory ) )
-                {
-                    // This will always fail on platforms which don't provide the special folders being discovered above.
-                    // We need to find another locations on such platforms.
-                    throw new InvalidOperationException( "Failed to find application data parent directory." );
+                    // We use the name ".metalama" here, because in this case the settings go to the user's home directory.
+                    return Path.Combine( applicationDataParentDirectory, ".metalama" );
                 }
-
-                return Path.Combine( applicationDataParentDirectory, metalamaDirectoryName );
             }
 
             // Till Metalama Backstage 2024.1.8, the application data directory was incorrect.
