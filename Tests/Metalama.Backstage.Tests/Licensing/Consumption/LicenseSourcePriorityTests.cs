@@ -48,7 +48,7 @@ public class LicenseSourcePriorityTests : LicensingTestsBase
             TestLicensingConfigurationHelpers.SetStoredLicenseString( serviceProvider, userLicense );
         }
 
-        var options = new LicensingInitializationOptions() { DisableLicenseAudit = true };
+        var options = new LicensingInitializationOptions();
 
         var manager = LicenseConsumptionServiceFactory.Create( serviceProvider, options );
 

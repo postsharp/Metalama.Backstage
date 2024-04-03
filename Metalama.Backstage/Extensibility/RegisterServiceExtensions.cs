@@ -117,9 +117,10 @@ public static class RegisterServiceExtensions
 
     private static void AddLicensing(
         this ServiceProviderBuilder serviceProviderBuilder,
-        LicensingInitializationOptions options )
+        LicensingInitializationOptions options,
+        IApplicationInfo applicationInfo )
     {
-        if ( !options.DisableLicenseAudit )
+        if ( applicationInfo.IsLicenseAuditEnabled )
         {
             serviceProviderBuilder.AddSingleton<ILicenseAuditManager>( serviceProvider => new LicenseAuditManager( serviceProvider ) );
         }
@@ -221,12 +222,12 @@ public static class RegisterServiceExtensions
         // Add licensing.
         if ( options.AddLicensing )
         {
-            if ( !options.LicensingOptions.DisableLicenseAudit && !options.AddSupportServices )
+            if ( applicationInfo.IsLicenseAuditEnabled && !options.AddSupportServices )
             {
                 throw new InvalidOperationException( "License audit requires support services." );
             }
 
-            serviceProviderBuilder.AddLicensing( options.LicensingOptions );
+            serviceProviderBuilder.AddLicensing( options.LicensingOptions, applicationInfo );
         }
 
         // Add initialization services.
