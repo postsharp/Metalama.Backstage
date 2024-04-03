@@ -32,16 +32,15 @@ public class RegisterServiceExtensionsTests
         bool addLicensing,
         bool addSupportServices,
         bool addUserInterface,
-        bool disableLicenseAudit = false,
+        bool disableLicenseAudit = true,
         bool addToolsExtractor = true )
     {
-        var options = new BackstageInitializationOptions( new TestApplicationInfo( "Test", true, "1.0", DateTime.Today ) )
-        {
-            AddLicensing = addLicensing,
-            AddSupportServices = addSupportServices,
-            AddUserInterface = addUserInterface,
-            LicensingOptions = new LicensingInitializationOptions() { DisableLicenseAudit = disableLicenseAudit }
-        };
+        var options =
+            new BackstageInitializationOptions(
+                new TestApplicationInfo( "Test", true, "1.0", DateTime.Today ) { IsLicenseAuditEnabled = !disableLicenseAudit } )
+            {
+                AddLicensing = addLicensing, AddSupportServices = addSupportServices, AddUserInterface = addUserInterface
+            };
 
         if ( addToolsExtractor && (addSupportServices || addUserInterface) )
         {

@@ -29,6 +29,11 @@ namespace Metalama.Backstage.Application
         bool IsTelemetryEnabled { get; }
 
         /// <summary>
+        /// Gets a value indicating whether licenses should be audited by this application.
+        /// </summary>
+        bool IsLicenseAuditEnabled { get; }
+
+        /// <summary>
         /// Gets a value indicating whether crashes should be reported for the application.
         /// </summary>
         bool ShouldCreateLocalCrashReports { get; }
