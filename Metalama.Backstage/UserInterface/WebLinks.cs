@@ -38,7 +38,7 @@ public class WebLinks : IBackstageService
 
         if ( trackCampaign )
         {
-            url += "?mtm_campaign=backstage&mtm_source=app";
+            url += "?utm_source=app&utm_medium=app&utm_campaign=backstage";
             queryStringSeparator = '&';
         }
 
