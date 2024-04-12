@@ -23,6 +23,7 @@ namespace Metalama.Backstage.Diagnostics
         private readonly ConcurrentQueue<string> _messageQueue = new();
         private TextWriter? _textWriter;
         private volatile int _backgroundTaskStatus;
+        private volatile bool _disposing;
 
         public string? LogFile { get; }
 
@@ -114,6 +115,12 @@ namespace Metalama.Backstage.Diagnostics
 
         public void WriteLine( string s )
         {
+            // Make sure that we are not starting a background writer thread after we start disposing.
+            if ( this._disposing )
+            {
+                return;
+            }
+            
             this._messageQueue.Enqueue( s );
 
             if ( Interlocked.CompareExchange( ref this._backgroundTaskStatus, _activeStatus, _inactiveStatus ) != _activeStatus )
@@ -160,6 +167,7 @@ namespace Metalama.Backstage.Diagnostics
 
         public void Dispose()
         {
+            this._disposing = true;
             this.Flush();
             this._textWriter?.Close();
         }
