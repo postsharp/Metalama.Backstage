@@ -11,7 +11,7 @@ namespace Metalama.Backstage.Licensing.Licenses
 {
     public partial record LicenseKeyData
     {
-        public bool Validate(
+        internal bool Validate(
             byte[]? publicKeyToken,
             IDateTimeProvider dateTimeProvider,
             IApplicationInfo applicationInfo,
@@ -36,7 +36,7 @@ namespace Metalama.Backstage.Licensing.Licenses
 
             if ( this.RequiresSignature && !this.HasValidSignature )
             {
-                errorDescription = "has invalid signature";
+                errorDescription = "has an invalid signature";
 
                 return false;
             }
