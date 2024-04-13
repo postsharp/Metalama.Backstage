@@ -67,11 +67,16 @@ namespace Metalama.Backstage.Diagnostics
             }
         }
 
-        private void WriteToFile( object? state )
+        private void WriteBufferedMessagesToFile( object? state )
         {
             if ( this.LogFile == null )
             {
                 throw new InvalidOperationException( $"Cannot write diagnostics. The '{this.GetType().Name}' is not properly initialized." );
+            }
+
+            if ( this._disposing )
+            {
+                return;
             }
 
             lock ( this._textWriterSync )
@@ -123,6 +128,8 @@ namespace Metalama.Backstage.Diagnostics
         public void WriteLine( string s )
         {
             // Make sure that we are not starting a background writer thread after we start disposing.
+            // Note that there can still be a race between Dispose in WriteLine, so we could still start a task, but we are
+            // also checking the disposing flag in WriteBufferedMessagesToFile.
             if ( this._disposing )
             {
                 return;
@@ -132,7 +139,7 @@ namespace Metalama.Backstage.Diagnostics
 
             if ( Interlocked.CompareExchange( ref this._backgroundTaskStatus, _activeStatus, _inactiveStatus ) != _activeStatus )
             {
-                ThreadPool.QueueUserWorkItem( this.WriteToFile );
+                ThreadPool.QueueUserWorkItem( this.WriteBufferedMessagesToFile );
             }
         }
 
