@@ -6,7 +6,6 @@ using Metalama.Backstage.Diagnostics;
 using Metalama.Backstage.Extensibility;
 using Metalama.Backstage.Infrastructure;
 using Metalama.Backstage.Licensing;
-using Metalama.Backstage.Tools;
 using Metalama.Backstage.Utilities;
 using Newtonsoft.Json;
 using System;
