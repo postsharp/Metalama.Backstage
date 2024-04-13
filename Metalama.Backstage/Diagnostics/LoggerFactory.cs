@@ -76,40 +76,47 @@ namespace Metalama.Backstage.Diagnostics
 
             lock ( this._textWriterSync )
             {
-                this._textWriter ??= File.CreateText( this.LogFile );
-
-                // Process enqueued messages.
-                var lastFlush = _stopwatch.ElapsedMilliseconds;
-
-                while ( !this._messageQueue.IsEmpty )
+                try
                 {
+                    this._textWriter ??= File.CreateText( this.LogFile );
+
+                    // Process enqueued messages.
+                    var lastFlush = _stopwatch.ElapsedMilliseconds;
+
+                    while ( !this._messageQueue.IsEmpty )
+                    {
+                        while ( this._messageQueue.TryDequeue( out var s ) )
+                        {
+                            this._textWriter.WriteLine( s );
+
+                            // Flush at least every 250 ms.
+                            if ( _stopwatch.ElapsedMilliseconds > lastFlush + 250 )
+                            {
+                                this._textWriter.Flush();
+                                lastFlush = _stopwatch.ElapsedMilliseconds;
+                            }
+                        }
+
+                        // Avoid too frequent start and stop of the task because this would also result in frequent flushing.
+                        Thread.Sleep( 100 );
+                    }
+
+                    // Say that we are going to end the task.
+                    this._backgroundTaskStatus = _finishingStatus;
+
+                    // Process messages that may have been added in the meantime.
                     while ( this._messageQueue.TryDequeue( out var s ) )
                     {
                         this._textWriter.WriteLine( s );
-
-                        // Flush at least every 250 ms.
-                        if ( _stopwatch.ElapsedMilliseconds > lastFlush + 250 )
-                        {
-                            this._textWriter.Flush();
-                            lastFlush = _stopwatch.ElapsedMilliseconds;
-                        }
                     }
 
-                    // Avoid too frequent start and stop of the task because this would also result in frequent flushing.
-                    Thread.Sleep( 100 );
+                    this._textWriter.Flush();
                 }
-
-                // Say that we are going to end the task.
-                this._backgroundTaskStatus = _finishingStatus;
-
-                // Process messages that may have been added in the meantime.
-                while ( this._messageQueue.TryDequeue( out var s ) )
+                catch ( ObjectDisposedException ) { }
+                finally
                 {
-                    this._textWriter.WriteLine( s );
+                    this._backgroundTaskStatus = _inactiveStatus;    
                 }
-
-                this._textWriter.Flush();
-                this._backgroundTaskStatus = _inactiveStatus;
             }
         }
 
