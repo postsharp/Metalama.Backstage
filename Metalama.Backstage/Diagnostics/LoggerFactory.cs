@@ -23,6 +23,7 @@ namespace Metalama.Backstage.Diagnostics
         private readonly ConcurrentQueue<string> _messageQueue = new();
         private TextWriter? _textWriter;
         private volatile int _backgroundTaskStatus;
+        private volatile bool _disposing;
 
         public string? LogFile { get; }
 
@@ -66,59 +67,79 @@ namespace Metalama.Backstage.Diagnostics
             }
         }
 
-        private void WriteToFile( object? state )
+        private void WriteBufferedMessagesToFile( object? state )
         {
             if ( this.LogFile == null )
             {
                 throw new InvalidOperationException( $"Cannot write diagnostics. The '{this.GetType().Name}' is not properly initialized." );
             }
 
+            if ( this._disposing )
+            {
+                return;
+            }
+
             lock ( this._textWriterSync )
             {
-                this._textWriter ??= File.CreateText( this.LogFile );
-
-                // Process enqueued messages.
-                var lastFlush = _stopwatch.ElapsedMilliseconds;
-
-                while ( !this._messageQueue.IsEmpty )
+                try
                 {
+                    this._textWriter ??= File.CreateText( this.LogFile );
+
+                    // Process enqueued messages.
+                    var lastFlush = _stopwatch.ElapsedMilliseconds;
+
+                    while ( !this._messageQueue.IsEmpty )
+                    {
+                        while ( this._messageQueue.TryDequeue( out var s ) )
+                        {
+                            this._textWriter.WriteLine( s );
+
+                            // Flush at least every 250 ms.
+                            if ( _stopwatch.ElapsedMilliseconds > lastFlush + 250 )
+                            {
+                                this._textWriter.Flush();
+                                lastFlush = _stopwatch.ElapsedMilliseconds;
+                            }
+                        }
+
+                        // Avoid too frequent start and stop of the task because this would also result in frequent flushing.
+                        Thread.Sleep( 100 );
+                    }
+
+                    // Say that we are going to end the task.
+                    this._backgroundTaskStatus = _finishingStatus;
+
+                    // Process messages that may have been added in the meantime.
                     while ( this._messageQueue.TryDequeue( out var s ) )
                     {
                         this._textWriter.WriteLine( s );
-
-                        // Flush at least every 250 ms.
-                        if ( _stopwatch.ElapsedMilliseconds > lastFlush + 250 )
-                        {
-                            this._textWriter.Flush();
-                            lastFlush = _stopwatch.ElapsedMilliseconds;
-                        }
                     }
 
-                    // Avoid too frequent start and stop of the task because this would also result in frequent flushing.
-                    Thread.Sleep( 100 );
+                    this._textWriter.Flush();
                 }
-
-                // Say that we are going to end the task.
-                this._backgroundTaskStatus = _finishingStatus;
-
-                // Process messages that may have been added in the meantime.
-                while ( this._messageQueue.TryDequeue( out var s ) )
+                catch ( ObjectDisposedException ) { }
+                finally
                 {
-                    this._textWriter.WriteLine( s );
+                    this._backgroundTaskStatus = _inactiveStatus;    
                 }
-
-                this._textWriter.Flush();
-                this._backgroundTaskStatus = _inactiveStatus;
             }
         }
 
         public void WriteLine( string s )
         {
+            // Make sure that we are not starting a background writer thread after we start disposing.
+            // Note that there can still be a race between Dispose in WriteLine, so we could still start a task, but we are
+            // also checking the disposing flag in WriteBufferedMessagesToFile.
+            if ( this._disposing )
+            {
+                return;
+            }
+            
             this._messageQueue.Enqueue( s );
 
             if ( Interlocked.CompareExchange( ref this._backgroundTaskStatus, _activeStatus, _inactiveStatus ) != _activeStatus )
             {
-                ThreadPool.QueueUserWorkItem( this.WriteToFile );
+                ThreadPool.QueueUserWorkItem( this.WriteBufferedMessagesToFile );
             }
         }
 
@@ -160,6 +181,7 @@ namespace Metalama.Backstage.Diagnostics
 
         public void Dispose()
         {
+            this._disposing = true;
             this.Flush();
             this._textWriter?.Close();
         }
