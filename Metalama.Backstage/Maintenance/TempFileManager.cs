@@ -22,6 +22,7 @@ public class TempFileManager : ITempFileManager
     private readonly IStandardDirectories _standardDirectories;
     private readonly IDateTimeProvider _time;
     private readonly IConfigurationManager _configurationManager;
+    private readonly BackstageBackgroundTasksService _backgroundTasksService;
     private readonly string _applicationVersion;
 
     private readonly string _backstageVersion;
@@ -34,6 +35,7 @@ public class TempFileManager : ITempFileManager
         this._logger = serviceProvider.GetRequiredBackstageService<EarlyLoggerFactory>().GetLogger( "Configuration" );
         this._time = serviceProvider.GetRequiredBackstageService<IDateTimeProvider>();
         this._standardDirectories = serviceProvider.GetRequiredBackstageService<IStandardDirectories>();
+        this._backgroundTasksService = serviceProvider.GetRequiredBackstageService<BackstageBackgroundTasksService>();
 
         var application = serviceProvider.GetRequiredBackstageService<IApplicationInfoProvider>().CurrentApplication;
 
@@ -284,13 +286,18 @@ public class TempFileManager : ITempFileManager
             }
         }
 
-        if ( cleanUpStrategy == CleanUpStrategy.WhenUnused && this._fileSystem.GetFileLastWriteTime( cleanUpFilePath ) > this._time.Now.AddDays( -1 ) )
-        {
-            using ( MutexHelper.WithGlobalLock( cleanUpFilePath ) )
+        // Profiling data shows that calling SetFileLastWriteTime can be slow, so we do it in the background.
+        this._backgroundTasksService.Enqueue(
+            () =>
             {
-                RetryHelper.Retry( () => this._fileSystem.SetFileLastWriteTime( cleanUpFilePath, DateTime.Now ) );
-            }
-        }
+                if ( cleanUpStrategy == CleanUpStrategy.WhenUnused && this._fileSystem.GetFileLastWriteTime( cleanUpFilePath ) > this._time.Now.AddDays( -1 ) )
+                {
+                    using ( MutexHelper.WithGlobalLock( cleanUpFilePath ) )
+                    {
+                        RetryHelper.Retry( () => this._fileSystem.SetFileLastWriteTime( cleanUpFilePath, DateTime.Now ) );
+                    }
+                }
+            } );
 
         return directoryFullPath;
     }
