@@ -191,7 +191,7 @@ namespace Metalama.Backstage.Licensing.Licenses
                 return false;
             }
 
-            if ( !data.VerifySignature() )
+            if ( data is { RequiresSignature: true, HasValidSignature: false } )
             {
                 errorMessage = $"License key {data.LicenseUniqueId} has invalid signature.";
                 this._logger.Warning?.Log( errorMessage );

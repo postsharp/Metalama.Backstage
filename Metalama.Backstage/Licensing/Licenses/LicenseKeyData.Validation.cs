@@ -9,7 +9,7 @@ using System.Linq;
 
 namespace Metalama.Backstage.Licensing.Licenses
 {
-    public partial class LicenseKeyData
+    public partial record LicenseKeyData
     {
         public bool Validate(
             byte[]? publicKeyToken,
@@ -34,7 +34,7 @@ namespace Metalama.Backstage.Licensing.Licenses
                 return false;
             }
 
-            if ( !this.VerifySignature() )
+            if ( this.RequiresSignature && !this.HasValidSignature )
             {
                 errorDescription = "has invalid signature";
 

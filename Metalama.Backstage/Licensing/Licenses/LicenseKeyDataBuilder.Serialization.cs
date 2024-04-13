@@ -11,68 +11,21 @@ using System.Security.Cryptography;
 
 namespace Metalama.Backstage.Licensing.Licenses
 {
-    public partial class LicenseKeyData
+    public partial class LicenseKeyDataBuilder
     {
-        public static bool TryDeserialize(
-            string licenseKey,
-            [MaybeNullWhen( false )] out LicenseKeyData data,
-            [MaybeNullWhen( true )] out string errorMessage )
-        {
-            try
-            {
-                Guid? licenseGuid = null;
+        /// <summary>
+        /// Since PostSharp 6.5.17, 6.8.10, and 6.9.3 the <see cref="MinPostSharpVersion" /> is no longer checked.
+        /// For compatibility with previous version, all licenses with features introduced since these versions
+        /// should have the <see cref="MinPostSharpVersion" />
+        /// set to <see cref="_minPostSharpVersionValidationRemovedPostSharpVersion" />.
+        /// </summary>
+        private static readonly Version _minPostSharpVersionValidationRemovedPostSharpVersion = new( 6, 9, 3 );
 
-                // Parse the license key prefix.
-#pragma warning disable CA1307
-                var firstDash = licenseKey.IndexOf( '-' );
-#pragma warning restore CA1307
-
-                if ( firstDash < 0 )
-                {
-                    throw new InvalidLicenseException( $"License header not found for license {{{licenseKey}}}." );
-                }
-
-                var prefix = licenseKey.Substring( 0, firstDash );
-
-                if ( !int.TryParse( prefix, NumberStyles.Integer, CultureInfo.InvariantCulture, out var licenseId ) )
-                {
-                    // If this is not an integer, this may be a GUID.
-                    licenseGuid = new Guid( Base32.FromBase32String( prefix ) );
-                }
-
-                var licenseBytes = Base32.FromBase32String( licenseKey.Substring( firstDash + 1 ) );
-
-                using var memoryStream = new MemoryStream( licenseBytes );
-                using var reader = new BinaryReader( memoryStream );
-
-                data = Deserialize( reader );
-
-                if ( data.LicenseId != licenseId )
-                {
-                    throw new InvalidLicenseException( $"The license id in the body ({licenseId}) does not match the header for license {{{licenseKey}}}." );
-                }
-
-                data.LicenseGuid = licenseGuid;
-                data.LicenseString = licenseKey;
-
-                errorMessage = null;
-
-                return true;
-            }
-            catch ( Exception e )
-            {
-                data = null;
-                errorMessage = e.Message;
-
-                return false;
-            }
-        }
-
-        public static LicenseKeyData Deserialize( BinaryReader reader )
+        public static LicenseKeyDataBuilder Deserialize( BinaryReader reader )
         {
             LicenseFieldIndex index;
 
-            var data = new LicenseKeyData
+            var data = new LicenseKeyDataBuilder()
             {
                 Version = reader.ReadByte(),
                 LicenseId = reader.ReadInt32(),
@@ -265,55 +218,6 @@ namespace Metalama.Backstage.Licensing.Licenses
             return this.LicenseString!;
         }
 
-        private void Write( BinaryWriter writer, bool includeAll )
-        {
-            writer.Write( this.Version );
-            writer.Write( this.LicenseId );
-            writer.Write( (byte) this.LicenseType );
-            writer.Write( (byte) this.Product );
-
-            foreach ( var pair in this._fields )
-            {
-                switch ( pair.Key )
-                {
-                    case LicenseFieldIndex.Signature:
-                        if ( includeAll )
-                        {
-                            goto default;
-                        }
-
-                        continue;
-
-                    default:
-                        writer.Write( (byte) pair.Key );
-
-                        if ( pair.Key.IsPrefixedByLength() )
-                        {
-                            pair.Value.WriteConstantLength( writer );
-                        }
-
-                        pair.Value.Write( writer );
-
-                        break;
-                }
-            }
-        }
-
-        private byte[] GetSignedBuffer()
-        {
-            // Write the license to a buffer without the key.
-            var memoryStream = new MemoryStream();
-
-            using ( var binaryWriter = new BinaryWriter( memoryStream ) )
-            {
-                this.Write( binaryWriter, false );
-            }
-
-            var signedBuffer = memoryStream.ToArray();
-
-            return signedBuffer;
-        }
-
         /// <summary>
         /// Signs the current license.
         /// </summary>
@@ -326,14 +230,93 @@ namespace Metalama.Backstage.Licensing.Licenses
             this.Signature = LicenseCryptography.Sign( signedBuffer, privateKey );
         }
 
+        public static bool TryDeserialize(
+            string licenseKey,
+            [MaybeNullWhen( false )] out LicenseKeyDataBuilder data,
+            [MaybeNullWhen( true )] out string errorMessage )
+        {
+            try
+            {
+                Guid? licenseGuid = null;
+
+                // Parse the license key prefix.
+#pragma warning disable CA1307
+                var firstDash = licenseKey.IndexOf( '-' );
+#pragma warning restore CA1307
+
+                if ( firstDash < 0 )
+                {
+                    throw new InvalidLicenseException( $"License header not found for license {{{licenseKey}}}." );
+                }
+
+                var prefix = licenseKey.Substring( 0, firstDash );
+
+                if ( !int.TryParse( prefix, NumberStyles.Integer, CultureInfo.InvariantCulture, out var licenseId ) )
+                {
+                    // If this is not an integer, this may be a GUID.
+                    licenseGuid = new Guid( Base32.FromBase32String( prefix ) );
+                }
+
+                var licenseBytes = Base32.FromBase32String( licenseKey.Substring( firstDash + 1 ) );
+
+                using var memoryStream = new MemoryStream( licenseBytes );
+                using var reader = new BinaryReader( memoryStream );
+
+                data = Deserialize( reader );
+
+                if ( data.LicenseId != licenseId )
+                {
+                    throw new InvalidLicenseException( $"The license id in the body ({licenseId}) does not match the header for license {{{licenseKey}}}." );
+                }
+
+                data.LicenseGuid = licenseGuid;
+                data.LicenseString = licenseKey;
+                errorMessage = null;
+
+                return true;
+            }
+            catch ( Exception e )
+            {
+                data = null;
+                errorMessage = e.Message;
+
+                return false;
+            }
+        }
+
+        /// <exclude/>
+        private bool VerifySignature()
+        {
+            if ( !this.RequiresSignature() )
+            {
+                return true;
+            }
+
+            if ( !this.SignatureKeyId.HasValue )
+            {
+                return false;
+            }
+
+            var publicKey = LicenseCryptography.GetPublicKey( this.SignatureKeyId.Value );
+
+            try
+            {
+                return this.VerifySignature( publicKey );
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
         /// <summary>
         /// Verifies the signature of the current license.
         /// </summary>
         /// <param name="publicKey">Public key.</param>
         /// <returns><c>true</c> if the signature is correct, otherwise <c>false</c>.</returns>
-        public bool VerifySignature( DSA publicKey )
+        private bool VerifySignature( DSA publicKey )
         {
-            if ( !this.RequiresSignature )
+            if ( !this.RequiresSignature() )
             {
                 return true;
             }
