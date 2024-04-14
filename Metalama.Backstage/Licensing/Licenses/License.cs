@@ -6,11 +6,9 @@ using Metalama.Backstage.Extensibility;
 using Metalama.Backstage.Infrastructure;
 using Metalama.Backstage.Licensing.Consumption;
 using Metalama.Backstage.Licensing.Registration;
-using Metalama.Backstage.Utilities;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
-using System.Globalization;
 using System.Text;
 
 namespace Metalama.Backstage.Licensing.Licenses
@@ -53,44 +51,6 @@ namespace Metalama.Backstage.Licensing.Licenses
             this._services = services;
             this._dateTimeProvider = services.GetRequiredBackstageService<IDateTimeProvider>();
             this._logger = services.GetLoggerFactory().Licensing();
-        }
-
-        private static bool TryGetLicenseId( string s, out int id )
-        {
-#pragma warning disable CA1307
-            var firstDash = s.IndexOf( '-' );
-#pragma warning restore CA1307
-
-            if ( firstDash > 0 )
-            {
-                var prefix = s.Substring( 0, firstDash );
-
-                if ( int.TryParse( prefix, NumberStyles.Integer, CultureInfo.InvariantCulture, out id ) )
-                {
-                    return true;
-                }
-                else
-                {
-                    try
-                    {
-                        var guidBytes = Base32.FromBase32String( prefix );
-
-                        if ( guidBytes is { Length: 16 } )
-                        {
-                            id = 0;
-
-                            return false;
-                        }
-                    }
-
-                    // ReSharper disable once EmptyGeneralCatchClause
-                    catch { }
-                }
-            }
-
-            id = -1;
-
-            return false;
         }
 
         /// <inheritdoc />

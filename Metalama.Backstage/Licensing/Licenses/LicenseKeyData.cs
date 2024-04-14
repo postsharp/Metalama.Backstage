@@ -36,7 +36,7 @@ namespace Metalama.Backstage.Licensing.Licenses
         /// </summary>
         public bool IsLimitedByNamespace => !string.IsNullOrEmpty( this.Namespace );
 
-        public LicenseKeyData() : this( ImmutableSortedDictionary<LicenseFieldIndex, LicenseField>.Empty ) { }
+        internal LicenseKeyData() : this( ImmutableSortedDictionary<LicenseFieldIndex, LicenseField>.Empty ) { }
 
         internal LicenseKeyData( ImmutableSortedDictionary<LicenseFieldIndex, LicenseField> fields )
         {
