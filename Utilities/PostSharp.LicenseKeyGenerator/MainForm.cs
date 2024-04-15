@@ -13,7 +13,7 @@ namespace PostSharp.LicenseKeyGenerator
         public MainForm()
         {
             this.InitializeComponent();
-            this._propertyGrid.SelectedObject = new LicenseKeyData();
+            this._propertyGrid.SelectedObject = new LicenseKeyDataBuilder();
 
             // We load the private key on startup to avoid KeyVault exceptions after filling all the data.
             var kvUri = "https://postsharpbusinesssystkv.vault.azure.net/";
@@ -23,22 +23,15 @@ namespace PostSharp.LicenseKeyGenerator
 
         private void OnSerializedButtonClicked( object sender, EventArgs e )
         {
-            var licenseKeyData = (LicenseKeyData) this._propertyGrid.SelectedObject;
-            licenseKeyData.SignAndSerialize( 0, this._privateKey );
-
-            if ( !licenseKeyData.VerifySignature() )
-            {
-                throw new InvalidOperationException();
-            }
-
-            var licenseKey = licenseKeyData.Serialize();
+            var licenseKeyData = (LicenseKeyDataBuilder) this._propertyGrid.SelectedObject;
+            var licenseKey = licenseKeyData.SignAndSerialize( 0, this._privateKey );
 
             if ( !LicenseKeyData.TryDeserialize( licenseKey, out var deserializedLicenseKeyData, out var errorMessage ) )
             {
                 throw new InvalidOperationException( errorMessage );
             }
 
-            if ( !deserializedLicenseKeyData.VerifySignature() )
+            if ( !deserializedLicenseKeyData.HasValidSignature )
             {
                 throw new InvalidOperationException( "Failed to verify license signature." );
             }

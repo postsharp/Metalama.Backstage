@@ -27,14 +27,12 @@ namespace PostSharp.LicenseKeyReader
                 return;
             }
 
-            if ( !licenseKeyData.VerifySignature() )
+            this._propertyGrid.SelectedObject = licenseKeyData;
+
+            if ( licenseKeyData is { RequiresSignature: true, HasValidSignature: false } )
             {
                 this.ShowError( "Failed to verify the license key signature" );
-
-                return;
             }
-
-            this._propertyGrid.SelectedObject = licenseKeyData;
         }
     }
 }

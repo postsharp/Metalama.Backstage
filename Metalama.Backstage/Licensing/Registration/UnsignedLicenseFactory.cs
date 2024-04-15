@@ -32,7 +32,7 @@ namespace Metalama.Backstage.Licensing.Registration
             var start = this._time.Now.Date;
             var end = start + LicensingConstants.EvaluationPeriod;
 
-            var licenseKeyData = new LicenseKeyData
+            var licenseKeyData = new LicenseKeyDataBuilder()
             {
                 LicenseGuid = Guid.NewGuid(),
                 Product = LicensedProduct.MetalamaUltimate,
@@ -43,7 +43,7 @@ namespace Metalama.Backstage.Licensing.Registration
             };
 
             var licenseKey = licenseKeyData.Serialize();
-            var licenseRegistrationData = licenseKeyData.ToLicenseProperties();
+            var licenseRegistrationData = licenseKeyData.Build().ToLicenseProperties();
 
             return (licenseKey, licenseRegistrationData);
         }
@@ -56,13 +56,13 @@ namespace Metalama.Backstage.Licensing.Registration
         {
             var start = this._time.Now;
 
-            var licenseKeyData = new LicenseKeyData
+            var licenseKeyData = new LicenseKeyDataBuilder
             {
                 LicenseGuid = Guid.NewGuid(), Product = LicensedProduct.MetalamaFree, LicenseType = LicenseType.Personal, ValidFrom = start
             };
 
             var licenseKey = licenseKeyData.Serialize();
-            var licenseRegistrationData = licenseKeyData.ToLicenseProperties();
+            var licenseRegistrationData = licenseKeyData.Build().ToLicenseProperties();
 
             return (licenseKey, licenseRegistrationData);
         }

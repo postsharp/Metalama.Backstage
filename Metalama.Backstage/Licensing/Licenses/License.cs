@@ -6,11 +6,9 @@ using Metalama.Backstage.Extensibility;
 using Metalama.Backstage.Infrastructure;
 using Metalama.Backstage.Licensing.Consumption;
 using Metalama.Backstage.Licensing.Registration;
-using Metalama.Backstage.Utilities;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
-using System.Globalization;
 using System.Text;
 
 namespace Metalama.Backstage.Licensing.Licenses
@@ -53,44 +51,6 @@ namespace Metalama.Backstage.Licensing.Licenses
             this._services = services;
             this._dateTimeProvider = services.GetRequiredBackstageService<IDateTimeProvider>();
             this._logger = services.GetLoggerFactory().Licensing();
-        }
-
-        private static bool TryGetLicenseId( string s, out int id )
-        {
-#pragma warning disable CA1307
-            var firstDash = s.IndexOf( '-' );
-#pragma warning restore CA1307
-
-            if ( firstDash > 0 )
-            {
-                var prefix = s.Substring( 0, firstDash );
-
-                if ( int.TryParse( prefix, NumberStyles.Integer, CultureInfo.InvariantCulture, out id ) )
-                {
-                    return true;
-                }
-                else
-                {
-                    try
-                    {
-                        var guidBytes = Base32.FromBase32String( prefix );
-
-                        if ( guidBytes is { Length: 16 } )
-                        {
-                            id = 0;
-
-                            return false;
-                        }
-                    }
-
-                    // ReSharper disable once EmptyGeneralCatchClause
-                    catch { }
-                }
-            }
-
-            id = -1;
-
-            return false;
         }
 
         /// <inheritdoc />
@@ -141,15 +101,8 @@ namespace Metalama.Backstage.Licensing.Licenses
             }
             else
             {
-                if ( TryGetLicenseId( this._licenseKey, out var id ) )
-                {
-                    errorMessage = $"Cannot parse license key ID {id}.";
-                }
-                else
-                {
-                    errorMessage = $"Cannot parse license key {this._licenseKey}.";
-                }
-
+                errorMessage = $"Cannot parse the license key '{this._licenseKey}'.";
+  
                 this._logger.Error?.Log( errorMessage );
 
                 return false;
@@ -173,7 +126,7 @@ namespace Metalama.Backstage.Licensing.Licenses
                     applicationInfoService,
                     out validationErrorMessage ) )
             {
-                this._logger.Trace?.Log( $"License key {data.LicenseUniqueId} is invalid: {validationErrorMessage}" );
+                this._logger.Warning?.Log( $"The license key {data.LicenseUniqueId} is invalid: {validationErrorMessage}" );
                 data = null;
 
                 return false;
@@ -191,9 +144,9 @@ namespace Metalama.Backstage.Licensing.Licenses
                 return false;
             }
 
-            if ( !data.VerifySignature() )
+            if ( data is { RequiresSignature: true, HasValidSignature: false } )
             {
-                errorMessage = $"License key {data.LicenseUniqueId} has invalid signature.";
+                errorMessage = $"The license key {data.LicenseUniqueId} has an invalid signature.";
                 this._logger.Warning?.Log( errorMessage );
                 data = null;
 

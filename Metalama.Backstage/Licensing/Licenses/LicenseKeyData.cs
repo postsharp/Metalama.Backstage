@@ -1,7 +1,10 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. See the LICENSE.md file in the root directory of this repository root for details.
 
 using JetBrains.Annotations;
-using System;
+using Metalama.Backstage.Licensing.Licenses.LicenseFields;
+using System.Collections.Concurrent;
+using System.Collections.Immutable;
+using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Text;
 
@@ -11,41 +14,9 @@ namespace Metalama.Backstage.Licensing.Licenses
     /// Provides serialization, cryptography and validation for license keys.
     /// </summary>
     [PublicAPI]
-    public partial class LicenseKeyData
+    public partial record LicenseKeyData : ILicenseKeyData
     {
-        /// <summary>
-        /// Since PostSharp 6.5.17, 6.8.10, and 6.9.3 the <see cref="MinPostSharpVersion" /> is no longer checked.
-        /// For compatibility with previous version, all licenses with features introduced since these versions
-        /// should have the <see cref="MinPostSharpVersion" />
-        /// set to <see cref="_minPostSharpVersionValidationRemovedPostSharpVersion" />.
-        /// </summary>
-        private static readonly Version _minPostSharpVersionValidationRemovedPostSharpVersion = new( 6, 9, 3 );
-
-        public bool RequiresSignature
-        {
-            get
-            {
-#pragma warning disable CS0618 // Type or member is obsolete
-                if ( this.LicenseType == LicenseType.Anonymous )
-#pragma warning restore CS0618 // Type or member is obsolete
-                {
-                    return false;
-                }
-
-                if ( this.LicenseId == 0 && (this.LicenseType == LicenseType.Essentials ||
-                                             this.LicenseType == LicenseType.Evaluation) )
-                {
-                    return false;
-                }
-
-                if ( this.Product == LicensedProduct.MetalamaFree )
-                {
-                    return false;
-                }
-
-                return true;
-            }
-        }
+        public bool RequiresSignature => this.RequiresSignature();
 
         public string LicenseUniqueId
             => this.LicenseGuid.HasValue
@@ -65,9 +36,12 @@ namespace Metalama.Backstage.Licensing.Licenses
         /// </summary>
         public bool IsLimitedByNamespace => !string.IsNullOrEmpty( this.Namespace );
 
-        public LicenseKeyData()
+        internal LicenseKeyData() : this( ImmutableSortedDictionary<LicenseFieldIndex, LicenseField>.Empty ) { }
+
+        internal LicenseKeyData( ImmutableSortedDictionary<LicenseFieldIndex, LicenseField> fields )
         {
             this.Version = 2;
+            this._fields = fields;
         }
 
         /// <inheritdoc />
@@ -93,6 +67,56 @@ namespace Metalama.Backstage.Licensing.Licenses
             }
 
             return stringBuilder.ToString();
+        }
+
+        private static readonly ConcurrentDictionary<string, LicenseKeyData> _cache = new();
+
+        public static bool TryDeserialize(
+            string licenseKey,
+            [MaybeNullWhen( false )] out LicenseKeyData data,
+            [MaybeNullWhen( true )] out string errorMessage )
+        {
+            if ( _cache.TryGetValue( licenseKey, out data ) )
+            {
+                errorMessage = null;
+
+                return true;
+            }
+            else
+            {
+                if ( !LicenseKeyDataBuilder.TryDeserialize( licenseKey, out var builder, out errorMessage ) )
+                {
+                    return false;
+                }
+
+                data = builder.Build();
+                _cache.TryAdd( licenseKey, data );
+
+                return true;
+            }
+        }
+
+        private static bool ComparePublicKeyToken( byte[]? key1, byte[]? key2 )
+        {
+            if ( key1 == null )
+            {
+                return key2 == null;
+            }
+
+            if ( key2 == null )
+            {
+                return false;
+            }
+
+            for ( var i = 0; i < key1.Length; i++ )
+            {
+                if ( key1[i] != key2[i] )
+                {
+                    return false;
+                }
+            }
+
+            return true;
         }
     }
 }
