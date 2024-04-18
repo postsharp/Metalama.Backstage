@@ -34,6 +34,12 @@ internal class MatomoAuditUploader : IBackstageService
             _ => report.License.LicensedProduct.ToString()
         };
 
+        var licenseType = report.License.LicensedProduct switch
+        {
+            LicensedProduct.MetalamaFree => "Free",
+            _ => report.License.LicenseType.ToString()
+        };
+
         // Note that we are intentionally and "randomly" reporting the version of the first component that
         // triggered audit, because prioritize having just one hit per day over having accurate version reporting
         // (at least for Matomo reporting).
@@ -44,7 +50,7 @@ internal class MatomoAuditUploader : IBackstageService
             $"https://postsharp.matomo.cloud/matomo.php?idsite=6"
             + $"&rec=1&_id={report.DeviceHash:x}"
             + $"&dimension1={licensedProduct}"
-            + $"&dimension2={report.License.LicenseType}"
+            + $"&dimension2={licenseType}"
             + $"&dimension3=Metalama"
             + $"&dimension4={reportedVersion}"
             + $"&new_visit={(isNewUser ? 1 : 0)}"
