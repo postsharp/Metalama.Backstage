@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 namespace Metalama.Backstage.Extensibility;
 
 // BackstageBackgroundTasksService is intentionally not disposable, relying instead on GC, because Metalama's
-// service provider disposal implementation would implement all backstage services for all tests, and a few
+// service provider disposal implementation would dispose all backstage services for all tests, and a few
 // tests would cause issues.
 #pragma warning disable CA1001
 
