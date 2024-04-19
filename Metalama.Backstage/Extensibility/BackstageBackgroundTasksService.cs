@@ -12,7 +12,6 @@ namespace Metalama.Backstage.Extensibility;
 #pragma warning disable CA1001
 
 public class BackstageBackgroundTasksService : IBackstageService
-
 {
     private readonly TaskCompletionSource<bool> _completedTaskSource = new();
     private readonly SemaphoreSlim _noPendingTaskSemaphore = new( 1 );
