@@ -6,7 +6,13 @@ using System.Threading.Tasks;
 
 namespace Metalama.Backstage.Extensibility;
 
-public class BackstageBackgroundTasksService : IBackstageService, IDisposable
+// BackstageBackgroundTasksService is intentionally not disposable, relying instead on GC, because Metalama's
+// service provider disposal implementation would implement all backstage services for all tests, and a few
+// tests would cause issues.
+#pragma warning disable CA1001
+
+public class BackstageBackgroundTasksService : IBackstageService
+
 {
     private readonly TaskCompletionSource<bool> _completedTaskSource = new();
     private readonly SemaphoreSlim _noPendingTaskSemaphore = new( 1 );
@@ -94,16 +100,5 @@ public class BackstageBackgroundTasksService : IBackstageService, IDisposable
                 this._completedTaskSource.TrySetResult( true );
             }
         }
-    }
-
-    public void Dispose()
-    {
-        // Don't allow disposing the global instance.
-        if ( ReferenceEquals( this, Default ) )
-        {
-            return;
-        }
-
-        this._noPendingTaskSemaphore.Dispose();
     }
 }
