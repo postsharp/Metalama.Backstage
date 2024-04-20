@@ -17,7 +17,7 @@ public class BackstageBackgroundTasksService : IBackstageService
 {
     private readonly TaskCompletionSource<bool> _completedTaskSource = new();
     private readonly ConcurrentQueue<TaskCompletionSource<bool>> _onQueueEmptyWaiters = new();
-    
+
     private int _pendingTasks;
     private bool _canEnqueue = true;
 
@@ -39,13 +39,13 @@ public class BackstageBackgroundTasksService : IBackstageService
 
     internal void Enqueue( Func<Task> func )
     {
-        this.OnTaskStarted();
+        this.OnTaskStarting();
         Task.Run( func ).ContinueWith( this.OnTaskCompleted );
     }
 
     internal void Enqueue( Action action )
     {
-        this.OnTaskStarted();
+        this.OnTaskStarting();
         Task.Run( action ).ContinueWith( this.OnTaskCompleted );
     }
 
@@ -83,7 +83,7 @@ public class BackstageBackgroundTasksService : IBackstageService
         }
     }
 
-    private void OnTaskStarted()
+    private void OnTaskStarting()
     {
         if ( !this._canEnqueue )
         {
@@ -97,11 +97,11 @@ public class BackstageBackgroundTasksService : IBackstageService
     {
         if ( Interlocked.Decrement( ref this._pendingTasks ) == 0 )
         {
-            foreach ( var waiter in this._onQueueEmptyWaiters )
+            while ( this._onQueueEmptyWaiters.TryDequeue( out var waiter ) )
             {
                 waiter.TrySetResult( true );
             }
-        
+
             if ( !this._canEnqueue )
             {
                 this._completedTaskSource.TrySetResult( true );
