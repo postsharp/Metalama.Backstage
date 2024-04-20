@@ -1,10 +1,12 @@
 // Copyright (c) SharpCrafters s.r.o. See the LICENSE.md file in the root directory of this repository root for details.
 
+using Metalama.Backstage.Extensibility;
 using System;
+using System.Collections.Concurrent;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Metalama.Backstage.Extensibility;
+namespace Metalama.Backstage.Infrastructure;
 
 // BackstageBackgroundTasksService is intentionally not disposable, relying instead on GC, because Metalama's
 // service provider disposal implementation would dispose all backstage services for all tests, and a few
@@ -14,8 +16,8 @@ namespace Metalama.Backstage.Extensibility;
 public class BackstageBackgroundTasksService : IBackstageService
 {
     private readonly TaskCompletionSource<bool> _completedTaskSource = new();
-    private readonly SemaphoreSlim _noPendingTaskSemaphore = new( 1 );
-
+    private readonly ConcurrentQueue<TaskCompletionSource<bool>> _onQueueEmptyWaiters = new();
+    
     private int _pendingTasks;
     private bool _canEnqueue = true;
 
@@ -66,10 +68,19 @@ public class BackstageBackgroundTasksService : IBackstageService
     /// This method can be use in tests to wait for any point when the queue is empty but does
     /// not guarantee that no new task will be enqueued.
     /// </summary>
-    internal async Task WhenNoPendingTaskAsync()
+    internal Task WhenNoPendingTaskAsync()
     {
-        await this._noPendingTaskSemaphore.WaitAsync();
-        this._noPendingTaskSemaphore.Release();
+        if ( this._pendingTasks == 0 )
+        {
+            return Task.CompletedTask;
+        }
+        else
+        {
+            var waiter = new TaskCompletionSource<bool>();
+            this._onQueueEmptyWaiters.Enqueue( waiter );
+
+            return waiter.Task;
+        }
     }
 
     private void OnTaskStarted()
@@ -79,21 +90,18 @@ public class BackstageBackgroundTasksService : IBackstageService
             throw new InvalidOperationException();
         }
 
-        if ( Interlocked.Increment( ref this._pendingTasks ) == 1 )
-        {
-            if ( !this._noPendingTaskSemaphore.Wait( 0 ) )
-            {
-                throw new InvalidOperationException();
-            }
-        }
+        Interlocked.Increment( ref this._pendingTasks );
     }
 
     private void OnTaskCompleted( Task t )
     {
         if ( Interlocked.Decrement( ref this._pendingTasks ) == 0 )
         {
-            this._noPendingTaskSemaphore.Release();
-
+            foreach ( var waiter in this._onQueueEmptyWaiters )
+            {
+                waiter.TrySetResult( true );
+            }
+        
             if ( !this._canEnqueue )
             {
                 this._completedTaskSource.TrySetResult( true );
