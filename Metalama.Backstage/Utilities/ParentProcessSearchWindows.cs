@@ -55,7 +55,9 @@ internal sealed class ParentProcessSearchWindows : ParentProcessSearchBase<IntPt
 
     private const uint PROCESS_QUERY_INFORMATION = 0x0400;
 
-    protected override IntPtr GetCurrentProcessId() => GetCurrentProcess();
+    protected override bool IsNull( IntPtr handle ) => handle == IntPtr.Zero;
+
+    protected override IntPtr GetCurrentProcessHandle() => GetCurrentProcess();
 
     protected override (string? ImageName, int CurrentProcessId, IntPtr ParentProcessHandle) GetProcessInfo( IntPtr hProcess )
     {

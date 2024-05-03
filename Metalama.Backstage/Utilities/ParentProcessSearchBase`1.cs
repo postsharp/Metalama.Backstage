@@ -18,17 +18,12 @@ internal abstract class ParentProcessSearchBase<TProcessHandle> : ParentProcessS
     {
         var parents = new List<ProcessInfo>();
         var parentIds = new HashSet<int>();
-        var currentProcessHandle = this.GetCurrentProcessId();
+        var currentProcessHandle = this.GetCurrentProcessHandle();
         var isSelf = true;
 
-        while ( true )
+        while ( !this.IsNull( currentProcessHandle ) )
         {
             var (imageName, currentProcessId, parentProcessHandle) = this.GetProcessInfo( currentProcessHandle );
-
-            if ( currentProcessId == 0 )
-            {
-                break;
-            }
 
             var processInfo = new ProcessInfo( currentProcessId, imageName );
 
@@ -60,18 +55,23 @@ internal abstract class ParentProcessSearchBase<TProcessHandle> : ParentProcessS
                     break;
                 }
             }
-            
+
             this.CloseProcessHandle( currentProcessHandle );
 
             currentProcessHandle = parentProcessHandle;
         }
-        
-        this.CloseProcessHandle( currentProcessHandle );
+
+        if ( !this.IsNull( currentProcessHandle ) )
+        {
+            this.CloseProcessHandle( currentProcessHandle );
+        }
 
         return parents;
     }
 
-    protected abstract TProcessHandle GetCurrentProcessId();
+    protected abstract bool IsNull( TProcessHandle handle );
+
+    protected abstract TProcessHandle GetCurrentProcessHandle();
 
     protected abstract (string? ImageName, int CurrentProcessId, TProcessHandle ParentProcessHandle) GetProcessInfo( TProcessHandle processHandle );
     
