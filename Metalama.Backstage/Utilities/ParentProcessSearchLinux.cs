@@ -12,7 +12,9 @@ internal class ParentProcessSearchLinux : ParentProcessSearchBase<int>
 {
     public ParentProcessSearchLinux( ILogger logger ) : base( logger ) { }
 
-    protected override int GetCurrentProcessId() => Process.GetCurrentProcess().Id;
+    protected override bool IsNull( int handle ) => handle == 0;
+
+    protected override int GetCurrentProcessHandle() => Process.GetCurrentProcess().Id;
 
     protected override (string? ImageName, int CurrentProcessId, int ParentProcessHandle) GetProcessInfo( int processHandle )
     {
