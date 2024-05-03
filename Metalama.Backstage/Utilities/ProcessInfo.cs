@@ -1,6 +1,7 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. See the LICENSE.md file in the root directory of this repository root for details.
 
 using System.IO;
+using System.Runtime.InteropServices;
 
 namespace Metalama.Backstage.Utilities
 {
@@ -10,7 +11,11 @@ namespace Metalama.Backstage.Utilities
 
         public string? ImagePath { get; }
 
-        public string? ProcessName => Path.GetFileNameWithoutExtension( this.ImagePath )?.ToLowerInvariant();
+        public string? ProcessName
+            => (RuntimeInformation.IsOSPlatform( OSPlatform.Windows )
+                    ? Path.GetFileNameWithoutExtension( this.ImagePath )
+                    : Path.GetFileName( this.ImagePath ))
+                ?.ToLowerInvariant();
 
         public ProcessInfo( int processId, string? imageFileName )
         {
