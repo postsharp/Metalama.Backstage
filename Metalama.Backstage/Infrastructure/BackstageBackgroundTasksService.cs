@@ -82,11 +82,7 @@ public class BackstageBackgroundTasksService : IBackstageService
             return waiter.Task;
         }
     }
-
-            return waiter.Task;
-        }
-    }
-
+    
     private void OnTaskStarting()
     {
         if ( !this._canEnqueue )
@@ -101,7 +97,7 @@ public class BackstageBackgroundTasksService : IBackstageService
     {
         if ( Interlocked.Decrement( ref this._pendingTasks ) == 0 )
         {
-            foreach ( var waiter in this._onQueueEmptyWaiters )
+            while ( this._onQueueEmptyWaiters.TryDequeue( out var waiter ) )
             {
                 waiter.TrySetResult( true );
             }
