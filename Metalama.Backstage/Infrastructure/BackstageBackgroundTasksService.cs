@@ -39,13 +39,13 @@ public class BackstageBackgroundTasksService : IBackstageService
 
     internal void Enqueue( Func<Task> func )
     {
-        this.OnTaskStarted();
+        this.OnTaskStarting();
         Task.Run( func ).ContinueWith( this.OnTaskCompleted );
     }
 
     internal void Enqueue( Action action )
     {
-        this.OnTaskStarted();
+        this.OnTaskStarting();
         Task.Run( action ).ContinueWith( this.OnTaskCompleted );
     }
 
@@ -83,7 +83,11 @@ public class BackstageBackgroundTasksService : IBackstageService
         }
     }
 
-    private void OnTaskStarted()
+            return waiter.Task;
+        }
+    }
+
+    private void OnTaskStarting()
     {
         if ( !this._canEnqueue )
         {
