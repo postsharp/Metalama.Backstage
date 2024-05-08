@@ -2,6 +2,7 @@
 
 using Metalama.Backstage.Application;
 using Metalama.Backstage.Extensibility;
+using Metalama.Backstage.Licensing.Audit;
 using Metalama.Backstage.Telemetry;
 using Metalama.Backstage.Testing;
 using System;
@@ -18,6 +19,7 @@ public class UsageReporterTests : TestsBase
 
     protected override void ConfigureServices( ServiceProviderBuilder services )
     {
+        services.AddSingleton( serviceProvider => new TelemetryLogger( serviceProvider ) );
         services.AddSingleton<IApplicationInfoProvider>( new ApplicationInfoProvider( new TestApplicationInfo() { IsTelemetryEnabled = true } ) );
         services.AddSingleton<TelemetryReportUploader>( serviceProvider => new TelemetryReportUploader( serviceProvider ) );
     }
@@ -32,7 +34,7 @@ public class UsageReporterTests : TestsBase
         Assert.NotEmpty( usageReporter.Metrics! );
         usageReporter.StopSession();
 
-        Assert.Single( this.FileSystem.Mock.AllFiles );
-        Assert.StartsWith( "Usage-", Path.GetFileName( this.FileSystem.Mock.AllFiles.Single() ), StringComparison.Ordinal );
+        Assert.Single( this.FileSystem.Mock.AllFiles.Where( f => Path.GetFileName( f ).StartsWith( "Usage-", StringComparison.Ordinal ) ) );
+        Assert.Single( this.FileSystem.Mock.AllFiles.Where( f => Path.GetFileName( f ).StartsWith( "Telemetry-", StringComparison.Ordinal ) ) );
     }
 }

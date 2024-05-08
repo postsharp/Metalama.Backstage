@@ -252,11 +252,14 @@ namespace Metalama.Backstage.Testing
 
         public string[] ReadAllLines( string path ) => this._file.Execute( ExecutionKind.Read, 0, path, f => f.ReadAllLines( path ) );
 
-        public void WriteAllLines( string path, string[] content )
-            => this._file.Execute( ExecutionKind.Write, this.GetWriteChangeKind( path ), path, f => f.WriteAllLines( path, content ) );
+        public void WriteAllLines( string path, string[] contents )
+            => this._file.Execute( ExecutionKind.Write, this.GetWriteChangeKind( path ), path, f => f.WriteAllLines( path, contents ) );
 
-        public void WriteAllLines( string path, IEnumerable<string> content )
-            => this._file.Execute( ExecutionKind.Write, this.GetWriteChangeKind( path ), path, f => f.WriteAllLines( path, content ) );
+        public void WriteAllLines( string path, IEnumerable<string> contents )
+            => this._file.Execute( ExecutionKind.Write, this.GetWriteChangeKind( path ), path, f => f.WriteAllLines( path, contents ) );
+
+        public void AppendAllLines( string path, IEnumerable<string> contents )
+            => this._file.Execute( ExecutionKind.Write, this.GetWriteChangeKind( path ), path, f => f.AppendAllLines( path, contents ) );
 
         public void MoveFile( string sourceFileName, string destFileName )
         {

@@ -20,6 +20,11 @@ namespace Metalama.Backstage.Infrastructure
         string TempDirectory { get; }
 
         /// <summary>
+        /// Gets the directory where telemetry logs are written.
+        /// </summary>
+        string TelemetryLogsDirectory { get; }
+
+        /// <summary>
         /// Gets the directory where the exception reports should be stored just after they are captured.
         /// </summary>
         string TelemetryExceptionsDirectory { get; }

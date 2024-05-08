@@ -4,6 +4,7 @@ using Metalama.Backstage.Configuration;
 using Metalama.Backstage.Diagnostics;
 using Metalama.Backstage.Extensibility;
 using Metalama.Backstage.Infrastructure;
+using Metalama.Backstage.Licensing.Audit;
 using Metalama.Backstage.Tools;
 using Metalama.Backstage.Utilities;
 using System;
@@ -11,6 +12,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.IO.Packaging;
+using System.Linq;
 using System.Net.Http;
 using System.Net.Mime;
 using System.Security.Cryptography;
@@ -33,6 +35,7 @@ namespace Metalama.Backstage.Telemetry
         private readonly IConfigurationManager _configurationManager;
         private readonly IExceptionReporter _exceptionReporter;
         private readonly List<(string File, Exception Reason)> _failedFiles = new();
+        private readonly TelemetryLogger _telemetryLogger;
 
         public TelemetryUploader( IServiceProvider serviceProvider )
         {
@@ -45,6 +48,7 @@ namespace Metalama.Backstage.Telemetry
             this._time = serviceProvider.GetRequiredBackstageService<IDateTimeProvider>();
             this._logger = serviceProvider.GetLoggerFactory().Telemetry();
             this._exceptionReporter = serviceProvider.GetRequiredBackstageService<IExceptionReporter>();
+            this._telemetryLogger = serviceProvider.GetRequiredBackstageService<TelemetryLogger>();
         }
 
         private static void CopyStream( Stream inputStream, Stream outputStream )
@@ -355,11 +359,13 @@ namespace Metalama.Backstage.Telemetry
                     throw new InvalidOperationException( $"Request failed: {response.StatusCode} {response.ReasonPhrase}" );
                 }
 
+                this._telemetryLogger.WriteLine( $"Uploaded '{packageName}' containing: {string.Join( ", ", files.Select( f => $"'{f}'" ) )}" );
                 this._logger.Trace?.Log( $"Upload succeeded." );
             }
             catch ( Exception exception )
             {
                 this._logger.Error?.Log( exception.ToString() );
+                this._telemetryLogger.WriteLine( $"Upload failure: {exception.Message}" );
 
                 throw;
             }

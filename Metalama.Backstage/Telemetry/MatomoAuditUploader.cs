@@ -15,12 +15,14 @@ internal class MatomoAuditUploader : IBackstageService
     private readonly ILogger _logger;
     private readonly IHttpClientFactory _httpClientFactory;
     private readonly RandomNumberGenerator _randomNumberGenerator;
+    private readonly TelemetryLogger _telemetryLogger;
 
     public MatomoAuditUploader( IServiceProvider serviceProvider )
     {
         this._logger = serviceProvider.GetLoggerFactory().GetLogger( "Metrics" );
         this._httpClientFactory = serviceProvider.GetRequiredBackstageService<IHttpClientFactory>();
         this._randomNumberGenerator = serviceProvider.GetRequiredBackstageService<RandomNumberGenerator>();
+        this._telemetryLogger = serviceProvider.GetRequiredBackstageService<TelemetryLogger>();
     }
 
     public async Task UploadAsync( LicenseAuditTelemetryReport report, bool isNewUser )
@@ -60,6 +62,8 @@ internal class MatomoAuditUploader : IBackstageService
         try
         {
             var response = await http.GetAsync( request );
+
+            this._telemetryLogger.WriteLine( $"'{request}': {response.ReasonPhrase}." );
 
             if ( !response.IsSuccessStatusCode )
             {

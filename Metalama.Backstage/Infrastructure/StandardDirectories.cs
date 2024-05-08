@@ -23,21 +23,21 @@ namespace Metalama.Backstage.Infrastructure
         public StandardDirectories( IServiceProvider serviceProvider )
         {
             this._serviceProvider = serviceProvider;
-            
+
             static string GetApplicationDataDirectory( Environment.SpecialFolder applicationDataDirectory, string metalamaDirectoryName )
             {
                 var applicationDataParentDirectory = Environment.GetFolderPath( applicationDataDirectory );
 
                 if ( !string.IsNullOrEmpty( applicationDataParentDirectory ) )
                 {
-                    return Path.Combine( applicationDataParentDirectory, metalamaDirectoryName );                    
+                    return Path.Combine( applicationDataParentDirectory, metalamaDirectoryName );
                 }
                 else
                 {
                     // This is a fallback for Ubuntu on WSL and other platforms that don't provide
                     // the SpecialFolder.ApplicationData folder path.
                     applicationDataParentDirectory = Environment.GetFolderPath( Environment.SpecialFolder.UserProfile );
-                    
+
                     if ( string.IsNullOrEmpty( applicationDataParentDirectory ) )
                     {
                         // This will always fail on platforms which don't provide the special folders being discovered above.
@@ -70,6 +70,9 @@ namespace Metalama.Backstage.Infrastructure
 
         /// <inheritdoc />
         public string TempDirectory { get; } = Path.Combine( MetalamaPathUtilities.GetTempPath(), "Metalama" );
+
+        /// <inheritdoc />
+        public string TelemetryLogsDirectory => Path.Combine( this.ApplicationDataDirectory, "Telemetry", "Logs" );
 
         /// <inheritdoc />
         public string TelemetryExceptionsDirectory => Path.Combine( this.ApplicationDataDirectory, "Telemetry", "Exceptions" );
