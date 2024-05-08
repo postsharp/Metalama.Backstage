@@ -17,7 +17,7 @@ public class BackstageBackgroundTasksService : IBackstageService
 {
     private readonly TaskCompletionSource<bool> _completedTaskSource = new();
     private readonly ConcurrentQueue<TaskCompletionSource<bool>> _onQueueEmptyWaiters = new();
-
+    
     private int _pendingTasks;
     private bool _canEnqueue = true;
 
@@ -82,7 +82,7 @@ public class BackstageBackgroundTasksService : IBackstageService
             return waiter.Task;
         }
     }
-
+    
     private void OnTaskStarting()
     {
         if ( !this._canEnqueue )
@@ -101,7 +101,7 @@ public class BackstageBackgroundTasksService : IBackstageService
             {
                 waiter.TrySetResult( true );
             }
-
+        
             if ( !this._canEnqueue )
             {
                 this._completedTaskSource.TrySetResult( true );

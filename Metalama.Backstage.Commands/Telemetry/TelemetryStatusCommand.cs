@@ -19,6 +19,7 @@ internal class TelemetryStatusCommand : BaseCommand<BaseCommandSettings>
         table.AddColumn( "Setting" );
         table.AddColumn( "Value" );
 
+        table.AddRow( "Device ID", configuration.DeviceId?.ToString() ?? "unset" );
         table.AddRow( "Reporting Usage", configuration.UsageReportingAction.ToString() );
         table.AddRow( "Reporting Exceptions", configuration.ExceptionReportingAction.ToString() );
         table.AddRow( "Reporting Performance Problems", configuration.PerformanceProblemReportingAction.ToString() );
