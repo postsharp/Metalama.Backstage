@@ -8,6 +8,10 @@ namespace Metalama.Backstage.Diagnostics;
 
 public record ProfilingConfiguration
 {
+    /// <summary>
+    /// Gets or sets the kind of profiling. Possible values
+    /// are: <c>performance</c>, <c>memory</c> and <c>memory-allocation</c>.
+    /// </summary>
     [JsonProperty( "kind" )]
     public string? Kind { get; set; }
 
