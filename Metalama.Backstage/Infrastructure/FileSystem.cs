@@ -221,15 +221,20 @@ namespace Metalama.Backstage.Infrastructure
         }
 
         /// <inheritdoc />
-        public void WriteAllLines( string path, string[] content )
+        public void WriteAllLines( string path, string[] contents )
         {
-            File.WriteAllLines( path, content );
+            File.WriteAllLines( path, contents );
         }
 
         /// <inheritdoc />
-        public void WriteAllLines( string path, IEnumerable<string> content )
+        public void WriteAllLines( string path, IEnumerable<string> contents )
         {
-            File.WriteAllLines( path, content );
+            File.WriteAllLines( path, contents );
+        }
+
+        public void AppendAllLines( string path, IEnumerable<string> contents )
+        {
+            File.AppendAllLines( path, contents );
         }
 
         /// <inheritdoc />

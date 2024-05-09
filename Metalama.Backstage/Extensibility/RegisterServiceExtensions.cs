@@ -240,6 +240,7 @@ public static class RegisterServiceExtensions
     {
         // Add telemetry.
         serviceProviderBuilder
+            .AddSingleton( serviceProvider => new TelemetryLogger( serviceProvider ) )
             .AddSingleton<LocalExceptionReporter>( serviceProvider => new LocalExceptionReporter( serviceProvider ) )
             .AddSingleton<IExceptionReporter>( serviceProvider => new ExceptionReporter( new TelemetryQueue( serviceProvider ), serviceProvider ) )
             .AddSingleton<ITelemetryUploader>( serviceProvider => new TelemetryUploader( serviceProvider ) )

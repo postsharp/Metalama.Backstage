@@ -483,16 +483,18 @@ namespace Metalama.Backstage.Infrastructure
         /// If the target file already exists, it is overwritten.
         /// </summary>
         /// <param name="path">The file to write to.</param>
-        /// <param name="content">The lines to write to the file.</param>
-        void WriteAllLines( string path, string[] content );
+        /// <param name="contents">The lines to write to the file.</param>
+        void WriteAllLines( string path, string[] contents );
 
         /// <summary>
         /// Creates a new file, writes the specified string to the file, and then closes the file.
         /// If the target file already exists, it is overwritten.
         /// </summary>
         /// <param name="path">The file to write to.</param>
-        /// <param name="content">The lines to write to the file.</param>
-        void WriteAllLines( string path, IEnumerable<string> content );
+        /// <param name="contents">The lines to write to the file.</param>
+        void WriteAllLines( string path, IEnumerable<string> contents );
+
+        void AppendAllLines( string path, IEnumerable<string> contents );
 
         /// <summary>Moves a specified file to a new location, providing the option to specify a new file name.</summary>
         /// <param name="sourceFileName">The name of the file to move. Can include a relative or absolute path.</param>

@@ -3,6 +3,7 @@
 using Metalama.Backstage.Diagnostics;
 using Metalama.Backstage.Extensibility;
 using Metalama.Backstage.Infrastructure;
+using Metalama.Backstage.Licensing.Audit;
 using System;
 using System.IO;
 using System.Text;
@@ -15,12 +16,14 @@ internal class TelemetryReportUploader : IBackstageService
     private readonly IFileSystem _fileSystem;
     private readonly ITelemetryUploader _uploader;
     private readonly ILogger _logger;
+    private readonly TelemetryLogger _telemetryLogger;
 
     public TelemetryReportUploader( IServiceProvider serviceProvider )
     {
         this._directories = serviceProvider.GetRequiredBackstageService<IStandardDirectories>();
         this._fileSystem = serviceProvider.GetRequiredBackstageService<IFileSystem>();
         this._uploader = serviceProvider.GetRequiredBackstageService<ITelemetryUploader>();
+        this._telemetryLogger = serviceProvider.GetRequiredBackstageService<TelemetryLogger>();
         this._logger = serviceProvider.GetLoggerFactory().GetLogger( "Metrics" );
     }
 
@@ -48,7 +51,7 @@ internal class TelemetryReportUploader : IBackstageService
 
     private void Write( TelemetryReport report, string fileName )
     {
-        this._logger.Trace?.Log( $"Flushing usage to '{fileName}' file." );
+        this._logger.Trace?.Log( $"Writing telemetry report to '{fileName}' file." );
 
         var directory = Path.GetDirectoryName( fileName );
 
@@ -57,31 +60,40 @@ internal class TelemetryReportUploader : IBackstageService
             this._fileSystem.CreateDirectory( directory );
         }
 
+        var formattedReport = FormatReport( report );
+
         using ( var stream = this._fileSystem.Open( fileName, FileMode.Append, FileAccess.Write, FileShare.None ) )
         using ( var writer = new StreamWriter( stream, Encoding.UTF8 ) )
         {
-            var first = true;
-
-            foreach ( var metric in report.Metrics )
-            {
-                if ( first )
-                {
-                    first = false;
-                }
-                else
-                {
-                    writer.Write( ';' );
-                }
-
-                writer.Write( metric.Name );
-                writer.Write( '=' );
-                metric.WriteValue( writer );
-            }
-
-            writer.Write( Environment.NewLine );
+            writer.WriteLine( formattedReport );
         }
 
-        this._logger.Trace?.Log( $"Usage written to '{fileName}' file." );
+        this._logger.Trace?.Log( $"Appended to '{fileName}': '{formattedReport}'." );
+        this._telemetryLogger.WriteLine( $"Appended to '{fileName}': '{formattedReport}'." );
+    }
+
+    private static string FormatReport( TelemetryReport report )
+    {
+        using var stringWriter = new StringWriter();
+        var first = true;
+
+        foreach ( var metric in report.Metrics )
+        {
+            if ( first )
+            {
+                first = false;
+            }
+            else
+            {
+                stringWriter.Write( ';' );
+            }
+
+            stringWriter.Write( metric.Name );
+            stringWriter.Write( '=' );
+            metric.WriteValue( stringWriter );
+        }
+
+        return stringWriter.ToString();
     }
 
     private void CreateUploadDirectory()

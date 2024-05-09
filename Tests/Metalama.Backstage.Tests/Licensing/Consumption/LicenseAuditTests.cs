@@ -28,6 +28,7 @@ public class LicenseAuditTests : LicenseConsumptionManagerTestsBase
     {
         base.ConfigureServices( services );
 
+        services.AddSingleton( serviceProvider => new TelemetryLogger( serviceProvider ) );
         services.AddSingleton<ILicenseAuditManager>( serviceProvider => new LicenseAuditManager( serviceProvider ) );
         services.AddSingleton<TelemetryReportUploader>( serviceProvider => new TelemetryReportUploader( serviceProvider ) );
         services.AddSingleton( serviceProvider => new MatomoAuditUploader( serviceProvider ) );

@@ -86,7 +86,7 @@ internal class LicenseAuditManager : ILicenseAuditManager
         else
         {
             this._logger.Trace?.Log( $"Uploading license audit report." );
-            this._telemetryReportUploader.Upload( report );
+            this._backgroundTasksService.Enqueue( () => this._telemetryReportUploader.Upload( report ) );
         }
 
         // Perform aggregate audit to Matomo. We intentionally upload one report per day irrespective of the version used 
