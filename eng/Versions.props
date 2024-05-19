@@ -11,7 +11,7 @@
 
     <!-- Set the default versions of dependencies -->
     <PropertyGroup>
-        <PostSharpEngineeringVersion>2023.2.92</PostSharpEngineeringVersion>
+        <PostSharpEngineeringVersion>2023.2.93</PostSharpEngineeringVersion>
         <!-- We must match the version used by the lowest version of Visual Studion supported by the VSX. -->
         <NewtonsoftJsonMinVersion>12.0.1</NewtonsoftJsonMinVersion>
         <!-- This is the version used in the programs (not in libraries) and it should be the latest. -->

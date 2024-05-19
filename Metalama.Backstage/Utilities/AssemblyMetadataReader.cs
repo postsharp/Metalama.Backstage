@@ -20,7 +20,10 @@ namespace Metalama.Backstage.Utilities
     {
         private readonly Assembly _assembly;
         private readonly Dictionary<string, string?> _metadata = new( StringComparer.OrdinalIgnoreCase );
-        private static readonly ConditionalWeakTable<Assembly, AssemblyMetadataReader> _instances = [];
+        
+#pragma warning disable IDE0028
+        private static readonly ConditionalWeakTable<Assembly, AssemblyMetadataReader> _instances = new();
+#pragma warning restore IDE0028
 
         private bool _packageVersionRead;
         private string? _packageVersion;

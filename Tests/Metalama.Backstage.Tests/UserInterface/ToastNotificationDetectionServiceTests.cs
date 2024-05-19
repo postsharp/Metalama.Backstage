@@ -2,7 +2,6 @@
 
 using Metalama.Backstage.Extensibility;
 using Metalama.Backstage.Licensing.Registration;
-using Metalama.Backstage.Testing;
 using Metalama.Backstage.Tests.Licensing;
 using Metalama.Backstage.UserInterface;
 using System;

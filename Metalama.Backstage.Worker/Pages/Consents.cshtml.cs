@@ -55,7 +55,7 @@ public class ConsentsPageModel : PageModel
         this._userInfoService = userInfoService;
     }
 
-    public List<string> ErrorMessages { get; } = new();
+    public List<string> ErrorMessages { get; } = [];
 
     public string RecaptchaSiteKey { get; set; } = "<not set>";
 

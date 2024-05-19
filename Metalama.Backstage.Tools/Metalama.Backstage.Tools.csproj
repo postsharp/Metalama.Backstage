@@ -17,7 +17,7 @@
 
     <ItemGroup>
       <ProjectReference Include="..\Metalama.Backstage\Metalama.Backstage.csproj" />
-      <PackageReference Include="Newtonsoft.Json" Version="$(NewtonsoftJsonMinVersion)" />
+      <PackageReference Include="Newtonsoft.Json" Version="$(NewtonsoftJsonMinVersion)"  NoWarn="NU1903" />
     </ItemGroup>
 
     <ItemGroup>

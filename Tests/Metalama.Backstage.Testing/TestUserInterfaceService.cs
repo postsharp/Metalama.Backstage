@@ -8,7 +8,7 @@ namespace Metalama.Backstage.Testing;
 
 public class TestUserInterfaceService : UserInterfaceService
 {
-    public List<ToastNotification> Notifications { get; } = new();
+    public List<ToastNotification> Notifications { get; } = [];
 
     public TestUserInterfaceService( IServiceProvider serviceProvider ) : base( serviceProvider ) { }
 

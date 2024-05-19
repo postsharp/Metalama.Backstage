@@ -4,7 +4,6 @@ using Metalama.Backstage.Extensibility;
 using Metalama.Backstage.Licensing;
 using Metalama.Backstage.Licensing.Audit;
 using Metalama.Backstage.Telemetry;
-using Metalama.Backstage.Testing;
 using Metalama.Backstage.Tests.Licensing.Licenses;
 using System;
 using System.Collections.Generic;

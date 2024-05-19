@@ -3,7 +3,6 @@
 using Metalama.Backstage.Configuration;
 using Metalama.Backstage.Extensibility;
 using Metalama.Backstage.Licensing.Registration;
-using Metalama.Backstage.Testing;
 using Xunit;
 using Xunit.Abstractions;
 

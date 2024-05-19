@@ -97,5 +97,5 @@ public sealed class TestLicenseKeyProvider
     public string MetalamaUltimateOpenSourceRedistributionForIntegrationTests
         => this.GetLicenseKey( nameof(this.MetalamaUltimateOpenSourceRedistributionForIntegrationTests) );
 
-    public readonly DateTime SubscriptionExpirationDate = new( 2050, 1, 1 );
+    public DateTime SubscriptionExpirationDate { get; } = new( 2050, 1, 1 );
 }
