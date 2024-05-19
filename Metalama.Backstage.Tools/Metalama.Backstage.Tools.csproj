@@ -8,7 +8,7 @@
              TODO: Figure out why this file doesn't respect the "PrivateAssets=all" flag. -->
         <_GetChildProjectCopyToOutputDirectoryItems>false</_GetChildProjectCopyToOutputDirectoryItems>
         <_GetChildProjectCopyToPublishDirectoryItems>false</_GetChildProjectCopyToPublishDirectoryItems>
-
+        
     </PropertyGroup>
 
     <ItemGroup>

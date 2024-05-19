@@ -40,99 +40,99 @@ public class SingleLicenseKeyTests : LicenseConsumptionManagerTestsBase
     }
 
     [Theory]
-    [InlineData( nameof(TestLicenseKeys.PostSharpEssentials), false )]
-    [InlineData( nameof(TestLicenseKeys.PostSharpFramework), true )]
-    [InlineData( nameof(TestLicenseKeys.PostSharpUltimate), true )]
-    [InlineData( nameof(TestLicenseKeys.PostSharpEnterprise), true )]
-    [InlineData( nameof(TestLicenseKeys.MetalamaStarterPersonal), true )]
-    [InlineData( nameof(TestLicenseKeys.MetalamaStarterBusiness), true )]
-    [InlineData( nameof(TestLicenseKeys.MetalamaProfessionalPersonal), true )]
-    [InlineData( nameof(TestLicenseKeys.MetalamaProfessionalBusiness), true )]
-    [InlineData( nameof(TestLicenseKeys.MetalamaUltimatePersonal), true )]
-    [InlineData( nameof(TestLicenseKeys.MetalamaUltimateBusiness), true )]
-    [InlineData( nameof(TestLicenseKeys.MetalamaFreePersonal), true )]
-    [InlineData( nameof(TestLicenseKeys.MetalamaFreeBusiness), true )]
+    [InlineData( nameof(LicenseKeyProvider.PostSharpEssentials), false )]
+    [InlineData( nameof(LicenseKeyProvider.PostSharpFramework), true )]
+    [InlineData( nameof(LicenseKeyProvider.PostSharpUltimate), true )]
+    [InlineData( nameof(LicenseKeyProvider.PostSharpEnterprise), true )]
+    [InlineData( nameof(LicenseKeyProvider.MetalamaStarterPersonal), true )]
+    [InlineData( nameof(LicenseKeyProvider.MetalamaStarterBusiness), true )]
+    [InlineData( nameof(LicenseKeyProvider.MetalamaProfessionalPersonal), true )]
+    [InlineData( nameof(LicenseKeyProvider.MetalamaProfessionalBusiness), true )]
+    [InlineData( nameof(LicenseKeyProvider.MetalamaUltimatePersonal), true )]
+    [InlineData( nameof(LicenseKeyProvider.MetalamaUltimateBusiness), true )]
+    [InlineData( nameof(LicenseKeyProvider.MetalamaFreePersonal), true )]
+    [InlineData( nameof(LicenseKeyProvider.MetalamaFreeBusiness), true )]
     public void NamespaceUnlimitedLicenseAllowsMetalamaFreeFeatures( string licenseKeyName, bool expectedCanConsume )
-        => this.TestOneLicense( TestLicenseKeys.GetLicenseKey( licenseKeyName ), LicenseRequirementTestEnum.Free, expectedCanConsume );
+        => this.TestOneLicense( LicenseKeyProvider.GetLicenseKey( licenseKeyName ), LicenseRequirementTestEnum.Free, expectedCanConsume );
 
     [Theory]
-    [InlineData( nameof(TestLicenseKeys.PostSharpEssentials), false )]
-    [InlineData( nameof(TestLicenseKeys.PostSharpFramework), true )]
-    [InlineData( nameof(TestLicenseKeys.PostSharpUltimate), true )]
-    [InlineData( nameof(TestLicenseKeys.PostSharpEnterprise), true )]
-    [InlineData( nameof(TestLicenseKeys.MetalamaStarterPersonal), true )]
-    [InlineData( nameof(TestLicenseKeys.MetalamaStarterBusiness), true )]
-    [InlineData( nameof(TestLicenseKeys.MetalamaProfessionalPersonal), true )]
-    [InlineData( nameof(TestLicenseKeys.MetalamaProfessionalBusiness), true )]
-    [InlineData( nameof(TestLicenseKeys.MetalamaUltimatePersonal), true )]
-    [InlineData( nameof(TestLicenseKeys.MetalamaUltimateBusiness), true )]
-    [InlineData( nameof(TestLicenseKeys.MetalamaFreePersonal), false )]
-    [InlineData( nameof(TestLicenseKeys.MetalamaFreeBusiness), false )]
+    [InlineData( nameof(LicenseKeyProvider.PostSharpEssentials), false )]
+    [InlineData( nameof(LicenseKeyProvider.PostSharpFramework), true )]
+    [InlineData( nameof(LicenseKeyProvider.PostSharpUltimate), true )]
+    [InlineData( nameof(LicenseKeyProvider.PostSharpEnterprise), true )]
+    [InlineData( nameof(LicenseKeyProvider.MetalamaStarterPersonal), true )]
+    [InlineData( nameof(LicenseKeyProvider.MetalamaStarterBusiness), true )]
+    [InlineData( nameof(LicenseKeyProvider.MetalamaProfessionalPersonal), true )]
+    [InlineData( nameof(LicenseKeyProvider.MetalamaProfessionalBusiness), true )]
+    [InlineData( nameof(LicenseKeyProvider.MetalamaUltimatePersonal), true )]
+    [InlineData( nameof(LicenseKeyProvider.MetalamaUltimateBusiness), true )]
+    [InlineData( nameof(LicenseKeyProvider.MetalamaFreePersonal), false )]
+    [InlineData( nameof(LicenseKeyProvider.MetalamaFreeBusiness), false )]
     public void NamespaceUnlimitedLicenseAllowsMetalamaStarterFeatures( string licenseKeyName, bool expectedCanConsume )
-        => this.TestOneLicense( TestLicenseKeys.GetLicenseKey( licenseKeyName ), LicenseRequirementTestEnum.Starter, expectedCanConsume );
+        => this.TestOneLicense( LicenseKeyProvider.GetLicenseKey( licenseKeyName ), LicenseRequirementTestEnum.Starter, expectedCanConsume );
 
     [Theory]
-    [InlineData( nameof(TestLicenseKeys.PostSharpEssentials), false )]
-    [InlineData( nameof(TestLicenseKeys.PostSharpFramework), true )]
-    [InlineData( nameof(TestLicenseKeys.PostSharpUltimate), true )]
-    [InlineData( nameof(TestLicenseKeys.PostSharpEnterprise), true )]
-    [InlineData( nameof(TestLicenseKeys.MetalamaStarterPersonal), false )]
-    [InlineData( nameof(TestLicenseKeys.MetalamaStarterBusiness), false )]
-    [InlineData( nameof(TestLicenseKeys.MetalamaProfessionalPersonal), true )]
-    [InlineData( nameof(TestLicenseKeys.MetalamaProfessionalBusiness), true )]
-    [InlineData( nameof(TestLicenseKeys.MetalamaUltimatePersonal), true )]
-    [InlineData( nameof(TestLicenseKeys.MetalamaUltimateBusiness), true )]
-    [InlineData( nameof(TestLicenseKeys.MetalamaFreePersonal), false )]
-    [InlineData( nameof(TestLicenseKeys.MetalamaFreeBusiness), false )]
+    [InlineData( nameof(LicenseKeyProvider.PostSharpEssentials), false )]
+    [InlineData( nameof(LicenseKeyProvider.PostSharpFramework), true )]
+    [InlineData( nameof(LicenseKeyProvider.PostSharpUltimate), true )]
+    [InlineData( nameof(LicenseKeyProvider.PostSharpEnterprise), true )]
+    [InlineData( nameof(LicenseKeyProvider.MetalamaStarterPersonal), false )]
+    [InlineData( nameof(LicenseKeyProvider.MetalamaStarterBusiness), false )]
+    [InlineData( nameof(LicenseKeyProvider.MetalamaProfessionalPersonal), true )]
+    [InlineData( nameof(LicenseKeyProvider.MetalamaProfessionalBusiness), true )]
+    [InlineData( nameof(LicenseKeyProvider.MetalamaUltimatePersonal), true )]
+    [InlineData( nameof(LicenseKeyProvider.MetalamaUltimateBusiness), true )]
+    [InlineData( nameof(LicenseKeyProvider.MetalamaFreePersonal), false )]
+    [InlineData( nameof(LicenseKeyProvider.MetalamaFreeBusiness), false )]
     public void NamespaceUnlimitedLicenseAllowsMetalamaProfessionalFeatures( string licenseKeyName, bool expectedCanConsume )
-        => this.TestOneLicense( TestLicenseKeys.GetLicenseKey( licenseKeyName ), LicenseRequirementTestEnum.Professional, expectedCanConsume );
+        => this.TestOneLicense( LicenseKeyProvider.GetLicenseKey( licenseKeyName ), LicenseRequirementTestEnum.Professional, expectedCanConsume );
 
     [Theory]
-    [InlineData( nameof(TestLicenseKeys.PostSharpEssentials), false )]
-    [InlineData( nameof(TestLicenseKeys.PostSharpFramework), false )]
-    [InlineData( nameof(TestLicenseKeys.PostSharpUltimate), true )]
-    [InlineData( nameof(TestLicenseKeys.PostSharpEnterprise), true )]
-    [InlineData( nameof(TestLicenseKeys.MetalamaStarterPersonal), false )]
-    [InlineData( nameof(TestLicenseKeys.MetalamaStarterBusiness), false )]
-    [InlineData( nameof(TestLicenseKeys.MetalamaProfessionalPersonal), false )]
-    [InlineData( nameof(TestLicenseKeys.MetalamaProfessionalBusiness), false )]
-    [InlineData( nameof(TestLicenseKeys.MetalamaUltimatePersonal), true )]
-    [InlineData( nameof(TestLicenseKeys.MetalamaUltimateBusiness), true )]
-    [InlineData( nameof(TestLicenseKeys.MetalamaFreePersonal), false )]
-    [InlineData( nameof(TestLicenseKeys.MetalamaFreeBusiness), false )]
+    [InlineData( nameof(LicenseKeyProvider.PostSharpEssentials), false )]
+    [InlineData( nameof(LicenseKeyProvider.PostSharpFramework), false )]
+    [InlineData( nameof(LicenseKeyProvider.PostSharpUltimate), true )]
+    [InlineData( nameof(LicenseKeyProvider.PostSharpEnterprise), true )]
+    [InlineData( nameof(LicenseKeyProvider.MetalamaStarterPersonal), false )]
+    [InlineData( nameof(LicenseKeyProvider.MetalamaStarterBusiness), false )]
+    [InlineData( nameof(LicenseKeyProvider.MetalamaProfessionalPersonal), false )]
+    [InlineData( nameof(LicenseKeyProvider.MetalamaProfessionalBusiness), false )]
+    [InlineData( nameof(LicenseKeyProvider.MetalamaUltimatePersonal), true )]
+    [InlineData( nameof(LicenseKeyProvider.MetalamaUltimateBusiness), true )]
+    [InlineData( nameof(LicenseKeyProvider.MetalamaFreePersonal), false )]
+    [InlineData( nameof(LicenseKeyProvider.MetalamaFreeBusiness), false )]
     public void NamespaceUnlimitedLicenseAllowsMetalamaUltimateFeatures( string licenseKeyName, bool expectedCanConsume )
-        => this.TestOneLicense( TestLicenseKeys.GetLicenseKey( licenseKeyName ), LicenseRequirementTestEnum.Ultimate, expectedCanConsume );
+        => this.TestOneLicense( LicenseKeyProvider.GetLicenseKey( licenseKeyName ), LicenseRequirementTestEnum.Ultimate, expectedCanConsume );
 
     [Theory]
     [InlineData(
-        nameof(TestLicenseKeys.PostSharpUltimateOpenSourceRedistribution),
-        TestLicenseKeys.PostSharpUltimateOpenSourceRedistributionNamespace,
+        nameof(LicenseKeyProvider.PostSharpUltimateOpenSourceRedistribution),
+        TestLicenseKeyProvider.PostSharpUltimateOpenSourceRedistributionNamespace,
         true )]
-    [InlineData( nameof(TestLicenseKeys.MetalamaUltimateOpenSourceRedistribution), TestLicenseKeys.MetalamaUltimateRedistributionNamespace, true )]
-    [InlineData( nameof(TestLicenseKeys.MetalamaUltimateCommercialRedistribution), TestLicenseKeys.MetalamaUltimateRedistributionNamespace, true )]
+    [InlineData( nameof(LicenseKeyProvider.MetalamaUltimateOpenSourceRedistribution), TestLicenseKeyProvider.MetalamaUltimateRedistributionNamespace, true )]
+    [InlineData( nameof(LicenseKeyProvider.MetalamaUltimateCommercialRedistribution), TestLicenseKeyProvider.MetalamaUltimateRedistributionNamespace, true )]
     public void NamespaceLimitedLicenseAllowsMetalamaInSameNamespace( string licenseKeyName, string requiredNamespace, bool expectedCanConsume )
         => this.TestOneLicense(
-            TestLicenseKeys.GetLicenseKey( licenseKeyName ),
+            LicenseKeyProvider.GetLicenseKey( licenseKeyName ),
             LicenseRequirementTestEnum.Ultimate,
             requiredNamespace,
             expectedCanConsume );
 
     [Theory]
-    [InlineData( nameof(TestLicenseKeys.PostSharpUltimateOpenSourceRedistribution) )]
-    [InlineData( nameof(TestLicenseKeys.MetalamaUltimateOpenSourceRedistribution) )]
-    [InlineData( nameof(TestLicenseKeys.MetalamaUltimateCommercialRedistribution) )]
+    [InlineData( nameof(LicenseKeyProvider.PostSharpUltimateOpenSourceRedistribution) )]
+    [InlineData( nameof(LicenseKeyProvider.MetalamaUltimateOpenSourceRedistribution) )]
+    [InlineData( nameof(LicenseKeyProvider.MetalamaUltimateCommercialRedistribution) )]
     public void RedistributionLicenseAllowsMetalamaInArbitraryNamespace( string licenseKeyName )
         => this.TestOneLicense(
-            TestLicenseKeys.GetLicenseKey( licenseKeyName ),
+            LicenseKeyProvider.GetLicenseKey( licenseKeyName ),
             LicenseRequirementTestEnum.Ultimate,
             "Foo",
             true );
 
     [Theory]
-    [InlineData( nameof(TestLicenseKeys.MetalamaUltimatePersonalProjectBound) )]
+    [InlineData( nameof(LicenseKeyProvider.MetalamaUltimatePersonalProjectBound) )]
     public void ProjectBoundLicenseForbidsMetalamaInArbitraryNamespace( string licenseKeyName )
         => this.TestOneLicense(
-            TestLicenseKeys.GetLicenseKey( licenseKeyName ),
+            LicenseKeyProvider.GetLicenseKey( licenseKeyName ),
             LicenseRequirementTestEnum.Ultimate,
             "Foo",
             false );

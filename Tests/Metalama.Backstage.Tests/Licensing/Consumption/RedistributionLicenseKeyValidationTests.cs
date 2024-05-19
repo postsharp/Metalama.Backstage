@@ -13,13 +13,13 @@ namespace Metalama.Backstage.Tests.Licensing.Consumption
 
         [Theory]
         [InlineData(
-            nameof(TestLicenseKeys.PostSharpUltimateOpenSourceRedistribution),
-            TestLicenseKeys.PostSharpUltimateOpenSourceRedistributionNamespace )]
-        [InlineData( nameof(TestLicenseKeys.MetalamaUltimateOpenSourceRedistribution), TestLicenseKeys.MetalamaUltimateRedistributionNamespace )]
-        [InlineData( nameof(TestLicenseKeys.MetalamaUltimateCommercialRedistribution), TestLicenseKeys.MetalamaUltimateRedistributionNamespace )]
+            nameof(LicenseKeyProvider.PostSharpUltimateOpenSourceRedistribution),
+            TestLicenseKeyProvider.PostSharpUltimateOpenSourceRedistributionNamespace )]
+        [InlineData( nameof(LicenseKeyProvider.MetalamaUltimateOpenSourceRedistribution), TestLicenseKeyProvider.MetalamaUltimateRedistributionNamespace )]
+        [InlineData( nameof(LicenseKeyProvider.MetalamaUltimateCommercialRedistribution), TestLicenseKeyProvider.MetalamaUltimateRedistributionNamespace )]
         public void RedistributionLicenseAllowsLicensedNamespace( string licenseKeyName, string requiredNamespace )
         {
-            var licenseKey = TestLicenseKeys.GetLicenseKey( licenseKeyName );
+            var licenseKey = LicenseKeyProvider.GetLicenseKey( licenseKeyName );
             var manager = this.CreateConsumptionManager();
 
             var actualIsValid = manager.ValidateRedistributionLicenseKey( licenseKey, requiredNamespace );
@@ -28,12 +28,12 @@ namespace Metalama.Backstage.Tests.Licensing.Consumption
         }
 
         [Theory]
-        [InlineData( nameof(TestLicenseKeys.PostSharpUltimateOpenSourceRedistribution) )]
-        [InlineData( nameof(TestLicenseKeys.MetalamaUltimateOpenSourceRedistribution) )]
-        [InlineData( nameof(TestLicenseKeys.MetalamaUltimateCommercialRedistribution) )]
+        [InlineData( nameof(LicenseKeyProvider.PostSharpUltimateOpenSourceRedistribution) )]
+        [InlineData( nameof(LicenseKeyProvider.MetalamaUltimateOpenSourceRedistribution) )]
+        [InlineData( nameof(LicenseKeyProvider.MetalamaUltimateCommercialRedistribution) )]
         public void RedistributionLicenseForbidsArbitraryNamespace( string licenseKeyName )
         {
-            var licenseKey = TestLicenseKeys.GetLicenseKey( licenseKeyName );
+            var licenseKey = LicenseKeyProvider.GetLicenseKey( licenseKeyName );
             var manager = this.CreateConsumptionManager();
 
             var actualIsValid = manager.ValidateRedistributionLicenseKey( licenseKey, "Foo" );
@@ -47,8 +47,8 @@ namespace Metalama.Backstage.Tests.Licensing.Consumption
             var manager = this.CreateConsumptionManager();
 
             var actualIsValid = manager.ValidateRedistributionLicenseKey(
-                TestLicenseKeys.MetalamaUltimatePersonalProjectBound,
-                TestLicenseKeys.MetalamaUltimateProjectBoundProjectName );
+                LicenseKeyProvider.MetalamaUltimatePersonalProjectBound,
+                TestLicenseKeyProvider.MetalamaUltimateProjectBoundProjectName );
 
             Assert.False( actualIsValid );
         }

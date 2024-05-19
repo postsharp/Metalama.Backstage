@@ -58,7 +58,7 @@ namespace Metalama.Backstage.Tests.Licensing.Licenses
         [Fact]
         public void ValidLicenseKeyCreatesValidLicense()
         {
-            Assert.True( this.LicenseFactory.TryCreate( TestLicenseKeys.PostSharpUltimate, out var license, out var errorMessage ) );
+            Assert.True( this.LicenseFactory.TryCreate( LicenseKeyProvider.PostSharpUltimate, out var license, out var errorMessage ) );
             Assert.Null( errorMessage );
             Assert.True( license is License );
             Assert.True( license!.TryGetLicenseConsumptionData( out var licenseData, out errorMessage ) );

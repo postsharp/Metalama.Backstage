@@ -89,6 +89,19 @@ namespace Metalama.Backstage.Utilities
 
         public bool TryGetValue( string key, [MaybeNullWhen( false )] out string value ) => this._metadata.TryGetValue( key, out value ) && value != null;
 
+        public string this[ string key ]
+        {
+            get
+            {
+                if ( !this.TryGetValue( key, out var value ) )
+                {
+                    throw new ArgumentOutOfRangeException( nameof(key), $"The assembly does not contain a metadata of key '{key}'." );
+                }
+
+                return value;
+            }
+        }
+
         /// <summary>
         /// Gets the package version with which the current assembly was built.
         /// </summary>

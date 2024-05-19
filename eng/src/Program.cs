@@ -10,19 +10,19 @@ using MetalamaDependencies = PostSharp.Engineering.BuildTools.Dependencies.Defin
 
 var product = new Product( MetalamaDependencies.MetalamaBackstage )
 {
-    Solutions = new Solution[]
-    {
+    Solutions =
+    [
         new DotNetSolution( "Metalama.Backstage.sln" ) { SupportsTestCoverage = true, CanFormatCode = true }
-    },
+    ],
     PublicArtifacts = Pattern.Create(
         "Metalama.Backstage.$(PackageVersion).nupkg",
 
         // Required by Metalama.Testing.AspectTesting via Metalama.Framework.Engine.
         "Metalama.Backstage.Tools.$(PackageVersion).nupkg" ),
-    Dependencies = new[] { DevelopmentDependencies.PostSharpEngineering }
+    Dependencies = [DevelopmentDependencies.PostSharpEngineering]
 };
 
-product.PrepareCompleted += TestLicensesCache.FetchOnPrepareCompleted;
+product.PrepareCompleted += args => TestLicenseKeyDownloader.Download( args.Context );
 
 var commandApp = new CommandApp();
 
