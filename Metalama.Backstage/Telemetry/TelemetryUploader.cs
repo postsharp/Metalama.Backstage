@@ -34,7 +34,7 @@ namespace Metalama.Backstage.Telemetry
         private readonly Uri _requestUri = new( "https://bits.postsharp.net:44301/upload" );
         private readonly IConfigurationManager _configurationManager;
         private readonly IExceptionReporter _exceptionReporter;
-        private readonly List<(string File, Exception Reason)> _failedFiles = new();
+        private readonly List<(string File, Exception Reason)> _failedFiles = [];
         private readonly TelemetryLogger _telemetryLogger;
 
         public TelemetryUploader( IServiceProvider serviceProvider )

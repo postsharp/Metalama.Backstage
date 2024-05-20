@@ -12,7 +12,7 @@ namespace Metalama.Backstage.Configuration;
 /// </summary>
 public class InMemoryConfigurationManager : IConfigurationManager
 {
-    private readonly Dictionary<Type, ConfigurationFile> _files = new();
+    private readonly Dictionary<Type, ConfigurationFile> _files = [];
 
     public InMemoryConfigurationManager( IServiceProvider serviceProvider, params ConfigurationFile[] files )
     {

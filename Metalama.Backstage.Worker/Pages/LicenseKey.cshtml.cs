@@ -29,7 +29,7 @@ public class LicenseKeyPageModel : PageModel
         set => GlobalState.LicenseKey = value;
     }
 
-    public List<string> ErrorMessages { get; } = new();
+    public List<string> ErrorMessages { get; } = [];
 
     public IActionResult OnPost()
     {

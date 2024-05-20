@@ -8,7 +8,7 @@
              TODO: Figure out why this file doesn't respect the "PrivateAssets=all" flag. -->
         <_GetChildProjectCopyToOutputDirectoryItems>false</_GetChildProjectCopyToOutputDirectoryItems>
         <_GetChildProjectCopyToPublishDirectoryItems>false</_GetChildProjectCopyToPublishDirectoryItems>
-
+        
     </PropertyGroup>
 
     <ItemGroup>
@@ -17,7 +17,7 @@
 
     <ItemGroup>
       <ProjectReference Include="..\Metalama.Backstage\Metalama.Backstage.csproj" />
-      <PackageReference Include="Newtonsoft.Json" Version="$(NewtonsoftJsonMinVersion)" />
+      <PackageReference Include="Newtonsoft.Json" Version="$(NewtonsoftJsonMinVersion)"  NoWarn="NU1903" />
     </ItemGroup>
 
     <ItemGroup>

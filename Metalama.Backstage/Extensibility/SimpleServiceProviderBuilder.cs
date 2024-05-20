@@ -21,7 +21,7 @@ public sealed class SimpleServiceProviderBuilder : ServiceProviderBuilder
 
     private class ServiceProviderImpl : IServiceProvider
     {
-        private readonly Dictionary<Type, Node> _nodes = new();
+        private readonly Dictionary<Type, Node> _nodes = [];
 
         public void AddService( Type serviceType, Func<IServiceProvider, object> func )
         {

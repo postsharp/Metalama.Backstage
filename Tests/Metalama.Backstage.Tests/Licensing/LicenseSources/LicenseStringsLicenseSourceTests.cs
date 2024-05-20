@@ -1,7 +1,6 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. See the LICENSE.md file in the root directory of this repository root for details.
 
 using Metalama.Backstage.Licensing.Consumption.Sources;
-using Metalama.Backstage.Testing;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -15,7 +14,7 @@ namespace Metalama.Backstage.Tests.Licensing.LicenseSources
         [Fact]
         public void OneLicenseStringPasses()
         {
-            ExplicitLicenseSource source = new( TestLicenseKeys.MetalamaUltimateBusiness, this.ServiceProvider );
+            ExplicitLicenseSource source = new( LicenseKeyProvider.MetalamaUltimateBusiness, this.ServiceProvider );
 
             var license = source.GetLicense( _ => { } );
             Assert.NotNull( license );
@@ -23,7 +22,7 @@ namespace Metalama.Backstage.Tests.Licensing.LicenseSources
             var dataParsed = license!.TryGetLicenseConsumptionData( out var data, out var errorMessage );
             Assert.True( dataParsed );
             Assert.Null( errorMessage );
-            Assert.Equal( TestLicenseKeys.MetalamaUltimateBusiness, data!.LicenseString );
+            Assert.Equal( LicenseKeyProvider.MetalamaUltimateBusiness, data!.LicenseString );
         }
     }
 }

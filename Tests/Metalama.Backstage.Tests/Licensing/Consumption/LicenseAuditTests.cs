@@ -4,7 +4,6 @@ using Metalama.Backstage.Extensibility;
 using Metalama.Backstage.Licensing;
 using Metalama.Backstage.Licensing.Audit;
 using Metalama.Backstage.Telemetry;
-using Metalama.Backstage.Testing;
 using Metalama.Backstage.Tests.Licensing.Licenses;
 using System;
 using System.Collections.Generic;
@@ -55,11 +54,11 @@ public class LicenseAuditTests : LicenseConsumptionManagerTestsBase
     }
 
     [Theory]
-    [InlineData( nameof(TestLicenseKeys.MetalamaUltimateBusiness) )]
-    [InlineData( nameof(TestLicenseKeys.MetalamaUltimateBusinessNotAuditable) )]
+    [InlineData( nameof(LicenseKeyProvider.MetalamaUltimateBusiness) )]
+    [InlineData( nameof(LicenseKeyProvider.MetalamaUltimateBusinessNotAuditable) )]
     public void LicenseIsAudited( string licenseKeyName )
     {
-        var licenseKey = TestLicenseKeys.GetLicenseKey( licenseKeyName );
+        var licenseKey = LicenseKeyProvider.GetLicenseKey( licenseKeyName );
         var license = this.CreateAndConsumeLicense( licenseKey );
 
         license.ResetUsage();
@@ -122,7 +121,7 @@ public class LicenseAuditTests : LicenseConsumptionManagerTestsBase
     [Fact]
     public void LicenseAuditReportsDistinctLicenseKeyWithNoDelay()
     {
-        var licenseKeys = new List<string> { TestLicenseKeys.MetalamaUltimateBusiness, TestLicenseKeys.MetalamaProfessionalBusiness };
+        var licenseKeys = new List<string> { LicenseKeyProvider.MetalamaUltimateBusiness, LicenseKeyProvider.MetalamaProfessionalBusiness };
 
         licenseKeys.ForEach( l => this.CreateAndConsumeLicense( l ) );
 
@@ -141,7 +140,7 @@ public class LicenseAuditTests : LicenseConsumptionManagerTestsBase
     [Fact]
     public void LicenseAuditReportsSameLicenseKeyDaily()
     {
-        var licenseKey = TestLicenseKeys.MetalamaUltimateBusiness;
+        var licenseKey = LicenseKeyProvider.MetalamaUltimateBusiness;
 
         void AssertReportsCount( int expectedCount )
         {

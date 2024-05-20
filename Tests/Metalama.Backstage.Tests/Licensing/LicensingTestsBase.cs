@@ -13,6 +13,8 @@ namespace Metalama.Backstage.Tests.Licensing
     {
         private protected LicenseFactory LicenseFactory { get; }
 
+        protected static TestLicenseKeyProvider LicenseKeyProvider => BackstageTestLicenseKeyProvider.LicenseKeyProvider;
+
         private protected LicensingTestsBase( ITestOutputHelper logger, bool isTelemetryEnabled = false ) : base(
             logger,
             new TestApplicationInfo(

@@ -32,7 +32,7 @@ namespace Metalama.Backstage.Testing
         private readonly ConcurrentDictionary<string, (ManualResetEventSlim Callee, ManualResetEventSlim Caller)> _blockedWrites =
             new();
 
-        private readonly List<string> _failedAccesses = new();
+        private readonly List<string> _failedAccesses = [];
 
         private readonly IDateTimeProvider _time;
 

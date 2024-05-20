@@ -20,7 +20,10 @@ namespace Metalama.Backstage.Utilities
     {
         private readonly Assembly _assembly;
         private readonly Dictionary<string, string?> _metadata = new( StringComparer.OrdinalIgnoreCase );
+        
+#pragma warning disable IDE0028
         private static readonly ConditionalWeakTable<Assembly, AssemblyMetadataReader> _instances = new();
+#pragma warning restore IDE0028
 
         private bool _packageVersionRead;
         private string? _packageVersion;
@@ -88,6 +91,19 @@ namespace Metalama.Backstage.Utilities
         public static AssemblyMetadataReader GetInstance( Assembly assembly ) => _instances.GetValue( assembly, a => new AssemblyMetadataReader( a ) );
 
         public bool TryGetValue( string key, [MaybeNullWhen( false )] out string value ) => this._metadata.TryGetValue( key, out value ) && value != null;
+
+        public string this[ string key ]
+        {
+            get
+            {
+                if ( !this.TryGetValue( key, out var value ) )
+                {
+                    throw new ArgumentOutOfRangeException( nameof(key), $"The assembly does not contain a metadata of key '{key}'." );
+                }
+
+                return value;
+            }
+        }
 
         /// <summary>
         /// Gets the package version with which the current assembly was built.

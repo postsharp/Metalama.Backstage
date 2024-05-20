@@ -6,5 +6,5 @@ internal abstract class TelemetryReport
 {
     public abstract string Kind { get; }
 
-    public MetricCollection Metrics { get; } = new();
+    public MetricCollection Metrics { get; } = [];
 }

@@ -2,7 +2,7 @@
 
 using Metalama.Backstage.Extensibility;
 using Metalama.Backstage.Licensing.Registration;
-using Metalama.Backstage.Testing;
+using Metalama.Backstage.Tests.Licensing;
 using Metalama.Backstage.UserInterface;
 using System;
 using System.Threading.Tasks;
@@ -11,7 +11,7 @@ using Xunit.Abstractions;
 
 namespace Metalama.Backstage.Tests.UserInterface;
 
-public class ToastNotificationDetectionServiceTests : TestsBase
+public class ToastNotificationDetectionServiceTests : LicensingTestsBase
 {
     private readonly IToastNotificationDetectionService _toastNotificationDetectionService;
     private readonly BackstageServicesInitializer _backstageServicesInitializer;
@@ -117,10 +117,10 @@ public class ToastNotificationDetectionServiceTests : TestsBase
         this.UserDeviceDetection.IsInteractiveDevice = true;
 
         // Register a license key.
-        Assert.True( this.LicenseRegistrationService.TryRegisterLicense( TestLicenseKeys.MetalamaUltimateBusiness, out _ ) );
+        Assert.True( this.LicenseRegistrationService.TryRegisterLicense( LicenseKeyProvider.MetalamaUltimateBusiness, out _ ) );
 
         // Move the clock.
-        this.Time.Set( TestLicenseKeys.SubscriptionExpirationDate - TimeSpan.FromDays( daysBeforeExpiration ) );
+        this.Time.Set( LicenseKeyProvider.SubscriptionExpirationDate - TimeSpan.FromDays( daysBeforeExpiration ) );
 
         // Initialize
         this._backstageServicesInitializer.Initialize();

@@ -1,7 +1,6 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. See the LICENSE.md file in the root directory of this repository root for details.
 
 using Metalama.Backstage.Licensing.Licenses;
-using Metalama.Backstage.Testing;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -58,7 +57,7 @@ namespace Metalama.Backstage.Tests.Licensing.Licenses
         [Fact]
         public void ValidLicenseKeyCreatesValidLicense()
         {
-            Assert.True( this.LicenseFactory.TryCreate( TestLicenseKeys.PostSharpUltimate, out var license, out var errorMessage ) );
+            Assert.True( this.LicenseFactory.TryCreate( LicenseKeyProvider.PostSharpUltimate, out var license, out var errorMessage ) );
             Assert.Null( errorMessage );
             Assert.True( license is License );
             Assert.True( license!.TryGetLicenseConsumptionData( out var licenseData, out errorMessage ) );

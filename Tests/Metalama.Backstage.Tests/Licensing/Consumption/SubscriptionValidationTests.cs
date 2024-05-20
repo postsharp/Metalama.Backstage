@@ -10,7 +10,7 @@ using Xunit.Abstractions;
 
 namespace Metalama.Backstage.Tests.Licensing.Consumption
 {
-    public class SubscriptionValidationTests : TestsBase
+    public class SubscriptionValidationTests : LicensingTestsBase
     {
         public SubscriptionValidationTests( ITestOutputHelper logger )
             : base( logger ) { }
@@ -32,7 +32,7 @@ namespace Metalama.Backstage.Tests.Licensing.Consumption
 
         private void Test( IApplicationInfo applicationInfo, IComponentInfo? infringingComponent = null )
         {
-            var licenseKey = TestLicenseKeys.MetalamaUltimateBusiness;
+            var licenseKey = LicenseKeyProvider.MetalamaUltimateBusiness;
 
             var isDeserialized = LicenseKeyData.TryDeserialize( licenseKey, out var data, out _ );
 
@@ -57,57 +57,57 @@ namespace Metalama.Backstage.Tests.Licensing.Consumption
         [Fact]
         public void PassesWithValidSubscriptionForApplicationInfo()
         {
-            var applicationInfo = CreateApplicationInfo( TestLicenseKeys.SubscriptionExpirationDate );
+            var applicationInfo = CreateApplicationInfo( LicenseKeyProvider.SubscriptionExpirationDate );
             this.Test( applicationInfo );
         }
 
         [Fact]
         public void FailsWithInvalidSubscriptionForApplicationInfo()
         {
-            var applicationInfo = CreateApplicationInfo( TestLicenseKeys.SubscriptionExpirationDate.AddDays( 1 ) );
+            var applicationInfo = CreateApplicationInfo( LicenseKeyProvider.SubscriptionExpirationDate.AddDays( 1 ) );
             this.Test( applicationInfo, applicationInfo );
         }
 
         [Fact]
         public void PassesWithValidSubscriptionForComponentRequiringSubscription()
         {
-            var componentInfo = CreateComponentInfo( TestLicenseKeys.SubscriptionExpirationDate, false );
-            var applicationInfo = CreateApplicationInfo( TestLicenseKeys.SubscriptionExpirationDate, componentInfo );
+            var componentInfo = CreateComponentInfo( LicenseKeyProvider.SubscriptionExpirationDate, false );
+            var applicationInfo = CreateApplicationInfo( LicenseKeyProvider.SubscriptionExpirationDate, componentInfo );
             this.Test( applicationInfo );
         }
 
         [Fact]
         public void FailsWithInvalidSubscriptionForComponentRequiringSubscription()
         {
-            var componentInfo = CreateComponentInfo( TestLicenseKeys.SubscriptionExpirationDate.AddDays( 1 ), false );
-            var applicationInfo = CreateApplicationInfo( TestLicenseKeys.SubscriptionExpirationDate, componentInfo );
+            var componentInfo = CreateComponentInfo( LicenseKeyProvider.SubscriptionExpirationDate.AddDays( 1 ), false );
+            var applicationInfo = CreateApplicationInfo( LicenseKeyProvider.SubscriptionExpirationDate, componentInfo );
             this.Test( applicationInfo, componentInfo );
         }
 
         [Fact]
         public void PassesWithInvalidSubscriptionForComponentNotRequiringSubscription()
         {
-            var componentInfo = CreateComponentInfo( TestLicenseKeys.SubscriptionExpirationDate.AddDays( 1 ), true );
-            var applicationInfo = CreateApplicationInfo( TestLicenseKeys.SubscriptionExpirationDate, componentInfo );
+            var componentInfo = CreateComponentInfo( LicenseKeyProvider.SubscriptionExpirationDate.AddDays( 1 ), true );
+            var applicationInfo = CreateApplicationInfo( LicenseKeyProvider.SubscriptionExpirationDate, componentInfo );
             this.Test( applicationInfo );
         }
 
         [Fact]
         public void FailsWithMultipleComponentsAndValidApplication()
         {
-            var componentInfo1 = CreateComponentInfo( TestLicenseKeys.SubscriptionExpirationDate.AddDays( 1 ), false );
-            var componentInfo2 = CreateComponentInfo( TestLicenseKeys.SubscriptionExpirationDate, false );
-            var componentInfo3 = CreateComponentInfo( TestLicenseKeys.SubscriptionExpirationDate.AddDays( 1 ), true );
-            var applicationInfo = CreateApplicationInfo( TestLicenseKeys.SubscriptionExpirationDate, componentInfo1, componentInfo2, componentInfo3 );
+            var componentInfo1 = CreateComponentInfo( LicenseKeyProvider.SubscriptionExpirationDate.AddDays( 1 ), false );
+            var componentInfo2 = CreateComponentInfo( LicenseKeyProvider.SubscriptionExpirationDate, false );
+            var componentInfo3 = CreateComponentInfo( LicenseKeyProvider.SubscriptionExpirationDate.AddDays( 1 ), true );
+            var applicationInfo = CreateApplicationInfo( LicenseKeyProvider.SubscriptionExpirationDate, componentInfo1, componentInfo2, componentInfo3 );
             this.Test( applicationInfo, componentInfo1 );
         }
 
         [Fact]
         public void FailsWithMultipleComponentsAndInvalidApplication()
         {
-            var componentInfo1 = CreateComponentInfo( TestLicenseKeys.SubscriptionExpirationDate, false );
-            var componentInfo2 = CreateComponentInfo( TestLicenseKeys.SubscriptionExpirationDate.AddDays( 1 ), true );
-            var applicationInfo = CreateApplicationInfo( TestLicenseKeys.SubscriptionExpirationDate.AddDays( 1 ), componentInfo1, componentInfo2 );
+            var componentInfo1 = CreateComponentInfo( LicenseKeyProvider.SubscriptionExpirationDate, false );
+            var componentInfo2 = CreateComponentInfo( LicenseKeyProvider.SubscriptionExpirationDate.AddDays( 1 ), true );
+            var applicationInfo = CreateApplicationInfo( LicenseKeyProvider.SubscriptionExpirationDate.AddDays( 1 ), componentInfo1, componentInfo2 );
             this.Test( applicationInfo, applicationInfo );
         }
     }

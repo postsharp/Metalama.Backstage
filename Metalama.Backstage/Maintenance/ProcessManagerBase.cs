@@ -30,7 +30,7 @@ internal abstract partial class ProcessManagerBase : IProcessManager
 
     protected virtual bool TryGetModulePaths( Process process, [NotNullWhen( true )] out List<string>? modules )
     {
-        modules = new List<string>();
+        modules = [];
 
         try
         {
