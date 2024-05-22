@@ -9,9 +9,9 @@ using System.Threading.Tasks;
 
 namespace Metalama.Backstage.Worker.Upload
 {
-    internal class UploadCommand : AsyncCommand<CommandSettings>
+    internal class UploadCommand : AsyncCommand<UploadCommandSettings>
     {
-        public override async Task<int> ExecuteAsync( CommandContext context, CommandSettings settings )
+        public override async Task<int> ExecuteAsync( CommandContext context, UploadCommandSettings settings )
         {
             var appData = (AppData) context.Data!;
             var serviceProvider = appData.ServiceProvider;

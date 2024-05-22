@@ -48,6 +48,7 @@ internal static class Program
             app.Configure(
                 configuration =>
                 {
+                    configuration.PropagateExceptions();
                     configuration.AddCommand<UploadCommand>( "upload" ).WithData( appData );
                     configuration.AddCommand<WebServerCommand>( "web" ).WithData( appData );
                 } );
