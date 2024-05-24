@@ -14,9 +14,22 @@ internal class BufferingLoggerFactory : ILoggerFactory
     private readonly ConcurrentQueue<Action<ILoggerFactory>> _replayActions = new();
     private readonly ConcurrentDictionary<string, ILogger> _loggers = new();
 
+    // Always enabled because we don't have the configuration yet.
+    public bool IsEnabled => true;
+
     public void Dispose() { }
 
-    public ILogger GetLogger( string category ) => this._loggers.GetOrAdd( category, c => new Logger( this, c ) );
+    public ILogger GetLogger( string category )
+    {
+        if ( this.IsEnabled )
+        {
+            return this._loggers.GetOrAdd( category, c => new Logger( this, c ) );
+        }
+        else
+        {
+            return NullLogger.Instance;
+        }
+    }
 
     public void Replay( ILoggerFactory loggerFactory )
     {

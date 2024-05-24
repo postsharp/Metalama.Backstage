@@ -31,6 +31,8 @@ namespace Metalama.Backstage.Diagnostics
 
         public ILoggerFactory ForScope( string name ) => this.Manager.GetLoggerFactory( name );
 
+        public bool IsEnabled => this.LogFile != null;
+
         public LoggerFactory( LoggerManager manager, string? scope )
         {
             this.Manager = manager;
@@ -190,7 +192,7 @@ namespace Metalama.Backstage.Diagnostics
         public void Dispose()
         {
             this.Flush();
-            
+
             // TODO: Have proper project-scoped logger factories. This class should be non-disposable.
             // this.Close();
         }

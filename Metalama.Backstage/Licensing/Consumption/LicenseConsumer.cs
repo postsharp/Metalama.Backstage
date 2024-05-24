@@ -24,7 +24,7 @@ internal class LicenseConsumer : ILicenseConsumer
 
     private DateTime _lastAuditTime = DateTime.MinValue;
 
-    public LicenseConsumer( IServiceProvider services, LicenseConsumptionData? license, NamespaceLicenseInfo? licensedNamespace )
+    private LicenseConsumer( IServiceProvider services, LicenseConsumptionData? license, NamespaceLicenseInfo? licensedNamespace )
     {
         this._license = license;
         this._licensedNamespace = licensedNamespace;
@@ -34,7 +34,10 @@ internal class LicenseConsumer : ILicenseConsumer
         this._backgroundTasksService = services.GetRequiredBackstageService<BackstageBackgroundTasksService>();
     }
 
-    public static ILicenseConsumer Create( IServiceProvider services, IReadOnlyList<ILicenseSource> licenseSources, out ImmutableArray<LicensingMessage> messages )
+    public static ILicenseConsumer Create(
+        IServiceProvider services,
+        IReadOnlyList<ILicenseSource> licenseSources,
+        out ImmutableArray<LicensingMessage> messages )
     {
         var messagesBuilder = ImmutableArray.CreateBuilder<LicensingMessage>();
 
@@ -80,11 +83,11 @@ internal class LicenseConsumer : ILicenseConsumer
                 ? null
                 : new NamespaceLicenseInfo( licenseConsumptionData.LicensedNamespace! );
 
-
             break;
         }
 
         messages = messagesBuilder.ToImmutable();
+
         return new LicenseConsumer( services, licenseConsumptionData, licensedNamespace );
 
         void ReportMessage( LicensingMessage message )

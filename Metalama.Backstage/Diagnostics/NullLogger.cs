@@ -26,5 +26,7 @@ public class NullLogger : ILogger, ILoggerFactory
 
     public ILoggerFactory ForScope( string name ) => Instance;
 
+    public bool IsEnabled => false;
+
     public void Dispose() { }
 }

@@ -17,5 +17,10 @@ namespace Metalama.Backstage.Diagnostics
         string Scope { get; }
 
         ILoggerFactory ForScope( string name );
+
+        /// <summary>
+        /// Gets a value indicating whether logging is enabled for the current process.
+        /// </summary>
+        bool IsEnabled { get; }
     }
 }

@@ -45,6 +45,8 @@ public class TestLoggerFactory : ILoggerFactory
 
     public ILoggerFactory ForScope( string name ) => throw new NotSupportedException();
 
+    public bool IsEnabled => true;
+
     private class Logger : ILogger
     {
         private readonly string _category;

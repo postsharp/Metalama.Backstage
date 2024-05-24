@@ -11,9 +11,14 @@ internal class EarlyLoggerFactory : ILoggerFactory
 
     public ILoggerFactory LoggerFactory { get; private set; }
 
-    public EarlyLoggerFactory( ILoggerFactory? loggerFactory = null )
+    public EarlyLoggerFactory( ILoggerFactory loggerFactory )
     {
-        this.LoggerFactory = loggerFactory ?? new BufferingLoggerFactory();
+        this.LoggerFactory = loggerFactory;
+    }
+
+    public EarlyLoggerFactory()
+    {
+        this.LoggerFactory = new BufferingLoggerFactory();
     }
 
     public void Replace( ILoggerFactory loggerFactory )
@@ -42,6 +47,8 @@ internal class EarlyLoggerFactory : ILoggerFactory
     public string Scope => "";
 
     public ILoggerFactory ForScope( string name ) => throw new NotSupportedException();
+
+    public bool IsEnabled => this.LoggerFactory.IsEnabled;
 
     private class Logger : ILogger
     {

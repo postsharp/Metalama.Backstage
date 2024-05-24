@@ -34,6 +34,8 @@ internal class AnsiConsoleLoggerFactory : ILoggerFactory, ILogger
 
     public ILoggerFactory ForScope( string name ) => throw new NotSupportedException();
 
+    public bool IsEnabled => true;
+
     private class LogWriter : ILogWriter
     {
         private readonly Action<string> _action;
