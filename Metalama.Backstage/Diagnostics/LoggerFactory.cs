@@ -174,7 +174,7 @@ namespace Metalama.Backstage.Diagnostics
             this._textWriter?.Flush();
         }
 
-        public void Dispose()
+        public void Close()
         {
             // Make sure we write the lines that we already have.
             this.Flush();
@@ -185,6 +185,14 @@ namespace Metalama.Backstage.Diagnostics
             this._textWriter?.Close();
 
             this.Manager.RemoveLoggerFactory( this );
+        }
+
+        public void Dispose()
+        {
+            this.Flush();
+            
+            // TODO: Have proper project-scoped logger factories. This class should be non-disposable.
+            // this.Close();
         }
     }
 }

@@ -25,14 +25,16 @@ public partial class TestFileSystem
 
         public abstract void SetLastWriteTime( string path, DateTime lastWriteTime );
 
-        protected TResult Execute<TResult>( ExecutionKind executionKind, WatcherChangeTypes changeType, string path, Func<TResult> action )
+        protected TResult Execute<TResult>( ExecutionKind executionKind, WatcherChangeTypes changeType, string path, Func<TResult> action, string operation )
         {
             lock ( this.Parent.Mock )
             {
                 if ( executionKind == ExecutionKind.Read || executionKind == ExecutionKind.Write )
                 {
-                    this.Parent.WaitAndThrowIfBlocked( path, true );
+                    this.Parent.WaitAndThrowIfBlocked( path, true, operation );
                 }
+                
+                this.Parent.RaiseEvent( path, operation );
 
                 var accessTime = this.Parent._time.Now;
 
@@ -78,7 +80,7 @@ public partial class TestFileSystem
             }
         }
 
-        protected void Execute( ExecutionKind executionKind, WatcherChangeTypes changeType, string path, Action action )
+        protected void Execute( ExecutionKind executionKind, WatcherChangeTypes changeType, string path, Action action, string operation )
             => _ = this.Execute<object?>(
                 executionKind,
                 changeType,
@@ -88,6 +90,7 @@ public partial class TestFileSystem
                     action();
 
                     return null;
-                } );
+                },
+                operation );
     }
 }

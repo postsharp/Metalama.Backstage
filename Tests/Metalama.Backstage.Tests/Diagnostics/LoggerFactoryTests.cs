@@ -65,7 +65,7 @@ public class LoggerFactoryTests : TestsBase
             }
         }
 
-        loggerFactory.Dispose();
+        loggerFactory.Close();
 
         var allLines = File.ReadAllLines( loggerFactory.LogFile! );
 

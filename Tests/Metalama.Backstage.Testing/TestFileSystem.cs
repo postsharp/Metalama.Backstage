@@ -9,7 +9,6 @@ using System.IO;
 using System.IO.Abstractions.TestingHelpers;
 using System.IO.Compression;
 using System.Linq;
-using System.Runtime.CompilerServices;
 using System.Threading;
 using Infrastructure_IFileSystem = Metalama.Backstage.Infrastructure.IFileSystem;
 
@@ -31,6 +30,8 @@ namespace Metalama.Backstage.Testing
 
         private readonly ConcurrentDictionary<string, (ManualResetEventSlim Callee, ManualResetEventSlim Caller)> _blockedWrites =
             new();
+        
+        private readonly ConcurrentDictionary<string, Action> _events = new();
 
         private readonly List<string> _failedAccesses = [];
 
@@ -105,7 +106,7 @@ namespace Metalama.Backstage.Testing
             UnblockEvents( this._blockedWrites );
         }
 
-        private void WaitAndThrowIfBlocked( string path, bool write, [CallerMemberName] string callerName = "" )
+        private void WaitAndThrowIfBlocked( string path, bool write, string operation )
         {
             var blockedFiles = write ? this._blockedWrites : this._blockedReads;
 
@@ -113,9 +114,41 @@ namespace Metalama.Backstage.Testing
             {
                 events.Caller.Set();
                 events.Callee.Wait();
-                this._failedAccesses.Add( $"{callerName}({path})" );
+                this._failedAccesses.Add( $"{operation}({path})" );
 
-                throw new IOException( $"{callerName} failed. File '{path}' in use." );
+                throw new IOException( $"{operation} failed. File '{path}' in use." );
+            }
+        }
+
+        private static string GetOperationKey( string operation, string path ) => $"{operation}({path})";
+        
+        public void SetEvent( string operation, string path, Action action )
+        {
+            var key = GetOperationKey( operation, path );
+            
+            if ( !this._events.TryAdd( key, action ) )
+            {
+                throw new InvalidOperationException();
+            }
+        }
+
+        public void ResetEvent( string operation, string path )
+        {
+            var key = GetOperationKey( operation, path );
+            
+            if ( !this._events.TryRemove( key, out _ ) )
+            {
+                throw new InvalidOperationException();
+            }
+        }
+
+        private void RaiseEvent( string path, string operation )
+        {
+            var key = GetOperationKey( operation, path );
+            
+            if ( this._events.TryGetValue( key, out var action ) )
+            {
+                action();
             }
         }
 
@@ -148,6 +181,11 @@ namespace Metalama.Backstage.Testing
                 } );
 
         public bool FileExists( string path ) => this._file.Execute( ExecutionKind.Manage, 0, path, f => f.Exists( path ) );
+
+        public FileAttributes GetFileAttributes( string path ) => this._file.Execute( ExecutionKind.Manage, 0, path, f => f.GetAttributes( path ) );
+
+        public void SetFileAttributes( string path, FileAttributes fileAttributes )
+            => this._file.Execute( ExecutionKind.Manage, WatcherChangeTypes.Changed, path, f => f.SetAttributes( path, fileAttributes ) );
 
         public bool DirectoryExists( string path ) => this._directory.Execute( ExecutionKind.Manage, 0, path, d => d.Exists( path ) );
 
