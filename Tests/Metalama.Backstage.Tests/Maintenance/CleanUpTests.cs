@@ -144,7 +144,9 @@ public class CleanUpTests : TestsBase
                     break;
 
                 case CleanUpStrategy.Always:
+                case CleanUpStrategy.FileOneMonthAfterCreation:
                     // Assert always cleaned directories are empty.
+                    // Assert the same for FileOneMonthAfterCreation - this strategy is tested by IndividualFilesGetDeletedAfterOneMonth test.
                     Assert.False( this.FileSystem.DirectoryExists( cacheDirectoryPath ) );
 
                     break;
@@ -176,7 +178,9 @@ public class CleanUpTests : TestsBase
             {
                 case CleanUpStrategy.WhenUnused:
                 case CleanUpStrategy.Always:
+                case CleanUpStrategy.FileOneMonthAfterCreation:
                     // Assert always cleaned directories and outdated directories are empty.
+                    // Assert the same for FileOneMonthAfterCreation - this strategy is tested by IndividualFilesGetDeletedAfterOneMonth test.
                     Assert.False( this.FileSystem.DirectoryExists( cacheDirectoryPath ) );
 
                     break;
@@ -214,7 +218,9 @@ public class CleanUpTests : TestsBase
                     break;
 
                 case CleanUpStrategy.Always:
+                case CleanUpStrategy.FileOneMonthAfterCreation:
                     // Assert always cleaned directories are empty.
+                    // Assert the same for FileOneMonthAfterCreation - this strategy is tested by IndividualFilesGetDeletedAfterOneMonth test.
                     Assert.False( this.FileSystem.DirectoryExists( cacheDirectoryPath ) );
 
                     break;
