@@ -28,6 +28,10 @@ internal class BufferingLoggerFactory : ILoggerFactory
 
     void ILoggerFactory.Flush() { }
 
+    public string Scope => "";
+
+    public ILoggerFactory ForScope( string name ) => throw new NotSupportedException();
+
     private class Logger : ILogger
     {
         private readonly BufferingLoggerFactory _parent;

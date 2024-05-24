@@ -10,9 +10,4 @@ public record LicensingInitializationOptions
     public bool IgnoreUnattendedProcessLicense { get; init; }
 
     public bool IgnoreUserProfileLicenses { get; init; }
-
-    /// <summary>
-    /// Gets the license key that stems from the MSBuild project file.
-    /// </summary>
-    public string? ProjectLicense { get; init; }
 }

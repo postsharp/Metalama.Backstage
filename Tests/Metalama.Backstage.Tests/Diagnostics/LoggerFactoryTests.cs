@@ -25,24 +25,28 @@ public class LoggerFactoryTests : TestsBase
         services.AddSingleton<IApplicationInfoProvider>( new ApplicationInfoProvider( new TestApplicationInfo() ) );
         services.AddSingleton<ITempFileManager>( serviceProvider => new TempFileManager( serviceProvider ) );
     }
+    
+    private LoggerManager CreateLoggerManager() => new(
+        this.ServiceProvider,
+        new DiagnosticsConfiguration()
+        {
+            Logging = new LoggingConfiguration()
+            {
+                TraceCategories = ImmutableDictionary<string, bool>.Empty.Add( "*", true ),
+                Processes = ImmutableDictionary<string, bool>.Empty.Add( ProcessKind.Other.ToString(), true )
+            }
+        },
+        ProcessKind.Other,
+        ( manager, scope ) => new LoggerFactory( manager, scope ) );
 
     [Fact]
-    public void Test()
+    public void TestSequentialWrite()
     {
         this.Time.Set( new DateTime( 1978, 6, 16 ) );
 
-        var loggerFactory = new LoggerFactory(
-            this.ServiceProvider,
-            new DiagnosticsConfiguration()
-            {
-                Logging = new LoggingConfiguration()
-                {
-                    TraceCategories = ImmutableDictionary<string, bool>.Empty.Add( "*", true ),
-                    Processes = ImmutableDictionary<string, bool>.Empty.Add( ProcessKind.Other.ToString(), true )
-                }
-            },
-            ProcessKind.Other,
-            Guid.NewGuid().ToString() );
+        var loggerManager = this.CreateLoggerManager();
+
+        var loggerFactory = (LoggerFactory) loggerManager.GetLoggerFactory( Guid.NewGuid().ToString() );
 
         var logger = loggerFactory.GetLogger( "Test" );
 
@@ -65,4 +69,29 @@ public class LoggerFactoryTests : TestsBase
 
         Assert.Equal( n, allLines.Length );
     }
+
+    [Fact]
+    public void TestScope()
+    {
+        var loggerManager = this.CreateLoggerManager();
+        var loggerFactory1 = (LoggerFactory) loggerManager.GetLoggerFactory( Guid.NewGuid().ToString() );
+        var loggerFactory2 = (LoggerFactory) loggerManager.GetLoggerFactory( Guid.NewGuid().ToString() );
+        loggerFactory1.GetLogger( "Test" ).Trace?.Log( "Line 1" );
+        loggerFactory2.GetLogger( "Test" ).Trace?.Log( "Line 2" );
+        loggerFactory1.Dispose();
+        loggerFactory2.Dispose();
+        
+        var allLines1 = File.ReadAllLines( loggerFactory1.LogFile! );
+        Assert.Equal( ["Line 1"], allLines1 );
+        var allLines2 = File.ReadAllLines( loggerFactory1.LogFile! );
+        Assert.Equal( ["Line 2"], allLines2 );
+        
+        Assert.NotSame( loggerFactory1, loggerManager.GetLoggerFactory( loggerFactory1.Scope ) );
+        Assert.NotSame( loggerFactory2, loggerManager.GetLoggerFactory( loggerFactory2.Scope ) );
+
+        
+
+    }
+
+ 
 }

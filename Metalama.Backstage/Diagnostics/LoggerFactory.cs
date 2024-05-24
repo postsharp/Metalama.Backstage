@@ -1,8 +1,5 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. See the LICENSE.md file in the root directory of this repository root for details.
 
-using Metalama.Backstage.Extensibility;
-using Metalama.Backstage.Infrastructure;
-using Metalama.Backstage.Maintenance;
 using Metalama.Backstage.Utilities;
 using System;
 using System.Collections.Concurrent;
@@ -18,6 +15,9 @@ namespace Metalama.Backstage.Diagnostics
         private const int _activeStatus = 1;
         private const int _finishingStatus = 2;
         private static readonly Stopwatch _stopwatch = Stopwatch.StartNew();
+
+        public LoggerManager Manager { get; }
+
         private readonly ConcurrentDictionary<string, ILogger> _loggers = new( StringComparer.OrdinalIgnoreCase );
         private readonly object _textWriterSync = new();
         private readonly ConcurrentQueue<string> _messageQueue = new();
@@ -27,43 +27,36 @@ namespace Metalama.Backstage.Diagnostics
 
         public string? LogFile { get; }
 
-        internal DiagnosticsConfiguration Configuration { get; }
+        public string Scope { get; set; }
 
-        internal IDateTimeProvider DateTimeProvider { get; }
+        public ILoggerFactory ForScope( string name ) => this.Manager.GetLoggerFactory( name );
 
-        public LoggerFactory( IServiceProvider serviceProvider, DiagnosticsConfiguration configuration, ProcessKind processKind, string? projectName )
+        public LoggerFactory( LoggerManager manager, string? scope )
         {
-            var tempFileManager = serviceProvider.GetRequiredBackstageService<ITempFileManager>();
-            this.DateTimeProvider = serviceProvider.GetRequiredBackstageService<IDateTimeProvider>();
+            this.Manager = manager;
+            this.Scope = scope ?? "";
 
-            this.Configuration = configuration;
-
-            if ( this.Configuration.Logging.Processes.TryGetValue( processKind.ToString(), out var enabled ) && enabled )
+            try
             {
-                var directory = tempFileManager.GetTempDirectory( "Logs", CleanUpStrategy.Always );
-
-                try
-                {
-                    RetryHelper.Retry(
-                        () =>
+                RetryHelper.Retry(
+                    () =>
+                    {
+                        if ( !Directory.Exists( manager.LogDirectory ) )
                         {
-                            if ( !Directory.Exists( directory ) )
-                            {
-                                Directory.CreateDirectory( directory );
-                            }
-                        } );
+                            Directory.CreateDirectory( manager.LogDirectory! );
+                        }
+                    } );
 
-                    var projectNameWithDot = string.IsNullOrEmpty( projectName ) ? "" : "-" + projectName;
+                var projectNameWithDot = string.IsNullOrEmpty( scope ) ? "" : "-" + scope;
 
-                    // The filename must be unique because several instances of the current assembly (of different versions) may be loaded in the process.
-                    this.LogFile = Path.Combine(
-                        directory,
-                        $"Metalama-{processKind}{projectNameWithDot}-{Guid.NewGuid()}.log" );
-                }
-                catch
-                {
-                    // Don't fail if we cannot initialize the log.
-                }
+                // The filename must be unique because several instances of the current assembly (of different versions) may be loaded in the process.
+                this.LogFile = Path.Combine(
+                    manager.LogDirectory!,
+                    $"Metalama-{manager.ProcessKind}{projectNameWithDot}-{Guid.NewGuid()}.log" );
+            }
+            catch
+            {
+                // Don't fail if we cannot initialize the log.
             }
         }
 
@@ -76,6 +69,8 @@ namespace Metalama.Backstage.Diagnostics
 
             if ( this._disposing )
             {
+                this._backgroundTaskStatus = _inactiveStatus;
+                
                 return;
             }
 
@@ -120,7 +115,7 @@ namespace Metalama.Backstage.Diagnostics
                 catch ( ObjectDisposedException ) { }
                 finally
                 {
-                    this._backgroundTaskStatus = _inactiveStatus;    
+                    this._backgroundTaskStatus = _inactiveStatus;
                 }
             }
         }
@@ -134,7 +129,7 @@ namespace Metalama.Backstage.Diagnostics
             {
                 return;
             }
-            
+
             this._messageQueue.Enqueue( s );
 
             if ( Interlocked.CompareExchange( ref this._backgroundTaskStatus, _activeStatus, _inactiveStatus ) != _activeStatus )
@@ -181,6 +176,7 @@ namespace Metalama.Backstage.Diagnostics
 
         public void Dispose()
         {
+            this.Manager.RemoveLoggerFactory( this );
             this._disposing = true;
             this.Flush();
             this._textWriter?.Close();

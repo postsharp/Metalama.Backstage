@@ -19,8 +19,8 @@ internal class Logger : ILogger
         this.Warning = this.CreateLogWriter( "WARNING" );
         this.Info = this.CreateLogWriter( "INFO" );
 
-        if ( (this.LoggerFactory.Configuration.Logging.TraceCategories.TryGetValue( "*", out var allEnabled ) && allEnabled) ||
-             (this.LoggerFactory.Configuration.Logging.TraceCategories.TryGetValue( category, out var enabled ) && enabled) )
+        if ( (this.LoggerFactory.Manager.Configuration.Logging.TraceCategories.TryGetValue( "*", out var allEnabled ) && allEnabled) ||
+             (this.LoggerFactory.Manager.Configuration.Logging.TraceCategories.TryGetValue( category, out var enabled ) && enabled) )
         {
             this.Trace = this.CreateLogWriter( "TRACE" );
         }

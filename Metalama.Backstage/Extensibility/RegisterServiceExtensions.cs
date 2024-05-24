@@ -48,8 +48,7 @@ public static class RegisterServiceExtensions
 
     internal static ServiceProviderBuilder AddDiagnostics(
         this ServiceProviderBuilder serviceProviderBuilder,
-        ProcessKind processKind,
-        string? projectName = null )
+        ProcessKind processKind )
     {
         serviceProviderBuilder.AddSingleton<ILoggerFactory>(
             serviceProvider =>
@@ -74,7 +73,13 @@ public static class RegisterServiceExtensions
 
                 var applicationInfo = serviceProvider.GetRequiredBackstageService<IApplicationInfoProvider>().CurrentApplication;
 
-                var loggerFactory = new LoggerFactory( serviceProvider, configuration, applicationInfo.ProcessKind, projectName );
+                var loggerFactoryManager = new LoggerManager(
+                    serviceProvider,
+                    configuration,
+                    applicationInfo.ProcessKind,
+                    ( manager, scope ) => new LoggerFactory( manager, scope ) );
+
+                var loggerFactory = loggerFactoryManager.GetLoggerFactory( "" );
 
                 serviceProvider.GetBackstageService<EarlyLoggerFactory>()?.Replace( loggerFactory );
 
@@ -141,7 +146,7 @@ public static class RegisterServiceExtensions
         {
             if ( options.CreateLoggingFactory == null )
             {
-                serviceProviderBuilder.AddDiagnostics( applicationInfo.ProcessKind, options.ProjectName );
+                serviceProviderBuilder.AddDiagnostics( applicationInfo.ProcessKind );
             }
             else
             {

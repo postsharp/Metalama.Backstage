@@ -3,6 +3,7 @@
 using Metalama.Backstage.Licensing.Consumption.Sources;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Metalama.Backstage.Licensing.Consumption;
 
@@ -34,23 +35,31 @@ internal partial class LicenseConsumptionService : ILicenseConsumptionService
         return this._impl!;
     }
 
-    public ILicenseConsumptionService WithAdditionalLicense( string? licenseKey )
+    public ILicenseConsumptionService WithAdditionalLicense( string? licenseKey, bool removeUserProfileLicenses = false )
     {
         if ( string.IsNullOrWhiteSpace( licenseKey ) )
         {
             return this;
         }
-        
+
         var sources = new List<ILicenseSource>( this._sources.Count + 1 );
-        sources.AddRange( this._sources );
+
+        if ( removeUserProfileLicenses )
+        {
+            sources.AddRange( this._sources.Where( s => s is not UserProfileLicenseSource ) );
+        }
+        else
+        {
+            sources.AddRange( this._sources );
+        }
+
         sources.Add( new ExplicitLicenseSource( licenseKey!, this._services ) );
         var newService = new LicenseConsumptionService( this._services, sources );
 
         return newService;
     }
 
-    public ILicenseConsumptionService WithoutLicense() 
-        => new LicenseConsumptionService( this._services, Array.Empty<ILicenseSource>() );
+    public ILicenseConsumptionService WithoutLicense() => new LicenseConsumptionService( this._services, Array.Empty<ILicenseSource>() );
 
     private void OnSourceChanged()
     {
@@ -61,7 +70,8 @@ internal partial class LicenseConsumptionService : ILicenseConsumptionService
 
     public IReadOnlyList<LicensingMessage> Messages => this.GetInitializedImpl().Messages;
 
-    public bool CanConsume( LicenseRequirement requirement, string? consumerNamespace = null ) => this.GetInitializedImpl().CanConsume( requirement, consumerNamespace );
+    public bool CanConsume( LicenseRequirement requirement, string? consumerNamespace = null )
+        => this.GetInitializedImpl().CanConsume( requirement, consumerNamespace );
 
     public bool ValidateRedistributionLicenseKey( string redistributionLicenseKey, string aspectClassNamespace )
         => this.GetInitializedImpl().ValidateRedistributionLicenseKey( redistributionLicenseKey, aspectClassNamespace );

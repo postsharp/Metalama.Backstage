@@ -15,7 +15,7 @@ internal class LogWriter : ILogWriter
     public LogWriter( Logger logger, string logLevel )
     {
         this._logger = logger;
-        this._dateTimeProvider = logger.LoggerFactory.DateTimeProvider;
+        this._dateTimeProvider = logger.LoggerFactory.Manager.DateTimeProvider;
         this._logLevel = logLevel.ToUpperInvariant();
     }
 

@@ -22,5 +22,9 @@ public class NullLogger : ILogger, ILoggerFactory
 
     public void Flush() { }
 
+    public string Scope => "";
+
+    public ILoggerFactory ForScope( string name ) => Instance;
+
     public void Dispose() { }
 }

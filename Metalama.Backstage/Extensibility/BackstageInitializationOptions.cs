@@ -13,15 +13,14 @@ namespace Metalama.Backstage.Extensibility;
 /// Initialization options for the <see cref="RegisterServiceExtensions.AddBackstageServices"/> method.
 /// </summary>
 /// <param name="ApplicationInfo">The <see cref="IApplicationInfo"/> of the caller.</param>
-/// <param name="ProjectName">The project name, if relevant in the context. This is used to create more relevant log files.</param>
 [PublicAPI]
-public record BackstageInitializationOptions( IApplicationInfo ApplicationInfo, string? ProjectName = null )
+public record BackstageInitializationOptions( IApplicationInfo ApplicationInfo )
 {
     /// <summary>
     /// Gets the full path of the .NET SDK directory of the current process.
     /// </summary>
     public string? DotNetSdkDirectory { get; init; }
-    
+
     /// <summary>
     /// Gets a value indicating whether logging and telemetry services should be registered.
     /// </summary>

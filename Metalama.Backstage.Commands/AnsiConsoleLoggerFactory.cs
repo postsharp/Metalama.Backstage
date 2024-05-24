@@ -30,6 +30,10 @@ internal class AnsiConsoleLoggerFactory : ILoggerFactory, ILogger
 
     void ILoggerFactory.Flush() { }
 
+    public string Scope => "";
+
+    public ILoggerFactory ForScope( string name ) => throw new NotSupportedException();
+
     private class LogWriter : ILogWriter
     {
         private readonly Action<string> _action;

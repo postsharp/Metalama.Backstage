@@ -10,5 +10,12 @@ namespace Metalama.Backstage.Diagnostics
         ILogger GetLogger( string category );
 
         void Flush();
+
+        /// <summary>
+        /// Gets the scope (typically the project name), or an empty string if there is no scope.
+        /// </summary>
+        string Scope { get; }
+
+        ILoggerFactory ForScope( string name );
     }
 }
