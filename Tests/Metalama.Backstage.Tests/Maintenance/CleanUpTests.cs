@@ -75,23 +75,23 @@ public class CleanUpTests : TestsBase
         }
 
         // Create a deeper directory structure and populate it with cleanup files at the bottom level.
-        // var rootDirectory = Path.Combine( this._standardDirectories.TempDirectory, "DeepDirectory" );
-        // this.Logger.WriteLine( $"Populating '{rootDirectory}' with deeper structure of directories." );
-        //
-        // for ( var i = 0; i < 5; i++ )
-        // {
-        //     var currentDirectory = Path.Combine( rootDirectory, $"subdirectory_{i}" );
-        //
-        //     for ( var j = 0; j < 4; j++ )
-        //     {
-        //         currentDirectory = Path.Combine( currentDirectory, $"subdirectory{i}{j}" );
-        //     }
-        //
-        //     this.FileSystem.CreateDirectory( currentDirectory );
-        //     var cleanUpFile = new CleanUpFile { Strategy = CleanUpStrategy.Always };
-        //     var cleanUpStrategy = JsonConvert.SerializeObject( cleanUpFile );
-        //     this.FileSystem.WriteAllText( Path.Combine( currentDirectory, "cleanup.json" ), cleanUpStrategy );
-        // }
+        var rootDirectory = Path.Combine( this._standardDirectories.TempDirectory, "DeepDirectory" );
+        this.Logger.WriteLine( $"Populating '{rootDirectory}' with deeper structure of directories." );
+        
+        for ( var i = 0; i < 5; i++ )
+        {
+            var currentDirectory = Path.Combine( rootDirectory, $"subdirectory_{i}" );
+        
+            for ( var j = 0; j < 4; j++ )
+            {
+                currentDirectory = Path.Combine( currentDirectory, $"subdirectory{i}{j}" );
+            }
+        
+            this.FileSystem.CreateDirectory( currentDirectory );
+            var cleanUpFile = new CleanUpFile { Strategy = CleanUpStrategy.Always };
+            var cleanUpStrategy = JsonConvert.SerializeObject( cleanUpFile );
+            this.FileSystem.WriteAllText( Path.Combine( currentDirectory, "cleanup.json" ), cleanUpStrategy );
+        }
     }
 
     /// <summary>
