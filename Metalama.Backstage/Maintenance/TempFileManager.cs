@@ -176,11 +176,12 @@ public class TempFileManager : ITempFileManager
                             continue;
                         }
 
-                        if ( this._fileSystem.GetFileLastWriteTime( file ) < DateTime.Now.AddDays( -30 ) )
+                        if ( this._fileSystem.GetFileLastWriteTime( file ) < this._time.Now.AddDays( -30 ) )
                         {
                             try
                             {
                                 this._logger.Trace?.Log( $"Deleting '{file}'." );
+                                this._fileSystem.DeleteFile( file );
                             }
                             catch ( Exception e )
                             {
