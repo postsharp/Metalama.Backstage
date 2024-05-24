@@ -77,16 +77,16 @@ public class CleanUpTests : TestsBase
         // Create a deeper directory structure and populate it with cleanup files at the bottom level.
         var rootDirectory = Path.Combine( this._standardDirectories.TempDirectory, "DeepDirectory" );
         this.Logger.WriteLine( $"Populating '{rootDirectory}' with deeper structure of directories." );
-        
+
         for ( var i = 0; i < 5; i++ )
         {
             var currentDirectory = Path.Combine( rootDirectory, $"subdirectory_{i}" );
-        
+
             for ( var j = 0; j < 4; j++ )
             {
                 currentDirectory = Path.Combine( currentDirectory, $"subdirectory{i}{j}" );
             }
-        
+
             this.FileSystem.CreateDirectory( currentDirectory );
             var cleanUpFile = new CleanUpFile { Strategy = CleanUpStrategy.Always };
             var cleanUpStrategy = JsonConvert.SerializeObject( cleanUpFile );
@@ -268,11 +268,11 @@ public class CleanUpTests : TestsBase
         var readOnlyFilePath = Path.Combine( directoryPath, "ReadOnlyFile.txt" );
         this.FileSystem.WriteAllText( readOnlyFilePath, "Test" );
         this.FileSystem.SetFileAttributes( readOnlyFilePath, FileAttributes.ReadOnly );
-        
+
         // Clean-up command should be able to clean the read-only files.
         var tempFileManager = new TempFileManager( this.ServiceProvider );
         tempFileManager.CleanTempDirectories( true, true );
-     
+
         // Issue #34974: On Windows, the directory with a read-only file is allowed to be moved, but read-only file is disallowed to be deleted.
         // Some files may get deleted before this is hit. We have the CleanUpFileIsNotRemovedOnFailure test for this scenario.
         Assert.False( this.FileSystem.DirectoryExists( $"{directoryPath}0" ) );
@@ -282,10 +282,10 @@ public class CleanUpTests : TestsBase
     public void CleanUpFileIsNotRemovedOnFailure()
     {
         var directoryPath = Path.Combine( this._standardDirectories.TempDirectory, "Logs", "0.1.42-test" );
-        
+
         // This file will remain in the directory after the failure.
         this.FileSystem.WriteAllText( Path.Combine( directoryPath, "foo.bar" ), "Foo" );
-        
+
         var deleteDirectoryOperation = nameof(this.FileSystem.DeleteDirectory);
         var newDirectoryPath = $"{directoryPath}0";
 
@@ -301,17 +301,17 @@ public class CleanUpTests : TestsBase
                 // Simulate a failure by throwing an exception. 
                 throw new UnauthorizedAccessException();
             } );
-        
+
         var tempFileManager = new TempFileManager( this.ServiceProvider );
         tempFileManager.CleanTempDirectories( true );
-        
+
         // The directory should have failed to delete.
         Assert.True( this.FileSystem.DirectoryExists( newDirectoryPath ) );
-        
+
         // Retry the operation with no failure.
         this.FileSystem.ResetEvent( deleteDirectoryOperation, newDirectoryPath );
         tempFileManager.CleanTempDirectories( true );
-        
+
         Assert.False( this.FileSystem.DirectoryExists( newDirectoryPath ) );
     }
 
@@ -324,10 +324,10 @@ public class CleanUpTests : TestsBase
         this.FileSystem.WriteAllText( oldFilePath, "Old" );
         this.Time.AddTime( TimeSpan.FromDays( 32 ) );
         this.FileSystem.WriteAllText( newFilePath, "New" );
-        
+
         var tempFileManager = new TempFileManager( this.ServiceProvider );
         tempFileManager.CleanTempDirectories( true );
-        
+
         Assert.False( this.FileSystem.FileExists( oldFilePath ) );
         Assert.True( this.FileSystem.FileExists( newFilePath ) );
     }

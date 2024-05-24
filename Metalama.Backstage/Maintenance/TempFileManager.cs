@@ -284,7 +284,7 @@ public class TempFileManager : ITempFileManager
         }
     }
 
-    private bool TryMoveDirectory( string sourcePath, [NotNullWhen(true)] out string? targetPath )
+    private bool TryMoveDirectory( string sourcePath, [NotNullWhen( true )] out string? targetPath )
     {
         this._logger.Trace?.Log( $"Moving '{sourcePath}'." );
 
@@ -304,7 +304,7 @@ public class TempFileManager : ITempFileManager
 
                     return false;
                 }
-                
+
                 this._logger.Trace?.Log( $"Directory '{sourcePath}' moved to '{targetPath}'." );
 
                 return true;
@@ -315,10 +315,10 @@ public class TempFileManager : ITempFileManager
             $"Directory '{sourcePath}' could not be moved, this is likely caused by another directory with same name exists in the same location." );
 
         targetPath = null;
-        
+
         return false;
     }
-    
+
     private void DeleteFilesOneMonthAfterCreation( string directory )
     {
         foreach ( var file in this._fileSystem.GetFiles( directory ) )
