@@ -179,11 +179,19 @@ namespace Metalama.Backstage.Diagnostics
             this._textWriter?.Flush();
         }
 
-        public void Dispose()
+        public void Close()
         {
             this._disposing = true;
             this.Flush();
             this._textWriter?.Close();
+        }
+
+        public void Dispose()
+        {
+            this.Flush();
+            
+            // TODO: Have proper project-scoped logger factories. This class should be non-disposable.
+            this.Close();
         }
     }
 }
