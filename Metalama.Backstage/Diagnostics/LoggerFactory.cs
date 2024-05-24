@@ -76,6 +76,8 @@ namespace Metalama.Backstage.Diagnostics
 
             if ( this._disposing )
             {
+                this._backgroundTaskStatus = _inactiveStatus;
+
                 return;
             }
 
@@ -120,7 +122,7 @@ namespace Metalama.Backstage.Diagnostics
                 catch ( ObjectDisposedException ) { }
                 finally
                 {
-                    this._backgroundTaskStatus = _inactiveStatus;    
+                    this._backgroundTaskStatus = _inactiveStatus;
                 }
             }
         }
@@ -134,7 +136,7 @@ namespace Metalama.Backstage.Diagnostics
             {
                 return;
             }
-            
+
             this._messageQueue.Enqueue( s );
 
             if ( Interlocked.CompareExchange( ref this._backgroundTaskStatus, _activeStatus, _inactiveStatus ) != _activeStatus )
