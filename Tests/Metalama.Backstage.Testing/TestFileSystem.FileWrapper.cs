@@ -3,6 +3,7 @@
 using System;
 using System.IO;
 using System.IO.Abstractions;
+using System.Runtime.CompilerServices;
 
 namespace Metalama.Backstage.Testing;
 
@@ -20,10 +21,10 @@ public partial class TestFileSystem
 
         public override void SetLastWriteTime( string path, DateTime lastWriteTime ) => this.Parent.Mock.File.SetLastWriteTime( path, lastWriteTime );
 
-        public TResult Execute<TResult>( ExecutionKind executionKind, WatcherChangeTypes changeType, string path, Func<IFile, TResult> action )
-            => this.Execute( executionKind, changeType, path, () => action( this.Parent.Mock.File ) );
+        public TResult Execute<TResult>( ExecutionKind executionKind, WatcherChangeTypes changeType, string path, Func<IFile, TResult> action, [CallerMemberName] string operation = "" )
+            => this.Execute( executionKind, changeType, path, () => action( this.Parent.Mock.File ), operation );
 
-        public void Execute( ExecutionKind executionKind, WatcherChangeTypes changeType, string path, Action<IFile> action )
-            => this.Execute( executionKind, changeType, path, () => action( this.Parent.Mock.File ) );
+        public void Execute( ExecutionKind executionKind, WatcherChangeTypes changeType, string path, Action<IFile> action, [CallerMemberName] string operation = "" )
+            => this.Execute( executionKind, changeType, path, () => action( this.Parent.Mock.File ), operation );
     }
 }
