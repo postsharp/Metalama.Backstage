@@ -12,12 +12,13 @@ using System;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
-using System.Runtime.CompilerServices;
 
 namespace Metalama.Backstage.Maintenance;
 
 public class TempFileManager : ITempFileManager
 {
+    private const string _cleanUpFileName = "cleanup.json";
+    
     private readonly CleanUpConfiguration _configuration;
     private readonly IFileSystem _fileSystem;
     private readonly ILogger _logger;
@@ -26,7 +27,6 @@ public class TempFileManager : ITempFileManager
     private readonly IConfigurationManager _configurationManager;
     private readonly BackstageBackgroundTasksService _backgroundTasksService;
     private readonly string _applicationVersion;
-
     private readonly string _backstageVersion;
 
     public TempFileManager( IServiceProvider serviceProvider )
@@ -82,7 +82,7 @@ public class TempFileManager : ITempFileManager
             }
 
             // Go through all cache directories in temp directory (i.e. CrashReports, ExtractExceptions, Logs etc.)
-            this.DeleteDirectoryRecursive( this._standardDirectories.TempDirectory, all );
+            this.CleanUpDirectory( this._standardDirectories.TempDirectory, all );
         }
         finally
         {
@@ -91,7 +91,7 @@ public class TempFileManager : ITempFileManager
         }
     }
 
-    private void DeleteDirectoryRecursive( string directory, bool all )
+    private void CleanUpDirectory( string directory, bool all )
     {
         if ( !this._fileSystem.DirectoryExists( directory ) )
         {
@@ -105,7 +105,7 @@ public class TempFileManager : ITempFileManager
             case CleanUpAction.CleanUpSubdirectories:
                 foreach ( var subdirectory in this._fileSystem.EnumerateDirectories( directory ) )
                 {
-                    this.DeleteDirectoryRecursive( subdirectory, all );
+                    this.CleanUpDirectory( subdirectory, all );
                     
                     // If the directory became empty, we delete it.
                     if ( this._fileSystem.IsDirectoryEmpty( directory ) )
@@ -138,7 +138,7 @@ public class TempFileManager : ITempFileManager
 
     private CleanUpAction GetCleanUpAction( string directory, bool all )
     {
-        var cleanUpFilePath = Path.Combine( directory, "cleanup.json" );
+        var cleanUpFilePath = Path.Combine( directory, _cleanUpFileName );
 
         if ( !this._fileSystem.FileExists( cleanUpFilePath ) )
         {
@@ -234,9 +234,7 @@ public class TempFileManager : ITempFileManager
     {
         if ( moveFirst )
         {
-#pragma warning disable CS8600 // Converting null literal or possible null value to non-nullable type.
-            if ( !this.TryMoveDirectory( directory, out directory ) )
-#pragma warning restore CS8600 // Converting null literal or possible null value to non-nullable type.
+            if ( !this.TryMoveDirectory( directory, out directory! ) )
             {
                 return;
             }
@@ -253,8 +251,8 @@ public class TempFileManager : ITempFileManager
             catch ( UnauthorizedAccessException )
             {
                 this._logger.Trace?.Log( $"Some files in the '{directory}' directory might be read-only. Resetting the flags." );
-                
-                foreach ( var file in this._fileSystem.GetFiles( directory, "*", SearchOption.AllDirectories ) )
+
+                foreach ( var file in this._fileSystem.EnumerateFiles( directory, "*", SearchOption.AllDirectories ) )
                 {
                     this._fileSystem.SetFileAttributes( file, FileAttributes.Normal );
                 }
@@ -268,7 +266,7 @@ public class TempFileManager : ITempFileManager
         {
             this._logger.Warning?.Log( $"Cannot delete '{directory}': {e.Message}" );
 
-            var cleanUpFilePath = Path.Combine( directory, "cleanup.json" );
+            var cleanUpFilePath = Path.Combine( directory, _cleanUpFileName );
 
             try
             {
@@ -329,7 +327,7 @@ public class TempFileManager : ITempFileManager
         
         foreach ( var file in this._fileSystem.GetFiles( directory ) )
         {
-            if ( Path.GetFileName( file ) == "cleanup.json" )
+            if ( Path.GetFileName( file ) == _cleanUpFileName )
             {
                 continue;
             }
@@ -389,7 +387,7 @@ public class TempFileManager : ITempFileManager
             version,
             subdirectory ?? "" );
 
-        var cleanUpFilePath = Path.Combine( directoryFullPath, "cleanup.json" );
+        var cleanUpFilePath = Path.Combine( directoryFullPath, _cleanUpFileName );
 
         if ( !this._fileSystem.DirectoryExists( directoryFullPath ) || !this._fileSystem.FileExists( cleanUpFilePath ) )
         {
