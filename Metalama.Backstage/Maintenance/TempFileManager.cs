@@ -12,6 +12,7 @@ using System;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
+using System.Runtime.CompilerServices;
 
 namespace Metalama.Backstage.Maintenance;
 
@@ -105,6 +106,12 @@ public class TempFileManager : ITempFileManager
                 foreach ( var subdirectory in this._fileSystem.EnumerateDirectories( directory ) )
                 {
                     this.DeleteDirectoryRecursive( subdirectory, all );
+                    
+                    // If the directory became empty, we delete it.
+                    if ( this._fileSystem.IsDirectoryEmpty( directory ) )
+                    {
+                        this.DeleteDirectory( directory, true );
+                    }
                 }
 
                 break;
@@ -123,12 +130,9 @@ public class TempFileManager : ITempFileManager
                 this.DeleteFilesOneMonthAfterCreation( directory );
 
                 break;
-        }
-        
-        // If the directory still exists and is empty, we delete it.
-        if ( this._fileSystem.DirectoryExists( directory ) && this._fileSystem.IsDirectoryEmpty( directory ) )
-        {
-            this.DeleteDirectory( directory, true );
+            
+            default:
+                throw new InvalidOperationException( $"Unknown clean-up action '{cleanUpAction}'." );
         }
     }
 
@@ -321,6 +325,8 @@ public class TempFileManager : ITempFileManager
 
     private void DeleteFilesOneMonthAfterCreation( string directory )
     {
+        var remainsAnyFile = false;
+        
         foreach ( var file in this._fileSystem.GetFiles( directory ) )
         {
             if ( Path.GetFileName( file ) == "cleanup.json" )
@@ -328,18 +334,38 @@ public class TempFileManager : ITempFileManager
                 continue;
             }
 
-            if ( this._fileSystem.GetFileLastWriteTime( file ) < this._time.Now.AddDays( -30 ) )
+            const int days = 30;
+            var lastWriteTime = this._fileSystem.GetFileLastWriteTime( file ); 
+
+            if ( lastWriteTime < this._time.Now.AddDays( -days ) )
             {
                 try
                 {
-                    this._logger.Trace?.Log( $"Deleting '{file}'." );
+                    this._logger.Trace?.Log( $"Deleting '{file}'. It has been last written more than {days} ago at {lastWriteTime:s}." );
                     this._fileSystem.DeleteFile( file );
                 }
                 catch ( Exception e )
                 {
                     this._logger.Warning?.Log( $"Cannot delete '{file}': {e.Message}" );
+                    remainsAnyFile = true;
                 }
             }
+            else
+            {
+                this._logger.Trace?.Log( $"Not deleting '{file}'. It has been last written less than {days} ago at {lastWriteTime:s}." );
+                remainsAnyFile = true;
+            }
+        }
+        
+        if ( remainsAnyFile )
+        {
+            this._logger.Trace?.Log( $"There are files remaining in the '{directory}' directory. The directory will not be deleted." );
+        }
+        else
+        {
+            this._logger.Trace?.Log( $"No files remained in the '{directory}' directory. The directory will be deleted." );
+                
+            this.DeleteDirectory( directory, true );
         }
     }
 
