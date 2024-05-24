@@ -70,7 +70,7 @@ namespace Metalama.Backstage.Diagnostics
             if ( this._disposing )
             {
                 this._backgroundTaskStatus = _inactiveStatus;
-                
+
                 return;
             }
 
@@ -176,10 +176,15 @@ namespace Metalama.Backstage.Diagnostics
 
         public void Dispose()
         {
-            this.Manager.RemoveLoggerFactory( this );
-            this._disposing = true;
+            // Make sure we write the lines that we already have.
             this.Flush();
+
+            // Stop accepting new lines. This also prevents queued records to be processed. 
+            this._disposing = true;
+
             this._textWriter?.Close();
+
+            this.Manager.RemoveLoggerFactory( this );
         }
     }
 }

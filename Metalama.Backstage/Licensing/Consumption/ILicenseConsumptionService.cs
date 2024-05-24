@@ -2,8 +2,9 @@
 
 using JetBrains.Annotations;
 using Metalama.Backstage.Extensibility;
+using Metalama.Backstage.Licensing.Consumption.Sources;
 using System;
-using System.Collections.Generic;
+using System.Collections.Immutable;
 
 namespace Metalama.Backstage.Licensing.Consumption
 {
@@ -13,21 +14,14 @@ namespace Metalama.Backstage.Licensing.Consumption
     [PublicAPI]
     public interface ILicenseConsumptionService : IBackstageService
     {
-        // Note that this collection of Messages is a design anomaly. We should have an Initialize method accepting a message sink,
-        // or something similar, but adding the initialization step would require more testing.
-
-        /// <summary>
-        /// Gets the list of licensing messages that have been emitted when calling <see cref="CanConsume"/> or when initializing the component.
-        /// </summary>
-        IReadOnlyList<LicensingMessage> Messages { get; }
-
-        /// <summary>
-        /// Provides information about availability of <paramref name="requirement"/>.
-        /// </summary>
-        /// <param name="requirement">The required license requirement.</param>
-        /// <param name="consumerNamespace">The consuming namespace, or <c>null</c> if this is a global feature.</param>
-        /// <returns>A value indicating if the <paramref name="requirement"/> is available.</returns>
-        bool CanConsume( LicenseRequirement requirement, string? consumerNamespace = null );
+        ILicenseConsumer CreateConsumer(
+            string? projectLicenseKey,
+            LicenseSourceKind ignoredLicenseKinds,
+            out ImmutableArray<LicensingMessage> messages );
+        
+        ILicenseConsumer CreateConsumer(
+            string? projectLicenseKey = null,
+            LicenseSourceKind ignoredLicenseKinds = LicenseSourceKind.None );
 
         /// <summary>
         /// Returns <c>true</c> when the <paramref name="redistributionLicenseKey"/> is a valid redistribution license key
@@ -36,18 +30,10 @@ namespace Metalama.Backstage.Licensing.Consumption
         /// <remarks>
         /// This method serves for validation of redistribution license keys embedded in referenced aspect libraries.
         /// </remarks>
-        bool ValidateRedistributionLicenseKey( string redistributionLicenseKey, string aspectClassNamespace );
-
-        bool IsTrialLicense { get; }
-
-        bool IsRedistributionLicense { get; }
-
-        string? LicenseString { get; }
+        bool TryValidateRedistributionLicenseKey( string redistributionLicenseKey, string aspectClassNamespace, out ImmutableArray<LicensingMessage> errors );
 
         event Action? Changed;
-
-        ILicenseConsumptionService WithAdditionalLicense( string? licenseKey, bool removeUserProfileLicenses = false );
-
-        ILicenseConsumptionService WithoutLicense();
     }
+
+    
 }

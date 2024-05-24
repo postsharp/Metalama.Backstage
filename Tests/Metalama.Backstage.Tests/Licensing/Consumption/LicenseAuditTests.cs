@@ -37,8 +37,8 @@ public class LicenseAuditTests : LicenseConsumptionManagerTestsBase
     private TestLicense CreateAndConsumeLicense( string licenseKey )
     {
         var license = this.CreateLicense( licenseKey );
-        var manager = this.CreateConsumptionManager( license );
-        Assert.True( manager.CanConsume( LicenseRequirement.Free ) );
+        var consumer = this.CreateConsumptionService( license ).CreateConsumer();
+        Assert.True( consumer.CanConsume( LicenseRequirement.Free ) );
 
         return license;
     }

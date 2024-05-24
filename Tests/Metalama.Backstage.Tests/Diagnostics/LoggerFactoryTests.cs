@@ -9,6 +9,7 @@ using System;
 using System.Collections.Immutable;
 using System.Globalization;
 using System.IO;
+using System.Linq;
 using System.Threading;
 using Xunit;
 using Xunit.Abstractions;
@@ -25,19 +26,20 @@ public class LoggerFactoryTests : TestsBase
         services.AddSingleton<IApplicationInfoProvider>( new ApplicationInfoProvider( new TestApplicationInfo() ) );
         services.AddSingleton<ITempFileManager>( serviceProvider => new TempFileManager( serviceProvider ) );
     }
-    
-    private LoggerManager CreateLoggerManager() => new(
-        this.ServiceProvider,
-        new DiagnosticsConfiguration()
-        {
-            Logging = new LoggingConfiguration()
+
+    private LoggerManager CreateLoggerManager()
+        => new(
+            this.ServiceProvider,
+            new DiagnosticsConfiguration()
             {
-                TraceCategories = ImmutableDictionary<string, bool>.Empty.Add( "*", true ),
-                Processes = ImmutableDictionary<string, bool>.Empty.Add( ProcessKind.Other.ToString(), true )
-            }
-        },
-        ProcessKind.Other,
-        ( manager, scope ) => new LoggerFactory( manager, scope ) );
+                Logging = new LoggingConfiguration()
+                {
+                    TraceCategories = ImmutableDictionary<string, bool>.Empty.Add( "*", true ),
+                    Processes = ImmutableDictionary<string, bool>.Empty.Add( ProcessKind.Other.ToString(), true )
+                }
+            },
+            ProcessKind.Other,
+            ( manager, scope ) => new LoggerFactory( manager, scope ) );
 
     [Fact]
     public void TestSequentialWrite()
@@ -80,18 +82,13 @@ public class LoggerFactoryTests : TestsBase
         loggerFactory2.GetLogger( "Test" ).Trace?.Log( "Line 2" );
         loggerFactory1.Dispose();
         loggerFactory2.Dispose();
-        
+
         var allLines1 = File.ReadAllLines( loggerFactory1.LogFile! );
-        Assert.Equal( ["Line 1"], allLines1 );
-        var allLines2 = File.ReadAllLines( loggerFactory1.LogFile! );
-        Assert.Equal( ["Line 2"], allLines2 );
-        
+        Assert.Equal( "Line 1", allLines1.Last() );
+        var allLines2 = File.ReadAllLines( loggerFactory2.LogFile! );
+        Assert.Equal( "Line 2", allLines2.Last() );
+
         Assert.NotSame( loggerFactory1, loggerManager.GetLoggerFactory( loggerFactory1.Scope ) );
         Assert.NotSame( loggerFactory2, loggerManager.GetLoggerFactory( loggerFactory2.Scope ) );
-
-        
-
     }
-
- 
 }

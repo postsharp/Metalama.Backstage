@@ -15,6 +15,8 @@ internal class UserProfileLicenseSource : LicenseSourceBase
 
     public override string Description => "user profile";
 
+    public override LicenseSourceKind Kind => LicenseSourceKind.UserProfile;
+
     public UserProfileLicenseSource( IServiceProvider services )
         : base( services )
     {

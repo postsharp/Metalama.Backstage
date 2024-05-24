@@ -15,6 +15,8 @@ namespace Metalama.Backstage.Licensing.Consumption.Sources
         /// </summary>
         string Description { get; }
 
+        LicenseSourceKind Kind { get; }
+
         /// <summary>
         /// Gets a license, if available and valid. <paramref name="reportMessage"/> is called when the license key is invalid.
         /// </summary>
@@ -26,11 +28,11 @@ namespace Metalama.Backstage.Licensing.Consumption.Sources
         /// Event raised when the current source has changed.
         /// </summary>
         event Action? Changed;
-        
+
         LicenseSourcePriority Priority { get; }
     }
 
-    public enum LicenseSourcePriority 
+    public enum LicenseSourcePriority
     {
         Unattended,
         Explicit,

@@ -5,10 +5,12 @@ using Metalama.Backstage.Configuration;
 using Metalama.Backstage.Extensibility;
 using Metalama.Backstage.Licensing;
 using Metalama.Backstage.Licensing.Consumption;
+using Metalama.Backstage.Licensing.Consumption.Sources;
 using Metalama.Backstage.Testing;
 using Metalama.Backstage.Tests.Extensibility;
 using Microsoft.Extensions.DependencyInjection;
 using System;
+using System.Collections.Generic;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -26,7 +28,11 @@ public class LicenseSourcePriorityTests : LicensingTestsBase
 
     protected override void ConfigureServices( ServiceProviderBuilder services ) { }
 
-    private ILicenseConsumptionService CreateConsumptionManager( bool isUnattendedProcess, string? projectLicense, string? userLicense, bool isPreview )
+    private (ILicenseConsumer Consumer, IReadOnlyList<LicensingMessage> Messages) CreateLicenseConsumer(
+        bool isUnattendedProcess,
+        string? projectLicense,
+        string? userLicense,
+        bool isPreview )
     {
         var serviceCollection = this.CloneServiceCollection();
 
@@ -50,21 +56,18 @@ public class LicenseSourcePriorityTests : LicensingTestsBase
 
         var options = new LicensingInitializationOptions();
 
-        var manager = LicenseConsumptionServiceFactory.Create( serviceProvider, options );
+        var service = LicenseConsumptionServiceFactory.Create( serviceProvider, options );
 
-        if ( projectLicense != null )
-        {
-            manager = manager.WithAdditionalLicense( projectLicense );
-        }
+        var consumer = service.CreateConsumer( projectLicense, LicenseSourceKind.None, out var messages );
 
-        return manager;
+        return (consumer, messages);
     }
 
     [Fact]
     public void NoMessageGivenWithNoLicense()
     {
-        var licenseConsumptionManager = this.CreateConsumptionManager( false, null, null, false );
-        Assert.False( licenseConsumptionManager.CanConsume( _testLicenseRequirement ) );
+        var licenseConsumptionManager = this.CreateLicenseConsumer( false, null, null, false );
+        Assert.False( licenseConsumptionManager.Consumer.CanConsume( _testLicenseRequirement ) );
         Assert.Empty( licenseConsumptionManager.Messages );
     }
 
@@ -72,24 +75,24 @@ public class LicenseSourcePriorityTests : LicensingTestsBase
     public void UnattendedLicenseHasHighestPriority()
     {
         // We don't pass an invalid project license, because project license disables unattended license.
-        var licenseConsumptionManager = this.CreateConsumptionManager( true, null, _invalidUserLicense, false );
-        Assert.True( licenseConsumptionManager.CanConsume( _testLicenseRequirement ) );
+        var licenseConsumptionManager = this.CreateLicenseConsumer( true, null, _invalidUserLicense, false );
+        Assert.True( licenseConsumptionManager.Consumer.CanConsume( _testLicenseRequirement ) );
         Assert.Empty( licenseConsumptionManager.Messages );
     }
 
     [Fact]
     public void ProjectLicenseHasPriorityOverUserLicense()
     {
-        var licenseConsumptionManager = this.CreateConsumptionManager( false, _invalidProjectLicense, _invalidUserLicense, false );
-        Assert.False( licenseConsumptionManager.CanConsume( _testLicenseRequirement ) );
+        var licenseConsumptionManager = this.CreateLicenseConsumer( false, _invalidProjectLicense, _invalidUserLicense, false );
+        Assert.False( licenseConsumptionManager.Consumer.CanConsume( _testLicenseRequirement ) );
         Assert.Contains( _invalidProjectLicense, licenseConsumptionManager.Messages[0].Text, StringComparison.OrdinalIgnoreCase );
     }
 
     [Fact]
     public void UserLicenseHasPriorityOverPreviewLicense()
     {
-        var licenseConsumptionManager = this.CreateConsumptionManager( false, null, _invalidUserLicense, true );
-        Assert.False( licenseConsumptionManager.CanConsume( _testLicenseRequirement ) );
+        var licenseConsumptionManager = this.CreateLicenseConsumer( false, null, _invalidUserLicense, true );
+        Assert.False( licenseConsumptionManager.Consumer.CanConsume( _testLicenseRequirement ) );
         Assert.Contains( _invalidUserLicense, licenseConsumptionManager.Messages[0].Text, StringComparison.OrdinalIgnoreCase );
     }
 }

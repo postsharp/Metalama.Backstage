@@ -13,6 +13,8 @@ namespace Metalama.Backstage.Licensing.Consumption.Sources
 
         public abstract string Description { get; }
 
+        public abstract LicenseSourceKind Kind { get; }
+
         protected LicenseSourceBase( IServiceProvider services )
         {
             this._services = services;
