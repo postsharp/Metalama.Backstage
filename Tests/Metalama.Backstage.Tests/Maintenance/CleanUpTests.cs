@@ -258,14 +258,69 @@ public class CleanUpTests : TestsBase
     [Fact]
     public void Clean_DeepDirectoryStructure()
     {
-        // Clean-up command should clean be able to clean the deep structured directories.
+        // Clean-up command should be able to clean the deep structured directories.
         var tempFileManager = new TempFileManager( this.ServiceProvider );
         tempFileManager.CleanTempDirectories( true );
 
         // Assert cleanup leaves no leftover cleanup files in deep directory structure.
         Assert.False( this.FileSystem.DirectoryExists( Path.Combine( this._standardDirectories.TempDirectory, "DeepDirectory" ) ) );
     }
-    
+
+    [Fact]
+    public void Clean_ReadOnlyFiles()
+    {
+        // Create a read-only file.
+        var directoryPath = Path.Combine( this._standardDirectories.TempDirectory, "CompileTime", "0.1.42-test" );
+        var readOnlyFilePath = Path.Combine( directoryPath, "ReadOnlyFile.txt" );
+        this.FileSystem.WriteAllText( readOnlyFilePath, "Test" );
+        this.FileSystem.SetFileAttributes( readOnlyFilePath, FileAttributes.ReadOnly );
+
+        // Clean-up command should be able to clean the read-only files.
+        var tempFileManager = new TempFileManager( this.ServiceProvider );
+        tempFileManager.CleanTempDirectories( true, true );
+
+        // Issue #34974: On Windows, the directory with a read-only file is allowed to be moved, but read-only file is disallowed to be deleted.
+        // Some files may get deleted before this is hit. We have the CleanUpFileIsNotRemovedOnFailure test for this scenario.
+        Assert.False( this.FileSystem.DirectoryExists( $"{directoryPath}0" ) );
+    }
+
+    [Fact]
+    public void CleanUpFileIsNotRemovedOnFailure()
+    {
+        var directoryPath = Path.Combine( this._standardDirectories.TempDirectory, "Logs", "0.1.42-test" );
+
+        // This file will remain in the directory after the failure.
+        this.FileSystem.WriteAllText( Path.Combine( directoryPath, "foo.bar" ), "Foo" );
+
+        var deleteDirectoryOperation = nameof(this.FileSystem.DeleteDirectory);
+        var newDirectoryPath = $"{directoryPath}0";
+
+        this.FileSystem.SetEvent(
+            deleteDirectoryOperation,
+            newDirectoryPath,
+            () =>
+            {
+                // The cleanup.json gets sometimes deleted first when deleting a directory, where some content fails to get deleted.
+                // We simulate this by deleting it manually.
+                this.FileSystem.DeleteFile( Path.Combine( newDirectoryPath, "cleanup.json" ) );
+
+                // Simulate a failure by throwing an exception. 
+                throw new UnauthorizedAccessException();
+            } );
+
+        var tempFileManager = new TempFileManager( this.ServiceProvider );
+        tempFileManager.CleanTempDirectories( true );
+
+        // The directory should have failed to delete.
+        Assert.True( this.FileSystem.DirectoryExists( newDirectoryPath ) );
+
+        // Retry the operation with no failure.
+        this.FileSystem.ResetEvent( deleteDirectoryOperation, newDirectoryPath );
+        tempFileManager.CleanTempDirectories( true );
+
+        Assert.False( this.FileSystem.DirectoryExists( newDirectoryPath ) );
+    }
+
     [Fact]
     public void IndividualFilesGetDeletedAfterOneMonth()
     {
