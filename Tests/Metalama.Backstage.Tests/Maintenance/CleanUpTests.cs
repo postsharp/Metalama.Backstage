@@ -25,7 +25,7 @@ public class CleanUpTests : TestsBase
         { "AssemblyLocator", CleanUpStrategy.WhenUnused },
         { "CompileTime", CleanUpStrategy.WhenUnused },
         { "CompileTimeTroubleshooting", CleanUpStrategy.Always },
-        { "CrashReports", CleanUpStrategy.Always },
+        { "CrashReports", CleanUpStrategy.FileOneMonthAfterCreation },
         { "Extract", CleanUpStrategy.None },
         { "Logs", CleanUpStrategy.Always },
         { "Preview", CleanUpStrategy.WhenUnused },
@@ -143,7 +143,9 @@ public class CleanUpTests : TestsBase
                     break;
 
                 case CleanUpStrategy.Always:
+                case CleanUpStrategy.FileOneMonthAfterCreation:
                     // Assert always cleaned directories are empty.
+                    // Assert the same for FileOneMonthAfterCreation - this strategy is tested by IndividualFilesGetDeletedAfterOneMonth test.
                     Assert.False( this.FileSystem.DirectoryExists( cacheDirectoryPath ) );
 
                     break;
@@ -175,7 +177,9 @@ public class CleanUpTests : TestsBase
             {
                 case CleanUpStrategy.WhenUnused:
                 case CleanUpStrategy.Always:
+                case CleanUpStrategy.FileOneMonthAfterCreation:
                     // Assert always cleaned directories and outdated directories are empty.
+                    // Assert the same for FileOneMonthAfterCreation - this strategy is tested by IndividualFilesGetDeletedAfterOneMonth test.
                     Assert.False( this.FileSystem.DirectoryExists( cacheDirectoryPath ) );
 
                     break;
@@ -213,7 +217,9 @@ public class CleanUpTests : TestsBase
                     break;
 
                 case CleanUpStrategy.Always:
+                case CleanUpStrategy.FileOneMonthAfterCreation:
                     // Assert always cleaned directories are empty.
+                    // Assert the same for FileOneMonthAfterCreation - this strategy is tested by IndividualFilesGetDeletedAfterOneMonth test.
                     Assert.False( this.FileSystem.DirectoryExists( cacheDirectoryPath ) );
 
                     break;
@@ -257,5 +263,22 @@ public class CleanUpTests : TestsBase
 
         // Assert cleanup leaves no leftover cleanup files in deep directory structure.
         Assert.False( this.FileSystem.DirectoryExists( Path.Combine( this._standardDirectories.TempDirectory, "DeepDirectory" ) ) );
+    }
+    
+    [Fact]
+    public void IndividualFilesGetDeletedAfterOneMonth()
+    {
+        var directoryPath = Path.Combine( this._standardDirectories.TempDirectory, "CrashReports", "0.1.42-test" );
+        var oldFilePath = Path.Combine( directoryPath, "oldFile.txt" );
+        var newFilePath = Path.Combine( directoryPath, "newFile.txt" );
+        this.FileSystem.WriteAllText( oldFilePath, "Old" );
+        this.Time.AddTime( TimeSpan.FromDays( 32 ) );
+        this.FileSystem.WriteAllText( newFilePath, "New" );
+
+        var tempFileManager = new TempFileManager( this.ServiceProvider );
+        tempFileManager.CleanTempDirectories( true );
+
+        Assert.False( this.FileSystem.FileExists( oldFilePath ) );
+        Assert.True( this.FileSystem.FileExists( newFilePath ) );
     }
 }
