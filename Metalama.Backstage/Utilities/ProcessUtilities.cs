@@ -263,7 +263,7 @@ public static class ProcessUtilities
 
     private static bool IsRunningInDockerContainer( ILogger logger )
     {
-        // If the process is running inside a Docker container,
+        // If the process is running inside a Docker container
         // init (pid '1') process control group collection will have /docker/ as a part of the groups hierarchies.
         string? processesControlGroup = null;
         var controlGroupFile = "/proc/1/cgroup";
