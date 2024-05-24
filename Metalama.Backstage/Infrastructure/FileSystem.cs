@@ -47,6 +47,18 @@ namespace Metalama.Backstage.Infrastructure
         }
 
         /// <inheritdoc />
+        public FileAttributes GetFileAttributes( string path )
+        {
+            return File.GetAttributes( path );
+        }
+
+        /// <inheritdoc />
+        public void SetFileAttributes( string path, FileAttributes fileAttributes )
+        {
+            File.SetAttributes( path, fileAttributes );
+        }
+
+        /// <inheritdoc />
         public bool DirectoryExists( string path )
         {
             return Directory.Exists( path );

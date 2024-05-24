@@ -27,5 +27,11 @@ public enum CleanUpStrategy
     /// <summary>
     /// Individual files are cleaned up one month after they have been created.
     /// </summary>
-    FileOneMonthAfterCreation
+    FileOneMonthAfterCreation = 3,
+    
+    /// <summary>
+    /// The whole directory is deleted every time the clean up command is executed.
+    /// The directory is not moved before deleting.
+    /// </summary>
+    AlwaysNoMove = 4
 }

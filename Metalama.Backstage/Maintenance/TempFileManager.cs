@@ -9,6 +9,7 @@ using Metalama.Backstage.Licensing;
 using Metalama.Backstage.Utilities;
 using Newtonsoft.Json;
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 
@@ -95,49 +96,62 @@ public class TempFileManager : ITempFileManager
         {
             return;
         }
+        
+        var cleanUpAction = this.GetCleanUpAction( directory, all );
 
-        // Delete the directory if it contains cleanup.json and the cleanup policy requires it.
-        if ( this.MustDeleteDirectory( directory, all ) )
+        switch ( cleanUpAction )
         {
-            this.DeleteDirectory( directory );
+            case CleanUpAction.CleanUpSubdirectories:
+                foreach ( var subdirectory in this._fileSystem.EnumerateDirectories( directory ) )
+                {
+                    this.DeleteDirectoryRecursive( subdirectory, all );
+                }
+
+                break;
+            
+            case CleanUpAction.DeleteDirectory:
+                this.DeleteDirectory( directory, false );
+
+                break;
+            
+            case CleanUpAction.MoveAndDeleteDirectory:
+                this.DeleteDirectory( directory, true );
+
+                break;
+            
+            case CleanUpAction.DeleteFileOneMonthAfterCreationFirst:
+                this.DeleteFilesOneMonthAfterCreation( directory );
+
+                break;
         }
-        else
+        
+        // If the directory still exists and is empty, we delete it.
+        if ( this._fileSystem.DirectoryExists( directory ) && this._fileSystem.IsDirectoryEmpty( directory ) )
         {
-            // Process subdirectories. There are subdirectories after the previous step when the directory does not contain cleanup.json.
-            foreach ( var subdirectory in this._fileSystem.EnumerateDirectories( directory ) )
-            {
-                this.DeleteDirectoryRecursive( subdirectory, all );
-            }
-
-            // If the directory became empty, we delete it.
-            if ( this._fileSystem.IsDirectoryEmpty( directory ) )
-            {
-                this.DeleteDirectory( directory );
-            }
+            this.DeleteDirectory( directory, true );
         }
     }
 
-    private bool MustDeleteDirectory( string directory, bool all )
+    private CleanUpAction GetCleanUpAction( string directory, bool all )
     {
         var cleanUpFilePath = Path.Combine( directory, "cleanup.json" );
 
-        // If we find the cleanup file in directory, the directory will be deleted.
         if ( !this._fileSystem.FileExists( cleanUpFilePath ) )
         {
             if ( !all )
             {
-                return false;
+                return CleanUpAction.CleanUpSubdirectories;
             }
             else
             {
                 // When we delete all files, we only delete leave directories, so we delete them depth-first.
-                return !this._fileSystem.GetDirectories( directory ).Any();
+                return this._fileSystem.GetDirectories( directory ).Any() ? CleanUpAction.CleanUpSubdirectories : CleanUpAction.MoveAndDeleteDirectory;
             }
         }
 
         if ( all )
         {
-            return true;
+            return CleanUpAction.MoveAndDeleteDirectory;
         }
         else
         {
@@ -151,95 +165,182 @@ public class TempFileManager : ITempFileManager
             }
             catch ( JsonException e )
             {
-                this._logger.Error?.Log( $"Cannot deserialize '{jsonFileContent}': {e.Message}" );
+                this._logger.Error?.Log( $"Cannot deserialize '{jsonFileContent}' from '{cleanUpFilePath}': {e.Message}" );
 
-                return false;
+                return CleanUpAction.CleanUpSubdirectories;
             }
 
-            if ( cleanUpFile != null )
+            if ( cleanUpFile == null )
             {
-                var lastWriteTime = this._fileSystem.GetFileLastWriteTime( cleanUpFilePath );
+                this._logger.Error?.Log( $"Cannot deserialize '{jsonFileContent}' from '{cleanUpFilePath}': the file is empty." );
 
-                if ( cleanUpFile.Strategy == CleanUpStrategy.Always
-                     || (cleanUpFile.Strategy == CleanUpStrategy.WhenUnused && lastWriteTime < DateTime.Now.AddDays( -7 )) )
-                {
-                    return true;
-                }
-                else if ( cleanUpFile.Strategy == CleanUpStrategy.FileOneMonthAfterCreation )
-                {
-                    var remainsAnyFile = false;
+                return CleanUpAction.CleanUpSubdirectories;
+            }
 
-                    foreach ( var file in this._fileSystem.GetFiles( directory ) )
+            switch ( cleanUpFile.Strategy )
+            {
+                case CleanUpStrategy.None:
+                    this._logger.Trace?.Log( $"The '{directory}' directory clean-up strategy has been set to '{nameof(CleanUpStrategy.None)}'. The directory will not be deleted." );
+                    
+                    return CleanUpAction.CleanUpSubdirectories;
+                
+                case CleanUpStrategy.Always:
+                    this._logger.Trace?.Log( $"The '{directory}' directory clean-up strategy has been set to '{nameof(CleanUpStrategy.Always)}'. The directory will be deleted." );
+                    
+                    return CleanUpAction.MoveAndDeleteDirectory;
+                
+                case CleanUpStrategy.AlwaysNoMove:
+                    this._logger.Trace?.Log( $"The '{directory}' directory clean-up strategy has been set to '{nameof(CleanUpStrategy.AlwaysNoMove)}'. This is a new location of a directory that has previously failed to delete. The directory will be deleted." );
+                    
+                    return CleanUpAction.DeleteDirectory;
+                
+                case CleanUpStrategy.WhenUnused:
+                    var lastWriteTime = this._fileSystem.GetFileLastWriteTime( cleanUpFilePath );
+                    const int days = 7;
+
+                    if ( lastWriteTime < DateTime.Now.AddDays( -days ) )
                     {
-                        if ( file == cleanUpFilePath )
-                        {
-                            continue;
-                        }
-
-                        if ( this._fileSystem.GetFileLastWriteTime( file ) < DateTime.Now.AddDays( -30 ) )
-                        {
-                            try
-                            {
-                                this._logger.Trace?.Log( $"Deleting '{file}'." );
-                            }
-                            catch ( Exception e )
-                            {
-                                this._logger.Warning?.Log( $"Cannot delete '{file}': {e.Message}" );
-                                remainsAnyFile = true;
-                            }
-                        }
-                        else
-                        {
-                            remainsAnyFile = true;
-                        }
+                        this._logger.Trace?.Log(
+                            $"The '{directory}' directory clean-up strategy has been set to '{nameof(CleanUpStrategy.WhenUnused)}' and the directory hasn't been used for more than {days} days since {lastWriteTime:s}. The directory will be deleted." );
+                        
+                        return CleanUpAction.MoveAndDeleteDirectory;
                     }
+                    else
+                    {
+                        this._logger.Trace?.Log(
+                            $"The '{directory}' directory clean-up strategy has been set to '{nameof(CleanUpStrategy.WhenUnused)}' and the directory hasn't been used for less than {days} days since {lastWriteTime:s}. The directory will not be deleted." );
+                        
+                        return CleanUpAction.CleanUpSubdirectories;
+                    }
+                
+                case CleanUpStrategy.FileOneMonthAfterCreation:
+                    this._logger.Trace?.Log( $"The '{directory}' directory clean-up strategy has been set to '{nameof(CleanUpStrategy.FileOneMonthAfterCreation)}'. The individual files in the directory will be cleaned up." );
+                    
+                    return CleanUpAction.DeleteFileOneMonthAfterCreationFirst;
 
-                    return !remainsAnyFile;
-                }
-                else
-                {
-                    this._logger.Trace?.Log( $"The directory '{directory}' has been recently used and will not be deleted unless you use the --all option." );
-
-                    return false;
-                }
-            }
-            else
-            {
-                this._logger.Error?.Log( $"Cannot deserialize '{jsonFileContent}': the file is empty." );
-
-                return false;
+                default:
+                    this._logger.Warning?.Log( $"The '{directory}' directory clean-up strategy '{cleanUpFile.Strategy}' is unknown. The directory will not be deleted." );
+                    
+                    return CleanUpAction.CleanUpSubdirectories;
             }
         }
     }
 
-    private void DeleteDirectory( string directory )
+    private void DeleteDirectory( string directory, bool moveFirst )
     {
-        this._logger.Trace?.Log( $"Deleting '{directory}'." );
-
-        for ( var i = 0; i < 100; i++ )
+        if ( moveFirst )
         {
-            var newName = directory + i;
-
-            if ( !this._fileSystem.DirectoryExists( newName ) )
+#pragma warning disable CS8600 // Converting null literal or possible null value to non-nullable type.
+            if ( !this.TryMoveDirectory( directory, out directory ) )
+#pragma warning restore CS8600 // Converting null literal or possible null value to non-nullable type.
             {
-                try
-                {
-                    this._fileSystem.MoveDirectory( directory, newName );
-                    this._fileSystem.DeleteDirectory( newName, true );
-                }
-                catch ( Exception e )
-                {
-                    this._logger.Warning?.Log( $"Cannot delete '{directory}': {e.Message}" );
-
-                    return;
-                }
-
                 return;
             }
         }
 
+        this._logger.Trace?.Log( $"Deleting '{directory}' directory." );
+
+        try
+        {
+            try
+            {
+                this._fileSystem.DeleteDirectory( directory, true );
+            }
+            catch ( UnauthorizedAccessException )
+            {
+                this._logger.Trace?.Log( $"Some files in the '{directory}' directory might be read-only. Resetting the flags." );
+                
+                foreach ( var file in this._fileSystem.GetFiles( directory, "*", SearchOption.AllDirectories ) )
+                {
+                    this._fileSystem.SetFileAttributes( file, FileAttributes.Normal );
+                }
+
+                this._logger.Trace?.Log( $"Retrying to delete '{directory}' directory." );
+                
+                this._fileSystem.DeleteDirectory( directory, true );
+            }
+        }
+        catch ( Exception e )
+        {
+            this._logger.Warning?.Log( $"Cannot delete '{directory}': {e.Message}" );
+
+            var cleanUpFilePath = Path.Combine( directory, "cleanup.json" );
+
+            try
+            {
+                // Deleting the directory failed, we set it to be deleted next time.
+                // We avoid moving the directory again, because that would lead to a too long path after multiple retries
+                // and another move is not necessary anyway.
+                // Writing the cleanup file also solves the problem where some content of the directory fails to get deleted,
+                // but the cleanup file gets deleted before the failure.
+
+                var cleanUpFile = new CleanUpFile() { Strategy = CleanUpStrategy.AlwaysNoMove };
+                this._fileSystem.WriteAllText( cleanUpFilePath, JsonConvert.SerializeObject( cleanUpFile ) );
+            }
+            catch ( Exception e2 )
+            {
+                this._logger.Warning?.Log( $"Failed to write '{cleanUpFilePath}' after failed deletion of '{directory}': {e2.Message}" );
+            }
+        }
+    }
+
+    private bool TryMoveDirectory( string sourcePath, [NotNullWhen(true)] out string? targetPath )
+    {
+        this._logger.Trace?.Log( $"Moving '{sourcePath}'." );
+
+        for ( var i = 0; i < 100; i++ )
+        {
+            targetPath = sourcePath + i;
+
+            if ( !this._fileSystem.DirectoryExists( targetPath ) )
+            {
+                try
+                {
+                    this._fileSystem.MoveDirectory( sourcePath, targetPath );
+                }
+                catch ( Exception e )
+                {
+                    this._logger.Warning?.Log( $"Cannot move '{sourcePath}' to '{targetPath}': {e.Message}" );
+
+                    return false;
+                }
+                
+                this._logger.Trace?.Log( $"Directory '{sourcePath}' moved to '{targetPath}'." );
+
+                return true;
+            }
+        }
+
         this._logger.Warning?.Log(
-            $"Directory '{directory}' could not be renamed, this is likely caused by another directory with same name exists in the same location." );
+            $"Directory '{sourcePath}' could not be moved, this is likely caused by another directory with same name exists in the same location." );
+
+        targetPath = null;
+        
+        return false;
+    }
+    
+    private void DeleteFilesOneMonthAfterCreation( string directory )
+    {
+        foreach ( var file in this._fileSystem.GetFiles( directory ) )
+        {
+            if ( Path.GetFileName( file ) == "cleanup.json" )
+            {
+                continue;
+            }
+
+            if ( this._fileSystem.GetFileLastWriteTime( file ) < this._time.Now.AddDays( -30 ) )
+            {
+                try
+                {
+                    this._logger.Trace?.Log( $"Deleting '{file}'." );
+                    this._fileSystem.DeleteFile( file );
+                }
+                catch ( Exception e )
+                {
+                    this._logger.Warning?.Log( $"Cannot delete '{file}': {e.Message}" );
+                }
+            }
+        }
     }
 
     public string GetTempDirectory(
