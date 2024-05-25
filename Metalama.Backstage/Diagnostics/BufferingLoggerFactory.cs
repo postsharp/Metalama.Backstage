@@ -1,5 +1,6 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. See the LICENSE.md file in the root directory of this repository root for details.
 
+using Metalama.Backstage.Utilities;
 using System;
 using System.Collections.Concurrent;
 
@@ -15,21 +16,10 @@ internal class BufferingLoggerFactory : ILoggerFactory
     private readonly ConcurrentDictionary<string, ILogger> _loggers = new();
 
     // Always enabled because we don't have the configuration yet.
-    public bool IsEnabled => true;
 
-    public void Dispose() { }
+    public IDisposable EnterScope( string scope ) => default(DisposableAction);
 
-    public ILogger GetLogger( string category )
-    {
-        if ( this.IsEnabled )
-        {
-            return this._loggers.GetOrAdd( category, c => new Logger( this, c ) );
-        }
-        else
-        {
-            return NullLogger.Instance;
-        }
-    }
+    public ILogger GetLogger( string category ) => this._loggers.GetOrAdd( category, c => new Logger( this, c ) );
 
     public void Replay( ILoggerFactory loggerFactory )
     {
@@ -40,10 +30,6 @@ internal class BufferingLoggerFactory : ILoggerFactory
     }
 
     void ILoggerFactory.Flush() { }
-
-    public string Scope => "";
-
-    public ILoggerFactory ForScope( string name ) => throw new NotSupportedException();
 
     private class Logger : ILogger
     {

@@ -6,6 +6,7 @@ using Metalama.Backstage.Extensibility;
 using Metalama.Backstage.Maintenance;
 using Metalama.Backstage.Testing;
 using System;
+using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Globalization;
 using System.IO;
@@ -27,7 +28,7 @@ public class LoggerFactoryTests : TestsBase
         services.AddSingleton<ITempFileManager>( serviceProvider => new TempFileManager( serviceProvider ) );
     }
 
-    private LoggerManager CreateLoggerManager()
+    private LoggerFactory CreateLoggerFactory()
         => new(
             this.ServiceProvider,
             new DiagnosticsConfiguration()
@@ -38,17 +39,16 @@ public class LoggerFactoryTests : TestsBase
                     Processes = ImmutableDictionary<string, bool>.Empty.Add( ProcessKind.Other.ToString(), true )
                 }
             },
-            ProcessKind.Other,
-            ( manager, scope ) => new LoggerFactory( manager, scope ) );
+            ProcessKind.Other );
 
     [Fact]
     public void TestSequentialWrite()
     {
         this.Time.Set( new DateTime( 1978, 6, 16 ) );
 
-        var loggerManager = this.CreateLoggerManager();
-
-        var loggerFactory = (LoggerFactory) loggerManager.GetLoggerFactory( Guid.NewGuid().ToString() );
+        var loggerFactory = this.CreateLoggerFactory();
+        List<string> files = [];
+        loggerFactory.FileCreated += files.Add;
 
         var logger = loggerFactory.GetLogger( "Test" );
 
@@ -65,9 +65,10 @@ public class LoggerFactoryTests : TestsBase
             }
         }
 
+        var file = files.Single();
         loggerFactory.Close();
 
-        var allLines = File.ReadAllLines( loggerFactory.LogFile! );
+        var allLines = File.ReadAllLines( file );
 
         Assert.Equal( n, allLines.Length );
     }
@@ -75,20 +76,26 @@ public class LoggerFactoryTests : TestsBase
     [Fact]
     public void TestScope()
     {
-        var loggerManager = this.CreateLoggerManager();
-        var loggerFactory1 = (LoggerFactory) loggerManager.GetLoggerFactory( Guid.NewGuid().ToString() );
-        var loggerFactory2 = (LoggerFactory) loggerManager.GetLoggerFactory( Guid.NewGuid().ToString() );
-        loggerFactory1.GetLogger( "Test" ).Trace?.Log( "Line 1" );
-        loggerFactory2.GetLogger( "Test" ).Trace?.Log( "Line 2" );
-        loggerFactory1.Dispose();
-        loggerFactory2.Dispose();
+        var loggerFactory = this.CreateLoggerFactory();
 
-        var allLines1 = File.ReadAllLines( loggerFactory1.LogFile! );
-        Assert.Equal( "Line 1", allLines1.Last() );
-        var allLines2 = File.ReadAllLines( loggerFactory2.LogFile! );
-        Assert.Equal( "Line 2", allLines2.Last() );
+        List<string> files = [];
+        loggerFactory.FileCreated += files.Add;
 
-        Assert.NotSame( loggerFactory1, loggerManager.GetLoggerFactory( loggerFactory1.Scope ) );
-        Assert.NotSame( loggerFactory2, loggerManager.GetLoggerFactory( loggerFactory2.Scope ) );
+        using ( loggerFactory.EnterScope( "Scope1" ) )
+        {
+            loggerFactory.GetLogger( "Test" ).Trace?.Log( "InScope1" );
+        }
+
+        using ( loggerFactory.EnterScope( "Scope2" ) )
+        {
+            loggerFactory.GetLogger( "Test" ).Trace?.Log( "InScope2" );
+        }
+
+        loggerFactory.Close();
+
+        var allLines1 = File.ReadAllLines( files.Single( f => f.ContainsOrdinal( "Scope1" ) ) );
+        Assert.Contains( "InScope1", allLines1.Last(), StringComparison.Ordinal );
+        var allLines2 = File.ReadAllLines( files.Single( f => f.ContainsOrdinal( "Scope2" ) ) );
+        Assert.Contains( "InScope2", allLines2.Last(), StringComparison.Ordinal );
     }
 }

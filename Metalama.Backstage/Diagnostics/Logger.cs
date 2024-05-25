@@ -19,7 +19,7 @@ internal class Logger : ILogger
         this.Warning = this.CreateLogWriter( "WARNING" );
         this.Info = this.CreateLogWriter( "INFO" );
 
-        if ( this.LoggerFactory.Manager.Configuration.Logging.IsTraceCategoryEnabled( category ) )
+        if ( this.LoggerFactory.Configuration.Logging.IsTraceCategoryEnabled( category ) )
         {
             this.Trace = this.CreateLogWriter( "TRACE" );
         }

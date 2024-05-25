@@ -5,22 +5,12 @@ using System;
 
 namespace Metalama.Backstage.Diagnostics
 {
-    public interface ILoggerFactory : IDisposable, IBackstageService
+    public interface ILoggerFactory : IBackstageService
     {
         ILogger GetLogger( string category );
 
         void Flush();
 
-        /// <summary>
-        /// Gets the scope (typically the project name), or an empty string if there is no scope.
-        /// </summary>
-        string Scope { get; }
-
-        ILoggerFactory ForScope( string name );
-
-        /// <summary>
-        /// Gets a value indicating whether logging is enabled for the current process.
-        /// </summary>
-        bool IsEnabled { get; }
+        IDisposable EnterScope( string scope );
     }
 }

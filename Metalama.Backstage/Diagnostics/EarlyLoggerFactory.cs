@@ -1,5 +1,6 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. See the LICENSE.md file in the root directory of this repository root for details.
 
+using Metalama.Backstage.Utilities;
 using System;
 using System.Collections.Concurrent;
 
@@ -38,17 +39,11 @@ internal class EarlyLoggerFactory : ILoggerFactory
         }
     }
 
-    public void Dispose() => this.LoggerFactory.Dispose();
-
     public ILogger GetLogger( string category ) => this._loggers.GetOrAdd( category, c => new Logger( this.LoggerFactory.GetLogger( c ) ) );
 
     public void Flush() { }
 
-    public string Scope => "";
-
-    public ILoggerFactory ForScope( string name ) => throw new NotSupportedException();
-
-    public bool IsEnabled => this.LoggerFactory.IsEnabled;
+    public IDisposable EnterScope( string scope ) => default(DisposableAction);
 
     private class Logger : ILogger
     {

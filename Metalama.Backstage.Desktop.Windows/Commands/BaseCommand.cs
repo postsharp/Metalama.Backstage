@@ -12,7 +12,7 @@ public abstract class BaseCommand<T> : Command<T>
     public override int Execute( CommandContext context, T settings )
     {
         var serviceProvider = App.GetBackstageServices( settings );
-        using var loggerFactory = serviceProvider.GetLoggerFactory();
+        var loggerFactory = serviceProvider.GetLoggerFactory();
         var logger = loggerFactory.GetLogger( this.GetType().Name );
         logger.Info?.Log( $"Executing command {this.GetType().Name}" );
 

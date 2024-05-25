@@ -73,9 +73,8 @@ internal static class Program
         {
             try
             {
-                // Close logs.
-                // Logging has to be disposed as the last one, so it could be used until now.
-                serviceProvider.GetLoggerFactory().Dispose();
+                // Flush logs. They will be closed when the program exits.
+                serviceProvider.GetLoggerFactory().Flush();
             }
             catch ( Exception e )
             {

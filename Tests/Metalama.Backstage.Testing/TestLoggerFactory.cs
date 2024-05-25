@@ -2,6 +2,7 @@
 
 using JetBrains.Annotations;
 using Metalama.Backstage.Diagnostics;
+using Metalama.Backstage.Utilities;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -41,11 +42,7 @@ public class TestLoggerFactory : ILoggerFactory
 
     public void Flush() { }
 
-    public string Scope => "";
-
-    public ILoggerFactory ForScope( string name ) => throw new NotSupportedException();
-
-    public bool IsEnabled => true;
+    public IDisposable EnterScope( string scope ) => default(DisposableAction);
 
     private class Logger : ILogger
     {

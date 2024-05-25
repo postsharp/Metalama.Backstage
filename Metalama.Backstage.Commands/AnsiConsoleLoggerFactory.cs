@@ -1,6 +1,7 @@
 // Copyright (c) SharpCrafters s.r.o. See the LICENSE.md file in the root directory of this repository root for details.
 
 using Metalama.Backstage.Diagnostics;
+using Metalama.Backstage.Utilities;
 using System;
 
 namespace Metalama.Backstage.Commands;
@@ -24,17 +25,14 @@ internal class AnsiConsoleLoggerFactory : ILoggerFactory, ILogger
         }
     }
 
-    public void Dispose() { }
 
     public ILogger GetLogger( string category ) => this;
 
     void ILoggerFactory.Flush() { }
 
-    public string Scope => "";
-
     public ILoggerFactory ForScope( string name ) => throw new NotSupportedException();
 
-    public bool IsEnabled => true;
+    public IDisposable EnterScope( string scope ) => default( DisposableAction );
 
     private class LogWriter : ILogWriter
     {

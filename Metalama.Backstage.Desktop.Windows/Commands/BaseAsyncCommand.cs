@@ -13,7 +13,7 @@ public abstract class BaseAsyncCommand<T> : AsyncCommand<T>
     public override async Task<int> ExecuteAsync( CommandContext context, T settings )
     {
         var serviceProvider = App.GetBackstageServices( settings );
-        using var loggerFactory = serviceProvider.GetLoggerFactory();
+        var loggerFactory = serviceProvider.GetLoggerFactory();
         var logger = loggerFactory.GetLogger( this.GetType().Name );
         logger.Info?.Log( $"Executing command {this.GetType().Name}" );
 

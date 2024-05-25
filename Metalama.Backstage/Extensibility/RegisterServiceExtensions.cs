@@ -73,13 +73,10 @@ public static class RegisterServiceExtensions
 
                 var applicationInfo = serviceProvider.GetRequiredBackstageService<IApplicationInfoProvider>().CurrentApplication;
 
-                var loggerFactoryManager = new LoggerManager(
+                var loggerFactory = new LoggerFactory(
                     serviceProvider,
                     configuration,
-                    applicationInfo.ProcessKind,
-                    ( manager, scope ) => new LoggerFactory( manager, scope ) );
-
-                var loggerFactory = loggerFactoryManager.GetLoggerFactory( "" );
+                    applicationInfo.ProcessKind );
 
                 serviceProvider.GetBackstageService<EarlyLoggerFactory>()?.Replace( loggerFactory );
 
