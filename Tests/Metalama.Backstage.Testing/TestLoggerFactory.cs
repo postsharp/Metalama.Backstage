@@ -35,9 +35,7 @@ public class TestLoggerFactory : ILoggerFactory
     }
 
     public IReadOnlyList<Entry> Entries => this._entries;
-
-    public void Dispose() { }
-
+    
     public ILogger GetLogger( string category ) => this._loggers.GetOrAdd( category, c => new Logger( c, this ) );
 
     public void Flush() { }

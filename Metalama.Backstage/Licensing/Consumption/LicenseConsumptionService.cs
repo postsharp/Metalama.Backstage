@@ -51,13 +51,13 @@ internal class LicenseConsumptionService : ILicenseConsumptionService
         return LicenseConsumer.Create( this._services, sources, out messages );
     }
 
-    public ILicenseConsumer CreateConsumer( string? projectLicenseKey = null, LicenseSourceKind ignoredLicenseKinds = LicenseSourceKind.None ) => this.CreateConsumer( projectLicenseKey, ignoredLicenseKinds, out _ );
+    public ILicenseConsumer CreateConsumer( string? projectLicenseKey = null, LicenseSourceKind ignoredLicenseKinds = LicenseSourceKind.None )
+        => this.CreateConsumer( projectLicenseKey, ignoredLicenseKinds, out _ );
 
-    public bool TryValidateRedistributionLicenseKey( string redistributionLicenseKey, string aspectClassNamespace, out ImmutableArray<LicensingMessage> errors ) 
+    public bool TryValidateRedistributionLicenseKey( string redistributionLicenseKey, string aspectClassNamespace, out ImmutableArray<LicensingMessage> errors )
     {
         if ( !this._embeddedRedistributionLicensesCache.TryGetValue( redistributionLicenseKey, out var licensedNamespace ) )
         {
-            
             if ( !this._licenseFactory.TryCreate( redistributionLicenseKey, out var license, out var errorMessage ) )
             {
                 errors = ImmutableArray.Create( new LicensingMessage( errorMessage ) { IsError = true } );
@@ -70,7 +70,6 @@ internal class LicenseConsumptionService : ILicenseConsumptionService
                 errors = ImmutableArray.Create( new LicensingMessage( errorMessage ) { IsError = true } );
 
                 return false;
-
             }
 
             if ( !licenseConsumptionData.IsRedistributable )
@@ -92,6 +91,7 @@ internal class LicenseConsumptionService : ILicenseConsumptionService
         }
 
         errors = ImmutableArray<LicensingMessage>.Empty;
+
         return licensedNamespace.AllowsNamespace( aspectClassNamespace );
     }
 

@@ -41,6 +41,8 @@ namespace Metalama.Backstage.Diagnostics
 
         public ProcessKind ProcessKind { get; }
 
+        public bool IsEnabled => this.LogDirectory != null;
+
         public IDisposable EnterScope( string scope )
         {
             var previousScope = LoggingContext.Current.Value;
@@ -56,19 +58,26 @@ namespace Metalama.Backstage.Diagnostics
 
         public ILogger GetLogger( string category )
         {
-            if ( this._loggers.TryGetValue( category, out var logger ) )
+            if ( this.IsEnabled )
             {
-                return logger;
+                if ( this._loggers.TryGetValue( category, out var logger ) )
+                {
+                    return logger;
+                }
+                else
+                {
+                    logger = new Logger( this, category );
+
+                    return this._loggers.GetOrAdd( category, logger );
+                }
             }
             else
             {
-                logger = new Logger( this, category );
-
-                return this._loggers.GetOrAdd( category, logger );
+                return NullLogger.Instance;
             }
         }
 
-        public LogFileWriter GetLogFileWriter() => this.GetLogFileWriter( LoggingContext.Current.Value.Scope );
+        public LogFileWriter GetLogFileWriter() => this.GetLogFileWriter( LoggingContext.Current.Value?.Scope ?? "" );
 
         // Used for testing.
         internal event Action<string>? FileCreated;

@@ -18,7 +18,7 @@ namespace Metalama.Backstage.Licensing.Consumption
             string? projectLicenseKey,
             LicenseSourceKind ignoredLicenseKinds,
             out ImmutableArray<LicensingMessage> messages );
-        
+
         ILicenseConsumer CreateConsumer(
             string? projectLicenseKey = null,
             LicenseSourceKind ignoredLicenseKinds = LicenseSourceKind.None );
@@ -34,6 +34,4 @@ namespace Metalama.Backstage.Licensing.Consumption
 
         event Action? Changed;
     }
-
-    
 }

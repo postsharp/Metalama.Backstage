@@ -25,14 +25,13 @@ internal class AnsiConsoleLoggerFactory : ILoggerFactory, ILogger
         }
     }
 
-
     public ILogger GetLogger( string category ) => this;
 
     void ILoggerFactory.Flush() { }
 
     public ILoggerFactory ForScope( string name ) => throw new NotSupportedException();
 
-    public IDisposable EnterScope( string scope ) => default( DisposableAction );
+    public IDisposable EnterScope( string scope ) => default(DisposableAction);
 
     private class LogWriter : ILogWriter
     {

@@ -11,17 +11,18 @@ namespace Metalama.Backstage.Diagnostics;
 
 internal class LogFileWriter
 {
-    public string Scope { get; }
-
     private const int _inactiveStatus = 0;
     private const int _activeStatus = 1;
     private const int _finishingStatus = 2;
     private static readonly Stopwatch _stopwatch = Stopwatch.StartNew();
+
+    private readonly object _textWriterSync = new();
     private readonly ConcurrentQueue<string> _messageQueue = new();
     private TextWriter? _textWriter;
     private volatile int _backgroundTaskStatus;
     private volatile bool _disposing;
-    private readonly object _textWriterSync = new();
+
+    public string Scope { get; }
 
     public string? LogFile { get; }
 
@@ -55,6 +56,11 @@ internal class LogFileWriter
 
     private void WriteBufferedMessagesToFile( object? state )
     {
+        if ( this.LogFile == null )
+        {
+            return;
+        }
+        
         if ( this._disposing )
         {
             this._backgroundTaskStatus = _inactiveStatus;
@@ -118,6 +124,12 @@ internal class LogFileWriter
             return;
         }
 
+        // If there was an error initializing the log file, do not attempt to write anything.
+        if ( this.LogFile == null )
+        {
+            return;
+        }
+
         this._messageQueue.Enqueue( s );
 
         if ( Interlocked.CompareExchange( ref this._backgroundTaskStatus, _activeStatus, _inactiveStatus ) != _activeStatus )
@@ -128,6 +140,11 @@ internal class LogFileWriter
 
     public void Flush()
     {
+        if ( this.LogFile == null )
+        {
+            return;
+        }
+
         if ( this._backgroundTaskStatus != _inactiveStatus )
         {
             var spinWait = default(SpinWait);
