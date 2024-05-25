@@ -48,7 +48,8 @@ namespace Metalama.Backstage.Tests.Licensing.Consumption
 
             var actualIsValid = manager.TryValidateRedistributionLicenseKey(
                 LicenseKeyProvider.MetalamaUltimatePersonalProjectBound,
-                TestLicenseKeyProvider.MetalamaUltimateProjectBoundProjectName, out _ );
+                TestLicenseKeyProvider.MetalamaUltimateProjectBoundProjectName,
+                out _ );
 
             Assert.False( actualIsValid );
         }
