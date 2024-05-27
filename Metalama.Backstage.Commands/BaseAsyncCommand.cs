@@ -3,7 +3,6 @@
 using JetBrains.Annotations;
 using Metalama.Backstage.Diagnostics;
 using Metalama.Backstage.Extensibility;
-using Metalama.Backstage.Infrastructure;
 using Metalama.Backstage.Telemetry;
 using Spectre.Console.Cli;
 using System;
