@@ -23,7 +23,7 @@ internal sealed class ShutdownService : IBackstageService
         AppDomain.CurrentDomain.ProcessExit += this.OnProcessExit;
     }
     
-    private void OnProcessExit( object sender, EventArgs e )
+    private void OnProcessExit( object? sender, EventArgs e )
     {
         this._logger.Trace?.Log( "The process is shutting down." );
         
