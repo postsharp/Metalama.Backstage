@@ -69,31 +69,6 @@ internal static class Program
 
             return -1;
         }
-        finally
-        {
-            try
-            {
-                // Flush logs. They will be closed when the program exits.
-                serviceProvider.GetLoggerFactory().Flush();
-            }
-            catch ( Exception e )
-            {
-                try
-                {
-                    serviceProvider.GetBackstageService<IExceptionReporter>()?.ReportException( e );
-                }
-                catch when ( _canIgnoreRecoverableExceptions )
-                {
-                    // We don't want failing telemetry to disturb users.
-                }
-
-                // We don't re-throw here as we don't want compiler to crash because of usage reporting exceptions.
-                if ( !_canIgnoreRecoverableExceptions )
-                {
-                    throw;
-                }
-            }
-        }
     }
 
     private static bool HandleException( IServiceProvider? serviceProvider, Exception e )

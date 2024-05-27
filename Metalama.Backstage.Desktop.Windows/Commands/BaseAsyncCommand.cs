@@ -1,6 +1,8 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. See the LICENSE.md file in the root directory of this repository root for details.
 
 using Metalama.Backstage.Diagnostics;
+using Metalama.Backstage.Extensibility;
+using Metalama.Backstage.Telemetry;
 using Spectre.Console.Cli;
 using System;
 using System.Threading.Tasks;
@@ -26,7 +28,15 @@ public abstract class BaseAsyncCommand<T> : AsyncCommand<T>
         }
         catch ( Exception e )
         {
-            logger.Error?.Log( e.ToString() );
+            try
+            {
+                logger.Error?.Log( e.ToString() );
+                serviceProvider.GetBackstageService<IExceptionReporter>()?.ReportException( e );
+            }
+            catch ( Exception reporterException )
+            {
+                throw new AggregateException( e, reporterException );
+            }
 
             throw;
         }

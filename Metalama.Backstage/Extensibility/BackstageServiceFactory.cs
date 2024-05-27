@@ -2,6 +2,7 @@
 
 using JetBrains.Annotations;
 using Metalama.Backstage.Diagnostics;
+using Metalama.Backstage.Infrastructure;
 using Metalama.Backstage.Licensing.Consumption;
 using Metalama.Backstage.Licensing.Consumption.Sources;
 using System;
@@ -49,6 +50,7 @@ public static class BackstageServiceFactory
         serviceProviderBuilder.AddBackstageServices( options );
 
         _serviceProvider = serviceProviderBuilder.ServiceProvider;
+        _serviceProvider.GetRequiredBackstageService<ShutdownService>().Initialize();
 
         if ( options.Initialize )
         {

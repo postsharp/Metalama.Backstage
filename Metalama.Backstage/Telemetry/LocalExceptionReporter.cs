@@ -17,6 +17,7 @@ internal class LocalExceptionReporter : IBackstageService
     private readonly IStandardDirectories _standardDirectories;
     private readonly IApplicationInfoProvider _applicationInfoProvider;
     private readonly IToastNotificationService? _toastNotificationService;
+    private readonly ILoggerFactory _loggerFactory;
     private readonly ILogger _logger;
     private readonly IFileSystem _fileSystem;
 
@@ -25,13 +26,17 @@ internal class LocalExceptionReporter : IBackstageService
         this._standardDirectories = serviceProvider.GetRequiredBackstageService<IStandardDirectories>();
         this._applicationInfoProvider = serviceProvider.GetRequiredBackstageService<IApplicationInfoProvider>();
         this._toastNotificationService = serviceProvider.GetBackstageService<IToastNotificationService>();
-        this._logger = serviceProvider.GetLoggerFactory().GetLogger( this.GetType().Name );
+        this._loggerFactory = serviceProvider.GetLoggerFactory();
+        this._logger = this._loggerFactory.GetLogger( this.GetType().Name );
         this._fileSystem = serviceProvider.GetRequiredBackstageService<IFileSystem>();
     }
 
     public void ReportException( Exception exception, string? localReportPath )
     {
         this._logger.Error?.Log( exception.ToString() );
+        
+        // The app may crash after reporting the exception, so we flush the logs first.
+        this._loggerFactory.Flush();
 
         try
         {

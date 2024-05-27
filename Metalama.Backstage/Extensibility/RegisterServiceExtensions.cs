@@ -95,8 +95,7 @@ public static class RegisterServiceExtensions
         this ServiceProviderBuilder serviceProviderBuilder,
         IApplicationInfo applicationInfo,
         BackstageInitializationOptions options )
-    {
-        serviceProviderBuilder = serviceProviderBuilder
+        => _ = serviceProviderBuilder
             .AddSingleton( _ => new BackstageInitializationOptionsProvider( options ) )
             .AddSingleton( _ => new EarlyLoggerFactory() )
             .AddSingleton( _ => new RandomNumberGenerator() )
@@ -112,10 +111,9 @@ public static class RegisterServiceExtensions
             .AddSingleton<IConfigurationManager>( serviceProvider => new ConfigurationManager( serviceProvider ) )
             .AddSingleton<IPlatformInfo>( serviceProvider => new PlatformInfo( serviceProvider, options.DotNetSdkDirectory ) )
             .AddSingleton<BackstageBackgroundTasksService>( _ => BackstageBackgroundTasksService.Default )
-            .AddSingleton<WebLinks>( _ => new WebLinks() );
-
-        serviceProviderBuilder.AddSingleton<ITempFileManager>( serviceProvider => new TempFileManager( serviceProvider ) );
-    }
+            .AddSingleton<WebLinks>( _ => new WebLinks() )
+            .AddSingleton<ITempFileManager>( serviceProvider => new TempFileManager( serviceProvider ) )
+            .AddSingleton( serviceProvider => new ShutdownService( serviceProvider ) );
 
     private static void AddLicensing(
         this ServiceProviderBuilder serviceProviderBuilder,

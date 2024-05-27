@@ -105,8 +105,6 @@ internal class LicenseConsumer : ILicenseConsumer
         }
     }
 
-    // Note that ReportMessage can only be invoked during initialization.
-
     /// <inheritdoc />
     public bool CanConsume( LicenseRequirement requirement, string? consumerProjectName = null )
     {

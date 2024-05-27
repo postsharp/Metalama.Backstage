@@ -41,12 +41,12 @@ internal class LogFileWriter
                     }
                 } );
 
-            var projectNameWithDot = string.IsNullOrEmpty( scope ) ? "" : "-" + scope;
+            var scopeWithDash = string.IsNullOrEmpty( scope ) ? "" : "-" + scope;
 
             // The filename must be unique because several instances of the current assembly (of different versions) may be loaded in the process.
             this.LogFile = Path.Combine(
                 loggerFactory.LogDirectory!,
-                $"Metalama-{loggerFactory.ProcessKind}{projectNameWithDot}-{Guid.NewGuid()}.log" );
+                $"Metalama-{loggerFactory.ProcessKind}{scopeWithDash}-{Guid.NewGuid()}.log" );
         }
         catch
         {

@@ -1,6 +1,7 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. See the LICENSE.md file in the root directory of this repository root for details.
 
 using JetBrains.Annotations;
+using Metalama.Backstage.Diagnostics;
 using Metalama.Backstage.Extensibility;
 using Metalama.Backstage.Infrastructure;
 using Metalama.Backstage.Telemetry;
@@ -26,19 +27,22 @@ public abstract class BaseAsyncCommand<T> : AsyncCommand<T>
         }
 
         var extendedContext = new ExtendedCommandContext( context, settings, this.AddBackstageOptions );
-        var canIgnoreRecoverableExceptions = extendedContext.ServiceProvider.GetRequiredBackstageService<IRecoverableExceptionService>().CanIgnore;
+        var logger = extendedContext.ServiceProvider.GetLoggerFactory().GetLogger( this.GetType().Name );
+        logger.Info?.Log( $"Executing command {this.GetType().Name}" );
 
         try
         {
             // We don't report usage of commands.
 
             await this.ExecuteAsync( extendedContext, settings );
+            logger.Info?.Log( $"The command succeeded." );
 
             return 0;
         }
         catch ( CommandException e )
         {
             extendedContext.Console.WriteError( e.Message );
+            logger.Warning?.Log( $"The command returned {e.ReturnCode}: {e.Message}." );
 
             return e.ReturnCode;
         }
@@ -46,6 +50,7 @@ public abstract class BaseAsyncCommand<T> : AsyncCommand<T>
         {
             try
             {
+                logger.Error?.Log( e.ToString() );
                 extendedContext.ServiceProvider.GetBackstageService<IExceptionReporter>()?.ReportException( e );
             }
             catch ( Exception reporterException )
