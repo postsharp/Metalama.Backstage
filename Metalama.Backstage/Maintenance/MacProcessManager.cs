@@ -15,7 +15,7 @@ internal class MacProcessManager : ProcessManagerBase
 
     protected override bool TryGetModulePaths( Process process, [NotNullWhen( true )] out List<string>? modules )
     {
-        modules = new List<string>();
+        modules = [];
 
         var listOpenFilesProcess = new Process()
         {

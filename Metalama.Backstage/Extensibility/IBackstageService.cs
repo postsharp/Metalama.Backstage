@@ -5,4 +5,4 @@ namespace Metalama.Backstage.Extensibility;
 /// <summary>
 /// The base interface that all services provided by this project must implement.
 /// </summary>
-public interface IBackstageService { }
+public interface IBackstageService;

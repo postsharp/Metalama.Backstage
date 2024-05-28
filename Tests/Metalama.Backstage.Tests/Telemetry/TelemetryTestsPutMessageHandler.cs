@@ -19,7 +19,7 @@ namespace Metalama.Backstage.Tests.Telemetry;
 
 internal class TelemetryTestsPutMessageHandler : HttpMessageHandler
 {
-    public List<(HttpRequestMessage Request, HttpResponseMessage Response)> ProcessedRequests { get; } = new();
+    public List<(HttpRequestMessage Request, HttpResponseMessage Response)> ProcessedRequests { get; } = [];
 
 #if NET
     private readonly TelemetryPutHandler _telemetryPutHandler;

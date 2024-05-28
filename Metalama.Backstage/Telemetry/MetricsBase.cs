@@ -16,7 +16,7 @@ internal abstract class MetricsBase
     private readonly ILogger _logger;
     private readonly string _feedbackKind;
 
-    protected MetricCollection Metrics { get; } = new();
+    protected MetricCollection Metrics { get; } = [];
 
     protected MetricsBase( IServiceProvider serviceProvider, string feedbackKind )
     {

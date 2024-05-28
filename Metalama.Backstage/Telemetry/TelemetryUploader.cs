@@ -34,7 +34,7 @@ namespace Metalama.Backstage.Telemetry
         private readonly Uri _requestUri = new( "https://bits.postsharp.net:44301/upload" );
         private readonly IConfigurationManager _configurationManager;
         private readonly IExceptionReporter _exceptionReporter;
-        private readonly List<(string File, Exception Reason)> _failedFiles = new();
+        private readonly List<(string File, Exception Reason)> _failedFiles = [];
 
         public TelemetryUploader( IServiceProvider serviceProvider )
         {
@@ -265,12 +265,10 @@ namespace Metalama.Backstage.Telemetry
 
                         var zipResourceName = $"Metalama.Backstage.Metalama.Backstage.Worker.{targetFramework}.zip";
                         var assembly = this.GetType().Assembly;
-                        using var resourceStream = assembly.GetManifestResourceStream( zipResourceName );
 
-                        if ( resourceStream == null )
-                        {
-                            throw new InvalidOperationException( $"Resource '{zipResourceName}' not found in '{assembly.Location}'." );
-                        }
+                        using var resourceStream = assembly.GetManifestResourceStream( zipResourceName )
+                                                   ?? throw new InvalidOperationException(
+                                                       $"Resource '{zipResourceName}' not found in '{assembly.Location}'." );
 
                         using var zipStream = new ZipArchive( resourceStream );
                         this._fileSystem.ExtractZipArchiveToDirectory( zipStream, workerDirectory );

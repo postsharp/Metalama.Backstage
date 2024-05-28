@@ -8,7 +8,7 @@ namespace Metalama.Backstage.Licensing.Licenses
 {
     public partial class LicenseKeyData
     {
-        private readonly SortedDictionary<LicenseFieldIndex, LicenseField> _fields = new();
+        private readonly SortedDictionary<LicenseFieldIndex, LicenseField> _fields = [];
 
         private object? GetFieldValue( LicenseFieldIndex index )
         {

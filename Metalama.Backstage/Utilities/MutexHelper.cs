@@ -91,6 +91,8 @@ public static class MutexHelper
         // The probability of mutex being destroyed when we call TryOpenExisting again is fairly low.
 
 #pragma warning disable IDE0059 // Unnecessary assignment of a value
+
+        // ReSharper disable once BadSemicolonSpaces
         for ( var i = 0; ; i++ )
 #pragma warning restore IDE0059 // Unnecessary assignment of a value
         {
@@ -117,6 +119,7 @@ public static class MutexHelper
                         // Mutex was probably created in the meantime and is not accessible - we will restart.
                         logger?.Trace?.Log( $"  Mutex was probably created and current process has restricted access to it, restarting." );
 
+                        // ReSharper disable once RedundantJumpStatement
                         continue;
                     }
                     else
