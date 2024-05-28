@@ -27,7 +27,7 @@
     <ItemGroup>
         <PackageReference Include="Microsoft.Bcl.HashCode" Version="$(MicrosoftBclHashCodeVersion)" />
         <PackageReference Include="Newtonsoft.Json" Version="$(NewtonsoftJsonVersion)" />
-        <PackageReference Include="System.IO.Packaging" Version="6.0.0" />
+        <PackageReference Include="System.IO.Packaging" />
     </ItemGroup>
 
     <ItemGroup>

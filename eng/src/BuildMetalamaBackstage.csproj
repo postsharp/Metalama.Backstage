@@ -10,7 +10,7 @@
         <NoWarn>SA0001;CS8002</NoWarn>
     </PropertyGroup>
     <ItemGroup>
-        <PackageReference Include="PostSharp.Engineering.BuildTools" Version="$(PostSharpEngineeringVersion)" />
+        <PackageReference Include="PostSharp.Engineering.BuildTools" />
     </ItemGroup>
 
 </Project>
