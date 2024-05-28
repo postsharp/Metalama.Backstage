@@ -22,7 +22,7 @@ namespace Metalama.Backstage.Tests.Licensing.Consumption
             var licenseKey = LicenseKeyProvider.GetLicenseKey( licenseKeyName );
             var manager = this.CreateConsumptionManager();
 
-            var actualIsValid = manager.ValidateRedistributionLicenseKey( licenseKey, requiredNamespace );
+            var actualIsValid = manager.TryValidateRedistributionLicenseKey( licenseKey, requiredNamespace, out _ );
 
             Assert.True( actualIsValid );
         }
@@ -36,7 +36,7 @@ namespace Metalama.Backstage.Tests.Licensing.Consumption
             var licenseKey = LicenseKeyProvider.GetLicenseKey( licenseKeyName );
             var manager = this.CreateConsumptionManager();
 
-            var actualIsValid = manager.ValidateRedistributionLicenseKey( licenseKey, "Foo" );
+            var actualIsValid = manager.TryValidateRedistributionLicenseKey( licenseKey, "Foo", out _ );
 
             Assert.False( actualIsValid );
         }
@@ -46,9 +46,10 @@ namespace Metalama.Backstage.Tests.Licensing.Consumption
         {
             var manager = this.CreateConsumptionManager();
 
-            var actualIsValid = manager.ValidateRedistributionLicenseKey(
+            var actualIsValid = manager.TryValidateRedistributionLicenseKey(
                 LicenseKeyProvider.MetalamaUltimatePersonalProjectBound,
-                TestLicenseKeyProvider.MetalamaUltimateProjectBoundProjectName );
+                TestLicenseKeyProvider.MetalamaUltimateProjectBoundProjectName,
+                out _ );
 
             Assert.False( actualIsValid );
         }

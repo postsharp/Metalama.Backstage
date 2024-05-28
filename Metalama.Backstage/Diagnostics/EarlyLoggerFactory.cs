@@ -1,5 +1,7 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. See the LICENSE.md file in the root directory of this repository root for details.
 
+using Metalama.Backstage.Utilities;
+using System;
 using System.Collections.Concurrent;
 
 namespace Metalama.Backstage.Diagnostics;
@@ -10,15 +12,21 @@ internal class EarlyLoggerFactory : ILoggerFactory
 
     public ILoggerFactory LoggerFactory { get; private set; }
 
-    public EarlyLoggerFactory( ILoggerFactory? loggerFactory = null )
+    public EarlyLoggerFactory( ILoggerFactory loggerFactory )
     {
-        this.LoggerFactory = loggerFactory ?? new BufferingLoggerFactory();
+        this.LoggerFactory = loggerFactory;
+    }
+
+    public EarlyLoggerFactory()
+    {
+        this.LoggerFactory = new BufferingLoggerFactory();
     }
 
     public void Replace( ILoggerFactory loggerFactory )
     {
         if ( this.LoggerFactory is not BufferingLoggerFactory bufferingLoggerFactory )
         {
+            // It has already been replaced.
             return;
         }
 
@@ -31,11 +39,11 @@ internal class EarlyLoggerFactory : ILoggerFactory
         }
     }
 
-    public void Dispose() => this.LoggerFactory.Dispose();
-
-    public ILogger GetLogger( string category ) => this._loggers.GetOrAdd( category, category => new Logger( this.LoggerFactory.GetLogger( category ) ) );
+    public ILogger GetLogger( string category ) => this._loggers.GetOrAdd( category, c => new Logger( this.LoggerFactory.GetLogger( c ) ) );
 
     public void Flush() { }
+
+    public IDisposable EnterScope( string scope ) => default(DisposableAction);
 
     private class Logger : ILogger
     {

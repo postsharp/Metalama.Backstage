@@ -1,22 +1,27 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. See the LICENSE.md file in the root directory of this repository root for details.
 
 using Metalama.Backstage.Licensing.Consumption.Sources;
+using Metalama.Backstage.Licensing.Licenses;
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
+using System.Linq;
 
 namespace Metalama.Backstage.Licensing.Consumption;
 
 /// <inheritdoc />
-internal partial class LicenseConsumptionService : ILicenseConsumptionService
+internal class LicenseConsumptionService : ILicenseConsumptionService
 {
     private readonly IServiceProvider _services;
     private readonly IReadOnlyList<ILicenseSource> _sources;
-    private ILicenseConsumptionService? _impl;
+    private readonly Dictionary<string, NamespaceLicenseInfo> _embeddedRedistributionLicensesCache = [];
+    private readonly LicenseFactory _licenseFactory;
 
     public LicenseConsumptionService( IServiceProvider services, IReadOnlyList<ILicenseSource> licenseSources )
     {
         this._services = services;
         this._sources = licenseSources;
+        this._licenseFactory = new LicenseFactory( services );
 
         foreach ( var source in this._sources )
         {
@@ -24,53 +29,71 @@ internal partial class LicenseConsumptionService : ILicenseConsumptionService
         }
     }
 
-    private ILicenseConsumptionService GetInitializedImpl()
-    {
-        if ( this._impl == null )
-        {
-            this.OnSourceChanged();
-        }
-
-        return this._impl!;
-    }
-
-    public ILicenseConsumptionService WithAdditionalLicense( string? licenseKey )
-    {
-        if ( string.IsNullOrWhiteSpace( licenseKey ) )
-        {
-            return this;
-        }
-        
-        var sources = new List<ILicenseSource>( this._sources.Count + 1 );
-        sources.AddRange( this._sources );
-        sources.Add( new ExplicitLicenseSource( licenseKey!, this._services ) );
-        var newService = new LicenseConsumptionService( this._services, sources );
-
-        return newService;
-    }
-
-    public ILicenseConsumptionService WithoutLicense() 
-        => new LicenseConsumptionService( this._services, Array.Empty<ILicenseSource>() );
-
     private void OnSourceChanged()
     {
-        this._impl = new ImmutableImpl( this._services, this._sources );
-
         this.Changed?.Invoke();
     }
 
-    public IReadOnlyList<LicensingMessage> Messages => this.GetInitializedImpl().Messages;
+    public ILicenseConsumer CreateConsumer(
+        string? projectLicenseKey,
+        LicenseSourceKind ignoredLicenseKinds,
+        out ImmutableArray<LicensingMessage> messages )
+    {
+        var sources = new List<ILicenseSource>( this._sources.Count + 1 );
 
-    public bool CanConsume( LicenseRequirement requirement, string? consumerNamespace = null ) => this.GetInitializedImpl().CanConsume( requirement, consumerNamespace );
+        sources.AddRange( this._sources.Where( s => (s.Kind & ignoredLicenseKinds) == 0 ) );
 
-    public bool ValidateRedistributionLicenseKey( string redistributionLicenseKey, string aspectClassNamespace )
-        => this.GetInitializedImpl().ValidateRedistributionLicenseKey( redistributionLicenseKey, aspectClassNamespace );
+        if ( !string.IsNullOrEmpty( projectLicenseKey ) )
+        {
+            sources.Add( new ExplicitLicenseSource( projectLicenseKey!, this._services ) );
+        }
 
-    public bool IsTrialLicense => this.GetInitializedImpl().IsTrialLicense;
+        return LicenseConsumer.Create( this._services, sources, out messages );
+    }
 
-    public bool IsRedistributionLicense => this.GetInitializedImpl().IsRedistributionLicense;
+    public ILicenseConsumer CreateConsumer( string? projectLicenseKey = null, LicenseSourceKind ignoredLicenseKinds = LicenseSourceKind.None )
+        => this.CreateConsumer( projectLicenseKey, ignoredLicenseKinds, out _ );
 
-    public string? LicenseString => this.GetInitializedImpl().LicenseString;
+    public bool TryValidateRedistributionLicenseKey( string redistributionLicenseKey, string aspectClassNamespace, out ImmutableArray<LicensingMessage> errors )
+    {
+        if ( !this._embeddedRedistributionLicensesCache.TryGetValue( redistributionLicenseKey, out var licensedNamespace ) )
+        {
+            if ( !this._licenseFactory.TryCreate( redistributionLicenseKey, out var license, out var errorMessage ) )
+            {
+                errors = ImmutableArray.Create( new LicensingMessage( errorMessage ) { IsError = true } );
+
+                return false;
+            }
+
+            if ( !license.TryGetLicenseConsumptionData( out var licenseConsumptionData, out errorMessage ) )
+            {
+                errors = ImmutableArray.Create( new LicensingMessage( errorMessage ) { IsError = true } );
+
+                return false;
+            }
+
+            if ( !licenseConsumptionData.IsRedistributable )
+            {
+                errors = ImmutableArray<LicensingMessage>.Empty;
+
+                return false;
+            }
+
+            if ( string.IsNullOrEmpty( licenseConsumptionData.LicensedNamespace ) )
+            {
+                errors = ImmutableArray<LicensingMessage>.Empty;
+
+                return false;
+            }
+
+            licensedNamespace = new NamespaceLicenseInfo( licenseConsumptionData.LicensedNamespace! );
+            this._embeddedRedistributionLicensesCache.Add( redistributionLicenseKey, licensedNamespace );
+        }
+
+        errors = ImmutableArray<LicensingMessage>.Empty;
+
+        return licensedNamespace.AllowsNamespace( aspectClassNamespace );
+    }
 
     public event Action? Changed;
 }

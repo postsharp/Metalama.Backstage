@@ -18,6 +18,8 @@ internal class UnattendedLicenseSource : ILicenseSource, ILicense
 
     public string Description => "unattended license source";
 
+    public LicenseSourceKind Kind => LicenseSourceKind.Unattended;
+
     public UnattendedLicenseSource( IServiceProvider serviceProvider )
     {
         this._serviceProvider = serviceProvider;

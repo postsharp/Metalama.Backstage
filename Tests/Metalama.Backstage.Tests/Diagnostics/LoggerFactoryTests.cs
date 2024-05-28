@@ -6,9 +6,11 @@ using Metalama.Backstage.Extensibility;
 using Metalama.Backstage.Maintenance;
 using Metalama.Backstage.Testing;
 using System;
+using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Globalization;
 using System.IO;
+using System.Linq;
 using System.Threading;
 using Xunit;
 using Xunit.Abstractions;
@@ -26,12 +28,8 @@ public class LoggerFactoryTests : TestsBase
         services.AddSingleton<ITempFileManager>( serviceProvider => new TempFileManager( serviceProvider ) );
     }
 
-    [Fact]
-    public void Test()
-    {
-        this.Time.Set( new DateTime( 1978, 6, 16 ) );
-
-        var loggerFactory = new LoggerFactory(
+    private LoggerFactory CreateLoggerFactory()
+        => new(
             this.ServiceProvider,
             new DiagnosticsConfiguration()
             {
@@ -41,8 +39,16 @@ public class LoggerFactoryTests : TestsBase
                     Processes = ImmutableDictionary<string, bool>.Empty.Add( ProcessKind.Other.ToString(), true )
                 }
             },
-            ProcessKind.Other,
-            Guid.NewGuid().ToString() );
+            ProcessKind.Other );
+
+    [Fact]
+    public void TestSequentialWrite()
+    {
+        this.Time.Set( new DateTime( 1978, 6, 16 ) );
+
+        var loggerFactory = this.CreateLoggerFactory();
+        List<string> files = [];
+        loggerFactory.FileCreated += files.Add;
 
         var logger = loggerFactory.GetLogger( "Test" );
 
@@ -59,10 +65,37 @@ public class LoggerFactoryTests : TestsBase
             }
         }
 
+        var file = files.Single();
         loggerFactory.Close();
 
-        var allLines = File.ReadAllLines( loggerFactory.LogFile! );
+        var allLines = File.ReadAllLines( file );
 
         Assert.Equal( n, allLines.Length );
+    }
+
+    [Fact]
+    public void TestScope()
+    {
+        var loggerFactory = this.CreateLoggerFactory();
+
+        List<string> files = [];
+        loggerFactory.FileCreated += files.Add;
+
+        using ( loggerFactory.EnterScope( "Scope1" ) )
+        {
+            loggerFactory.GetLogger( "Test" ).Trace?.Log( "InScope1" );
+        }
+
+        using ( loggerFactory.EnterScope( "Scope2" ) )
+        {
+            loggerFactory.GetLogger( "Test" ).Trace?.Log( "InScope2" );
+        }
+
+        loggerFactory.Close();
+
+        var allLines1 = File.ReadAllLines( files.Single( f => f.ContainsOrdinal( "Scope1" ) ) );
+        Assert.Contains( "InScope1", allLines1.Last(), StringComparison.Ordinal );
+        var allLines2 = File.ReadAllLines( files.Single( f => f.ContainsOrdinal( "Scope2" ) ) );
+        Assert.Contains( "InScope2", allLines2.Last(), StringComparison.Ordinal );
     }
 }

@@ -27,4 +27,8 @@ public record LoggingConfiguration
     /// </summary>
     [JsonProperty( "stopLoggingAfterHours" )]
     public double StopLoggingAfterHours { get; init; } = 2;
+
+    public bool IsTraceCategoryEnabled( string category )
+        => (this.TraceCategories.TryGetValue( "*", out var allEnabled ) && allEnabled) ||
+           (this.TraceCategories.TryGetValue( category, out var enabled ) && enabled);
 }

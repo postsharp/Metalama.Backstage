@@ -2,6 +2,8 @@
 
 using JetBrains.Annotations;
 using Metalama.Backstage.Diagnostics;
+using Metalama.Backstage.Utilities;
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.Immutable;
@@ -14,7 +16,7 @@ public class TestLoggerFactory : ILoggerFactory
     private readonly ConcurrentDictionary<string, ILogger> _loggers = new();
     private readonly object _sync = new();
     private readonly ITestOutputHelper _testOutputHelper;
-    
+
     // We use an immutable list to have thread-safe enumerations while items could still be added to the list.
     private ImmutableList<Entry> _entries = ImmutableList<Entry>.Empty;
 
@@ -33,12 +35,12 @@ public class TestLoggerFactory : ILoggerFactory
     }
 
     public IReadOnlyList<Entry> Entries => this._entries;
-
-    public void Dispose() { }
-
+    
     public ILogger GetLogger( string category ) => this._loggers.GetOrAdd( category, c => new Logger( c, this ) );
 
     public void Flush() { }
+
+    public IDisposable EnterScope( string scope ) => default(DisposableAction);
 
     private class Logger : ILogger
     {

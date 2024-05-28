@@ -27,16 +27,6 @@ public class BackstageBackgroundTasksService : IBackstageService
     /// </summary>
     public static BackstageBackgroundTasksService Default { get; } = new();
 
-    static BackstageBackgroundTasksService()
-    {
-        AppDomain.CurrentDomain.ProcessExit += OnProcessExit;
-    }
-
-    private static void OnProcessExit( object? sender, EventArgs e )
-    {
-        Default.CompleteAsync().Wait();
-    }
-
     internal void Enqueue( Func<Task> func )
     {
         this.OnTaskStarting();
@@ -52,7 +42,7 @@ public class BackstageBackgroundTasksService : IBackstageService
     /// <summary>
     /// Prevents new tasks to be enqueued and awaits for the completion of previously enqueued tasks. 
     /// </summary>
-    private Task CompleteAsync()
+    internal Task CompleteAsync()
     {
         this._canEnqueue = false;
 

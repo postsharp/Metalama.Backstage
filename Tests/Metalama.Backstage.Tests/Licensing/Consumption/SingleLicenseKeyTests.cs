@@ -22,7 +22,7 @@ public class SingleLicenseKeyTests : LicenseConsumptionManagerTestsBase
         bool expectedCanConsume )
     {
         var license = this.CreateLicense( licenseKeyName );
-        var manager = this.CreateConsumptionManager( license );
+        var manager = this.CreateConsumptionService( license );
         TestConsumption( manager, requestedRequirement, requiredNamespace, expectedCanConsume );
     }
 

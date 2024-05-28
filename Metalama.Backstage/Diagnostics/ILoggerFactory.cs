@@ -5,10 +5,12 @@ using System;
 
 namespace Metalama.Backstage.Diagnostics
 {
-    public interface ILoggerFactory : IDisposable, IBackstageService
+    public interface ILoggerFactory : IBackstageService
     {
         ILogger GetLogger( string category );
 
         void Flush();
+
+        IDisposable EnterScope( string scope );
     }
 }

@@ -1,6 +1,5 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. See the LICENSE.md file in the root directory of this repository root for details.
 
-using Metalama.Backstage.Infrastructure;
 using System;
 using System.Threading;
 
@@ -8,30 +7,24 @@ namespace Metalama.Backstage.Diagnostics;
 
 internal class LogWriter : ILogWriter
 {
-    private readonly Logger _logger;
+    private readonly string _prefix;
+    private readonly LoggerFactory _loggerFactory;
     private readonly string _logLevel;
-    private readonly IDateTimeProvider _dateTimeProvider;
 
     public LogWriter( Logger logger, string logLevel )
     {
-        this._logger = logger;
-        this._dateTimeProvider = logger.LoggerFactory.DateTimeProvider;
+        this._prefix = string.IsNullOrEmpty( logger.Prefix ) ? logger.Category : $"{logger.Category} - {logger.Prefix}";
+
+        this._loggerFactory = logger.LoggerFactory;
         this._logLevel = logLevel.ToUpperInvariant();
     }
 
     public void Log( string message )
     {
-        if ( string.IsNullOrEmpty( this._logger.Prefix ) )
-        {
-            this._logger.LoggerFactory.WriteLine(
+        this._loggerFactory
+            .GetLogFileWriter()
+            .WriteLine(
                 FormattableString.Invariant(
-                    $"{this._dateTimeProvider.Now}, {this._logLevel}, Thread {Thread.CurrentThread.ManagedThreadId}, {this._logger.Category}: {message}" ) );
-        }
-        else
-        {
-            this._logger.LoggerFactory.WriteLine(
-                FormattableString.Invariant(
-                    $"{this._dateTimeProvider.Now}, {this._logLevel},  Thread {Thread.CurrentThread.ManagedThreadId}, {this._logger.Category} - {this._logger.Prefix}: {message}" ) );
-        }
+                    $"{this._loggerFactory.DateTimeProvider.Now}, {this._logLevel}, Thread {Thread.CurrentThread.ManagedThreadId}, {this._prefix}: {message}" ) );
     }
 }

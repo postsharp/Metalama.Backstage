@@ -69,32 +69,6 @@ internal static class Program
 
             return -1;
         }
-        finally
-        {
-            try
-            {
-                // Close logs.
-                // Logging has to be disposed as the last one, so it could be used until now.
-                serviceProvider.GetLoggerFactory().Dispose();
-            }
-            catch ( Exception e )
-            {
-                try
-                {
-                    serviceProvider.GetBackstageService<IExceptionReporter>()?.ReportException( e );
-                }
-                catch when ( _canIgnoreRecoverableExceptions )
-                {
-                    // We don't want failing telemetry to disturb users.
-                }
-
-                // We don't re-throw here as we don't want compiler to crash because of usage reporting exceptions.
-                if ( !_canIgnoreRecoverableExceptions )
-                {
-                    throw;
-                }
-            }
-        }
     }
 
     private static bool HandleException( IServiceProvider? serviceProvider, Exception e )

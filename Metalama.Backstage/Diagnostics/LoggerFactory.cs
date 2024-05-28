@@ -6,148 +6,59 @@ using Metalama.Backstage.Maintenance;
 using Metalama.Backstage.Utilities;
 using System;
 using System.Collections.Concurrent;
-using System.Diagnostics;
-using System.IO;
-using System.Threading;
 
 namespace Metalama.Backstage.Diagnostics
 {
     internal class LoggerFactory : ILoggerFactory
     {
-        private const int _inactiveStatus = 0;
-        private const int _activeStatus = 1;
-        private const int _finishingStatus = 2;
-        private static readonly Stopwatch _stopwatch = Stopwatch.StartNew();
         private readonly ConcurrentDictionary<string, ILogger> _loggers = new( StringComparer.OrdinalIgnoreCase );
-        private readonly object _textWriterSync = new();
-        private readonly ConcurrentQueue<string> _messageQueue = new();
-        private TextWriter? _textWriter;
-        private volatile int _backgroundTaskStatus;
-        private volatile bool _disposing;
 
-        public string? LogFile { get; }
+        private readonly ConcurrentDictionary<string, LogFileWriter> _logFileWriters = new();
+
+        public LoggerFactory(
+            IServiceProvider serviceProvider,
+            DiagnosticsConfiguration configuration,
+            ProcessKind processKind )
+        {
+            this.DateTimeProvider = serviceProvider.GetRequiredBackstageService<IDateTimeProvider>();
+
+            this.Configuration = configuration;
+            this.ProcessKind = processKind;
+
+            var tempFileManager = serviceProvider.GetRequiredBackstageService<ITempFileManager>();
+
+            if ( configuration.Logging.Processes.TryGetValue( processKind.ToString(), out var enabled ) && enabled )
+            {
+                this.LogDirectory = tempFileManager.GetTempDirectory( "Logs", CleanUpStrategy.Always );
+            }
+        }
+
+        public string? LogDirectory { get; }
 
         internal DiagnosticsConfiguration Configuration { get; }
 
         internal IDateTimeProvider DateTimeProvider { get; }
 
-        public LoggerFactory( IServiceProvider serviceProvider, DiagnosticsConfiguration configuration, ProcessKind processKind, string? projectName )
+        public ProcessKind ProcessKind { get; }
+
+        public bool IsEnabled => this.LogDirectory != null;
+
+        public IDisposable EnterScope( string scope )
         {
-            var tempFileManager = serviceProvider.GetRequiredBackstageService<ITempFileManager>();
-            this.DateTimeProvider = serviceProvider.GetRequiredBackstageService<IDateTimeProvider>();
+            var previousScope = LoggingContext.Current.Value;
+            LoggingContext.Current.Value = new LoggingContext( scope );
 
-            this.Configuration = configuration;
-
-            if ( this.Configuration.Logging.Processes.TryGetValue( processKind.ToString(), out var enabled ) && enabled )
-            {
-                var directory = tempFileManager.GetTempDirectory( "Logs", CleanUpStrategy.Always );
-
-                try
+            return new DisposableAction(
+                () =>
                 {
-                    RetryHelper.Retry(
-                        () =>
-                        {
-                            if ( !Directory.Exists( directory ) )
-                            {
-                                Directory.CreateDirectory( directory );
-                            }
-                        } );
-
-                    var projectNameWithDot = string.IsNullOrEmpty( projectName ) ? "" : "-" + projectName;
-
-                    // The filename must be unique because several instances of the current assembly (of different versions) may be loaded in the process.
-                    this.LogFile = Path.Combine(
-                        directory,
-                        $"Metalama-{processKind}{projectNameWithDot}-{Guid.NewGuid()}.log" );
-                }
-                catch
-                {
-                    // Don't fail if we cannot initialize the log.
-                }
-            }
-        }
-
-        private void WriteBufferedMessagesToFile( object? state )
-        {
-            if ( this.LogFile == null )
-            {
-                throw new InvalidOperationException( $"Cannot write diagnostics. The '{this.GetType().Name}' is not properly initialized." );
-            }
-
-            if ( this._disposing )
-            {
-                this._backgroundTaskStatus = _inactiveStatus;
-
-                return;
-            }
-
-            lock ( this._textWriterSync )
-            {
-                try
-                {
-                    this._textWriter ??= File.CreateText( this.LogFile );
-
-                    // Process enqueued messages.
-                    var lastFlush = _stopwatch.ElapsedMilliseconds;
-
-                    while ( !this._messageQueue.IsEmpty )
-                    {
-                        while ( this._messageQueue.TryDequeue( out var s ) )
-                        {
-                            this._textWriter.WriteLine( s );
-
-                            // Flush at least every 250 ms.
-                            if ( _stopwatch.ElapsedMilliseconds > lastFlush + 250 )
-                            {
-                                this._textWriter.Flush();
-                                lastFlush = _stopwatch.ElapsedMilliseconds;
-                            }
-                        }
-
-                        // Avoid too frequent start and stop of the task because this would also result in frequent flushing.
-                        Thread.Sleep( 100 );
-                    }
-
-                    // Say that we are going to end the task.
-                    this._backgroundTaskStatus = _finishingStatus;
-
-                    // Process messages that may have been added in the meantime.
-                    while ( this._messageQueue.TryDequeue( out var s ) )
-                    {
-                        this._textWriter.WriteLine( s );
-                    }
-
-                    this._textWriter.Flush();
-                }
-                catch ( ObjectDisposedException ) { }
-                finally
-                {
-                    this._backgroundTaskStatus = _inactiveStatus;
-                }
-            }
-        }
-
-        public void WriteLine( string s )
-        {
-            // Make sure that we are not starting a background writer thread after we start disposing.
-            // Note that there can still be a race between Dispose in WriteLine, so we could still start a task, but we are
-            // also checking the disposing flag in WriteBufferedMessagesToFile.
-            if ( this._disposing )
-            {
-                return;
-            }
-
-            this._messageQueue.Enqueue( s );
-
-            if ( Interlocked.CompareExchange( ref this._backgroundTaskStatus, _activeStatus, _inactiveStatus ) != _activeStatus )
-            {
-                ThreadPool.QueueUserWorkItem( this.WriteBufferedMessagesToFile );
-            }
+                    this.CloseScope( scope );
+                    LoggingContext.Current.Value = previousScope;
+                } );
         }
 
         public ILogger GetLogger( string category )
         {
-            if ( this.LogFile != null )
+            if ( this.IsEnabled )
             {
                 if ( this._loggers.TryGetValue( category, out var logger ) )
                 {
@@ -166,34 +77,57 @@ namespace Metalama.Backstage.Diagnostics
             }
         }
 
-        public void Flush()
-        {
-            if ( this._backgroundTaskStatus != _inactiveStatus )
-            {
-                var spinWait = default(SpinWait);
+        public LogFileWriter GetLogFileWriter() => this.GetLogFileWriter( LoggingContext.Current.Value?.Scope ?? "" );
 
-                while ( this._backgroundTaskStatus != _inactiveStatus )
-                {
-                    spinWait.SpinOnce();
-                }
+        // Used for testing.
+        internal event Action<string>? FileCreated;
+
+        private LogFileWriter GetLogFileWriter( string scope )
+        {
+            if ( !this._logFileWriters.TryGetValue( scope, out var writer ) )
+            {
+                writer = this._logFileWriters.GetOrAdd(
+                    scope,
+                    s =>
+                    {
+                        var newWriter = new LogFileWriter( this, s );
+
+                        if ( newWriter.LogFile != null )
+                        {
+                            this.FileCreated?.Invoke( newWriter.LogFile );
+                        }
+
+                        return newWriter;
+                    } );
             }
 
-            this._textWriter?.Flush();
+            return writer;
+        }
+
+        private void CloseScope( string name )
+        {
+            if ( this._logFileWriters.TryRemove( name, out var file ) )
+            {
+                file.Dispose();
+            }
+        }
+
+        public void Flush()
+        {
+            foreach ( var file in this._logFileWriters )
+            {
+                file.Value.Flush();
+            }
         }
 
         public void Close()
         {
-            this._disposing = true;
-            this.Flush();
-            this._textWriter?.Close();
-        }
+            foreach ( var file in this._logFileWriters )
+            {
+                file.Value.Dispose();
+            }
 
-        public void Dispose()
-        {
-            this.Flush();
-            
-            // TODO: Have proper project-scoped logger factories. This class should be non-disposable.
-            // this.Close();
+            this._logFileWriters.Clear();
         }
     }
 }

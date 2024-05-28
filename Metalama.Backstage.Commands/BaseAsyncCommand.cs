@@ -3,7 +3,6 @@
 using JetBrains.Annotations;
 using Metalama.Backstage.Diagnostics;
 using Metalama.Backstage.Extensibility;
-using Metalama.Backstage.Infrastructure;
 using Metalama.Backstage.Telemetry;
 using Spectre.Console.Cli;
 using System;
@@ -27,19 +26,22 @@ public abstract class BaseAsyncCommand<T> : AsyncCommand<T>
         }
 
         var extendedContext = new ExtendedCommandContext( context, settings, this.AddBackstageOptions );
-        var canIgnoreRecoverableExceptions = extendedContext.ServiceProvider.GetRequiredBackstageService<IRecoverableExceptionService>().CanIgnore;
+        var logger = extendedContext.ServiceProvider.GetLoggerFactory().GetLogger( this.GetType().Name );
+        logger.Info?.Log( $"Executing command {this.GetType().Name}" );
 
         try
         {
             // We don't report usage of commands.
 
             await this.ExecuteAsync( extendedContext, settings );
+            logger.Info?.Log( $"The command succeeded." );
 
             return 0;
         }
         catch ( CommandException e )
         {
             extendedContext.Console.WriteError( e.Message );
+            logger.Warning?.Log( $"The command returned {e.ReturnCode}: {e.Message}." );
 
             return e.ReturnCode;
         }
@@ -47,6 +49,7 @@ public abstract class BaseAsyncCommand<T> : AsyncCommand<T>
         {
             try
             {
+                logger.Error?.Log( e.ToString() );
                 extendedContext.ServiceProvider.GetBackstageService<IExceptionReporter>()?.ReportException( e );
             }
             catch ( Exception reporterException )
@@ -55,32 +58,6 @@ public abstract class BaseAsyncCommand<T> : AsyncCommand<T>
             }
 
             throw;
-        }
-        finally
-        {
-            try
-            {
-                // Close logs.
-                // Logging has to be disposed as the last one, so it could be used until now.
-                extendedContext.ServiceProvider.GetLoggerFactory().Dispose();
-            }
-            catch ( Exception e )
-            {
-                try
-                {
-                    extendedContext.ServiceProvider.GetBackstageService<IExceptionReporter>()?.ReportException( e );
-                }
-                catch when ( canIgnoreRecoverableExceptions )
-                {
-                    // We don't want failing telemetry to disturb users.
-                }
-
-                // We don't want failing telemetry to disturb users.
-                if ( !canIgnoreRecoverableExceptions )
-                {
-                    throw;
-                }
-            }
         }
     }
 
