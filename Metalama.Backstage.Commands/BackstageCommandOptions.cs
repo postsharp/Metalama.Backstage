@@ -15,7 +15,7 @@ namespace Metalama.Backstage.Commands;
 public sealed class BackstageCommandOptions
 {
     private readonly AnsiSupport _ansiSupport;
-    private readonly Dictionary<string, ConfigurationFileCommandAdapter> _configurationFileCommandAdapters = [];
+    private readonly Dictionary<string, ConfigurationFileCommandAdapter> _configurationFileCommandAdapters = new();
 
     public BackstageCommandOptions(
         IApplicationInfo applicationInfo,

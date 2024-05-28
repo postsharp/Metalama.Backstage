@@ -20,12 +20,7 @@ namespace Metalama.Backstage.Utilities
     {
         private readonly Assembly _assembly;
         private readonly Dictionary<string, string?> _metadata = new( StringComparer.OrdinalIgnoreCase );
-        
-        // Leads to error CS9174: Cannot initialize type 'ConditionalWeakTable<Assembly, AssemblyMetadataReader>'
-        // with a collection expression because the type is not constructible.
-#pragma warning disable IDE0028 // Collection initialization can be simplified
         private static readonly ConditionalWeakTable<Assembly, AssemblyMetadataReader> _instances = new();
-#pragma warning restore IDE0028 // Collection initialization can be simplified
 
         private bool _packageVersionRead;
         private string? _packageVersion;

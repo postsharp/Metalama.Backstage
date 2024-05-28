@@ -44,9 +44,6 @@ internal class LicenseAuditReport : MetricsBase
         void AddToMetricsAndHashCode( Metric metric )
         {
             this.Metrics.Add( metric );
-
-            // ReSharper disable once NullCoalescingConditionIsAlwaysNotNullAccordingToAPIContract
-            // ( After removing the null-coalescing operator, there is a nullability warning. )
             auditHashCodeBuilder.Update( Encoding.UTF8.GetBytes( metric.ToString() ?? "" ) );
         }
 

@@ -15,9 +15,9 @@ internal partial class LicenseConsumptionService
     private class ImmutableImpl : ILicenseConsumptionService
     {
         private readonly ILogger _logger;
-        private readonly List<LicensingMessage> _messages = [];
+        private readonly List<LicensingMessage> _messages = new();
         private readonly LicenseFactory _licenseFactory;
-        private readonly Dictionary<string, NamespaceLicenseInfo> _embeddedRedistributionLicensesCache = [];
+        private readonly Dictionary<string, NamespaceLicenseInfo> _embeddedRedistributionLicensesCache = new();
         private readonly LicenseConsumptionData? _license;
         private readonly NamespaceLicenseInfo? _licensedNamespace;
 

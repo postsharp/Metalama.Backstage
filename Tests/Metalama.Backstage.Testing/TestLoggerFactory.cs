@@ -11,7 +11,7 @@ namespace Metalama.Backstage.Testing;
 public class TestLoggerFactory : ILoggerFactory
 {
     private readonly ConcurrentDictionary<string, ILogger> _loggers = new();
-    private readonly List<Entry> _entries = [];
+    private readonly List<Entry> _entries = new();
     private readonly ITestOutputHelper _testOutputHelper;
 
     public TestLoggerFactory( ITestOutputHelper testOutputHelper )

@@ -13,7 +13,7 @@ namespace Metalama.Backstage.Telemetry.Metrics
     [Serializable]
     public sealed class SetMetric : Metric
     {
-        private readonly HashSet<string> _set = [];
+        private readonly HashSet<string> _set = new();
 
         public SetMetric( string name ) : base( name ) { }
 
