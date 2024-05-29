@@ -78,7 +78,7 @@ public class LicenseAuditTests : LicenseConsumptionManagerTestsBase
             Assert.Equal( HttpMethod.Get, matomoRequest.Request.Method );
 
             Assert.Equal(
-                "https://postsharp.matomo.cloud/matomo.php?idsite=6&rec=1&_id=36579f554ac8899f&dimension1=MetalamaUltimate&dimension2=PerUser&dimension3=Metalama&dimension4=1.0&new_visit=1&rand=5cf58a1a689e1e0c",
+                "https://postsharp.matomo.cloud/matomo.php?idsite=6&rec=1&_id=36579f554ac8899f&uid=36579f554ac8899f&dimension1=MetalamaUltimate&dimension2=PerUser&dimension3=Metalama&dimension4=1.0&new_visit=1&rand=5cf58a1a689e1e0c",
                 matomoRequestUri );
 
             // Second time in the same day.
@@ -109,7 +109,7 @@ public class LicenseAuditTests : LicenseConsumptionManagerTestsBase
             Assert.Equal( HttpMethod.Get, thirdMatomoRequest.Request.Method );
 
             Assert.Equal(
-                "https://postsharp.matomo.cloud/matomo.php?idsite=6&rec=1&_id=36579f554ac8899f&dimension1=MetalamaUltimate&dimension2=PerUser&dimension3=Metalama&dimension4=1.0&new_visit=0&rand=624e91464771d36f",
+                "https://postsharp.matomo.cloud/matomo.php?idsite=6&rec=1&_id=36579f554ac8899f&uid=36579f554ac8899f&dimension1=MetalamaUltimate&dimension2=PerUser&dimension3=Metalama&dimension4=1.0&new_visit=1&rand=624e91464771d36f",
                 thirdMatomoRequestUri );
         }
         else
