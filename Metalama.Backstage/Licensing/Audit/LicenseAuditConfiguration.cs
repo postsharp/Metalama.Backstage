@@ -16,5 +16,6 @@ public record LicenseAuditConfiguration : ConfigurationFile
 
     public DateTime? LastMatomoAuditTime { get; init; }
 
+    [Obsolete]
     public bool IsFirstMatomoAudit { get; init; } = true;
 }
