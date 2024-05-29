@@ -23,7 +23,7 @@ internal class MatomoAuditUploader : IBackstageService
         this._randomNumberGenerator = serviceProvider.GetRequiredBackstageService<RandomNumberGenerator>();
     }
 
-    public async Task UploadAsync( LicenseAuditTelemetryReport report, bool isNewUser )
+    public async Task UploadAsync( LicenseAuditTelemetryReport report )
     {
         var http = this._httpClientFactory.Create();
 
@@ -48,12 +48,14 @@ internal class MatomoAuditUploader : IBackstageService
         var request =
 #pragma warning disable CA1307
             $"https://postsharp.matomo.cloud/matomo.php?idsite=6"
-            + $"&rec=1&_id={report.DeviceHash:x}"
+            + $"&rec=1"
+            + $"&_id={report.DeviceHash:x}"
+            + $"&uid={report.DeviceHash:x}"
             + $"&dimension1={licensedProduct}"
             + $"&dimension2={licenseType}"
             + $"&dimension3=Metalama"
             + $"&dimension4={reportedVersion}"
-            + $"&new_visit={(isNewUser ? 1 : 0)}"
+            + $"&new_visit=1"
             + $"&rand={this._randomNumberGenerator.NextInt64():x}";
 #pragma warning restore CA1307
 
