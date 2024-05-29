@@ -13,7 +13,8 @@
     <PackageVersion Include="Microsoft.Extensions.DependencyInjection" Version="2.1.1" />
     <PackageVersion Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="2.1.1" />
     <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="17.1.0" />
-    <PackageVersion Include="Newtonsoft.Json" Version="13.0.3" />
+    <!-- We should match the versions used by the lowest version of Roslyn we support.-->
+    <PackageVersion Include="Newtonsoft.Json" Version="13.0.1" />
     <PackageVersion Include="PostSharp.Engineering.BuildTools" Version="$(PostSharpEngineeringVersion)" />
     <PackageVersion Include="Spectre.Console" Version="0.45.0" />
     <PackageVersion Include="Spectre.Console.Cli" Version="0.45.0" />
