@@ -4,10 +4,13 @@ using Metalama.Backstage.Application;
 using Metalama.Backstage.Configuration;
 using Metalama.Backstage.Extensibility;
 using Metalama.Backstage.Telemetry;
+using Metalama.Backstage.Telemetry.Metrics;
 using Metalama.Backstage.Testing;
 using System;
 using System.IO;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -33,13 +36,14 @@ public class UsageReporterTests : TestsBase
     private void ReportSession( string kind = "TestSession" )
     {
         Assert.Null( this.Reporter.Metrics );
-        
-        Assert.True( this.Reporter.StartSession( kind ) );
+
+        var session = this.Reporter.StartSession( kind ); 
+        Assert.NotNull( session );
         
         Assert.NotNull( this.Reporter.Metrics );
         Assert.NotEmpty( this.Reporter.Metrics! );
         
-        this.Reporter.StopSession();
+        session.Dispose();
         
         Assert.Null( this.Reporter.Metrics );
         Assert.Single( this.FileSystem.Mock.AllFiles );
@@ -54,12 +58,7 @@ public class UsageReporterTests : TestsBase
         Assert.False( reporter.ShouldReportSession( "TestProject" ) );
         
         Assert.Null( reporter.Metrics );
-        Assert.False( reporter.StartSession( "TestSession" ) );
-        Assert.Null( reporter.Metrics );
-        
-        // The reporter doesn't crash when there's no session to stop.
-        reporter.StopSession();
-        
+        Assert.Null( reporter.StartSession( "TestSession" ) );
         Assert.Null( reporter.Metrics );
         Assert.Empty( this.FileSystem.Mock.AllFiles );
     }
@@ -148,5 +147,40 @@ public class UsageReporterTests : TestsBase
         this.Time.AddTime( TimeSpan.FromDays( 1 ) );
         this.AssertSessionShouldBeReported( "TestProject1" );
         AssertSessionsCount( 1 );
+    }
+
+    [Fact]
+    public async Task SessionsCanBeReportedConcurrentlyAsync()
+    {
+        var event1 = new SemaphoreSlim( 0 );
+        var event2 = new SemaphoreSlim( 0 );
+        
+        async Task<IDisposable> StartSession( string projectName, SemaphoreSlim e )
+        {
+            var session = this.Reporter.StartSession( "TestSession" );
+            Assert.NotNull( session );
+            this.Reporter.Metrics!.Add( new StringMetric( "ProjectName", projectName ) );
+
+            await e.WaitAsync();
+            
+            Assert.Single( this.Reporter.Metrics, m => m is StringMetric stringMetric && stringMetric.Value == projectName );
+            
+            return session;
+        }
+
+        var session1Task = StartSession( "TestProject1", event1 );
+        var session2Task = StartSession( "TestProject2", event2 );
+
+        event1.Release();
+        await session1Task;
+        
+        event2.Release();
+        await session2Task;
+        
+        session1Task.Result.Dispose();
+        session2Task.Result.Dispose();
+        
+        Assert.Null( this.Reporter.Metrics );
+        Assert.Equal( 2, this.FileSystem.Mock.AllFiles.Count() );
     }
 }

@@ -5,19 +5,21 @@ using Metalama.Backstage.Configuration;
 using Metalama.Backstage.Diagnostics;
 using Metalama.Backstage.Extensibility;
 using Metalama.Backstage.Infrastructure;
+using Metalama.Backstage.Utilities;
 using System;
+using System.Threading;
 
 namespace Metalama.Backstage.Telemetry;
 
 internal class UsageReporter : IUsageReporter
 {
+    private static readonly AsyncLocal<UsageTelemetryReport?> _currentSample = new();
+
     private readonly IServiceProvider _serviceProvider;
     private readonly IConfigurationManager _configurationManager;
     private readonly IDateTimeProvider _time;
     private readonly ILogger _logger;
     private readonly TelemetryReportUploader _telemetryReportUploader;
-
-    private UsageTelemetryReport? _currentSample;
 
     public bool IsUsageReportingEnabled { get; }
 
@@ -88,54 +90,48 @@ internal class UsageReporter : IUsageReporter
             } );
     }
 
-    public bool StartSession( string kind )
+    public IDisposable? StartSession( string kind )
     {
-        if ( this._currentSample != null )
-        {
-            throw new InvalidOperationException();
-        }
-
         if ( !this.IsUsageReportingEnabled )
         {
-            return false;
+            return null;
         }
 
-        this._currentSample = new UsageTelemetryReport( this._serviceProvider, kind );
+        var previousSample = _currentSample.Value;
+        var currentSample = new UsageTelemetryReport( this._serviceProvider, kind );
+        _currentSample.Value = currentSample;
 
         if ( this._logger.Trace != null )
         {
             this._logger.Trace.Log( $"Usage session started." );
-            this.TraceCurrentSample();
+            this.TraceSample( currentSample );
         }
 
-        return true;
+        return new DisposableAction( () => this.StopSession( previousSample, currentSample ) );
     }
 
-    public MetricCollection? Metrics => this._currentSample?.Metrics;
+    public MetricCollection? Metrics => _currentSample.Value?.Metrics;
 
-    public void StopSession()
+    private void StopSession( UsageTelemetryReport? previousSample, UsageTelemetryReport currentSample )
     {
-        if ( this._currentSample != null )
+        if ( this._logger.Trace != null )
         {
-            if ( this._logger.Trace != null )
-            {
-                this._logger.Trace.Log( $"Usage session ended." );
-                this.TraceCurrentSample();
-            }
-
-            this._telemetryReportUploader.Upload( this._currentSample );
-            this._currentSample = null;
+            this._logger.Trace.Log( $"Usage session ended." );
+            this.TraceSample( currentSample );
         }
+
+        this._telemetryReportUploader.Upload( currentSample );
+        _currentSample.Value = previousSample;
     }
 
-    private void TraceCurrentSample()
+    private void TraceSample( UsageTelemetryReport sample )
     {
-        if ( this._logger.Trace == null || this._currentSample == null )
+        if ( this._logger.Trace == null )
         {
             return;
         }
 
-        foreach ( var metric in this._currentSample.Metrics )
+        foreach ( var metric in sample.Metrics )
         {
             this._logger.Trace.Log( $"  {metric.Name}: {metric}" );
         }

@@ -1,28 +1,32 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. See the LICENSE.md file in the root directory of this repository root for details.
 
+using JetBrains.Annotations;
 using Metalama.Backstage.Diagnostics;
 using Metalama.Backstage.Extensibility;
 using Metalama.Backstage.Maintenance;
 using Metalama.Backstage.Telemetry;
 using Spectre.Console.Cli;
+using System;
 using System.Threading.Tasks;
 
 namespace Metalama.Backstage.Worker.Upload
 {
+    [UsedImplicitly]
     internal class UploadCommand : AsyncCommand<UploadCommandSettings>
     {
         public override async Task<int> ExecuteAsync( CommandContext context, UploadCommandSettings settings )
         {
             var appData = (AppData) context.Data!;
             var serviceProvider = appData.ServiceProvider;
-
-            var logger = serviceProvider.GetLoggerFactory().GetLogger( "Worker" );
-            var usageReporter = serviceProvider.GetBackstageService<IUsageReporter>();
+            IDisposable? usageReportingSession = null;
 
             try
             {
+                var logger = serviceProvider.GetLoggerFactory().GetLogger( "Worker" );
                 logger.Trace?.Log( "Job started." );
-                usageReporter?.StartSession( "CompilerUsage" );
+                
+                var usageReporter = serviceProvider.GetBackstageService<IUsageReporter>();
+                usageReportingSession = usageReporter?.StartSession( "CompilerUsage" );
 
                 // Clean-up. Scheduled automatically by telemetry.
                 logger.Trace?.Log( "Starting temporary directories cleanup." );
@@ -41,7 +45,7 @@ namespace Metalama.Backstage.Worker.Upload
             finally
             {
                 // Report usage.
-                usageReporter?.StopSession();
+                usageReportingSession?.Dispose();
             }
         }
     }
