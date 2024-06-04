@@ -12,7 +12,6 @@ namespace Metalama.Backstage.Telemetry;
 internal class UsageReporter : IUsageReporter
 {
     private readonly IServiceProvider _serviceProvider;
-    private readonly TelemetryConfiguration _configuration;
     private readonly IConfigurationManager _configurationManager;
     private readonly IDateTimeProvider _time;
     private readonly ILogger _logger;
@@ -26,7 +25,6 @@ internal class UsageReporter : IUsageReporter
     {
         this._serviceProvider = serviceProvider;
         this._configurationManager = serviceProvider.GetRequiredBackstageService<IConfigurationManager>();
-        this._configuration = this._configurationManager.Get<TelemetryConfiguration>();
         this._time = serviceProvider.GetRequiredBackstageService<IDateTimeProvider>();
         this._logger = serviceProvider.GetLoggerFactory().Telemetry();
         this._telemetryReportUploader = serviceProvider.GetRequiredBackstageService<TelemetryReportUploader>();
@@ -38,7 +36,7 @@ internal class UsageReporter : IUsageReporter
             this._logger.Trace?.Log(
                 $"Usage should not be reported because telemetry is disabled for '{applicationInfo.Name} {applicationInfo.PackageVersion}'." );
         }
-        else if ( TelemetryConfiguration.IsOptOutEnvironmentVariableSet() )
+        else if ( TelemetryConfiguration.IsOptOutEnvironmentVariableSet( serviceProvider.GetRequiredBackstageService<IEnvironmentVariableProvider>() ) )
         {
             this._logger.Trace?.Log( $"Usage should not be reported because the opt-out environment variable is set." );
         }
@@ -57,7 +55,9 @@ internal class UsageReporter : IUsageReporter
             return false;
         }
 
-        if ( this._configuration.Sessions.TryGetValue( projectName, out var lastReported ) && lastReported.AddDays( 1 ) < now )
+        var configuration = this._configurationManager.Get<TelemetryConfiguration>();
+
+        if ( configuration.Sessions.TryGetValue( projectName, out var lastReported ) && lastReported.AddDays( 1 ) > now )
         {
             this._logger.Trace?.Log( $"Session of project '{projectName}' should not be reported because it has been reported on {lastReported}." );
 
@@ -67,7 +67,7 @@ internal class UsageReporter : IUsageReporter
         return this._configurationManager.UpdateIf<TelemetryConfiguration>(
             c =>
             {
-                if ( c.Sessions.TryGetValue( projectName, out var raceReported ) && raceReported.AddDays( 1 ) < now )
+                if ( c.Sessions.TryGetValue( projectName, out var raceReported ) && raceReported.AddDays( 1 ) > now )
                 {
                     this._logger.Trace?.Log(
                         $"Session of project '{projectName}' should not be reported because it is being reported by a concurrent process." );
@@ -81,7 +81,10 @@ internal class UsageReporter : IUsageReporter
             {
                 this._logger.Trace?.Log( $"Session of project '{projectName}' should be reported." );
 
-                return c.CleanUp( now.AddDays( -1 ) ) with { Sessions = c.Sessions.SetItem( projectName, now ) };
+                c = c.CleanUp( now.AddDays( -1 ) );
+                c = c with { Sessions = c.Sessions.SetItem( projectName, now ) };
+
+                return c;
             } );
     }
 
