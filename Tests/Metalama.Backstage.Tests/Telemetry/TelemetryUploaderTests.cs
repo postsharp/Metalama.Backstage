@@ -71,8 +71,8 @@ public class TelemetryUploaderTests : TestsBase
     public async Task UsageIsUploaded()
     {
         var usageReporter = this.ServiceProvider.GetRequiredBackstageService<IUsageReporter>();
-        usageReporter.StartSession( "TestUsage" );
-        usageReporter.StopSession();
+        var session = usageReporter.StartSession( "TestUsage" );
+        session!.Dispose();
 
         await this.AssertUploadedAsync( true );
     }
