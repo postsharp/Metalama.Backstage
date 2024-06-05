@@ -23,6 +23,8 @@
         <TargetFramework>net6.0</TargetFramework>
         <UseAppHost>false</UseAppHost>
         <GenerateRuntimeConfigurationFiles>true</GenerateRuntimeConfigurationFiles>
+        <!-- This app should run on any .NET 6+ runtime. -->
+        <RollForward>Major</RollForward>
         <OutputZipFile>bin\$(MSBuildProjectName).zip</OutputZipFile>
     </PropertyGroup>
 
