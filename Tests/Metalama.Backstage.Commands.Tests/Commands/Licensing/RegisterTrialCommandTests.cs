@@ -1,6 +1,7 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. See the LICENSE.md file in the root directory of this repository root for details.
 
 using System;
+using System.Globalization;
 using System.Threading.Tasks;
 using Xunit;
 using Xunit.Abstractions;
@@ -39,7 +40,7 @@ namespace Metalama.Tools.Config.Tests.Commands.Licensing
             await this.TestCommandAsync(
                 "license try",
                 null,
-                "You cannot start a new trial period until 6/14/2020 12:00:00 AM.",
+                $"You cannot start a new trial period until {_evaluationStart.AddDays( 120 + 45 ).ToString( CultureInfo.CurrentCulture )}.",
                 1 );
 
             await this.TestCommandAsync( "license list", "Evaluation License" );
