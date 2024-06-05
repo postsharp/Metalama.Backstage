@@ -18,34 +18,34 @@ namespace Metalama.Backstage.Tests.Telemetry;
 
 public class UsageReporterTests : TestsBase
 {
-    private readonly TestApplicationInfo ApplicationInfo = new TestApplicationInfo() { IsTelemetryEnabled = true };
+    private readonly TestApplicationInfo _applicationInfo = new TestApplicationInfo() { IsTelemetryEnabled = true };
 
-    private readonly UsageReporter Reporter;
+    private readonly UsageReporter _reporter;
 
     public UsageReporterTests( ITestOutputHelper logger ) : base( logger )
     {
-        this.Reporter = new UsageReporter( this.ServiceProvider );
+        this._reporter = new UsageReporter( this.ServiceProvider );
     }
 
     protected override void ConfigureServices( ServiceProviderBuilder services )
     {
-        services.AddSingleton<IApplicationInfoProvider>( new ApplicationInfoProvider( this.ApplicationInfo ) );
+        services.AddSingleton<IApplicationInfoProvider>( new ApplicationInfoProvider( this._applicationInfo ) );
         services.AddSingleton<TelemetryReportUploader>( serviceProvider => new TelemetryReportUploader( serviceProvider ) );
     }
 
     private void ReportSession( string kind = "TestSession" )
     {
-        Assert.Null( this.Reporter.Metrics );
+        Assert.Null( this._reporter.Metrics );
 
-        var session = this.Reporter.StartSession( kind ); 
+        var session = this._reporter.StartSession( kind ); 
         Assert.NotNull( session );
         
-        Assert.NotNull( this.Reporter.Metrics );
-        Assert.NotEmpty( this.Reporter.Metrics! );
+        Assert.NotNull( this._reporter.Metrics );
+        Assert.NotEmpty( this._reporter.Metrics! );
         
-        session.Dispose();
+        session!.Dispose();
         
-        Assert.Null( this.Reporter.Metrics );
+        Assert.Null( this._reporter.Metrics );
         Assert.Single( this.FileSystem.Mock.AllFiles );
         Assert.StartsWith( "Usage-", Path.GetFileName( this.FileSystem.Mock.AllFiles.Single() ), StringComparison.Ordinal );
     }
@@ -72,7 +72,7 @@ public class UsageReporterTests : TestsBase
     [Fact]
     public void UsageIsNotReportedWhenTelemetryIsDisabled()
     {
-        this.ApplicationInfo.IsTelemetryEnabled = false;
+        this._applicationInfo.IsTelemetryEnabled = false;
         this.AssertReportingDisabled();
     }
     
@@ -91,9 +91,9 @@ public class UsageReporterTests : TestsBase
         this.ReportSession();
     }
 
-    private void AssertSessionShouldBeReported( string projectName = "TestProject" ) => Assert.True( this.Reporter.ShouldReportSession( projectName ) );
+    private void AssertSessionShouldBeReported( string projectName = "TestProject" ) => Assert.True( this._reporter.ShouldReportSession( projectName ) );
     
-    private void AssertSessionShouldNotBeReported( string projectName = "TestProject" ) => Assert.False( this.Reporter.ShouldReportSession( projectName ) );
+    private void AssertSessionShouldNotBeReported( string projectName = "TestProject" ) => Assert.False( this._reporter.ShouldReportSession( projectName ) );
     
     [Fact]
     public void FirstSessionSoShouldBeReported()
@@ -157,15 +157,15 @@ public class UsageReporterTests : TestsBase
         
         async Task<IDisposable> StartSession( string projectName, SemaphoreSlim e )
         {
-            var session = this.Reporter.StartSession( "TestSession" );
+            var session = this._reporter.StartSession( "TestSession" );
             Assert.NotNull( session );
-            this.Reporter.Metrics!.Add( new StringMetric( "ProjectName", projectName ) );
+            this._reporter.Metrics!.Add( new StringMetric( "ProjectName", projectName ) );
 
             await e.WaitAsync();
             
-            Assert.Single( this.Reporter.Metrics, m => m is StringMetric stringMetric && stringMetric.Value == projectName );
+            Assert.Single( this._reporter.Metrics, m => m is StringMetric stringMetric && stringMetric.Value == projectName );
             
-            return session;
+            return session!;
         }
 
         var session1Task = StartSession( "TestProject1", event1 );
@@ -180,7 +180,7 @@ public class UsageReporterTests : TestsBase
         session1Task.Result.Dispose();
         session2Task.Result.Dispose();
         
-        Assert.Null( this.Reporter.Metrics );
+        Assert.Null( this._reporter.Metrics );
         Assert.Equal( 2, this.FileSystem.Mock.AllFiles.Count() );
     }
 }
