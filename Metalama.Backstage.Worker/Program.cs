@@ -18,17 +18,19 @@ namespace Metalama.Backstage
             var initializationOptions = new BackstageInitializationOptions( new BackstageWorkerApplicationInfo() ) { AddSupportServices = true };
             var serviceProviderBuilder = new ServiceProviderBuilder().AddBackstageServices( initializationOptions );
             var serviceProvider = serviceProviderBuilder.ServiceProvider;
+            IDisposable? session = null; 
 
             try
             {
                 _canIgnoreRecoverableExceptions = serviceProvider.GetRequiredBackstageService<IRecoverableExceptionService>().CanIgnore;
-                var logger = serviceProvider.GetLoggerFactory().GetLogger( "Worker" );
-                var usageReporter = serviceProviderBuilder.ServiceProvider.GetBackstageService<IUsageReporter>();
 
                 try
                 {
+                    var logger = serviceProvider.GetLoggerFactory().GetLogger( "Worker" );
                     logger.Trace?.Log( "Job started." );
-                    usageReporter?.StartSession( "CompilerUsage" );
+                    
+                    var usageReporter = serviceProviderBuilder.ServiceProvider.GetBackstageService<IUsageReporter>();
+                    session = usageReporter?.StartSession( "CompilerUsage" );
 
                     // Clean-up. Scheduled automatically by telemetry.
                     logger.Trace?.Log( "Starting temporary directories cleanup." );
@@ -45,7 +47,7 @@ namespace Metalama.Backstage
                 finally
                 {
                     // Report usage.
-                    usageReporter?.StopSession();
+                    session?.Dispose();
                 }
             }
             catch ( Exception e )

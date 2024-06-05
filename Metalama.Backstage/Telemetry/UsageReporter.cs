@@ -3,18 +3,20 @@
 using Metalama.Backstage.Configuration;
 using Metalama.Backstage.Diagnostics;
 using Metalama.Backstage.Extensibility;
+using Metalama.Backstage.Utilities;
 using System;
+using System.Threading;
 
 namespace Metalama.Backstage.Telemetry;
 
 internal class UsageReporter : IUsageReporter
 {
+    private static readonly AsyncLocal<UsageSample?> _currentSample = new();
+    
     private readonly IServiceProvider _serviceProvider;
-    private readonly TelemetryConfiguration _configuration;
     private readonly IConfigurationManager _configurationManager;
     private readonly IDateTimeProvider _time;
     private readonly ILogger _logger;
-    private UsageSample? _currentSample;
 
     public bool IsUsageReportingEnabled { get; }
 
@@ -22,7 +24,6 @@ internal class UsageReporter : IUsageReporter
     {
         this._serviceProvider = serviceProvider;
         this._configurationManager = serviceProvider.GetRequiredBackstageService<IConfigurationManager>();
-        this._configuration = this._configurationManager.Get<TelemetryConfiguration>();
         this._time = serviceProvider.GetRequiredBackstageService<IDateTimeProvider>();
         this._logger = serviceProvider.GetLoggerFactory().Telemetry();
 
@@ -32,7 +33,7 @@ internal class UsageReporter : IUsageReporter
         {
             this._logger.Trace?.Log( $"Usage should not be reported because telemetry is disabled for '{applicationInfo.Name} {applicationInfo.Version}'." );
         }
-        else if ( TelemetryConfiguration.IsOptOutEnvironmentVariableSet() )
+        else if ( TelemetryConfiguration.IsOptOutEnvironmentVariableSet( serviceProvider.GetRequiredBackstageService<IEnvironmentVariableProvider>() ) )
         {
             this._logger.Trace?.Log( $"Usage should not be reported because the opt-out environment variable is set." );
         }
@@ -51,7 +52,9 @@ internal class UsageReporter : IUsageReporter
             return false;
         }
 
-        if ( this._configuration.Sessions.TryGetValue( projectName, out var lastReported ) && lastReported.AddDays( 1 ) < now )
+        var configuration = this._configurationManager.Get<TelemetryConfiguration>();
+
+        if ( configuration.Sessions.TryGetValue( projectName, out var lastReported ) && lastReported.AddDays( 1 ) > now )
         {
             this._logger.Trace?.Log( $"Session of project '{projectName}' should not be reported because it has been reported on {lastReported}." );
 
@@ -61,7 +64,7 @@ internal class UsageReporter : IUsageReporter
         return this._configurationManager.UpdateIf<TelemetryConfiguration>(
             c =>
             {
-                if ( c.Sessions.TryGetValue( projectName, out var raceReported ) && raceReported.AddDays( 1 ) < now )
+                if ( c.Sessions.TryGetValue( projectName, out var raceReported ) && raceReported.AddDays( 1 ) > now )
                 {
                     this._logger.Trace?.Log(
                         $"Session of project '{projectName}' should not be reported because it is being reported by a concurrent process." );
@@ -75,58 +78,55 @@ internal class UsageReporter : IUsageReporter
             {
                 this._logger.Trace?.Log( $"Session of project '{projectName}' should be reported." );
 
-                return c.CleanUp( now.AddDays( -1 ) ) with { Sessions = c.Sessions.SetItem( projectName, now ) };
+                c = c.CleanUp( now.AddDays( -1 ) );
+                c = c with { Sessions = c.Sessions.SetItem( projectName, now ) };
+
+                return c;
             } );
     }
 
-    public bool StartSession( string kind )
+    public IDisposable? StartSession( string kind )
     {
-        if ( this._currentSample != null )
-        {
-            throw new InvalidOperationException();
-        }
-
         if ( !this.IsUsageReportingEnabled )
         {
-            return false;
+            return null;
         }
 
-        this._currentSample = new UsageSample( this._serviceProvider, kind );
+        var previousSample = _currentSample.Value;
+        var currentSample = new UsageSample( this._serviceProvider, kind );
+        _currentSample.Value = currentSample;
 
         if ( this._logger.Trace != null )
         {
             this._logger.Trace.Log( $"Usage session started." );
-            this.TraceCurrentSample();
+            this.TraceSample( currentSample );
         }
 
-        return true;
+        return new DisposableAction( () => this.StopSession( previousSample, currentSample ) );
     }
 
-    public MetricCollection? Metrics => this._currentSample?.Metrics;
+    public MetricCollection? Metrics => _currentSample.Value?.Metrics;
 
-    public void StopSession()
+    private void StopSession( UsageSample? previousSample, UsageSample currentSample )
     {
-        if ( this._currentSample != null )
+        if ( this._logger.Trace != null )
         {
-            if ( this._logger.Trace != null )
-            {
-                this._logger.Trace.Log( $"Usage session ended." );
-                this.TraceCurrentSample();
-            }
-
-            this._currentSample.Upload();
-            this._currentSample = null;
+            this._logger.Trace.Log( $"Usage session ended." );
+            this.TraceSample( currentSample );
         }
+
+        currentSample.Upload();
+        _currentSample.Value = previousSample;
     }
 
-    private void TraceCurrentSample()
+    private void TraceSample( UsageSample sample )
     {
-        if ( this._logger.Trace == null || this._currentSample == null )
+        if ( this._logger.Trace == null )
         {
             return;
         }
 
-        foreach ( var metric in this._currentSample.Metrics )
+        foreach ( var metric in sample.Metrics )
         {
             this._logger.Trace.Log( $"  {metric.Name}: {metric}" );
         }
