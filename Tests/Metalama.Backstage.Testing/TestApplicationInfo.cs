@@ -60,7 +60,7 @@ namespace Metalama.Backstage.Testing
         public bool IsLongRunningProcess { get; init; }
 
         /// <inheritdoc />
-        public bool IsTelemetryEnabled { get; init; }
+        public bool IsTelemetryEnabled { get; set; }
 
         /// <inheritdoc />
         public bool IsLicenseAuditEnabled { get; init; } = true;

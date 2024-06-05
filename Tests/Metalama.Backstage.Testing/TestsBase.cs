@@ -35,7 +35,7 @@ namespace Metalama.Backstage.Testing
 
         private NullTelemetryUploader TelemetryUploader { get; } = new();
 
-        private TestUsageReporter UsageReporter { get; } = new();
+        private NullUsageReporter UsageReporter { get; } = new();
 
         protected IServiceProvider ServiceProvider { get; }
 

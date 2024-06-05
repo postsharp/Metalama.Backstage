@@ -35,6 +35,7 @@ internal class TelemetryReportUploader : IBackstageService
 
         try
         {
+            // TODO: Write multiple reports to the same file.
             var fileName = Path.Combine( this._directories.TelemetryUploadQueueDirectory, $"{report.Kind}-{Guid.NewGuid()}.log" );
             this.Write( report, fileName );
         }
