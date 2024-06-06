@@ -6,7 +6,6 @@ using Metalama.Backstage.Extensibility;
 using Metalama.Backstage.Maintenance;
 using Metalama.Backstage.Testing;
 using System;
-using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Globalization;
 using System.IO;
@@ -47,8 +46,6 @@ public class LoggerFactoryTests : TestsBase
         this.Time.Set( new DateTime( 1978, 6, 16 ) );
 
         var loggerFactory = this.CreateLoggerFactory();
-        List<string> files = [];
-        loggerFactory.FileCreated += files.Add;
 
         var logger = loggerFactory.GetLogger( "Test" );
 
@@ -65,10 +62,10 @@ public class LoggerFactoryTests : TestsBase
             }
         }
 
-        var file = files.Single();
+        var file = this.FileSystem.Mock.AllFiles.Single( f => Path.GetExtension( f ) == ".log" );
         loggerFactory.Close();
 
-        var allLines = File.ReadAllLines( file );
+        var allLines = this.FileSystem.ReadAllLines( file );
 
         Assert.Equal( n, allLines.Length );
     }
@@ -77,9 +74,6 @@ public class LoggerFactoryTests : TestsBase
     public void TestScope()
     {
         var loggerFactory = this.CreateLoggerFactory();
-
-        List<string> files = [];
-        loggerFactory.FileCreated += files.Add;
 
         using ( loggerFactory.EnterScope( "Scope1" ) )
         {
@@ -93,9 +87,10 @@ public class LoggerFactoryTests : TestsBase
 
         loggerFactory.Close();
 
-        var allLines1 = File.ReadAllLines( files.Single( f => f.ContainsOrdinal( "Scope1" ) ) );
+        var files = this.FileSystem.Mock.AllFiles.ToList();
+        var allLines1 = this.FileSystem.ReadAllLines( files.Single( f => f.ContainsOrdinal( "Scope1" ) ) );
         Assert.Contains( "InScope1", allLines1.Last(), StringComparison.Ordinal );
-        var allLines2 = File.ReadAllLines( files.Single( f => f.ContainsOrdinal( "Scope2" ) ) );
+        var allLines2 = this.FileSystem.ReadAllLines( files.Single( f => f.ContainsOrdinal( "Scope2" ) ) );
         Assert.Contains( "InScope2", allLines2.Last(), StringComparison.Ordinal );
     }
 }

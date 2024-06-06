@@ -3,9 +3,11 @@
 using Metalama.Backstage.Utilities;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
+using System.Text;
 
 namespace Metalama.Backstage.Infrastructure
 {
@@ -41,7 +43,7 @@ namespace Metalama.Backstage.Infrastructure
         }
 
         /// <inheritdoc />
-        public bool FileExists( string path )
+        public bool FileExists( [NotNullWhen( true )] string? path )
         {
             return File.Exists( path );
         }
@@ -59,7 +61,7 @@ namespace Metalama.Backstage.Infrastructure
         }
 
         /// <inheritdoc />
-        public bool DirectoryExists( string path )
+        public bool DirectoryExists( [NotNullWhen( true )] string? path )
         {
             return Directory.Exists( path );
         }
@@ -155,6 +157,12 @@ namespace Metalama.Backstage.Infrastructure
         }
 
         /// <inheritdoc />
+        public StreamWriter CreateTextFile( string path )
+        {
+            return File.CreateText( path );
+        }
+
+        /// <inheritdoc />
         public string GetTempFileName()
         {
             return MetalamaPathUtilities.GetTempFileName();
@@ -221,9 +229,15 @@ namespace Metalama.Backstage.Infrastructure
         }
 
         /// <inheritdoc />
-        public void WriteAllText( string path, string content )
+        public void WriteAllText( string path, string? content )
         {
             File.WriteAllText( path, content );
+        }
+
+        /// <inheritdoc />
+        public void WriteAllText( string path, string? contents, Encoding encoding )
+        {
+            File.WriteAllText( path, contents, encoding );
         }
 
         /// <inheritdoc />
@@ -244,9 +258,28 @@ namespace Metalama.Backstage.Infrastructure
             File.WriteAllLines( path, contents );
         }
 
+        /// <inheritdoc />
         public void AppendAllLines( string path, IEnumerable<string> contents )
         {
             File.AppendAllLines( path, contents );
+        }
+        
+        /// <inheritdoc />
+        public void AppendAllLines( string path, IEnumerable<string> contents, Encoding encoding )
+        {
+            File.AppendAllLines( path, contents, encoding );
+        }
+
+        /// <inheritdoc />
+        public void AppendAllText( string path, string? contents )
+        {
+            File.AppendAllText( path, contents );
+        }
+
+        /// <inheritdoc />
+        public void AppendAllText( string path, string? contents, Encoding encoding )
+        {
+            File.AppendAllText( path, contents, encoding );
         }
 
         /// <inheritdoc />

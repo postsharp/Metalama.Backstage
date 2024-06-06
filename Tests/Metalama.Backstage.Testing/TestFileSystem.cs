@@ -5,10 +5,12 @@ using Metalama.Backstage.Infrastructure;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.IO.Abstractions.TestingHelpers;
 using System.IO.Compression;
 using System.Linq;
+using System.Text;
 using System.Threading;
 using Infrastructure_IFileSystem = Metalama.Backstage.Infrastructure.IFileSystem;
 
@@ -180,14 +182,14 @@ namespace Metalama.Backstage.Testing
                     d.SetLastWriteTime( path, lastWriteTime );
                 } );
 
-        public bool FileExists( string path ) => this._file.Execute( ExecutionKind.Manage, 0, path, f => f.Exists( path ) );
+        public bool FileExists( [NotNullWhen( true )] string? path ) => this._file.Execute( ExecutionKind.Manage, 0, path!, f => f.Exists( path ) );
 
         public FileAttributes GetFileAttributes( string path ) => this._file.Execute( ExecutionKind.Manage, 0, path, f => f.GetAttributes( path ) );
 
         public void SetFileAttributes( string path, FileAttributes fileAttributes )
             => this._file.Execute( ExecutionKind.Manage, WatcherChangeTypes.Changed, path, f => f.SetAttributes( path, fileAttributes ) );
 
-        public bool DirectoryExists( string path ) => this._directory.Execute( ExecutionKind.Manage, 0, path, d => d.Exists( path ) );
+        public bool DirectoryExists( [NotNullWhen( true )] string? path ) => this._directory.Execute( ExecutionKind.Manage, 0, path!, d => d.Exists( path ) );
 
         // We use GetFiles instead of EnumerateFiles because the EnumerateFiles method doesn't behave as expected.
         public IEnumerable<string> EnumerateFiles( string path ) => this._directory.Execute( ExecutionKind.Manage, 0, path, d => d.GetFiles( path ) );
@@ -239,6 +241,9 @@ namespace Metalama.Backstage.Testing
 
         public Stream CreateFile( string path, int bufferSize, FileOptions options )
             => this._file.Execute( ExecutionKind.Write, WatcherChangeTypes.Created, path, f => f.Create( path, bufferSize, options ) );
+        
+        public StreamWriter CreateTextFile( string path )
+            => this._file.Execute( ExecutionKind.Write, WatcherChangeTypes.Created, path, f => f.CreateText( path ) );
 
         public string GetTempFileName()
         {
@@ -285,8 +290,11 @@ namespace Metalama.Backstage.Testing
 
         public string ReadAllText( string path ) => this._file.Execute( ExecutionKind.Read, 0, path, f => f.ReadAllText( path ) );
 
-        public void WriteAllText( string path, string content )
+        public void WriteAllText( string path, string? content )
             => this._file.Execute( ExecutionKind.Write, this.GetWriteChangeKind( path ), path, f => f.WriteAllText( path, content ) );
+        
+        public void WriteAllText( string path, string? contents, Encoding encoding )
+            => this._file.Execute( ExecutionKind.Write, this.GetWriteChangeKind( path ), path, f => f.WriteAllText( path, contents, encoding ) );
 
         public string[] ReadAllLines( string path ) => this._file.Execute( ExecutionKind.Read, 0, path, f => f.ReadAllLines( path ) );
 
@@ -298,6 +306,15 @@ namespace Metalama.Backstage.Testing
 
         public void AppendAllLines( string path, IEnumerable<string> contents )
             => this._file.Execute( ExecutionKind.Write, this.GetWriteChangeKind( path ), path, f => f.AppendAllLines( path, contents ) );
+        
+        public void AppendAllLines( string path, IEnumerable<string> contents, Encoding encoding )
+            => this._file.Execute( ExecutionKind.Write, this.GetWriteChangeKind( path ), path, f => f.AppendAllLines( path, contents, encoding ) );
+        
+        public void AppendAllText( string path, string? contents )
+            => this._file.Execute( ExecutionKind.Write, this.GetWriteChangeKind( path ), path, f => f.AppendAllText( path, contents ) );
+        
+        public void AppendAllText( string path, string? contents, Encoding encoding )
+            => this._file.Execute( ExecutionKind.Write, this.GetWriteChangeKind( path ), path, f => f.AppendAllText( path, contents, encoding ) );
 
         public void MoveFile( string sourceFileName, string destFileName )
         {

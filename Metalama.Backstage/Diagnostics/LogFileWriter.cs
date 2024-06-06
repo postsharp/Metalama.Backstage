@@ -1,5 +1,6 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. See the LICENSE.md file in the root directory of this repository root for details.
 
+using Metalama.Backstage.Infrastructure;
 using Metalama.Backstage.Utilities;
 using System;
 using System.Collections.Concurrent;
@@ -16,6 +17,7 @@ internal class LogFileWriter
     private const int _finishingStatus = 2;
     private static readonly Stopwatch _stopwatch = Stopwatch.StartNew();
 
+    private readonly IFileSystem _fileSystem;
     private readonly object _textWriterSync = new();
     private readonly ConcurrentQueue<string> _messageQueue = new();
     private TextWriter? _textWriter;
@@ -28,6 +30,7 @@ internal class LogFileWriter
 
     public LogFileWriter( LoggerFactory loggerFactory, string scope )
     {
+        this._fileSystem = loggerFactory.FileSystem;
         this.Scope = scope;
 
         try
@@ -35,9 +38,9 @@ internal class LogFileWriter
             RetryHelper.Retry(
                 () =>
                 {
-                    if ( !Directory.Exists( loggerFactory.LogDirectory ) )
+                    if ( !this._fileSystem.DirectoryExists( loggerFactory.LogDirectory ) )
                     {
-                        Directory.CreateDirectory( loggerFactory.LogDirectory! );
+                        this._fileSystem.CreateDirectory( loggerFactory.LogDirectory! );
                     }
                 } );
 
@@ -72,7 +75,7 @@ internal class LogFileWriter
         {
             try
             {
-                this._textWriter ??= File.CreateText( this.LogFile );
+                this._textWriter ??= this._fileSystem.CreateTextFile( this.LogFile );
 
                 // Process enqueued messages.
                 var lastFlush = _stopwatch.ElapsedMilliseconds;

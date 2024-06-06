@@ -12,7 +12,6 @@ namespace Metalama.Backstage.Diagnostics
     internal class LoggerFactory : ILoggerFactory
     {
         private readonly ConcurrentDictionary<string, ILogger> _loggers = new( StringComparer.OrdinalIgnoreCase );
-
         private readonly ConcurrentDictionary<string, LogFileWriter> _logFileWriters = new();
 
         public LoggerFactory(
@@ -21,6 +20,7 @@ namespace Metalama.Backstage.Diagnostics
             ProcessKind processKind )
         {
             this.DateTimeProvider = serviceProvider.GetRequiredBackstageService<IDateTimeProvider>();
+            this.FileSystem = serviceProvider.GetRequiredBackstageService<IFileSystem>();
 
             this.Configuration = configuration;
             this.ProcessKind = processKind;
@@ -38,6 +38,8 @@ namespace Metalama.Backstage.Diagnostics
         internal DiagnosticsConfiguration Configuration { get; }
 
         internal IDateTimeProvider DateTimeProvider { get; }
+        
+        internal IFileSystem FileSystem { get; }
 
         public ProcessKind ProcessKind { get; }
 
@@ -79,26 +81,11 @@ namespace Metalama.Backstage.Diagnostics
 
         public LogFileWriter GetLogFileWriter() => this.GetLogFileWriter( LoggingContext.Current.Value?.Scope ?? "" );
 
-        // Used for testing.
-        internal event Action<string>? FileCreated;
-
         private LogFileWriter GetLogFileWriter( string scope )
         {
             if ( !this._logFileWriters.TryGetValue( scope, out var writer ) )
             {
-                writer = this._logFileWriters.GetOrAdd(
-                    scope,
-                    s =>
-                    {
-                        var newWriter = new LogFileWriter( this, s );
-
-                        if ( newWriter.LogFile != null )
-                        {
-                            this.FileCreated?.Invoke( newWriter.LogFile );
-                        }
-
-                        return newWriter;
-                    } );
+                writer = this._logFileWriters.GetOrAdd( scope, s => new LogFileWriter( this, s ) );
             }
 
             return writer;
