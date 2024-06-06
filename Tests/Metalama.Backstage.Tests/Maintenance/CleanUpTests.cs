@@ -197,7 +197,7 @@ public class CleanUpTests : TestsBase
     [Fact]
     public void Clean_Scheduled()
     {
-        // Create cleanup.json and update its LastCleanUp property to a week days ago.
+        // Create cleanup.json and update its LastCleanUp property to a week ago.
         var configurationManager = this.ServiceProvider.GetRequiredBackstageService<IConfigurationManager>();
         configurationManager.Update<CleanUpConfiguration>( c => c with { LastCleanUpTime = DateTime.Now.AddDays( -7 ) } );
 
@@ -287,10 +287,11 @@ public class CleanUpTests : TestsBase
     [Fact]
     public void CleanUpFileIsNotRemovedOnFailure()
     {
-        var directoryPath = Path.Combine( this._standardDirectories.TempDirectory, "Logs", "0.1.42-test" );
+        var directoryPath = Path.Combine( this._standardDirectories.TempDirectory, "AssemblyLocator", "0.1.42-test" );
 
         // This file will remain in the directory after the failure.
         this.FileSystem.WriteAllText( Path.Combine( directoryPath, "foo.bar" ), "Foo" );
+        this.Time.AddTime( TimeSpan.FromDays( 32 ) );
 
         var deleteDirectoryOperation = nameof(this.FileSystem.DeleteDirectory);
         var newDirectoryPath = $"{directoryPath}0";

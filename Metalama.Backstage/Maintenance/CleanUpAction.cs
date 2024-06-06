@@ -7,5 +7,6 @@ internal enum CleanUpAction
     CleanUpSubdirectories,
     MoveAndDeleteDirectory,
     DeleteDirectory,
-    DeleteFileOneMonthAfterCreationFirst
+    DeleteOneMonthOldFilesFirst,
+    Delete4HoursOldFilesFirst
 }
