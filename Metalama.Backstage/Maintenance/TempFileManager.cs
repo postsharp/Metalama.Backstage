@@ -126,8 +126,13 @@ public class TempFileManager : ITempFileManager
 
                 break;
             
-            case CleanUpAction.DeleteFileOneMonthAfterCreationFirst:
-                this.DeleteFilesOneMonthAfterCreation( directory );
+            case CleanUpAction.Delete4HoursOldFilesFirst:
+                this.DeleteIndividualFiles( directory, TimeSpan.FromHours( 4 ) );
+
+                break;
+            
+            case CleanUpAction.DeleteOneMonthOldFilesFirst:
+                this.DeleteIndividualFiles( directory, TimeSpan.FromDays( 30 ) );
 
                 break;
             
@@ -189,9 +194,9 @@ public class TempFileManager : ITempFileManager
                     return CleanUpAction.CleanUpSubdirectories;
                 
                 case CleanUpStrategy.Always:
-                    this._logger.Trace?.Log( $"The '{directory}' directory clean-up strategy has been set to '{nameof(CleanUpStrategy.Always)}'. The directory will be deleted." );
+                    this._logger.Trace?.Log( $"The '{directory}' directory clean-up strategy has been set to '{nameof(CleanUpStrategy.Always)}'. The individual files in the directory will be cleaned up." );
                     
-                    return CleanUpAction.MoveAndDeleteDirectory;
+                    return CleanUpAction.Delete4HoursOldFilesFirst;
                 
                 case CleanUpStrategy.AlwaysNoMove:
                     this._logger.Trace?.Log( $"The '{directory}' directory clean-up strategy has been set to '{nameof(CleanUpStrategy.AlwaysNoMove)}'. This is a new location of a directory that has previously failed to delete. The directory will be deleted." );
@@ -202,7 +207,7 @@ public class TempFileManager : ITempFileManager
                     var lastWriteTime = this._fileSystem.GetFileLastWriteTime( cleanUpFilePath );
                     const int days = 7;
 
-                    if ( lastWriteTime < DateTime.Now.AddDays( -days ) )
+                    if ( lastWriteTime < this._time.Now.AddDays( -days ) )
                     {
                         this._logger.Trace?.Log(
                             $"The '{directory}' directory clean-up strategy has been set to '{nameof(CleanUpStrategy.WhenUnused)}' and the directory hasn't been used for more than {days} days since {lastWriteTime:s}. The directory will be deleted." );
@@ -220,7 +225,7 @@ public class TempFileManager : ITempFileManager
                 case CleanUpStrategy.FileOneMonthAfterCreation:
                     this._logger.Trace?.Log( $"The '{directory}' directory clean-up strategy has been set to '{nameof(CleanUpStrategy.FileOneMonthAfterCreation)}'. The individual files in the directory will be cleaned up." );
                     
-                    return CleanUpAction.DeleteFileOneMonthAfterCreationFirst;
+                    return CleanUpAction.DeleteOneMonthOldFilesFirst;
 
                 default:
                     this._logger.Warning?.Log( $"The '{directory}' directory clean-up strategy '{cleanUpFile.Strategy}' is unknown. The directory will not be deleted." );
@@ -321,8 +326,10 @@ public class TempFileManager : ITempFileManager
         return false;
     }
 
-    private void DeleteFilesOneMonthAfterCreation( string directory )
+    private void DeleteIndividualFiles( string directory, TimeSpan age )
     {
+        var threshold = this._time.Now.Add( -age );
+        
         var remainsAnyFile = false;
         
         foreach ( var file in this._fileSystem.GetFiles( directory ) )
@@ -331,15 +338,14 @@ public class TempFileManager : ITempFileManager
             {
                 continue;
             }
+            
+            var lastWriteTime = this._fileSystem.GetFileLastWriteTime( file );
 
-            const int days = 30;
-            var lastWriteTime = this._fileSystem.GetFileLastWriteTime( file ); 
-
-            if ( lastWriteTime < this._time.Now.AddDays( -days ) )
+            if ( lastWriteTime < threshold )
             {
                 try
                 {
-                    this._logger.Trace?.Log( $"Deleting '{file}'. It has been last written more than {days} ago at {lastWriteTime:s}." );
+                    this._logger.Trace?.Log( $"Deleting '{file}'. It has been last written more than {age} ago at {lastWriteTime:s}." );
                     this._fileSystem.DeleteFile( file );
                 }
                 catch ( Exception e )
@@ -350,7 +356,7 @@ public class TempFileManager : ITempFileManager
             }
             else
             {
-                this._logger.Trace?.Log( $"Not deleting '{file}'. It has been last written less than {days} ago at {lastWriteTime:s}." );
+                this._logger.Trace?.Log( $"Not deleting '{file}'. It has been last written less than {age} ago at {lastWriteTime:s}." );
                 remainsAnyFile = true;
             }
         }
@@ -419,7 +425,7 @@ public class TempFileManager : ITempFileManager
                 {
                     using ( MutexHelper.WithGlobalLock( cleanUpFilePath ) )
                     {
-                        RetryHelper.Retry( () => this._fileSystem.SetFileLastWriteTime( cleanUpFilePath, DateTime.Now ) );
+                        RetryHelper.Retry( () => this._fileSystem.SetFileLastWriteTime( cleanUpFilePath, this._time.Now ) );
                     }
                 }
             } );
