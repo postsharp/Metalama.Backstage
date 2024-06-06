@@ -160,13 +160,14 @@ public class TempFileManager : ITempFileManager
             {
                 var lastWriteTime = this._fileSystem.GetFileLastWriteTime( cleanUpFilePath );
 
-                if ( cleanUpFile.Strategy == CleanUpStrategy.Always
-                     || (cleanUpFile.Strategy == CleanUpStrategy.WhenUnused && lastWriteTime < DateTime.Now.AddDays( -7 )) )
+                if ( cleanUpFile.Strategy == CleanUpStrategy.WhenUnused && lastWriteTime < DateTime.Now.AddDays( -7 ) )
                 {
                     return true;
                 }
-                else if ( cleanUpFile.Strategy == CleanUpStrategy.FileOneMonthAfterCreation )
+                else if ( cleanUpFile.Strategy == CleanUpStrategy.Always || cleanUpFile.Strategy == CleanUpStrategy.FileOneMonthAfterCreation )
                 {
+                    var threshold = cleanUpFile.Strategy == CleanUpStrategy.Always ? this._time.Now.AddHours( -4 ) : this._time.Now.AddDays( -30 );
+                    
                     var remainsAnyFile = false;
 
                     foreach ( var file in this._fileSystem.GetFiles( directory ) )
@@ -176,7 +177,7 @@ public class TempFileManager : ITempFileManager
                             continue;
                         }
 
-                        if ( this._fileSystem.GetFileLastWriteTime( file ) < this._time.Now.AddDays( -30 ) )
+                        if ( this._fileSystem.GetFileLastWriteTime( file ) < threshold )
                         {
                             try
                             {
