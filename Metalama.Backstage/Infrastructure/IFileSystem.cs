@@ -4,8 +4,10 @@ using JetBrains.Annotations;
 using Metalama.Backstage.Extensibility;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.IO.Compression;
+using System.Text;
 
 namespace Metalama.Backstage.Infrastructure
 {
@@ -66,7 +68,7 @@ namespace Metalama.Backstage.Infrastructure
         /// <c>false</c> if the file does not exist
         /// or an error occurs when trying to determine if the specified file exists.
         /// </returns>
-        bool FileExists( string path );
+        bool FileExists( [NotNullWhen( true )] string? path );
 
         /// <summary>
         /// Gets the <see cref="FileAttributes" /> of the file on the path.
@@ -93,7 +95,7 @@ namespace Metalama.Backstage.Infrastructure
         /// <c>false</c> if the directory does not exist
         /// or an error occurs when trying to determine if the specified directory exists.
         /// </returns>
-        bool DirectoryExists( string path );
+        bool DirectoryExists( [NotNullWhen( true )] string? path );
 
         /// <summary>
         /// Returns an array of file names in a specified path.
@@ -372,6 +374,15 @@ namespace Metalama.Backstage.Infrastructure
         Stream CreateFile( string path, int bufferSize, FileOptions options );
 
         /// <summary>
+        /// Creates or opens a file for writing UTF-8 encoded text. If the file already exists, its contents are overwritten.
+        /// </summary>
+        /// <param name="path">The file to be opened for writing.</param>
+        /// <returns>
+        /// A <see cref="System.IO.StreamWriter" /> that writes to the specified file using UTF-8 encoding.
+        /// </returns>
+        StreamWriter CreateTextFile( string path );
+
+        /// <summary>
         /// Creates a uniquely named, zero-byte temporary file on disk and returns the full path of that file.
         /// </summary>
         /// <returns>The full path of the temporary file.</returns>
@@ -485,7 +496,15 @@ namespace Metalama.Backstage.Infrastructure
         /// </summary>
         /// <param name="path">The file to write to.</param>
         /// <param name="content">The string to write to the file.</param>
-        void WriteAllText( string path, string content );
+        void WriteAllText( string path, string? content );
+
+        /// <summary>
+        /// Creates a new file, writes the specified string to the file using the specified encoding, and then closes the file. If the target file already exists, it is overwritten.
+        /// </summary>
+        /// <param name="path">The file to write to.</param>
+        /// <param name="contents">The string to write to the file.</param>
+        /// <param name="encoding">The encoding to apply to the string.</param>
+        void WriteAllText( string path, string? contents, Encoding encoding );
 
         /// <summary>
         /// Opens a text file, reads all lines of the file, and then closes the file.
@@ -510,7 +529,35 @@ namespace Metalama.Backstage.Infrastructure
         /// <param name="contents">The lines to write to the file.</param>
         void WriteAllLines( string path, IEnumerable<string> contents );
 
+        /// <summary>
+        /// Appends lines to a file, and then closes the file. If the specified file does not exist, this method creates a file, writes the specified lines to the file, and then closes the file.
+        /// </summary>
+        /// <param name="path">The file to append the lines to. The file is created if it doesn't already exist.</param>
+        /// <param name="contents">The lines to append to the file.</param>
         void AppendAllLines( string path, IEnumerable<string> contents );
+
+        /// <summary>
+        /// Appends lines to a file by using a specified encoding, and then closes the file. If the specified file does not exist, this method creates a file, writes the specified lines to the file, and then closes the file.
+        /// </summary>
+        /// <param name="path">The file to append the lines to. The file is created if it doesn't already exist.</param>
+        /// <param name="contents">The lines to append to the file.</param>
+        /// <param name="encoding">The character encoding to use.</param>
+        void AppendAllLines( string path, IEnumerable<string> contents, Encoding encoding );
+
+        /// <summary>
+        /// Opens a file, appends the specified string to the file, and then closes the file. If the file does not exist, this method creates a file, writes the specified string to the file, then closes the file.
+        /// </summary>
+        /// <param name="path">The file to append the specified string to.</param>
+        /// <param name="contents">The string to append to the file.</param>
+        void AppendAllText( string path, string? contents );
+
+        /// <summary>
+        /// Appends the specified string to the file, creating the file if it does not already exist.
+        /// </summary>
+        /// <param name="path">The file to append the specified string to.</param>
+        /// <param name="contents">The string to append to the file.</param>
+        /// <param name="encoding">The character encoding to use.</param>
+        void AppendAllText( string path, string? contents, Encoding encoding );
 
         /// <summary>Moves a specified file to a new location, providing the option to specify a new file name.</summary>
         /// <param name="sourceFileName">The name of the file to move. Can include a relative or absolute path.</param>
