@@ -23,7 +23,7 @@ internal class ConsoleLoggerFactory : ILoggerFactory
         this.IncludeThreadId = includeThreadId;
     }
 
-    public ILogger GetLogger( string category ) => new ConsoleLogger( this, "", category );
+    public ILogger GetLogger( string category ) => new ConsoleLogger( this, category, category );
 
     public void Flush() => this.TextWriter.Flush();
 

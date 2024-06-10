@@ -16,7 +16,6 @@ using Metalama.Backstage.Utilities;
 using Metalama.Backstage.Welcome;
 using System;
 using System.Collections.Immutable;
-using System.Diagnostics;
 using System.Linq;
 using System.Runtime.InteropServices;
 

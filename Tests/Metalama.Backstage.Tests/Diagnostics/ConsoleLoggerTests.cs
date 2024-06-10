@@ -37,8 +37,8 @@ public class ConsoleLoggerTests : TestsBase
         var text = textWriter.ToString();
 
         const string expected = """
-                                # Metalama TRACE: TraceMessage
-                                # Metalama WARNING: WarningMessage
+                                # Metalama TRACE, Cat1: TraceMessage
+                                # Metalama WARNING, Cat2: WarningMessage
                                 """;
 
         Assert.Equal( expected.Trim(), text.Trim() );
