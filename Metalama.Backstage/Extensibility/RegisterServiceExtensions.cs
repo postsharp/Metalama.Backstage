@@ -16,6 +16,7 @@ using Metalama.Backstage.Utilities;
 using Metalama.Backstage.Welcome;
 using System;
 using System.Collections.Immutable;
+using System.Diagnostics;
 using System.Linq;
 using System.Runtime.InteropServices;
 
@@ -60,23 +61,35 @@ public static class RegisterServiceExtensions
 
                 DebuggerHelper.Launch( configuration, processKind );
 
-                // Automatically stop logging after a while.
-                if ( configuration.LastModified != null &&
-                     configuration.LastModified < dateTimeProvider.Now.AddHours( -configuration.Logging.StopLoggingAfterHours ) )
+                var consoleTracing = Environment.GetEnvironmentVariable( "METALAMA_CONSOLE_TRACE" );
+
+                ILoggerFactory loggerFactory;
+
+                if ( !string.IsNullOrWhiteSpace( consoleTracing ) )
                 {
-                    configurationManager.UpdateIf<DiagnosticsConfiguration>(
-                        c => c.Logging.Processes.Any( p => p.Value ),
-                        c => c with { Logging = c.Logging with { Processes = c.Logging.Processes.ToImmutableDictionary( x => x.Key, _ => false ) } } );
-
-                    configuration = configurationManager.Get<DiagnosticsConfiguration>();
+                    var traceCategories = consoleTracing.Split( ' ', ',', ';' ).ToImmutableHashSet();
+                    loggerFactory = new ConsoleLoggerFactory( Console.Out, traceCategories );
                 }
+                else
+                {
+                    // Automatically stop logging after a while.
+                    if ( configuration.LastModified != null &&
+                         configuration.LastModified < dateTimeProvider.Now.AddHours( -configuration.Logging.StopLoggingAfterHours ) )
+                    {
+                        configurationManager.UpdateIf<DiagnosticsConfiguration>(
+                            c => c.Logging.Processes.Any( p => p.Value ),
+                            c => c with { Logging = c.Logging with { Processes = c.Logging.Processes.ToImmutableDictionary( x => x.Key, _ => false ) } } );
 
-                var applicationInfo = serviceProvider.GetRequiredBackstageService<IApplicationInfoProvider>().CurrentApplication;
+                        configuration = configurationManager.Get<DiagnosticsConfiguration>();
+                    }
 
-                var loggerFactory = new LoggerFactory(
-                    serviceProvider,
-                    configuration,
-                    applicationInfo.ProcessKind );
+                    var applicationInfo = serviceProvider.GetRequiredBackstageService<IApplicationInfoProvider>().CurrentApplication;
+
+                    loggerFactory = new LoggerFactory(
+                        serviceProvider,
+                        configuration,
+                        applicationInfo.ProcessKind );
+                }
 
                 serviceProvider.GetBackstageService<EarlyLoggerFactory>()?.Replace( loggerFactory );
 

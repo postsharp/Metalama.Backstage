@@ -3,7 +3,6 @@
 using Metalama.Backstage.Extensibility;
 using Metalama.Backstage.Infrastructure;
 using Metalama.Backstage.Maintenance;
-using Metalama.Backstage.Utilities;
 using System;
 using System.Collections.Concurrent;
 
@@ -38,25 +37,14 @@ namespace Metalama.Backstage.Diagnostics
         internal DiagnosticsConfiguration Configuration { get; }
 
         internal IDateTimeProvider DateTimeProvider { get; }
-        
+
         internal IFileSystem FileSystem { get; }
 
         public ProcessKind ProcessKind { get; }
 
         public bool IsEnabled => this.LogDirectory != null;
 
-        public IDisposable EnterScope( string scope )
-        {
-            var previousScope = LoggingContext.Current.Value;
-            LoggingContext.Current.Value = new LoggingContext( scope );
-
-            return new DisposableAction(
-                () =>
-                {
-                    this.CloseScope( scope );
-                    LoggingContext.Current.Value = previousScope;
-                } );
-        }
+        public IDisposable EnterScope( string scope ) => LoggingContext.EnterScope( scope, this.CloseScope );
 
         public ILogger GetLogger( string category )
         {
@@ -79,7 +67,7 @@ namespace Metalama.Backstage.Diagnostics
             }
         }
 
-        public LogFileWriter GetLogFileWriter() => this.GetLogFileWriter( LoggingContext.Current.Value?.Scope ?? "" );
+        public LogFileWriter GetLogFileWriter() => this.GetLogFileWriter( LoggingContext.Current?.Scope ?? "" );
 
         private LogFileWriter GetLogFileWriter( string scope )
         {
