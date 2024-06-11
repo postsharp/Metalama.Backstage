@@ -3,6 +3,7 @@
 using Metalama.Backstage.Licensing.Consumption.Sources;
 using Metalama.Backstage.Licensing.Licenses;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
@@ -14,7 +15,7 @@ internal class LicenseConsumptionService : ILicenseConsumptionService
 {
     private readonly IServiceProvider _services;
     private readonly IReadOnlyList<ILicenseSource> _sources;
-    private readonly Dictionary<string, NamespaceLicenseInfo> _embeddedRedistributionLicensesCache = [];
+    private readonly ConcurrentDictionary<string, NamespaceLicenseInfo> _embeddedRedistributionLicensesCache = [];
     private readonly LicenseFactory _licenseFactory;
 
     public LicenseConsumptionService( IServiceProvider services, IReadOnlyList<ILicenseSource> licenseSources )
@@ -87,7 +88,7 @@ internal class LicenseConsumptionService : ILicenseConsumptionService
             }
 
             licensedNamespace = new NamespaceLicenseInfo( licenseConsumptionData.LicensedNamespace! );
-            this._embeddedRedistributionLicensesCache.Add( redistributionLicenseKey, licensedNamespace );
+            this._embeddedRedistributionLicensesCache.TryAdd( redistributionLicenseKey, licensedNamespace );
         }
 
         errors = ImmutableArray<LicensingMessage>.Empty;
