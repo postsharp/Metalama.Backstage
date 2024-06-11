@@ -13,219 +13,224 @@ namespace Metalama.Backstage.Utilities;
 
 public static class ProcessUtilities
 {
-    [PublicAPI]
-    public static ProcessKind ProcessKind
+    private static readonly bool _isCurrentProcessUnattended;
+    private static readonly BufferingLoggerFactory _isCurrentProcessUnattendedLog = new();
+
+    static ProcessUtilities()
     {
-        get
+        // It is critical to perform this detection early when the process is started, and to remember the result,
+        // because the parent process may end before the current process ends, and we would lose the ability
+        // to walk the parent processes.
+        // Therefore we must remember the result in a static field.
+        _isCurrentProcessUnattended = IsCurrentProcessUnattendedCore( _isCurrentProcessUnattendedLog );
+    }
+
+    [PublicAPI]
+    public static ProcessKind ProcessKind { get; } = GetProcessKind();
+
+    private static ProcessKind GetProcessKind()
+    {
+        // Note that the same logic is duplicated in Metalama.Framework.CompilerExtensions.ProcessKindHelper and cannot 
+        // be shared. Any change here must be done there too.
+
+        var processName = Process.GetCurrentProcess().ProcessName.ToLowerInvariant();
+
+        switch ( processName )
         {
-            // Note that the same logic is duplicated in Metalama.Framework.CompilerExtensions.ProcessKindHelper and cannot 
-            // be shared. Any change here must be done there too.
+            case "devenv":
+                return ProcessKind.DevEnv;
 
-            var processName = Process.GetCurrentProcess().ProcessName.ToLowerInvariant();
+            case "servicehub.roslyncodeanalysisservice":
+                return ProcessKind.RoslynCodeAnalysisService;
 
-            switch ( processName )
-            {
-                case "devenv":
-                    return ProcessKind.DevEnv;
-
-                case "servicehub.roslyncodeanalysisservice":
-                    return ProcessKind.RoslynCodeAnalysisService;
-
-                case "servicehub.host":
-                    {
-                        var commandLine = Environment.CommandLine.ToLowerInvariant();
+            case "servicehub.host":
+                {
+                    var commandLine = Environment.CommandLine.ToLowerInvariant();
 
 #pragma warning disable CA1307
-                        if ( commandLine.Contains( "$codelensservice$" ) )
-                        {
-                            return ProcessKind.CodeLensService;
-                        }
-                        else
-                        {
-                            return ProcessKind.Other;
-                        }
-#pragma warning restore CA1307
-                    }
-
-                case "visualstudio":
-                    return ProcessKind.VisualStudioMac;
-
-                case "csc":
-                case "vbcscompiler":
-                    return ProcessKind.Compiler;
-
-                case "resharpertestrunner":
-                case "resharpertestrunner64":
-                    return ProcessKind.ResharperTestRunner;
-
-                case "microsoft.codeanalysis.languageserver":
-                case "microsoft.visualstudio.code.languageserver":
-                    return ProcessKind.LanguageServer;
-
-                case "dotnet":
+                    if ( commandLine.Contains( "$codelensservice$" ) )
                     {
-                        var commandLine = Environment.CommandLine.ToLowerInvariant();
-
-#pragma warning disable CA1307
-                        if ( commandLine.Contains( "jetbrains.resharper.roslyn.worker" ) ||
-                             commandLine.Contains( "jetbrains.roslyn.worker" ) )
-                        {
-                            return ProcessKind.Rider;
-                        }
-                        else if ( commandLine.Contains( "vbcscompiler.dll" ) || commandLine.Contains( "csc.dll" ) )
-                        {
-                            return ProcessKind.Compiler;
-                        }
-                        else if ( commandLine.Contains( "languageserver.dll" ) )
-                        {
-                            return ProcessKind.LanguageServer;
-                        }
-                        else if ( commandLine.Contains( "omnisharp.dll" ) )
-                        {
-                            return ProcessKind.OmniSharp;
-                        }
-                        else if ( commandLine.Contains( "resharpertestrunner.dll" ) )
-                        {
-                            return ProcessKind.ResharperTestRunner;
-                        }
-                        else
-                        {
-                            return ProcessKind.Other;
-                        }
-#pragma warning restore CA1307
-                    }
-
-                default:
-                    if ( processName.StartsWith( "linqpad", StringComparison.Ordinal ) )
-                    {
-                        return ProcessKind.LinqPad;
+                        return ProcessKind.CodeLensService;
                     }
                     else
                     {
                         return ProcessKind.Other;
                     }
-            }
+#pragma warning restore CA1307
+                }
+
+            case "visualstudio":
+                return ProcessKind.VisualStudioMac;
+
+            case "csc":
+            case "vbcscompiler":
+                return ProcessKind.Compiler;
+
+            case "resharpertestrunner":
+            case "resharpertestrunner64":
+                return ProcessKind.ResharperTestRunner;
+
+            case "microsoft.codeanalysis.languageserver":
+            case "microsoft.visualstudio.code.languageserver":
+                return ProcessKind.LanguageServer;
+
+            case "dotnet":
+                {
+                    var commandLine = Environment.CommandLine.ToLowerInvariant();
+
+#pragma warning disable CA1307
+                    if ( commandLine.Contains( "jetbrains.resharper.roslyn.worker" ) ||
+                         commandLine.Contains( "jetbrains.roslyn.worker" ) )
+                    {
+                        return ProcessKind.Rider;
+                    }
+                    else if ( commandLine.Contains( "vbcscompiler.dll" ) || commandLine.Contains( "csc.dll" ) )
+                    {
+                        return ProcessKind.Compiler;
+                    }
+                    else if ( commandLine.Contains( "languageserver.dll" ) )
+                    {
+                        return ProcessKind.LanguageServer;
+                    }
+                    else if ( commandLine.Contains( "omnisharp.dll" ) )
+                    {
+                        return ProcessKind.OmniSharp;
+                    }
+                    else if ( commandLine.Contains( "resharpertestrunner.dll" ) )
+                    {
+                        return ProcessKind.ResharperTestRunner;
+                    }
+                    else
+                    {
+                        return ProcessKind.Other;
+                    }
+#pragma warning restore CA1307
+                }
+
+            default:
+                if ( processName.StartsWith( "linqpad", StringComparison.Ordinal ) )
+                {
+                    return ProcessKind.LinqPad;
+                }
+                else
+                {
+                    return ProcessKind.Other;
+                }
         }
     }
-
-    private static int _isCurrentProcessUnattended;
 
     [PublicAPI]
     public static bool IsCurrentProcessUnattended( ILoggerFactory loggerFactory )
     {
-        var logger = loggerFactory.GetLogger( "ProcessUtilities" );
+        _isCurrentProcessUnattendedLog.Replay( loggerFactory );
 
-        if ( _isCurrentProcessUnattended == 0 )
+        return _isCurrentProcessUnattended;
+    }
+
+    private static bool IsCurrentProcessUnattendedCore( ILoggerFactory loggerFactory )
+    {
+        var logger = loggerFactory.GetLogger( nameof(ProcessUtilities) );
+
+        if ( !Environment.UserInteractive )
         {
-            _isCurrentProcessUnattended = Detect() ? 1 : 2;
+            logger.Trace?.Log( "Unattended mode detected because Environment.UserInteractive = false." );
+
+            return true;
         }
 
-        return _isCurrentProcessUnattended == 1;
-
-        bool Detect()
+        // Check the parent processes.
+        var unattendedProcesses = new HashSet<string>
         {
-            if ( !Environment.UserInteractive )
+            "services",
+            "java",               // TeamCity, Atlassian Bamboo (can also be "bamboo"), Jenkins, GoCD
+            "bamboo",             // Atlassian Bamboo
+            "agent.worker",       // Azure Pipelines
+            "runner.worker",      // GitHub Actions
+            "buildkite-agent",    // BuildKite
+            "circleci-agent",     // CircleCI (Docker, but has specific process name)
+            "agent",              // Semaphore CI (Linux)
+            "sshd: travis [priv]" // Travis CI (Linux)
+        };
+
+        if ( RuntimeInformation.IsOSPlatform( OSPlatform.Linux ) )
+        {
+            if ( IsRunningInDockerContainer( logger ) )
             {
-                logger.Trace?.Log( "Unattended mode detected because Environment.UserInteractive = false." );
+                logger.Trace?.Log( "Unattended mode detected because of Docker containerized environment." );
 
                 return true;
             }
-            
-            // Check the parent processes.
-            var unattendedProcesses = new HashSet<string>
+        }
+        else if ( RuntimeInformation.IsOSPlatform( OSPlatform.Windows ) )
+        {
+            if ( Environment.OSVersion.Version.Major >= 6 && Process.GetCurrentProcess().SessionId == 0 )
             {
-                "services",
-                "java",               // TeamCity, Atlassian Bamboo (can also be "bamboo"), Jenkins, GoCD
-                "bamboo",             // Atlassian Bamboo
-                "agent.worker",       // Azure Pipelines
-                "runner.worker",      // GitHub Actions
-                "buildkite-agent",    // BuildKite
-                "circleci-agent",     // CircleCI (Docker, but has specific process name)
-                "agent",              // Semaphore CI (Linux)
-                "sshd: travis [priv]" // Travis CI (Linux)
-            };
+                logger.Trace?.Log( "Unattended mode detected because SessionId = 0 on Windows." );
 
-            if ( RuntimeInformation.IsOSPlatform( OSPlatform.Linux ) )
-            {
-                if ( IsRunningInDockerContainer( logger ) )
-                {
-                    logger.Trace?.Log( "Unattended mode detected because of Docker containerized environment." );
-
-                    return true;
-                }
+                return true;
             }
-            else if ( RuntimeInformation.IsOSPlatform( OSPlatform.Windows ) )
-            {
-                if ( Environment.OSVersion.Version.Major >= 6 && Process.GetCurrentProcess().SessionId == 0 )
-                {
-                    logger.Trace?.Log( "Unattended mode detected because SessionId = 0 on Windows." );
+        }
 
-                    return true;
-                }
+        var notUnattendedProcesses = new HashSet<string>
+        {
+            "rider" // Rider needs to be checked, because it can have Java as its parent process.
+        };
+
+        IReadOnlyList<ProcessInfo> parentProcesses;
+
+        try
+        {
+            parentProcesses = GetParentProcesses( logger, unattendedProcesses );
+        }
+        catch ( Exception e )
+        {
+            if ( RuntimeInformation.IsOSPlatform( OSPlatform.Linux ) || RuntimeInformation.IsOSPlatform( OSPlatform.OSX ) )
+            {
+                logger.Warning?.Log( $"Unattended mode detected because the detection was not successful: {e}" );
+
+                return true;
             }
-
-            var notUnattendedProcesses = new HashSet<string>
+            else
             {
-                "rider" // Rider needs to be checked, because it can have Java as its parent process.
-            };
-
-            IReadOnlyList<ProcessInfo> parentProcesses;
-
-            try
-            {
-                parentProcesses = GetParentProcesses( logger, unattendedProcesses );
-            }
-            catch ( Exception e )
-            {
-                if ( RuntimeInformation.IsOSPlatform( OSPlatform.Linux ) || RuntimeInformation.IsOSPlatform( OSPlatform.OSX ) )
-                {
-                    logger.Warning?.Log( $"Unattended mode detected because the detection was not successful: {e}" );
-
-                    return true;
-                }
-                else
-                {
-                    logger.Error?.Log( $"Unattended mode detected because the detection was not successful: {e}" );
-                    
-                    return false;
-                }
-            }
-
-            if ( logger.Trace != null )
-            {
-                logger.Trace?.Log( "Parent processes:" );
-
-                foreach ( var process in parentProcesses )
-                {
-                    logger.Trace?.Log(
-                        process.ImagePath == null ? $"- Unknown process ID {process.ProcessId}" : $"- {process.ProcessName}: {process.ImagePath}" );
-                }
-            }
-
-            var parentProcessNames = parentProcesses.Where( p => p.ProcessName != null ).Select( p => p.ProcessName! ).ToArray();
-
-            var notUnattendedProcessName = parentProcessNames.FirstOrDefault( p => notUnattendedProcesses.Contains( p ) );
-
-            if ( notUnattendedProcessName != null )
-            {
-                logger.Trace?.Log( $"Unattended mode NOT detected because of parent process '{notUnattendedProcessName}'." );
+                logger.Error?.Log( $"Unattended mode detected because the detection was not successful: {e}" );
 
                 return false;
             }
+        }
 
-            var unattendedProcessName = parentProcessNames.FirstOrDefault( p => unattendedProcesses.Contains( p ) );
+        if ( logger.Trace != null )
+        {
+            logger.Trace?.Log( "Parent processes:" );
 
-            if ( unattendedProcessName != null )
+            foreach ( var process in parentProcesses )
             {
-                logger.Trace?.Log( $"Unattended mode detected because of parent process '{unattendedProcessName}'." );
-
-                return true;
+                logger.Trace?.Log( process.ImagePath == null ? $"- Unknown process ID {process.ProcessId}" : $"- {process.ProcessName}: {process.ImagePath}" );
             }
+        }
 
-            logger.Trace?.Log( "Unattended mode NOT detected." );
+        var parentProcessNames = parentProcesses.Where( p => p.ProcessName != null ).Select( p => p.ProcessName! ).ToArray();
+
+        var notUnattendedProcessName = parentProcessNames.FirstOrDefault( p => notUnattendedProcesses.Contains( p ) );
+
+        if ( notUnattendedProcessName != null )
+        {
+            logger.Trace?.Log( $"Unattended mode NOT detected because of parent process '{notUnattendedProcessName}'." );
 
             return false;
         }
+
+        var unattendedProcessName = parentProcessNames.FirstOrDefault( p => unattendedProcesses.Contains( p ) );
+
+        if ( unattendedProcessName != null )
+        {
+            logger.Trace?.Log( $"Unattended mode detected because of parent process '{unattendedProcessName}'." );
+
+            return true;
+        }
+
+        logger.Trace?.Log( "Unattended mode NOT detected." );
+
+        return false;
     }
 
     /// <summary>
@@ -238,7 +243,7 @@ public static class ProcessUtilities
     public static IReadOnlyList<ProcessInfo> GetParentProcesses( ILogger? logger = null, ISet<string>? pivots = null )
     {
         logger ??= NullLogger.Instance;
-        
+
         ParentProcessSearchBase parentProcessSearch;
 
         if ( RuntimeInformation.IsOSPlatform( OSPlatform.Windows ) )
