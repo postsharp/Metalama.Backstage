@@ -20,12 +20,12 @@ internal class BufferingLoggerFactory : ILoggerFactory
 
     public void Replay( ILoggerFactory loggerFactory )
     {
-        while ( this._replayActions.TryDequeue( out var action ) )
+        foreach ( var action in this._replayActions )
         {
             action( loggerFactory );
         }
     }
-
+    
     void ILoggerFactory.Flush() { }
 
     private class Logger : ILogger
