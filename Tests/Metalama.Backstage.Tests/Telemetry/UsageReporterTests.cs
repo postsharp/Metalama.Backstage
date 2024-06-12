@@ -71,7 +71,14 @@ public class UsageReporterTests : TestsBase
         this.EnvironmentVariableProvider.Environment["METALAMA_TELEMETRY_OPT_OUT"] = "true";
         this.AssertReportingDisabled();
     }
-    
+
+    [Fact]
+    public void UsageIsNotReportedForUnattendedBuild()
+    {
+        ((TestApplicationInfo) this.ServiceProvider.GetRequiredBackstageService<IApplicationInfoProvider>().CurrentApplication).IsUnattendedProcess = true;
+        this.AssertReportingDisabled();
+    }
+
     [Fact]
     public void UsageRepostingCanBeRepeatedWithoutShouldReportSessionCheck()
     {

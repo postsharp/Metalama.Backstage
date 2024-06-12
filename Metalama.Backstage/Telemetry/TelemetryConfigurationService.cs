@@ -17,14 +17,17 @@ internal class TelemetryConfigurationService : ITelemetryConfigurationService
         this._isEnabled = new Lazy<bool>(
             () =>
             {
-                var logger = serviceProvider.GetLoggerFactory().Telemetry();
+                var loggerFactory = serviceProvider.GetLoggerFactory();
+                var logger = loggerFactory.Telemetry();
 
                 var applicationInfo = serviceProvider.GetRequiredBackstageService<IApplicationInfoProvider>().CurrentApplication;
-                var isTelemetryEnabled = applicationInfo.IsTelemetryEnabled;
+                var isApplicationTelemetryEnabled = applicationInfo.IsTelemetryEnabled;
 
-                if ( !isTelemetryEnabled )
+                if ( !isApplicationTelemetryEnabled )
                 {
                     logger.Trace?.Log( $"Telemetry is disabled for '{applicationInfo.Name} {applicationInfo.Version}'." );
+
+                    return false;
                 }
 
                 var telemetryOptOutEnvironmentVariableValue = serviceProvider.GetRequiredBackstageService<IEnvironmentVariableProvider>()
@@ -35,9 +38,18 @@ internal class TelemetryConfigurationService : ITelemetryConfigurationService
                 if ( isTelemetryOptedOut )
                 {
                     logger.Trace?.Log( $"Telemetry is disabled by the opt-out environment variable." );
+
+                    return false;
                 }
 
-                return isTelemetryEnabled && !isTelemetryOptedOut;
+                if ( applicationInfo.IsUnattendedProcess( loggerFactory ) )
+                {
+                    logger.Trace?.Log( $"Telemetry is disabled because the current process is unattended." );
+                    
+                    return false;
+                }
+
+                return true;
             } );
     }
 }

@@ -20,8 +20,9 @@ public class ReportExceptionTests : TestsBase
 {
     public ReportExceptionTests( ITestOutputHelper logger ) : base(
         logger,
-        builder => builder.AddSingleton<IApplicationInfoProvider>(
-            new ApplicationInfoProvider( new TestApplicationInfo() { IsTelemetryEnabled = true } ) ) ) { }
+        builder => builder
+            .AddSingleton<IApplicationInfoProvider>( new ApplicationInfoProvider( new TestApplicationInfo() { IsTelemetryEnabled = true } ) )
+            .AddSingleton<ITelemetryConfigurationService>( new TelemetryConfigurationService( builder.ServiceProvider ) ) ) { }
 
     [Fact]
     public async Task ShouldReportExceptionConcurrent()
@@ -68,17 +69,71 @@ public class ReportExceptionTests : TestsBase
         Assert.True( reporter.ShouldReportException( new InvalidOperationException( "" ) ) );
     }
 
-    [Fact]
-    public void ReportException()
+    private void ReportException(
+        ReportingAction exceptionReportingAction = ReportingAction.Yes,
+        ReportingAction performanceReportingAction = ReportingAction.Yes,
+        ExceptionReportingKind exceptionReportingKind = ExceptionReportingKind.Exception )
     {
-        this.ConfigurationManager.Update<TelemetryConfiguration>( c => c with { ExceptionReportingAction = ReportingAction.Yes } );
+        this.ConfigurationManager.Update<TelemetryConfiguration>(
+            c => c with { ExceptionReportingAction = exceptionReportingAction, PerformanceProblemReportingAction = performanceReportingAction } );
+
         var reporter = new ExceptionReporter( new TelemetryQueue( this.ServiceProvider ), this.ServiceProvider );
-        reporter.ReportException( new InvalidOperationException() );
+        reporter.ReportException( new InvalidOperationException(), exceptionReportingKind );
+    }
 
-        Assert.Single( this.FileSystem.Mock.AllFiles );
+    [Theory]
+    [InlineData( ReportingAction.Yes, ReportingAction.No, ExceptionReportingKind.Exception, true )]
+    [InlineData( ReportingAction.No, ReportingAction.Yes, ExceptionReportingKind.Exception, false )]
+    [InlineData( ReportingAction.Ask, ReportingAction.Yes, ExceptionReportingKind.Exception, false )]
+    [InlineData( ReportingAction.No, ReportingAction.Yes, ExceptionReportingKind.PerformanceProblem, true )]
+    [InlineData( ReportingAction.Yes, ReportingAction.No, ExceptionReportingKind.PerformanceProblem, false )]
+    [InlineData( ReportingAction.Yes, ReportingAction.Ask, ExceptionReportingKind.PerformanceProblem, false )]
+    public void ExceptionsAreReportedAsConfiguredWhenTelemetryIsEnabled(
+        ReportingAction exceptionReportingAction,
+        ReportingAction performanceReportingAction,
+        ExceptionReportingKind exceptionReportingKind,
+        bool shouldReport )
+    {
+        this.ReportException( exceptionReportingAction, performanceReportingAction, exceptionReportingKind );
 
-        // Check that the result is valid XML.
-        var xml = this.FileSystem.ReadAllText( this.FileSystem.Mock.AllFiles.Single() );
-        _ = XDocument.Parse( xml );
+        if ( shouldReport )
+        {
+            Assert.Single( this.FileSystem.Mock.AllFiles );
+
+            // Check that the result is valid XML.
+            var xml = this.FileSystem.ReadAllText( this.FileSystem.Mock.AllFiles.Single() );
+            _ = XDocument.Parse( xml );
+        }
+        else
+        {
+            Assert.Empty( this.FileSystem.Mock.AllFiles );
+        }
+    }
+
+    private void AssertReportingDisabled()
+    {
+        this.ReportException();
+        Assert.Empty( this.FileSystem.Mock.AllFiles );
+    }
+
+    [Fact]
+    public void ExceptionsAreNotReportedWhenTelemetryIsDisabled()
+    {
+        ((TestApplicationInfo) this.ServiceProvider.GetRequiredBackstageService<IApplicationInfoProvider>().CurrentApplication).IsTelemetryEnabled = false;
+        this.AssertReportingDisabled();
+    }
+    
+    [Fact]
+    public void ExceptionsAreNotReportedWhenOptOutEnvironmentVariableIsSet()
+    {
+        this.EnvironmentVariableProvider.Environment["METALAMA_TELEMETRY_OPT_OUT"] = "true";
+        this.AssertReportingDisabled();
+    }
+
+    [Fact]
+    public void ExceptionsAreNotReportedForUnattendedBuild()
+    {
+        ((TestApplicationInfo) this.ServiceProvider.GetRequiredBackstageService<IApplicationInfoProvider>().CurrentApplication).IsUnattendedProcess = true;
+        this.AssertReportingDisabled();
     }
 }

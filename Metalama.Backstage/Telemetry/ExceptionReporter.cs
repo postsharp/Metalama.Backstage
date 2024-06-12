@@ -29,6 +29,7 @@ internal class ExceptionReporter : IExceptionReporter, IDisposable
     private readonly IConfigurationManager _configurationManager;
     private readonly IFileSystem _fileSystem;
     private readonly bool _canIgnoreRecoverableExceptions;
+    private readonly ITelemetryConfigurationService _telemetryConfigurationService;
     private TelemetryConfiguration _configuration;
 
     public ExceptionReporter( TelemetryQueue uploadManager, IServiceProvider serviceProvider )
@@ -43,6 +44,7 @@ internal class ExceptionReporter : IExceptionReporter, IDisposable
         this._logger = serviceProvider.GetLoggerFactory().Telemetry();
         this._fileSystem = serviceProvider.GetRequiredBackstageService<IFileSystem>();
         this._canIgnoreRecoverableExceptions = serviceProvider.GetRequiredBackstageService<IRecoverableExceptionService>().CanIgnore;
+        this._telemetryConfigurationService = serviceProvider.GetRequiredBackstageService<ITelemetryConfigurationService>();
     }
 
     private void OnConfigurationChanged( ConfigurationFile configuration )
@@ -225,6 +227,11 @@ internal class ExceptionReporter : IExceptionReporter, IDisposable
     {
         try
         {
+            if ( !this._telemetryConfigurationService.IsEnabled )
+            {
+                return;
+            }
+            
             if ( !this.ShouldReportException( reportedException ) )
             {
                 return;
