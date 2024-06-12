@@ -6,7 +6,6 @@ using Metalama.Backstage.Telemetry;
 using Metalama.Backstage.Telemetry.Metrics;
 using Metalama.Backstage.Testing;
 using System;
-using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -22,26 +21,24 @@ public class UsageReporterTests : TestsBase
     public UsageReporterTests( ITestOutputHelper logger ) : base(
         logger,
         services =>
-            services.AddSingleton<IApplicationInfoProvider>( new ApplicationInfoProvider( new TestApplicationInfo() { IsTelemetryEnabled = true } ) ) )
+            services
+                .AddSingleton<IApplicationInfoProvider>( new ApplicationInfoProvider( new TestApplicationInfo() { IsTelemetryEnabled = true } ) )
+                .AddSingleton<ITelemetryConfigurationService>( new TelemetryConfigurationService( services.ServiceProvider ) )
+                .AddSingleton<ITelemetryUploader>( new NullTelemetryUploader() ) )
     {
         this._reporter = new UsageReporter( this.ServiceProvider );
     }
 
     private void ReportSession( string kind = "TestSession" )
     {
-        Assert.Null( this._reporter.Metrics );
-
         var session = this._reporter.StartSession( kind ); 
         Assert.NotNull( session );
+        Assert.NotEmpty( session!.Metrics );
         
-        Assert.NotNull( this._reporter.Metrics );
-        Assert.NotEmpty( this._reporter.Metrics! );
-        
-        session!.Dispose();
-        
-        Assert.Null( this._reporter.Metrics );
+        session.Dispose();
+
+        Assert.Throws<InvalidOperationException>( () => session.Metrics );
         Assert.Single( this.FileSystem.Mock.AllFiles );
-        Assert.StartsWith( "Usage-", Path.GetFileName( this.FileSystem.Mock.AllFiles.Single() ), StringComparison.Ordinal );
     }
 
     private void AssertReportingDisabled()
@@ -51,9 +48,7 @@ public class UsageReporterTests : TestsBase
         
         Assert.False( reporter.ShouldReportSession( "TestProject" ) );
         
-        Assert.Null( reporter.Metrics );
         Assert.Null( reporter.StartSession( "TestSession" ) );
-        Assert.Null( reporter.Metrics );
         Assert.Empty( this.FileSystem.Mock.AllFiles );
     }
 
@@ -153,13 +148,13 @@ public class UsageReporterTests : TestsBase
         {
             var session = this._reporter.StartSession( "TestSession" );
             Assert.NotNull( session );
-            this._reporter.Metrics!.Add( new StringMetric( "ProjectName", projectName ) );
+            session!.Metrics.Add( new StringMetric( "ProjectName", projectName ) );
 
             await e.WaitAsync();
             
-            Assert.Single( this._reporter.Metrics, m => m is StringMetric stringMetric && stringMetric.Value == projectName );
+            Assert.Single( session.Metrics, m => m is StringMetric stringMetric && stringMetric.Value == projectName );
             
-            return session!;
+            return session;
         }
 
         var session1Task = StartSession( "TestProject1", event1 );
@@ -173,8 +168,7 @@ public class UsageReporterTests : TestsBase
         
         session1Task.Result.Dispose();
         session2Task.Result.Dispose();
-        
-        Assert.Null( this._reporter.Metrics );
+
         Assert.Equal( 2, this.FileSystem.Mock.AllFiles.Count() );
     }
 }

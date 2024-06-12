@@ -28,7 +28,8 @@ public class WelcomeServiceTests : TestsBase
         logger,
         builder => builder
             .AddSingleton<IEnvironmentVariableProvider>( new TestEnvironmentVariableProvider() )
-            .AddSingleton<IApplicationInfoProvider>( new ApplicationInfoProvider( new TestApplicationInfo() ) ) )
+            .AddSingleton<IApplicationInfoProvider>( new ApplicationInfoProvider( new TestApplicationInfo() { IsTelemetryEnabled = true } ) )
+            .AddSingleton<ITelemetryConfigurationService>( new TelemetryConfigurationService( builder.ServiceProvider ) ) )
     {
         this._applicationInfo = (TestApplicationInfo) this.ServiceProvider.GetRequiredBackstageService<IApplicationInfoProvider>().CurrentApplication;
     }

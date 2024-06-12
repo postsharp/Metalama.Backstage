@@ -27,10 +27,6 @@ namespace Metalama.Backstage.Testing
 
         public TestLoggerFactory Log { get; }
 
-        public NullTelemetryUploader TelemetryUploader { get; } = new();
-
-        public NullUsageReporter UsageReporter { get; } = new();
-
         public IServiceProvider ServiceProvider { get; }
 
         public InMemoryConfigurationManager ConfigurationManager { get; }
@@ -84,9 +80,6 @@ namespace Metalama.Backstage.Testing
 
             serviceProviderBuilder.AddService( typeof(ILoggerFactory), this.Log );
             serviceProviderBuilder.AddStandardDirectories();
-
-            this._serviceCollection.AddSingleton<ITelemetryUploader>( this.TelemetryUploader );
-            this._serviceCollection.AddSingleton<IUsageReporter>( this.UsageReporter );
 
             this.ConfigurationManager = new InMemoryConfigurationManager( this._serviceCollection.BuildServiceProvider() );
 

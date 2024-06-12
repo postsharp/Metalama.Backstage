@@ -29,6 +29,7 @@ public class TelemetryUploaderTests : TestsBase
                 .AddSingleton<IPlatformInfo>( new PlatformInfo( services.ServiceProvider, null ) )
                 .AddSingleton<IHttpClientFactory>(
                     new TestHttpClientFactory( new TelemetryTestsPutMessageHandler( services.ServiceProvider, _feedbackDirectory ) ) )
+                .AddSingleton<ITelemetryConfigurationService>( new TelemetryConfigurationService( services.ServiceProvider ) )
                 .AddTelemetryServices() )
     {
         this.FileSystem.CreateDirectory( _feedbackDirectory );

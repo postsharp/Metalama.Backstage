@@ -131,7 +131,9 @@ public class WelcomeService
 
     private void ActivateTelemetry()
     {
-        if ( !TelemetryConfiguration.IsOptOutEnvironmentVariableSet( this._serviceProvider.GetRequiredBackstageService<IEnvironmentVariableProvider>() ) )
+        var telemetryConfiguration = this._serviceProvider.GetRequiredBackstageService<ITelemetryConfigurationService>();
+        
+        if ( telemetryConfiguration.IsEnabled )
         {
             this._logger.Trace?.Log( "Enabling telemetry." );
 

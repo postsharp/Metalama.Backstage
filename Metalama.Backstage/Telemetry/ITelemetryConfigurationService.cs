@@ -6,11 +6,7 @@ using Metalama.Backstage.Extensibility;
 namespace Metalama.Backstage.Telemetry;
 
 [PublicAPI]
-public interface IUsageReporter : IBackstageService
+public interface ITelemetryConfigurationService : IBackstageService
 {
-    bool IsUsageReportingEnabled { get; }
-
-    bool ShouldReportSession( string projectName );
-
-    IUsageSession? StartSession( string kind );
+    bool IsEnabled { get; }
 }

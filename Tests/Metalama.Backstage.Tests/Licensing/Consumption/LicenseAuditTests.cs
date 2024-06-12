@@ -3,6 +3,7 @@
 using Metalama.Backstage.Extensibility;
 using Metalama.Backstage.Licensing;
 using Metalama.Backstage.Licensing.Audit;
+using Metalama.Backstage.Telemetry;
 using Metalama.Backstage.Testing;
 using Metalama.Backstage.Tests.Licensing.Licenses;
 using System;
@@ -18,7 +19,10 @@ public class LicenseAuditTests : LicenseConsumptionManagerTestsBase
 {
     public LicenseAuditTests( ITestOutputHelper logger ) : base(
         logger,
-        serviceBuilder => serviceBuilder.AddSingleton<ILicenseAuditManager>( new LicenseAuditManager( serviceBuilder.ServiceProvider ) ),
+        serviceBuilder => serviceBuilder
+            .AddSingleton<ITelemetryUploader>( new NullTelemetryUploader() )
+            .AddSingleton<IUsageReporter>( new NullUsageReporter() )
+            .AddSingleton<ILicenseAuditManager>( new LicenseAuditManager( serviceBuilder.ServiceProvider ) ),
         isTelemetryEnabled: true ) { }
 
     private TestLicense CreateAndConsumeLicense( string licenseKey )

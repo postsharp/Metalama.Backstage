@@ -3,44 +3,27 @@
 using Metalama.Backstage.Configuration;
 using Metalama.Backstage.Diagnostics;
 using Metalama.Backstage.Extensibility;
-using Metalama.Backstage.Utilities;
 using System;
-using System.Threading;
 
 namespace Metalama.Backstage.Telemetry;
 
 internal class UsageReporter : IUsageReporter
 {
-    private static readonly AsyncLocal<UsageSample?> _currentSample = new();
-    
     private readonly IServiceProvider _serviceProvider;
     private readonly IConfigurationManager _configurationManager;
+    private readonly ITelemetryConfigurationService _telemetryConfigurationService;
     private readonly IDateTimeProvider _time;
     private readonly ILogger _logger;
 
-    public bool IsUsageReportingEnabled { get; }
+    public bool IsUsageReportingEnabled => this._telemetryConfigurationService.IsEnabled;
 
     public UsageReporter( IServiceProvider serviceProvider )
     {
         this._serviceProvider = serviceProvider;
         this._configurationManager = serviceProvider.GetRequiredBackstageService<IConfigurationManager>();
+        this._telemetryConfigurationService = serviceProvider.GetRequiredBackstageService<ITelemetryConfigurationService>();
         this._time = serviceProvider.GetRequiredBackstageService<IDateTimeProvider>();
         this._logger = serviceProvider.GetLoggerFactory().Telemetry();
-
-        var applicationInfo = serviceProvider.GetRequiredBackstageService<IApplicationInfoProvider>().CurrentApplication;
-
-        if ( !applicationInfo.IsTelemetryEnabled )
-        {
-            this._logger.Trace?.Log( $"Usage should not be reported because telemetry is disabled for '{applicationInfo.Name} {applicationInfo.Version}'." );
-        }
-        else if ( TelemetryConfiguration.IsOptOutEnvironmentVariableSet( serviceProvider.GetRequiredBackstageService<IEnvironmentVariableProvider>() ) )
-        {
-            this._logger.Trace?.Log( $"Usage should not be reported because the opt-out environment variable is set." );
-        }
-        else
-        {
-            this.IsUsageReportingEnabled = true;
-        }
     }
 
     public bool ShouldReportSession( string projectName )
@@ -85,50 +68,13 @@ internal class UsageReporter : IUsageReporter
             } );
     }
 
-    public IDisposable? StartSession( string kind )
+    public IUsageSession? StartSession( string kind )
     {
         if ( !this.IsUsageReportingEnabled )
         {
             return null;
         }
 
-        var previousSample = _currentSample.Value;
-        var currentSample = new UsageSample( this._serviceProvider, kind );
-        _currentSample.Value = currentSample;
-
-        if ( this._logger.Trace != null )
-        {
-            this._logger.Trace.Log( $"Usage session started." );
-            this.TraceSample( currentSample );
-        }
-
-        return new DisposableAction( () => this.StopSession( previousSample, currentSample ) );
-    }
-
-    public MetricCollection? Metrics => _currentSample.Value?.Metrics;
-
-    private void StopSession( UsageSample? previousSample, UsageSample currentSample )
-    {
-        if ( this._logger.Trace != null )
-        {
-            this._logger.Trace.Log( $"Usage session ended." );
-            this.TraceSample( currentSample );
-        }
-
-        currentSample.Upload();
-        _currentSample.Value = previousSample;
-    }
-
-    private void TraceSample( UsageSample sample )
-    {
-        if ( this._logger.Trace == null )
-        {
-            return;
-        }
-
-        foreach ( var metric in sample.Metrics )
-        {
-            this._logger.Trace.Log( $"  {metric.Name}: {metric}" );
-        }
+        return new UsageSession( this._serviceProvider, kind );
     }
 }

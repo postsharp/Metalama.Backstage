@@ -170,16 +170,14 @@ public static class RegisterServiceExtensions
         // Add diagnostics.
         if ( options.AddSupportServices )
         {
+            var shouldExecuteFirstStartSetup = false;
+            
             if ( options.AddLoggerFactoryAction == null )
             {
                 serviceProviderBuilder = serviceProviderBuilder
                     .AddDiagnostics( applicationInfo.ProcessKind, options.ProjectName );
 
-                var serviceProvider = serviceProviderBuilder.ServiceProvider;
-
-                // First-run configuration. This must be done before initializing licensing and telemetry.
-                var welcomeService = new WelcomeService( serviceProvider );
-                welcomeService.ExecuteFirstStartSetup( options );
+                shouldExecuteFirstStartSetup = true;
             }
             else
             {
@@ -189,6 +187,17 @@ public static class RegisterServiceExtensions
 
                 (configurationManager as ConfigurationManager)?.SetLoggerFactory(
                     serviceProviderBuilder.ServiceProvider.GetRequiredBackstageService<ILoggerFactory>() );
+            }
+
+            serviceProviderBuilder =
+                serviceProviderBuilder.AddSingleton<ITelemetryConfigurationService>(
+                    new TelemetryConfigurationService( serviceProviderBuilder.ServiceProvider ) );
+
+            if ( shouldExecuteFirstStartSetup )
+            {
+                // First-run configuration. This must be done before initializing licensing and telemetry.
+                var welcomeService = new WelcomeService( serviceProviderBuilder.ServiceProvider );
+                welcomeService.ExecuteFirstStartSetup( options );
             }
         }
 
@@ -226,12 +235,12 @@ public static class RegisterServiceExtensions
         return serviceProviderBuilder;
     }
 
-    internal static void AddTelemetryServices( this ServiceProviderBuilder serviceProviderBuilder )
+    internal static ServiceProviderBuilder AddTelemetryServices( this ServiceProviderBuilder serviceProviderBuilder )
     {
         // Add telemetry.
         var queue = new TelemetryQueue( serviceProviderBuilder.ServiceProvider );
 
-        serviceProviderBuilder
+        return serviceProviderBuilder
             .AddSingleton<IExceptionReporter>( new ExceptionReporter( queue, serviceProviderBuilder.ServiceProvider ) )
             .AddSingleton<ITelemetryUploader>( new TelemetryUploader( serviceProviderBuilder.ServiceProvider ) )
             .AddSingleton<IUsageReporter>( new UsageReporter( serviceProviderBuilder.ServiceProvider ) );
