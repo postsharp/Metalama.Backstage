@@ -1,8 +1,6 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. See the LICENSE.md file in the root directory of this repository root for details.
 
-using Metalama.Backstage.Application;
 using Metalama.Backstage.Configuration;
-using Metalama.Backstage.Extensibility;
 using Metalama.Backstage.Telemetry;
 using Metalama.Backstage.Testing;
 using Microsoft.Extensions.DependencyInjection;
@@ -19,15 +17,12 @@ namespace Metalama.Backstage.Tests.Telemetry;
 
 public class ReportExceptionTests : TestsBase
 {
-    public ReportExceptionTests( ITestOutputHelper logger ) : base( logger )
-    {
-        this.ConfigurationManager!.Update<TelemetryConfiguration>(
-            c => c with { ExceptionReportingAction = ReportingAction.Yes, PerformanceProblemReportingAction = ReportingAction.Yes } );
-    }
+    public ReportExceptionTests( ITestOutputHelper logger ) : base( logger, new TestApplicationInfo() { IsTelemetryEnabled = true } ) { }
 
-    protected override void ConfigureServices( ServiceProviderBuilder services )
+    protected override void OnAfterServicesCreated( Services services )
     {
-        services.AddSingleton<IApplicationInfoProvider>( new ApplicationInfoProvider( new TestApplicationInfo() { IsTelemetryEnabled = true } ) );
+        services.ConfigurationManager!.Update<TelemetryConfiguration>(
+            c => c with { ExceptionReportingAction = ReportingAction.Yes, PerformanceProblemReportingAction = ReportingAction.Yes } );
     }
 
     [Fact]
@@ -125,10 +120,10 @@ public class ReportExceptionTests : TestsBase
     [Fact]
     public void ExceptionsAreNotReportedWhenTelemetryIsDisabled()
     {
-        ((TestApplicationInfo) this.ServiceProvider.GetRequiredBackstageService<IApplicationInfoProvider>().CurrentApplication).IsTelemetryEnabled = false;
+        this.ApplicationInfo = new TestApplicationInfo() { IsTelemetryEnabled = false };
         this.AssertReportingDisabled();
     }
-    
+
     [Fact]
     public void ExceptionsAreNotReportedWhenOptOutEnvironmentVariableIsSet()
     {
@@ -139,7 +134,7 @@ public class ReportExceptionTests : TestsBase
     [Fact]
     public void ExceptionsAreNotReportedForUnattendedBuild()
     {
-        ((TestApplicationInfo) this.ServiceProvider.GetRequiredBackstageService<IApplicationInfoProvider>().CurrentApplication).IsUnattendedProcess = true;
+        this.ApplicationInfo = new TestApplicationInfo() { IsUnattendedProcess = true };
         this.AssertReportingDisabled();
     }
 }

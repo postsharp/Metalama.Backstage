@@ -12,8 +12,9 @@ namespace Metalama.Backstage.Telemetry;
 internal class TelemetryConfigurationService : ITelemetryConfigurationService
 {
     private readonly IConfigurationManager _configurationManager;
+    private readonly IServiceProvider _serviceProvider;
     private readonly Guid _newDeviceId;
-    private readonly Lazy<bool> _isEnabled;
+    private bool? _isEnabled;
 
     internal TelemetryConfigurationService( IServiceProvider serviceProvider, Guid? newDeviceId = null )
         : this( serviceProvider, newDeviceId ?? Guid.NewGuid() ) { }
@@ -21,46 +22,46 @@ internal class TelemetryConfigurationService : ITelemetryConfigurationService
     // Tests use this constructor to supply a constant Guid.
     internal TelemetryConfigurationService( IServiceProvider serviceProvider, Guid newDeviceId )
     {
+        this._serviceProvider = serviceProvider;
         this._newDeviceId = newDeviceId;
         this._configurationManager = serviceProvider.GetRequiredBackstageService<IConfigurationManager>();
+    }
 
-        this._isEnabled = new Lazy<bool>(
-            () =>
-            {
-                var loggerFactory = serviceProvider.GetLoggerFactory();
-                var logger = loggerFactory.Telemetry();
+    private bool IsEnabledCore()
+    {
+        var loggerFactory = this._serviceProvider.GetLoggerFactory();
+        var logger = loggerFactory.Telemetry();
 
-                var applicationInfo = serviceProvider.GetRequiredBackstageService<IApplicationInfoProvider>().CurrentApplication;
-                var isApplicationTelemetryEnabled = applicationInfo.IsTelemetryEnabled;
+        var applicationInfo = this._serviceProvider.GetRequiredBackstageService<IApplicationInfoProvider>().CurrentApplication;
+        var isApplicationTelemetryEnabled = applicationInfo.IsTelemetryEnabled;
 
-                if ( !isApplicationTelemetryEnabled )
-                {
-                    logger.Trace?.Log( $"Telemetry is disabled for '{applicationInfo.Name} {applicationInfo.PackageVersion}'." );
+        if ( !isApplicationTelemetryEnabled )
+        {
+            logger.Trace?.Log( $"Telemetry is disabled for '{applicationInfo.Name} {applicationInfo.PackageVersion}'." );
 
-                    return false;
-                }
+            return false;
+        }
 
-                var telemetryOptOutEnvironmentVariableValue = serviceProvider.GetRequiredBackstageService<IEnvironmentVariableProvider>()
-                    .GetEnvironmentVariable( "METALAMA_TELEMETRY_OPT_OUT" );
+        var telemetryOptOutEnvironmentVariableValue = this._serviceProvider.GetRequiredBackstageService<IEnvironmentVariableProvider>()
+            .GetEnvironmentVariable( "METALAMA_TELEMETRY_OPT_OUT" );
 
-                var isTelemetryOptedOut = !string.IsNullOrEmpty( telemetryOptOutEnvironmentVariableValue );
+        var isTelemetryOptedOut = !string.IsNullOrEmpty( telemetryOptOutEnvironmentVariableValue );
 
-                if ( isTelemetryOptedOut )
-                {
-                    logger.Trace?.Log( $"Telemetry is disabled by the opt-out environment variable." );
+        if ( isTelemetryOptedOut )
+        {
+            logger.Trace?.Log( $"Telemetry is disabled by the opt-out environment variable." );
 
-                    return false;
-                }
+            return false;
+        }
 
-                if ( applicationInfo.IsUnattendedProcess( loggerFactory ) )
-                {
-                    logger.Trace?.Log( $"Telemetry is disabled because the current process is unattended." );
-                    
-                    return false;
-                }
+        if ( applicationInfo.IsUnattendedProcess( loggerFactory ) )
+        {
+            logger.Trace?.Log( $"Telemetry is disabled because the current process is unattended." );
 
-                return true;
-            } );
+            return false;
+        }
+
+        return true;
     }
 
     public void SetStatus( bool? enabled )
@@ -92,7 +93,7 @@ internal class TelemetryConfigurationService : ITelemetryConfigurationService
         }
     }
 
-    public bool IsEnabled => this._isEnabled.Value;
+    public bool IsEnabled => this._isEnabled ??= this.IsEnabledCore();
 
     public void ResetDeviceId()
     {

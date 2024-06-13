@@ -1,6 +1,5 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. See the LICENSE.md file in the root directory of this repository root for details.
 
-using Metalama.Backstage.Application;
 using Metalama.Backstage.Extensibility;
 using Metalama.Backstage.Licensing;
 using Metalama.Backstage.Licensing.Audit;
@@ -20,11 +19,15 @@ namespace Metalama.Backstage.Tests.Licensing.Consumption;
 public class LicenseAuditTests : LicenseConsumptionManagerTestsBase
 {
     private static readonly string _auditedLicenseKey = TestLicenseKeys.MetalamaUltimateBusiness;
-    
-    public LicenseAuditTests( ITestOutputHelper logger ) : base( logger, isTelemetryEnabled: true )
+
+    public LicenseAuditTests( ITestOutputHelper logger ) : base( logger, isTelemetryEnabled: true ) { }
+
+    protected override void OnAfterServicesCreated( Services services )
     {
+        base.OnAfterServicesCreated( services );
+
         // Make sure that the telemetry configuration is initialized so we get a stable DeviceId.
-        this.ServiceProvider.GetRequiredBackstageService<BackstageServicesInitializer>().Initialize();
+        services.ServiceProvider.GetRequiredBackstageService<BackstageServicesInitializer>().Initialize();
     }
 
     protected override void ConfigureServices( ServiceProviderBuilder services )
@@ -154,7 +157,7 @@ public class LicenseAuditTests : LicenseConsumptionManagerTestsBase
         this.CreateAndConsumeLicense( _auditedLicenseKey );
         this.AssertReportsCount( expectedCount );
     }
-    
+
     [Fact]
     public void LicenseAuditReportsSameLicenseKeyDaily()
     {
@@ -200,10 +203,10 @@ public class LicenseAuditTests : LicenseConsumptionManagerTestsBase
     [Fact]
     public void LicenseIsNotReportedReportedWhenTelemetryIsDisabled()
     {
-        ((TestApplicationInfo) this.ServiceProvider.GetRequiredBackstageService<IApplicationInfoProvider>().CurrentApplication).IsTelemetryEnabled = false;
+        this.ApplicationInfo = new TestApplicationInfo() { IsTelemetryEnabled = false };
         this.ConsumeAndAssertReportsCount( 0 );
     }
-    
+
     [Fact]
     public void LicenseIsReportedWhenOptOutEnvironmentVariableIsSet()
     {
@@ -214,7 +217,7 @@ public class LicenseAuditTests : LicenseConsumptionManagerTestsBase
     [Fact]
     public void LicenseIsNotReportedForUnattendedBuild()
     {
-        ((TestApplicationInfo) this.ServiceProvider.GetRequiredBackstageService<IApplicationInfoProvider>().CurrentApplication).IsUnattendedProcess = true;
+        this.ApplicationInfo = new TestApplicationInfo() { IsUnattendedProcess = true };
         this.ConsumeAndAssertReportsCount( 0 );
     }
 }
