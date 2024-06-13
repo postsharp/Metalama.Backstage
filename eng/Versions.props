@@ -9,21 +9,6 @@
         <MetalamaBackstageAssemblyVersion>$(MainVersion)</MetalamaBackstageAssemblyVersion>
     </PropertyGroup>
 
-    <!-- Set the default versions of dependencies -->
-    <PropertyGroup>
-        <PostSharpEngineeringVersion>2023.2.83</PostSharpEngineeringVersion>
-        <NewtonsoftJsonVersion>13.0.1</NewtonsoftJsonVersion>
-        <MicrosoftBclHashCodeVersion>1.1.1</MicrosoftBclHashCodeVersion>
-        <MicrosoftNETTestSdkVersion>17.1.0</MicrosoftNETTestSdkVersion>
-        <XunitVersion>2.4.1</XunitVersion>
-        <XUnitRunnerVisualStudioVersion>2.4.3</XUnitRunnerVisualStudioVersion>
-        <CoverletCollectorVersion>1.3.0</CoverletCollectorVersion>
-        <K4osHashxxHashVersion>1.0.8</K4osHashxxHashVersion>
-        <!-- The version should not be higher than the one in Metalama.Compiler, otherwise we
-             downgrade the package. -->
-        <SystemImmutableCollectionsVersion>5.0.0</SystemImmutableCollectionsVersion>
-    </PropertyGroup>
-
     <!-- Set the deafult versions of auto-updated dependencies -->
     <Import Project="AutoUpdatedVersions.props" />
 
@@ -35,5 +20,8 @@
         <AssemblyVersion>$(MetalamaBackstageAssemblyVersion)</AssemblyVersion>
         <Version>$(MetalamaBackstageVersion)</Version>
     </PropertyGroup>
+
+    <!-- Versions of other dependencies are set in Directory.Packages.props. -->
+    <!-- See https://learn.microsoft.com/en-us/nuget/consume-packages/central-package-management. -->
 
 </Project>
