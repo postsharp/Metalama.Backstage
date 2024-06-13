@@ -1,7 +1,6 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. See the LICENSE.md file in the root directory of this repository root for details.
 
 using Metalama.Backstage.Configuration;
-using Metalama.Backstage.Infrastructure;
 using System;
 using System.Collections.Immutable;
 using System.Linq;
@@ -11,9 +10,6 @@ namespace Metalama.Backstage.Telemetry;
 [ConfigurationFile( "telemetry.json" )]
 public record TelemetryConfiguration : ConfigurationFile
 {
-    public static bool IsOptOutEnvironmentVariableSet( IEnvironmentVariableProvider environmentVariables )
-        => !string.IsNullOrEmpty( environmentVariables.GetEnvironmentVariable( "METALAMA_TELEMETRY_OPT_OUT" ) );
-
     public ReportingAction ExceptionReportingAction { get; init; } = ReportingAction.Ask;
 
     public ReportingAction PerformanceProblemReportingAction { get; init; } = ReportingAction.Ask;

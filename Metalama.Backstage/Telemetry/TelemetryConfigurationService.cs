@@ -1,7 +1,10 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. See the LICENSE.md file in the root directory of this repository root for details.
 
+using Metalama.Backstage.Application;
 using Metalama.Backstage.Configuration;
+using Metalama.Backstage.Diagnostics;
 using Metalama.Backstage.Extensibility;
+using Metalama.Backstage.Infrastructure;
 using System;
 
 namespace Metalama.Backstage.Telemetry;
@@ -10,6 +13,7 @@ internal class TelemetryConfigurationService : ITelemetryConfigurationService
 {
     private readonly IConfigurationManager _configurationManager;
     private readonly Guid _newDeviceId;
+    private readonly Lazy<bool> _isEnabled;
 
     internal TelemetryConfigurationService( IServiceProvider serviceProvider, Guid? newDeviceId = null )
         : this( serviceProvider, newDeviceId ?? Guid.NewGuid() ) { }
@@ -19,6 +23,44 @@ internal class TelemetryConfigurationService : ITelemetryConfigurationService
     {
         this._newDeviceId = newDeviceId;
         this._configurationManager = serviceProvider.GetRequiredBackstageService<IConfigurationManager>();
+
+        this._isEnabled = new Lazy<bool>(
+            () =>
+            {
+                var loggerFactory = serviceProvider.GetLoggerFactory();
+                var logger = loggerFactory.Telemetry();
+
+                var applicationInfo = serviceProvider.GetRequiredBackstageService<IApplicationInfoProvider>().CurrentApplication;
+                var isApplicationTelemetryEnabled = applicationInfo.IsTelemetryEnabled;
+
+                if ( !isApplicationTelemetryEnabled )
+                {
+                    logger.Trace?.Log( $"Telemetry is disabled for '{applicationInfo.Name} {applicationInfo.PackageVersion}'." );
+
+                    return false;
+                }
+
+                var telemetryOptOutEnvironmentVariableValue = serviceProvider.GetRequiredBackstageService<IEnvironmentVariableProvider>()
+                    .GetEnvironmentVariable( "METALAMA_TELEMETRY_OPT_OUT" );
+
+                var isTelemetryOptedOut = !string.IsNullOrEmpty( telemetryOptOutEnvironmentVariableValue );
+
+                if ( isTelemetryOptedOut )
+                {
+                    logger.Trace?.Log( $"Telemetry is disabled by the opt-out environment variable." );
+
+                    return false;
+                }
+
+                if ( applicationInfo.IsUnattendedProcess( loggerFactory ) )
+                {
+                    logger.Trace?.Log( $"Telemetry is disabled because the current process is unattended." );
+                    
+                    return false;
+                }
+
+                return true;
+            } );
     }
 
     public void SetStatus( bool? enabled )
@@ -49,6 +91,8 @@ internal class TelemetryConfigurationService : ITelemetryConfigurationService
             return configuration.DeviceId!.Value;
         }
     }
+
+    public bool IsEnabled => this._isEnabled.Value;
 
     public void ResetDeviceId()
     {

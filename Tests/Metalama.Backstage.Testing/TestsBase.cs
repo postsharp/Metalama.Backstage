@@ -33,10 +33,6 @@ namespace Metalama.Backstage.Testing
 
         protected TestLoggerFactory Log { get; }
 
-        private NullTelemetryUploader TelemetryUploader { get; } = new();
-
-        private NullUsageReporter UsageReporter { get; } = new();
-
         protected IServiceProvider ServiceProvider { get; }
 
         // May be null if the different implementation of IConfigurationManager is used.
@@ -118,8 +114,6 @@ namespace Metalama.Backstage.Testing
                 .AddSingleton<IEnvironmentVariableProvider>( this.EnvironmentVariableProvider )
                 .AddSingleton<IRecoverableExceptionService>( new TestRecoverableExceptionService() )
                 .AddSingleton<IUserDeviceDetectionService>( this.UserDeviceDetection )
-                .AddSingleton<ITelemetryUploader>( this.TelemetryUploader )
-                .AddSingleton<IUsageReporter>( this.UsageReporter )
                 .AddSingleton<IConfigurationManager>( serviceProvider => new InMemoryConfigurationManager( serviceProvider ) )
                 .AddSingleton<ITempFileManager>( serviceProvider => new TempFileManager( serviceProvider ) )
                 .AddSingleton<ILicenseRegistrationService>( serviceProvider => new LicenseRegistrationService( serviceProvider ) )
