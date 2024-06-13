@@ -3,7 +3,6 @@
 using Metalama.Backstage.Configuration;
 using Metalama.Backstage.Extensibility;
 using Metalama.Backstage.Maintenance;
-using Metalama.Backstage.Telemetry;
 using Metalama.Backstage.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
