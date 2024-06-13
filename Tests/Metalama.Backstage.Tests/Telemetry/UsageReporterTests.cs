@@ -26,6 +26,7 @@ public class UsageReporterTests : TestsBase
                 .AddSingleton<ITelemetryConfigurationService>( new TelemetryConfigurationService( services.ServiceProvider ) )
                 .AddSingleton<ITelemetryUploader>( new NullTelemetryUploader() ) )
     {
+        this.ConfigurationManager.Update<TelemetryConfiguration>( c => c with { UsageReportingAction = ReportingAction.Yes } );
         this._reporter = new UsageReporter( this.ServiceProvider );
     }
 
@@ -52,10 +53,22 @@ public class UsageReporterTests : TestsBase
         Assert.Empty( this.FileSystem.Mock.AllFiles );
     }
 
-    [Fact]
-    public void UsageIsReportedWhenTelemetryIsEnabled()
+    [Theory]
+    [InlineData( ReportingAction.Yes, true )]
+    [InlineData( ReportingAction.No, false )]
+    [InlineData( ReportingAction.Ask, false )]
+    public void UsageIsReportedAsConfiguredWhenTelemetryIsEnabled(ReportingAction usageReportingAction, bool shoudlReport)
     {
-        this.ReportSession();
+        this.ConfigurationManager.Update<TelemetryConfiguration>( c => c with { UsageReportingAction = usageReportingAction } );
+        
+        if ( shoudlReport )
+        {
+            this.ReportSession();
+        }
+        else
+        {
+            this.AssertReportingDisabled();
+        }
     }
     
     [Fact]
@@ -92,7 +105,7 @@ public class UsageReporterTests : TestsBase
     private void AssertSessionShouldNotBeReported( string projectName = "TestProject" ) => Assert.False( this._reporter.ShouldReportSession( projectName ) );
     
     [Fact]
-    public void FirstSessionSoShouldBeReported()
+    public void FirstSessionShouldBeReported()
     {
         this.AssertSessionShouldBeReported();
     }

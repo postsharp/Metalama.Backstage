@@ -22,7 +22,11 @@ public class ReportExceptionTests : TestsBase
         logger,
         builder => builder
             .AddSingleton<IApplicationInfoProvider>( new ApplicationInfoProvider( new TestApplicationInfo() { IsTelemetryEnabled = true } ) )
-            .AddSingleton<ITelemetryConfigurationService>( new TelemetryConfigurationService( builder.ServiceProvider ) ) ) { }
+            .AddSingleton<ITelemetryConfigurationService>( new TelemetryConfigurationService( builder.ServiceProvider ) ) )
+    {
+        this.ConfigurationManager.Update<TelemetryConfiguration>(
+            c => c with { ExceptionReportingAction = ReportingAction.Yes, PerformanceProblemReportingAction = ReportingAction.Yes } );
+    }
 
     [Fact]
     public async Task ShouldReportExceptionConcurrent()

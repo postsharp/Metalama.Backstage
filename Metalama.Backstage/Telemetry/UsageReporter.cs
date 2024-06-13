@@ -15,7 +15,9 @@ internal class UsageReporter : IUsageReporter
     private readonly IDateTimeProvider _time;
     private readonly ILogger _logger;
 
-    public bool IsUsageReportingEnabled => this._telemetryConfigurationService.IsEnabled;
+    public bool IsUsageReportingEnabled
+        => this._telemetryConfigurationService.IsEnabled
+           && this._configurationManager.Get<TelemetryConfiguration>().UsageReportingAction == ReportingAction.Yes;
 
     public UsageReporter( IServiceProvider serviceProvider )
     {

@@ -235,12 +235,12 @@ public static class RegisterServiceExtensions
         return serviceProviderBuilder;
     }
 
-    internal static ServiceProviderBuilder AddTelemetryServices( this ServiceProviderBuilder serviceProviderBuilder )
+    internal static void AddTelemetryServices( this ServiceProviderBuilder serviceProviderBuilder )
     {
         // Add telemetry.
         var queue = new TelemetryQueue( serviceProviderBuilder.ServiceProvider );
 
-        return serviceProviderBuilder
+        serviceProviderBuilder
             .AddSingleton<IExceptionReporter>( new ExceptionReporter( queue, serviceProviderBuilder.ServiceProvider ) )
             .AddSingleton<ITelemetryUploader>( new TelemetryUploader( serviceProviderBuilder.ServiceProvider ) )
             .AddSingleton<IUsageReporter>( new UsageReporter( serviceProviderBuilder.ServiceProvider ) );
