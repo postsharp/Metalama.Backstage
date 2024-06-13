@@ -1,5 +1,6 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. See the LICENSE.md file in the root directory of this repository root for details.
 
+using Metalama.Backstage.Application;
 using Metalama.Backstage.Extensibility;
 using Metalama.Backstage.Licensing;
 using Metalama.Backstage.Licensing.Audit;
@@ -18,6 +19,8 @@ namespace Metalama.Backstage.Tests.Licensing.Consumption;
 
 public class LicenseAuditTests : LicenseConsumptionManagerTestsBase
 {
+    private static readonly string _auditedLicenseKey = TestLicenseKeys.MetalamaUltimateBusiness;
+    
     public LicenseAuditTests( ITestOutputHelper logger ) : base( logger, isTelemetryEnabled: true )
     {
         // Make sure that the telemetry configuration is initialized so we get a stable DeviceId.
@@ -28,10 +31,12 @@ public class LicenseAuditTests : LicenseConsumptionManagerTestsBase
     {
         base.ConfigureServices( services );
 
-        services.AddSingleton<ILicenseAuditManager>( serviceProvider => new LicenseAuditManager( serviceProvider ) );
-        services.AddSingleton<TelemetryReportUploader>( serviceProvider => new TelemetryReportUploader( serviceProvider ) );
-        services.AddSingleton( serviceProvider => new MatomoAuditUploader( serviceProvider ) );
-        services.AddSingleton( serviceProvider => new BackstageServicesInitializer( serviceProvider ) );
+        services.AddSingleton<ITelemetryUploader>( new NullTelemetryUploader() )
+            .AddSingleton<IUsageReporter>( new NullUsageReporter() )
+            .AddSingleton<ILicenseAuditManager>( serviceProvider => new LicenseAuditManager( serviceProvider ) )
+            .AddSingleton<TelemetryReportUploader>( serviceProvider => new TelemetryReportUploader( serviceProvider ) )
+            .AddSingleton( serviceProvider => new MatomoAuditUploader( serviceProvider ) )
+            .AddSingleton( serviceProvider => new BackstageServicesInitializer( serviceProvider ) );
     }
 
     private TestLicense CreateAndConsumeLicense( string licenseKey )
@@ -137,24 +142,22 @@ public class LicenseAuditTests : LicenseConsumptionManagerTestsBase
         }
     }
 
+    private void AssertReportsCount( int expectedCount )
+    {
+        var reports = this.GetReports();
+        Assert.Equal( expectedCount, reports.Length );
+        Assert.All( reports, r => Assert.Contains( _auditedLicenseKey, r, StringComparison.OrdinalIgnoreCase ) );
+    }
+
+    private void ConsumeAndAssertReportsCount( int expectedCount )
+    {
+        this.CreateAndConsumeLicense( _auditedLicenseKey );
+        this.AssertReportsCount( expectedCount );
+    }
+    
     [Fact]
     public void LicenseAuditReportsSameLicenseKeyDaily()
     {
-        var licenseKey = TestLicenseKeys.MetalamaUltimateBusiness;
-
-        void AssertReportsCount( int expectedCount )
-        {
-            var reports = this.GetReports();
-            Assert.Equal( expectedCount, reports.Length );
-            Assert.All( reports, r => Assert.Contains( licenseKey, r, StringComparison.OrdinalIgnoreCase ) );
-        }
-
-        void ConsumeAndAssertReportsCount( int expectedCount )
-        {
-            this.CreateAndConsumeLicense( licenseKey );
-            AssertReportsCount( expectedCount );
-        }
-
         Assert.Empty( this.FileSystem.Mock.AllFiles );
 
         var now = new DateTime( 2022, 01, 01 );
@@ -166,23 +169,23 @@ public class LicenseAuditTests : LicenseConsumptionManagerTestsBase
         }
 
         ShiftTime( TimeSpan.Zero );
-        ConsumeAndAssertReportsCount( 1 );
+        this.ConsumeAndAssertReportsCount( 1 );
 
-        ConsumeAndAssertReportsCount( 1 );
-
-        ShiftTime( TimeSpan.FromDays( 1 ) - TimeSpan.FromMilliseconds( 1 ) );
-        ConsumeAndAssertReportsCount( 1 );
-
-        ShiftTime( TimeSpan.FromMilliseconds( 1 ) );
-        ConsumeAndAssertReportsCount( 2 );
-
-        ConsumeAndAssertReportsCount( 2 );
+        this.ConsumeAndAssertReportsCount( 1 );
 
         ShiftTime( TimeSpan.FromDays( 1 ) - TimeSpan.FromMilliseconds( 1 ) );
-        ConsumeAndAssertReportsCount( 2 );
+        this.ConsumeAndAssertReportsCount( 1 );
 
         ShiftTime( TimeSpan.FromMilliseconds( 1 ) );
-        ConsumeAndAssertReportsCount( 3 );
+        this.ConsumeAndAssertReportsCount( 2 );
+
+        this.ConsumeAndAssertReportsCount( 2 );
+
+        ShiftTime( TimeSpan.FromDays( 1 ) - TimeSpan.FromMilliseconds( 1 ) );
+        this.ConsumeAndAssertReportsCount( 2 );
+
+        ShiftTime( TimeSpan.FromMilliseconds( 1 ) );
+        this.ConsumeAndAssertReportsCount( 3 );
     }
 
     [Fact]
@@ -192,5 +195,26 @@ public class LicenseAuditTests : LicenseConsumptionManagerTestsBase
         var configuration = new TelemetryConfiguration { DeviceId = guid };
         var json = configuration.ToJson();
         Assert.Contains( guid.ToString(), json, StringComparison.Ordinal );
+    }
+
+    [Fact]
+    public void LicenseIsNotReportedReportedWhenTelemetryIsDisabled()
+    {
+        ((TestApplicationInfo) this.ServiceProvider.GetRequiredBackstageService<IApplicationInfoProvider>().CurrentApplication).IsTelemetryEnabled = false;
+        this.ConsumeAndAssertReportsCount( 0 );
+    }
+    
+    [Fact]
+    public void LicenseIsReportedWhenOptOutEnvironmentVariableIsSet()
+    {
+        this.EnvironmentVariableProvider.Environment["METALAMA_TELEMETRY_OPT_OUT"] = "true";
+        this.ConsumeAndAssertReportsCount( 1 );
+    }
+
+    [Fact]
+    public void LicenseIsNotReportedForUnattendedBuild()
+    {
+        ((TestApplicationInfo) this.ServiceProvider.GetRequiredBackstageService<IApplicationInfoProvider>().CurrentApplication).IsUnattendedProcess = true;
+        this.ConsumeAndAssertReportsCount( 0 );
     }
 }

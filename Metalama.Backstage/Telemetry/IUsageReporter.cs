@@ -2,7 +2,6 @@
 
 using JetBrains.Annotations;
 using Metalama.Backstage.Extensibility;
-using System;
 
 namespace Metalama.Backstage.Telemetry;
 
@@ -13,7 +12,5 @@ public interface IUsageReporter : IBackstageService
 
     bool ShouldReportSession( string projectName );
 
-    IDisposable? StartSession( string kind );
-
-    MetricCollection? Metrics { get; }
+    IUsageSession? StartSession( string kind );
 }
