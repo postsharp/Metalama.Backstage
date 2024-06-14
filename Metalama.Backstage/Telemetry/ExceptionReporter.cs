@@ -237,6 +237,11 @@ internal class ExceptionReporter : IExceptionReporter, IDisposable
     {
         try
         {
+            if ( !this._telemetryConfigurationService.IsEnabled )
+            {
+                return;
+            }
+            
             if ( !this.ShouldReportException( reportedException ) )
             {
                 return;

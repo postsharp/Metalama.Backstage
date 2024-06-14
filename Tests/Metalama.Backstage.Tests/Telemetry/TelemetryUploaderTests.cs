@@ -22,6 +22,8 @@ public class TelemetryUploaderTests : TestsBase
     {
         this.FileSystem.CreateDirectory( _feedbackDirectory );
         this._uploader = this.ServiceProvider.GetRequiredBackstageService<ITelemetryUploader>();
+        
+        this.TelemetryConfigurationService.SetStatus( true );
     }
 
     protected override void ConfigureServices( ServiceProviderBuilder services )

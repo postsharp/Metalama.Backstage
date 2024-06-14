@@ -7,7 +7,6 @@ using Metalama.Backstage.Telemetry;
 using Metalama.Backstage.Telemetry.Metrics;
 using Metalama.Backstage.Testing;
 using System;
-using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -18,71 +17,86 @@ namespace Metalama.Backstage.Tests.Telemetry;
 
 public class UsageReporterTests : TestsBase
 {
-    private readonly TestApplicationInfo _applicationInfo = new TestApplicationInfo() { IsTelemetryEnabled = true };
+    // This field can be modified by tests before the first use of the service provider.
+    private TestApplicationInfo _applicationInfo = new() { IsTelemetryEnabled = true };
 
-    private readonly UsageReporter _reporter;
+    public UsageReporterTests( ITestOutputHelper logger ) : base( logger ) { }
 
-    public UsageReporterTests( ITestOutputHelper logger ) : base( logger )
+    protected override void OnAfterServicesCreated( Services services )
     {
-        this._reporter = new UsageReporter( this.ServiceProvider );
+        services.ConfigurationManager!.Update<TelemetryConfiguration>( c => c with { UsageReportingAction = ReportingAction.Yes } );
     }
 
     protected override void ConfigureServices( ServiceProviderBuilder services )
-    {
-        services.AddSingleton<IApplicationInfoProvider>( new ApplicationInfoProvider( this._applicationInfo ) );
-        services.AddSingleton<TelemetryReportUploader>( serviceProvider => new TelemetryReportUploader( serviceProvider ) );
-    }
+        => services
+            .AddSingleton<IApplicationInfoProvider>( new ApplicationInfoProvider( this._applicationInfo ) )
+            .AddSingleton<ITelemetryUploader>( new NullTelemetryUploader() )
+            .AddSingleton<TelemetryReportUploader>( serviceProvider => new TelemetryReportUploader( serviceProvider ) );
 
     private void ReportSession( string kind = "TestSession" )
     {
-        Assert.Null( this._reporter.Metrics );
-
-        var session = this._reporter.StartSession( kind ); 
+        var reporter = new UsageReporter( this.ServiceProvider );
+        var session = reporter.StartSession( kind );
         Assert.NotNull( session );
-        
-        Assert.NotNull( this._reporter.Metrics );
-        Assert.NotEmpty( this._reporter.Metrics! );
-        
-        session!.Dispose();
-        
-        Assert.Null( this._reporter.Metrics );
+        Assert.NotEmpty( session!.Metrics );
+
+        session.Dispose();
+
+        Assert.Throws<InvalidOperationException>( () => session.Metrics );
         Assert.Single( this.FileSystem.Mock.AllFiles );
-        Assert.StartsWith( "Usage-", Path.GetFileName( this.FileSystem.Mock.AllFiles.Single() ), StringComparison.Ordinal );
     }
 
     private void AssertReportingDisabled()
     {
         // We can't use the reporter from the constructor, because it's been created with the wrong configuration.
         var reporter = new UsageReporter( this.ServiceProvider );
-        
+
         Assert.False( reporter.ShouldReportSession( "TestProject" ) );
-        
-        Assert.Null( reporter.Metrics );
+
         Assert.Null( reporter.StartSession( "TestSession" ) );
-        Assert.Null( reporter.Metrics );
         Assert.Empty( this.FileSystem.Mock.AllFiles );
     }
 
-    [Fact]
-    public void UsageIsReportedWhenTelemetryIsEnabled()
+    [Theory]
+    [InlineData( ReportingAction.Yes, true )]
+    [InlineData( ReportingAction.No, false )]
+    [InlineData( ReportingAction.Ask, false )]
+    public void UsageIsReportedAsConfiguredWhenTelemetryIsEnabled( ReportingAction usageReportingAction, bool shoudlReport )
     {
-        this.ReportSession();
+        this.ConfigurationManager!.Update<TelemetryConfiguration>( c => c with { UsageReportingAction = usageReportingAction } );
+
+        if ( shoudlReport )
+        {
+            this.ReportSession();
+        }
+        else
+        {
+            this.AssertReportingDisabled();
+        }
     }
-    
+
     [Fact]
     public void UsageIsNotReportedWhenTelemetryIsDisabled()
     {
-        this._applicationInfo.IsTelemetryEnabled = false;
+        this._applicationInfo = new TestApplicationInfo() { IsTelemetryEnabled = false };
         this.AssertReportingDisabled();
     }
-    
+
     [Fact]
     public void UsageIsNotReportedWhenOptOutEnvironmentVariableIsSet()
     {
         this.EnvironmentVariableProvider.Environment["METALAMA_TELEMETRY_OPT_OUT"] = "true";
         this.AssertReportingDisabled();
     }
-    
+
+    [Fact]
+    public void UsageIsNotReportedForUnattendedBuild()
+    {
+        this._applicationInfo = new TestApplicationInfo() { IsUnattendedProcess = true };
+
+        this.AssertReportingDisabled();
+    }
+
     [Fact]
     public void UsageRepostingCanBeRepeatedWithoutShouldReportSessionCheck()
     {
@@ -91,12 +105,20 @@ public class UsageReporterTests : TestsBase
         this.ReportSession();
     }
 
-    private void AssertSessionShouldBeReported( string projectName = "TestProject" ) => Assert.True( this._reporter.ShouldReportSession( projectName ) );
-    
-    private void AssertSessionShouldNotBeReported( string projectName = "TestProject" ) => Assert.False( this._reporter.ShouldReportSession( projectName ) );
-    
+    private void AssertSessionShouldBeReported( string projectName = "TestProject" )
+    {
+        var reporter = new UsageReporter( this.ServiceProvider );
+        Assert.True( reporter.ShouldReportSession( projectName ) );
+    }
+
+    private void AssertSessionShouldNotBeReported( string projectName = "TestProject" )
+    {
+        var reporter = new UsageReporter( this.ServiceProvider );
+        Assert.False( reporter.ShouldReportSession( projectName ) );
+    }
+
     [Fact]
-    public void FirstSessionSoShouldBeReported()
+    public void FirstSessionShouldBeReported()
     {
         this.AssertSessionShouldBeReported();
     }
@@ -109,7 +131,7 @@ public class UsageReporterTests : TestsBase
         this.Time.AddTime( TimeSpan.FromDays( 1 ).Add( -TimeSpan.FromMinutes( 1 ) ) );
         this.AssertSessionShouldNotBeReported();
     }
-    
+
     [Fact]
     public void SessionShouldBeReportedAfterOneDay()
     {
@@ -154,18 +176,20 @@ public class UsageReporterTests : TestsBase
     {
         var event1 = new SemaphoreSlim( 0 );
         var event2 = new SemaphoreSlim( 0 );
-        
+
+        var reporter = new UsageReporter( this.ServiceProvider );
+
         async Task<IDisposable> StartSession( string projectName, SemaphoreSlim e )
         {
-            var session = this._reporter.StartSession( "TestSession" );
+            var session = reporter.StartSession( "TestSession" );
             Assert.NotNull( session );
-            this._reporter.Metrics!.Add( new StringMetric( "ProjectName", projectName ) );
+            session!.Metrics.Add( new StringMetric( "ProjectName", projectName ) );
 
             await e.WaitAsync();
-            
-            Assert.Single( this._reporter.Metrics, m => m is StringMetric stringMetric && stringMetric.Value == projectName );
-            
-            return session!;
+
+            Assert.Single( session.Metrics, m => m is StringMetric stringMetric && stringMetric.Value == projectName );
+
+            return session;
         }
 
         var session1Task = StartSession( "TestProject1", event1 );
@@ -173,14 +197,13 @@ public class UsageReporterTests : TestsBase
 
         event1.Release();
         await session1Task;
-        
+
         event2.Release();
         await session2Task;
-        
+
         session1Task.Result.Dispose();
         session2Task.Result.Dispose();
-        
-        Assert.Null( this._reporter.Metrics );
+
         Assert.Equal( 2, this.FileSystem.Mock.AllFiles.Count() );
     }
 }

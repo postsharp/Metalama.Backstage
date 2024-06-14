@@ -1,10 +1,8 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. See the LICENSE.md file in the root directory of this repository root for details.
 
-using Metalama.Backstage.Application;
 using Metalama.Backstage.Configuration;
 using Metalama.Backstage.Diagnostics;
 using Metalama.Backstage.Extensibility;
-using Metalama.Backstage.Infrastructure;
 using Metalama.Backstage.Maintenance;
 using Metalama.Backstage.Testing;
 using Metalama.Backstage.Tests.Extensibility;
@@ -22,13 +20,6 @@ namespace Metalama.Backstage.Tests.Diagnostics;
 public class DiagnosticsConfigurationTests : TestsBase
 {
     public DiagnosticsConfigurationTests( ITestOutputHelper logger ) : base( logger ) { }
-
-    protected override void ConfigureServices( ServiceProviderBuilder services )
-    {
-        services
-            .AddSingleton<IEnvironmentVariableProvider>( new TestEnvironmentVariableProvider() )
-            .AddSingleton<IApplicationInfoProvider>( new ApplicationInfoProvider( new TestApplicationInfo() ) );
-    }
 
     [Fact]
     public void OutdatedConfiguration_DisablesLogging()
@@ -69,6 +60,7 @@ public class DiagnosticsConfigurationTests : TestsBase
         Assert.NotNull( logger1.Trace );
 
         // Manually simulate the last modification of configuration happened before 3 hours.
+        Assert.True( this.FileSystem.FileExists( fileName ) );
         this.FileSystem.SetFileLastWriteTime( fileName, DateTime.Now.AddHours( -3 ) );
         var (serviceProvider2, _) = BuildServiceProvider();
 

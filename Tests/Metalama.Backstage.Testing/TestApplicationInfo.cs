@@ -8,7 +8,7 @@ using System.Collections.Immutable;
 
 namespace Metalama.Backstage.Testing
 {
-    /// <inheritdoc />
+    // This object must be immutable because implementations except any IApplicationInfo to be immutable.
     public class TestApplicationInfo : IApplicationInfo
     {
         /// <summary>
@@ -40,7 +40,7 @@ namespace Metalama.Backstage.Testing
         public Version? AssemblyVersion => TestVersionHelper.GetAssemblyVersionFromPackageVersion( this.PackageVersion );
 
         /// <inheritdoc />
-        public bool? IsPrerelease { get; set; }
+        public bool? IsPrerelease { get; init; }
 
         /// <inheritdoc />
         public string? PackageVersion { get; }
@@ -51,7 +51,7 @@ namespace Metalama.Backstage.Testing
         /// <inheritdoc />
         public ProcessKind ProcessKind => ProcessKind.Other;
 
-        public bool IsUnattendedProcess { get; set; }
+        public bool IsUnattendedProcess { get; init; }
 
         /// <inheritdoc />
         bool IApplicationInfo.IsUnattendedProcess( ILoggerFactory loggerFactory ) => this.IsUnattendedProcess;
@@ -60,7 +60,7 @@ namespace Metalama.Backstage.Testing
         public bool IsLongRunningProcess { get; init; }
 
         /// <inheritdoc />
-        public bool IsTelemetryEnabled { get; set; }
+        public bool IsTelemetryEnabled { get; init; }
 
         /// <inheritdoc />
         public bool IsLicenseAuditEnabled { get; init; } = true;

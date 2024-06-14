@@ -11,7 +11,17 @@ namespace Metalama.Backstage.Tests.Licensing
 {
     public abstract class LicensingTestsBase : TestsBase
     {
-        private protected LicenseFactory LicenseFactory { get; }
+        private LicenseFactory _licenseFactory = null!;
+
+        private protected LicenseFactory LicenseFactory
+        {
+            get
+            {
+                this.EnsureServicesInitialized();
+
+                return this._licenseFactory;
+            }
+        }
 
         private protected LicensingTestsBase( ITestOutputHelper logger, bool isTelemetryEnabled = false ) : base(
             logger,
@@ -19,9 +29,13 @@ namespace Metalama.Backstage.Tests.Licensing
                 "Licensing Test App",
                 false,
                 "1.0",
-                new DateTime( 2021, 1, 1 ) ) { IsTelemetryEnabled = isTelemetryEnabled } )
+                new DateTime( 2021, 1, 1 ) ) { IsTelemetryEnabled = isTelemetryEnabled } ) { }
+
+        protected override void OnAfterServicesCreated( Services services )
         {
-            this.LicenseFactory = new LicenseFactory( this.ServiceProvider );
+            base.OnAfterServicesCreated( services );
+
+            this._licenseFactory = new LicenseFactory( services.ServiceProvider );
             this.UserDeviceDetection.IsInteractiveDevice = true;
         }
 
