@@ -184,6 +184,7 @@ public class UsageReporterTests : TestsBase
 
         async Task<IDisposable> StartSession( string projectName, SemaphoreSlim e )
         {
+            var reporter = new UsageReporter( this.ServiceProvider );
             var session = reporter.StartSession( "TestSession" );
             Assert.NotNull( session );
             session!.Metrics.Add( new StringMetric( "ProjectName", projectName ) );
