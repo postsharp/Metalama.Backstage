@@ -1,8 +1,6 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. See the LICENSE.md file in the root directory of this repository root for details.
 
-using Metalama.Backstage.Application;
 using Metalama.Backstage.Configuration;
-using Metalama.Backstage.Extensibility;
 using Metalama.Backstage.Telemetry;
 using Metalama.Backstage.Testing;
 using Microsoft.Extensions.DependencyInjection;
@@ -19,11 +17,12 @@ namespace Metalama.Backstage.Tests.Telemetry;
 
 public class ReportExceptionTests : TestsBase
 {
-    public ReportExceptionTests( ITestOutputHelper logger ) : base( logger ) { }
+    public ReportExceptionTests( ITestOutputHelper logger ) : base( logger, new TestApplicationInfo() { IsTelemetryEnabled = true } ) { }
 
-    protected override void ConfigureServices( ServiceProviderBuilder services )
+    protected override void OnAfterServicesCreated( Services services )
     {
-        services.AddSingleton<IApplicationInfoProvider>( new ApplicationInfoProvider( new TestApplicationInfo() { IsTelemetryEnabled = true } ) );
+        services.ConfigurationManager!.Update<TelemetryConfiguration>(
+            c => c with { ExceptionReportingAction = ReportingAction.Yes, PerformanceProblemReportingAction = ReportingAction.Yes } );
     }
 
     [Fact]
@@ -71,17 +70,71 @@ public class ReportExceptionTests : TestsBase
         Assert.True( reporter.ShouldReportException( new InvalidOperationException( "" ) ) );
     }
 
-    [Fact]
-    public void ReportException()
+    private void ReportException(
+        ReportingAction exceptionReportingAction = ReportingAction.Yes,
+        ReportingAction performanceReportingAction = ReportingAction.Yes,
+        ExceptionReportingKind exceptionReportingKind = ExceptionReportingKind.Exception )
     {
-        this.ConfigurationManager!.Update<TelemetryConfiguration>( c => c with { ExceptionReportingAction = ReportingAction.Yes } );
+        this.ConfigurationManager!.Update<TelemetryConfiguration>(
+            c => c with { ExceptionReportingAction = exceptionReportingAction, PerformanceProblemReportingAction = performanceReportingAction } );
+
         var reporter = new ExceptionReporter( new TelemetryQueue( this.ServiceProvider ), this.ServiceProvider );
-        reporter.ReportException( new InvalidOperationException() );
+        reporter.ReportException( new InvalidOperationException(), exceptionReportingKind );
+    }
 
-        Assert.Single( this.FileSystem.Mock.AllFiles );
+    [Theory]
+    [InlineData( ReportingAction.Yes, ReportingAction.No, ExceptionReportingKind.Exception, true )]
+    [InlineData( ReportingAction.No, ReportingAction.Yes, ExceptionReportingKind.Exception, false )]
+    [InlineData( ReportingAction.Ask, ReportingAction.Yes, ExceptionReportingKind.Exception, false )]
+    [InlineData( ReportingAction.No, ReportingAction.Yes, ExceptionReportingKind.PerformanceProblem, true )]
+    [InlineData( ReportingAction.Yes, ReportingAction.No, ExceptionReportingKind.PerformanceProblem, false )]
+    [InlineData( ReportingAction.Yes, ReportingAction.Ask, ExceptionReportingKind.PerformanceProblem, false )]
+    public void ExceptionsAreReportedAsConfiguredWhenTelemetryIsEnabled(
+        ReportingAction exceptionReportingAction,
+        ReportingAction performanceReportingAction,
+        ExceptionReportingKind exceptionReportingKind,
+        bool shouldReport )
+    {
+        this.ReportException( exceptionReportingAction, performanceReportingAction, exceptionReportingKind );
 
-        // Check that the result is valid XML.
-        var xml = this.FileSystem.ReadAllText( this.FileSystem.Mock.AllFiles.Single() );
-        _ = XDocument.Parse( xml );
+        if ( shouldReport )
+        {
+            Assert.Single( this.FileSystem.Mock.AllFiles );
+
+            // Check that the result is valid XML.
+            var xml = this.FileSystem.ReadAllText( this.FileSystem.Mock.AllFiles.Single() );
+            _ = XDocument.Parse( xml );
+        }
+        else
+        {
+            Assert.Empty( this.FileSystem.Mock.AllFiles );
+        }
+    }
+
+    private void AssertReportingDisabled()
+    {
+        this.ReportException();
+        Assert.Empty( this.FileSystem.Mock.AllFiles );
+    }
+
+    [Fact]
+    public void ExceptionsAreNotReportedWhenTelemetryIsDisabled()
+    {
+        this.ApplicationInfo = new TestApplicationInfo() { IsTelemetryEnabled = false };
+        this.AssertReportingDisabled();
+    }
+
+    [Fact]
+    public void ExceptionsAreNotReportedWhenOptOutEnvironmentVariableIsSet()
+    {
+        this.EnvironmentVariableProvider.Environment["METALAMA_TELEMETRY_OPT_OUT"] = "true";
+        this.AssertReportingDisabled();
+    }
+
+    [Fact]
+    public void ExceptionsAreNotReportedForUnattendedBuild()
+    {
+        this.ApplicationInfo = new TestApplicationInfo() { IsUnattendedProcess = true };
+        this.AssertReportingDisabled();
     }
 }
