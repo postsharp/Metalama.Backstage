@@ -2,6 +2,8 @@
 
     <PropertyGroup>
         <TargetFramework>net6.0</TargetFramework>
+        <PackageDescription>A helper package used internally by Metalama to process telemetry and provide a user interface.</PackageDescription>
+        <PackageReadmeFile>README.md</PackageReadmeFile>
         
         <!--
         Disable globalization so users on Linux do not have to install the lib-icu library.

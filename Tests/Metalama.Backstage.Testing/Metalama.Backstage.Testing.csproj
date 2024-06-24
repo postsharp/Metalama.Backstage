@@ -2,6 +2,8 @@
 
     <PropertyGroup>
         <TargetFrameworks>netframework4.7.2;net6.0</TargetFrameworks>
+        <PackageDescription>A helper package used internally by Metalama to test telemetry and user interface.</PackageDescription>
+        <PackageReadmeFile>README.md</PackageReadmeFile>
         <IsTestProject>False</IsTestProject>
         <IsPackable>True</IsPackable>
         <RootNamespace>Metalama.Backstage.Testing</RootNamespace>
