@@ -3,6 +3,7 @@
 using Metalama.Backstage.Application;
 using Metalama.Backstage.Licensing.Registration;
 using Metalama.Backstage.Pages.Shared;
+using Metalama.Backstage.Services;
 using Metalama.Backstage.Telemetry;
 using Metalama.Backstage.Telemetry.User;
 using Metalama.Backstage.UserInterface;
@@ -22,7 +23,7 @@ namespace Metalama.Backstage.Pages;
 
 #pragma warning disable SA1649
 
-public class ConsentsPageModel : PageModel
+internal class ConsentsPageModel : PageModel
 {
     private readonly ILicenseRegistrationService _licenseRegistrationService;
     private readonly ITelemetryConfigurationService _telemetryConfigurationService;
@@ -31,9 +32,8 @@ public class ConsentsPageModel : PageModel
     private readonly WebLinks _webLinks;
     private readonly IHttpClientFactory _httpClientFactory;
     private readonly IApplicationInfo _applicationInfo;
+    private readonly RecaptchaService _recaptcha;
     private readonly IUserInfoService _userInfoService;
-
-    private static string? _cachedCaptchaSiteKey;
 
     public ConsentsPageModel(
         ILicenseRegistrationService licenseRegistrationService,
@@ -43,6 +43,7 @@ public class ConsentsPageModel : PageModel
         IHttpClientFactory httpClientFactory,
         IApplicationInfoProvider applicationInfoProvider,
         IUserInfoService userInfoService,
+        RecaptchaService recaptcha,
         IIdeExtensionStatusService? ideExtensionStatusService = null )
     {
         this._licenseRegistrationService = licenseRegistrationService;
@@ -52,6 +53,7 @@ public class ConsentsPageModel : PageModel
         this._httpClientFactory = httpClientFactory;
         this._toastNotificationStatusService = toastNotificationStatusService;
         this._applicationInfo = applicationInfoProvider.CurrentApplication;
+        this._recaptcha = recaptcha;
         this._userInfoService = userInfoService;
     }
 
@@ -80,23 +82,12 @@ public class ConsentsPageModel : PageModel
 
     private async Task PrepareCaptchaAsync()
     {
-        if ( _cachedCaptchaSiteKey != null )
+        var recaptchaSiteKey = await this._recaptcha.GetRecaptchaSiteKeyAsync();
+        
+        if ( recaptchaSiteKey != null )
         {
-            this.RecaptchaSiteKey = _cachedCaptchaSiteKey;
+            this.RecaptchaSiteKey = recaptchaSiteKey;
             this.IsDeviceOnline = true;
-        }
-        else
-        {
-            try
-            {
-                var httpClient = this._httpClientFactory.Create();
-                this.RecaptchaSiteKey = _cachedCaptchaSiteKey = await httpClient.GetStringAsync( this._webLinks.NewsletterGetCaptchaSiteKeyApi );
-                this.IsDeviceOnline = true;
-            }
-            catch
-            {
-                this.IsDeviceOnline = false;
-            }
         }
     }
 
@@ -232,6 +223,6 @@ public class ConsentsPageModel : PageModel
             return this.Redirect( "/InstallVsx" );
         }
 
-        return this.Redirect( $"/Done?isDeviceOnline={this.IsDeviceOnline}" );
+        return this.Redirect( "/Done" );
     }
 }
