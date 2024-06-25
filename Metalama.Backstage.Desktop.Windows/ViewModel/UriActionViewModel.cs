@@ -2,7 +2,7 @@
 
 using System;
 
-namespace Metalama.Backstage.Desktop.Windows.Commands;
+namespace Metalama.Backstage.Desktop.Windows.ViewModel;
 
 internal record UriActionViewModel( string Text, Uri Uri ) : NotificationActionViewModel( Text )
 {

@@ -2,4 +2,4 @@
 
 namespace Metalama.Backstage.Commands.Maintenance;
 
-internal class KillCommandSettings : BaseCommandSettings { }
+internal class KillCommandSettings : BaseCommandSettings;

@@ -14,6 +14,7 @@ internal sealed class RandomNumberGenerator : IBackstageService
         this._random = seed != null ? new Random( seed.Value ) : new Random();
     }
 
+    // ReSharper disable once UnusedMember.Global
     public int NextInt32()
     {
         lock ( this._random )
@@ -26,7 +27,7 @@ internal sealed class RandomNumberGenerator : IBackstageService
     {
         lock ( this._random )
         {
-            return (((long) this._random.Next()) << 32) | (uint) this._random.Next();
+            return ((long) this._random.Next() << 32) | (uint) this._random.Next();
         }
     }
 }

@@ -7,7 +7,7 @@ using System;
 namespace Metalama.Backstage.Welcome;
 
 [ConfigurationFile( "welcome.json" )]
-[UsedImplicitly]
+[UsedImplicitly( ImplicitUseTargetFlags.WithMembers )]
 internal record WelcomeConfiguration : ConfigurationFile
 {
     public bool IsFirstStart { get; init; } = true;

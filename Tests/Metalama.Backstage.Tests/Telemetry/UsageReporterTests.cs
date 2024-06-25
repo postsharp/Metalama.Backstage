@@ -41,7 +41,7 @@ public class UsageReporterTests : TestsBase
         var reporter = new UsageReporter( this.ServiceProvider );
         var session = reporter.StartSession( kind );
         Assert.NotNull( session );
-        Assert.NotEmpty( session!.Metrics );
+        Assert.NotEmpty( session.Metrics );
 
         session.Dispose();
 
@@ -187,7 +187,7 @@ public class UsageReporterTests : TestsBase
             var reporter = new UsageReporter( this.ServiceProvider );
             var session = reporter.StartSession( "TestSession" );
             Assert.NotNull( session );
-            session!.Metrics.Add( new StringMetric( "ProjectName", projectName ) );
+            session.Metrics.Add( new StringMetric( "ProjectName", projectName ) );
 
             await e.WaitAsync();
 

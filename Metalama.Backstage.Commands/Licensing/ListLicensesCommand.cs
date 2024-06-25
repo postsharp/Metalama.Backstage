@@ -42,7 +42,7 @@ namespace Metalama.Backstage.Commands.Licensing
 
                 var data = license;
 
-                Write( "License ID", data?.LicenseId?.ToString( CultureInfo.InvariantCulture ) );
+                Write( "License ID", data.LicenseId?.ToString( CultureInfo.InvariantCulture ) );
 
                 if ( data == null || data.LicenseId != null )
                 {

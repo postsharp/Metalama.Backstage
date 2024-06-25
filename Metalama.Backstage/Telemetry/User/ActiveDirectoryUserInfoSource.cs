@@ -61,6 +61,7 @@ internal class ActiveDirectoryUserInfoSource : UserInfoSource
             return false;
         }
 
+        // ReSharper disable once RedundantSuppressNullableWarningExpression
         userInfo = new UserInfo( email! );
 
         return true;

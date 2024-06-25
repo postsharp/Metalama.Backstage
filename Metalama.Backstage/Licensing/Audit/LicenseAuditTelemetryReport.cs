@@ -67,7 +67,9 @@ internal class LicenseAuditTelemetryReport : TelemetryReport
         void AddToMetricsAndHashCode( Metric metric )
         {
             this.Metrics.Add( metric );
-            auditHashCodeBuilder.Update( Encoding.UTF8.GetBytes( metric.ToString() ?? "" ) );
+            
+            // ReSharper disable once RedundantSuppressNullableWarningExpression
+            auditHashCodeBuilder.Update( Encoding.UTF8.GetBytes( metric.ToString()! ) );
         }
 
         // Audit date is not part of the audit hash code. 

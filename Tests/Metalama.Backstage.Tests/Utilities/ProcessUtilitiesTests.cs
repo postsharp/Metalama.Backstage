@@ -20,6 +20,7 @@ public class ProcessUtilitiesTests : TestsBase
         
         Assert.NotEmpty( parentProcesses );
 
+        // ReSharper disable once ParameterOnlyUsedForPreconditionCheck.Local
         Assert.All(
             parentProcesses,
             p =>

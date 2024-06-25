@@ -9,5 +9,6 @@ internal class BackstageInitializationOptionsProvider : IBackstageService
         this.Options = options;
     }
 
+    // ReSharper disable once UnusedAutoPropertyAccessor.Global
     public BackstageInitializationOptions Options { get; }
 }

@@ -17,6 +17,7 @@
     </PropertyGroup>
 
     <ItemGroup>
+      <PackageReference Include="JetBrains.Annotations" />
       <PackageReference Include="Spectre.Console.Cli" />
       <PackageReference Include="Newtonsoft.Json" />
     </ItemGroup>

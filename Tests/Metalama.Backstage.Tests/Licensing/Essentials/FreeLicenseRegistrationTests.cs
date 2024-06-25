@@ -18,9 +18,9 @@ namespace Metalama.Backstage.Tests.Licensing.Essentials
             var registeredLicenseString = this.ReadStoredLicenseString();
             Assert.True( this.LicenseFactory.TryCreate( registeredLicenseString, out var registeredLicense, out var errorMessage ) );
             Assert.Null( errorMessage );
-            Assert.True( registeredLicense!.TryGetProperties( out var data, out errorMessage ) );
+            Assert.True( registeredLicense.TryGetProperties( out var data, out errorMessage ) );
             Assert.Null( errorMessage );
-            Assert.True( Guid.TryParse( data!.UniqueId, out var id ) );
+            Assert.True( Guid.TryParse( data.UniqueId, out var id ) );
             Assert.NotEqual( Guid.Empty, id );
             Assert.Equal( LicensedProduct.MetalamaFree, data.Product );
         }

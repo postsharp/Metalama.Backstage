@@ -147,7 +147,6 @@ internal class WindowsUserDeviceDetectionService : IUserDeviceDetectionService
         get
         {
 #if NETCOREAPP || NETFRAMEWORK
-
 #pragma warning disable CA1416
             using var key = Registry.LocalMachine.OpenSubKey( @"SOFTWARE\WOW6432Node\Microsoft\VisualStudio" );
 

@@ -44,7 +44,7 @@ internal class VisualStudioUserInfoSource : UserInfoSource
                 continue;
             }
 
-            var versionString = match.Groups["version"]?.Value;
+            var versionString = match.Groups["version"].Value;
 
             if ( string.IsNullOrEmpty( versionString ) )
             {
@@ -66,6 +66,7 @@ internal class VisualStudioUserInfoSource : UserInfoSource
 
             if ( !string.IsNullOrWhiteSpace( emailAddress ) )
             {
+                // ReSharper disable once RedundantSuppressNullableWarningExpression
                 userInfo = new( emailAddress! );
 
                 return true;
