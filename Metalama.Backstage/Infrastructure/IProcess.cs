@@ -8,7 +8,11 @@ namespace Metalama.Backstage.Infrastructure;
 [PublicAPI]
 public interface IProcess : IDisposable
 {
+    int ExitCode { get; }
+    
     event Action Exited;
 
     bool HasExited { get; }
+
+    void WaitForExit();
 }
