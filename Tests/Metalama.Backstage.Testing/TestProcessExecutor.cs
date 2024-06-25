@@ -22,8 +22,12 @@ public class TestProcessExecutor : IProcessExecutor
     {
         public void Dispose() { }
 
+        public int ExitCode => 0;
+
         event Action? IProcess.Exited { add { } remove { } }
 
         public bool HasExited => false;
+
+        public void WaitForExit() { }
     }
 }

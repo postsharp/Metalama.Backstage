@@ -220,6 +220,10 @@ public static class RegisterServiceExtensions
                 serviceProviderBuilder.AddService( typeof(IIdeExtensionStatusService), serviceProvider => new IdeExtensionStatusService( serviceProvider ) );
                 serviceProviderBuilder.AddService( typeof(IUserInterfaceService), serviceProvider => new WindowsUserInterfaceService( serviceProvider ) );
             }
+            else if ( RuntimeInformation.IsOSPlatform( OSPlatform.Linux ) )
+            {
+                serviceProviderBuilder.AddService( typeof(IUserInterfaceService), serviceProvider => new LinuxUserInterfaceService( serviceProvider ) );
+            }
             else
             {
                 serviceProviderBuilder.AddService( typeof(IUserInterfaceService), serviceProvider => new BrowserBasedUserInterfaceService( serviceProvider ) );
