@@ -2,6 +2,7 @@
   "profiles": {
     "Metalama.Backstage.Worker": {
       "commandName": "Project",
+      "commandLineArgs": "web",
       "launchBrowser": true,
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
