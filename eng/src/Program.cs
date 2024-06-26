@@ -16,6 +16,8 @@ var product = new Product( MetalamaDependencies.MetalamaBackstage )
     ],
     PublicArtifacts = Pattern.Create(
         "Metalama.Backstage.$(PackageVersion).nupkg",
+        "Metalama.Backstage.Commands.$(PackageVersion).nupkg", // Required by SourceLink in Metalama.Framework.
+        "Metalama.Backstage.Testing.$(PackageVersion).nupkg", // Required by SourceLink in Metalama.Framework.
         "Metalama.Backstage.Tools.$(PackageVersion).nupkg"), // Required by Metalama.Testing.AspectTesting via Metalama.Framework.Engine.
     Dependencies = [DevelopmentDependencies.PostSharpEngineering]
 };
