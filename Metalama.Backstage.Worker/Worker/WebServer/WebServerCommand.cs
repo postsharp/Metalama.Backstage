@@ -1,6 +1,7 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. See the LICENSE.md file in the root directory of this repository root for details.
 
 using JetBrains.Annotations;
+using Metalama.Backstage.Services;
 using Metalama.Backstage.Worker.Logger;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -36,10 +37,14 @@ internal class WebServerCommand : AsyncCommand<WebServerCommandSettings>
             builder.Services.Add( service );
         }
 
+        builder.Services.AddSingleton<RecaptchaService>();
+
         builder.WebHost.ConfigureKestrel( serverOptions => serverOptions.ListenLocalhost( settings.Port ) );
 
         // Add services to the container.
         var app = builder.Build();
+        
+        app.Services.GetRequiredService<RecaptchaService>().Initialize();
 
         app.UseCors();
 
