@@ -1,5 +1,6 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. See the LICENSE.md file in the root directory of this repository root for details.
 
+using JetBrains.Annotations;
 using Metalama.Backstage.Application;
 using Metalama.Backstage.Configuration;
 using Metalama.Backstage.Diagnostics;
@@ -18,7 +19,8 @@ using Xunit.Abstractions;
 using ILoggerFactory = Metalama.Backstage.Diagnostics.ILoggerFactory;
 
 namespace Metalama.Backstage.Testing
-{
+{    
+    [PublicAPI]
     public abstract class TestsBase
     {
         protected ITestOutputHelper Logger { get; }

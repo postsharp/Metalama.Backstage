@@ -55,6 +55,6 @@ public class BackstageBackgroundTasksServiceTests
 
         await service.WhenNoPendingTaskAsync();
 
-        Assert.Equal( n*m, completedTasks );
+        Assert.Equal( n * m, completedTasks );
     }
 }

@@ -36,7 +36,7 @@ namespace Metalama.Backstage.Tests.Licensing.Licenses
             Assert.True( this.LicenseFactory.TryCreate( invalidLicenseString, out var license, out var errorMessage ) );
             Assert.Null( errorMessage );
             Assert.True( license is License );
-            Assert.False( license!.TryGetLicenseConsumptionData( out _, out _ ) );
+            Assert.False( license.TryGetLicenseConsumptionData( out _, out _ ) );
         }
 
         [Fact]
@@ -51,7 +51,7 @@ namespace Metalama.Backstage.Tests.Licensing.Licenses
             Assert.True( this.LicenseFactory.TryCreate( revokedLicenseString, out var license, out var errorMessage ) );
             Assert.Null( errorMessage );
             Assert.True( license is License );
-            Assert.False( license!.TryGetLicenseConsumptionData( out _, out _ ) );
+            Assert.False( license.TryGetLicenseConsumptionData( out _, out _ ) );
         }
 
         [Fact]
@@ -60,7 +60,7 @@ namespace Metalama.Backstage.Tests.Licensing.Licenses
             Assert.True( this.LicenseFactory.TryCreate( LicenseKeyProvider.PostSharpUltimate, out var license, out var errorMessage ) );
             Assert.Null( errorMessage );
             Assert.True( license is License );
-            Assert.True( license!.TryGetLicenseConsumptionData( out var licenseData, out errorMessage ) );
+            Assert.True( license.TryGetLicenseConsumptionData( out var licenseData, out errorMessage ) );
             Assert.NotNull( licenseData );
             Assert.Null( errorMessage );
         }

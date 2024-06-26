@@ -2,6 +2,7 @@
 
 // ReSharper disable StringLiteralTypo
 
+using JetBrains.Annotations;
 using Metalama.Backstage.Extensibility;
 using Metalama.Backstage.Utilities;
 using System;
@@ -16,6 +17,7 @@ using System.Xml.XPath;
 
 namespace Metalama.Backstage.Testing;
 
+[PublicAPI]
 public sealed class TestLicenseKeyProvider
 {
     private readonly Dictionary<string, string>? _testLicenseKeys;

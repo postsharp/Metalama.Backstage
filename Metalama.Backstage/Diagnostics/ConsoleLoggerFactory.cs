@@ -35,7 +35,7 @@ internal class ConsoleLoggerFactory : ILoggerFactory
 
         public string Prefix { get; }
 
-        public string Category { get; }
+        private string Category { get; }
 
         public ConsoleLogger( ConsoleLoggerFactory factory, string prefix, string category )
         {

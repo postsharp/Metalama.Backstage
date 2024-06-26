@@ -14,6 +14,7 @@ namespace Metalama.Backstage.Pages
     {
         public string? RequestId { get; set; }
 
+        // ReSharper disable once UnusedMember.Global
         public bool ShowRequestId => !string.IsNullOrEmpty( this.RequestId );
 
         public void OnGet()

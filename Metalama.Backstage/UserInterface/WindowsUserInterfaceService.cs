@@ -111,7 +111,9 @@ internal class WindowsUserInterfaceService : UserInterfaceService
                 using ( var progIdKey = Registry.ClassesRoot.OpenSubKey( browser + @"\shell\open\command" ) )
                 {
 #pragma warning disable CA1307
-                    path = progIdKey?.GetValue( null )?.ToString()?.Replace( "\"", "" );
+                    
+                    // ReSharper disable once RedundantSuppressNullableWarningExpression
+                    path = progIdKey?.GetValue( null )?.ToString()!.Replace( "\"", "" );
 #pragma warning restore CA1307
 
                     if ( string.IsNullOrEmpty( path ) )
@@ -120,6 +122,7 @@ internal class WindowsUserInterfaceService : UserInterfaceService
                     }
 
                     // Handling paths with arguments. That's not bullet proof but this should be enough.
+                    // ReSharper disable once RedundantSuppressNullableWarningExpression
                     if ( !path!.EndsWith( ".exe", StringComparison.OrdinalIgnoreCase ) )
                     {
                         path = path.Substring( 0, path.LastIndexOf( ".exe", StringComparison.OrdinalIgnoreCase ) + 4 );

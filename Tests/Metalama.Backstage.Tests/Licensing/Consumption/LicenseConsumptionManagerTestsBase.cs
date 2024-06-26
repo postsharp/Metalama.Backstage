@@ -22,7 +22,7 @@ public abstract class LicenseConsumptionManagerTestsBase : LicensingTestsBase
         Assert.True( this.LicenseFactory.TryCreate( licenseString, out var license, out var errorMessage ) );
         Assert.Null( errorMessage );
 
-        return new TestLicense( license! );
+        return new TestLicense( license );
     }
 
     private protected ILicenseConsumptionService CreateConsumptionService( TestLicense license )

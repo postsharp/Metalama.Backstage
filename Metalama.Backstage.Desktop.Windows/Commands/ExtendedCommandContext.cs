@@ -6,4 +6,5 @@ using System;
 
 namespace Metalama.Backstage.Desktop.Windows.Commands;
 
+// ReSharper disable once NotAccessedPositionalProperty.Global
 public record ExtendedCommandContext( CommandContext CommandContext, IServiceProvider ServiceProvider, ILogger Logger );

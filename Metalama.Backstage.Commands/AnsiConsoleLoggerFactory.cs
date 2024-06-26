@@ -29,6 +29,8 @@ internal class AnsiConsoleLoggerFactory : ILoggerFactory, ILogger
 
     void ILoggerFactory.Flush() { }
 
+    // ReSharper disable once UnusedMember.Global
+    // ReSharper disable once UnusedParameter.Global
     public ILoggerFactory ForScope( string name ) => throw new NotSupportedException();
 
     public IDisposable EnterScope( string scope ) => default(DisposableAction);

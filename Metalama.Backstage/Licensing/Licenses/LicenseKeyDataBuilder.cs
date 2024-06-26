@@ -1,5 +1,6 @@
 // Copyright (c) SharpCrafters s.r.o. See the LICENSE.md file in the root directory of this repository root for details.
 
+using JetBrains.Annotations;
 using Metalama.Backstage.Licensing.Licenses.LicenseFields;
 using System;
 using System.Collections.Generic;
@@ -7,6 +8,7 @@ using System.Collections.Immutable;
 
 namespace Metalama.Backstage.Licensing.Licenses;
 
+[PublicAPI]
 public partial class LicenseKeyDataBuilder : ILicenseKeyData
 {
     private readonly ImmutableSortedDictionary<LicenseFieldIndex, LicenseField>.Builder _fields;
@@ -119,7 +121,7 @@ public partial class LicenseKeyDataBuilder : ILicenseKeyData
     /// <summary>
     /// Gets the license version.
     /// </summary>
-    public byte Version { get; private set; }
+    public byte Version { get; private init; }
 
     public Guid? LicenseGuid { get; set; }
 

@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 
 namespace Metalama.Backstage.Commands;
 
+// ReSharper disable once InconsistentNaming
 public class OpenUICommand : BaseAsyncCommand<BaseCommandSettings>
 {
     protected override Task ExecuteAsync( ExtendedCommandContext context, BaseCommandSettings settings )

@@ -25,6 +25,7 @@ public class TestHttpMessageHandler : HttpMessageHandler
         return response;
     }
 
+    // ReSharper disable once UnusedParameter.Global
     protected virtual Task<HttpResponseMessage> SendCoreAsync( HttpRequestMessage request, CancellationToken cancellationToken )
         => Task.FromResult( new HttpResponseMessage( HttpStatusCode.OK ) );
 }

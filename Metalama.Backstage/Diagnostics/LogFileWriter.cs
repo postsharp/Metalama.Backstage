@@ -24,6 +24,7 @@ internal class LogFileWriter
     private volatile int _backgroundTaskStatus;
     private volatile bool _disposing;
 
+    // ReSharper disable once UnusedAutoPropertyAccessor.Global
     public string Scope { get; }
 
     public string? LogFile { get; }
