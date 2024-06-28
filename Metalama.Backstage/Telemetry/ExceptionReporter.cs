@@ -237,11 +237,6 @@ internal class ExceptionReporter : IExceptionReporter, IDisposable
     {
         try
         {
-            if ( !this._telemetryConfigurationService.IsEnabled )
-            {
-                return;
-            }
-            
             if ( !this.ShouldReportException( reportedException ) )
             {
                 return;
@@ -252,6 +247,11 @@ internal class ExceptionReporter : IExceptionReporter, IDisposable
             if ( exceptionReportingKind == ExceptionReportingKind.Exception )
             {
                 this._localExceptionReporter?.ReportException( reportedException, localReportPath );
+            }
+
+            if ( !this._telemetryConfigurationService.IsEnabled )
+            {
+                return;
             }
 
             var reportingAction = exceptionReportingKind == ExceptionReportingKind.Exception
