@@ -5,6 +5,11 @@ using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Threading;
 
+#if NETFRAMEWORK
+using System.Security.AccessControl;
+using System.Security.Principal;
+#endif
+
 #if DEBUG
 using System.Diagnostics;
 #endif
@@ -90,16 +95,13 @@ public static class MutexHelper
         //   2) Creating a new mutex fails, i.e. the mutex was created in the meantime by a process with higher set of rights.
         // The probability of mutex being destroyed when we call TryOpenExisting again is fairly low.
 
-#pragma warning disable IDE0059 // Unnecessary assignment of a value
-        
         // ReSharper disable once BadSemicolonSpaces
         for ( var i = 0; ; i++ )
-#pragma warning restore IDE0059 // Unnecessary assignment of a value
         {
             // First try opening the mutex.
             if ( Mutex.TryOpenExisting( mutexName, out var existingMutex ) )
             {
-                logger?.Trace?.Log( $"  Opened existing mutex." );
+                logger?.Trace?.Log( "  Opened existing mutex." );
 
                 return existingMutex;
             }
@@ -108,21 +110,32 @@ public static class MutexHelper
                 // Otherwise we will try to create the mutex.
                 try
                 {
-                    logger?.Trace?.Log( $"  Creating new mutex." );
+                    logger?.Trace?.Log( "  Creating new mutex." );
 
+#if NETFRAMEWORK
+                    // From https://stackoverflow.com/a/19717341/41071.
+                    // As I understand it, creating a mutex without security descriptor uses default security, which could be different on different systems.
+                    // I'm not certain this will actually prevent UnauthorizedAccessException, and it's not available on .NET, but it's worth trying.
+
+                    var mutexSecurity = new MutexSecurity();
+                    mutexSecurity.AddAccessRule( new MutexAccessRule( new SecurityIdentifier( WellKnownSidType.WorldSid, null ), MutexRights.Synchronize | MutexRights.Modify, AccessControlType.Allow ) );
+
+                    return new Mutex( false, mutexName, out _, mutexSecurity );
+#else
                     return new Mutex( false, mutexName );
+#endif
                 }
                 catch ( UnauthorizedAccessException )
                 {
                     if ( i < 3 )
                     {
                         // Mutex was probably created in the meantime and is not accessible - we will restart.
-                        logger?.Trace?.Log( $"  Mutex was probably created and current process has restricted access to it, restarting." );
+                        logger?.Trace?.Log( "  Mutex was probably created and current process has restricted access to it, restarting." );
                     }
                     else
                     {
                         // There were too many restarts - just rethrow.
-                        logger?.Trace?.Log( $"  Tried to open mutex too many times - throwing the exception received." );
+                        logger?.Trace?.Log( "  Tried to open mutex too many times - throwing the exception received." );
 
                         throw;
                     }
