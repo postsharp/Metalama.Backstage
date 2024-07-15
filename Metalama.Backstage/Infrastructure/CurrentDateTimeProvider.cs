@@ -5,13 +5,13 @@ using System;
 namespace Metalama.Backstage.Infrastructure
 {
     /// <summary>
-    /// Provides current date and time using <see cref="DateTime.Now" />.
+    /// Provides current date and time using <see cref="DateTime.UtcNow" />.
     /// </summary>
     internal class CurrentDateTimeProvider : IDateTimeProvider
     {
         /// <summary>
-        /// Gets current date and time using <see cref="DateTime.Now" />.
+        /// Gets current date and time using <see cref="DateTime.UtcNow" />.
         /// </summary>
-        public DateTime Now => DateTime.Now;
+        public DateTime Now => DateTime.UtcNow;
     }
 }

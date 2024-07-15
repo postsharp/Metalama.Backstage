@@ -20,9 +20,9 @@ public static class ToastNotificationKinds
     public static ToastNotificationKind LicenseExpiring { get; } =
         new( nameof(LicenseExpiring) ) { AutoSnoozePeriod = TimeSpan.FromDays( 1 ), ManualSnoozePeriod = TimeSpan.FromDays( 3 ) };
 
-    public static ImmutableDictionary<string, ToastNotificationKind> All { get; } =
-        new[] { RequiresLicense, VsxNotInstalled, SubscriptionExpiring, TrialExpiring, LicenseExpiring }.ToImmutableDictionary( i => i.Name, i => i );
-
     public static ToastNotificationKind Exception { get; } =
         new( nameof(Exception) ) { AutoSnoozePeriod = TimeSpan.FromSeconds( 5 ), ManualSnoozePeriod = TimeSpan.FromHours( 1 ) };
+
+    public static ImmutableDictionary<string, ToastNotificationKind> All { get; } =
+        new[] { RequiresLicense, VsxNotInstalled, SubscriptionExpiring, TrialExpiring, LicenseExpiring, Exception }.ToImmutableDictionary( i => i.Name, i => i );
 }

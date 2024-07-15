@@ -2,7 +2,6 @@
 
 using Metalama.Backstage.Extensibility;
 using Metalama.Backstage.UserInterface;
-using System;
 
 namespace Metalama.Backstage.Desktop.Windows.Commands;
 
@@ -14,7 +13,7 @@ internal class MuteNotificationCommand : BaseCommand<MuteNotificationCommandSett
     {
         if ( !ToastNotificationKinds.All.TryGetValue( settings.Kind, out var kind ) )
         {
-            Console.WriteLine( $"Invalid notification kind: {settings.Kind}." );
+            context.Logger.Error?.Log( $"Invalid notification kind: {settings.Kind}." );
 
             return 1;
         }
