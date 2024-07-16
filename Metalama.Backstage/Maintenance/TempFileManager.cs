@@ -160,7 +160,7 @@ public class TempFileManager : ITempFileManager
             {
                 var lastWriteTime = this._fileSystem.GetFileLastWriteTime( cleanUpFilePath );
 
-                if ( cleanUpFile.Strategy == CleanUpStrategy.WhenUnused && lastWriteTime < DateTime.Now.AddDays( -7 ) )
+                if ( cleanUpFile.Strategy == CleanUpStrategy.WhenUnused && lastWriteTime < this._time.Now.AddDays( -7 ) )
                 {
                     return true;
                 }
@@ -296,7 +296,7 @@ public class TempFileManager : ITempFileManager
                 {
                     using ( MutexHelper.WithGlobalLock( cleanUpFilePath ) )
                     {
-                        RetryHelper.Retry( () => this._fileSystem.SetFileLastWriteTime( cleanUpFilePath, DateTime.Now ) );
+                        RetryHelper.Retry( () => this._fileSystem.SetFileLastWriteTime( cleanUpFilePath, this._time.Now ) );
                     }
                 }
             } );

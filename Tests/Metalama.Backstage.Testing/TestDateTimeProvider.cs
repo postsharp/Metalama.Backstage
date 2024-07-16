@@ -11,7 +11,7 @@ namespace Metalama.Backstage.Testing
         private DateTime? _lastResetTime;
         private Stopwatch? _stopwatch;
 
-        public DateTime Now => this._lastResetTime?.AddMilliseconds( this._stopwatch?.ElapsedMilliseconds ?? 0 ) ?? DateTime.Now;
+        public DateTime Now => this._lastResetTime?.AddMilliseconds( this._stopwatch?.ElapsedMilliseconds ?? 0 ) ?? DateTime.UtcNow;
 
         public void Set( DateTime now, bool keepRunning = false )
         {
