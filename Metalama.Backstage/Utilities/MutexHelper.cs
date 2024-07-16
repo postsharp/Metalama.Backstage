@@ -110,18 +110,19 @@ public static class MutexHelper
                 // Otherwise we will try to create the mutex.
                 try
                 {
-                    logger?.Trace?.Log( "  Creating new mutex." );
 
 #if NETFRAMEWORK
                     // From https://stackoverflow.com/a/19717341/41071.
                     // As I understand it, creating a mutex without security descriptor uses default security, which could be different on different systems.
                     // I'm not certain this will actually prevent UnauthorizedAccessException, and it's not available on .NET, but it's worth trying.
 
+                    logger?.Trace?.Log( "  Creating new mutex with access rule." );
                     var mutexSecurity = new MutexSecurity();
                     mutexSecurity.AddAccessRule( new MutexAccessRule( new SecurityIdentifier( WellKnownSidType.WorldSid, null ), MutexRights.Synchronize | MutexRights.Modify, AccessControlType.Allow ) );
 
                     return new Mutex( false, mutexName, out _, mutexSecurity );
 #else
+                    logger?.Trace?.Log( "  Creating new mutex." );
                     return new Mutex( false, mutexName );
 #endif
                 }
