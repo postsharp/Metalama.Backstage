@@ -43,7 +43,7 @@ public class ToastNotificationStatusService : IToastNotificationStatusService
             return false;
         }
 
-        if ( kindConfiguration.SnoozeUntil != null && kindConfiguration.SnoozeUntil > this._dateTimeProvider.Now )
+        if ( kindConfiguration.SnoozeUntil != null && kindConfiguration.SnoozeUntil > this._dateTimeProvider.UtcNow )
         {
             this._logger.Trace?.Log( $"The notification kind {kind.Name} is snoozed until {kindConfiguration.SnoozeUntil}." );
 
@@ -70,7 +70,7 @@ public class ToastNotificationStatusService : IToastNotificationStatusService
             {
                 Notifications = c.Notifications.SetItem(
                     kind.Name,
-                    new ToastNotificationConfiguration() { SnoozeUntil = this._dateTimeProvider.Now + kind.AutoSnoozePeriod } )
+                    new ToastNotificationConfiguration() { SnoozeUntil = this._dateTimeProvider.UtcNow + kind.AutoSnoozePeriod } )
             } );
     }
 
@@ -80,7 +80,7 @@ public class ToastNotificationStatusService : IToastNotificationStatusService
             {
                 Notifications = config.Notifications.SetItem(
                     kind.Name,
-                    new ToastNotificationConfiguration { SnoozeUntil = this._dateTimeProvider.Now + kind.ManualSnoozePeriod } )
+                    new ToastNotificationConfiguration { SnoozeUntil = this._dateTimeProvider.UtcNow + kind.ManualSnoozePeriod } )
             } );
 
     public void Mute( ToastNotificationKind kind )
@@ -102,8 +102,8 @@ public class ToastNotificationStatusService : IToastNotificationStatusService
             config => config with
             {
                 Pauses = config.Pauses
-                    .RemoveRange( config.Pauses.Where( c => c.Value < this._dateTimeProvider.Now ).Select( c => c.Key ) )
-                    .Add( id, this._dateTimeProvider.Now.Add( timeSpan ) )
+                    .RemoveRange( config.Pauses.Where( c => c.Value < this._dateTimeProvider.UtcNow ).Select( c => c.Key ) )
+                    .Add( id, this._dateTimeProvider.UtcNow.Add( timeSpan ) )
             } );
 
         return new DisposableAction( Resume );
@@ -120,7 +120,7 @@ public class ToastNotificationStatusService : IToastNotificationStatusService
         {
             var pauses = this._configurationManager.Get<ToastNotificationsConfiguration>().Pauses;
 
-            return pauses.Any( p => p.Value > this._dateTimeProvider.Now );
+            return pauses.Any( p => p.Value > this._dateTimeProvider.UtcNow );
         }
     }
 }

@@ -62,7 +62,7 @@ public class InMemoryConfigurationManager : IConfigurationManager
                 return false;
             }
 
-            value = value with { LastModified = this._timeProvider.Now };
+            value = value with { LastModified = this._timeProvider.UtcNow };
             this._files[value.GetType()] = value;
             this.ConfigurationFileChanged?.Invoke( value );
 

@@ -12,6 +12,6 @@ namespace Metalama.Backstage.Infrastructure
         /// <summary>
         /// Gets current date and time using <see cref="DateTime.UtcNow" />.
         /// </summary>
-        public DateTime Now => DateTime.UtcNow;
+        public DateTime UtcNow => DateTime.UtcNow;
     }
 }

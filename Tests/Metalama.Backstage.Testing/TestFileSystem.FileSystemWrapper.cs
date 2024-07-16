@@ -34,7 +34,7 @@ public partial class TestFileSystem
                     this.Parent.WaitAndThrowIfBlocked( path, true );
                 }
 
-                var accessTime = this.Parent._time.Now;
+                var accessTime = this.Parent._time.UtcNow;
 
                 var isCreated = executionKind == ExecutionKind.Write && !this.Exists( path );
                 var result = action();

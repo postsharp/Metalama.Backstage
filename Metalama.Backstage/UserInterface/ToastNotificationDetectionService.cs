@@ -35,7 +35,7 @@ internal class ToastNotificationDetectionService : IToastNotificationDetectionSe
 
     private string FormatExpiration( DateTime expiration )
     {
-        var daysToExpiration = (int) Math.Floor( (expiration - this._dateTimeProvider.Now).TotalDays );
+        var daysToExpiration = (int) Math.Floor( (expiration - this._dateTimeProvider.UtcNow).TotalDays );
 
         return daysToExpiration switch
         {
@@ -61,7 +61,7 @@ internal class ToastNotificationDetectionService : IToastNotificationDetectionSe
                 break;
 
             case { ValidTo: not null }
-                when license.ValidTo.Value.Subtract( LicensingConstants.LicenseExpirationWarningPeriod ) < this._dateTimeProvider.Now:
+                when license.ValidTo.Value.Subtract( LicensingConstants.LicenseExpirationWarningPeriod ) < this._dateTimeProvider.UtcNow:
                 {
                     if ( license.LicenseType == LicenseType.Evaluation )
                     {
@@ -87,7 +87,7 @@ internal class ToastNotificationDetectionService : IToastNotificationDetectionSe
 
             case { SubscriptionEndDate: not null }
                 when license.LicenseType != LicenseType.Evaluation // We only show license expiration warnings for evaluation licenses.
-                     && license.SubscriptionEndDate.Value.Subtract( LicensingConstants.SubscriptionExpirationWarningPeriod ) < this._dateTimeProvider.Now:
+                     && license.SubscriptionEndDate.Value.Subtract( LicensingConstants.SubscriptionExpirationWarningPeriod ) < this._dateTimeProvider.UtcNow:
                 this._toastNotificationService.Show(
                     new ToastNotification(
                         ToastNotificationKinds.SubscriptionExpiring,
@@ -106,14 +106,14 @@ internal class ToastNotificationDetectionService : IToastNotificationDetectionSe
         // than the lowest auto-snooze period of a toast notification.
         lock ( this._initializationSync )
         {
-            if ( this._lastTimeDetectionStarted > this._dateTimeProvider.Now.Subtract( TimeSpan.FromSeconds( 15 ) ) )
+            if ( this._lastTimeDetectionStarted > this._dateTimeProvider.UtcNow.Subtract( TimeSpan.FromSeconds( 15 ) ) )
             {
                 this._logger.Trace?.Log( "Skipping detection because it has been performed recently." );
 
                 return;
             }
 
-            this._lastTimeDetectionStarted = this._dateTimeProvider.Now;
+            this._lastTimeDetectionStarted = this._dateTimeProvider.UtcNow;
         }
 
         var notificationReported = false;

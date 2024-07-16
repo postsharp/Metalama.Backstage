@@ -258,7 +258,7 @@ namespace Metalama.Backstage.Telemetry
                 return;
             }
 
-            var now = this._time.Now;
+            var now = this._time.UtcNow;
 
             this._logger.Trace?.Log( "Acquiring mutex." );
 
@@ -266,7 +266,7 @@ namespace Metalama.Backstage.Telemetry
                     c => force ||
                          c.LastUploadTime == null ||
                          c.LastUploadTime.Value.AddDays( 1 ) < now,
-                    c => c with { LastUploadTime = this._time.Now } ) )
+                    c => c with { LastUploadTime = this._time.UtcNow } ) )
             {
                 this._logger.Trace?.Log( $"It's not time to upload the telemetry yet." );
 

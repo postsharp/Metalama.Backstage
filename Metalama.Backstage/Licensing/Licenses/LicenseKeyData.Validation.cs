@@ -41,14 +41,14 @@ namespace Metalama.Backstage.Licensing.Licenses
                 return false;
             }
 
-            if ( this.ValidFrom.HasValue && this.ValidFrom > dateTimeProvider.Now )
+            if ( this.ValidFrom.HasValue && this.ValidFrom > dateTimeProvider.UtcNow )
             {
                 errorDescription = "is not yet valid";
 
                 return false;
             }
 
-            if ( this.ValidTo.HasValue && this.ValidTo < dateTimeProvider.Now )
+            if ( this.ValidTo.HasValue && this.ValidTo < dateTimeProvider.UtcNow )
             {
                 errorDescription = "has expired";
 
