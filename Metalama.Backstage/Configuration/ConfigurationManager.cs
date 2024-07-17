@@ -267,7 +267,7 @@ namespace Metalama.Backstage.Configuration
 
                     this.Logger.Trace?.Log( "Waiting for " );
                     Thread.Sleep( 10 );
-                    this._fileSystem.SetFileLastWriteTime( fileName, this._dateTimeProvider.Now );
+                    this._fileSystem.SetFileLastWriteTime( fileName, this._dateTimeProvider.UtcNow );
                     newLastModified = this._fileSystem.GetFileLastWriteTime( fileName );
                 }
 

@@ -70,9 +70,9 @@ internal class WebServerCommand : AsyncCommand<WebServerCommandSettings>
         app.MapGet( "ping", KeepAlive );
 
         var serverTask = app.RunAsync();
-        var shutDownTime = DateTime.Now.AddMinutes( 1 );
+        var shutDownTime = DateTime.UtcNow.AddMinutes( 1 );
 
-        while ( shutDownTime > DateTime.Now )
+        while ( shutDownTime > DateTime.UtcNow )
         {
             if ( serverTask.IsCompleted )
             {
@@ -82,7 +82,12 @@ internal class WebServerCommand : AsyncCommand<WebServerCommandSettings>
                 break;
             }
 
-            await Task.Delay( shutDownTime - DateTime.Now );
+            var delay = shutDownTime - DateTime.UtcNow;
+
+            if ( delay > TimeSpan.Zero )
+            {
+                await Task.Delay( delay );
+            }
         }
 
         await app.StopAsync();
@@ -91,7 +96,7 @@ internal class WebServerCommand : AsyncCommand<WebServerCommandSettings>
 
         void KeepAlive()
         {
-            shutDownTime = DateTime.Now.AddMinutes( 1 );
+            shutDownTime = DateTime.UtcNow.AddMinutes( 1 );
         }
     }
 }

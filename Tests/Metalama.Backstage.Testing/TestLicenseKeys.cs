@@ -96,5 +96,5 @@ public static class TestLicenseKeys
     public static string MetalamaUltimateOpenSourceRedistributionForIntegrationTests
         => GetLicenseKey( nameof(MetalamaUltimateOpenSourceRedistributionForIntegrationTests) );
 
-    public static readonly DateTime SubscriptionExpirationDate = new( 2050, 1, 1 );
+    public static readonly DateTime SubscriptionExpirationDate = new( 2050, 1, 1, 0, 0, 0, DateTimeKind.Utc );
 }

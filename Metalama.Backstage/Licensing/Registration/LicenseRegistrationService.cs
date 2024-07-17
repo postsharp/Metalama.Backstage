@@ -148,7 +148,7 @@ internal class LicenseRegistrationService : ILicenseRegistrationService
             var (licenseKey, data) = factory.CreateEvaluationLicense();
 
             configuration.SetLicense( licenseKey, data );
-            configuration.LastEvaluationStartDate = this._dateTimeProvider.Now;
+            configuration.LastEvaluationStartDate = this._dateTimeProvider.UtcNow;
         }
 
         errorMessage = null;

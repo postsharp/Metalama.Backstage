@@ -65,7 +65,7 @@ public class TempFileManager : ITempFileManager
 
         try
         {
-            var now = this._time.Now;
+            var now = this._time.UtcNow;
             var lastCleanUpTime = this._configuration.LastCleanUpTime;
             var nextCleanUpTime = lastCleanUpTime?.AddDays( 1 );
 
@@ -85,7 +85,7 @@ public class TempFileManager : ITempFileManager
         finally
         {
             mutex.Dispose();
-            this._configurationManager.Update<CleanUpConfiguration>( c => c with { LastCleanUpTime = this._time.Now } );
+            this._configurationManager.Update<CleanUpConfiguration>( c => c with { LastCleanUpTime = this._time.UtcNow } );
         }
     }
 
@@ -160,13 +160,13 @@ public class TempFileManager : ITempFileManager
             {
                 var lastWriteTime = this._fileSystem.GetFileLastWriteTime( cleanUpFilePath );
 
-                if ( cleanUpFile.Strategy == CleanUpStrategy.WhenUnused && lastWriteTime < DateTime.Now.AddDays( -7 ) )
+                if ( cleanUpFile.Strategy == CleanUpStrategy.WhenUnused && lastWriteTime < this._time.UtcNow.AddDays( -7 ) )
                 {
                     return true;
                 }
                 else if ( cleanUpFile.Strategy == CleanUpStrategy.Always || cleanUpFile.Strategy == CleanUpStrategy.FileOneMonthAfterCreation )
                 {
-                    var threshold = cleanUpFile.Strategy == CleanUpStrategy.Always ? this._time.Now.AddHours( -4 ) : this._time.Now.AddDays( -30 );
+                    var threshold = cleanUpFile.Strategy == CleanUpStrategy.Always ? this._time.UtcNow.AddHours( -4 ) : this._time.UtcNow.AddDays( -30 );
                     
                     var remainsAnyFile = false;
 
@@ -292,11 +292,11 @@ public class TempFileManager : ITempFileManager
         this._backgroundTasksService.Enqueue(
             () =>
             {
-                if ( cleanUpStrategy == CleanUpStrategy.WhenUnused && this._fileSystem.GetFileLastWriteTime( cleanUpFilePath ) > this._time.Now.AddDays( -1 ) )
+                if ( cleanUpStrategy == CleanUpStrategy.WhenUnused && this._fileSystem.GetFileLastWriteTime( cleanUpFilePath ) > this._time.UtcNow.AddDays( -1 ) )
                 {
                     using ( MutexHelper.WithGlobalLock( cleanUpFilePath ) )
                     {
-                        RetryHelper.Retry( () => this._fileSystem.SetFileLastWriteTime( cleanUpFilePath, DateTime.Now ) );
+                        RetryHelper.Retry( () => this._fileSystem.SetFileLastWriteTime( cleanUpFilePath, this._time.UtcNow ) );
                     }
                 }
             } );

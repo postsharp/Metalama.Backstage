@@ -163,7 +163,7 @@ public class LicenseAuditTests : LicenseConsumptionManagerTestsBase
     {
         Assert.Empty( this.FileSystem.Mock.AllFiles );
 
-        var now = new DateTime( 2022, 01, 01 );
+        var now = new DateTime( 2022, 01, 01, 0, 0, 0, DateTimeKind.Utc );
 
         void ShiftTime( TimeSpan span )
         {

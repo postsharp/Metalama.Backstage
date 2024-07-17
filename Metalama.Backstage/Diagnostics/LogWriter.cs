@@ -25,13 +25,13 @@ internal class LogWriter : ILogWriter
         {
             this._logger.LoggerFactory.WriteLine(
                 FormattableString.Invariant(
-                    $"{this._dateTimeProvider.Now}, {this._logLevel}, Thread {Thread.CurrentThread.ManagedThreadId}, {this._logger.Category}: {message}" ) );
+                    $"{this._dateTimeProvider.UtcNow}, {this._logLevel}, Thread {Thread.CurrentThread.ManagedThreadId}, {this._logger.Category}: {message}" ) );
         }
         else
         {
             this._logger.LoggerFactory.WriteLine(
                 FormattableString.Invariant(
-                    $"{this._dateTimeProvider.Now}, {this._logLevel},  Thread {Thread.CurrentThread.ManagedThreadId}, {this._logger.Category} - {this._logger.Prefix}: {message}" ) );
+                    $"{this._dateTimeProvider.UtcNow}, {this._logLevel},  Thread {Thread.CurrentThread.ManagedThreadId}, {this._logger.Category} - {this._logger.Prefix}: {message}" ) );
         }
     }
 }

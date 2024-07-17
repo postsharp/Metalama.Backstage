@@ -1,6 +1,8 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. See the LICENSE.md file in the root directory of this repository root for details.
 
 using Metalama.Backstage.Diagnostics;
+using Metalama.Backstage.Extensibility;
+using Metalama.Backstage.Infrastructure;
 using System;
 using System.Collections.Generic;
 
@@ -12,11 +14,14 @@ namespace Metalama.Backstage.Configuration;
 /// </summary>
 public class InMemoryConfigurationManager : IConfigurationManager
 {
+    private readonly IDateTimeProvider _timeProvider;
+
     private readonly Dictionary<Type, ConfigurationFile> _files = new();
 
     public InMemoryConfigurationManager( IServiceProvider serviceProvider, params ConfigurationFile[] files )
     {
         this.Logger = serviceProvider.GetLoggerFactory().GetLogger( "TestConfigurationManager" );
+        this._timeProvider = serviceProvider.GetRequiredBackstageService<IDateTimeProvider>();
 
         foreach ( var file in files )
         {
@@ -57,7 +62,7 @@ public class InMemoryConfigurationManager : IConfigurationManager
                 return false;
             }
 
-            value = value with { LastModified = DateTime.Now };
+            value = value with { LastModified = this._timeProvider.UtcNow };
             this._files[value.GetType()] = value;
             this.ConfigurationFileChanged?.Invoke( value );
 

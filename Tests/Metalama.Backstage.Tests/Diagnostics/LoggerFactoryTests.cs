@@ -29,7 +29,7 @@ public class LoggerFactoryTests : TestsBase
     [Fact]
     public void Test()
     {
-        this.Time.Set( new DateTime( 1978, 6, 16 ) );
+        this.Time.Set( new DateTime( 1978, 6, 16, 0, 0, 0, DateTimeKind.Utc ) );
 
         var loggerFactory = new LoggerFactory(
             this.ServiceProvider,

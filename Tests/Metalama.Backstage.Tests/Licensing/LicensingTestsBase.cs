@@ -29,7 +29,7 @@ namespace Metalama.Backstage.Tests.Licensing
                 "Licensing Test App",
                 false,
                 "1.0",
-                new DateTime( 2021, 1, 1 ) ) { IsTelemetryEnabled = isTelemetryEnabled } ) { }
+                new DateTime( 2021, 1, 1, 0, 0, 0, DateTimeKind.Utc ) ) { IsTelemetryEnabled = isTelemetryEnabled } ) { }
 
         protected override void OnAfterServicesCreated( Services services )
         {
