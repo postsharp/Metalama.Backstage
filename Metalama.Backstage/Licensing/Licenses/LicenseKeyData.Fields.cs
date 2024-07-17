@@ -131,8 +131,11 @@ namespace Metalama.Backstage.Licensing.Licenses
                 return minPostSharpVersionString == null ? null : System.Version.Parse( minPostSharpVersionString );
             }
         }
-        
-        internal LicenseKeyDataBuilder ToBuilder()
-            => new( this._fields ) { Product = this.Product, LicenseId = this.LicenseId, LicenseType = this.LicenseType, LicenseGuid = this.LicenseGuid };
+
+        internal LicenseKeyDataBuilder ToBuilder( IServiceProvider services )
+            => new( this._fields, services )
+            {
+                Product = this.Product, LicenseId = this.LicenseId, LicenseType = this.LicenseType, LicenseGuid = this.LicenseGuid
+            };
     }
 }

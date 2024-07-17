@@ -2,6 +2,7 @@
 
 using JetBrains.Annotations;
 using Metalama.Backstage.Licensing.Licenses.LicenseFields;
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
@@ -40,7 +41,6 @@ namespace Metalama.Backstage.Licensing.Licenses
 
         internal LicenseKeyData( ImmutableSortedDictionary<LicenseFieldIndex, LicenseField> fields )
         {
-            this._logger = services.GetLoggerFactory().Licensing();
             this.Version = 2;
             this._fields = fields;
         }
@@ -74,6 +74,7 @@ namespace Metalama.Backstage.Licensing.Licenses
 
         public static bool TryDeserialize(
             string licenseKey,
+            IServiceProvider services,
             [MaybeNullWhen( false )] out LicenseKeyData data,
             [MaybeNullWhen( true )] out string errorMessage )
         {
@@ -85,7 +86,7 @@ namespace Metalama.Backstage.Licensing.Licenses
             }
             else
             {
-                if ( !LicenseKeyDataBuilder.TryDeserialize( licenseKey, out var builder, out errorMessage ) )
+                if ( !LicenseKeyDataBuilder.TryDeserialize( licenseKey, services, out var builder, out errorMessage ) )
                 {
                     return false;
                 }

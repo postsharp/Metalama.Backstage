@@ -1,6 +1,7 @@
 // Copyright (c) SharpCrafters s.r.o. See the LICENSE.md file in the root directory of this repository root for details.
 
 using JetBrains.Annotations;
+using Metalama.Backstage.Diagnostics;
 using Metalama.Backstage.Licensing.Licenses.LicenseFields;
 using System;
 using System.Collections.Generic;
@@ -12,14 +13,16 @@ namespace Metalama.Backstage.Licensing.Licenses;
 public partial class LicenseKeyDataBuilder : ILicenseKeyData
 {
     private readonly ImmutableSortedDictionary<LicenseFieldIndex, LicenseField>.Builder _fields;
+    private readonly ILogger _logger;
 
     IReadOnlyDictionary<LicenseFieldIndex, LicenseField> ILicenseKeyData.Fields => this._fields;
 
-    public LicenseKeyDataBuilder() : this( ImmutableSortedDictionary<LicenseFieldIndex, LicenseField>.Empty ) { }
+    public LicenseKeyDataBuilder( IServiceProvider services ) : this( ImmutableSortedDictionary<LicenseFieldIndex, LicenseField>.Empty, services ) { }
 
-    internal LicenseKeyDataBuilder( ImmutableSortedDictionary<LicenseFieldIndex, LicenseField> fields )
+    internal LicenseKeyDataBuilder( ImmutableSortedDictionary<LicenseFieldIndex, LicenseField> fields, IServiceProvider services )
     {
         this._fields = fields.ToBuilder();
+        this._logger = services.GetLoggerFactory().Licensing();
     }
 
     public LicenseKeyData Build()

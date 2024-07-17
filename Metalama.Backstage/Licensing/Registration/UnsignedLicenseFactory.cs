@@ -34,7 +34,7 @@ namespace Metalama.Backstage.Licensing.Registration
             var start = this._time.UtcNow.Date;
             var end = start + LicensingConstants.EvaluationPeriod;
 
-            var licenseKeyData = new LicenseKeyDataBuilder()
+            var licenseKeyData = new LicenseKeyDataBuilder( this._services )
             {
                 LicenseGuid = Guid.NewGuid(),
                 Product = LicensedProduct.MetalamaUltimate,
@@ -58,7 +58,7 @@ namespace Metalama.Backstage.Licensing.Registration
         {
             var start = this._time.UtcNow;
 
-            var licenseKeyData = new LicenseKeyDataBuilder
+            var licenseKeyData = new LicenseKeyDataBuilder( this._services )
             {
                 LicenseGuid = Guid.NewGuid(), Product = LicensedProduct.MetalamaFree, LicenseType = LicenseType.Personal, ValidFrom = start
             };

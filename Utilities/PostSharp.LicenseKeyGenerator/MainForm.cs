@@ -14,7 +14,7 @@ namespace PostSharp.LicenseKeyGenerator
         public MainForm()
         {
             this.InitializeComponent();
-            this._propertyGrid.SelectedObject = new LicenseKeyDataBuilder();
+            this._propertyGrid.SelectedObject = new LicenseKeyDataBuilder( this._services );
 
             // We load the private key on startup to avoid KeyVault exceptions after filling all the data.
             var kvUri = "https://postsharpbusinesssystkv.vault.azure.net/";

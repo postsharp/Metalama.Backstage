@@ -21,11 +21,11 @@ namespace Metalama.Backstage.Licensing.Licenses
         /// </summary>
         private static readonly Version _minPostSharpVersionValidationRemovedPostSharpVersion = new( 6, 9, 3 );
 
-        public static LicenseKeyDataBuilder Deserialize( BinaryReader reader )
+        public static LicenseKeyDataBuilder Deserialize( BinaryReader reader, IServiceProvider services )
         {
             LicenseFieldIndex index;
 
-            var data = new LicenseKeyDataBuilder()
+            var data = new LicenseKeyDataBuilder( services )
             {
                 Version = reader.ReadByte(),
                 LicenseId = reader.ReadInt32(),
@@ -232,6 +232,7 @@ namespace Metalama.Backstage.Licensing.Licenses
 
         public static bool TryDeserialize(
             string licenseKey,
+            IServiceProvider services,
             [MaybeNullWhen( false )] out LicenseKeyDataBuilder data,
             [MaybeNullWhen( true )] out string errorMessage )
         {
@@ -262,7 +263,7 @@ namespace Metalama.Backstage.Licensing.Licenses
                 using var memoryStream = new MemoryStream( licenseBytes );
                 using var reader = new BinaryReader( memoryStream );
 
-                data = Deserialize( reader );
+                data = Deserialize( reader, services );
 
                 if ( data.LicenseId != licenseId )
                 {
@@ -301,10 +302,12 @@ namespace Metalama.Backstage.Licensing.Licenses
 
             try
             {
-                return this.VerifySignature( publicKey );
+                return RetryHelper.Retry( () => this.VerifySignature( publicKey ), _ => true, this._logger );
             }
-            catch
+            catch ( Exception e )
             {
+                this._logger.Error?.Log( $"Signature verification of license key '{this.LicenseString}' failed: {e}" );
+
                 return false;
             }
         }
