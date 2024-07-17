@@ -78,7 +78,7 @@ namespace Metalama.Backstage.Tests.Licensing.Licenses
         }
 
         [Fact]
-        public void LicenseKeyWithInvalidSignatureThrowsCryptographyException()
+        public void LicenseKeyWithInvalidSignatureFails()
         {
             const string licenseKeyWithInvalidSignature =
                 "38-ZTDQQQQQZTQEQCRCE4UW3UFEB4URXMHRB8KQBJJSB64LX7EAQBFWVXMN427EKZ65PRVX5REXJGX4JXFNVJQZFKKUA6RYS6CY5897CWN85QQVBSREX3U5Z8WTX8KNK8XDRLB29PB2J2K5C98UYNAWU5YJ4QQWANS3P3";
