@@ -323,7 +323,7 @@ namespace Metalama.Backstage.Licensing.Licenses
 
             if ( signature == null )
             {
-                return false;
+                throw new InvalidOperationException( "Unknown signature." );
             }
 
             return LicenseCryptography.VerifySignature( this.GetSignedBuffer(), publicKey, signature );
