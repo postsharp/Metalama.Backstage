@@ -99,5 +99,5 @@ public sealed class TestLicenseKeyProvider
     public string MetalamaUltimateOpenSourceRedistributionForIntegrationTests
         => this.GetLicenseKey( nameof(this.MetalamaUltimateOpenSourceRedistributionForIntegrationTests) );
 
-    public DateTime SubscriptionExpirationDate { get; } = new( 2050, 1, 1 );
+    public DateTime SubscriptionExpirationDate { get; } = new( 2050, 1, 1, 0, 0, 0, DateTimeKind.Utc );
 }

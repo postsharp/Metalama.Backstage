@@ -41,7 +41,7 @@ public class LicenseSourcePriorityTests : LicensingTestsBase
 
         serviceProviderBuilder.AddSingleton<IApplicationInfoProvider>(
                 new ApplicationInfoProvider(
-                    new TestApplicationInfo( "License Source Priority Test App", isPreview, "1.0.0", new DateTime( 2022, 1, 1 ) )
+                    new TestApplicationInfo( "License Source Priority Test App", isPreview, "1.0.0", new DateTime( 2022, 1, 1, 0, 0, 0, DateTimeKind.Utc ) )
                     {
                         IsUnattendedProcess = isUnattendedProcess
                     } ) )

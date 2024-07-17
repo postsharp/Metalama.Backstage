@@ -43,7 +43,7 @@ public class LoggerFactoryTests : TestsBase
     [Fact]
     public void TestSequentialWrite()
     {
-        this.Time.Set( new DateTime( 1978, 6, 16 ) );
+        this.Time.Set( new DateTime( 1978, 6, 16, 0, 0, 0, DateTimeKind.Utc ) );
 
         var loggerFactory = this.CreateLoggerFactory();
 

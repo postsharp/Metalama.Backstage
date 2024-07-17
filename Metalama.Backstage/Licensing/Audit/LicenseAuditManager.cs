@@ -76,8 +76,8 @@ internal class LicenseAuditManager : ILicenseAuditManager
         // Perform detailed audit.
         var mustPerformAudit = this._configurationManager.UpdateIf<LicenseAuditConfiguration>(
             c => !c.LastAuditTimes.TryGetValue( report.AuditHashCode, out var lastReportTime )
-                 || lastReportTime <= this._time.Now.AddDays( -1 ),
-            c => c with { LastAuditTimes = c.LastAuditTimes.SetItem( report.AuditHashCode, this._time.Now ) } );
+                 || lastReportTime <= this._time.UtcNow.AddDays( -1 ),
+            c => c with { LastAuditTimes = c.LastAuditTimes.SetItem( report.AuditHashCode, this._time.UtcNow ) } );
 
         if ( !mustPerformAudit )
         {
@@ -95,8 +95,8 @@ internal class LicenseAuditManager : ILicenseAuditManager
         if ( this._matomoAuditUploader != null )
         {
             var mustPerformAggregateAudit = this._configurationManager.UpdateIf<LicenseAuditConfiguration>(
-                c => c.LastMatomoAuditTime == null || c.LastMatomoAuditTime <= this._time.Now.AddDays( -1 ),
-                c => c with { LastMatomoAuditTime = this._time.Now } );
+                c => c.LastMatomoAuditTime == null || c.LastMatomoAuditTime <= this._time.UtcNow.AddDays( -1 ),
+                c => c with { LastMatomoAuditTime = this._time.UtcNow } );
             
             if ( mustPerformAggregateAudit )
             {

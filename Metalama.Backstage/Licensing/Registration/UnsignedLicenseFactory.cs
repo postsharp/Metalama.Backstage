@@ -29,7 +29,7 @@ namespace Metalama.Backstage.Licensing.Registration
         /// <returns>The unsigned evaluation license.</returns>
         public (string LicenseKey, LicenseProperties Data) CreateEvaluationLicense()
         {
-            var start = this._time.Now.Date;
+            var start = this._time.UtcNow.Date;
             var end = start + LicensingConstants.EvaluationPeriod;
 
             var licenseKeyData = new LicenseKeyDataBuilder()
@@ -54,7 +54,7 @@ namespace Metalama.Backstage.Licensing.Registration
         /// <returns>The unsigned Metalama Free license.</returns>
         public (string LicenseKey, LicenseProperties Data) CreateFreeLicense()
         {
-            var start = this._time.Now;
+            var start = this._time.UtcNow;
 
             var licenseKeyData = new LicenseKeyDataBuilder
             {

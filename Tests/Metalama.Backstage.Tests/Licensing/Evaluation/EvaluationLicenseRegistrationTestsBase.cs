@@ -10,14 +10,14 @@ namespace Metalama.Backstage.Tests.Licensing.Evaluation
 {
     public abstract class EvaluationLicenseRegistrationTestsBase : LicensingTestsBase
     {
-        protected static readonly DateTime TestStart = new( 2020, 1, 1 );
+        protected static readonly DateTime TestStart = new( 2020, 1, 1, 0, 0, 0, DateTimeKind.Utc );
 
         private protected EvaluationLicenseRegistrationTestsBase( ITestOutputHelper logger ) : base( logger ) { }
 
         protected void AssertEvaluationEligible()
         {
             Assert.True( this.LicenseRegistrationService.TryRegisterTrialEdition( out _ ) );
-            var expectedStart = this.Time.Now.Date;
+            var expectedStart = this.Time.UtcNow.Date;
             var expectedEnd = expectedStart + LicensingConstants.EvaluationPeriod;
 
             var licenses = LicensingConfigurationModel.Create( this.ServiceProvider );

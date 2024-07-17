@@ -7,6 +7,6 @@ namespace Metalama.Backstage.Infrastructure
 {
     public interface IDateTimeProvider : IBackstageService
     {
-        DateTime Now { get; }
+        DateTime UtcNow { get; }
     }
 }
