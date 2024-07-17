@@ -8,6 +8,7 @@ namespace PostSharp.LicenseKeyGenerator
 {
     public partial class MainForm : Form
     {
+        private readonly IServiceProvider _services = new NullServiceProvider();
         private readonly string _privateKey;
 
         public MainForm()
@@ -26,7 +27,7 @@ namespace PostSharp.LicenseKeyGenerator
             var licenseKeyData = (LicenseKeyDataBuilder) this._propertyGrid.SelectedObject;
             var licenseKey = licenseKeyData.SignAndSerialize( 0, this._privateKey );
 
-            if ( !LicenseKeyData.TryDeserialize( licenseKey, out var deserializedLicenseKeyData, out var errorMessage ) )
+            if ( !LicenseKeyData.TryDeserialize( licenseKey, this._services, out var deserializedLicenseKeyData, out var errorMessage ) )
             {
                 throw new InvalidOperationException( errorMessage );
             }

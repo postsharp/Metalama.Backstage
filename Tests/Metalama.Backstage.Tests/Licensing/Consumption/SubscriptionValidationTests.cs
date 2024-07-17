@@ -34,7 +34,7 @@ namespace Metalama.Backstage.Tests.Licensing.Consumption
         {
             var licenseKey = LicenseKeyProvider.MetalamaUltimateBusiness;
 
-            var isDeserialized = LicenseKeyData.TryDeserialize( licenseKey, out var data, out _ );
+            var isDeserialized = LicenseKeyData.TryDeserialize( licenseKey, this.ServiceProvider, out var data, out _ );
 
             Assert.True( isDeserialized );
 

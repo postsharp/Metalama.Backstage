@@ -40,6 +40,7 @@ namespace Metalama.Backstage.Licensing.Licenses
 
         internal LicenseKeyData( ImmutableSortedDictionary<LicenseFieldIndex, LicenseField> fields )
         {
+            this._logger = services.GetLoggerFactory().Licensing();
             this.Version = 2;
             this._fields = fields;
         }

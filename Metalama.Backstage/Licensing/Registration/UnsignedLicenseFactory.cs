@@ -12,6 +12,7 @@ namespace Metalama.Backstage.Licensing.Registration
     /// </summary>
     internal class UnsignedLicenseFactory
     {
+        private readonly IServiceProvider _services;
         private readonly IDateTimeProvider _time;
 
         /// <summary>
@@ -20,6 +21,7 @@ namespace Metalama.Backstage.Licensing.Registration
         /// <param name="services">Services.</param>
         public UnsignedLicenseFactory( IServiceProvider services )
         {
+            this._services = services;
             this._time = services.GetRequiredBackstageService<IDateTimeProvider>();
         }
 
