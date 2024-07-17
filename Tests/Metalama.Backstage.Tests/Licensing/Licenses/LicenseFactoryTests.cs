@@ -1,6 +1,7 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. See the LICENSE.md file in the root directory of this repository root for details.
 
 using Metalama.Backstage.Licensing.Licenses;
+using System.Security.Cryptography;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -74,6 +75,16 @@ namespace Metalama.Backstage.Tests.Licensing.Licenses
             // Assert.True( license is LicenseLease );
 
             Assert.False( this.LicenseFactory.TryCreate( "http://hello.world", out _, out _ ) );
+        }
+        
+        [Fact]
+        public void LicenseKeyWithInvalidSignatureThrowsCryptographyException()
+        {
+            const string licenseKeyWithInvalidSignature = "38-ZTDQQQQQZTQEQCRCE4UW3UFEB4URXMHRB8KQBJJSB64LX7EAQBFWVXMN427EKZ65PRVX5REXJGX4JXFNVJQZFKKUA6RYS6CY5897CWN85QQVBSREX3U5Z8WTX8KNK8XDRLB29PB2J2K5C98UYNAWU5YJ4QQWANS3P3";
+            Assert.True( this.LicenseFactory.TryCreate( licenseKeyWithInvalidSignature, out var license, out var errorMessage ) );
+            Assert.Null( errorMessage );
+            Assert.True( license is License );
+            Assert.Throws<CryptographicException>( () => license!.TryGetLicenseConsumptionData( out _, out _ ) );
         }
     }
 }

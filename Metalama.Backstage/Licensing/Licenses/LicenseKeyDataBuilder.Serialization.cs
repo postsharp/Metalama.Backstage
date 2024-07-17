@@ -298,15 +298,8 @@ namespace Metalama.Backstage.Licensing.Licenses
             }
 
             var publicKey = LicenseCryptography.GetPublicKey( this.SignatureKeyId.Value );
-
-            try
-            {
-                return this.VerifySignature( publicKey );
-            }
-            catch
-            {
-                return false;
-            }
+            
+            return this.VerifySignature( publicKey );
         }
 
         /// <summary>
