@@ -31,7 +31,7 @@ internal class UsageReporter : IUsageReporter
 
     public bool ShouldReportSession( string projectName )
     {
-        var now = this._time.Now;
+        var now = this._time.UtcNow;
 
         if ( !this.IsUsageReportingEnabled )
         {

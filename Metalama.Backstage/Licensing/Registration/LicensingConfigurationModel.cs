@@ -87,9 +87,9 @@ namespace Metalama.Backstage.Licensing.Registration
 
         public bool IsEvaluationActive
             => this.LicenseProperties is { LicenseType: LicenseType.Evaluation } &&
-               this.LicenseProperties?.ValidFrom == this._dateTimeProvider.Now.Date;
+               this.LicenseProperties?.ValidFrom == this._dateTimeProvider.UtcNow.Date;
 
-        public bool CanStartEvaluation => this.NextEvaluationStartDate <= this._dateTimeProvider.Now;
+        public bool CanStartEvaluation => this.NextEvaluationStartDate <= this._dateTimeProvider.UtcNow;
 
         public DateTime NextEvaluationStartDate
         {
@@ -102,7 +102,7 @@ namespace Metalama.Backstage.Licensing.Registration
                 }
                 else
                 {
-                    return this._dateTimeProvider.Now;
+                    return this._dateTimeProvider.UtcNow;
                 }
             }
         }

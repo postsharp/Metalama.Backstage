@@ -84,7 +84,7 @@ namespace Metalama.Backstage.Licensing.Consumption.LicenseServer
 
                 if ( !startTime.HasValue )
                 {
-                    startTime = dateTimeProvider.Now;
+                    startTime = dateTimeProvider.UtcNow;
                 }
 
                 if ( !endTime.HasValue )

@@ -25,6 +25,6 @@ internal class LogWriter : ILogWriter
             .GetLogFileWriter()
             .WriteLine(
                 FormattableString.Invariant(
-                    $"{this._loggerFactory.DateTimeProvider.Now}, {this._logLevel}, Thread {Thread.CurrentThread.ManagedThreadId}, {this._prefix}: {message}" ) );
+                    $"{this._loggerFactory.DateTimeProvider.UtcNow}, {this._logLevel}, Thread {Thread.CurrentThread.ManagedThreadId}, {this._prefix}: {message}" ) );
     }
 }

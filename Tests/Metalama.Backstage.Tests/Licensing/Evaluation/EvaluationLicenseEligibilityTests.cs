@@ -43,7 +43,7 @@ namespace Metalama.Backstage.Tests.Licensing.Evaluation
                 Assert.NotNull( license );
             }
 
-            this.Time.Set( this.Time.Now + retryAfter, true );
+            this.Time.Set( this.Time.UtcNow + retryAfter, true );
 
             if ( expectedEligibility )
             {

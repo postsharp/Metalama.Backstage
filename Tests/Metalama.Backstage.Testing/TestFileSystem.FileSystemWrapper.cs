@@ -36,7 +36,7 @@ public partial class TestFileSystem
                 
                 this.Parent.RaiseEvent( path, operation );
 
-                var accessTime = this.Parent._time.Now;
+                var accessTime = this.Parent._time.UtcNow;
 
                 var isCreated = executionKind == ExecutionKind.Write && !this.Exists( path );
                 var result = action();

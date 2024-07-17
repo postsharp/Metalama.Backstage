@@ -8,7 +8,7 @@ namespace Metalama.Backstage.Licensing.Licenses.LicenseFields
     [Serializable]
     internal class LicenseFieldDate : LicenseField
     {
-        private static readonly DateTime _referenceDate = new( 2010, 1, 1 );
+        private static readonly DateTime _referenceDate = new( 2010, 1, 1, 0, 0, 0, DateTimeKind.Utc );
 
         public override void Write( BinaryWriter writer )
         {

@@ -10,11 +10,11 @@ namespace Metalama.Tools.Config.Tests.Commands.Licensing
 {
     public class RegisterTrialCommandTests : LicensingCommandsTestsBase
     {
-        private static readonly DateTime _evaluationStart = new( 2020, 1, 1 );
+        private static readonly DateTime _evaluationStart = new( 2020, 1, 1, 0, 0, 0, DateTimeKind.Utc );
 
-        private static readonly DateTime _invalidNextEvaluationStart = new( 2020, 1, 14 );
+        private static readonly DateTime _invalidNextEvaluationStart = new( 2020, 1, 14, 0, 0, 0, DateTimeKind.Utc );
 
-        private static readonly DateTime _validNextEvaluationStart = new( 2021, 1, 1 );
+        private static readonly DateTime _validNextEvaluationStart = new( 2021, 1, 1, 0, 0, 0, DateTimeKind.Utc );
 
         public RegisterTrialCommandTests( ITestOutputHelper logger )
             : base( logger )

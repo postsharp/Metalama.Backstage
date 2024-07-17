@@ -48,7 +48,7 @@ internal class LicenseAuditTelemetryReport : TelemetryReport
         LicenseConsumptionData license )
     {
         this.License = license;
-        this.Date = serviceProvider.GetRequiredBackstageService<IDateTimeProvider>().Now;
+        this.Date = serviceProvider.GetRequiredBackstageService<IDateTimeProvider>().UtcNow;
 
         this.ReportedComponent = serviceProvider
             .GetRequiredBackstageService<IApplicationInfoProvider>()

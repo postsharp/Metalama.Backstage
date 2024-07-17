@@ -307,7 +307,7 @@ internal class ExceptionReporter : IExceptionReporter, IDisposable
             xmlWriter.WriteStartDocument();
             xmlWriter.WriteStartElement( "ErrorReport" );
             xmlWriter.WriteElementString( "InvariantHash", hash );
-            xmlWriter.WriteElementString( "Time", XmlConvert.ToString( this._time.Now, XmlDateTimeSerializationMode.RoundtripKind ) );
+            xmlWriter.WriteElementString( "Time", XmlConvert.ToString( this._time.UtcNow, XmlDateTimeSerializationMode.RoundtripKind ) );
             xmlWriter.WriteElementString( "ClientId", this._telemetryConfigurationService.DeviceId.ToString() );
             xmlWriter.WriteStartElement( "Application" );
             xmlWriter.WriteElementString( "Name", applicationInfo.Name );
