@@ -1,9 +1,12 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. See the LICENSE.md file in the root directory of this repository root for details.
 
 using Metalama.Backstage.Licensing.Licenses;
-using System.Security.Cryptography;
 using Xunit;
 using Xunit.Abstractions;
+
+#if NETFRAMEWORK
+using System.Security.Cryptography;
+#endif
 
 namespace Metalama.Backstage.Tests.Licensing.Licenses
 {
