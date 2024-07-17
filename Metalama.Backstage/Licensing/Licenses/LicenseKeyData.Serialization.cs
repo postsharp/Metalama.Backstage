@@ -15,6 +15,7 @@ namespace Metalama.Backstage.Licensing.Licenses
     {
         public static bool TryDeserialize(
             string licenseKey,
+            IServiceProvider services,
             [MaybeNullWhen( false )] out LicenseKeyData data,
             [MaybeNullWhen( true )] out string errorMessage )
         {
@@ -45,7 +46,7 @@ namespace Metalama.Backstage.Licensing.Licenses
                 using var memoryStream = new MemoryStream( licenseBytes );
                 using var reader = new BinaryReader( memoryStream );
 
-                data = Deserialize( reader );
+                data = Deserialize( reader, services );
 
                 if ( data.LicenseId != licenseId )
                 {
@@ -68,11 +69,11 @@ namespace Metalama.Backstage.Licensing.Licenses
             }
         }
 
-        public static LicenseKeyData Deserialize( BinaryReader reader )
+        public static LicenseKeyData Deserialize( BinaryReader reader, IServiceProvider services )
         {
             LicenseFieldIndex index;
 
-            var data = new LicenseKeyData
+            var data = new LicenseKeyData( services )
             {
                 Version = reader.ReadByte(),
                 LicenseId = reader.ReadInt32(),

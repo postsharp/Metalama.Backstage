@@ -1,5 +1,8 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. See the LICENSE.md file in the root directory of this repository root for details.
 
+using Metalama.Backstage.Utilities;
+using System;
+
 namespace Metalama.Backstage.Licensing.Licenses
 {
     public partial class LicenseKeyData
@@ -21,10 +24,12 @@ namespace Metalama.Backstage.Licensing.Licenses
 
             try
             {
-                return this.VerifySignature( publicKey );
+                return RetryHelper.Retry( () => this.VerifySignature( publicKey ), _ => true, this._logger );
             }
-            catch
+            catch ( Exception e )
             {
+                this._logger.Error?.Log( $"Signature verification of license key '{this.LicenseString}' failed: {e}" );
+                
                 return false;
             }
         }

@@ -244,8 +244,6 @@ namespace Metalama.Backstage.Licensing.Licenses
                 case 1:
                     return _productionPublicKey1;
 
-                // LicensingMessageSource.Instance.Write( MessageLocation.Unknown, SeverityType.Warning, "PS0128", new object[0] );
-
                 default:
                     throw new ArgumentOutOfRangeException( nameof(index) );
             }

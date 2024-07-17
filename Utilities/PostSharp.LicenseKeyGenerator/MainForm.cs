@@ -8,12 +8,13 @@ namespace PostSharp.LicenseKeyGenerator
 {
     public partial class MainForm : Form
     {
+        private readonly IServiceProvider _services = new NullServiceProvider();
         private readonly string _privateKey;
 
         public MainForm()
         {
             this.InitializeComponent();
-            this._propertyGrid.SelectedObject = new LicenseKeyData();
+            this._propertyGrid.SelectedObject = new LicenseKeyData( this._services );
 
             // We load the private key on startup to avoid KeyVault exceptions after filling all the data.
             var kvUri = "https://postsharpbusinesssystkv.vault.azure.net/";
@@ -33,7 +34,7 @@ namespace PostSharp.LicenseKeyGenerator
 
             var licenseKey = licenseKeyData.Serialize();
 
-            if ( !LicenseKeyData.TryDeserialize( licenseKey, out var deserializedLicenseKeyData, out var errorMessage ) )
+            if ( !LicenseKeyData.TryDeserialize( licenseKey, this._services, out var deserializedLicenseKeyData, out var errorMessage ) )
             {
                 throw new InvalidOperationException( errorMessage );
             }

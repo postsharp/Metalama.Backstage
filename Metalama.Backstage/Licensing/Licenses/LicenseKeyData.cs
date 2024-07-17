@@ -1,6 +1,7 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. See the LICENSE.md file in the root directory of this repository root for details.
 
 using JetBrains.Annotations;
+using Metalama.Backstage.Diagnostics;
 using System;
 using System.Globalization;
 using System.Text;
@@ -13,6 +14,8 @@ namespace Metalama.Backstage.Licensing.Licenses
     [PublicAPI]
     public partial class LicenseKeyData
     {
+        private readonly ILogger _logger;
+        
         /// <summary>
         /// Since PostSharp 6.5.17, 6.8.10, and 6.9.3 the <see cref="MinPostSharpVersion" /> is no longer checked.
         /// For compatibility with previous version, all licenses with features introduced since these versions
@@ -65,8 +68,9 @@ namespace Metalama.Backstage.Licensing.Licenses
         /// </summary>
         public bool IsLimitedByNamespace => !string.IsNullOrEmpty( this.Namespace );
 
-        public LicenseKeyData()
+        public LicenseKeyData( IServiceProvider services )
         {
+            this._logger = services.GetLoggerFactory().Licensing();
             this.Version = 2;
         }
 

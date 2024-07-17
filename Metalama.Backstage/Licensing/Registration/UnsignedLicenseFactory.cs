@@ -12,6 +12,7 @@ namespace Metalama.Backstage.Licensing.Registration
     /// </summary>
     internal class UnsignedLicenseFactory
     {
+        private readonly IServiceProvider _services;
         private readonly IDateTimeProvider _time;
 
         /// <summary>
@@ -20,6 +21,7 @@ namespace Metalama.Backstage.Licensing.Registration
         /// <param name="services">Services.</param>
         public UnsignedLicenseFactory( IServiceProvider services )
         {
+            this._services = services;
             this._time = services.GetRequiredBackstageService<IDateTimeProvider>();
         }
 
@@ -32,7 +34,7 @@ namespace Metalama.Backstage.Licensing.Registration
             var start = this._time.UtcNow.Date;
             var end = start + LicensingConstants.EvaluationPeriod;
 
-            var licenseKeyData = new LicenseKeyData
+            var licenseKeyData = new LicenseKeyData( this._services )
             {
                 LicenseGuid = Guid.NewGuid(),
                 Product = LicensedProduct.MetalamaUltimate,
@@ -56,7 +58,7 @@ namespace Metalama.Backstage.Licensing.Registration
         {
             var start = this._time.UtcNow;
 
-            var licenseKeyData = new LicenseKeyData
+            var licenseKeyData = new LicenseKeyData( this._services )
             {
                 LicenseGuid = Guid.NewGuid(), Product = LicensedProduct.MetalamaFree, LicenseType = LicenseType.Personal, ValidFrom = start
             };

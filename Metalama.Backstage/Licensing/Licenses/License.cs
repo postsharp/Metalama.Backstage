@@ -131,7 +131,7 @@ namespace Metalama.Backstage.Licensing.Licenses
         {
             this._logger.Trace?.Log( $"Deserializing license '{this._licenseKey}'." );
 
-            if ( LicenseKeyData.TryDeserialize( this._licenseKey, out data, out _ ) )
+            if ( LicenseKeyData.TryDeserialize( this._licenseKey, this._services, out data, out _ ) )
             {
                 this._logger.Trace?.Log( $"Deserialized license: {data}" );
 

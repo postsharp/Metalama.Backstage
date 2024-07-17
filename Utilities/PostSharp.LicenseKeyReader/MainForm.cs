@@ -6,6 +6,8 @@ namespace PostSharp.LicenseKeyReader
 {
     public partial class MainForm : Form
     {
+        private readonly IServiceProvider _services = new NullServiceProvider();
+        
         public MainForm()
         {
             this.InitializeComponent();
@@ -20,7 +22,7 @@ namespace PostSharp.LicenseKeyReader
         {
             this._propertyGrid.SelectedObject = null;
 
-            if ( !LicenseKeyData.TryDeserialize( this._licenseKeyTextBox.Text, out var licenseKeyData, out var errorMessage ) )
+            if ( !LicenseKeyData.TryDeserialize( this._licenseKeyTextBox.Text, this._services, out var licenseKeyData, out var errorMessage ) )
             {
                 this.ShowError( errorMessage );
 
