@@ -4,6 +4,10 @@ using Metalama.Backstage.Licensing.Licenses;
 using Xunit;
 using Xunit.Abstractions;
 
+#if NETFRAMEWORK
+using System.Security.Cryptography;
+#endif
+
 namespace Metalama.Backstage.Tests.Licensing.Licenses
 {
     public class LicenseFactoryTests : LicensingTestsBase
@@ -74,6 +78,25 @@ namespace Metalama.Backstage.Tests.Licensing.Licenses
             // Assert.True( license is LicenseLease );
 
             Assert.False( this.LicenseFactory.TryCreate( "http://hello.world", out _, out _ ) );
+        }
+
+        [Fact]
+        public void LicenseKeyWithInvalidSignatureFails()
+        {
+            const string licenseKeyWithInvalidSignature =
+                "38-ZTDQQQQQZTQEQCRCE4UW3UFEB4URXMHRB8KQBJJSB64LX7EAQBFWVXMN427EKZ65PRVX5REXJGX4JXFNVJQZFKKUA6RYS6CY5897CWN85QQVBSREX3U5Z8WTX8KNK8XDRLB29PB2J2K5C98UYNAWU5YJ4QQWANS3P3";
+
+            Assert.True( this.LicenseFactory.TryCreate( licenseKeyWithInvalidSignature, out var license, out var errorMessage ) );
+            Assert.Null( errorMessage );
+            Assert.True( license is License );
+
+#if NETFRAMEWORK
+            Assert.Throws<CryptographicException>( () => license!.TryGetLicenseConsumptionData( out _, out _ ) );
+#else
+            Assert.False( license!.TryGetLicenseConsumptionData( out var data, out errorMessage ) );
+            Assert.Null( data );
+            Assert.NotEmpty( errorMessage );
+#endif
         }
     }
 }
