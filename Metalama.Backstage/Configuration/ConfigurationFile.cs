@@ -8,8 +8,22 @@ namespace Metalama.Backstage.Configuration;
 
 public abstract record ConfigurationFile
 {
+    private DateTime? _lastModified;
+
     [JsonIgnore]
-    internal DateTime? LastModified { get; set; }
+    internal DateTime? LastModified
+    {
+        get => this._lastModified;
+        set
+        {
+            if ( value != null && value.Value.Kind != DateTimeKind.Local )
+            {
+                throw new ArgumentOutOfRangeException( nameof(value), "A local time was expected." );
+            }
+
+            this._lastModified = value;
+        }
+    }
 
     public string ToJson()
     {

@@ -141,24 +141,18 @@ namespace Metalama.Backstage.Configuration
 
         public string GetFilePath( Type type )
         {
-            var attribute = type.GetCustomAttribute<ConfigurationFileAttribute>();
-
-            if ( attribute == null )
-            {
-                throw new InvalidOperationException( $"'{nameof(ConfigurationFileAttribute)}' custom attribute not found for '{type.FullName}' type." );
-            }
+            var attribute = type.GetCustomAttribute<ConfigurationFileAttribute>()
+                            ?? throw new InvalidOperationException(
+                                $"'{nameof(ConfigurationFileAttribute)}' custom attribute not found for '{type.FullName}' type." );
 
             return this.GetFilePath( attribute.FileName );
         }
 
         private string? GetEnvironmentVariableName( Type type )
         {
-            var attribute = type.GetCustomAttribute<ConfigurationFileAttribute>();
-
-            if ( attribute == null )
-            {
-                throw new InvalidOperationException( $"'{nameof(ConfigurationFileAttribute)}' custom attribute not found for '{type.FullName}' type." );
-            }
+            var attribute = type.GetCustomAttribute<ConfigurationFileAttribute>()
+                            ?? throw new InvalidOperationException(
+                                $"'{nameof(ConfigurationFileAttribute)}' custom attribute not found for '{type.FullName}' type." );
 
             return attribute.EnvironmentVariableName;
         }
@@ -176,12 +170,8 @@ namespace Metalama.Backstage.Configuration
                         return value;
                     }
 
-                    var settingsObject = Activator.CreateInstance( type );
-
-                    if ( settingsObject == null )
-                    {
-                        throw new InvalidOperationException( $"Failed to create instance of '{type.FullName}' type." );
-                    }
+                    var settingsObject = Activator.CreateInstance( type )
+                                         ?? throw new InvalidOperationException( $"Failed to create instance of '{type.FullName}' type." );
 
                     var settings = (ConfigurationFile) settingsObject;
 
@@ -222,6 +212,11 @@ namespace Metalama.Backstage.Configuration
 
         public bool TryUpdate( ConfigurationFile value, DateTime? lastModified )
         {
+            if ( lastModified != null && lastModified.Value.Kind != DateTimeKind.Local )
+            {
+                throw new ArgumentOutOfRangeException( nameof(lastModified), "A local time was expected." );
+            }
+
             using ( this.WithMutex() )
             {
                 var type = value.GetType();
