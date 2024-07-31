@@ -104,7 +104,7 @@ namespace Metalama.Backstage.Configuration
                                 foreach ( var oldSetting in oldSettings )
                                 {
                                     if ( this.TryLoadConfigurationFile( oldSetting.GetType(), out var newSetting ) &&
-                                         (oldSetting.LastModified == null || newSetting.LastModified > oldSetting.LastModified + _lastModifiedTolerance) )
+                                         (oldSetting.Timestamp == null || oldSetting.Timestamp.Value.IsOlderThan( newSetting.Timestamp!.Value )) )
                                     {
                                         this.AddToCache( newSetting );
                                     }
@@ -200,48 +200,66 @@ namespace Metalama.Backstage.Configuration
 
         private void AddToCache( ConfigurationFile settings )
         {
-            var isChange = this._instances.TryGetValue( settings.GetType(), out var oldValue ) && oldValue.ToJson() != settings.ToJson();
+            var isChange = this._instances.TryGetValue( settings.GetType(), out var oldValue ) && !oldValue.StructurallyEqualsTo( settings );
 
+            // We always update the cache even if there is no structural change to make sure we have the latest version number.
             this._instances.AddOrUpdate( settings.GetType(), settings, ( _, _ ) => settings );
 
+            // However, we only raise the event when there is a change.
             if ( isChange )
             {
                 this.ConfigurationFileChanged?.Invoke( settings );
             }
         }
 
-        public bool TryUpdate( ConfigurationFile value, DateTime? lastModified )
+        public bool TryUpdate( ConfigurationFile value, ConfigurationFileTimestamp? expectedTimestamp )
         {
-            if ( lastModified != null && lastModified.Value.Kind != DateTimeKind.Local )
-            {
-                throw new ArgumentOutOfRangeException( nameof(lastModified), "A local time was expected." );
-            }
-
             using ( this.WithMutex() )
             {
                 var type = value.GetType();
                 var fileName = this.GetFilePath( type );
 
-                this.Logger.Trace?.Log( $"Trying to update '{fileName}'. Our last timestamp is '{lastModified:O}'." );
+                this.Logger.Trace?.Log( $"Trying to update '{fileName}'. Our last timestamp is '{expectedTimestamp}'." );
 
                 // Verify (inside the global lock) that we have a fresh copy of the file.
-                if ( lastModified == null )
+                if ( expectedTimestamp == null )
                 {
                     if ( this._fileSystem.FileExists( fileName ) )
                     {
+                        this.Logger.Warning?.Log( $"Cannot update '{fileName}' because the file exists but was not expected to exist." );
+
                         return false;
                     }
                 }
-                else if ( !this._fileSystem.FileExists( fileName ) || this._fileSystem.GetFileLastWriteTime( fileName ) != lastModified )
+                else
                 {
-                    this.Logger.Warning?.Log( $"Cannot update '{fileName}' because the file did not exists or had a different timestamp." );
+                    if ( !this._fileSystem.FileExists( fileName ) )
+                    {
+                        this.Logger.Warning?.Log( $"Cannot update '{fileName}' because the file does not exists but was expected to exist." );
 
-                    return false;
+                        return false;
+                    }
+
+                    var existingFile = this.Get( value.GetType(), true );
+
+                    if ( existingFile.Timestamp!.Value != expectedTimestamp.Value )
+                    {
+                        this.Logger.Warning?.Log(
+                            $"Cannot update '{fileName}' because the file has a different timestamp than expected: {existingFile.Timestamp} instead of {expectedTimestamp.Value}." );
+
+                        return false;
+                    }
+
+                    // We must wait until the clock returns a different value than the current one.
+                    while ( this._dateTimeProvider.UtcNow == existingFile.Timestamp.Value.ToUtcDateTime() )
+                    {
+                        Thread.Sleep( 1 );
+                    }
                 }
 
                 if ( this._instances.TryGetValue( type, out var originalSettings ) )
                 {
-                    if ( lastModified.HasValue && originalSettings.LastModified != lastModified.Value )
+                    if ( expectedTimestamp.HasValue && originalSettings.Timestamp != expectedTimestamp.Value )
                     {
                         this.Logger.Warning?.Log( $"Cannot update '{fileName}' because our cached copy does not have the latest timestamp." );
 
@@ -249,28 +267,16 @@ namespace Metalama.Backstage.Configuration
                     }
                 }
 
+                value.IncrementVersion();
                 var json = value.ToJson();
 
                 RetryHelper.Retry( () => this._fileSystem.WriteAllText( fileName, json ) );
 
                 var newLastModified = this._fileSystem.GetFileLastWriteTime( fileName );
-
-                while ( newLastModified == lastModified )
-                {
-                    // The new filesystem timestamp is identical to the previous one, so we have to wait until there is an observable
-                    // difference in the timestamp.
-
-                    this.Logger.Trace?.Log( "Waiting for " );
-                    Thread.Sleep( 10 );
-                    this._fileSystem.SetFileLastWriteTime( fileName, this._dateTimeProvider.UtcNow );
-                    newLastModified = this._fileSystem.GetFileLastWriteTime( fileName );
-                }
-
-                value = value with { LastModified = newLastModified };
-
+                value.SetFilesystemTimestamp( newLastModified );
                 this.AddToCache( value );
 
-                this.Logger.Trace?.Log( $"File '{fileName}' updated. The new timestamp is '{newLastModified:O}'." );
+                this.Logger.Trace?.Log( $"File '{fileName}' updated. The new timestamp is '{value.Timestamp}'." );
             }
 
             return true;
@@ -353,7 +359,7 @@ namespace Metalama.Backstage.Configuration
                     settings.Validate( message => this.Logger.Warning?.Log( $"Recoverable error in '{fileName}: {message}'" ) );
                 }
 
-                settings = settings with { LastModified = lastModified };
+                settings.SetFilesystemTimestamp( lastModified );
 
                 return true;
             }
@@ -365,7 +371,7 @@ namespace Metalama.Backstage.Configuration
                 // with the LastModified property properly set. If instead we return false, the caller
                 // will interpret this as if the file did not exist, and it can create an infinite loop.
                 settings = (ConfigurationFile) Activator.CreateInstance( type )!;
-                settings.LastModified = lastModified;
+                settings.SetFilesystemTimestamp( lastModified );
 
                 return true;
             }

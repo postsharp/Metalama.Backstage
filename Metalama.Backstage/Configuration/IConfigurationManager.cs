@@ -22,8 +22,8 @@ namespace Metalama.Backstage.Configuration
         /// Try to update a settings file if the base revision matches the expected value.
         /// </summary>
         /// <param name="value"></param>
-        /// <param name="lastModified"></param>
+        /// <param name="expectedTimestamp"></param>
         /// <returns></returns>
-        bool TryUpdate( ConfigurationFile value, DateTime? lastModified );
+        bool TryUpdate( ConfigurationFile value, ConfigurationFileTimestamp? expectedTimestamp );
     }
 }

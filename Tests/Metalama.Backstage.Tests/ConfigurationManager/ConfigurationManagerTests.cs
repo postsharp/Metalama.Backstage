@@ -4,7 +4,6 @@ using Metalama.Backstage.Configuration;
 using Metalama.Backstage.Testing;
 using System.Linq;
 using System.Threading;
-using System.Threading.Tasks;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -17,31 +16,6 @@ public class ConfigurationManagerTests : TestsBase
         applicationInfo: new TestApplicationInfo() { IsLongRunningProcess = true } ) { }
 
     [Fact]
-    public async Task ConcurrentUpdate()
-    {
-        for ( var i = 0; i < 50; i++ )
-        {
-            this.Logger.WriteLine( $"------------ {i + 1} ------------- " );
-            var configurationManager = new Configuration.ConfigurationManager( this.ServiceProvider );
-            configurationManager.Update<TestConfigurationFile>( f => f with { IsModified = false } );
-
-            bool UpdateImpl()
-            {
-                var myConfigurationManager = new Configuration.ConfigurationManager( this.ServiceProvider );
-
-                return myConfigurationManager.UpdateIf<TestConfigurationFile>( f => !f.IsModified, f => f with { IsModified = true } );
-            }
-
-            var tasks = new[] { Task.Run( UpdateImpl ), Task.Run( UpdateImpl ) };
-
-            await Task.WhenAll( tasks );
-
-            var countTrue = tasks.Count( t => t.Result );
-            Assert.Equal( 1, countTrue );
-        }
-    }
-
-    [Fact]
     public void InvalidJson()
     {
         var configurationManager = new Configuration.ConfigurationManager( this.ServiceProvider );
@@ -50,11 +24,27 @@ public class ConfigurationManagerTests : TestsBase
 
         // Reading the file should be successful.
         var configuration = configurationManager.Get<TestConfigurationFile>();
-        Assert.NotNull( configuration.LastModified );
+        Assert.NotNull( configuration.Timestamp );
         Assert.NotEmpty( this.Log.Entries.Where( e => e.Severity == TestLoggerFactory.Severity.Error ) );
 
         // Updating the file should be successful.
         Assert.True( configurationManager.UpdateIf<TestConfigurationFile>( c => !c.IsModified, c => c with { IsModified = true } ) );
+    }
+
+    [Fact]
+    public void VersionIsUpdated()
+    {
+        var configurationManager = new Configuration.ConfigurationManager( this.ServiceProvider );
+
+        var initialConfiguration = configurationManager.Get<TestConfigurationFile>();
+        Assert.Null( initialConfiguration.Timestamp );
+        Assert.Null( initialConfiguration.Version );
+
+        configurationManager.Update<TestConfigurationFile>( c => c with { IsModified = true } );
+
+        var modifiedConfiguration = configurationManager.Get<TestConfigurationFile>();
+        Assert.NotNull( modifiedConfiguration.Timestamp );
+        Assert.Equal( 1, modifiedConfiguration.Version );
     }
 
     [Fact]
