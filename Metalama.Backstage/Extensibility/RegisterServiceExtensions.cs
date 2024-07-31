@@ -72,8 +72,9 @@ public static class RegisterServiceExtensions
                 else
                 {
                     // Automatically stop logging after a while.
-                    if ( configuration.LastModified != null &&
-                         configuration.LastModified < dateTimeProvider.UtcNow.AddHours( -configuration.Logging.StopLoggingAfterHours ) )
+                    var lastAcceptableModificationTime = dateTimeProvider.UtcNow.AddHours( -configuration.Logging.StopLoggingAfterHours );
+
+                    if ( configuration.LastModified != null && configuration.LastModified.Value.ToUniversalTime() < lastAcceptableModificationTime )
                     {
                         configurationManager.UpdateIf<DiagnosticsConfiguration>(
                             c => c.Logging.Processes.Any( p => p.Value ),
