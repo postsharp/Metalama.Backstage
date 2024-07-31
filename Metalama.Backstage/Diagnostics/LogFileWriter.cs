@@ -1,7 +1,6 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. See the LICENSE.md file in the root directory of this repository root for details.
 
 using Metalama.Backstage.Infrastructure;
-using Metalama.Backstage.Utilities;
 using System;
 using System.Collections.Concurrent;
 using System.Diagnostics;
@@ -36,15 +35,6 @@ internal class LogFileWriter
 
         try
         {
-            RetryHelper.Retry(
-                () =>
-                {
-                    if ( !this._fileSystem.DirectoryExists( loggerFactory.LogDirectory ) )
-                    {
-                        this._fileSystem.CreateDirectory( loggerFactory.LogDirectory! );
-                    }
-                } );
-
             var scopeWithDash = string.IsNullOrEmpty( scope ) ? "" : "-" + scope;
 
             // The filename must be unique because several instances of the current assembly (of different versions) may be loaded in the process.
@@ -64,7 +54,7 @@ internal class LogFileWriter
         {
             return;
         }
-        
+
         if ( this._disposing )
         {
             this._backgroundTaskStatus = _inactiveStatus;

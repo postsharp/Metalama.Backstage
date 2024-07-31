@@ -3,6 +3,7 @@
 using Metalama.Backstage.Extensibility;
 using Metalama.Backstage.Infrastructure;
 using Metalama.Backstage.Maintenance;
+using Metalama.Backstage.Utilities;
 using System;
 using System.Collections.Concurrent;
 
@@ -26,13 +27,23 @@ namespace Metalama.Backstage.Diagnostics
 
             var tempFileManager = serviceProvider.GetRequiredBackstageService<ITempFileManager>();
 
-            if ( configuration.Logging.Processes.TryGetValue( processKind.ToString(), out var enabled ) && enabled )
-            {
-                this.LogDirectory = tempFileManager.GetTempDirectory( "Logs", CleanUpStrategy.Always );
-            }
+            this.ShouldLogWarningsAndInfos = configuration.Logging.Processes.TryGetValue( processKind.ToString(), out var enabled ) && enabled;
+
+            this.LogDirectory = tempFileManager.GetTempDirectory( "Logs", CleanUpStrategy.Always );
+
+            RetryHelper.Retry(
+                () =>
+                {
+                    if ( !this.FileSystem.DirectoryExists( this.LogDirectory ) )
+                    {
+                        this.FileSystem.CreateDirectory( this.LogDirectory );
+                    }
+                } );
         }
 
-        public string? LogDirectory { get; }
+        internal bool ShouldLogWarningsAndInfos { get; }
+
+        public string LogDirectory { get; }
 
         internal DiagnosticsConfiguration Configuration { get; }
 
@@ -42,28 +53,19 @@ namespace Metalama.Backstage.Diagnostics
 
         public ProcessKind ProcessKind { get; }
 
-        public bool IsEnabled => this.LogDirectory != null;
-
         public IDisposable EnterScope( string scope ) => LoggingContext.EnterScope( scope, this.CloseScope );
 
         public ILogger GetLogger( string category )
         {
-            if ( this.IsEnabled )
+            if ( this._loggers.TryGetValue( category, out var logger ) )
             {
-                if ( this._loggers.TryGetValue( category, out var logger ) )
-                {
-                    return logger;
-                }
-                else
-                {
-                    logger = new Logger( this, category );
-
-                    return this._loggers.GetOrAdd( category, logger );
-                }
+                return logger;
             }
             else
             {
-                return NullLogger.Instance;
+                logger = new Logger( this, category );
+
+                return this._loggers.GetOrAdd( category, logger );
             }
         }
 
