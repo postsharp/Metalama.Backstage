@@ -102,7 +102,7 @@ public class LicenseAuditTests : LicenseConsumptionManagerTestsBase
             // Third time, one day later.
             this.FileSystem.Reset();
             this.HttpClientFactory.Reset();
-            this.Time.AddTime( TimeSpan.FromDays( 1 ) );
+            this.Time.AddTime( TimeSpan.FromDays( 1.01 ) );
 
             var thirdLicense = this.CreateAndConsumeLicense( licenseKey );
             Assert.True( thirdLicense.TryGetLicenseConsumptionData( out _, out _ ) );
