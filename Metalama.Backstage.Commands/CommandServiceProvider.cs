@@ -28,8 +28,8 @@ namespace Metalama.Backstage.Commands
             var serviceProviderBuilder = new ServiceProviderBuilder(
                 ( type, func ) => serviceCollection.Add( new ServiceDescriptor( type, func, ServiceLifetime.Singleton ) ) );
 
-            var loggerFactory = serviceCollection.BuildServiceProvider().GetLoggerFactory();
             serviceProviderBuilder.AddService( typeof(ILoggerFactory), new AnsiConsoleLoggerFactory( args.Console, args.Settings ) );
+            var loggerFactory = serviceCollection.BuildServiceProvider().GetLoggerFactory();
 
             var initializationOptions = new BackstageInitializationOptions( this._applicationInfo )
             {

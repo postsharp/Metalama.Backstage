@@ -26,21 +26,19 @@ namespace Metalama.Backstage.Commands
 
             var extendedContext = new ExtendedCommandContext( context, settings, this.AddBackstageOptions );
             var logger = extendedContext.ServiceProvider.GetLoggerFactory().GetLogger( this.GetType().Name );
-            logger.Info?.Log( $"Executing command {this.GetType().Name}" );
+            logger.Trace?.Log( $"Executing command {this.GetType().Name}" );
 
             try
             {
                 // We don't report usage of commands.
 
                 this.Execute( extendedContext, settings );
-                logger.Info?.Log( $"The command succeeded." );
-
+                
                 return 0;
             }
             catch ( CommandException e )
             {
-                extendedContext.Console.WriteError( e.Message );
-                logger.Warning?.Log( $"The command returned {e.ReturnCode}: {e.Message}." );
+                logger.Error?.Log( e.Message );
 
                 return e.ReturnCode;
             }

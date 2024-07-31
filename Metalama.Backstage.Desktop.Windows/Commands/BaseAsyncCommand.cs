@@ -17,13 +17,12 @@ public abstract class BaseAsyncCommand<T> : AsyncCommand<T>
         var serviceProvider = App.GetBackstageServices( settings );
         var loggerFactory = serviceProvider.GetLoggerFactory();
         var logger = loggerFactory.GetLogger( this.GetType().Name );
-        logger.Info?.Log( $"Executing command {this.GetType().Name}" );
+        logger.Trace?.Log( $"Executing command {this.GetType().Name}" );
 
         try
         {
             var result = await this.ExecuteAsync( new ExtendedCommandContext( context, serviceProvider, logger ), settings );
-            logger.Info?.Log( $"The command returned {result}." );
-
+            
             return result;
         }
         catch ( Exception e )
