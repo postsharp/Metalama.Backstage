@@ -42,6 +42,8 @@ public class TestLoggerFactory : ILoggerFactory
 
     public IDisposable EnterScope( string scope ) => default(DisposableAction);
 
+    public event Action<string>? MessageReported;
+
     private class Logger : ILogger
     {
         private readonly string _category;
@@ -90,7 +92,9 @@ public class TestLoggerFactory : ILoggerFactory
 
             try
             {
-                this._parent._testOutputHelper.WriteLine( $"{this._severity.ToString().ToUpperInvariant()} {this._category}: {message}" );
+                var formatted = $"{this._severity.ToString().ToUpperInvariant()} {this._category}: {message}";
+                this._parent._testOutputHelper.WriteLine( formatted );
+                this._parent.MessageReported?.Invoke( formatted );
             }
             catch
             {

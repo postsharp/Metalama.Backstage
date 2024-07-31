@@ -26,36 +26,27 @@ namespace Metalama.Tools.Config.Tests.Commands
         protected Task TestCommandAsync(
             string commandLine,
             string? expectedOutput = null,
-            string? expectedError = null,
             int expectedExitCode = 0 )
-            => this.TestCommandAsync( commandLine.Split( ' ' ), expectedOutput, expectedError, expectedExitCode );
+            => this.TestCommandAsync( commandLine.Split( ' ' ), expectedOutput, expectedExitCode );
 
         protected async Task TestCommandAsync(
             string[] commandLine,
             string? expectedOutput = null,
-            string? expectedError = null,
             int expectedExitCode = 0 )
         {
-            var standardOutput = new StringWriter();
-            var errorOutput = new StringWriter();
+            var output = new StringWriter();
+
+            this.Log.MessageReported += output.WriteLine;
 
             this._logger.Trace?.Log( $">> {string.Join( " ", commandLine )}" );
 
             var commandApp = new CommandApp();
-            BackstageCommandFactory.ConfigureCommandApp( commandApp, new BackstageCommandOptions( this, standardOutput, errorOutput, AnsiSupport.No ) );
+            BackstageCommandFactory.ConfigureCommandApp( commandApp, new BackstageCommandOptions( this, output, output, AnsiSupport.No ) );
             var exitCode = await commandApp.RunAsync( commandLine );
-
-            this._logger.Trace?.Log( standardOutput.ToString() );
-            this._logger.Trace?.Log( errorOutput.ToString() );
 
             if ( expectedOutput != null )
             {
-                Assert.Contains( expectedOutput, standardOutput.ToString(), StringComparison.OrdinalIgnoreCase );
-            }
-
-            if ( expectedError != null )
-            {
-                Assert.Contains( expectedError, errorOutput.ToString(), StringComparison.OrdinalIgnoreCase );
+                Assert.Contains( expectedOutput, output.ToString(), StringComparison.OrdinalIgnoreCase );
             }
 
             Assert.Equal( expectedExitCode, exitCode );

@@ -39,7 +39,6 @@ namespace Metalama.Tools.Config.Tests.Commands.Licensing
 
             await this.TestCommandAsync(
                 "license try",
-                null,
                 $"You cannot start a new trial period until {_evaluationStart.AddDays( 120 + 45 ).ToString( CultureInfo.CurrentCulture )}.",
                 1 );
 

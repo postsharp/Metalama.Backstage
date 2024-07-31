@@ -17,7 +17,6 @@ namespace Metalama.Tools.Config.Tests.Commands.Licensing
         {
             await this.TestCommandAsync(
                 $"license unregister",
-                "",
                 $"A license is not registered." + Environment.NewLine,
                 1 );
         }
