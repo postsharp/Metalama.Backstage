@@ -88,7 +88,7 @@ public abstract class UserInterfaceService : IUserInterfaceService
 
         var stopwatch = Stopwatch.StartNew();
 
-        this.Logger.Info?.Log( "Waiting for the HTTP server." );
+        this.Logger.Trace?.Log( "Waiting for the HTTP server." );
 
         while ( true )
         {

@@ -13,6 +13,8 @@ namespace Metalama.Backstage.Testing
 
         public DateTime UtcNow => this._lastResetTime?.AddMilliseconds( this._stopwatch?.ElapsedMilliseconds ?? 0 ) ?? DateTime.UtcNow;
 
+        public void Stop() => this.Set( DateTime.UtcNow );
+
         public void Set( DateTime now, bool keepRunning = false )
         {
             if ( now.Kind != DateTimeKind.Utc )

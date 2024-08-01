@@ -22,12 +22,12 @@ namespace Metalama.Backstage.Configuration
             where T : ConfigurationFile
         {
             // Do a first check that does not skip the cache.
-            if ( configurationManager.Get<T>().LastModified != null )
+            if ( configurationManager.Get<T>().Timestamp != null )
             {
                 return false;
             }
 
-            return configurationManager.UpdateIf<T>( c => !c.LastModified.HasValue, c => c );
+            return configurationManager.UpdateIf<T>( c => !c.Timestamp.HasValue, c => c );
         }
 
         public static bool UpdateIf<T>( this IConfigurationManager configurationManager, Predicate<T> condition, Func<T, T> updateFunc )
@@ -67,14 +67,14 @@ namespace Metalama.Backstage.Configuration
 
                 newSettings = updateFunc( originalSettings );
 
-                if ( originalSettings.LastModified.HasValue && newSettings.Equals( originalSettings ) )
+                if ( originalSettings.Timestamp.HasValue && newSettings.Equals( originalSettings ) )
                 {
                     configurationManager.Logger.Trace?.Log( $"Update of {typeof(T).Name} skipped because no change was required." );
 
                     return false;
                 }
             }
-            while ( !configurationManager.TryUpdate( newSettings, originalSettings.LastModified ) );
+            while ( !configurationManager.TryUpdate( newSettings, originalSettings.Timestamp ) );
 
             return true;
         }
@@ -108,14 +108,14 @@ namespace Metalama.Backstage.Configuration
 
                 newSettings = updateFunc( originalSettings );
 
-                if ( originalSettings.LastModified.HasValue && newSettings.Equals( originalSettings ) )
+                if ( originalSettings.Timestamp.HasValue && newSettings.Equals( originalSettings ) )
                 {
                     configurationManager.Logger.Trace?.Log( $"Update of {typeof(T).Name} skipped because no change was required." );
 
                     return false;
                 }
             }
-            while ( !configurationManager.TryUpdate( newSettings, originalSettings.LastModified ) );
+            while ( !configurationManager.TryUpdate( newSettings, originalSettings.Timestamp ) );
 
             return true;
         }

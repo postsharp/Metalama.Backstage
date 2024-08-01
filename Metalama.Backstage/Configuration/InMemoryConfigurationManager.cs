@@ -51,18 +51,18 @@ public class InMemoryConfigurationManager : IConfigurationManager
 
     public event Action<ConfigurationFile>? ConfigurationFileChanged;
 
-    public bool TryUpdate( ConfigurationFile value, DateTime? lastModified )
+    public bool TryUpdate( ConfigurationFile value, ConfigurationFileTimestamp? expectedTimestamp )
     {
         lock ( this )
         {
             var oldFile = this.Get( value.GetType() );
 
-            if ( oldFile.LastModified != lastModified )
+            if ( oldFile.Timestamp != expectedTimestamp )
             {
                 return false;
             }
 
-            value = value with { LastModified = this._timeProvider.UtcNow };
+            value.SetFilesystemTimestamp( this._timeProvider.UtcNow );
             this._files[value.GetType()] = value;
             this.ConfigurationFileChanged?.Invoke( value );
 

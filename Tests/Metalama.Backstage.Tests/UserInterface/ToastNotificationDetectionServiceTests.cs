@@ -56,7 +56,7 @@ public class ToastNotificationDetectionServiceTests : LicensingTestsBase
         Assert.Empty( this.UserInterface.Notifications );
 
         // After the snooze period, we should see a notification.
-        this.Time.AddTime( ToastNotificationKinds.RequiresLicense.AutoSnoozePeriod );
+        this.Time.AddTime( ToastNotificationKinds.RequiresLicense.AutoSnoozePeriod.Add( TimeSpan.FromSeconds( 1 ) ) );
 
         await this.DetectToastNotificationsAsync( hasValidLicense );
 
@@ -104,7 +104,7 @@ public class ToastNotificationDetectionServiceTests : LicensingTestsBase
 #pragma warning restore CA1307
         }
     }
-    
+
     [Theory]
     [InlineData( 30, null )] // Before LicensingConstants.SubscriptionExpirationWarningPeriod
     [InlineData( 29, "29 days" )]

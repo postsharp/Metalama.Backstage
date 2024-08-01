@@ -10,22 +10,21 @@ internal class Logger : ILogger
 
     public string Prefix { get; }
 
-    public Logger( LoggerFactory loggerDiagnosticsService, string category, string prefix = "" )
+    public Logger( LoggerFactory loggerFactory, string category, string prefix = "" )
     {
         this.Prefix = prefix;
-        this.LoggerFactory = loggerDiagnosticsService;
+        this.LoggerFactory = loggerFactory;
         this.Category = category;
-        this.Error = this.CreateLogWriter( "ERROR" );
-        this.Warning = this.CreateLogWriter( "WARNING" );
-        this.Info = this.CreateLogWriter( "INFO" );
+        this.Error = this.CreateLogWriter( "ERROR", true );
+        this.Warning = this.CreateLogWriter( "WARNING", loggerFactory.ShouldLogWarningsAndInfos );
+        this.Info = this.CreateLogWriter( "INFO", loggerFactory.ShouldLogWarningsAndInfos );
 
-        if ( this.LoggerFactory.Configuration.Logging.IsTraceCategoryEnabled( category ) )
-        {
-            this.Trace = this.CreateLogWriter( "TRACE" );
-        }
+        this.Trace = this.CreateLogWriter(
+            "TRACE",
+            loggerFactory.ShouldLogWarningsAndInfos && this.LoggerFactory.Configuration.Logging.IsTraceCategoryEnabled( category ) );
     }
 
-    private LogWriter? CreateLogWriter( string logLevel ) => new( this, logLevel );
+    private LogWriter? CreateLogWriter( string logLevel, bool isEnabled ) => isEnabled ? new LogWriter( this, logLevel ) : null;
 
     public ILogWriter? Trace { get; }
 

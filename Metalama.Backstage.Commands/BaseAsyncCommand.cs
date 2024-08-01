@@ -27,22 +27,21 @@ public abstract class BaseAsyncCommand<T> : AsyncCommand<T>
 
         var extendedContext = new ExtendedCommandContext( context, settings, this.AddBackstageOptions );
         var logger = extendedContext.ServiceProvider.GetLoggerFactory().GetLogger( this.GetType().Name );
-        logger.Info?.Log( $"Executing command {this.GetType().Name}" );
+        logger.Trace?.Log( $"Executing command {this.GetType().Name}" );
 
         try
         {
             // We don't report usage of commands.
 
             await this.ExecuteAsync( extendedContext, settings );
-            logger.Info?.Log( $"The command succeeded." );
+            logger.Trace?.Log( $"The command succeeded." );
 
             return 0;
         }
         catch ( CommandException e )
         {
-            extendedContext.Console.WriteError( e.Message );
-            logger.Warning?.Log( $"The command returned {e.ReturnCode}: {e.Message}." );
-
+            logger.Error?.Log( e.Message );
+            
             return e.ReturnCode;
         }
         catch ( Exception e )

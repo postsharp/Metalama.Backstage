@@ -1,10 +1,12 @@
 ﻿// Copyright (c) SharpCrafters s.r.o. See the LICENSE.md file in the root directory of this repository root for details.
 
+using Metalama.Backstage.Application;
 using Metalama.Backstage.Diagnostics;
 using Metalama.Backstage.Extensibility;
 using Metalama.Backstage.Infrastructure;
 using Metalama.Backstage.Utilities;
 using System;
+using System.Globalization;
 using System.IO;
 
 namespace Metalama.Backstage.Licensing.Audit;
@@ -18,6 +20,7 @@ internal class TelemetryLogger : IBackstageService
     private readonly string _logsDirectory;
     private readonly IFileSystem _fileSystem;
     private readonly ILogger _logger;
+    private readonly string _source;
 
     public TelemetryLogger( IServiceProvider serviceProvider )
     {
@@ -25,6 +28,8 @@ internal class TelemetryLogger : IBackstageService
         this._logsDirectory = serviceProvider.GetRequiredBackstageService<IStandardDirectories>().TelemetryLogsDirectory;
         this._fileSystem = serviceProvider.GetRequiredBackstageService<IFileSystem>();
         this._logger = serviceProvider.GetLoggerFactory().GetLogger( nameof(TelemetryLogger) );
+        var applicationInfo = serviceProvider.GetRequiredBackstageService<IApplicationInfoProvider>().CurrentApplication;
+        this._source = $"{applicationInfo.Name} {applicationInfo.PackageVersion}";
     }
 
     public void WriteLine( string line )
@@ -40,7 +45,12 @@ internal class TelemetryLogger : IBackstageService
                     this._fileSystem.CreateDirectory( this._logsDirectory );
                 }
 
-                RetryHelper.RetryWithLockDetection( fileName, f => this._fileSystem.AppendAllLines( f, new[] { line } ), this._serviceProvider );
+                var timestamp = DateTime.Now.ToString( CultureInfo.InvariantCulture );
+
+                RetryHelper.RetryWithLockDetection(
+                    fileName,
+                    f => this._fileSystem.AppendAllLines( f, new[] { $"[{timestamp}, {this._source}] {line}" } ),
+                    this._serviceProvider );
             }
         }
         catch ( Exception e )

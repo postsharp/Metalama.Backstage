@@ -24,6 +24,8 @@ public class DiagnosticsConfigurationTests : TestsBase
     [Fact]
     public void OutdatedConfiguration_DisablesLogging()
     {
+        this.Time.Stop();
+
         ( IServiceProvider ServiceProvider, string FileName ) BuildServiceProvider( Action<Configuration.ConfigurationManager>? configure = null )
         {
             var serviceCollection = this.CloneServiceCollection();
@@ -59,9 +61,11 @@ public class DiagnosticsConfigurationTests : TestsBase
         var logger1 = serviceProvider1.GetRequiredBackstageService<ILoggerFactory>().GetLogger( "Foo" );
         Assert.NotNull( logger1.Trace );
 
-        // Manually simulate the last modification of configuration happened before 3 hours.
         Assert.True( this.FileSystem.FileExists( fileName ) );
-        this.FileSystem.SetFileLastWriteTime( fileName, DateTime.Now.AddHours( -3 ) );
+
+        // Move the clock 3 hours later.
+        this.Time.AddTime( TimeSpan.FromHours( 3 ) );
+
         var (serviceProvider2, _) = BuildServiceProvider();
 
         var logger2 = serviceProvider2.GetRequiredBackstageService<ILoggerFactory>().GetLogger( "Foo" );
