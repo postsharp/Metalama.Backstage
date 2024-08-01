@@ -149,7 +149,11 @@ internal class LogFileWriter
             }
         }
 
-        this._textWriter?.Flush();
+        try
+        {
+            this._textWriter?.Flush();
+        }
+        catch ( ObjectDisposedException ) { }
     }
 
     public void Dispose()
