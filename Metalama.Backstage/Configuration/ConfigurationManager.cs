@@ -20,8 +20,6 @@ namespace Metalama.Backstage.Configuration
 {
     internal sealed class ConfigurationManager : IConfigurationManager
     {
-        private static readonly TimeSpan _lastModifiedTolerance = TimeSpan.FromSeconds( 0.2 );
-
         // Stores the in-memory configuration object. Note that ConfigurationFile can be implemented in a different assembly, and that
         // there may be several copies of this assembly in the current AppDomain. Therefore, this dictionary may contain several objects
         // that represent the same file.

@@ -63,9 +63,7 @@ namespace Metalama.Backstage.Diagnostics
             }
             else
             {
-                logger = new Logger( this, category );
-
-                return this._loggers.GetOrAdd( category, logger );
+                return this._loggers.GetOrAdd( category, c => new Logger( this, c ) );
             }
         }
 
