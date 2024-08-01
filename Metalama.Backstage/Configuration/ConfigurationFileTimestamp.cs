@@ -14,7 +14,7 @@ public readonly struct ConfigurationFileTimestamp : IEquatable<ConfigurationFile
     {
         if ( lastModificationTime.Kind != DateTimeKind.Utc )
         {
-            throw new ArgumentOutOfRangeException( nameof(lastModificationTime), "A local timestamp was expected." );
+            throw new ArgumentOutOfRangeException( nameof(lastModificationTime), "A UTC timestamp was expected." );
         }
 
         this._lastModificationTime = lastModificationTime;
