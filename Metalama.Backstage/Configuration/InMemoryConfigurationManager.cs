@@ -62,7 +62,7 @@ public class InMemoryConfigurationManager : IConfigurationManager
                 return false;
             }
 
-            value.SetFilesystemTimestamp( this._timeProvider.UtcNow.ToLocalTime() );
+            value.SetFilesystemTimestamp( this._timeProvider.UtcNow );
             this._files[value.GetType()] = value;
             this.ConfigurationFileChanged?.Invoke( value );
 
