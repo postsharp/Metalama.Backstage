@@ -8,10 +8,10 @@ namespace Metalama.Backstage;
 
 internal static class StringExtensions
 {
-    public static bool ContainsOrdinal( this string s, string substring )
+    public static bool ContainsOrdinal( this string? s, string substring )
 #if NET5_0_OR_GREATER
-        => s.Contains( substring, StringComparison.Ordinal );
+        => s?.Contains( substring, StringComparison.Ordinal ) ?? false;
 #else
-        => s.Contains( substring );
+        => s?.Contains( substring ) ?? false;
 #endif
 }
