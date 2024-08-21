@@ -268,29 +268,63 @@ public static class ProcessUtilities
 
     private static bool IsRunningInDockerContainer( ILogger logger )
     {
+        string? ReadFileSafe( string path )
+        {
+            try
+            {
+                return File.ReadAllText( path );
+            }
+            catch ( Exception e )
+            {
+                logger.Error?.Log( $"Could not read '{path}' file: {e.Message}" );
+
+                return null;
+            }
+        }
+
         // If the process is running inside a Docker container
         // init (pid '1') process control group collection will have /docker/ as a part of the groups hierarchies.
-        string? processesControlGroup = null;
-        var controlGroupFile = "/proc/1/cgroup";
+        var process1ControlGroup = ReadFileSafe( "/proc/1/cgroup" );
 
-        try
+        if ( !string.IsNullOrEmpty( process1ControlGroup ) )
         {
-            processesControlGroup = File.ReadAllText( controlGroupFile );
-        }
-        catch ( Exception e )
-        {
-            logger.Error?.Log( $"Could not read '{controlGroupFile}' file: {e.Message}" );
-        }
+            if ( process1ControlGroup.ContainsOrdinal( "docker" ) )
+            {
+                logger.Trace?.Log( "Running inside a Docker container based on process control group." );
 
-        var isRunningInsideDockerContainer = false;
-
-        if ( !string.IsNullOrEmpty( processesControlGroup ) )
-        {
-#pragma warning disable CS8602, CA1307
-            isRunningInsideDockerContainer = processesControlGroup.Contains( "docker" );
-#pragma warning restore CS8602, CA1307
+                return true;
+            }
         }
 
-        return isRunningInsideDockerContainer;
+        var process1Environment = ReadFileSafe( "/proc/1/environ" );
+
+        if ( !string.IsNullOrEmpty( process1Environment ) )
+        {
+            if ( process1Environment.ContainsOrdinal( "container=lxc" ) )
+            {
+                logger.Trace?.Log( "Running inside a Docker container based on LXC container init process." );
+
+                return true;
+            }
+
+            if ( process1Environment.ContainsOrdinal( "container=docker" ) )
+            {
+                logger.Trace?.Log( "Running inside a Docker container based on Docker container init process." );
+
+                return true;
+            }
+
+            // On Azure DevOps, the previous conditions aren't met, and we use the following condition instead.
+            if ( process1Environment.ContainsOrdinal( "DOTNET_RUNNING_IN_CONTAINER=true" ) )
+            {
+                logger.Trace?.Log( "Running inside a container based on sh dotnet startup process." );
+
+                return true;
+            }
+        }
+
+        logger.Trace?.Log( "Not running inside a Docker container." );
+
+        return false;
     }
 }
