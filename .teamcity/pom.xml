@@ -1,9 +1,9 @@
 <?xml version="1.0"?>
 <project>
   <modelVersion>4.0.0</modelVersion>
-  <name>Metalama_Metalama20242_MetalamaBackstage Config DSL Script</name>
-  <groupId>Metalama_Metalama20242_MetalamaBackstage</groupId>
-  <artifactId>Metalama_Metalama20242_MetalamaBackstage_dsl</artifactId>
+  <name>Metalama_Metalama20250_MetalamaBackstage Config DSL Script</name>
+  <groupId>Metalama_Metalama20250_MetalamaBackstage</groupId>
+  <artifactId>Metalama_Metalama20250_MetalamaBackstage_dsl</artifactId>
   <version>1.0-SNAPSHOT</version>
 
   <parent>
