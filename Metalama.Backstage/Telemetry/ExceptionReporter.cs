@@ -137,7 +137,7 @@ internal class ExceptionReporter : IExceptionReporter, IDisposable
                 }
                 else
                 {
-                    lastFrameIsUser = true;
+                    lastFrameIsUser = false;
                 }
 
                 if ( firstFrame )
