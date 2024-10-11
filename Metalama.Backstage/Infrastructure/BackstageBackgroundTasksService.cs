@@ -2,8 +2,7 @@
 
 using Metalama.Backstage.Extensibility;
 using System;
-using System.Collections.Concurrent;
-using System.Threading;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace Metalama.Backstage.Infrastructure;
@@ -15,9 +14,11 @@ namespace Metalama.Backstage.Infrastructure;
 
 public class BackstageBackgroundTasksService : IBackstageService
 {
+    private readonly object _lock = new();
+    
     private readonly TaskCompletionSource<bool> _completedTaskSource = new();
-    private readonly ConcurrentQueue<TaskCompletionSource<bool>> _onQueueEmptyWaiters = new();
-
+    private readonly List<TaskCompletionSource<bool>> _onQueueEmptyWaiters = new();
+    
     private int _pendingTasks;
     private bool _canEnqueue = true;
 
@@ -54,11 +55,14 @@ public class BackstageBackgroundTasksService : IBackstageService
     /// </summary>
     private Task CompleteAsync()
     {
-        this._canEnqueue = false;
-
-        if ( this._pendingTasks == 0 )
+        lock ( this._lock )
         {
-            this._completedTaskSource.TrySetResult( true );
+            this._canEnqueue = false;
+
+            if ( this._pendingTasks == 0 )
+            {
+                this._completedTaskSource.TrySetResult( true );
+            }
         }
 
         return this._completedTaskSource.Task;
@@ -70,42 +74,67 @@ public class BackstageBackgroundTasksService : IBackstageService
     /// </summary>
     internal Task WhenNoPendingTaskAsync()
     {
-        if ( this._pendingTasks == 0 )
+        lock ( this._lock )
         {
-            return Task.CompletedTask;
-        }
-        else
-        {
-            var waiter = new TaskCompletionSource<bool>();
-            this._onQueueEmptyWaiters.Enqueue( waiter );
+            if ( this._pendingTasks == 0 )
+            {
+                return Task.CompletedTask;
+            }
+            else
+            {
+                var waiter = new TaskCompletionSource<bool>();
+                this._onQueueEmptyWaiters.Add( waiter );
 
-            return waiter.Task;
+                return waiter.Task;
+            }
         }
     }
-
+    
     private void OnTaskStarting()
     {
-        if ( !this._canEnqueue )
+        lock ( this._lock )
         {
-            throw new InvalidOperationException();
-        }
-
-        Interlocked.Increment( ref this._pendingTasks );
-    }
-
-    private void OnTaskCompleted( Task t )
-    {
-        if ( Interlocked.Decrement( ref this._pendingTasks ) == 0 )
-        {
-            while ( this._onQueueEmptyWaiters.TryDequeue( out var waiter ) )
-            {
-                waiter.TrySetResult( true );
-            }
-
             if ( !this._canEnqueue )
             {
-                this._completedTaskSource.TrySetResult( true );
+                throw new InvalidOperationException();
             }
+
+            this._pendingTasks++;
+        }
+    }
+
+    // ReSharper disable once UnusedParameter.Local
+    private void OnTaskCompleted( Task t )
+    {
+        IEnumerable<TaskCompletionSource<bool>> waiters;
+        bool canEnqueue;
+        
+        lock ( this._lock )
+        {
+            this._pendingTasks--;
+
+            if ( this._pendingTasks != 0 )
+            {
+                return;
+            }
+            
+            // We make a copy of the waiters list to avoid a race condition
+            // when the TaskCompletionSource.TrySetResult proceeds
+            // to code that adds a new waiter before finishing the iteration
+            // over the waiters.
+            waiters = this._onQueueEmptyWaiters.ToArray();
+            this._onQueueEmptyWaiters.Clear();
+            canEnqueue = this._canEnqueue;
+        }
+
+        foreach ( var waiter in waiters )
+        {
+            waiter.TrySetResult( true );
+        }
+        
+        if ( !canEnqueue )
+        {
+            this._completedTaskSource.TrySetResult( true );
         }
     }
 }
