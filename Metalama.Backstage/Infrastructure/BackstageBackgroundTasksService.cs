@@ -2,8 +2,7 @@
 
 using Metalama.Backstage.Extensibility;
 using System;
-using System.Collections.Concurrent;
-using System.Threading;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace Metalama.Backstage.Infrastructure;
@@ -15,9 +14,11 @@ namespace Metalama.Backstage.Infrastructure;
 
 public class BackstageBackgroundTasksService : IBackstageService
 {
+    private readonly object _lock = new();
+    
     private readonly TaskCompletionSource<bool> _completedTaskSource = new();
-    private readonly ConcurrentQueue<TaskCompletionSource<bool>> _onQueueEmptyWaiters = new();
-
+    private readonly List<TaskCompletionSource<bool>> _onQueueEmptyWaiters = new();
+    
     private int _pendingTasks;
     private bool _canEnqueue = true;
 
@@ -26,16 +27,6 @@ public class BackstageBackgroundTasksService : IBackstageService
     /// It means that <see cref="CompleteAsync"/> can be only called once in the process.
     /// </summary>
     public static BackstageBackgroundTasksService Default { get; } = new();
-
-    static BackstageBackgroundTasksService()
-    {
-        AppDomain.CurrentDomain.ProcessExit += OnProcessExit;
-    }
-
-    private static void OnProcessExit( object? sender, EventArgs e )
-    {
-        Default.CompleteAsync().Wait();
-    }
 
     internal void Enqueue( Func<Task> func )
     {
@@ -52,13 +43,16 @@ public class BackstageBackgroundTasksService : IBackstageService
     /// <summary>
     /// Prevents new tasks to be enqueued and awaits for the completion of previously enqueued tasks. 
     /// </summary>
-    private Task CompleteAsync()
+    internal Task CompleteAsync()
     {
-        this._canEnqueue = false;
-
-        if ( this._pendingTasks == 0 )
+        lock ( this._lock )
         {
-            this._completedTaskSource.TrySetResult( true );
+            this._canEnqueue = false;
+
+            if ( this._pendingTasks == 0 )
+            {
+                this._completedTaskSource.TrySetResult( true );
+            }
         }
 
         return this._completedTaskSource.Task;
@@ -70,38 +64,50 @@ public class BackstageBackgroundTasksService : IBackstageService
     /// </summary>
     internal Task WhenNoPendingTaskAsync()
     {
-        if ( this._pendingTasks == 0 )
+        lock ( this._lock )
         {
-            return Task.CompletedTask;
-        }
-        else
-        {
-            var waiter = new TaskCompletionSource<bool>();
-            this._onQueueEmptyWaiters.Enqueue( waiter );
+            if ( this._pendingTasks == 0 )
+            {
+                return Task.CompletedTask;
+            }
+            else
+            {
+                var waiter = new TaskCompletionSource<bool>();
+                this._onQueueEmptyWaiters.Add( waiter );
 
-            return waiter.Task;
+                return waiter.Task;
+            }
         }
     }
-
+    
     private void OnTaskStarting()
     {
-        if ( !this._canEnqueue )
+        lock ( this._lock )
         {
-            throw new InvalidOperationException();
-        }
-
-        Interlocked.Increment( ref this._pendingTasks );
-    }
-
-    private void OnTaskCompleted( Task t )
-    {
-        if ( Interlocked.Decrement( ref this._pendingTasks ) == 0 )
-        {
-            while ( this._onQueueEmptyWaiters.TryDequeue( out var waiter ) )
+            if ( !this._canEnqueue )
             {
-                waiter.TrySetResult( true );
+                throw new InvalidOperationException();
             }
 
+            this._pendingTasks++;
+        }
+    }
+
+    // ReSharper disable once UnusedParameter.Local
+    private void OnTaskCompleted( Task t )
+    {
+        lock ( this._lock )
+        {
+            this._pendingTasks--;
+
+            if ( this._pendingTasks != 0 )
+            {
+                return;
+            }
+            
+            this._onQueueEmptyWaiters.ForEach( w => w.TrySetResult( true ) );
+            this._onQueueEmptyWaiters.Clear();
+            
             if ( !this._canEnqueue )
             {
                 this._completedTaskSource.TrySetResult( true );
