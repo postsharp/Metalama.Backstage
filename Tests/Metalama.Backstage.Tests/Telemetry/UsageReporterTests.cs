@@ -46,8 +46,8 @@ public class UsageReporterTests : TestsBase
         session.Dispose();
 
         Assert.Throws<InvalidOperationException>( () => session.Metrics );
-        Assert.Single( this.FileSystem.Mock.AllFiles.Where( f => Path.GetFileName( f ).StartsWith( "Usage-", StringComparison.Ordinal ) ) );
-        Assert.Single( this.FileSystem.Mock.AllFiles.Where( f => Path.GetFileName( f ).StartsWith( "Telemetry-", StringComparison.Ordinal ) ) );
+        Assert.Single( this.FileSystem.Mock.AllFiles, f => Path.GetFileName( f ).StartsWith( "Usage-", StringComparison.Ordinal ) );
+        Assert.Single( this.FileSystem.Mock.AllFiles, f => Path.GetFileName( f ).StartsWith( "Telemetry-", StringComparison.Ordinal ) );
         Assert.Equal( 2, this.FileSystem.Mock.AllFiles.Count() );
     }
 
@@ -205,8 +205,8 @@ public class UsageReporterTests : TestsBase
         event2.Release();
         await session2Task;
 
-        session1Task.Result.Dispose();
-        session2Task.Result.Dispose();
+        (await session1Task).Dispose();
+        (await session2Task).Dispose();
 
         Assert.Equal( 2, this.FileSystem.Mock.AllFiles.Count( f => Path.GetFileName( f ).StartsWith( "Usage-", StringComparison.Ordinal ) ) );
         Assert.Equal( 1, this.FileSystem.Mock.AllFiles.Count( f => Path.GetFileName( f ).StartsWith( "Telemetry-", StringComparison.Ordinal ) ) );

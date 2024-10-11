@@ -32,7 +32,7 @@ namespace Metalama.Backstage.Tests.Licensing.Evaluation
             }
 
             var license = new UserProfileLicenseSource( this.ServiceProvider ).GetLicense(
-                m => Assert.False( true, $"Unexpected message from license provider: '{m}'" ) );
+                m => Assert.Fail( $"Unexpected message from license provider: '{m}'" ) );
 
             if ( unregisterBeforeRetry )
             {
