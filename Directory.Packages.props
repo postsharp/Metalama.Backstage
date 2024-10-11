@@ -9,7 +9,7 @@
     <NewtonsoftJsonMinVersion>12.0.1</NewtonsoftJsonMinVersion>
     <!-- This is the version used in the programs (not in libraries) and it should be the latest. -->
     <NewtonsoftJsonVersion>13.0.3</NewtonsoftJsonVersion>
-    <PostSharpEngineeringVersion Condition="'$(PostSharpEngineeringVersion)'==''">2023.2.129</PostSharpEngineeringVersion>
+    <PostSharpEngineeringVersion Condition="'$(PostSharpEngineeringVersion)'==''">2023.2.135</PostSharpEngineeringVersion>
   </PropertyGroup>
   <ItemGroup>
     <PackageVersion Include="Azure.Identity" Version="1.11.4" />
@@ -18,7 +18,7 @@
     <PackageVersion Include="JetBrains.Profiler.SelfApi" Version="2.5.3" />
     <!-- With K4os.Hash.xxHash, make sure that the dependency on System.Memory is not higher
          than the one required by the lowest version of Visual Studion supported by the VSX. -->
-    <PackageVersion Include="K4os.Hash.xxHash" Version="1.0.7" />
+    <PackageVersion Include="K4os.Hash.xxHash" Version="1.0.8" />
     <PackageVersion Include="Microsoft.Bcl.HashCode" Version="1.1.1" />
     <PackageVersion Include="Microsoft.Extensions.DependencyInjection" Version="2.1.1" />
     <PackageVersion Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="2.1.1" />
@@ -31,10 +31,10 @@
     <!-- The version should not be higher than the one in Metalama.Compiler,
          otherwise we downgrade the package. -->
     <PackageVersion Include="System.Collections.Immutable" Version="5.0.0" />
-    <PackageVersion Include="System.DirectoryServices" Version="6.0.0" />
+    <PackageVersion Include="System.DirectoryServices" Version="6.0.1" />
     <PackageVersion Include="System.IO.Abstractions" Version="13.2.47" />
     <PackageVersion Include="System.IO.Abstractions.TestingHelpers" Version="13.2.47" />
-    <PackageVersion Include="System.IO.Packaging" Version="6.0.0" />
+    <PackageVersion Include="System.IO.Packaging" Version="6.0.1" />
     <PackageVersion Include="Microsoft.Win32.Registry" Version="5.0.0" />
   </ItemGroup>
 </Project>
