@@ -28,6 +28,16 @@ public class BackstageBackgroundTasksService : IBackstageService
     /// </summary>
     public static BackstageBackgroundTasksService Default { get; } = new();
 
+    static BackstageBackgroundTasksService()
+    {
+        AppDomain.CurrentDomain.ProcessExit += OnProcessExit;
+    }
+
+    private static void OnProcessExit( object? sender, EventArgs e )
+    {
+        Default.CompleteAsync().Wait();
+    }
+
     internal void Enqueue( Func<Task> func )
     {
         this.OnTaskStarting();
@@ -43,7 +53,7 @@ public class BackstageBackgroundTasksService : IBackstageService
     /// <summary>
     /// Prevents new tasks to be enqueued and awaits for the completion of previously enqueued tasks. 
     /// </summary>
-    internal Task CompleteAsync()
+    private Task CompleteAsync()
     {
         lock ( this._lock )
         {
@@ -96,6 +106,9 @@ public class BackstageBackgroundTasksService : IBackstageService
     // ReSharper disable once UnusedParameter.Local
     private void OnTaskCompleted( Task t )
     {
+        IEnumerable<TaskCompletionSource<bool>> waiters;
+        bool canEnqueue;
+        
         lock ( this._lock )
         {
             this._pendingTasks--;
@@ -105,13 +118,23 @@ public class BackstageBackgroundTasksService : IBackstageService
                 return;
             }
             
-            this._onQueueEmptyWaiters.ForEach( w => w.TrySetResult( true ) );
+            // We make a copy of the waiters list to avoid a race condition
+            // when the TaskCompletionSource.TrySetResult proceeds
+            // to code that adds a new waiter before finishing the iteration
+            // over the waiters.
+            waiters = this._onQueueEmptyWaiters.ToArray();
             this._onQueueEmptyWaiters.Clear();
-            
-            if ( !this._canEnqueue )
-            {
-                this._completedTaskSource.TrySetResult( true );
-            }
+            canEnqueue = this._canEnqueue;
+        }
+
+        foreach ( var waiter in waiters )
+        {
+            waiter.TrySetResult( true );
+        }
+        
+        if ( !canEnqueue )
+        {
+            this._completedTaskSource.TrySetResult( true );
         }
     }
 }
