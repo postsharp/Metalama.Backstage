@@ -2,7 +2,6 @@
 
 using Metalama.Backstage.Configuration;
 using Metalama.Backstage.Testing;
-using System.Linq;
 using System.Threading;
 using Xunit;
 using Xunit.Abstractions;
@@ -25,7 +24,7 @@ public class ConfigurationManagerTests : TestsBase
         // Reading the file should be successful.
         var configuration = configurationManager.Get<TestConfigurationFile>();
         Assert.NotNull( configuration.Timestamp );
-        Assert.NotEmpty( this.Log.Entries.Where( e => e.Severity == TestLoggerFactory.Severity.Error ) );
+        Assert.Contains( this.Log.Entries, e => e.Severity == TestLoggerFactory.Severity.Error );
 
         // Updating the file should be successful.
         Assert.True( configurationManager.UpdateIf<TestConfigurationFile>( c => !c.IsModified, c => c with { IsModified = true } ) );

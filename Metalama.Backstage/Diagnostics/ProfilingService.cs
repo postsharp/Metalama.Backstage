@@ -125,7 +125,7 @@ internal class ProfilingService : IProfilingService
                 case null or "performance" or "performance-tracing" or "performance-timeline":
                     try
                     {
-                        DotTrace.EnsurePrerequisite();
+                        DotTrace.Init();
 
                         var config = new DotTrace.Config().SaveToDir( directory );
 
@@ -147,7 +147,7 @@ internal class ProfilingService : IProfilingService
                 case "memory" or "memory-allocation":
                     try
                     {
-                        DotMemory.EnsurePrerequisite();
+                        DotMemory.Init();
 
                         var config = new DotMemory.Config().SaveToDir( directory );
 
