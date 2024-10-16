@@ -19,8 +19,9 @@ namespace Metalama.Backstage.Infrastructure
     {
         /// <summary>
         /// Gets prefix for synchronization objects (mutexes) related to objects of the current file system.
+        /// Returns <see langword="null" /> for global file system.
         /// </summary>
-        string SynchronizationPrefix { get; }
+        string? SynchronizationPrefix { get; }
 
         /// <summary>
         /// Returns the date and time the specified file was last written to.

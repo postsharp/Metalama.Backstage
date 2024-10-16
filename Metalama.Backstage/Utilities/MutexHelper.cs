@@ -76,14 +76,18 @@ public static class MutexHelper
     }
 
     private static Mutex OpenOrCreateGlobalMutex( string fullName, ILogger? logger )
+        => OpenOrCreateMutex( fullName, prefix: null, logger );
+
+    internal static Mutex OpenOrCreateMutex( string fullName, string? prefix, ILogger? logger )
     {
-        var mutexName = "Global\\Metalama_" + HashUtilities.HashString( fullName );
+        prefix ??= "Global\\Metalama_";
+        var mutexName = prefix + HashUtilities.HashString( fullName );
 
         return OpenOrCreateMutex( mutexName, logger );
     }
 
     // This code is duplicated in DesignTimeEntryPointManager in Metalama.Framework and should be kept in sync.
-    internal static Mutex OpenOrCreateMutex( string mutexName, ILogger? logger )
+    private static Mutex OpenOrCreateMutex( string mutexName, ILogger? logger )
     {
         logger?.Trace?.Log( $"  Mutex name: '{mutexName}'." );
 

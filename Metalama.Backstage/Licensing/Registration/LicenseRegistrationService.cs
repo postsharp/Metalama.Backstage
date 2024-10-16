@@ -121,7 +121,7 @@ internal class LicenseRegistrationService : ILicenseRegistrationService
 
         this._logger.Trace?.Log( "Attempting to register an evaluation license." );
 
-        using ( MutexHelper.WithGlobalLock( "Evaluation" ) )
+        using ( MutexHelper.WithGlobalLock( $"Evaluation_{Environment.UserName}" ) )
         {
             var configuration = LicensingConfigurationModel.Create( this._serviceProvider );
 
