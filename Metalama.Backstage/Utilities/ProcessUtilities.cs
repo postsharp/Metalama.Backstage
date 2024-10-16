@@ -41,6 +41,7 @@ public static class ProcessUtilities
                 return ProcessKind.DevEnv;
 
             case "servicehub.roslyncodeanalysisservice":
+            case "servicehub.roslyncodeanalysisservices":
                 return ProcessKind.RoslynCodeAnalysisService;
 
             case "servicehub.host":
