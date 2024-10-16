@@ -36,5 +36,6 @@
     <PackageVersion Include="System.IO.Abstractions.TestingHelpers" Version="13.2.47" />
     <PackageVersion Include="System.IO.Packaging" Version="6.0.1" />
     <PackageVersion Include="Microsoft.Win32.Registry" Version="5.0.0" />
+    <PackageVersion Include="System.Threading.AccessControl" Version="8.0.0" />
   </ItemGroup>
 </Project>
