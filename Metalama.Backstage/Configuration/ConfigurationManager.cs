@@ -42,14 +42,14 @@ namespace Metalama.Backstage.Configuration
             this._dateTimeProvider = serviceProvider.GetRequiredBackstageService<IDateTimeProvider>();
             this._environmentVariableProvider = serviceProvider.GetRequiredBackstageService<IEnvironmentVariableProvider>();
 
-            // We pass no logger here, we will be unable to read the log anyway if this throws an exception.
-            this._mutex = MutexHelper.OpenOrCreateMutex( $"{this._fileSystem.SynchronizationPrefix}Metalama.Configuration", null );
-
             // There is a cyclic dependency between the logger factory and the configuration manager. To work around this problem, we buffer
             // the reported messages and we report them when the real logging service is available.
             this.Logger = serviceProvider.GetRequiredBackstageService<EarlyLoggerFactory>().GetLogger( "Configuration" );
 
             this.ApplicationDataDirectory = serviceProvider.GetRequiredBackstageService<IStandardDirectories>().ApplicationDataDirectory;
+
+            // We pass no logger here, we will be unable to read the log anyway if this throws an exception.
+            this._mutex = MutexHelper.OpenOrCreateMutex( this.ApplicationDataDirectory, this._fileSystem.SynchronizationPrefix, null );
 
             if ( !this._fileSystem.DirectoryExists( this.ApplicationDataDirectory ) )
             {
