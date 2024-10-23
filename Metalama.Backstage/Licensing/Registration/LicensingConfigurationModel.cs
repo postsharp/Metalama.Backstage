@@ -111,7 +111,6 @@ namespace Metalama.Backstage.Licensing.Registration
         /// Opens a license file or creates empty storage if the license file doesn't exist.
         /// </summary>
         /// <param name="services">Services.</param>
-        /// <returns></returns>
         public static LicensingConfigurationModel Create( IServiceProvider services )
         {
             return new LicensingConfigurationModel( services );
